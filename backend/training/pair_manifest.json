@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "description": "PDF drawing + ground-truth Excel takeoff pairs for training only.",
+  "pairs": [
+    {
+      "id": "1200_k_street",
+      "pdf": "1200 K_Permit_Bid_Dwgs - Structural.pdf",
+      "excel": "06-1200 K Street Project Estimate.xlsm",
+      "label": "1200 K Street",
+      "pdf_canonical": "1200_k_street.pdf",
+      "excel_canonical": "1200_k_street.xlsm",
+      "role": "ground_truth_training"
+    },
+    {
+      "id": "burrville_es",
+      "pdf": "Burrville ES - ST.pdf",
+      "excel": "Burrville-update Project Estimate1.xlsm",
+      "label": "Burrville ES",
+      "pdf_canonical": "burrville_es.pdf",
+      "excel_canonical": "burrville_es.xlsm",
+      "role": "ground_truth_training"
+    },
+    {
+      "id": "gcdc_building_4",
+      "pdf": "GCDC Building 4 - ST1.pdf",
+      "excel": "GCDC Building 4-1 Project Estimate1.xlsm",
+      "label": "GCDC Building 4",
+      "pdf_canonical": "gcdc_building_4.pdf",
+      "excel_canonical": "gcdc_building_4.xlsm",
+      "role": "ground_truth_training"
+    },
+    {
+      "id": "springhill_es",
+      "pdf": "ST - Springhill Lake.pdf",
+      "excel": "23 - Springhill ES Project Estimate1.xlsm",
+      "label": "Springhill ES",
+      "pdf_canonical": "springhill_es.pdf",
+      "excel_canonical": "springhill_es.xlsm",
+      "role": "ground_truth_training"
+    },
+    {
+      "id": "upload_smoke",
+      "label": "upload_smoke",
+      "pdf": "upload_smoke.pdf",
+      "excel": "upload_smoke.xlsm",
+      "pdf_canonical": "upload_smoke.pdf",
+      "excel_canonical": "upload_smoke.xlsm",
+      "role": "ground_truth_pair"
+    },
+    {
+      "id": "1200 K_Permit_Bid_Dwgs - Structural__f3102c2da5",
+      "label": "1200 K_Permit_Bid_Dwgs - Structural__f3102c2da5",
+      "pdf": "1200 K_Permit_Bid_Dwgs - Structural__f3102c2da5.pdf",
+      "excel": "1200 K_Permit_Bid_Dwgs - Structural__f3102c2da5.xlsm",
+      "pdf_canonical": "1200 K_Permit_Bid_Dwgs - Structural__f3102c2da5.pdf",
+      "excel_canonical": "1200 K_Permit_Bid_Dwgs - Structural__f3102c2da5.xlsm",
+      "role": "ground_truth_pair"
+    },
+    {
+      "id": "ST__0bfc2d61245d",
+      "label": "ST__0bfc2d61245d",
+      "pdf": "ST__0bfc2d61245d.pdf",
+      "excel": "ST__0bfc2d61245d.xlsm",
+      "pdf_canonical": "ST__0bfc2d61245d.pdf",
+      "excel_canonical": "ST__0bfc2d61245d.xlsm",
+      "role": "ground_truth_pair"
+    }
+  ]
+}

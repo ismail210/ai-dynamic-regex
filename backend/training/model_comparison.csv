@@ -1,0 +1,6 @@
+Model,Status,Accuracy,Precision,Recall,F1,ROC AUC,Training Time (sec),Error
+Random Forest,trained,0.9888,0.9872,0.9888,0.9878,0.9998,6.408,
+SVM,trained,0.9907,0.9892,0.9907,0.9896,0.9995,5.939,
+XGBoost,trained,0.9883,0.9854,0.9883,0.9867,0.9998,77.808,
+LightGBM,trained,0.9907,0.9892,0.9907,0.9897,0.9999,65.934,
+CatBoost,trained,0.9899,0.985,0.9899,0.9868,,601.852,

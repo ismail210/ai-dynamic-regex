@@ -1,0 +1,107 @@
+"""Select structural objects from extracted drawing text."""
+
+from __future__ import annotations
+
+import re
+from typing import Any, Dict, Iterable, List
+
+
+_SECTION = re.compile(
+    r"^(?:W|S|M|HP|C|MC|WT|MT|ST|HSS|PIPE|L|2L)"
+    r"\d+(?:[./]\d+)?(?:X\d+(?:[./]\d+)?){1,3}$",
+    re.IGNORECASE,
+)
+_PLATE = re.compile(
+    r"^(?:PL|PLATE)\s*\d+(?:[./]\d+)?(?:X\d+(?:[./]\d+)?){1,3}$",
+    re.IGNORECASE,
+)
+_MEMBER_MARK = re.compile(
+    r"^(?:BM|BEAM|COL|COLUMN|BR|BRACE|GIRDER|JOIST|JST)[-_ ]?\d+[A-Z]?$",
+    re.IGNORECASE,
+)
+_CONNECTION = re.compile(
+    r"^(?:BOLT|WELD|CONN|CONNECTION)[-_ ]?[A-Z0-9./]+$",
+    re.IGNORECASE,
+)
+_STRUCTURAL_CONTEXT = re.compile(
+    r"\b(?:BEAM|COLUMN|COL\.?|BRACE|PLATE|BOLT|WELD|CONNECTION|"
+    r"FRAMING|SECTION|MEMBER|GIRDER|JOIST)\b",
+    re.IGNORECASE,
+)
+_NON_OBJECT_CONTEXT = re.compile(
+    r"\b(?:GENERAL\s+NOTES?|REVISION|REVISIONS|SPECIFICATIONS?|"
+    r"MATERIAL\s+NOTES?|ASTM|DESIGN\s+CRITERIA|SHEET\s+INDEX|LEGEND)\b",
+    re.IGNORECASE,
+)
+
+
+def _normalized(value: Any) -> str:
+    return re.sub(r"\s+", "", str(value or "").upper().replace("×", "X"))
+
+
+def _context(token: Dict[str, Any]) -> str:
+    context = token.get("context") or {}
+    parts: Iterable[Any] = (
+        token.get("surrounding_text"),
+        context.get("line_text"),
+        context.get("block_text"),
+        " ".join(context.get("neighbor_text") or []),
+    )
+    return " | ".join(str(part or "") for part in parts)
+
+
+def classify_engineering_object(token: Dict[str, Any]) -> str | None:
+    """Return a structural object type or ``None`` for non-object text."""
+
+    text = _normalized(token.get("normalized_text") or token.get("text"))
+    context = _context(token)
+    if not text or _NON_OBJECT_CONTEXT.search(context):
+        return None
+    if _SECTION.fullmatch(text):
+        if re.search(r"\b(?:COL|COLUMN)\b", context, re.IGNORECASE):
+            return "column"
+        if re.search(r"\b(?:BRACE|BRACING)\b", context, re.IGNORECASE):
+            return "brace"
+        if text.startswith("HSS") or text.startswith("PIPE"):
+            return "column_or_brace"
+        return "steel_section"
+    if _PLATE.fullmatch(text):
+        return "plate"
+    if _MEMBER_MARK.fullmatch(text):
+        upper = text.upper()
+        if upper.startswith(("COL", "COLUMN")):
+            return "column"
+        if upper.startswith(("BR", "BRACE")):
+            return "brace"
+        return "beam"
+    if _CONNECTION.fullmatch(text):
+        if text.startswith("BOLT"):
+            return "bolt"
+        if text.startswith("WELD"):
+            return "weld"
+        return "connection"
+
+    # Material grades and short drawing references are retained only when the
+    # local callout explicitly identifies a structural object.
+    if _STRUCTURAL_CONTEXT.search(context):
+        if re.fullmatch(r"A(?:325|490)", text) and re.search(
+            r"\bBOLTS?\b", context, re.IGNORECASE
+        ):
+            return "bolt"
+        if re.fullmatch(r"E(?:60|70|80)XX", text) and re.search(
+            r"\bWELDS?\b", context, re.IGNORECASE
+        ):
+            return "weld"
+    return None
+
+
+def filter_engineering_objects(tokens: Iterable[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Return prediction-ready structural labels with extraction metadata."""
+
+    selected: List[Dict[str, Any]] = []
+    for token in tokens:
+        object_type = classify_engineering_object(token)
+        if object_type is None:
+            continue
+        selected.append({**token, "engineering_object_type": object_type})
+    return selected

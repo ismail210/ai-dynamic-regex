@@ -1,0 +1,171 @@
+"""
+Central configuration for the AI Structural Steel Takeoff Platform.
+
+All paths are resolved relative to the backend package root so the app can be
+launched from any working directory.
+"""
+
+from __future__ import annotations
+
+import os
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import List
+
+
+BASE_DIR = Path(__file__).resolve().parent
+
+
+def _env_list(name: str, default: str) -> List[str]:
+    return [
+        item.strip()
+        for item in os.getenv(name, default).split(",")
+        if item.strip()
+    ]
+
+
+@dataclass(frozen=True)
+class Settings:
+    # ---- Filesystem ----------------------------------------------------
+    base_dir: Path = BASE_DIR
+    uploads_dir: Path = BASE_DIR / "uploads"
+    database_dir: Path = BASE_DIR / "database"
+    training_dir: Path = BASE_DIR / "training"
+
+    database_file: Path = BASE_DIR / "database" / "aisc-shapes-database-v160-2.xlsx"
+    database_sheet: str = "Database v16.0"
+
+    # ---- ML artifacts --------------------------------------------------
+    model_path: Path = BASE_DIR / "training" / "best_model.pkl"
+    preprocessing_pipeline_path: Path = (
+        BASE_DIR / "training" / "preprocessing_pipeline.pkl"
+    )
+    vectorizer_path: Path = BASE_DIR / "training" / "vectorizer.pkl"
+    label_encoder_path: Path = BASE_DIR / "training" / "label_encoder.pkl"
+    feature_names_path: Path = BASE_DIR / "training" / "feature_names.json"
+    model_metadata_path: Path = BASE_DIR / "training" / "model_metadata.json"
+    exact_section_model_path: Path = (
+        BASE_DIR / "training" / "exact_section_model.joblib"
+    )
+    exact_section_metadata_path: Path = (
+        BASE_DIR / "training" / "exact_section_model_metadata.json"
+    )
+    exact_section_dataset_path: Path = (
+        BASE_DIR / "training" / "exact_section_dataset.csv"
+    )
+    # Compatibility file read by older deployments and existing API code.
+    legacy_model_meta_path: Path = BASE_DIR / "training" / "model_meta.json"
+    # Immutable AISC-derived dataset — never overwrite at runtime.
+    training_dataset_path: Path = BASE_DIR / "training" / "training_dataset.csv"
+    features_dataset_path: Path = BASE_DIR / "training" / "features_dataset.csv"
+    model_comparison_path: Path = BASE_DIR / "training" / "model_comparison.csv"
+    model_meta_path: Path = BASE_DIR / "training" / "model_metadata.json"
+
+    # ---- Human-in-the-loop learning datasets --------------------------
+    approved_dataset_path: Path = BASE_DIR / "training" / "approved_dataset.csv"
+    unknown_tokens_path: Path = BASE_DIR / "training" / "unknown_tokens.csv"
+    history_path: Path = BASE_DIR / "training" / "history.csv"
+    upload_log_path: Path = BASE_DIR / "training" / "upload_log.csv"
+    # Synthetic naming variants for classifier training only (not regex KB).
+    augmented_dataset_path: Path = BASE_DIR / "training" / "augmented_dataset.csv"
+    augmentation_enabled: bool = True
+    augmentation_max_variants_per_token: int = 14
+
+    # ---- Paired PDF + Excel ground-truth training ---------------------
+    training_pdf_dir: Path = BASE_DIR / "training" / "pdf"
+    training_excel_dir: Path = BASE_DIR / "training" / "excel"
+    pair_manifest_path: Path = BASE_DIR / "training" / "pair_manifest.json"
+    paired_dataset_path: Path = BASE_DIR / "training" / "paired_takeoff_dataset.csv"
+    takeoff_exports_dir: Path = BASE_DIR / "training" / "takeoff_exports"
+
+    # ---- Dynamic Regex knowledge base (internal service) --------------
+    knowledge_base_path: Path = BASE_DIR / "training" / "dynamic_regex.json"
+    max_examples_per_class: int = 60
+    # Cap ranked variants stored per class (readability).
+    max_regex_variants_per_class: int = 8
+
+    # ---- Continuous learning / versioned registries -------------------
+    datasets_registry_dir: Path = BASE_DIR / "training" / "datasets"
+    models_registry_dir: Path = BASE_DIR / "training" / "models"
+    continuous_learning_state_path: Path = (
+        BASE_DIR / "training" / "continuous_learning_state.json"
+    )
+    dataset_schema_version: str = "1.0"
+    model_schema_version: str = "1.0"
+    continuous_learning_threshold: int = 25
+    continuous_learning_cooldown_seconds: int = 1800
+    geometry_min_samples: int = 80
+    graph_min_samples: int = 80
+    fusion_min_samples: int = 80
+    promotion_accuracy_tolerance: float = 0.02
+    promotion_f1_tolerance: float = 0.02
+
+    # ---- Engineering validation / takeoff (additive) ------------------
+    engineering_artifacts_dir: Path = BASE_DIR / "training" / "engineering_artifacts"
+    engineering_corrections_path: Path = (
+        BASE_DIR / "training" / "engineering_corrections.jsonl"
+    )
+    engineering_uploads_dir: Path = BASE_DIR / "uploads" / "engineering"
+    document_registry_dir: Path = BASE_DIR / "training" / "documents"
+
+    # Analysis artifacts are regenerable caches. Cap how many documents are
+    # retained and refuse to write when the volume is nearly full, so a large
+    # drawing set can never exhaust the disk mid-analysis.
+    artifact_retention_documents: int = field(
+        default_factory=lambda: int(os.getenv("ARTIFACT_RETENTION_DOCUMENTS", "5"))
+    )
+    artifact_min_free_bytes: int = field(
+        default_factory=lambda: int(
+            os.getenv("ARTIFACT_MIN_FREE_BYTES", str(2 * 1024 * 1024 * 1024))
+        )
+    )
+
+    confidence_high_threshold: float = 0.80
+    confidence_medium_threshold: float = 0.55
+
+    # Model probability below this → token flagged uncertain / review candidate.
+    auto_accept_probability_threshold: float = 0.70
+
+    # ---- API -----------------------------------------------------------
+    api_title: str = "AI Structural Steel Takeoff Platform"
+    api_version: str = "6.0.0"
+    environment: str = field(
+        default_factory=lambda: os.getenv("APP_ENV", "development")
+    )
+    host: str = field(default_factory=lambda: os.getenv("HOST", "0.0.0.0"))
+    port: int = field(default_factory=lambda: int(os.getenv("PORT", "8000")))
+    workers: int = field(default_factory=lambda: int(os.getenv("WEB_CONCURRENCY", "1")))
+    log_level: str = field(
+        default_factory=lambda: os.getenv("LOG_LEVEL", "info").lower()
+    )
+    max_upload_bytes: int = field(
+        default_factory=lambda: int(os.getenv("MAX_UPLOAD_BYTES", str(100 * 1024 * 1024)))
+    )
+    # Wall-clock budget for one blocking analysis call behind an upload. This
+    # must stay strictly below the client timeout (15 min in the API client);
+    # if they are equal the browser can abort at the same moment the server
+    # replies, which surfaces as a connection reset instead of an HTTP status.
+    upload_analysis_timeout_seconds: float = field(
+        default_factory=lambda: float(
+            os.getenv("UPLOAD_ANALYSIS_TIMEOUT_SECONDS", "600")
+        )
+    )
+    # Both dev loopback spellings are distinct browser origins.
+    cors_allow_origins: List[str] = field(
+        default_factory=lambda: _env_list(
+            "CORS_ALLOW_ORIGINS",
+            "http://localhost:5173,http://127.0.0.1:5173",
+        )
+    )
+
+
+settings = Settings()
+settings.uploads_dir.mkdir(parents=True, exist_ok=True)
+settings.engineering_artifacts_dir.mkdir(parents=True, exist_ok=True)
+settings.engineering_uploads_dir.mkdir(parents=True, exist_ok=True)
+settings.training_pdf_dir.mkdir(parents=True, exist_ok=True)
+settings.training_excel_dir.mkdir(parents=True, exist_ok=True)
+settings.takeoff_exports_dir.mkdir(parents=True, exist_ok=True)
+settings.datasets_registry_dir.mkdir(parents=True, exist_ok=True)
+settings.models_registry_dir.mkdir(parents=True, exist_ok=True)
+settings.document_registry_dir.mkdir(parents=True, exist_ok=True)

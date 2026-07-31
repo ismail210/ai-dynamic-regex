@@ -1,0 +1,2819 @@
+{
+    "2L": {
+        "pattern": "\\d+L\\d+X\\d+X\\d+/\\d+X\\d+/\\d+",
+        "variants": [
+            {
+                "pattern": "\\d+L\\d+X\\d+X\\d+/\\d+X\\d+/\\d+",
+                "support": 56,
+                "frequency": 0.4667,
+                "confidence": 0.7506,
+                "distinct_structure": [
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "S:/",
+                    "N",
+                    "A",
+                    "N",
+                    "S:/",
+                    "N"
+                ],
+                "examples": [
+                    "2L10X10X7/8X3/4",
+                    "2L10X10X3/4X3/4",
+                    "2L8X8X7/8X3/8",
+                    "2L8X8X7/8X3/4",
+                    "2L8X8X3/4X3/8"
+                ],
+                "readability": 0.9531
+            },
+            {
+                "pattern": "\\d+L\\d+X\\d+X\\d+/\\d+",
+                "support": 29,
+                "frequency": 0.2417,
+                "confidence": 0.6587,
+                "distinct_structure": [
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "S:/",
+                    "N"
+                ],
+                "examples": [
+                    "2L10X10X7/8",
+                    "2L10X10X3/4",
+                    "2L8X8X7/8",
+                    "2L8X8X3/4",
+                    "2L8X8X5/8"
+                ],
+                "readability": 1.0
+            },
+            {
+                "pattern": "\\d+L\\d+X\\d+X\\d+\\-\\d+/\\d+X\\d+/\\d+",
+                "support": 8,
+                "frequency": 0.0667,
+                "confidence": 0.555,
+                "distinct_structure": [
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "S:-",
+                    "N",
+                    "S:/",
+                    "N",
+                    "A",
+                    "N",
+                    "S:/",
+                    "N"
+                ],
+                "examples": [
+                    "2L12X12X1-3/8X3/4",
+                    "2L12X12X1-1/4X3/4",
+                    "2L12X12X1-1/8X3/4",
+                    "2L10X10X1-3/8X3/4",
+                    "2L10X10X1-1/4X3/4"
+                ],
+                "readability": 0.875
+            },
+            {
+                "pattern": "\\d+L\\d+X\\d+X\\d+\\-\\d+/\\d+",
+                "support": 7,
+                "frequency": 0.0583,
+                "confidence": 0.5762,
+                "distinct_structure": [
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "S:-",
+                    "N",
+                    "S:/",
+                    "N"
+                ],
+                "examples": [
+                    "2L12X12X1-3/8",
+                    "2L12X12X1-1/4",
+                    "2L12X12X1-1/8",
+                    "2L10X10X1-3/8",
+                    "2L10X10X1-1/4"
+                ],
+                "readability": 1.0
+            },
+            {
+                "pattern": "\\d+L\\d+X\\d+X\\d+X\\d+/\\d+",
+                "support": 6,
+                "frequency": 0.05,
+                "confidence": 0.5725,
+                "distinct_structure": [
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "S:/",
+                    "N"
+                ],
+                "examples": [
+                    "2L12X12X1X3/4",
+                    "2L10X10X1X3/4",
+                    "2L8X8X1X3/8",
+                    "2L8X8X1X3/4",
+                    "2L6X6X1X3/8"
+                ],
+                "readability": 1.0
+            },
+            {
+                "pattern": "\\d+L\\d+X\\d+X\\d+\\-\\d+/\\d+X\\d+\\-\\d+/\\d+",
+                "support": 6,
+                "frequency": 0.05,
+                "confidence": 0.5319,
+                "distinct_structure": [
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "S:-",
+                    "N",
+                    "S:/",
+                    "N",
+                    "A",
+                    "N",
+                    "S:-",
+                    "N",
+                    "S:/",
+                    "N"
+                ],
+                "examples": [
+                    "2L12X12X1-3/8X1-1/2",
+                    "2L12X12X1-1/4X1-1/2",
+                    "2L12X12X1-1/8X1-1/2",
+                    "2L10X10X1-3/8X1-1/2",
+                    "2L10X10X1-1/4X1-1/2"
+                ],
+                "readability": 0.7969
+            },
+            {
+                "pattern": "\\d+L\\d+X\\d+X\\d+",
+                "support": 4,
+                "frequency": 0.0333,
+                "confidence": 0.495,
+                "distinct_structure": [
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "2L12X12X1",
+                    "2L10X10X1",
+                    "2L8X8X1",
+                    "2L6X6X1"
+                ],
+                "readability": 1.0
+            },
+            {
+                "pattern": "\\d+L\\d+X\\d+X\\d+X\\d+\\-\\d+/\\d+",
+                "support": 2,
+                "frequency": 0.0167,
+                "confidence": 0.335,
+                "distinct_structure": [
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "S:-",
+                    "N",
+                    "S:/",
+                    "N"
+                ],
+                "examples": [
+                    "2L12X12X1X1-1/2",
+                    "2L10X10X1X1-1/2"
+                ],
+                "readability": 0.9375
+            }
+        ],
+        "examples": [
+            "2L12X12X1-3/8",
+            "2L12X12X1-3/8X3/4",
+            "2L12X12X1-3/8X1-1/2",
+            "2L12X12X1-1/4",
+            "2L12X12X1-1/4X3/4",
+            "2L12X12X1-1/4X1-1/2",
+            "2L12X12X1-1/8",
+            "2L12X12X1-1/8X3/4",
+            "2L12X12X1-1/8X1-1/2",
+            "2L12X12X1",
+            "2L12X12X1X3/4",
+            "2L12X12X1X1-1/2",
+            "2L10X10X1-3/8",
+            "2L10X10X1-3/8X3/4",
+            "2L10X10X1-3/8X1-1/2",
+            "2L10X10X1-1/4",
+            "2L10X10X1-1/4X3/4",
+            "2L10X10X1-1/4X1-1/2",
+            "2L10X10X1-1/8",
+            "2L10X10X1-1/8X3/4",
+            "2L10X10X1-1/8X1-1/2",
+            "2L10X10X1",
+            "2L10X10X1X3/4",
+            "2L10X10X1X1-1/2",
+            "2L10X10X7/8",
+            "2L10X10X7/8X3/4",
+            "2L10X10X7/8X1-1/2",
+            "2L10X10X3/4",
+            "2L10X10X3/4X3/4",
+            "2L10X10X3/4X1-1/2",
+            "2L8X8X1-1/8",
+            "2L8X8X1-1/8X3/8",
+            "2L8X8X1-1/8X3/4",
+            "2L8X8X1",
+            "2L8X8X1X3/8",
+            "2L8X8X1X3/4",
+            "2L8X8X7/8",
+            "2L8X8X7/8X3/8",
+            "2L8X8X7/8X3/4",
+            "2L8X8X3/4",
+            "2L8X8X3/4X3/8",
+            "2L8X8X3/4X3/4",
+            "2L8X8X5/8",
+            "2L8X8X5/8X3/8",
+            "2L8X8X5/8X3/4",
+            "2L8X8X9/16",
+            "2L8X8X9/16X3/8",
+            "2L8X8X9/16X3/4",
+            "2L8X8X1/2",
+            "2L8X8X1/2X3/8",
+            "2L8X8X1/2X3/4",
+            "2L6X6X1",
+            "2L6X6X1X3/8",
+            "2L6X6X1X3/4",
+            "2L6X6X7/8",
+            "2L6X6X7/8X3/8",
+            "2L6X6X7/8X3/4",
+            "2L6X6X3/4",
+            "2L6X6X3/4X3/8",
+            "2L6X6X3/4X3/4"
+        ],
+        "example_count": 639,
+        "coverage": 0.4667,
+        "confidence": 0.704,
+        "confidence_level": "Medium",
+        "distinct_structures": 9,
+        "usage_count": 3,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-29T07:44:22.628921+00:00",
+        "category": "structural_section"
+    },
+    "A": {
+        "pattern": "(?:A|F|PL|PLATE)\\d+",
+        "variants": [
+            {
+                "pattern": "(?:A|F|PL|PLATE)\\d+",
+                "support": 36,
+                "frequency": 0.9474,
+                "confidence": 0.9503,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A1064",
+                    "A108",
+                    "A2",
+                    "A3",
+                    "A307"
+                ],
+                "readability": 0.87
+            },
+            {
+                "pattern": "WF\\d+X\\d+",
+                "support": 1,
+                "frequency": 0.0263,
+                "confidence": 0.2818,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "WF99X99"
+                ],
+                "readability": 1.0
+            },
+            {
+                "pattern": "PL\\d+X\\d+X\\d+",
+                "support": 1,
+                "frequency": 0.0263,
+                "confidence": 0.2818,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "PL8X4X3"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A1064",
+            "A108",
+            "A2",
+            "A3",
+            "A307",
+            "A325",
+            "A36",
+            "A500",
+            "A53",
+            "A568",
+            "A572",
+            "A588",
+            "A6",
+            "A615",
+            "A653",
+            "A706",
+            "A913",
+            "A970",
+            "A992",
+            "A205",
+            "A5",
+            "A2280",
+            "A29",
+            "A416",
+            "A446",
+            "A490",
+            "A563",
+            "A959",
+            "A153",
+            "A496",
+            "A525",
+            "A775",
+            "A780",
+            "WF99X99",
+            "F1554",
+            "PL1",
+            "PL8X4X3",
+            "PLATE3"
+        ],
+        "example_count": 38,
+        "coverage": 0.9474,
+        "confidence": 0.9379,
+        "confidence_level": "High",
+        "distinct_structures": 3,
+        "usage_count": 61,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-29T08:45:58.997763+00:00",
+        "category": "material"
+    },
+    "A1064": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 10,
+                "frequency": 1.0,
+                "confidence": 0.97,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A1064",
+                    "A1064",
+                    "A1064",
+                    "A1064",
+                    "A1064"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A1064",
+            "A1064",
+            "A1064",
+            "A1064",
+            "A1064",
+            "A1064",
+            "A1064",
+            "A1064",
+            "A1064",
+            "A1064"
+        ],
+        "example_count": 10,
+        "coverage": 1.0,
+        "confidence": 0.949,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 12,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-29T06:41:22.597008+00:00",
+        "category": "bolt"
+    },
+    "A108": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 5,
+                "frequency": 1.0,
+                "confidence": 0.97,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A108",
+                    "A108",
+                    "A108",
+                    "A108",
+                    "A108"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A108",
+            "A108",
+            "A108",
+            "A108",
+            "A108"
+        ],
+        "example_count": 5,
+        "coverage": 1.0,
+        "confidence": 0.9227,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 7,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-28T14:24:15.948913+00:00",
+        "category": "material"
+    },
+    "A123": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 4,
+                "frequency": 1.0,
+                "confidence": 0.93,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A123",
+                    "A123",
+                    "A123",
+                    "A123"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A123",
+            "A123",
+            "A123",
+            "A123"
+        ],
+        "example_count": 4,
+        "coverage": 1.0,
+        "confidence": 0.902,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-28T10:57:57.565754+00:00",
+        "category": "material"
+    },
+    "A153": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A153"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A153"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8127,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-28T10:57:57.565754+00:00",
+        "category": "material"
+    },
+    "A205": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 2,
+                "frequency": 1.0,
+                "confidence": 0.79,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A205",
+                    "A205"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A205",
+            "A205"
+        ],
+        "example_count": 2,
+        "coverage": 1.0,
+        "confidence": 0.8425,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-28T10:57:57.565754+00:00",
+        "category": "material"
+    },
+    "A22": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A22"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A22"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8127,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-28T10:57:57.565754+00:00",
+        "category": "material"
+    },
+    "A2280": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 3,
+                "frequency": 1.0,
+                "confidence": 0.86,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A2280",
+                    "A2280",
+                    "A2280"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A2280",
+            "A2280",
+            "A2280"
+        ],
+        "example_count": 3,
+        "coverage": 1.0,
+        "confidence": 0.8722,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 6,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-28T14:24:16.025006+00:00",
+        "category": "material"
+    },
+    "A29": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 2,
+                "frequency": 1.0,
+                "confidence": 0.79,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A29",
+                    "A29"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A29",
+            "A29"
+        ],
+        "example_count": 2,
+        "coverage": 1.0,
+        "confidence": 0.8425,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 6,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-28T14:24:16.099313+00:00",
+        "category": "material"
+    },
+    "A307": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 11,
+                "frequency": 1.0,
+                "confidence": 0.97,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A307",
+                    "A307",
+                    "A307",
+                    "A307",
+                    "A307"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A307",
+            "A307",
+            "A307",
+            "A307",
+            "A307",
+            "A307",
+            "A307",
+            "A307",
+            "A307",
+            "A307",
+            "A307"
+        ],
+        "example_count": 11,
+        "coverage": 1.0,
+        "confidence": 0.949,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 12,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-29T06:41:22.649198+00:00",
+        "category": "bolt"
+    },
+    "A325": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 11,
+                "frequency": 1.0,
+                "confidence": 0.97,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A325",
+                    "A325",
+                    "A325",
+                    "A325",
+                    "A325"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A325",
+            "A325",
+            "A325",
+            "A325",
+            "A325",
+            "A325",
+            "A325",
+            "A325",
+            "A325",
+            "A325",
+            "A325"
+        ],
+        "example_count": 11,
+        "coverage": 1.0,
+        "confidence": 0.949,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 14,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-29T07:44:22.796084+00:00",
+        "category": "bolt"
+    },
+    "A36": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 11,
+                "frequency": 1.0,
+                "confidence": 0.97,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A36",
+                    "A36",
+                    "A36",
+                    "A36",
+                    "A36"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A36",
+            "A36",
+            "A36",
+            "A36",
+            "A36",
+            "A36",
+            "A36",
+            "A36",
+            "A36",
+            "A36",
+            "A36"
+        ],
+        "example_count": 11,
+        "coverage": 1.0,
+        "confidence": 0.949,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 11,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-28T14:26:18.440628+00:00",
+        "category": "material"
+    },
+    "A416": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 2,
+                "frequency": 1.0,
+                "confidence": 0.79,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A416",
+                    "A416"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A416",
+            "A416"
+        ],
+        "example_count": 2,
+        "coverage": 1.0,
+        "confidence": 0.8425,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 6,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-28T14:24:16.416649+00:00",
+        "category": "material"
+    },
+    "A446": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 2,
+                "frequency": 1.0,
+                "confidence": 0.79,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A446",
+                    "A446"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A446",
+            "A446"
+        ],
+        "example_count": 2,
+        "coverage": 1.0,
+        "confidence": 0.8425,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 6,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-28T14:24:16.521824+00:00",
+        "category": "material"
+    },
+    "A490": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 4,
+                "frequency": 1.0,
+                "confidence": 0.93,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A490",
+                    "A490",
+                    "A490",
+                    "A490"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A490",
+            "A490",
+            "A490",
+            "A490"
+        ],
+        "example_count": 4,
+        "coverage": 1.0,
+        "confidence": 0.902,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 6,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-28T14:24:16.661615+00:00",
+        "category": "bolt"
+    },
+    "A496": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 2,
+                "frequency": 1.0,
+                "confidence": 0.79,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A496",
+                    "A496"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A496",
+            "A496"
+        ],
+        "example_count": 2,
+        "coverage": 1.0,
+        "confidence": 0.8425,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-28T10:57:57.565754+00:00",
+        "category": "material"
+    },
+    "A500": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 10,
+                "frequency": 1.0,
+                "confidence": 0.97,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A500",
+                    "A500",
+                    "A500",
+                    "A500",
+                    "A500"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A500",
+            "A500",
+            "A500",
+            "A500",
+            "A500",
+            "A500",
+            "A500",
+            "A500",
+            "A500",
+            "A500"
+        ],
+        "example_count": 10,
+        "coverage": 1.0,
+        "confidence": 0.949,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 12,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-29T06:41:22.752492+00:00",
+        "category": "material"
+    },
+    "A525": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 2,
+                "frequency": 1.0,
+                "confidence": 0.79,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A525",
+                    "A525"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A525",
+            "A525"
+        ],
+        "example_count": 2,
+        "coverage": 1.0,
+        "confidence": 0.8425,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-28T10:57:57.565754+00:00",
+        "category": "material"
+    },
+    "A53": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 8,
+                "frequency": 1.0,
+                "confidence": 0.97,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A53",
+                    "A53",
+                    "A53",
+                    "A53",
+                    "A53"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A53",
+            "A53",
+            "A53",
+            "A53",
+            "A53",
+            "A53",
+            "A53",
+            "A53"
+        ],
+        "example_count": 8,
+        "coverage": 1.0,
+        "confidence": 0.949,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 11,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-28T14:26:18.567484+00:00",
+        "category": "material"
+    },
+    "A563": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 3,
+                "frequency": 1.0,
+                "confidence": 0.86,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A563",
+                    "A563",
+                    "A563"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A563",
+            "A563",
+            "A563"
+        ],
+        "example_count": 3,
+        "coverage": 1.0,
+        "confidence": 0.8722,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 6,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-28T14:24:16.970732+00:00",
+        "category": "bolt"
+    },
+    "A568": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 6,
+                "frequency": 1.0,
+                "confidence": 0.97,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A568",
+                    "A568",
+                    "A568",
+                    "A568",
+                    "A568"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A568",
+            "A568",
+            "A568",
+            "A568",
+            "A568",
+            "A568"
+        ],
+        "example_count": 6,
+        "coverage": 1.0,
+        "confidence": 0.9315,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 6,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-29T06:41:22.802131+00:00",
+        "category": "bolt"
+    },
+    "A572": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 10,
+                "frequency": 1.0,
+                "confidence": 0.97,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A572",
+                    "A572",
+                    "A572",
+                    "A572",
+                    "A572"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A572",
+            "A572",
+            "A572",
+            "A572",
+            "A572",
+            "A572",
+            "A572",
+            "A572",
+            "A572",
+            "A572"
+        ],
+        "example_count": 10,
+        "coverage": 1.0,
+        "confidence": 0.949,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 12,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-29T06:41:22.853332+00:00",
+        "category": "material"
+    },
+    "A588": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 6,
+                "frequency": 1.0,
+                "confidence": 0.97,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A588",
+                    "A588",
+                    "A588",
+                    "A588",
+                    "A588"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A588",
+            "A588",
+            "A588",
+            "A588",
+            "A588",
+            "A588"
+        ],
+        "example_count": 6,
+        "coverage": 1.0,
+        "confidence": 0.9315,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 6,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-29T06:41:22.930401+00:00",
+        "category": "bolt"
+    },
+    "A615": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 11,
+                "frequency": 1.0,
+                "confidence": 0.97,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A615",
+                    "A615",
+                    "A615",
+                    "A615",
+                    "A615"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A615",
+            "A615",
+            "A615",
+            "A615",
+            "A615",
+            "A615",
+            "A615",
+            "A615",
+            "A615",
+            "A615",
+            "A615"
+        ],
+        "example_count": 11,
+        "coverage": 1.0,
+        "confidence": 0.949,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 15,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-29T08:45:56.539872+00:00",
+        "category": "bolt"
+    },
+    "A653": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 9,
+                "frequency": 1.0,
+                "confidence": 0.97,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A653",
+                    "A653",
+                    "A653",
+                    "A653",
+                    "A653"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A653",
+            "A653",
+            "A653",
+            "A653",
+            "A653",
+            "A653",
+            "A653",
+            "A653",
+            "A653"
+        ],
+        "example_count": 9,
+        "coverage": 1.0,
+        "confidence": 0.949,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 12,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-29T06:41:23.131909+00:00",
+        "category": "material"
+    },
+    "A706": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 7,
+                "frequency": 1.0,
+                "confidence": 0.97,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A706",
+                    "A706",
+                    "A706",
+                    "A706",
+                    "A706"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A706",
+            "A706",
+            "A706",
+            "A706",
+            "A706",
+            "A706",
+            "A706"
+        ],
+        "example_count": 7,
+        "coverage": 1.0,
+        "confidence": 0.9403,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 12,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-29T06:41:23.205455+00:00",
+        "category": "material"
+    },
+    "A775": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 3,
+                "frequency": 1.0,
+                "confidence": 0.86,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A775",
+                    "A775",
+                    "A775"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A775",
+            "A775",
+            "A775"
+        ],
+        "example_count": 3,
+        "coverage": 1.0,
+        "confidence": 0.8722,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-28T10:57:57.565754+00:00",
+        "category": "material"
+    },
+    "A780": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 2,
+                "frequency": 1.0,
+                "confidence": 0.79,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A780",
+                    "A780"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A780",
+            "A780"
+        ],
+        "example_count": 2,
+        "coverage": 1.0,
+        "confidence": 0.8425,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-28T10:57:57.565754+00:00",
+        "category": "material"
+    },
+    "A913": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 8,
+                "frequency": 1.0,
+                "confidence": 0.97,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A913",
+                    "A913",
+                    "A913",
+                    "A913",
+                    "A913"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A913",
+            "A913",
+            "A913",
+            "A913",
+            "A913",
+            "A913",
+            "A913",
+            "A913"
+        ],
+        "example_count": 8,
+        "coverage": 1.0,
+        "confidence": 0.949,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 12,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-29T06:41:23.271207+00:00",
+        "category": "material"
+    },
+    "A959": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 2,
+                "frequency": 1.0,
+                "confidence": 0.79,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A959",
+                    "A959"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A959",
+            "A959"
+        ],
+        "example_count": 2,
+        "coverage": 1.0,
+        "confidence": 0.8425,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 6,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-28T14:24:17.436081+00:00",
+        "category": "material"
+    },
+    "A970": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 6,
+                "frequency": 1.0,
+                "confidence": 0.97,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A970",
+                    "A970",
+                    "A970",
+                    "A970",
+                    "A970"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A970",
+            "A970",
+            "A970",
+            "A970",
+            "A970",
+            "A970"
+        ],
+        "example_count": 6,
+        "coverage": 1.0,
+        "confidence": 0.9315,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 6,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-29T06:41:23.339931+00:00",
+        "category": "material"
+    },
+    "A992": {
+        "pattern": "A\\d+",
+        "variants": [
+            {
+                "pattern": "A\\d+",
+                "support": 12,
+                "frequency": 1.0,
+                "confidence": 0.97,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "A992",
+                    "A992",
+                    "A992",
+                    "A992",
+                    "A992"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "A992",
+            "A992",
+            "A992",
+            "A992",
+            "A992",
+            "A992",
+            "A992",
+            "A992",
+            "A992",
+            "A992",
+            "A992",
+            "A992"
+        ],
+        "example_count": 12,
+        "coverage": 1.0,
+        "confidence": 0.949,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 15,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-29T08:45:56.724379+00:00",
+        "category": "material"
+    },
+    "C": {
+        "pattern": "(?:C|L)\\d+X\\d+(?:\\.\\d+)?",
+        "variants": [
+            {
+                "pattern": "(?:C|L)\\d+X\\d+(?:\\.\\d+)?",
+                "support": 35,
+                "frequency": 1.0,
+                "confidence": 0.97,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "C15X50",
+                    "C15X40",
+                    "C15X33.9",
+                    "C12X30",
+                    "C12X25"
+                ],
+                "readability": 0.89
+            }
+        ],
+        "examples": [
+            "C15X50",
+            "C15X40",
+            "C15X33.9",
+            "C12X30",
+            "C12X25",
+            "C12X20.7",
+            "C10X30",
+            "C10X25",
+            "C10X20",
+            "C10X15.3",
+            "C9X20",
+            "C9X15",
+            "C9X13.4",
+            "C8X18.75",
+            "C8X13.75",
+            "C8X11.5",
+            "C7X14.75",
+            "C7X12.25",
+            "C7X9.8",
+            "C6X13",
+            "C6X10.5",
+            "C6X8.2",
+            "C5X9",
+            "C5X6.7",
+            "C4X7.25",
+            "C4X6.25",
+            "C4X5.4",
+            "C4X4.5",
+            "C3X6",
+            "C3X5",
+            "C3X4.1",
+            "C3X3.5",
+            "L5X3",
+            "L5x5",
+            "L5X3"
+        ],
+        "example_count": 35,
+        "coverage": 1.0,
+        "confidence": 0.9616,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 12,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-29T08:45:56.945977+00:00",
+        "category": "structural_section"
+    },
+    "HP": {
+        "pattern": "HP\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "HP\\d+X\\d+",
+                "support": 22,
+                "frequency": 1.0,
+                "confidence": 0.97,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "HP18X204",
+                    "HP18X181",
+                    "HP18X157",
+                    "HP18X135",
+                    "HP16X183"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "HP18X204",
+            "HP18X181",
+            "HP18X157",
+            "HP18X135",
+            "HP16X183",
+            "HP16X162",
+            "HP16X141",
+            "HP16X121",
+            "HP16X101",
+            "HP16X88",
+            "HP14X117",
+            "HP14X102",
+            "HP14X89",
+            "HP14X73",
+            "HP12X89",
+            "HP12X84",
+            "HP12X74",
+            "HP12X63",
+            "HP12X53",
+            "HP10X57",
+            "HP10X42",
+            "HP8X36"
+        ],
+        "example_count": 22,
+        "coverage": 1.0,
+        "confidence": 0.97,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-28T10:57:57.565754+00:00",
+        "category": "structural_section"
+    },
+    "HSS": {
+        "pattern": "HSS\\d+X\\d+X\\d+/\\d+",
+        "variants": [
+            {
+                "pattern": "HSS\\d+X\\d+X\\d+/\\d+",
+                "support": 56,
+                "frequency": 0.918,
+                "confidence": 0.9631,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "S:/",
+                    "N"
+                ],
+                "examples": [
+                    "HSS34X10X7/8",
+                    "HSS34X10X3/4",
+                    "HSS34X10X5/8",
+                    "HSS30X10X7/8",
+                    "HSS30X10X3/4"
+                ],
+                "readability": 1.0
+            },
+            {
+                "pattern": "HSS\\d+X\\d+X\\d+",
+                "support": 4,
+                "frequency": 0.0656,
+                "confidence": 0.5095,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "HSS34X10X1",
+                    "HSS30X10X1",
+                    "HSS24X12X1",
+                    "HSS22X22X1"
+                ],
+                "readability": 1.0
+            },
+            {
+                "pattern": "HSS\\d+X\\d+",
+                "support": 1,
+                "frequency": 0.0164,
+                "confidence": 0.2774,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "HSS5X2"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "HSS34X10X1",
+            "HSS34X10X7/8",
+            "HSS34X10X3/4",
+            "HSS34X10X5/8",
+            "HSS30X10X1",
+            "HSS30X10X7/8",
+            "HSS30X10X3/4",
+            "HSS30X10X5/8",
+            "HSS30X10X1/2",
+            "HSS24X20X3/4",
+            "HSS24X20X5/8",
+            "HSS24X20X1/2",
+            "HSS24X20X3/8",
+            "HSS24X20X5/16",
+            "HSS24X18X3/4",
+            "HSS24X18X5/8",
+            "HSS24X18X1/2",
+            "HSS24X18X3/8",
+            "HSS24X18X5/16",
+            "HSS24X16X3/4",
+            "HSS24X16X5/8",
+            "HSS24X16X1/2",
+            "HSS24X16X3/8",
+            "HSS24X16X5/16",
+            "HSS24X14X3/4",
+            "HSS24X14X5/8",
+            "HSS24X14X1/2",
+            "HSS24X14X3/8",
+            "HSS24X14X5/16",
+            "HSS24X14X1/4",
+            "HSS24X12X1",
+            "HSS24X12X7/8",
+            "HSS24X12X3/4",
+            "HSS24X12X5/8",
+            "HSS24X12X1/2",
+            "HSS24X12X3/8",
+            "HSS24X12X5/16",
+            "HSS24X12X1/4",
+            "HSS24X8X1/2",
+            "HSS24X8X3/8",
+            "HSS24X8X5/16",
+            "HSS24X8X1/4",
+            "HSS22X22X1",
+            "HSS22X22X7/8",
+            "HSS22X22X3/4",
+            "HSS22X22X5/8",
+            "HSS22X22X1/2",
+            "HSS22X20X3/4",
+            "HSS22X20X5/8",
+            "HSS22X20X1/2",
+            "HSS22X20X3/8",
+            "HSS22X20X5/16",
+            "HSS22X18X3/4",
+            "HSS22X18X5/8",
+            "HSS22X18X1/2",
+            "HSS22X18X3/8",
+            "HSS22X18X5/16",
+            "HSS22X16X3/4",
+            "HSS22X16X5/8",
+            "HSS22X16X1/2"
+        ],
+        "example_count": 61,
+        "coverage": 0.918,
+        "confidence": 0.9479,
+        "confidence_level": "High",
+        "distinct_structures": 3,
+        "usage_count": 222,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-29T08:45:57.262583+00:00",
+        "category": "structural_section"
+    },
+    "L": {
+        "pattern": "L\\d+X\\d+X\\d+/\\d+",
+        "variants": [
+            {
+                "pattern": "L\\d+X\\d+X\\d+/\\d+",
+                "support": 44,
+                "frequency": 0.7213,
+                "confidence": 0.8746,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "S:/",
+                    "N"
+                ],
+                "examples": [
+                    "L10X10X7/8",
+                    "L10X10X3/4",
+                    "L8X8X7/8",
+                    "L8X8X3/4",
+                    "L8X8X5/8"
+                ],
+                "readability": 1.0
+            },
+            {
+                "pattern": "L\\d+X\\d+X\\d+\\-\\d+/\\d+",
+                "support": 7,
+                "frequency": 0.1148,
+                "confidence": 0.6016,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "S:-",
+                    "N",
+                    "S:/",
+                    "N"
+                ],
+                "examples": [
+                    "L12X12X1-3/8",
+                    "L12X12X1-1/4",
+                    "L12X12X1-1/8",
+                    "L10X10X1-3/8",
+                    "L10X10X1-1/4"
+                ],
+                "readability": 1.0
+            },
+            {
+                "pattern": "L\\d+X\\d+X\\d+",
+                "support": 6,
+                "frequency": 0.0984,
+                "confidence": 0.5943,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "L12X12X1",
+                    "L10X10X1",
+                    "L8X8X1",
+                    "L8X6X1",
+                    "L8X4X1"
+                ],
+                "readability": 1.0
+            },
+            {
+                "pattern": "L\\d+X\\d+\\-\\d+/\\d+X\\d+/\\d+",
+                "support": 3,
+                "frequency": 0.0492,
+                "confidence": 0.429,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "S:-",
+                    "N",
+                    "S:/",
+                    "N",
+                    "A",
+                    "N",
+                    "S:/",
+                    "N"
+                ],
+                "examples": [
+                    "L6X3-1/2X1/2",
+                    "L6X3-1/2X3/8",
+                    "L6X3-1/2X5/16"
+                ],
+                "readability": 0.9844
+            },
+            {
+                "pattern": "L\\d+X\\d+",
+                "support": 1,
+                "frequency": 0.0164,
+                "confidence": 0.2774,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "L4X3"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "L12X12X1-3/8",
+            "L12X12X1-1/4",
+            "L12X12X1-1/8",
+            "L12X12X1",
+            "L10X10X1-3/8",
+            "L10X10X1-1/4",
+            "L10X10X1-1/8",
+            "L10X10X1",
+            "L10X10X7/8",
+            "L10X10X3/4",
+            "L8X8X1-1/8",
+            "L8X8X1",
+            "L8X8X7/8",
+            "L8X8X3/4",
+            "L8X8X5/8",
+            "L8X8X9/16",
+            "L8X8X1/2",
+            "L8X6X1",
+            "L8X6X7/8",
+            "L8X6X3/4",
+            "L8X6X5/8",
+            "L8X6X9/16",
+            "L8X6X1/2",
+            "L8X6X7/16",
+            "L8X4X1",
+            "L8X4X7/8",
+            "L8X4X3/4",
+            "L8X4X5/8",
+            "L8X4X9/16",
+            "L8X4X1/2",
+            "L8X4X7/16",
+            "L7X4X3/4",
+            "L7X4X5/8",
+            "L7X4X1/2",
+            "L7X4X7/16",
+            "L7X4X3/8",
+            "L6X6X1",
+            "L6X6X7/8",
+            "L6X6X3/4",
+            "L6X6X5/8",
+            "L6X6X9/16",
+            "L6X6X1/2",
+            "L6X6X7/16",
+            "L6X6X3/8",
+            "L6X6X5/16",
+            "L6X4X7/8",
+            "L6X4X3/4",
+            "L6X4X5/8",
+            "L6X4X9/16",
+            "L6X4X1/2",
+            "L6X4X7/16",
+            "L6X4X3/8",
+            "L6X4X5/16",
+            "L6X3-1/2X1/2",
+            "L6X3-1/2X3/8",
+            "L6X3-1/2X5/16",
+            "L5X5X7/8",
+            "L5X5X3/4",
+            "L5X5X5/8",
+            "L5X5X1/2"
+        ],
+        "example_count": 61,
+        "coverage": 0.7213,
+        "confidence": 0.8307,
+        "confidence_level": "High",
+        "distinct_structures": 5,
+        "usage_count": 287,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-29T08:45:58.806862+00:00",
+        "category": "structural_section"
+    },
+    "M": {
+        "pattern": "M\\d+(?:\\.\\d+)?X\\d+(?:\\.\\d+)?",
+        "variants": [
+            {
+                "pattern": "M\\d+(?:\\.\\d+)?X\\d+(?:\\.\\d+)?",
+                "support": 16,
+                "frequency": 1.0,
+                "confidence": 0.97,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "M12.5X12.4",
+                    "M12.5X11.6",
+                    "M12X11.8",
+                    "M12X10.8",
+                    "M12X10"
+                ],
+                "readability": 0.8575
+            }
+        ],
+        "examples": [
+            "M12.5X12.4",
+            "M12.5X11.6",
+            "M12X11.8",
+            "M12X10.8",
+            "M12X10",
+            "M10X9",
+            "M10X8",
+            "M10X7.5",
+            "M8X6.5",
+            "M8X6.2",
+            "M6X4.4",
+            "M6X3.7",
+            "M5X18.9",
+            "M4X6",
+            "M4X4.08",
+            "M3X2.9"
+        ],
+        "example_count": 16,
+        "coverage": 1.0,
+        "confidence": 0.957,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-28T10:57:57.565754+00:00",
+        "category": "structural_section"
+    },
+    "MC": {
+        "pattern": "MC\\d+X\\d+(?:\\.\\d+)?",
+        "variants": [
+            {
+                "pattern": "MC\\d+X\\d+(?:\\.\\d+)?",
+                "support": 40,
+                "frequency": 1.0,
+                "confidence": 0.97,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "MC18X58",
+                    "MC18X51.9",
+                    "MC18X45.8",
+                    "MC18X42.7",
+                    "MC13X50"
+                ],
+                "readability": 0.96
+            }
+        ],
+        "examples": [
+            "MC18X58",
+            "MC18X51.9",
+            "MC18X45.8",
+            "MC18X42.7",
+            "MC13X50",
+            "MC13X40",
+            "MC13X35",
+            "MC13X31.8",
+            "MC12X50",
+            "MC12X45",
+            "MC12X40",
+            "MC12X35",
+            "MC12X31",
+            "MC12X14.3",
+            "MC12X10.6",
+            "MC10X41.1",
+            "MC10X33.6",
+            "MC10X28.5",
+            "MC10X25",
+            "MC10X22",
+            "MC10X8.4",
+            "MC10X6.5",
+            "MC9X25.4",
+            "MC9X23.9",
+            "MC8X22.8",
+            "MC8X21.4",
+            "MC8X20",
+            "MC8X18.7",
+            "MC8X8.5",
+            "MC7X22.7",
+            "MC7X19.1",
+            "MC6X18",
+            "MC6X15.3",
+            "MC6X16.3",
+            "MC6X15.1",
+            "MC6X12",
+            "MC6X7",
+            "MC6X6.5",
+            "MC4X13.8",
+            "MC3X7.1"
+        ],
+        "example_count": 40,
+        "coverage": 1.0,
+        "confidence": 0.97,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-28T10:57:57.565754+00:00",
+        "category": "structural_section"
+    },
+    "MT": {
+        "pattern": "MT\\d+(?:\\.\\d+)?X\\d+(?:\\.\\d+)?",
+        "variants": [
+            {
+                "pattern": "MT\\d+(?:\\.\\d+)?X\\d+(?:\\.\\d+)?",
+                "support": 14,
+                "frequency": 1.0,
+                "confidence": 0.9684,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "MT6.25X6.2",
+                    "MT6.25X5.8",
+                    "MT6X5.9",
+                    "MT6X5.4",
+                    "MT6X5"
+                ],
+                "readability": 0.8419
+            }
+        ],
+        "examples": [
+            "MT6.25X6.2",
+            "MT6.25X5.8",
+            "MT6X5.9",
+            "MT6X5.4",
+            "MT6X5",
+            "MT5X4.5",
+            "MT5X4",
+            "MT5X3.75",
+            "MT4X3.25",
+            "MT4X3.1",
+            "MT3X2.2",
+            "MT3X1.85",
+            "MT2.5X9.45",
+            "MT2X3"
+        ],
+        "example_count": 14,
+        "coverage": 1.0,
+        "confidence": 0.9614,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-28T10:57:57.565754+00:00",
+        "category": "structural_section"
+    },
+    "PIPE": {
+        "pattern": "PIPE\\d+(?:STD|XS|XXS)",
+        "variants": [
+            {
+                "pattern": "PIPE\\d+(?:STD|XS|XXS)",
+                "support": 38,
+                "frequency": 0.7308,
+                "confidence": 0.8588,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A"
+                ],
+                "examples": [
+                    "Pipe26STD",
+                    "Pipe24STD",
+                    "Pipe20STD",
+                    "Pipe18STD",
+                    "Pipe16STD"
+                ],
+                "readability": 0.9
+            },
+            {
+                "pattern": "PIPE\\d+\\-\\d+/\\d+(?:STD|XS|XXS)",
+                "support": 9,
+                "frequency": 0.1731,
+                "confidence": 0.5891,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "S:-",
+                    "N",
+                    "S:/",
+                    "N",
+                    "A"
+                ],
+                "examples": [
+                    "Pipe3-1/2STD",
+                    "Pipe2-1/2STD",
+                    "Pipe1-1/2STD",
+                    "Pipe1-1/4STD",
+                    "Pipe3-1/2XS"
+                ],
+                "readability": 0.8062
+            },
+            {
+                "pattern": "PIPE\\d+/\\d+(?:STD|XS)",
+                "support": 4,
+                "frequency": 0.0769,
+                "confidence": 0.5006,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "S:/",
+                    "N",
+                    "A"
+                ],
+                "examples": [
+                    "Pipe3/4STD",
+                    "Pipe1/2STD",
+                    "Pipe3/4XS",
+                    "Pipe1/2XS"
+                ],
+                "readability": 0.93
+            },
+            {
+                "pattern": "PIPE\\d+",
+                "support": 1,
+                "frequency": 0.0192,
+                "confidence": 0.2787,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "PIPE1"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "Pipe26STD",
+            "Pipe24STD",
+            "Pipe20STD",
+            "Pipe18STD",
+            "Pipe16STD",
+            "Pipe14STD",
+            "Pipe12STD",
+            "Pipe10STD",
+            "Pipe8STD",
+            "Pipe6STD",
+            "Pipe5STD",
+            "Pipe4STD",
+            "Pipe3-1/2STD",
+            "Pipe3STD",
+            "Pipe2-1/2STD",
+            "Pipe2STD",
+            "Pipe1-1/2STD",
+            "Pipe1-1/4STD",
+            "Pipe1STD",
+            "Pipe3/4STD",
+            "Pipe1/2STD",
+            "Pipe26XS",
+            "Pipe24XS",
+            "Pipe20XS",
+            "Pipe18XS",
+            "Pipe16XS",
+            "Pipe14XS",
+            "Pipe12XS",
+            "Pipe10XS",
+            "Pipe8XS",
+            "Pipe6XS",
+            "Pipe5XS",
+            "Pipe4XS",
+            "Pipe3-1/2XS",
+            "Pipe3XS",
+            "Pipe2-1/2XS",
+            "Pipe2XS",
+            "Pipe1-1/2XS",
+            "Pipe1-1/4XS",
+            "Pipe1XS",
+            "Pipe3/4XS",
+            "Pipe1/2XS",
+            "Pipe12XXS",
+            "Pipe10XXS",
+            "Pipe8XXS",
+            "Pipe6XXS",
+            "Pipe5XXS",
+            "Pipe4XXS",
+            "Pipe3XXS",
+            "Pipe2-1/2XXS",
+            "Pipe2XXS",
+            "PIPE1"
+        ],
+        "example_count": 52,
+        "coverage": 0.7308,
+        "confidence": 0.8238,
+        "confidence_level": "High",
+        "distinct_structures": 4,
+        "usage_count": 3,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-29T07:44:25.556702+00:00",
+        "category": "pipe"
+    },
+    "S": {
+        "pattern": "S\\-\\d+",
+        "variants": [
+            {
+                "pattern": "S\\-\\d+",
+                "support": 92,
+                "frequency": 0.7667,
+                "confidence": 0.895,
+                "distinct_structure": [
+                    "A",
+                    "S:-",
+                    "N"
+                ],
+                "examples": [
+                    "S-001",
+                    "S-002",
+                    "S-003",
+                    "S-004",
+                    "S-111"
+                ],
+                "readability": 1.0
+            },
+            {
+                "pattern": "S\\d+X\\d+(?:\\.\\d+)?",
+                "support": 28,
+                "frequency": 0.2333,
+                "confidence": 0.647,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "S24X121",
+                    "S24X106",
+                    "S24X100",
+                    "S24X90",
+                    "S24X80"
+                ],
+                "readability": 0.96
+            }
+        ],
+        "examples": [
+            "S24X121",
+            "S24X106",
+            "S24X100",
+            "S24X90",
+            "S24X80",
+            "S20X96",
+            "S20X86",
+            "S20X75",
+            "S20X66",
+            "S18X70",
+            "S18X54.7",
+            "S15X50",
+            "S15X42.9",
+            "S12X50",
+            "S12X40.8",
+            "S12X35",
+            "S12X31.8",
+            "S10X35",
+            "S10X25.4",
+            "S8X23",
+            "S8X18.4",
+            "S6X17.25",
+            "S6X12.5",
+            "S5X10",
+            "S4X9.5",
+            "S4X7.7",
+            "S3X7.5",
+            "S3X5.7",
+            "S-001",
+            "S-002",
+            "S-003",
+            "S-004",
+            "S-111",
+            "S-112",
+            "S-113",
+            "S-201",
+            "S-202",
+            "S-203",
+            "S-204",
+            "S-205",
+            "S-206",
+            "S-301",
+            "S-311",
+            "S-312",
+            "S-321",
+            "S-322",
+            "S-401",
+            "S-402",
+            "S-403",
+            "S-404",
+            "S-501",
+            "S-502",
+            "S-601",
+            "S-101",
+            "S-102",
+            "S-103",
+            "S-104",
+            "S-207",
+            "S-208",
+            "S-000"
+        ],
+        "example_count": 310,
+        "coverage": 0.7667,
+        "confidence": 0.8275,
+        "confidence_level": "High",
+        "distinct_structures": 2,
+        "usage_count": 184,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-29T07:44:27.042706+00:00",
+        "category": "structural_section"
+    },
+    "ST": {
+        "pattern": "ST\\d+(?:\\.\\d+)?X\\d+(?:\\.\\d+)?",
+        "variants": [
+            {
+                "pattern": "ST\\d+(?:\\.\\d+)?X\\d+(?:\\.\\d+)?",
+                "support": 28,
+                "frequency": 1.0,
+                "confidence": 0.9684,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "ST12X60.5",
+                    "ST12X53",
+                    "ST12X50",
+                    "ST12X45",
+                    "ST12X40"
+                ],
+                "readability": 0.8419
+            }
+        ],
+        "examples": [
+            "ST12X60.5",
+            "ST12X53",
+            "ST12X50",
+            "ST12X45",
+            "ST12X40",
+            "ST10X48",
+            "ST10X43",
+            "ST10X37.5",
+            "ST10X33",
+            "ST9X35",
+            "ST9X27.35",
+            "ST7.5X25",
+            "ST7.5X21.45",
+            "ST6X25",
+            "ST6X20.4",
+            "ST6X17.5",
+            "ST6X15.9",
+            "ST5X17.5",
+            "ST5X12.7",
+            "ST4X11.5",
+            "ST4X9.2",
+            "ST3X8.6",
+            "ST3X6.25",
+            "ST2.5X5",
+            "ST2X4.75",
+            "ST2X3.85",
+            "ST1.5X3.75",
+            "ST1.5X2.85"
+        ],
+        "example_count": 28,
+        "coverage": 1.0,
+        "confidence": 0.9614,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-28T10:57:57.565754+00:00",
+        "category": "structural_section"
+    },
+    "W": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 120,
+                "frequency": 1.0,
+                "confidence": 0.97,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W44X408",
+                    "W44X368",
+                    "W44X335",
+                    "W44X290",
+                    "W44X262"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W44X408",
+            "W44X368",
+            "W44X335",
+            "W44X290",
+            "W44X262",
+            "W44X230",
+            "W40X655",
+            "W40X593",
+            "W40X503",
+            "W40X431",
+            "W40X397",
+            "W40X372",
+            "W40X362",
+            "W40X324",
+            "W40X297",
+            "W40X277",
+            "W40X249",
+            "W40X215",
+            "W40X199",
+            "W40X392",
+            "W40X331",
+            "W40X327",
+            "W40X294",
+            "W40X278",
+            "W40X264",
+            "W40X235",
+            "W40X211",
+            "W40X183",
+            "W40X167",
+            "W40X149",
+            "W36X925",
+            "W36X853",
+            "W36X802",
+            "W36X723",
+            "W36X652",
+            "W36X529",
+            "W36X487",
+            "W36X441",
+            "W36X395",
+            "W36X361",
+            "W36X330",
+            "W36X302",
+            "W36X282",
+            "W36X262",
+            "W36X247",
+            "W36X231",
+            "W36X387",
+            "W36X350",
+            "W36X318",
+            "W36X286",
+            "W36X256",
+            "W36X232",
+            "W36X210",
+            "W36X194",
+            "W36X182",
+            "W36X170",
+            "W36X160",
+            "W36X150",
+            "W36X135",
+            "W33X387"
+        ],
+        "example_count": 301,
+        "coverage": 1.0,
+        "confidence": 0.963,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 582,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-29T08:46:00.496482+00:00",
+        "category": "structural_section"
+    },
+    "WT": {
+        "pattern": "WT\\d+(?:\\.\\d+)?X\\d+(?:\\.\\d+)?",
+        "variants": [
+            {
+                "pattern": "WT\\d+(?:\\.\\d+)?X\\d+(?:\\.\\d+)?",
+                "support": 120,
+                "frequency": 1.0,
+                "confidence": 0.9684,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "WT22X204",
+                    "WT22X184",
+                    "WT22X167.5",
+                    "WT22X145",
+                    "WT22X131"
+                ],
+                "readability": 0.8419
+            }
+        ],
+        "examples": [
+            "WT22X204",
+            "WT22X184",
+            "WT22X167.5",
+            "WT22X145",
+            "WT22X131",
+            "WT22X115",
+            "WT20X327.5",
+            "WT20X296.5",
+            "WT20X251.5",
+            "WT20X215.5",
+            "WT20X198.5",
+            "WT20X186",
+            "WT20X181",
+            "WT20X162",
+            "WT20X148.5",
+            "WT20X138.5",
+            "WT20X124.5",
+            "WT20X107.5",
+            "WT20X99.5",
+            "WT20X196",
+            "WT20X165.5",
+            "WT20X163.5",
+            "WT20X147",
+            "WT20X139",
+            "WT20X132",
+            "WT20X117.5",
+            "WT20X105.5",
+            "WT20X91.5",
+            "WT20X83.5",
+            "WT20X74.5",
+            "WT18X462.5",
+            "WT18X426.5",
+            "WT18X401",
+            "WT18X361.5",
+            "WT18X326",
+            "WT18X264.5",
+            "WT18X243.5",
+            "WT18X220.5",
+            "WT18X197.5",
+            "WT18X180.5",
+            "WT18X165",
+            "WT18X151",
+            "WT18X141",
+            "WT18X131",
+            "WT18X123.5",
+            "WT18X115.5",
+            "WT18X193.5",
+            "WT18X175",
+            "WT18X159",
+            "WT18X143",
+            "WT18X128",
+            "WT18X116",
+            "WT18X105",
+            "WT18X97",
+            "WT18X91",
+            "WT18X85",
+            "WT18X80",
+            "WT18X75",
+            "WT18X67.5",
+            "WT16.5X193.5"
+        ],
+        "example_count": 289,
+        "coverage": 1.0,
+        "confidence": 0.9614,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 4,
+        "source": "training+approved",
+        "created_at": "2026-07-28T10:57:57.565754+00:00",
+        "updated_at": "2026-07-29T08:46:00.557032+00:00",
+        "category": "structural_section"
+    },
+    "PL": {
+        "pattern": "PL\\d+",
+        "variants": [
+            {
+                "pattern": "PL\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "PL1"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "PL1"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8197,
+        "confidence_level": "High",
+        "distinct_structures": 1,
+        "usage_count": 4,
+        "source": "self-learned",
+        "created_at": "2026-07-29T06:41:26.375072+00:00",
+        "updated_at": "2026-07-29T06:41:26.818173+00:00"
+    }
+}

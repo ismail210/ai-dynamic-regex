@@ -1,0 +1,36 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    environment:
+      APP_ENV: production
+      HOST: 0.0.0.0
+      PORT: 8000
+      WEB_CONCURRENCY: ${WEB_CONCURRENCY:-1}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      CORS_ALLOW_ORIGINS: ${CORS_ALLOW_ORIGINS:-http://localhost}
+      MAX_UPLOAD_BYTES: ${MAX_UPLOAD_BYTES:-104857600}
+    volumes:
+      - ./backend/training:/app/training
+      - backend_uploads:/app/uploads
+    healthcheck:
+      test:
+        ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 60s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-80}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  backend_uploads:

@@ -1,0 +1,22 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: "Geist", "Avenir Next", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+}
+
+a {
+  color: inherit;
+}
+
+.mono {
+  font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+}

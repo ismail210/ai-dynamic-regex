@@ -1,0 +1,1624 @@
+id,event,token,detail,actor,created_at
+5ca2f3ab,approve,WF18X40,class=W,user,2026-07-22T10:32:26.388520+00:00
+bf13838c,retrain,,accuracy=0.9783 samples=2300 approved=1,user,2026-07-22T10:32:29.889811+00:00
+8fd1f64d,upload,,"ST - Springhill Lake.pdf: 137 tokens (85 known, 52 unknown)",system,2026-07-22T10:38:23.111414+00:00
+12497dfa,approve,A1064,class=A,user,2026-07-22T10:40:07.870475+00:00
+24c38307,approve,A108,class=A,user,2026-07-22T10:40:12.507459+00:00
+ab56ce6f,approve,HSSCUSTOM99,class=HSS,user,2026-07-22T10:42:12.218675+00:00
+c1e11d33,approve,A2,class=A,user,2026-07-22T10:42:13.047635+00:00
+6b6f27b7,approve,A3,class=A,user,2026-07-22T10:42:14.858740+00:00
+92908c25,approve,A307,class=A,user,2026-07-22T10:42:15.293344+00:00
+a5fbf756,approve,A325,class=A,user,2026-07-22T10:42:15.655713+00:00
+6b32abd7,approve,A36,class=A,user,2026-07-22T10:42:15.958432+00:00
+23ff4ccf,approve,A500,class=A,user,2026-07-22T10:42:16.243473+00:00
+bcac6414,approve,A53,class=A,user,2026-07-22T10:42:16.507361+00:00
+f5bbc138,approve,A568,class=A,user,2026-07-22T10:42:16.831026+00:00
+c703b994,approve,A572,class=A,user,2026-07-22T10:42:17.131403+00:00
+f6a418f3,approve,A588,class=A,user,2026-07-22T10:42:17.428118+00:00
+ee33dddb,approve,A6,class=A,user,2026-07-22T10:42:17.749377+00:00
+591c4202,approve,A615,class=A,user,2026-07-22T10:42:18.071751+00:00
+437ec550,approve,A653,class=A,user,2026-07-22T10:42:18.236432+00:00
+4e2a4525,approve,A706,class=A,user,2026-07-22T10:42:18.581080+00:00
+24032cd9,approve,A913,class=A,user,2026-07-22T10:42:18.878520+00:00
+b16f407e,approve,A970,class=A,user,2026-07-22T10:42:19.213657+00:00
+5c43b969,approve,A992,class=A,user,2026-07-22T10:42:19.526189+00:00
+178fb1e8,approve,HSS10X0,class=HSS,user,2026-07-22T10:42:19.740705+00:00
+180a1e28,approve,HSS16X0,class=HSS,user,2026-07-22T10:42:20.066401+00:00
+9960ae7b,approve,HSS18X0,class=HSS,user,2026-07-22T10:42:20.394871+00:00
+3d3e60bf,approve,L1x1x1/4,class=L,user,2026-07-22T10:42:20.570659+00:00
+8dceddd1,approve,L4X3,class=L,user,2026-07-22T10:42:21.996296+00:00
+dcbe3a0c,approve,L4x4,class=L,user,2026-07-22T10:42:22.215909+00:00
+d718c70b,approve,L5X3,class=C,user,2026-07-22T10:42:22.410810+00:00
+e67a91d6,approve,L6X3,class=L,user,2026-07-22T10:42:22.766487+00:00
+bb725086,approve,S-001,class=S,user,2026-07-22T10:42:23.089857+00:00
+fc4c1bd3,approve,S-002,class=S,user,2026-07-22T10:42:24.060629+00:00
+8dc51ae1,approve,S-003,class=S,user,2026-07-22T10:42:24.318897+00:00
+59be99ce,approve,S-004,class=S,user,2026-07-22T10:42:24.600154+00:00
+4cdf11f0,approve,S-111,class=S,user,2026-07-22T10:42:24.769378+00:00
+34779864,approve,S-112,class=S,user,2026-07-22T10:42:24.915316+00:00
+69882c0b,approve,S-113,class=S,user,2026-07-22T10:42:25.125445+00:00
+49eb3d8f,approve,S-201,class=S,user,2026-07-22T10:42:25.276044+00:00
+210886c4,approve,S-202,class=S,user,2026-07-22T10:42:25.472731+00:00
+bf47fde4,approve,S-203,class=S,user,2026-07-22T10:42:25.773028+00:00
+e80e46dd,approve,S-204,class=S,user,2026-07-22T10:42:25.977096+00:00
+707cd84a,approve,S-205,class=S,user,2026-07-22T10:42:26.208015+00:00
+45f1d558,approve,S-206,class=S,user,2026-07-22T10:42:26.470944+00:00
+6e99533f,approve,S-301,class=S,user,2026-07-22T10:42:26.742161+00:00
+e966cbfe,approve,S-311,class=S,user,2026-07-22T10:42:27.003843+00:00
+05fe51d6,approve,S-312,class=S,user,2026-07-22T10:42:27.210279+00:00
+0bc65296,approve,S-321,class=S,user,2026-07-22T10:42:27.392104+00:00
+53ffd001,approve,S-322,class=S,user,2026-07-22T10:42:27.571556+00:00
+50025dc2,approve,S-401,class=S,user,2026-07-22T10:42:27.864287+00:00
+d69ec85b,approve,S-402,class=S,user,2026-07-22T10:42:28.040495+00:00
+c8397fca,approve,S-403,class=S,user,2026-07-22T10:42:28.248790+00:00
+d443834a,approve,S-404,class=S,user,2026-07-22T10:42:28.442616+00:00
+94d09164,approve,S-501,class=S,user,2026-07-22T10:42:28.779037+00:00
+a3cf8903,approve,S-502,class=S,user,2026-07-22T10:42:28.965088+00:00
+abba58ff,approve,S-601,class=S,user,2026-07-22T10:42:29.115822+00:00
+0b070b07,retrain,,accuracy=0.9809 samples=2353 approved=54,user,2026-07-22T10:43:00.440651+00:00
+559aede2,reject,A123,,user,2026-07-22T10:46:13.872728+00:00
+bb0f787d,approve,A205,class=A,user,2026-07-22T10:46:22.377362+00:00
+7c76a320,approve,A5,class=A,user,2026-07-22T10:46:23.558661+00:00
+8efc9d09,approve,HSS10x10,class=HSS,user,2026-07-22T10:46:29.268871+00:00
+017583ee,approve,HSS3x3,class=HSS,user,2026-07-22T10:46:30.099594+00:00
+f80dfb43,approve,HSS6x8x1/2,class=HSS,user,2026-07-22T10:46:30.784532+00:00
+69f55b44,approve,HSS8X8,class=HSS,user,2026-07-22T10:46:32.677162+00:00
+0ade509d,approve,A2280,class=A,user,2026-07-22T10:46:37.306472+00:00
+5714bdbc,approve,A29,class=A,user,2026-07-22T10:46:38.574837+00:00
+bf8ecfbe,approve,A416,class=A,user,2026-07-22T10:46:39.692750+00:00
+1920ed88,approve,A446,class=A,user,2026-07-22T10:46:40.536530+00:00
+e4b34c97,approve,A490,class=A,user,2026-07-22T10:46:41.348876+00:00
+0e1a8941,retrain,,accuracy=0.9831 samples=2364 approved=65,user,2026-07-22T10:46:55.867743+00:00
+f6a54184,retrain,,accuracy=0.9831 samples=2364 approved=65,user,2026-07-22T10:47:04.148658+00:00
+229e1c09,upload,,"1200 K_Permit_Bid_Dwgs - Structural.pdf: 81 tokens (57 known, 24 unknown)",system,2026-07-22T10:47:36.192394+00:00
+92d63c74,approve,A563,class=A,user,2026-07-22T10:48:02.696893+00:00
+3d25f8bf,approve,A959,class=A,user,2026-07-22T10:48:06.426926+00:00
+3913a8bc,approve,HSS5x5,class=HSS,user,2026-07-22T10:48:07.185005+00:00
+7064f852,approve,L18x12x3/8,class=L,user,2026-07-22T10:48:07.848961+00:00
+c90c9590,reject,L5x5,,user,2026-07-22T10:48:08.745582+00:00
+85f0a19c,retrain,,accuracy=0.9831 samples=2368 approved=69,user,2026-07-22T10:48:20.249548+00:00
+313d40b5,upload,,"Burrville ES - ST.pdf: 125 tokens (76 known, 49 unknown)",system,2026-07-22T10:49:12.887207+00:00
+ec05b03a,approve,S-101,class=S,user,2026-07-22T10:49:29.970380+00:00
+5ef19542,approve,S-102,class=S,user,2026-07-22T10:49:33.600753+00:00
+9a13da19,approve,S-103,class=S,user,2026-07-22T10:49:39.166692+00:00
+4a5a2c69,approve,S-104,class=S,user,2026-07-22T10:49:39.983872+00:00
+e11cce95,approve,S-207,class=S,user,2026-07-22T10:49:40.731577+00:00
+9ee49e33,approve,S-208,class=S,user,2026-07-22T10:49:41.563160+00:00
+01553708,approve,W14X198,class=W,user,2026-07-22T10:49:48.507391+00:00
+79202fe0,retrain,,accuracy=0.9811 samples=2375 approved=76,user,2026-07-22T10:50:00.177636+00:00
+38fec40d,upload,,"GCDC Building 4 - ST1.pdf: 176 tokens (143 known, 33 unknown)",system,2026-07-22T10:50:40.023154+00:00
+c8de4826,approve,A153,class=A,user,2026-07-22T10:50:53.399344+00:00
+cffbdd04,approve,A496,class=A,user,2026-07-22T10:50:54.645333+00:00
+8ded17cc,approve,A525,class=A,user,2026-07-22T10:50:55.449656+00:00
+e2c45607,approve,A775,class=A,user,2026-07-22T10:50:56.189771+00:00
+6e14996c,approve,A780,class=A,user,2026-07-22T10:50:57.262292+00:00
+0b325836,approve,HSS12x12,class=HSS,user,2026-07-22T10:51:02.485805+00:00
+d9d6ef43,approve,HSS14x0,class=HSS,user,2026-07-22T10:51:03.139537+00:00
+8c737975,approve,HSS14x10,class=HSS,user,2026-07-22T10:51:03.822708+00:00
+38d746ba,approve,HSS14x14,class=HSS,user,2026-07-22T10:51:04.710439+00:00
+5d28c818,approve,HSS6x6,class=HSS,user,2026-07-22T10:51:05.619878+00:00
+24c0e0c8,approve,HSS8X6,class=HSS,user,2026-07-22T10:51:06.254496+00:00
+305eb207,approve,HSS8x4,class=HSS,user,2026-07-22T10:51:07.406693+00:00
+84321213,reject,L2x2x10,,user,2026-07-22T10:51:11.273674+00:00
+dc0ff68a,approve,L6x4x1/4,class=L,user,2026-07-22T10:51:15.597608+00:00
+9f4f65e1,approve,L7x7x1/2,class=L,user,2026-07-22T10:51:16.165719+00:00
+0a2e6ba8,approve,W18x36,class=W,user,2026-07-22T10:51:16.715089+00:00
+5c64a56f,retrain,,accuracy=0.9812 samples=2390 approved=91,user,2026-07-22T10:51:26.413947+00:00
+7a675849,upload,,"ST.pdf: 81 tokens (43 known, 38 unknown)",system,2026-07-22T10:54:10.996220+00:00
+164d839b,approve,S-000,class=S,user,2026-07-22T10:54:39.807184+00:00
+4fd473a9,approve,S-005,class=S,user,2026-07-22T10:54:41.008425+00:00
+e2a15030,approve,S-100,class=S,user,2026-07-22T10:54:41.609291+00:00
+9de9bef3,approve,S-105,class=S,user,2026-07-22T10:54:41.960317+00:00
+737771a0,approve,S-200,class=S,user,2026-07-22T10:54:42.163516+00:00
+13c13ffe,approve,S-300,class=S,user,2026-07-22T10:54:42.681992+00:00
+08ca35be,approve,S-302,class=S,user,2026-07-22T10:54:43.166673+00:00
+b5571482,approve,S-400,class=S,user,2026-07-22T10:54:43.395153+00:00
+141e5c9d,approve,S-500,class=S,user,2026-07-22T10:54:43.665575+00:00
+aeb5f2d3,approve,S-600,class=S,user,2026-07-22T10:54:43.960677+00:00
+2ec019d5,approve,S-700,class=S,user,2026-07-22T10:54:44.136947+00:00
+9bba6797,approve,S-701,class=S,user,2026-07-22T10:54:44.424701+00:00
+bdccd928,approve,S-710,class=S,user,2026-07-22T10:54:44.597830+00:00
+c604470e,approve,S-711,class=S,user,2026-07-22T10:54:45.323280+00:00
+0a5ed55f,approve,S-800,class=S,user,2026-07-22T10:54:46.369402+00:00
+a704d294,retrain,,accuracy=0.9834 samples=2405 approved=106,user,2026-07-22T10:55:00.439053+00:00
+eb267bef,upload,,"ST - Springhill Lake.pdf: 137 tokens (85 known, 52 unknown)",system,2026-07-22T10:55:59.404806+00:00
+899ec82e,approve,HSS12X4,class=HSS,user,2026-07-22T10:56:14.884720+00:00
+a8535e27,upload,,"03 - SFSLS_251029_ISSUED FOR BID_2A_STRUCTURAL complied thru add 2.pdf: 180 tokens (110 known, 70 unknown)",system,2026-07-22T10:58:35.205598+00:00
+4cc71a85,approve,HSS4x0,class=HSS,user,2026-07-22T10:58:54.327626+00:00
+0f9a91f4,approve,HSS6X0,class=HSS,user,2026-07-22T10:59:07.369230+00:00
+5b7aa11a,approve,L5x5x1/4,class=L,user,2026-07-22T10:59:07.848180+00:00
+ab33a41a,approve,S-121,class=S,user,2026-07-22T10:59:08.300365+00:00
+eb7b09d5,approve,S-122,class=S,user,2026-07-22T10:59:08.716468+00:00
+62b7bf4f,approve,S-123,class=S,user,2026-07-22T10:59:09.077710+00:00
+1f0d2d19,approve,S-124,class=S,user,2026-07-22T10:59:09.543866+00:00
+720363a5,approve,S-131,class=S,user,2026-07-22T10:59:09.933026+00:00
+3a9a28d5,approve,S-132,class=S,user,2026-07-22T10:59:10.391936+00:00
+fb10ab67,approve,S-141,class=S,user,2026-07-22T10:59:10.819950+00:00
+46c1155b,approve,S-142,class=S,user,2026-07-22T10:59:11.257481+00:00
+5433dd21,approve,S-209,class=S,user,2026-07-22T10:59:12.272216+00:00
+f2f87d1c,approve,S-313,class=S,user,2026-07-22T10:59:13.455617+00:00
+898d648c,retrain,,accuracy=0.9814 samples=2419 approved=120,user,2026-07-22T10:59:59.593586+00:00
+67eb30c3,upload,,"1200 K_Permit_Bid_Dwgs - Structural.pdf: 81 tokens (57 known, 24 unknown)",system,2026-07-22T12:40:25.748760+00:00
+2741d8ae,upload,,"1200 K_Permit_Bid_Dwgs - Structural.pdf: 81 tokens (57 known, 24 unknown)",system,2026-07-22T13:08:53.080104+00:00
+cc39a1b3-9ff5-4afa-9690-87e84069f560,unknown_queued,WF99X99,Queued for review (structural_section),system,2026-07-22T13:36:21.517870+00:00
+d7e60dbd-4603-4311-874b-91bf74e59847,unknown_queued,A992,Queued for review (material),system,2026-07-22T13:37:19.874529+00:00
+1941bf5e-6808-41c9-a721-3777cd8126b5,unknown_queued,A123,Queued for review (material),system,2026-07-22T13:37:21.943418+00:00
+fd26db19-1cf3-4faf-aaa9-3c18eff3be16,unknown_queued,A205,Queued for review (material),system,2026-07-22T13:37:21.962667+00:00
+994b3d3a-3789-4bfd-8efc-3215bda7bc40,unknown_queued,A307,Queued for review (bolt),system,2026-07-22T13:37:21.995618+00:00
+aecbd79a-5290-4366-b226-2435258722c8,unknown_queued,A325,Queued for review (bolt),system,2026-07-22T13:37:22.019991+00:00
+087de13b-0d8f-4384-9149-95308ee36172,unknown_queued,A36,Queued for review (material),system,2026-07-22T13:37:22.054560+00:00
+c7dc8c1b-2364-4d95-8813-3da9a5905ac3,unknown_queued,A5,Queued for review (structural_section),system,2026-07-22T13:37:22.079372+00:00
+046e35c1-767e-43ca-acba-fc24d2f887ef,unknown_queued,A572,Queued for review (material),system,2026-07-22T13:37:22.108720+00:00
+6c529e7e-a484-4293-bbad-76fb6ec1ae14,unknown_queued,A615,Queued for review (material),system,2026-07-22T13:37:22.142203+00:00
+238b1e26-abb5-4728-b5a4-b9fda76d3708,unknown_queued,HSS10x10,Queued for review (structural_section),system,2026-07-22T13:37:22.191714+00:00
+3a69c565-e5d3-4f7c-8f75-3efef8ecccf0,unknown_queued,HSS3x3,Queued for review (structural_section),system,2026-07-22T13:37:22.244000+00:00
+e0b7fa0e-52ba-4183-8d36-ce1dd89e6b8b,unknown_queued,HSS6x8x1/2,Queued for review (structural_section),system,2026-07-22T13:37:22.294011+00:00
+0c78d31d-07c5-4380-8c0c-80a037105473,unknown_queued,HSS8X8,Queued for review (structural_section),system,2026-07-22T13:37:22.316908+00:00
+ffe8d3c8-4737-4325-9d33-bb8342a77898,unknown_queued,S-000,Queued for review (structural_section),system,2026-07-22T13:37:22.478410+00:00
+05e7e0d9-cc26-43f7-8c75-46f3bbb17b59,unknown_queued,S-001,Queued for review (structural_section),system,2026-07-22T13:37:22.501476+00:00
+5cecec0e-c58c-4ffb-a409-4e7510416c67,unknown_queued,S-002,Queued for review (structural_section),system,2026-07-22T13:37:22.521194+00:00
+fd25d32d-9d19-402a-b833-82d466045fb5,unknown_queued,S-003,Queued for review (structural_section),system,2026-07-22T13:37:22.543888+00:00
+9cbea2e2-265d-40d0-a204-4ed8efeddfea,unknown_queued,S-004,Queued for review (structural_section),system,2026-07-22T13:37:22.568214+00:00
+04cb536b-eff1-4ea6-8832-bc6a776aa715,unknown_queued,S-005,Queued for review (structural_section),system,2026-07-22T13:37:22.592894+00:00
+0b861e39-bb4f-483b-9e69-75689f838aee,unknown_queued,S-100,Queued for review (structural_section),system,2026-07-22T13:37:22.618203+00:00
+10cc0d45-d41c-4f6c-988f-6cfb1a6af7b3,unknown_queued,S-101,Queued for review (structural_section),system,2026-07-22T13:37:22.644111+00:00
+03385137-519d-4233-89fe-125a14427aa3,unknown_queued,S-102,Queued for review (structural_section),system,2026-07-22T13:37:22.663612+00:00
+b37f6484-6bad-4763-9dde-8ed6f00364f7,unknown_queued,S-103,Queued for review (structural_section),system,2026-07-22T13:37:22.693625+00:00
+80a01a30-756b-4e64-8566-ec2f75b96a06,unknown_queued,S-104,Queued for review (structural_section),system,2026-07-22T13:37:22.718718+00:00
+6e496d31-784c-4b41-b400-2e00071a5e1f,unknown_queued,S-105,Queued for review (structural_section),system,2026-07-22T13:37:22.743915+00:00
+0d97424e-ac5d-44fa-a404-0310927d8fae,unknown_queued,S-200,Queued for review (structural_section),system,2026-07-22T13:37:22.767768+00:00
+daf9320e-7a1d-4bfd-9154-4928f7887c6e,unknown_queued,S-300,Queued for review (structural_section),system,2026-07-22T13:37:22.794847+00:00
+4a31188e-1711-4303-9868-ed0b85e6d5a1,unknown_queued,S-302,Queued for review (structural_section),system,2026-07-22T13:37:22.820391+00:00
+92851a62-2b3d-47bf-bbbc-55cb3e9b1ffb,unknown_queued,S-400,Queued for review (structural_section),system,2026-07-22T13:37:22.843873+00:00
+7a882e18-abd1-4ee8-aec3-5bf25fc75a5b,unknown_queued,S-500,Queued for review (structural_section),system,2026-07-22T13:37:22.869994+00:00
+7de5f6c7-61b5-42a6-81e8-c4b78679d7a2,unknown_queued,S-501,Queued for review (structural_section),system,2026-07-22T13:37:22.894214+00:00
+818d7e2b-04bc-4d83-bc3b-c580e7d7b5f1,unknown_queued,S-600,Queued for review (structural_section),system,2026-07-22T13:37:22.920121+00:00
+05eef447-8f5b-4911-abc5-0cc8614a833f,unknown_queued,S-700,Queued for review (structural_section),system,2026-07-22T13:37:22.943893+00:00
+503940c3-c3f5-47c5-9023-19c5529baf04,unknown_queued,S-701,Queued for review (structural_section),system,2026-07-22T13:37:22.973085+00:00
+f8934b51-6491-47e9-bebe-e70aa5faf919,unknown_queued,S-710,Queued for review (structural_section),system,2026-07-22T13:37:22.994936+00:00
+c82df2a0-be65-4f01-afff-9ff135e98c8a,unknown_queued,S-711,Queued for review (structural_section),system,2026-07-22T13:37:23.019692+00:00
+c8c01b11-19d0-4cbf-8604-4b0a22decd84,unknown_queued,S-800,Queued for review (structural_section),system,2026-07-22T13:37:23.044227+00:00
+f6fe283f-a41e-483b-b2b8-8facd3145ff8,unknown_queued,A1064,Queued for review (material),system,2026-07-22T14:05:14.797314+00:00
+80408a50-73d2-4df4-ad2e-babecbc2f8dd,unknown_queued,A108,Queued for review (material),system,2026-07-22T14:05:14.816794+00:00
+fa3f2d9e-077c-41ed-a40c-02bd1529294c,unknown_queued,A2280,Queued for review (material),system,2026-07-22T14:05:14.849764+00:00
+66455055-28c1-415a-b22a-3b8858c6e2c3,unknown_queued,A29,Queued for review (material),system,2026-07-22T14:05:14.871403+00:00
+d5d18ce4-cdf7-4248-bad2-71a7036f46c8,unknown_queued,A416,Queued for review (material),system,2026-07-22T14:05:14.928767+00:00
+c38840a9-d8d6-4e40-87cb-35dca1968834,unknown_queued,A446,Queued for review (material),system,2026-07-22T14:05:14.951974+00:00
+71b96971-8104-40ff-a290-521f0e33b5b9,unknown_queued,A490,Queued for review (bolt),system,2026-07-22T14:05:14.974372+00:00
+7e420f9f-3f6d-40ce-a4e6-4afa8283634f,unknown_queued,A500,Queued for review (material),system,2026-07-22T14:05:15.013098+00:00
+25178f6d-1b36-40d9-9f7a-4752ff6a28cc,unknown_queued,A53,Queued for review (material),system,2026-07-22T14:05:15.041212+00:00
+1926176e-8c97-42d5-9f20-c32e96a931f9,unknown_queued,A563,Queued for review (bolt),system,2026-07-22T14:05:15.061518+00:00
+3c7d8ca7-e955-4a67-9b2d-83a1738b8c60,unknown_queued,A653,Queued for review (material),system,2026-07-22T14:05:15.112304+00:00
+b5bee377-83c8-44e7-834f-8bdb4fa9eb83,unknown_queued,A706,Queued for review (material),system,2026-07-22T14:05:15.147482+00:00
+646850f2-4f66-49f4-9265-5724e4006fd2,unknown_queued,A913,Queued for review (material),system,2026-07-22T14:05:15.170280+00:00
+6172525c-b61a-4941-b638-9bb0e944ec5b,unknown_queued,A959,Queued for review (material),system,2026-07-22T14:05:15.208440+00:00
+711c38bf-f1e1-4f06-81bc-770020df37dd,unknown_queued,HSS5x5,Queued for review (structural_section),system,2026-07-22T14:05:15.344195+00:00
+d53ec47a-0151-43e9-b1d4-388baf1791cc,unknown_queued,L18x12x3/8,Queued for review (structural_section),system,2026-07-22T14:05:15.487046+00:00
+cc96e0d7-e8ad-4434-b37d-ff0e85c9dc1d,unknown_queued,L5x5,Queued for review (structural_section),system,2026-07-22T14:05:15.608622+00:00
+92020cf1-ce98-4c1e-a593-16d76f778981,token_approved,WF99X99,class=A,user,2026-07-22T14:06:33.282732+00:00
+a2eed92b-c23c-4c75-8283-8ad96fe96b24,token_approved,A992,class=A992,user,2026-07-22T14:06:37.486142+00:00
+16adf4c4-8fff-4273-9ea1-946c73e9ac6d,token_approved,A123,class=A123,user,2026-07-22T14:06:47.221692+00:00
+78f9f20b-76df-4fdb-9aad-e9ebb2e51922,token_approved,A205,class=A205,user,2026-07-22T14:06:52.611504+00:00
+fcbc2e61-7bbb-4e30-ba52-36b493e6f321,model_retrained,,"{""model"": ""SVM"", ""accuracy"": 0.9992, ""f1"": 0.9992, ""rows"": 30939, ""augmented"": 21518}",system,2026-07-23T08:01:53.533521+00:00
+0f7704a2-e487-4c52-afa0-988173f09243,model_retrained,,"{""model"": ""SVM"", ""accuracy"": 0.9992, ""f1"": 0.9992, ""rows"": 30939, ""augmented"": 21518}",system,2026-07-23T08:14:30.314703+00:00
+f7c60d0b-f6fb-4955-a85e-d230ef4805dc,model_retrained,,"{""model"": ""SVM"", ""accuracy"": 0.9992, ""f1"": 0.999, ""rows"": 30939, ""augmented"": 21518}",system,2026-07-23T08:15:13.807900+00:00
+2579c736-a7a4-4141-812a-499c1324a79b,model_retrained,,"{""model"": ""SVM"", ""accuracy"": 0.9992, ""f1"": 0.999, ""rows"": 30939, ""augmented"": 21518}",system,2026-07-23T08:23:17.056839+00:00
+80470345-8293-4775-a391-cfa0bb0b3e06,model_retrained,,"{""model"": ""SVM"", ""accuracy"": 0.9992, ""f1"": 0.999, ""rows"": 30939, ""augmented"": 21518}",system,2026-07-23T08:23:27.057457+00:00
+581e43a2-3e75-471f-9e6d-524931c8b3bc,model_retrained,,"{""model"": ""SVM"", ""accuracy"": 0.9992, ""f1"": 0.999, ""rows"": 30939, ""augmented"": 21518}",system,2026-07-23T08:24:59.788625+00:00
+03f93f9a-468e-4757-afb0-8e7c7fa41a9b,model_retrained,,"{""model"": ""SVM"", ""accuracy"": 0.9992, ""f1"": 0.999, ""rows"": 30939, ""augmented"": 21518}",system,2026-07-23T08:28:27.204064+00:00
+3c7e7a04-2337-4174-b41a-b06546500d0a,unknown_queued,A123,Queued for review (material),system,2026-07-23T08:31:50.542048+00:00
+8c7656e9-f45a-43a7-817e-9954411e4f51,unknown_queued,A153,Queued for review (material),system,2026-07-23T08:31:50.565654+00:00
+848ea2c8-32bf-4161-a4c8-319064f71389,unknown_queued,A496,Queued for review (material),system,2026-07-23T08:31:50.649295+00:00
+37f64a36-b53a-4629-a130-7191eb4b903b,unknown_queued,A525,Queued for review (material),system,2026-07-23T08:31:50.708349+00:00
+923851f8-6a62-4f23-b4bc-a736878674fa,unknown_queued,A775,Queued for review (material),system,2026-07-23T08:31:50.788533+00:00
+81b195b2-f914-43a7-bf69-aa21c4fa3db0,unknown_queued,A780,Queued for review (material),system,2026-07-23T08:31:50.811791+00:00
+d8926f90-1eda-4260-8101-4a669184fa6d,unknown_queued,A992,Queued for review (material),system,2026-07-23T08:31:50.840726+00:00
+cd307d8a-f71d-4363-ac9c-7424d750a905,unknown_queued,HSS12x12,Queued for review (structural_section),system,2026-07-23T08:31:50.946730+00:00
+dab9652a-2beb-4f55-ae6a-ccbea34000a7,unknown_queued,HSS14x0,Queued for review (structural_section),system,2026-07-23T08:31:51.050900+00:00
+5c1b7c48-c4d2-4cb3-9827-9bdc53aa21ba,unknown_queued,HSS14x10,Queued for review (structural_section),system,2026-07-23T08:31:51.075851+00:00
+a450d6d8-0953-47db-9183-ff9c88d62c6e,unknown_queued,HSS14x14,Queued for review (structural_section),system,2026-07-23T08:31:51.116325+00:00
+2839626d-7bb4-45ea-bbc1-c766d16e7dc0,unknown_queued,HSS6x6,Queued for review (structural_section),system,2026-07-23T08:31:51.393935+00:00
+2608822c-27f6-4c98-927d-293eabbf4864,unknown_queued,HSS8X6,Queued for review (structural_section),system,2026-07-23T08:31:51.426223+00:00
+b2cdbaee-a074-424b-9367-bb6ddb6de328,unknown_queued,HSS8x4,Queued for review (structural_section),system,2026-07-23T08:31:51.449917+00:00
+65897cf4-bd4c-44af-b34e-7223a9cac40d,unknown_queued,L2x2x10,Queued for review (structural_section),system,2026-07-23T08:31:51.671277+00:00
+32a427ad-39ee-4e52-b94a-326565b52d96,unknown_queued,L4x4,Queued for review (structural_section),system,2026-07-23T08:31:51.748168+00:00
+53d5cf3e-9e65-4ca5-9128-ff1c1f2bfa5a,unknown_queued,L5x3,Queued for review (structural_section),system,2026-07-23T08:31:51.839448+00:00
+82e6c125-f090-4636-a5f8-a295d4191634,unknown_queued,L6x3,Queued for review (structural_section),system,2026-07-23T08:31:51.936516+00:00
+d0a572be-0427-4059-a61a-920f533b96d5,unknown_queued,L6x4x1/4,Queued for review (structural_section),system,2026-07-23T08:31:51.960137+00:00
+c6b34453-2643-4430-8f23-c6c07b53ffe5,unknown_queued,L7x7x1/2,Queued for review (structural_section),system,2026-07-23T08:31:52.066018+00:00
+903b30a0-f16f-4459-aeff-b4cb16702567,unknown_queued,W18x36,Queued for review (structural_section),system,2026-07-23T08:31:52.807934+00:00
+2d9e4be9-b2ce-4b1a-8a45-f63c8218353d,token_approved,A307,class=A307,user,2026-07-23T08:33:14.974506+00:00
+0f633e1e-7a48-4aac-86b2-bd2114a22da3,token_approved,A325,class=A325,user,2026-07-23T08:33:23.054951+00:00
+d61f9dc0-45f7-4a38-a4f1-ed71677c5a5c,token_approved,A36,class=A36,user,2026-07-23T08:33:32.905793+00:00
+48b1a4ff-d0ce-4b14-be8f-33939c23b368,token_approved,A5,class=A,user,2026-07-23T08:34:08.613522+00:00
+98800104-4909-40c3-9860-d258c8fb43a1,token_approved,A572,class=A572,user,2026-07-23T08:34:17.462104+00:00
+1ad396e6-5cce-494c-9f31-d4e79752c50c,token_approved,HSS10x10,class=HSS,user,2026-07-23T08:34:34.723830+00:00
+3ee34bbd-2c85-4d18-9163-4454a2bf895e,token_approved,HSS3x3,class=HSS,user,2026-07-23T08:34:38.386707+00:00
+26853666-16c3-46d6-a932-92fcb1bb34d0,token_approved,HSS6x8x1/2,class=HSS,user,2026-07-23T08:34:45.019552+00:00
+92703f7f-9563-4760-bc83-663ba9d146b1,token_approved,HSS8X8,class=HSS,user,2026-07-23T08:34:47.909141+00:00
+f625a085-68d8-4f21-90c8-9ac56ff9eba5,model_retrained,,"{""model"": ""SVM"", ""accuracy"": 0.9992, ""f1"": 0.999, ""rows"": 30939, ""augmented"": 21518}",user,2026-07-23T08:40:02.408858+00:00
+24097729-1c7c-412f-9082-f511dd95d8b5,token_approved,A615,class=A615,user,2026-07-23T10:23:02.662381+00:00
+caf7b387-df9f-4dea-b54a-885f96639167,token_approved,S-000,class=S,user,2026-07-23T10:23:05.429892+00:00
+2d40952f-04da-4a25-8663-f2cc6e5973fe,token_approved,S-001,class=S,user,2026-07-23T10:23:10.583461+00:00
+e66645ce-5c86-406b-aacf-8ac276cf2e83,token_approved,S-002,class=S,user,2026-07-23T10:23:15.587195+00:00
+bac12fbf-c0a7-472e-89ae-5e04f93c52cd,token_approved,S-003,class=S,user,2026-07-23T10:23:18.571672+00:00
+d9952641-720d-46f9-8486-268ec1b98081,token_approved,S-004,class=S,user,2026-07-23T10:23:21.017448+00:00
+f431993e-28c3-43a8-b81e-33dec91e9753,token_approved,S-005,class=S,user,2026-07-23T10:23:28.336782+00:00
+39a2f2b5-0973-46a3-aa1d-65402474d5ff,token_approved,S-100,class=S,user,2026-07-23T10:23:31.262688+00:00
+66fa0383-fdff-42ea-97fe-0da001357681,token_approved,S-101,class=S,user,2026-07-23T10:23:35.850615+00:00
+71a1cf28-83c4-439f-960d-ed5d789bba47,token_approved,A1064,class=A1064,user,2026-07-23T11:12:09.433149+00:00
+77190c8c-f667-492a-ae0f-ab8ee745a4c2,token_approved,S-102,class=S,user,2026-07-23T11:12:52.038680+00:00
+bb9ad966-f4a0-4f32-ad39-1fd55ae2c818,token_approved,S-103,class=S,user,2026-07-23T11:12:52.083538+00:00
+c3843ce6-1918-4e72-8d58-440e5d022edc,token_approved,S-104,class=S,user,2026-07-23T11:12:52.122916+00:00
+7ecf817e-685d-4977-b0f7-f90083110b00,token_approved,S-105,class=S,user,2026-07-23T11:12:52.173450+00:00
+a748943d-2ef6-4e20-8508-c9f8092bdfab,token_approved,S-200,class=S,user,2026-07-23T11:12:52.209145+00:00
+57a74755-1cae-4ea3-a0ed-afc9edc19750,token_approved,S-300,class=S,user,2026-07-23T11:12:52.253596+00:00
+01d490fd-b368-486e-824e-290164230f48,token_approved,S-302,class=S,user,2026-07-23T11:12:52.287121+00:00
+c11384aa-ae5b-4b23-80e1-0839b619d646,token_approved,S-400,class=S,user,2026-07-23T11:12:52.319469+00:00
+8a42b664-9aa0-47b1-bb2b-ca783d2597a5,token_approved,S-500,class=S,user,2026-07-23T11:12:52.351588+00:00
+7a05f643-577b-47d5-811e-9474f353358d,token_approved,S-501,class=S,user,2026-07-23T11:12:52.383013+00:00
+b9706770-c4e2-4b12-93ee-a5f26f0e65f4,token_approved,S-600,class=S,user,2026-07-23T11:12:52.415015+00:00
+9c6e12e8-6b45-418d-a207-90c496873c69,token_approved,S-700,class=S,user,2026-07-23T11:12:52.437121+00:00
+d8f6369b-3a5d-4cea-8322-a41b7bc53b46,token_approved,S-701,class=S,user,2026-07-23T11:12:52.467958+00:00
+793fdd74-ceb5-4836-b921-59c27156cd69,token_approved,S-710,class=S,user,2026-07-23T11:12:52.493109+00:00
+cb20917a-5f98-410a-b5d5-242f8b72d083,token_approved,S-711,class=S,user,2026-07-23T11:12:52.521016+00:00
+b9dc2b41-e84b-487e-88ca-2bf105924324,token_approved,S-800,class=S,user,2026-07-23T11:12:52.542048+00:00
+52afadc7-64c6-4323-9052-b00a2f6dff2c,token_approved,A108,class=A108,user,2026-07-23T11:12:52.566784+00:00
+e7e6d68c-a1aa-4a86-87b5-634b8ee9fb74,token_approved,A2280,class=A2280,user,2026-07-23T11:12:52.590319+00:00
+9d5fe85a-f82e-454f-b905-4751ee5edf54,token_approved,A29,class=A29,user,2026-07-23T11:12:52.617525+00:00
+cb8c24e2-77ba-40ea-8fdc-ba904e50c757,token_approved,A416,class=A416,user,2026-07-23T11:12:52.637284+00:00
+ed713dc3-888f-406a-a1ab-94e716723c61,token_approved,A446,class=A446,user,2026-07-23T11:12:52.660226+00:00
+f926002c-e39f-4799-b7fa-aefb0459bf37,token_approved,A490,class=A490,user,2026-07-23T11:12:52.859088+00:00
+0e61d44b-9bb2-4aec-9da7-981b5fb7b121,token_approved,A500,class=A500,user,2026-07-23T11:12:52.887493+00:00
+60f3f133-0690-409e-b76a-0775d5cc0816,token_approved,A53,class=A53,user,2026-07-23T11:12:52.918470+00:00
+a0066d6e-af5c-4276-9c4f-6e294b489b4c,token_approved,A563,class=A563,user,2026-07-23T11:12:52.945631+00:00
+8ff56150-5702-4785-93c4-d27573d6f364,token_approved,A653,class=A653,user,2026-07-23T11:12:52.973676+00:00
+4286a5a9-83e4-4244-875b-f80148a89f06,token_approved,A706,class=A706,user,2026-07-23T11:12:53.005998+00:00
+922a73df-455e-46e0-8626-7d2ce7ea5835,token_approved,A913,class=A913,user,2026-07-23T11:12:53.025270+00:00
+38dad24d-8a18-4ea8-91f2-5e67c6250f5b,token_approved,A959,class=A959,user,2026-07-23T11:12:53.049737+00:00
+ceb999ff-7080-415e-a94a-d7f0826ab645,token_approved,HSS5x5,class=HSS,user,2026-07-23T11:12:53.071419+00:00
+d1aada19-57ff-4144-a0b0-95e9ae84bd71,token_approved,L18x12x3/8,class=L,user,2026-07-23T11:12:53.096211+00:00
+cb6259b5-1649-4dde-bfff-eb6f99b06fc0,token_approved,L5x5,class=C,user,2026-07-23T11:12:53.118348+00:00
+98d878f0-9f99-4673-bd91-6f35222b6d6b,token_approved,A123,class=A123,user,2026-07-23T11:12:53.138576+00:00
+605e9205-145f-4ae8-b7bb-df77fcfb06c1,token_approved,A153,class=A153,user,2026-07-23T11:12:53.163947+00:00
+9d57ba3a-2aed-471f-a124-9fb6bfc0bd5d,token_approved,A496,class=A496,user,2026-07-23T11:12:53.184427+00:00
+341bbede-8fe4-4707-b4f9-9d7f258639b7,token_approved,A525,class=A525,user,2026-07-23T11:12:53.204921+00:00
+e6a742a5-19ab-43a7-b471-fe03037e535a,token_approved,A775,class=A775,user,2026-07-23T11:12:53.222158+00:00
+86d62d0c-9feb-4a76-83b9-6afbed093523,token_approved,A780,class=A780,user,2026-07-23T11:12:53.238467+00:00
+f0c4086f-d411-4387-bcfc-a77812468cf8,token_approved,A992,class=A992,user,2026-07-23T11:12:53.260494+00:00
+82272fc5-e4e2-47a8-b196-94a2509d3381,token_approved,HSS12x12,class=HSS,user,2026-07-23T11:12:53.280386+00:00
+b8363816-7ff9-43d9-bfd7-1b46b26aea81,token_approved,HSS14x0,class=HSS,user,2026-07-23T11:12:53.298465+00:00
+967ea177-f9d7-4e62-b955-59ec5041a46e,token_approved,HSS14x10,class=HSS,user,2026-07-23T11:12:53.315942+00:00
+6333a13f-73c8-4b79-868a-1eaf2c507bdc,token_approved,HSS14x14,class=HSS,user,2026-07-23T11:12:53.333872+00:00
+35f3339c-9032-4d40-80a2-271e556eaf3c,token_approved,HSS6x6,class=HSS,user,2026-07-23T11:12:53.351489+00:00
+d48896b9-7cc2-47d8-94f9-a58c92a69b5c,token_approved,HSS8X6,class=HSS,user,2026-07-23T11:12:53.369213+00:00
+b29b608a-7a1e-46bc-b89f-64986db39eac,token_approved,HSS8x4,class=HSS,user,2026-07-23T11:12:53.386535+00:00
+012cbe46-c389-46f8-a571-772280847d48,token_approved,L2x2x10,class=L,user,2026-07-23T11:12:53.404030+00:00
+707e2e24-be9c-4ad8-8efc-a46526791ea0,token_approved,L4x4,class=L,user,2026-07-23T11:12:53.424270+00:00
+572e715f-84cc-4250-ab6e-61cb78d7287c,token_approved,L5x3,class=L,user,2026-07-23T11:12:53.446453+00:00
+db266dfd-161e-4379-846d-062952401179,token_approved,L6x3,class=L,user,2026-07-23T11:12:53.469573+00:00
+bedd360f-fb5c-466d-944f-24e2e3258aa6,token_approved,L6x4x1/4,class=L,user,2026-07-23T11:12:53.497857+00:00
+834016ad-0eaa-4ca3-8a56-7a41703dc411,token_approved,L7x7x1/2,class=L,user,2026-07-23T11:12:53.523100+00:00
+4a99505a-107c-41bc-a610-3fc906e58776,token_approved,W18x36,class=W,user,2026-07-23T11:12:53.547926+00:00
+544dcd8d-2688-44ac-88df-2d8984bdbd60,model_retrained,,"{""model"": ""SVM"", ""accuracy"": 0.9992, ""f1"": 0.999, ""rows"": 30939, ""augmented"": 21518}",user,2026-07-23T11:16:49.144057+00:00
+e8f3a129-7cbe-4e9d-9e29-a397708175cc,model_retrained,,"{""model"": ""SVM"", ""accuracy"": 0.9992, ""f1"": 0.999, ""rows"": 30939, ""augmented"": 21518}",user,2026-07-23T11:19:58.101308+00:00
+faa6ea23-84c2-4f20-bca6-b7d9a4578f93,model_retrained,,"{""model"": ""SVM"", ""accuracy"": 0.9992, ""f1"": 0.999, ""rows"": 30939, ""augmented"": 21518}",user,2026-07-23T11:20:01.964207+00:00
+42605287-5505-4ac9-8b88-ff4ae10f2bbd,unknown_queued,A123,Queued for review (material),system,2026-07-23T11:20:34.721130+00:00
+e4f814f9-b47b-4d1e-a9ba-8812c0dcd0bb,unknown_queued,A205,Queued for review (material),system,2026-07-23T11:20:34.748816+00:00
+4911b916-190c-4f96-8232-33903eff3726,unknown_queued,A307,Queued for review (bolt),system,2026-07-23T11:20:34.774000+00:00
+8f0a662a-b975-42fa-b5e5-076fad683b03,unknown_queued,A325,Queued for review (bolt),system,2026-07-23T11:20:34.800817+00:00
+3cb05956-621a-4b48-9e46-246934a3f1d9,unknown_queued,A36,Queued for review (material),system,2026-07-23T11:20:34.833262+00:00
+008bd5d1-9013-4b88-889f-60c516647b85,unknown_queued,A5,Queued for review (structural_section),system,2026-07-23T11:20:34.869327+00:00
+24c47028-d7c8-47e1-8128-d2a00406f0f2,unknown_queued,A572,Queued for review (material),system,2026-07-23T11:20:34.908951+00:00
+367a587b-fa45-432e-ac32-827468ee19b1,unknown_queued,A615,Queued for review (material),system,2026-07-23T11:20:34.942353+00:00
+1a91da59-4263-4f25-b61e-288fac9e3c62,unknown_queued,A992,Queued for review (material),system,2026-07-23T11:20:34.976903+00:00
+62e8f854-f14a-4da4-9ec8-86ba00d63c80,unknown_queued,HSS10x10,Queued for review (structural_section),system,2026-07-23T11:20:35.018284+00:00
+11a72f82-fd62-4cae-a99f-a6459b4605d1,unknown_queued,HSS3x3,Queued for review (structural_section),system,2026-07-23T11:20:35.090904+00:00
+add0dd8d-d986-43ac-87ac-d767a60ad6be,unknown_queued,HSS6x8x1/2,Queued for review (structural_section),system,2026-07-23T11:20:35.168649+00:00
+e28bc52f-3c4c-46ff-837a-958129ee7c4b,unknown_queued,HSS8X8,Queued for review (structural_section),system,2026-07-23T11:20:35.200694+00:00
+51c8f5e1-2606-4d3b-8899-2635fafc6ea6,unknown_queued,S-000,Queued for review (structural_section),system,2026-07-23T11:20:35.536978+00:00
+d4930b39-d385-4607-a469-1c0e311b93f4,unknown_queued,S-001,Queued for review (structural_section),system,2026-07-23T11:20:35.573726+00:00
+c3f75f9e-a9d0-4e8e-be51-1fbe098dc740,unknown_queued,S-002,Queued for review (structural_section),system,2026-07-23T11:20:35.610264+00:00
+cd73d433-b67e-43e4-865f-87147d95d8f6,unknown_queued,S-003,Queued for review (structural_section),system,2026-07-23T11:20:35.642362+00:00
+b8e20fa7-e653-4fa3-ad96-cd1577459562,unknown_queued,S-004,Queued for review (structural_section),system,2026-07-23T11:20:35.678571+00:00
+224c169e-9138-4ce7-bc61-984c613ce520,unknown_queued,S-005,Queued for review (structural_section),system,2026-07-23T11:20:35.718436+00:00
+4226a8ff-deba-49db-97ff-0c6c06068acf,unknown_queued,S-100,Queued for review (structural_section),system,2026-07-23T11:20:35.761891+00:00
+d6a8460e-001b-44e7-ad2f-1a37d8de27ce,unknown_queued,S-101,Queued for review (structural_section),system,2026-07-23T11:20:35.795460+00:00
+d5c3783a-75fb-4ad9-b4b4-cb921e70405e,unknown_queued,S-102,Queued for review (structural_section),system,2026-07-23T11:20:35.831424+00:00
+77a56c4f-9b36-4d49-88ad-f919c61c80e1,unknown_queued,S-103,Queued for review (structural_section),system,2026-07-23T11:20:35.866721+00:00
+49cbb52d-673d-4eff-bd03-de0612233556,unknown_queued,S-104,Queued for review (structural_section),system,2026-07-23T11:20:35.895782+00:00
+ce988343-8e45-4b29-91c6-85c07ff762e3,unknown_queued,S-105,Queued for review (structural_section),system,2026-07-23T11:20:35.928675+00:00
+5a89c790-c7ad-42de-b4bf-941092a9b010,unknown_queued,S-200,Queued for review (structural_section),system,2026-07-23T11:20:35.969678+00:00
+29cadef3-40f5-4a07-b5c0-10871192687f,unknown_queued,S-300,Queued for review (structural_section),system,2026-07-23T11:20:36.003186+00:00
+15ecf75b-4dba-43c3-acf9-e7e8b0e16fdb,unknown_queued,S-302,Queued for review (structural_section),system,2026-07-23T11:20:36.038212+00:00
+15a9ce3c-d949-485d-814c-6c8a176b9e1e,unknown_queued,S-400,Queued for review (structural_section),system,2026-07-23T11:20:36.075272+00:00
+a1649f39-5f25-448a-a564-f800d76bea97,unknown_queued,S-500,Queued for review (structural_section),system,2026-07-23T11:20:36.108493+00:00
+47978ece-c9c1-4ac6-afc7-e70e3b8818f6,unknown_queued,S-501,Queued for review (structural_section),system,2026-07-23T11:20:36.142008+00:00
+cb3a49ab-e58e-49d3-aaa1-ca84b0a0b405,unknown_queued,S-600,Queued for review (structural_section),system,2026-07-23T11:20:36.176474+00:00
+4232de2f-585b-48e3-ba6a-1845d06c4062,unknown_queued,S-700,Queued for review (structural_section),system,2026-07-23T11:20:36.217777+00:00
+59f4fa6c-61fe-4c53-a0ae-cb04f5c58daa,unknown_queued,S-701,Queued for review (structural_section),system,2026-07-23T11:20:36.252688+00:00
+d38187db-e7d5-4bba-8c64-d8a0b77ac0ff,unknown_queued,S-710,Queued for review (structural_section),system,2026-07-23T11:20:36.286464+00:00
+27d606da-4ad0-4e0a-970e-4a737dbde4a8,unknown_queued,S-711,Queued for review (structural_section),system,2026-07-23T11:20:36.323616+00:00
+84f942e0-08ca-443b-af8b-c89b2a8c8c6a,unknown_queued,S-800,Queued for review (structural_section),system,2026-07-23T11:20:36.356699+00:00
+44f8a9c7-29c1-4f27-92de-f1bcbb7c85cb,token_approved,A123,class=A123,user,2026-07-23T11:21:28.465452+00:00
+a4967694-9aef-4599-80f9-037566957b97,token_approved,A205,class=A205,user,2026-07-23T11:21:38.583872+00:00
+89c6ce54-76f8-421e-a98a-0b462e7a1c06,token_approved,A307,class=A307,user,2026-07-23T11:21:42.542549+00:00
+509cf3d4-bf84-4b52-8876-a926949d7b84,token_approved,A325,class=A325,user,2026-07-23T11:21:43.953717+00:00
+9edce309-f339-489e-874a-70e41af67e2e,token_approved,A36,class=A36,user,2026-07-23T11:21:50.727653+00:00
+282ef6d7-ec05-445a-b910-cdc768b8b657,token_approved,A5,class=A,user,2026-07-23T11:21:58.100703+00:00
+29472ae9-cf39-4076-9978-fb976868cca9,token_approved,HSS10x10,class=HSS,user,2026-07-23T11:22:08.018922+00:00
+93eb3617-b6b0-4c69-a533-9fd838029c93,token_approved,HSS3x3,class=HSS,user,2026-07-23T11:22:09.861540+00:00
+6bbec3e7-7e3b-459f-98cf-ace7d4829bfd,token_approved,HSS6x8x1/2,class=HSS,user,2026-07-23T11:22:12.161627+00:00
+b6b762f4-adfb-4294-9e4d-d1ba173d3529,token_approved,HSS8X8,class=HSS,user,2026-07-23T11:22:14.569201+00:00
+b7264192-e607-4c6e-bc52-23c748059253,token_approved,S-000,class=S,user,2026-07-23T11:22:19.194123+00:00
+b1151039-0b2f-4aa2-b0e2-d2e09967efdc,token_approved,S-001,class=S,user,2026-07-23T11:22:20.455304+00:00
+3ea042ca-46c6-41d6-9ab4-58124d740568,token_approved,S-002,class=S,user,2026-07-23T11:22:21.823669+00:00
+72fc33da-35bf-4548-84be-f683bbf88fae,token_approved,S-003,class=S,user,2026-07-23T11:22:23.054576+00:00
+a6bdb30d-a4eb-4e05-9f21-4a33e154e464,token_approved,S-004,class=S,user,2026-07-23T11:22:23.755805+00:00
+c2df8556-06fd-4800-8149-40ab92818547,token_approved,S-005,class=S,user,2026-07-23T11:22:24.557990+00:00
+54ca9cba-c505-40e9-b2fd-fbfbdaecaede,token_approved,S-100,class=S,user,2026-07-23T11:22:25.150446+00:00
+b338b747-2339-4f3c-a24c-b7168df8a736,token_approved,S-101,class=S,user,2026-07-23T11:22:26.197370+00:00
+557cd122-17f0-4bc6-a81a-32ffc996acd2,token_approved,S-102,class=S,user,2026-07-23T11:22:26.668656+00:00
+a2c07377-a60b-49e9-afbb-86061941947a,token_approved,S-103,class=S,user,2026-07-23T11:22:27.247840+00:00
+a1b711cb-8910-48c0-9078-b1ee989b7141,token_approved,S-104,class=S,user,2026-07-23T11:22:28.206198+00:00
+83a71077-5e95-49fe-b2a2-e4a36c20e86e,token_approved,S-105,class=S,user,2026-07-23T11:22:28.725652+00:00
+e9651ca3-79ab-4fa1-a894-70147fd45a1d,token_approved,S-200,class=S,user,2026-07-23T11:22:29.326712+00:00
+ccc016fc-18aa-41f1-957a-360d6ab38ddf,token_approved,S-300,class=S,user,2026-07-23T11:22:29.844202+00:00
+dd952454-7e22-489f-8b31-f3cb63459f66,token_approved,S-302,class=S,user,2026-07-23T11:22:30.377329+00:00
+44daf618-5155-4ec5-bd2f-6db8f9abc1df,token_approved,S-400,class=S,user,2026-07-23T11:22:30.841654+00:00
+b1f077d2-0a42-4f4d-81bf-027948322fce,token_approved,S-500,class=S,user,2026-07-23T11:22:31.336425+00:00
+0b99e06b-512f-441c-8a67-eff30aad7a5f,token_approved,S-501,class=S,user,2026-07-23T11:22:31.847497+00:00
+68b28af4-8c71-4852-b9a1-6712b1a8ceb1,token_approved,S-600,class=S,user,2026-07-23T11:22:32.292982+00:00
+26ccf2da-912b-40f3-9bb4-752cc01bf167,token_approved,A992,class=A992,user,2026-07-23T11:22:34.576570+00:00
+611ed156-b912-48cc-963d-5b24f3e12c12,token_approved,S-700,class=S,user,2026-07-23T11:22:36.390280+00:00
+ad2c2193-7653-47a2-8889-e09f8d7463fc,token_approved,S-701,class=S,user,2026-07-23T11:22:38.310444+00:00
+8fd62912-9c3d-402a-b3dd-31575cf87710,token_approved,S-710,class=S,user,2026-07-23T11:22:39.204306+00:00
+7431f885-b9b2-4666-a7eb-16ab41ed1331,token_approved,S-711,class=S,user,2026-07-23T11:22:39.788244+00:00
+f46d336c-68f4-494b-b582-c3b44fbb317c,token_approved,S-800,class=S,user,2026-07-23T11:22:40.508460+00:00
+3c629c48-12cc-433c-a226-e9bdde4afa56,token_approved,A572,class=A572,user,2026-07-23T11:22:50.702596+00:00
+b3ed8095-4f2f-4c65-906c-bada25692b87,token_approved,A615,class=A615,user,2026-07-23T11:22:58.931772+00:00
+50e0a387-44be-497f-956f-fdd423c49593,model_retrained,,"{""model"": ""SVM"", ""accuracy"": 0.9992, ""f1"": 0.999, ""rows"": 30939, ""augmented"": 21518}",user,2026-07-23T11:25:20.567170+00:00
+ee7af820-3d20-499e-b505-068ed7e05ec0,unknown_queued,A1064,Queued for review (material),system,2026-07-23T11:26:02.038868+00:00
+e9c6ec81-1315-46df-981c-bebb51c4ff43,unknown_queued,A2,Queued for review (structural_section),system,2026-07-23T11:26:02.076436+00:00
+392652fa-bf3f-44c1-8147-b496491cb8a1,unknown_queued,A3,Queued for review (structural_section),system,2026-07-23T11:26:02.122926+00:00
+127f0930-4aa7-4342-95a7-ff2c28e1d9d2,unknown_queued,A307,Queued for review (bolt),system,2026-07-23T11:26:02.157708+00:00
+c5520ad4-4df8-43ca-8460-14a421ed7170,unknown_queued,A325,Queued for review (bolt),system,2026-07-23T11:26:02.196959+00:00
+65ec5806-919d-45c6-bc45-1822286cfd8e,unknown_queued,A36,Queued for review (material),system,2026-07-23T11:26:02.238179+00:00
+e6813171-d989-4b81-8c62-4a9badd1e4cc,unknown_queued,A500,Queued for review (material),system,2026-07-23T11:26:02.277243+00:00
+c0555e43-465a-4bc7-8a9f-53c8477fa7c8,unknown_queued,A53,Queued for review (material),system,2026-07-23T11:26:02.313267+00:00
+86abbfa0-b099-4c2a-85ef-a0a4de3876a3,unknown_queued,A568,Queued for review (material),system,2026-07-23T11:26:02.353842+00:00
+ae79b561-9101-42dd-af7d-efcb95abfc56,unknown_queued,A572,Queued for review (material),system,2026-07-23T11:26:02.391136+00:00
+ec230cfe-d3c4-48a1-9c48-56e1472f87e5,unknown_queued,A588,Queued for review (material),system,2026-07-23T11:26:02.434700+00:00
+8b1e9979-a53c-4b45-89ee-06c47dfaacf6,unknown_queued,A6,Queued for review (structural_section),system,2026-07-23T11:26:02.472683+00:00
+c941a6eb-c078-4df0-8afd-f954b439b508,unknown_queued,A615,Queued for review (material),system,2026-07-23T11:26:02.509539+00:00
+f03e3c5b-5b4c-4650-88ff-5c2caefb8bd5,unknown_queued,A653,Queued for review (material),system,2026-07-23T11:26:02.546538+00:00
+633100de-703c-4177-be68-45f77c428103,unknown_queued,A913,Queued for review (material),system,2026-07-23T11:26:02.594855+00:00
+6bfac9f3-8735-4227-8d76-a35edfef9d75,unknown_queued,A970,Queued for review (material),system,2026-07-23T11:26:02.638578+00:00
+e17f3ede-2b3a-4ba9-ab53-d8a4cb1378a8,unknown_queued,A992,Queued for review (material),system,2026-07-23T11:26:02.680443+00:00
+331703bf-32d0-4ba0-80e8-3f99b71ce005,unknown_queued,HSS10X0,Queued for review (structural_section),system,2026-07-23T11:26:02.724188+00:00
+85f97874-680a-483f-9613-ee98c4681440,unknown_queued,HSS12X4,Queued for review (structural_section),system,2026-07-23T11:26:02.803339+00:00
+b43a73ce-18ef-4ffe-abaf-bae7beb8a433,unknown_queued,HSS4x0,Queued for review (structural_section),system,2026-07-23T11:26:03.075211+00:00
+3cac8d45-c827-4bdc-83b0-a2b6980c1d5b,unknown_queued,HSS6X0,Queued for review (structural_section),system,2026-07-23T11:26:03.176545+00:00
+7bd80f2d-5b5b-4049-82c5-4140cfa548e5,unknown_queued,HSS6x6,Queued for review (structural_section),system,2026-07-23T11:26:03.310655+00:00
+d75e3044-2e1d-49c3-879d-a609e28f3df8,unknown_queued,HSS8X6,Queued for review (structural_section),system,2026-07-23T11:26:03.372652+00:00
+4007897e-276c-4db8-82ae-0cc2cb53dab5,unknown_queued,L1x1x1/4,Queued for review (structural_section),system,2026-07-23T11:26:03.526006+00:00
+1b002cf7-80a2-4fea-a5a6-2e0ab06f8eb2,unknown_queued,L4X3,Queued for review (structural_section),system,2026-07-23T11:26:03.759699+00:00
+6c473954-779c-4085-80fd-b69e75bd6558,unknown_queued,L5X3,Queued for review (structural_section),system,2026-07-23T11:26:03.979065+00:00
+0baec3e7-3791-4a12-8dcb-3d1d10b0e9b6,unknown_queued,L5x5x1/4,Queued for review (structural_section),system,2026-07-23T11:26:04.021858+00:00
+1a1a6375-59ff-407a-a4f5-c6fb99ac8c67,unknown_queued,S-001,Queued for review (structural_section),system,2026-07-23T11:26:04.124006+00:00
+3aac37d9-be3c-434c-a072-6f01554c7199,unknown_queued,S-002,Queued for review (structural_section),system,2026-07-23T11:26:04.163200+00:00
+138997ad-aee9-4f42-bd76-8c2bfe55f000,unknown_queued,S-003,Queued for review (structural_section),system,2026-07-23T11:26:04.204557+00:00
+a218d22e-7e80-4a11-bd40-0a32f729a839,unknown_queued,S-004,Queued for review (structural_section),system,2026-07-23T11:26:04.246083+00:00
+64daa256-9699-4519-b5e5-5bf663148af5,unknown_queued,S-005,Queued for review (structural_section),system,2026-07-23T11:26:04.287764+00:00
+64f32191-99bc-4f21-b8fb-668340536ec5,unknown_queued,S-111,Queued for review (structural_section),system,2026-07-23T11:26:04.323935+00:00
+24bb980f-b700-4202-bd1c-0d4172e4d5d1,unknown_queued,S-112,Queued for review (structural_section),system,2026-07-23T11:26:04.358770+00:00
+bfa4ae20-247e-40aa-894e-e905016dd2d6,unknown_queued,S-113,Queued for review (structural_section),system,2026-07-23T11:26:04.401775+00:00
+63ef20e2-578d-4120-ac92-d8616edf0c5a,unknown_queued,S-121,Queued for review (structural_section),system,2026-07-23T11:26:04.439505+00:00
+28406a1f-1219-49dc-a0ee-90e67fdc5e44,unknown_queued,S-122,Queued for review (structural_section),system,2026-07-23T11:26:04.476569+00:00
+06ed0829-3c06-4661-ad12-45cb66ab373b,unknown_queued,S-123,Queued for review (structural_section),system,2026-07-23T11:26:04.524265+00:00
+d10e2bd3-7d27-4bd1-b6aa-838889c7610b,unknown_queued,S-124,Queued for review (structural_section),system,2026-07-23T11:26:04.571077+00:00
+123a638b-b9d5-4427-84ae-36508cb2660f,unknown_queued,S-131,Queued for review (structural_section),system,2026-07-23T11:26:04.612182+00:00
+ae77292b-7a6e-4748-8a0e-5e21b35d5839,unknown_queued,S-132,Queued for review (structural_section),system,2026-07-23T11:26:04.652334+00:00
+b3a55565-a0f8-46f1-8fec-04e36b530d71,unknown_queued,S-141,Queued for review (structural_section),system,2026-07-23T11:26:04.692342+00:00
+a76ffff1-bbe9-4bf9-ae5c-5b1573a7bd6d,unknown_queued,S-142,Queued for review (structural_section),system,2026-07-23T11:26:04.730006+00:00
+664da043-b62b-43d8-900b-15072aa42851,unknown_queued,S-200,Queued for review (structural_section),system,2026-07-23T11:26:04.773298+00:00
+c6d8547b-6040-4240-b24f-7f2d79e3a886,unknown_queued,S-201,Queued for review (structural_section),system,2026-07-23T11:26:04.811326+00:00
+6ef4ac0c-e07e-4aa8-b9d4-ad38d22dc824,unknown_queued,S-202,Queued for review (structural_section),system,2026-07-23T11:26:04.852062+00:00
+22e20f7d-22b7-42c7-b4a9-91d1c9b3e77e,unknown_queued,S-203,Queued for review (structural_section),system,2026-07-23T11:26:04.890150+00:00
+e39b72f7-8c57-4504-b8d2-173468ee7eaf,unknown_queued,S-204,Queued for review (structural_section),system,2026-07-23T11:26:04.935891+00:00
+570694a7-3031-4d7d-9f07-dc6aad2a0d49,unknown_queued,S-205,Queued for review (structural_section),system,2026-07-23T11:26:04.976023+00:00
+1f459d51-7542-486a-8922-422ea70e4025,unknown_queued,S-206,Queued for review (structural_section),system,2026-07-23T11:26:05.019338+00:00
+cd375426-db7d-47df-bd58-ccffc736b22b,unknown_queued,S-207,Queued for review (structural_section),system,2026-07-23T11:26:05.056891+00:00
+372ca513-2fff-42a3-9aad-89dddf28901d,unknown_queued,S-208,Queued for review (structural_section),system,2026-07-23T11:26:05.096480+00:00
+fd786ac7-3fd2-4efe-aa49-63fa5dccbcd3,unknown_queued,S-209,Queued for review (structural_section),system,2026-07-23T11:26:05.138569+00:00
+3dff37de-0ebd-4c1e-849c-3b7d1eb1c268,unknown_queued,S-301,Queued for review (structural_section),system,2026-07-23T11:26:05.175068+00:00
+47cc8c91-0993-4865-aef1-7f827abac845,unknown_queued,S-302,Queued for review (structural_section),system,2026-07-23T11:26:05.225955+00:00
+d69d7c30-346f-4fe7-8456-81c7fa5dd3a8,unknown_queued,S-311,Queued for review (structural_section),system,2026-07-23T11:26:05.267306+00:00
+cd6f0be0-20e3-46c8-9958-d0a2b8ee612a,unknown_queued,S-312,Queued for review (structural_section),system,2026-07-23T11:26:05.302254+00:00
+6e9c25c5-adbc-4f92-b4fe-086da4324248,unknown_queued,S-313,Queued for review (structural_section),system,2026-07-23T11:26:05.344422+00:00
+9d3f49e6-a6f8-420f-b35b-adfb39d6eefc,unknown_queued,S-321,Queued for review (structural_section),system,2026-07-23T11:26:05.394228+00:00
+ea58de00-bffe-478d-998d-dfe376d85acb,unknown_queued,S-322,Queued for review (structural_section),system,2026-07-23T11:26:05.437817+00:00
+ecc19744-1bf0-495c-9270-dd28e7a7dd8f,unknown_queued,S-401,Queued for review (structural_section),system,2026-07-23T11:26:05.477202+00:00
+1c07fbf5-1c3d-4d9b-9bfb-0498cc4d128b,unknown_queued,S-402,Queued for review (structural_section),system,2026-07-23T11:26:05.520176+00:00
+a8cae2d8-5a3c-442d-9089-3a800e5432bf,unknown_queued,S-403,Queued for review (structural_section),system,2026-07-23T11:26:05.558724+00:00
+bc0b8efc-1bc5-4e18-8629-35357c486953,unknown_queued,S-404,Queued for review (structural_section),system,2026-07-23T11:26:05.602167+00:00
+dfa53ab2-f1d8-4e64-a100-6a9b436c37dd,unknown_queued,S-501,Queued for review (structural_section),system,2026-07-23T11:26:05.639117+00:00
+d7a42190-a66e-48d3-ae9a-0b7fc8c416e9,unknown_queued,S-502,Queued for review (structural_section),system,2026-07-23T11:26:05.672391+00:00
+b2fd861c-40de-4394-a020-6c0e5bc08aca,unknown_queued,S-601,Queued for review (structural_section),system,2026-07-23T11:26:05.710893+00:00
+27b19bd6-437b-43dc-951a-1d86da3a3894,unknown_queued,W14X198,Queued for review (structural_section),system,2026-07-23T11:26:06.304578+00:00
+561ff9e9-cd9d-4b2e-80c1-5fa2faa5977f,token_rejected,A1064,class=A1064,user,2026-07-23T11:26:52.776134+00:00
+b025deb6-3f27-45bc-8ed1-1803cbf1d110,token_rejected,A2,class=A,user,2026-07-23T11:26:56.229014+00:00
+8d1af7cb-2b25-45b9-bc73-dbefa318e79b,token_rejected,A3,class=A,user,2026-07-23T11:26:57.340693+00:00
+2af808f9-bb9a-4517-abf7-4b54b541eafc,token_approved,A307,class=A307,user,2026-07-23T11:26:59.558387+00:00
+42507f56-76e8-41da-8998-eba73f3f7ac2,token_approved,A325,class=A325,user,2026-07-23T11:27:00.636615+00:00
+be6003df-bf2b-465d-ad65-aa2250eeac1d,token_approved,A36,class=A36,user,2026-07-23T11:27:13.478113+00:00
+996cd6b2-c201-4e55-9a84-0e40a81fde9f,token_approved,A500,class=A500,user,2026-07-23T11:27:22.993282+00:00
+1ecbb5a1-a09a-45d7-8c5f-1ece4acc354b,token_rejected,A6,class=A,user,2026-07-23T11:27:28.948912+00:00
+d465bacc-003e-4dd5-a05c-7745c61e14bf,token_approved,HSS12X4,class=HSS,user,2026-07-23T11:27:33.993715+00:00
+0a373160-7ae4-474d-9fce-a721b2f9e901,token_approved,HSS4x0,class=HSS,user,2026-07-23T11:27:35.137550+00:00
+30738539-a1c1-4bad-87c0-912ae639fa27,token_approved,HSS6X0,class=HSS,user,2026-07-23T11:27:36.871697+00:00
+68b680f5-e9ec-41e2-8eee-723818de934f,token_approved,HSS10X0,class=HSS,user,2026-07-23T11:27:38.676299+00:00
+6da675b9-ece0-480c-a851-f64de8993d34,token_approved,HSS6x6,class=HSS,user,2026-07-23T11:27:41.087724+00:00
+cfbaca27-7c99-4ac5-8b8e-07537362629b,token_approved,HSS8X6,class=HSS,user,2026-07-23T11:27:42.453919+00:00
+fdd4fcfe-15c0-4f80-86dd-4254450d2170,token_approved,L1x1x1/4,class=L,user,2026-07-23T11:27:44.525070+00:00
+5093fef8-6786-4565-9a8f-9bac4b385d5a,token_approved,L4X3,class=L,user,2026-07-23T11:27:45.593083+00:00
+a0942a3a-59bc-42c9-961c-b757f73bdfd0,token_approved,L5X3,class=L,user,2026-07-23T11:27:46.656605+00:00
+f6731727-e7bf-4e49-9b3c-e4416234d65c,token_approved,L5x5x1/4,class=L,user,2026-07-23T11:27:47.748231+00:00
+12843ec9-df27-48a9-983d-6ad4351ad817,token_approved,S-001,class=S,user,2026-07-23T11:27:48.951983+00:00
+078be51d-9e19-4a68-8efc-b5de4b22da55,token_approved,S-002,class=S,user,2026-07-23T11:27:50.738728+00:00
+e9fd5029-108d-4702-a844-c5c1b0582050,token_approved,S-003,class=S,user,2026-07-23T11:27:51.903527+00:00
+bf696735-ed3a-43c2-90ac-f413d83b7057,token_approved,S-004,class=S,user,2026-07-23T11:27:52.638638+00:00
+89f2cf5c-b139-4ea8-92bb-27428294b741,token_approved,S-005,class=S,user,2026-07-23T11:27:53.940034+00:00
+83adf374-a53d-40b5-ae74-facf5ba7f239,token_approved,S-111,class=S,user,2026-07-23T11:27:54.597597+00:00
+57b98ed3-bd09-4c6d-886a-9f7dec0272c0,token_approved,S-112,class=S,user,2026-07-23T11:27:55.534430+00:00
+633b4423-83a0-4209-897f-989c0f86a5ce,token_approved,S-113,class=S,user,2026-07-23T11:27:56.991242+00:00
+a93a8367-d13e-46da-b871-9291e8645660,token_approved,S-121,class=S,user,2026-07-23T11:27:58.250640+00:00
+d4fe5560-21df-4ec7-82e5-e560db220a4c,token_approved,S-122,class=S,user,2026-07-23T11:27:59.136850+00:00
+770fcb91-3ee2-434f-bead-cf428eb1b8dd,token_approved,S-123,class=S,user,2026-07-23T11:27:59.844163+00:00
+9e0762ae-b014-44f7-a6de-2036ad0a98fa,token_approved,S-124,class=S,user,2026-07-23T11:28:00.568163+00:00
+810b22f8-76b3-46ea-a159-bef4685e43e7,token_approved,S-131,class=S,user,2026-07-23T11:28:01.267273+00:00
+703cd067-e8df-4535-a44a-77d7bf99bf95,token_approved,S-132,class=S,user,2026-07-23T11:28:01.968553+00:00
+409294de-97f3-44e6-ab35-249c5e75c019,token_approved,S-141,class=S,user,2026-07-23T11:28:02.634922+00:00
+5d2e5f15-c1ea-41a5-8b69-31444c5a0f10,token_approved,S-142,class=S,user,2026-07-23T11:28:03.296246+00:00
+956617af-e15d-45a2-a8d4-8fd7a65d2323,token_approved,S-200,class=S,user,2026-07-23T11:28:03.969361+00:00
+9e8c211f-79e9-406a-87ef-bc19ce672894,token_approved,S-201,class=S,user,2026-07-23T11:28:04.828692+00:00
+e77dc7be-8855-4e5f-b8c2-e226330981f1,token_approved,S-202,class=S,user,2026-07-23T11:28:05.648579+00:00
+a2d97e99-ef59-4991-ae32-86c74fbb8cdc,token_approved,S-203,class=S,user,2026-07-23T11:28:06.310165+00:00
+adae13e1-34ca-40b9-9eea-e859b35d635a,token_approved,S-204,class=S,user,2026-07-23T11:28:06.993507+00:00
+f92e1ba7-6909-4ffb-875f-f14de03831c2,token_approved,S-205,class=S,user,2026-07-23T11:28:12.352134+00:00
+3ee86f5c-0203-4b9d-a383-bc729f0648f7,token_approved,S-206,class=S,user,2026-07-23T11:28:13.656635+00:00
+70d17c05-9277-4560-ab29-df4d96119fd6,token_approved,S-207,class=S,user,2026-07-23T11:28:18.227247+00:00
+ecfe6711-d5e3-4a5e-8c86-36c7c37970fd,token_approved,S-208,class=S,user,2026-07-23T11:28:18.971995+00:00
+4c5b17e1-1033-47b4-9399-c91185022672,token_approved,S-209,class=S,user,2026-07-23T11:28:19.821623+00:00
+e4a92ed8-4c44-4e6d-b13f-65a15e078cab,token_approved,S-301,class=S,user,2026-07-23T11:28:20.668327+00:00
+ce41120c-d229-4799-aa92-871e1ed0e307,token_approved,S-302,class=S,user,2026-07-23T11:28:22.167562+00:00
+3f45385f-4cda-45aa-9d8d-b1681aaf2b7c,token_approved,S-311,class=S,user,2026-07-23T11:28:22.820080+00:00
+3833f09e-47d7-485d-a26c-d9e8011e39ca,token_approved,S-312,class=S,user,2026-07-23T11:28:23.408923+00:00
+ae589c60-39ae-43ee-aec1-9904b3ff24e4,token_approved,S-313,class=S,user,2026-07-23T11:28:23.972792+00:00
+843c7c2c-df87-474e-b6a6-86b47a421b37,token_approved,S-321,class=S,user,2026-07-23T11:28:24.528096+00:00
+e2848986-b26f-4178-a9f7-cbae7cde2bbf,token_approved,S-322,class=S,user,2026-07-23T11:28:25.104967+00:00
+30abb3b3-51e8-46ca-9fb7-740382e9fc2e,token_approved,S-401,class=S,user,2026-07-23T11:28:25.711002+00:00
+24bd4eba-659a-4f7e-9a4e-a6c773d92521,token_approved,S-402,class=S,user,2026-07-23T11:28:26.235899+00:00
+54a35d1a-ad7c-4658-af57-60c81ab10570,token_approved,S-403,class=S,user,2026-07-23T11:28:26.994893+00:00
+807fdfaf-9e67-4adb-9fc9-c8750ba0c4db,token_approved,A992,class=A992,user,2026-07-23T11:28:27.685921+00:00
+3e721bab-206c-4886-9a7b-0d587f6eab2a,token_approved,A970,class=A970,user,2026-07-23T11:28:28.504111+00:00
+3e6fd223-d850-4a4f-9bec-b9e72dfc1e32,token_approved,A913,class=A913,user,2026-07-23T11:28:30.109625+00:00
+19bb4533-2037-49a0-a84a-db09e35e0e8e,token_approved,A653,class=A653,user,2026-07-23T11:28:30.685840+00:00
+ef7085f7-fa35-4cc6-aa11-d6bb160c5950,token_approved,S-404,class=S,user,2026-07-23T11:28:34.097317+00:00
+621ce9b3-e3b0-49be-aef7-ea01ca44c7e0,token_approved,S-501,class=S,user,2026-07-23T11:28:35.985743+00:00
+212f6ea4-97c0-4c9c-92fe-5422055a153e,token_approved,S-502,class=S,user,2026-07-23T11:28:37.812757+00:00
+ae81461c-bfa7-433b-95db-b677d32b9c6d,token_approved,S-601,class=S,user,2026-07-23T11:28:39.336463+00:00
+93b1dccc-2c3f-4622-9325-293bd2f7ebca,token_approved,W14X198,class=W,user,2026-07-23T11:28:41.919088+00:00
+656a984e-746b-4457-a530-28aeb778a920,token_approved,A53,class=A53,user,2026-07-23T11:29:02.214200+00:00
+4445f0b1-bbd5-41a0-9c55-536e2fc86aa3,token_approved,A568,class=A568,user,2026-07-23T11:29:06.784165+00:00
+6ac37cb0-e26c-4558-9272-0a3e50d218c0,token_approved,A572,class=A572,user,2026-07-23T11:29:11.598096+00:00
+1302a326-7139-4c09-8821-f8e54deb1f3c,token_approved,A588,class=A588,user,2026-07-23T11:29:17.535252+00:00
+c6a798ce-bbeb-475e-b7c9-eb35876ef9fd,token_approved,A615,class=A615,user,2026-07-23T11:29:22.580873+00:00
+f836e201-0180-4ec9-b01c-554cb38c3c00,model_retrained,,"{""model"": ""SVM"", ""accuracy"": 0.9992, ""f1"": 0.999, ""rows"": 30939, ""augmented"": 21518}",user,2026-07-23T11:31:50.509094+00:00
+ce1e2ee2-398a-4858-84a2-2720e72710ea,unknown_queued,Beam W18X35,Queued for review (structural_section),system,2026-07-24T07:12:01.630900+00:00
+fa3f0c4e-45e3-4607-8bef-886a33404146,token_approved,Beam W18X35,class=W,user,2026-07-24T07:25:34.830296+00:00
+e79cf0b9-79f9-46dc-b2ee-c043c2851eb8,unknown_queued,A1064,Queued for review (material),system,2026-07-24T07:25:59.695112+00:00
+b69cdda0-5188-45e5-bcb1-1fbc057c9b7f,unknown_queued,A108,Queued for review (material),system,2026-07-24T07:25:59.760871+00:00
+e2e2e413-9af2-417f-b519-cb6d2b228121,unknown_queued,A2280,Queued for review (material),system,2026-07-24T07:25:59.832762+00:00
+fc44e7fb-99d7-4b9a-b798-652fb618fb52,unknown_queued,A29,Queued for review (material),system,2026-07-24T07:25:59.898151+00:00
+8d20ecc8-9d29-43f2-98d9-7aa8e69b0271,unknown_queued,A307,Queued for review (bolt),system,2026-07-24T07:26:00.001197+00:00
+71dbacd7-9265-420c-a512-446b52369c80,unknown_queued,A325,Queued for review (bolt),system,2026-07-24T07:26:00.163196+00:00
+3b2ec83a-f2b3-4ed3-827e-66fc436ce78d,unknown_queued,A36,Queued for review (material),system,2026-07-24T07:26:00.255670+00:00
+53a80223-bf5d-4baf-900d-34a5eed609de,unknown_queued,A416,Queued for review (material),system,2026-07-24T07:26:00.331540+00:00
+2bbb3b57-a803-449c-886a-e9f8f1fc3b07,unknown_queued,A446,Queued for review (material),system,2026-07-24T07:26:00.406503+00:00
+e154b52d-0743-44b7-874e-fd9e2170f0dc,unknown_queued,A490,Queued for review (bolt),system,2026-07-24T07:26:00.466554+00:00
+04bbf2bb-5f84-4b88-8c16-96a177bcaabc,unknown_queued,A5,Queued for review (structural_section),system,2026-07-24T07:26:00.548574+00:00
+1dbfdb23-88df-4687-932e-09059fc556b8,unknown_queued,A500,Queued for review (material),system,2026-07-24T07:26:00.616415+00:00
+2e1889ea-b09a-4199-9be5-96b04a6879e5,unknown_queued,A53,Queued for review (material),system,2026-07-24T07:26:00.694916+00:00
+8fd55b34-3e61-4ab9-b6e5-c914ea55e937,unknown_queued,A563,Queued for review (bolt),system,2026-07-24T07:26:00.771400+00:00
+252f279a-66a2-4be5-9e76-291f1b512bb1,unknown_queued,A572,Queued for review (material),system,2026-07-24T07:26:00.842051+00:00
+45045dfd-c66a-4732-bcfd-ffd1017488ec,unknown_queued,A615,Queued for review (material),system,2026-07-24T07:26:00.913739+00:00
+300154d2-55b0-4b6b-af90-585a16644eae,unknown_queued,A653,Queued for review (material),system,2026-07-24T07:26:00.989068+00:00
+98793465-5223-4d61-9553-f2c953879480,unknown_queued,A706,Queued for review (material),system,2026-07-24T07:26:01.283725+00:00
+961f9955-b7cd-4c6b-bfd1-6e1cbda15ed9,unknown_queued,A913,Queued for review (material),system,2026-07-24T07:26:01.359993+00:00
+a19af00a-9874-4609-ad37-03fbf6a41b40,unknown_queued,A959,Queued for review (material),system,2026-07-24T07:26:01.427275+00:00
+34954300-7bd8-4190-a6e2-1dc04a8ba479,unknown_queued,A992,Queued for review (material),system,2026-07-24T07:26:01.492937+00:00
+b3546e7a-6734-4299-bf5a-1121136f2eb6,unknown_queued,HSS5x5,Queued for review (structural_section),system,2026-07-24T07:26:01.909231+00:00
+d750f797-3296-4108-8b65-2d576512a677,unknown_queued,L18x12x3/8,Queued for review (structural_section),system,2026-07-24T07:26:02.482108+00:00
+ff72ab21-3056-43fb-9ae9-5745098e35bf,unknown_queued,L5x5,Queued for review (structural_section),system,2026-07-24T07:26:02.924807+00:00
+6e2d506d-addf-4787-83ed-9e904b5f82e1,token_approved,A1064,class=A1064,user,2026-07-24T07:26:36.104658+00:00
+22c995f4-835a-42cf-8a33-cc2fa20811d3,token_approved,A108,class=A108,user,2026-07-24T07:26:43.500119+00:00
+efb2ac83-2f0c-453a-a0ec-1e40b4c0ba9d,token_approved,A2280,class=A2280,user,2026-07-24T07:26:49.544689+00:00
+cd965670-02da-4a67-8d0f-283742960885,token_approved,A5,class=A,user,2026-07-24T07:27:11.858871+00:00
+05bf52f6-faf7-4fca-b04a-dcbeae8070c8,token_approved,HSS5x5,class=HSS,user,2026-07-24T07:27:28.480399+00:00
+8a280831-d8aa-415f-b633-39a541f7b0b0,token_approved,L18x12x3/8,class=L,user,2026-07-24T07:27:35.016818+00:00
+0e8051b0-13ad-49c8-ab24-b9211dbae908,token_approved,L5x5,class=L,user,2026-07-24T07:27:37.981133+00:00
+e0b3ad3a-7096-43e9-b16f-a6a1cf3e01cd,token_approved,A307,class=A307,user,2026-07-24T07:27:44.276277+00:00
+65cd62c2-d3f7-4c9c-8c48-32735aae0efc,token_approved,A325,class=A325,user,2026-07-24T07:27:45.808090+00:00
+4822f0da-322d-481f-8a0a-a149e77941e5,token_approved,A490,class=A490,user,2026-07-24T07:27:48.598530+00:00
+8c8cd45b-82ba-41ba-8fa3-b4c66458d10d,token_approved,A563,class=A563,user,2026-07-24T07:27:53.672598+00:00
+d377bb7a-cb75-4fd0-b757-94650120d278,token_rejected,A29,class=A29,user,2026-07-24T07:28:07.090521+00:00
+16452471-860c-4ee0-8aa9-ba0045c28299,token_rejected,A36,class=A36,user,2026-07-24T07:28:07.124631+00:00
+d5b15eac-b825-454b-9471-827d812d39bd,token_rejected,A416,class=A416,user,2026-07-24T07:28:07.154923+00:00
+0c6f20d8-7c77-4d13-ab47-7f6e05b84733,token_rejected,A446,class=A446,user,2026-07-24T07:28:07.192876+00:00
+ab9276f4-04ae-4fdd-9eee-63cb778badb8,token_rejected,A500,class=A500,user,2026-07-24T07:28:07.227345+00:00
+6c80e62c-7cdd-4571-9798-412943e24420,token_rejected,A53,class=A53,user,2026-07-24T07:28:07.261769+00:00
+762802ee-4c29-4989-8223-c8844cef3847,token_rejected,A572,class=A572,user,2026-07-24T07:28:07.291239+00:00
+f772ccee-6d46-4e19-95c0-2fe623c130ea,token_rejected,A615,class=A615,user,2026-07-24T07:28:07.324997+00:00
+0197dbac-b454-4cfd-9b09-da5749c17ddd,token_rejected,A653,class=A653,user,2026-07-24T07:28:07.360167+00:00
+6c30476f-9a5d-41be-807f-7294ae4879b3,token_rejected,A706,class=A706,user,2026-07-24T07:28:07.382433+00:00
+43710d02-a526-416a-83fd-acf08bb31ea9,token_rejected,A913,class=A913,user,2026-07-24T07:28:07.417427+00:00
+2659e0fe-71bb-4f61-9707-1f47d8b101e3,token_rejected,A959,class=A959,user,2026-07-24T07:28:07.452523+00:00
+b9de90b7-9380-4da8-b455-3c8506020c12,token_rejected,A992,class=A992,user,2026-07-24T07:28:07.489279+00:00
+6a85b362-3a8a-474c-b44e-b8e4b4e24cf0,model_retrained,,"{""model"": ""LightGBM"", ""accuracy"": 0.9907, ""f1"": 0.9897, ""rows"": 31239, ""augmented"": 21777}",user,2026-07-24T07:43:21.291162+00:00
+fa538f15-0fda-43de-8115-e14c7281a5e5,model_retrained,,"{""model"": ""XGBoost"", ""accuracy"": 0.9886, ""f1"": 0.9874, ""rows"": 31239, ""augmented"": 21777}",user,2026-07-24T08:21:06.013915+00:00
+373e1af0-8f6f-48a3-bbf4-739e2ab3dbc9,unknown_queued,A1064,Queued for review (material),system,2026-07-24T08:21:33.489626+00:00
+bf7339db-e4b6-466f-9d6f-2ab8187b5e3f,unknown_queued,A2,Queued for review (structural_section),system,2026-07-24T08:21:33.579194+00:00
+ec2664c6-dd03-4a2f-87fe-d03403e8653f,unknown_queued,A3,Queued for review (structural_section),system,2026-07-24T08:21:33.664609+00:00
+00955b27-8aef-41ef-b66e-46661faae071,unknown_queued,A307,Queued for review (bolt),system,2026-07-24T08:21:33.743044+00:00
+2da23146-5395-4eee-a8f4-cd78e9c55375,unknown_queued,A325,Queued for review (bolt),system,2026-07-24T08:21:33.801237+00:00
+662eb088-a1fa-4561-aec1-cbe78dc814ed,unknown_queued,A36,Queued for review (material),system,2026-07-24T08:21:33.874465+00:00
+dc9826d6-050f-4b5d-88b9-f48f4fc770be,unknown_queued,A500,Queued for review (material),system,2026-07-24T08:21:33.959367+00:00
+cbb9ace8-07ec-4e1e-b02c-ed9096280fba,unknown_queued,A53,Queued for review (material),system,2026-07-24T08:21:34.044775+00:00
+a3cf6b71-6f94-45ef-9c12-ee8978b2f41e,unknown_queued,A568,Queued for review (material),system,2026-07-24T08:21:34.125566+00:00
+00613665-f63c-4aeb-8771-fd7497caeee6,unknown_queued,A572,Queued for review (material),system,2026-07-24T08:21:34.204465+00:00
+073eb214-e820-4766-a890-5da3c1f05205,unknown_queued,A588,Queued for review (material),system,2026-07-24T08:21:34.293615+00:00
+5883d51c-bcf4-47aa-bc8d-efe4d28ba50e,unknown_queued,A6,Queued for review (structural_section),system,2026-07-24T08:21:34.379709+00:00
+34715333-2d35-4614-8875-acce21100c86,unknown_queued,A615,Queued for review (material),system,2026-07-24T08:21:34.459564+00:00
+27d756b4-951e-4c9f-841b-ffa97ec6676b,unknown_queued,A653,Queued for review (material),system,2026-07-24T08:21:34.554379+00:00
+6cf9d398-917e-468b-9df9-fa6c01cca1fd,unknown_queued,A706,Queued for review (material),system,2026-07-24T08:21:34.647784+00:00
+c282dcac-8aca-46eb-ae64-d4a2c74feb1b,unknown_queued,A913,Queued for review (material),system,2026-07-24T08:21:34.735740+00:00
+c0f87d09-020b-4b3b-ba44-4c5944817222,unknown_queued,A970,Queued for review (material),system,2026-07-24T08:21:34.817375+00:00
+b6c0fedd-c1e0-4132-8781-28fb902af8c5,unknown_queued,A992,Queued for review (material),system,2026-07-24T08:21:34.911660+00:00
+c4b566e5-be6e-4223-ab93-006a619f6780,unknown_queued,HSS10X0,Queued for review (structural_section),system,2026-07-24T08:21:35.039115+00:00
+0f1467dc-3a1a-420d-b120-d203e912e63b,unknown_queued,L1x1x1/4,Queued for review (structural_section),system,2026-07-24T08:21:35.692852+00:00
+fc8f1648-0ecb-4443-abcc-5f513d81bf17,unknown_queued,L4X3,Queued for review (structural_section),system,2026-07-24T08:21:36.163531+00:00
+81e2a7f3-34d9-42ec-94d9-d5aa2d0cfd34,unknown_queued,L5X3,Queued for review (structural_section),system,2026-07-24T08:21:36.549171+00:00
+8d02623f-7cba-44bc-ba08-fe2be18f1127,unknown_queued,L6x3,Queued for review (structural_section),system,2026-07-24T08:21:36.703173+00:00
+a7680b8b-5189-4c2b-9a48-9d2c86f01c68,unknown_queued,S-001,Queued for review (structural_section),system,2026-07-24T08:21:36.854296+00:00
+adf3ce61-16d6-4022-9635-c7fc2195fec0,unknown_queued,S-002,Queued for review (structural_section),system,2026-07-24T08:21:36.942986+00:00
+39e7e713-7cfa-4a74-8149-870726f375da,unknown_queued,S-003,Queued for review (structural_section),system,2026-07-24T08:21:37.028872+00:00
+f3a6e7d3-031a-46be-be79-8fbd751be3b5,unknown_queued,S-004,Queued for review (structural_section),system,2026-07-24T08:21:37.117956+00:00
+7c8b70bb-504a-4316-a95b-4da1f019786f,unknown_queued,S-101,Queued for review (structural_section),system,2026-07-24T08:21:37.202796+00:00
+1ee07630-267c-4c8a-aaa8-26c38ae09f90,unknown_queued,S-102,Queued for review (structural_section),system,2026-07-24T08:21:37.283586+00:00
+32ae99ff-cacc-4d3f-a986-d3d925716287,unknown_queued,S-103,Queued for review (structural_section),system,2026-07-24T08:21:37.370778+00:00
+8f9f297d-9b3e-4233-88d1-d54cdd596eb5,unknown_queued,S-104,Queued for review (structural_section),system,2026-07-24T08:21:37.453197+00:00
+e54aa644-0bda-42de-a8ab-652b495a89b8,unknown_queued,S-201,Queued for review (structural_section),system,2026-07-24T08:21:37.532406+00:00
+1ded349e-68d5-437c-ae78-802df7c4d7ec,unknown_queued,S-202,Queued for review (structural_section),system,2026-07-24T08:21:37.620996+00:00
+0465a752-a9ba-492d-b4a6-0b043a64229a,unknown_queued,S-203,Queued for review (structural_section),system,2026-07-24T08:21:37.712172+00:00
+d51ad47b-aa49-4dbd-bbd3-ab5761d0729d,unknown_queued,S-204,Queued for review (structural_section),system,2026-07-24T08:21:37.795391+00:00
+762b9a2b-a793-435a-969c-c4d46f154bdc,unknown_queued,S-205,Queued for review (structural_section),system,2026-07-24T08:21:37.886180+00:00
+67dd1c4a-28ff-4cd0-8cd5-3c19f6e32405,unknown_queued,S-206,Queued for review (structural_section),system,2026-07-24T08:21:37.979060+00:00
+904fbfde-d2b9-481c-928f-2dcc3ce19d65,unknown_queued,S-207,Queued for review (structural_section),system,2026-07-24T08:21:38.077604+00:00
+f83c7389-7a81-453c-a858-5e8dc1efb5da,unknown_queued,S-208,Queued for review (structural_section),system,2026-07-24T08:21:38.154491+00:00
+52dffd9b-c40b-4d78-b103-a0986d3aa178,unknown_queued,S-301,Queued for review (structural_section),system,2026-07-24T08:21:38.242681+00:00
+e9ee0361-a9e5-40fd-8dee-daaca21558d3,unknown_queued,S-311,Queued for review (structural_section),system,2026-07-24T08:21:38.331053+00:00
+2ed5381f-c1ec-4614-84aa-a87efa1223a1,unknown_queued,S-321,Queued for review (structural_section),system,2026-07-24T08:21:38.416924+00:00
+8347b61f-625f-4e89-8028-e7e137e08492,unknown_queued,S-322,Queued for review (structural_section),system,2026-07-24T08:21:38.504592+00:00
+a79086d5-ce69-4422-97f0-4aa8bf328ddc,unknown_queued,S-401,Queued for review (structural_section),system,2026-07-24T08:21:38.590895+00:00
+e5f02304-eee3-42d2-8274-2c414ee48bdc,unknown_queued,S-402,Queued for review (structural_section),system,2026-07-24T08:21:38.685370+00:00
+5616835f-57bd-46c6-8b91-226a5fbd3be6,unknown_queued,S-501,Queued for review (structural_section),system,2026-07-24T08:21:38.777209+00:00
+f44772de-a041-4657-a0f8-91fa1756299f,unknown_queued,S-502,Queued for review (structural_section),system,2026-07-24T08:21:38.858319+00:00
+783a179e-cd16-46aa-8dab-f76397706e02,unknown_queued,W14X198,Queued for review (structural_section),system,2026-07-24T08:21:40.191408+00:00
+7cd48f45-2fe9-4aca-b301-e27e16e65af1,token_approved,W14X198,class=W,user,2026-07-24T08:21:52.098022+00:00
+5f17f3fb-2229-48ad-9a85-e7c17b365caa,token_approved,A1064,class=A1064,user,2026-07-24T08:22:31.471436+00:00
+7310f8fe-982e-48c0-afb2-4d91101d238b,token_approved,A2,class=A,user,2026-07-24T08:22:31.534207+00:00
+f6c27473-b02f-4a82-ac87-19357f07cbe9,token_approved,A3,class=A,user,2026-07-24T08:22:31.610778+00:00
+5ef9e155-83a7-4dee-af55-1ed0d02fd0fb,token_approved,A307,class=A307,user,2026-07-24T08:22:31.670292+00:00
+e8b7f7a3-354e-499c-b7eb-7d46a24ec0fb,token_approved,A325,class=A325,user,2026-07-24T08:22:31.713471+00:00
+548493e2-06db-4d2e-8eba-1cbe2ae83d4b,token_approved,A36,class=A36,user,2026-07-24T08:22:31.775359+00:00
+c8292094-d374-4ab6-b4b0-ef258b906187,token_approved,A500,class=A500,user,2026-07-24T08:22:31.825526+00:00
+f2f0819b-2f20-4820-939f-7179857409c2,token_approved,A53,class=A53,user,2026-07-24T08:22:31.887409+00:00
+bd149063-fc59-4645-9b0e-9e5283e14e26,token_approved,A568,class=A568,user,2026-07-24T08:22:31.941835+00:00
+8e2d3aa6-eb39-43b2-9dfb-0cd4b811485f,token_approved,A572,class=A572,user,2026-07-24T08:22:31.981289+00:00
+5e7e8024-43b3-45fa-a11e-06477606f486,token_approved,A588,class=A588,user,2026-07-24T08:22:32.017604+00:00
+a670fe18-abe6-4ee0-95ae-1d41d98744e7,token_approved,A6,class=A,user,2026-07-24T08:22:32.054418+00:00
+296279f9-a2e6-45bf-b389-1f4a304194ab,token_approved,A615,class=A615,user,2026-07-24T08:22:32.101791+00:00
+fc1f3381-0106-42ef-a256-aa261ef11b39,token_approved,A653,class=A653,user,2026-07-24T08:22:32.152321+00:00
+f7a26a67-479d-4327-b3f3-28e2c5a3ad88,token_approved,A706,class=A706,user,2026-07-24T08:22:32.187652+00:00
+f3055803-5321-4c99-ab78-52035d64af63,token_approved,A913,class=A913,user,2026-07-24T08:22:32.222381+00:00
+dac93958-767a-4a90-85a7-4d25467a313c,token_approved,A970,class=A970,user,2026-07-24T08:22:32.259484+00:00
+93cfbfd2-2eda-4ec6-bf76-9b3624521150,token_approved,A992,class=A992,user,2026-07-24T08:22:32.292813+00:00
+a8f4b86f-c46a-4341-a253-3cb08ad8d6e6,token_approved,HSS10X0,class=HSS,user,2026-07-24T08:22:32.327142+00:00
+70560b84-6fb8-43a9-beb2-d45c6a831dc7,token_approved,L1x1x1/4,class=L,user,2026-07-24T08:22:32.360683+00:00
+85957d46-ae91-4e5c-bb82-e5641acb41a9,token_approved,L4X3,class=L,user,2026-07-24T08:22:32.394191+00:00
+d43ac247-9e07-4e60-91f4-ba1848c619a3,token_approved,L5X3,class=C,user,2026-07-24T08:22:32.427945+00:00
+246b81fb-a793-4e40-a506-787a4c4cad72,token_approved,L6x3,class=L,user,2026-07-24T08:22:32.462230+00:00
+8b5bcdca-2540-46a6-b5da-da831d3927d3,token_approved,S-001,class=S,user,2026-07-24T08:22:32.501933+00:00
+446a85eb-aff1-4848-9112-e2c68ba56cce,token_approved,S-002,class=S,user,2026-07-24T08:22:32.540752+00:00
+fa1e3679-a063-44cf-ae6b-8c8e6c7a3528,token_approved,S-003,class=S,user,2026-07-24T08:22:32.578130+00:00
+2e6fa365-cc98-4252-b526-54a6697974d1,token_approved,S-004,class=S,user,2026-07-24T08:22:32.614306+00:00
+5f3273db-975c-4cfe-a30b-a0085bdfb132,token_approved,S-101,class=S,user,2026-07-24T08:22:32.648619+00:00
+e89a29c4-13a1-432f-8098-198ac9351b57,token_approved,S-102,class=S,user,2026-07-24T08:22:32.682232+00:00
+edff6bf6-6385-4c65-8947-32be901c9a89,token_approved,S-103,class=S,user,2026-07-24T08:22:32.717710+00:00
+0c7174c6-38bc-4ca8-bf6f-1f21d76185d9,token_approved,S-104,class=S,user,2026-07-24T08:22:32.752203+00:00
+8761e4d6-49aa-46f0-baab-f4fe3bcadaa4,token_approved,S-201,class=S,user,2026-07-24T08:22:32.787765+00:00
+c96101e2-4cfe-4839-83e8-837a4f1c83a4,token_approved,S-202,class=S,user,2026-07-24T08:22:32.822511+00:00
+b4b4a4a4-8994-45e5-96b0-2e77bf1485f4,token_approved,S-203,class=S,user,2026-07-24T08:22:32.861393+00:00
+cbc9f31d-16e7-42e6-9aac-4d5aa5d7fff6,token_approved,S-204,class=S,user,2026-07-24T08:22:32.895937+00:00
+ec60acc7-d2ab-4053-8319-bd4e9aff73ec,token_approved,S-205,class=S,user,2026-07-24T08:22:32.930546+00:00
+78e0a77c-97f7-4785-aa97-0bd49bccb299,token_approved,S-206,class=S,user,2026-07-24T08:22:32.965156+00:00
+c3c2a8f3-2e3c-4ce9-aaa1-dec3457addf3,token_approved,S-207,class=S,user,2026-07-24T08:22:33.001162+00:00
+38f430a5-dc18-42ba-ac87-c17919f34b6c,token_approved,S-208,class=S,user,2026-07-24T08:22:33.037177+00:00
+5c8e451e-731d-4cbb-878a-d4eb127212ba,token_approved,S-301,class=S,user,2026-07-24T08:22:33.075794+00:00
+401ce45f-58da-49c3-98b8-7fcd6f8b871b,token_approved,S-311,class=S,user,2026-07-24T08:22:33.112360+00:00
+cb200c93-ce2e-4cc0-a90c-e50522d73117,token_approved,S-321,class=S,user,2026-07-24T08:22:33.143714+00:00
+6a176765-b7d0-4bc2-ba35-4b9e9020f406,token_approved,S-322,class=S,user,2026-07-24T08:22:33.172836+00:00
+fd27585d-d7d2-4a8b-8238-8512c69052c7,token_approved,S-401,class=S,user,2026-07-24T08:22:33.202288+00:00
+93e37993-e26e-433b-b15e-fdac0495c515,token_approved,S-402,class=S,user,2026-07-24T08:22:33.233551+00:00
+4224ca1a-6e65-4fa2-a650-4bd5772c0cac,token_approved,S-501,class=S,user,2026-07-24T08:22:33.265940+00:00
+abced0cc-cb82-4ec8-a39f-10112b3c6cc2,token_approved,S-502,class=S,user,2026-07-24T08:22:33.295382+00:00
+3d896c55-ef06-4f48-9525-4de51fbabcce,model_retrained,,"{""model"": ""XGBoost"", ""accuracy"": 0.9886, ""f1"": 0.9874, ""rows"": 31239, ""augmented"": 21777}",user,2026-07-24T08:25:45.776957+00:00
+b112e4b5-83df-4b01-809d-d4eb3bb0d404,unknown_queued,A1064,Queued for review (material),system,2026-07-24T10:35:42.752659+00:00
+9d439d0b-22b6-4514-9537-036b9940cc82,unknown_queued,A123,Queued for review (material),system,2026-07-24T10:35:42.857411+00:00
+4e017c19-cbbe-44e5-86ca-92fc328b4aff,unknown_queued,A153,Queued for review (material),system,2026-07-24T10:35:42.955096+00:00
+38fb2abd-fb77-412c-a2b5-613d8f75dd50,unknown_queued,A325,Queued for review (bolt),system,2026-07-24T10:35:43.111111+00:00
+6e17e489-ae42-42e6-bb26-2a9603059c83,unknown_queued,A36,Queued for review (material),system,2026-07-24T10:35:43.218382+00:00
+9a54e334-ce84-4c78-827f-51df4b3dbcc9,unknown_queued,A490,Queued for review (bolt),system,2026-07-24T10:35:43.302572+00:00
+e7b5855f-cc4c-4c67-9e18-9bc30259043f,unknown_queued,A496,Queued for review (material),system,2026-07-24T10:35:43.390893+00:00
+76dbedf6-1c90-41a7-9769-46ed2b61faaf,unknown_queued,A5,Queued for review (structural_section),system,2026-07-24T10:35:43.476934+00:00
+219571e0-7f41-4de0-8b6d-c02cc8b6b8a3,unknown_queued,A500,Queued for review (material),system,2026-07-24T10:35:43.568485+00:00
+0d788198-2620-4b9b-8be4-679a03727b99,unknown_queued,A525,Queued for review (material),system,2026-07-24T10:35:43.660703+00:00
+fff26835-9f15-4b4d-91d6-2710ffc7d1f8,unknown_queued,A572,Queued for review (material),system,2026-07-24T10:35:43.927186+00:00
+f623a19b-c653-4135-9264-8635e717d51c,unknown_queued,A615,Queued for review (material),system,2026-07-24T10:35:44.127687+00:00
+70f6f3b0-b022-41ec-abd1-1ddd601f5fd1,unknown_queued,A653,Queued for review (material),system,2026-07-24T10:35:44.329793+00:00
+0b81db75-d059-4f66-a1ca-57028acd89cf,unknown_queued,A775,Queued for review (material),system,2026-07-24T10:35:44.487023+00:00
+7f425a0e-662f-4bbb-95fd-2f0e59897add,unknown_queued,A780,Queued for review (material),system,2026-07-24T10:35:44.652728+00:00
+3960b4df-aa09-4e9a-baf3-bee7bebf9933,unknown_queued,A992,Queued for review (material),system,2026-07-24T10:35:44.873735+00:00
+b7b9d133-49f6-4ccb-afcc-e9c8391d98f0,unknown_queued,HSS10x10,Queued for review (structural_section),system,2026-07-24T10:35:45.179469+00:00
+4c063ed1-f352-4ea4-8cf3-75a11621d17c,unknown_queued,HSS12x12,Queued for review (structural_section),system,2026-07-24T10:35:45.532072+00:00
+00a041cd-0c11-4e5e-bc88-79a79409b82d,unknown_queued,HSS14x0,Queued for review (structural_section),system,2026-07-24T10:35:46.171569+00:00
+78141e0d-45ae-4b53-976e-c434daa32d25,unknown_queued,HSS14x10,Queued for review (structural_section),system,2026-07-24T10:35:46.362729+00:00
+84129e1d-9fdb-43ea-a284-fc43112b3bcc,unknown_queued,HSS14x14,Queued for review (structural_section),system,2026-07-24T10:35:46.594462+00:00
+149f430b-ac8c-412b-a8ed-05f6e9cc6c14,unknown_queued,HSS6x6,Queued for review (structural_section),system,2026-07-24T10:35:47.498543+00:00
+93f46e99-406e-4316-84f6-5a76f6d3bf4b,unknown_queued,HSS8X6,Queued for review (structural_section),system,2026-07-24T10:35:47.671816+00:00
+4f71967a-b1af-40fe-9224-8a9416af3006,unknown_queued,HSS8x4,Queued for review (structural_section),system,2026-07-24T10:35:47.774086+00:00
+0f5f654c-a779-4929-b1cb-df421e87ca64,unknown_queued,HSS8x8,Queued for review (structural_section),system,2026-07-24T10:35:48.072463+00:00
+bc7e0169-63be-4394-867e-d4223ba35477,unknown_queued,L2x2x10,Queued for review (structural_section),system,2026-07-24T10:35:48.413420+00:00
+e0d6d4b7-05f4-4fb8-b055-989b38258dd4,unknown_queued,L4x4,Queued for review (structural_section),system,2026-07-24T10:35:48.709596+00:00
+0b98df49-c169-426b-9a01-ed6bb5dc9c8c,unknown_queued,L5x3,Queued for review (structural_section),system,2026-07-24T10:35:49.053650+00:00
+8035fd64-6a57-439f-8c33-b3fa692bea17,unknown_queued,L5x5,Queued for review (structural_section),system,2026-07-24T10:35:49.274201+00:00
+7a7cb341-e87a-4c98-968f-e18c34727d99,unknown_queued,L6x3,Queued for review (structural_section),system,2026-07-24T10:35:49.508114+00:00
+066230ec-6a3c-4cf2-a48c-4f22cdadefe1,unknown_queued,L6x4x1/4,Queued for review (structural_section),system,2026-07-24T10:35:49.608021+00:00
+ca00bbba-8abd-44bf-87bd-17e7b89f7707,unknown_queued,L7x7x1/2,Queued for review (structural_section),system,2026-07-24T10:35:50.023751+00:00
+2f3916c8-c951-48f1-82e0-0593490dd566,unknown_queued,W18x36,Queued for review (structural_section),system,2026-07-24T10:35:53.088962+00:00
+430cd43e-7a8d-4460-8365-38d2f2de4f12,token_approved,W18x36,class=W,user,2026-07-24T10:36:25.084419+00:00
+fb466d66-05d4-493c-957c-7579a39bccf3,token_approved,L7x7x1/2,class=L,user,2026-07-24T10:37:12.343264+00:00
+8d1e2822-7458-4ada-a88d-32e1a2ece455,token_approved,L6x4x1/4,class=L,user,2026-07-24T10:37:15.425298+00:00
+a9ab457e-679c-4522-bada-da53dc410e91,token_approved,L6x3,class=L,user,2026-07-24T10:37:17.181491+00:00
+3b086a84-94be-4beb-92df-0fc61fe1c4ea,token_approved,L5x5,class=L,user,2026-07-24T10:37:18.804244+00:00
+01ef2d17-9a85-48e0-b850-f36bcbbe6825,token_rejected,L5x3,class=C,user,2026-07-24T10:37:34.706414+00:00
+b5bb755b-d747-4877-b454-997c5135126a,token_approved,L4x4,class=L,user,2026-07-24T10:37:38.580442+00:00
+4f48d6dc-59e5-47f9-8585-2e7748b9b6dd,token_approved,L2x2x10,class=L,user,2026-07-24T10:37:40.238698+00:00
+3dcedbbd-3d39-4792-8bda-c52ad38fa4fc,token_approved,HSS8x8,class=HSS,user,2026-07-24T10:37:55.657875+00:00
+6f499dc2-85ee-4feb-b3eb-4d29b9fa7a70,token_approved,HSS8x4,class=HSS,user,2026-07-24T10:37:55.735723+00:00
+4718ba5b-66dd-4a27-a4ae-ee452c5e6edd,token_approved,HSS8X6,class=HSS,user,2026-07-24T10:37:55.814894+00:00
+88f1dae5-aafb-4b37-83e2-ed311f338808,token_approved,HSS6x6,class=HSS,user,2026-07-24T10:37:55.892973+00:00
+0dcbd19b-ab5c-40c0-be0c-a0a4bfa26000,token_approved,HSS14x14,class=HSS,user,2026-07-24T10:37:55.991143+00:00
+0c1de298-b68a-4c48-b90e-1b0afbe25c7d,token_approved,HSS14x10,class=HSS,user,2026-07-24T10:37:56.039049+00:00
+c4718d1c-19fd-4548-8e8f-c7963d58edae,token_approved,HSS14x0,class=HSS,user,2026-07-24T10:37:56.087489+00:00
+a048b7bc-9f31-4fac-93b5-4a0b58b72bd5,token_approved,HSS12x12,class=HSS,user,2026-07-24T10:37:56.125286+00:00
+a782621f-5c1a-40f7-acbd-8b7f9fc4e5ec,token_approved,HSS10x10,class=HSS,user,2026-07-24T10:37:56.164771+00:00
+ec22f1ae-19af-4fd0-a3a0-b07cc37699be,token_rejected,A153,class=A153,user,2026-07-24T10:39:12.104005+00:00
+e2160821-89de-4c40-a24d-9d3e747203cd,token_approved,A992,class=A992,user,2026-07-24T10:39:47.775437+00:00
+a1277098-1dd4-4295-8a2a-9df32d62d693,token_approved,A780,class=A780,user,2026-07-24T10:39:47.866302+00:00
+81b23a08-650c-45db-833d-ccfba1497ee4,token_approved,A775,class=A775,user,2026-07-24T10:39:47.949203+00:00
+59d93696-215e-473b-861e-7f222407d002,token_approved,A653,class=A653,user,2026-07-24T10:39:48.002234+00:00
+7476573f-09e2-45a5-b269-d4431b505237,token_approved,A615,class=A615,user,2026-07-24T10:39:48.045610+00:00
+40bb4935-cb27-48df-9c86-2a94643bdad6,token_approved,A572,class=A572,user,2026-07-24T10:39:48.077399+00:00
+6301955b-668c-4e0f-8173-af5d49bd69c8,token_approved,A525,class=A525,user,2026-07-24T10:39:48.113747+00:00
+0dd5ed0c-4f40-4f77-bf71-fad3019a6955,token_approved,A500,class=A500,user,2026-07-24T10:39:48.149822+00:00
+da5980e1-2f36-4d8b-8d3e-782da289e74f,token_approved,A5,class=A,user,2026-07-24T10:39:48.183011+00:00
+6d3d2254-d7ea-4a92-98fe-bf078f847e48,token_approved,A496,class=A496,user,2026-07-24T10:39:48.216359+00:00
+30dc1c28-20b5-4367-9d58-36808526b764,token_approved,A490,class=A490,user,2026-07-24T10:39:48.249934+00:00
+cf1bb5b7-9443-4a63-a525-32be2f158757,token_approved,A36,class=A36,user,2026-07-24T10:39:48.290718+00:00
+4f7e6bd9-55b6-42a1-89a7-baa60810984e,token_approved,A325,class=A325,user,2026-07-24T10:39:48.325288+00:00
+105da414-e8af-43e8-ab55-d404c3fa858e,token_approved,A123,class=A123,user,2026-07-24T10:39:48.358196+00:00
+1cb6aa6b-4632-406d-92df-10098b7ab0d9,token_approved,A1064,class=A1064,user,2026-07-24T10:39:48.397539+00:00
+d176c0aa-d262-4bfc-8d97-b8e1c88579d2,model_retrained,,"{""model"": ""XGBoost"", ""accuracy"": 0.9886, ""f1"": 0.9874, ""rows"": 31239, ""augmented"": 21777}",user,2026-07-24T10:43:20.933219+00:00
+c0f96564-614e-4854-ae4b-5f68fbcc0d8a,unknown_queued,A1064,Queued for review (material),system,2026-07-24T10:44:46.777276+00:00
+c93205bf-c360-4bc6-a9c9-adffd6b79842,unknown_queued,A2,Queued for review (structural_section),system,2026-07-24T10:44:46.871785+00:00
+98f1bebd-7067-4703-a94b-2c81f92f7e2f,unknown_queued,A3,Queued for review (structural_section),system,2026-07-24T10:44:46.989023+00:00
+f7af0613-a6f7-499d-9ed0-d1962781c2cb,unknown_queued,A307,Queued for review (bolt),system,2026-07-24T10:44:47.116072+00:00
+3ee6dfe9-f52f-423b-8f8c-c8f9a42415af,unknown_queued,A325,Queued for review (bolt),system,2026-07-24T10:44:47.217633+00:00
+0608b9b9-a945-4057-a082-57ffbf76f23b,unknown_queued,A36,Queued for review (material),system,2026-07-24T10:44:47.361427+00:00
+f1dbe962-0364-45c1-9d30-594143046e88,unknown_queued,A500,Queued for review (material),system,2026-07-24T10:44:47.496050+00:00
+9ddf9989-603e-4851-a576-5c95bdaf4ece,unknown_queued,A53,Queued for review (material),system,2026-07-24T10:44:47.609996+00:00
+023347ab-09fb-4cc6-8630-06b7e63d752b,unknown_queued,A568,Queued for review (material),system,2026-07-24T10:44:47.714070+00:00
+c1f557a0-c2fb-48d7-901d-1867095d6730,unknown_queued,A572,Queued for review (material),system,2026-07-24T10:44:47.803485+00:00
+0516fdb3-ae2d-4b59-b754-8bfa59e97238,unknown_queued,A588,Queued for review (material),system,2026-07-24T10:44:47.886629+00:00
+7aeba634-8f31-4a03-ae40-f012a54d35e7,unknown_queued,A6,Queued for review (structural_section),system,2026-07-24T10:44:47.966152+00:00
+e6fc79d1-afd9-44d6-a767-b7b2c207b412,unknown_queued,A615,Queued for review (material),system,2026-07-24T10:44:48.046550+00:00
+5433e26c-5203-4d6c-87c9-965e5dffe203,unknown_queued,A653,Queued for review (material),system,2026-07-24T10:44:48.135370+00:00
+f0decd0b-edeb-4ea9-a7bc-093a0d421039,unknown_queued,A913,Queued for review (material),system,2026-07-24T10:44:48.233768+00:00
+fd73b707-5313-483d-824e-880798e09686,unknown_queued,A970,Queued for review (material),system,2026-07-24T10:44:48.336796+00:00
+4c067b19-bcfe-4923-b980-afc4f12e71f1,unknown_queued,A992,Queued for review (material),system,2026-07-24T10:44:48.453252+00:00
+30f6ae79-3bfd-4d36-887b-1625ee1682fc,unknown_queued,HSS10X0,Queued for review (structural_section),system,2026-07-24T10:44:48.560528+00:00
+7135bfb6-e00f-44ab-97a0-5d49fada4aeb,unknown_queued,HSS12X4,Queued for review (structural_section),system,2026-07-24T10:44:48.788940+00:00
+bb620e1a-0b36-4632-b20a-7d0a77357013,unknown_queued,HSS4x0,Queued for review (structural_section),system,2026-07-24T10:44:49.330171+00:00
+6676f8a9-4bc7-4723-8144-9868a6e1825e,unknown_queued,HSS6X0,Queued for review (structural_section),system,2026-07-24T10:44:49.628291+00:00
+57158c1d-d2fc-44b9-8417-c0d986e2aeef,unknown_queued,HSS6x6,Queued for review (structural_section),system,2026-07-24T10:44:50.119585+00:00
+f54e0b33-8147-466d-bf01-a525579804cb,unknown_queued,HSS8X6,Queued for review (structural_section),system,2026-07-24T10:44:50.269117+00:00
+8b634dad-427e-4efe-af5b-f9c691bcb03c,unknown_queued,L1x1x1/4,Queued for review (structural_section),system,2026-07-24T10:44:50.730576+00:00
+b9c91c55-b228-4543-addb-5a64a9a12c8c,unknown_queued,L4X3,Queued for review (structural_section),system,2026-07-24T10:44:51.334420+00:00
+da6b700a-6c9a-4652-945f-0fbefcecb86e,unknown_queued,L5X3,Queued for review (structural_section),system,2026-07-24T10:44:51.980521+00:00
+682ba7c4-3965-48b2-a0da-0c85878d4298,unknown_queued,L5x5x1/4,Queued for review (structural_section),system,2026-07-24T10:44:52.070174+00:00
+107d4273-3a63-47da-a3bb-f1c1e1a99f85,unknown_queued,S-001,Queued for review (structural_section),system,2026-07-24T10:44:52.365929+00:00
+7b57541c-7f52-42a0-8296-c96e24d875c0,unknown_queued,S-002,Queued for review (structural_section),system,2026-07-24T10:44:52.462018+00:00
+bb76aed4-1866-4eda-bbcf-33ed001b8de3,unknown_queued,S-003,Queued for review (structural_section),system,2026-07-24T10:44:52.565844+00:00
+6c58675a-b428-4fca-9ce4-349d0a51e2bd,unknown_queued,S-004,Queued for review (structural_section),system,2026-07-24T10:44:52.671512+00:00
+71b43333-d228-476e-a9ce-70df63f889d7,unknown_queued,S-005,Queued for review (structural_section),system,2026-07-24T10:44:52.782698+00:00
+02664b3e-2e52-4673-88ed-076c706e1573,unknown_queued,S-111,Queued for review (structural_section),system,2026-07-24T10:44:52.885571+00:00
+5ea442da-ad10-4dfe-a192-d4c4a88fce14,unknown_queued,S-112,Queued for review (structural_section),system,2026-07-24T10:44:52.994069+00:00
+1429fccf-5688-4ec8-b95c-e4a7a407d629,unknown_queued,S-113,Queued for review (structural_section),system,2026-07-24T10:44:53.102060+00:00
+37056a4c-3d52-4482-82fa-1ecca5345f6d,unknown_queued,S-121,Queued for review (structural_section),system,2026-07-24T10:44:53.206331+00:00
+da4e9b71-5ee8-418a-88b3-25d40dc763dc,unknown_queued,S-122,Queued for review (structural_section),system,2026-07-24T10:44:53.312019+00:00
+2b1754cb-4789-4728-b70c-6675afc66ded,unknown_queued,S-123,Queued for review (structural_section),system,2026-07-24T10:44:53.419930+00:00
+62d08a01-e701-4716-a8f7-347711f457ec,unknown_queued,S-124,Queued for review (structural_section),system,2026-07-24T10:44:53.531498+00:00
+3e89f3bc-bb21-4119-90ce-555258bdfe0f,unknown_queued,S-131,Queued for review (structural_section),system,2026-07-24T10:44:53.623240+00:00
+78093f00-bf46-4830-9e92-d4ec4f74e251,unknown_queued,S-132,Queued for review (structural_section),system,2026-07-24T10:44:53.700097+00:00
+c9448abf-4008-45bc-91cb-95693c2e838a,unknown_queued,S-141,Queued for review (structural_section),system,2026-07-24T10:44:53.774357+00:00
+abd0a3ea-9038-4ebb-9076-d996e07a5131,unknown_queued,S-142,Queued for review (structural_section),system,2026-07-24T10:44:53.873809+00:00
+c2879567-aac7-410d-a1a6-311f5cd8cef3,unknown_queued,S-200,Queued for review (structural_section),system,2026-07-24T10:44:53.980087+00:00
+0d0c1102-3b38-44b9-afa0-f1d60c20b66b,unknown_queued,S-201,Queued for review (structural_section),system,2026-07-24T10:44:54.089034+00:00
+509b1283-e2ae-4741-82a1-2ba85361315d,unknown_queued,S-202,Queued for review (structural_section),system,2026-07-24T10:44:54.201747+00:00
+277ff9d4-5a88-4ca9-8d71-697549763a5a,unknown_queued,S-203,Queued for review (structural_section),system,2026-07-24T10:44:54.317115+00:00
+66073faf-4aaa-468a-b67b-5faefa25ad06,unknown_queued,S-204,Queued for review (structural_section),system,2026-07-24T10:44:54.428544+00:00
+bef2f95a-2f74-4bfa-802d-20dadd89888a,unknown_queued,S-205,Queued for review (structural_section),system,2026-07-24T10:44:54.532258+00:00
+92433a5b-f2bf-4a04-85ad-2e29916e7d40,unknown_queued,S-206,Queued for review (structural_section),system,2026-07-24T10:44:54.637838+00:00
+f599eefa-52fa-4c26-9a83-1fd1ce986ac8,unknown_queued,S-207,Queued for review (structural_section),system,2026-07-24T10:44:54.756201+00:00
+19a40def-8c39-4d61-9abe-e147c3c2a407,unknown_queued,S-208,Queued for review (structural_section),system,2026-07-24T10:44:54.878082+00:00
+42bba2cf-d0fd-46eb-bdce-3a12e66f5e48,unknown_queued,S-209,Queued for review (structural_section),system,2026-07-24T10:44:54.983833+00:00
+d33f66f8-aaaa-48c4-9abb-284c63a3101a,unknown_queued,S-301,Queued for review (structural_section),system,2026-07-24T10:44:55.103009+00:00
+b0a06176-0a52-45f0-af7a-a9bfeeba130c,unknown_queued,S-302,Queued for review (structural_section),system,2026-07-24T10:44:55.257012+00:00
+504ba4b8-1f98-4bbf-b5a2-b9d006dd6c05,unknown_queued,S-311,Queued for review (structural_section),system,2026-07-24T10:44:55.388260+00:00
+330e799b-fe9d-48f0-9171-7f82f49d9cbb,unknown_queued,S-312,Queued for review (structural_section),system,2026-07-24T10:44:55.511595+00:00
+acbab8db-3bd9-4dfc-a87c-a19153fd1f56,unknown_queued,S-313,Queued for review (structural_section),system,2026-07-24T10:44:55.616449+00:00
+a278e040-8757-453c-9b66-da6d7fd4a601,unknown_queued,S-321,Queued for review (structural_section),system,2026-07-24T10:44:55.736876+00:00
+cbac4f83-1558-4485-9d5d-a0ec1746b4bd,unknown_queued,S-322,Queued for review (structural_section),system,2026-07-24T10:44:55.849863+00:00
+306cf6d0-3e40-4670-9fba-b2cb2b89539a,unknown_queued,S-401,Queued for review (structural_section),system,2026-07-24T10:44:55.965930+00:00
+c3600aa4-b1bc-4c5f-b1de-16e901d21bc3,unknown_queued,S-402,Queued for review (structural_section),system,2026-07-24T10:44:56.085947+00:00
+d7f85ad5-142f-42ce-b920-0cda92381ee3,unknown_queued,S-403,Queued for review (structural_section),system,2026-07-24T10:44:56.213960+00:00
+b327addd-2a3e-42b8-acd6-7a027deef06c,unknown_queued,S-404,Queued for review (structural_section),system,2026-07-24T10:44:56.332438+00:00
+c81b64fe-991b-465f-a5a6-e58e95a5484a,unknown_queued,S-501,Queued for review (structural_section),system,2026-07-24T10:44:56.452489+00:00
+58b2dfcb-1730-4cb3-811e-e34d819b0538,unknown_queued,S-502,Queued for review (structural_section),system,2026-07-24T10:44:56.568467+00:00
+667512ec-d219-481f-b053-7abd19edfad5,unknown_queued,S-601,Queued for review (structural_section),system,2026-07-24T10:44:56.666998+00:00
+ebc215b5-a6fa-4f89-b4e9-5e396e28aad3,unknown_queued,W14X198,Queued for review (structural_section),system,2026-07-24T10:44:58.534606+00:00
+0e8789c9-c16d-477e-86d9-bf624b7a3453,token_approved,W14X198,class=W,user,2026-07-24T10:45:12.020504+00:00
+bd2b2720-f606-4dd3-9b86-492b5c978316,token_approved,S-601,class=S,user,2026-07-24T10:45:41.299856+00:00
+e8d09299-eeb4-4695-af45-a68f1e69684c,token_approved,S-502,class=S,user,2026-07-24T10:45:41.418785+00:00
+3ddedc2d-2df0-466a-8acb-c63be2b88b05,token_approved,S-501,class=S,user,2026-07-24T10:45:41.499941+00:00
+5f750dcf-a6c5-4250-9cf5-05cbec8af6fe,token_approved,S-404,class=S,user,2026-07-24T10:45:41.681567+00:00
+145fc5bc-753b-4047-856f-c2293be16fa7,token_approved,S-403,class=S,user,2026-07-24T10:45:41.731275+00:00
+96b95bb6-cca7-42d1-b85e-2ed2cb585e8a,token_approved,S-402,class=S,user,2026-07-24T10:45:41.772261+00:00
+33aab03f-1ee7-4215-81f7-23e2ace14216,token_approved,S-401,class=S,user,2026-07-24T10:45:41.808706+00:00
+b7fb0fb5-e4e1-4d26-8264-367f5983e688,token_approved,S-322,class=S,user,2026-07-24T10:45:41.851950+00:00
+943e2d84-1212-4bc7-9ea7-2b8df893bcaf,token_approved,S-321,class=S,user,2026-07-24T10:45:41.888851+00:00
+3ba83a87-bd04-4367-b532-4fb646c125d1,token_approved,S-313,class=S,user,2026-07-24T10:45:41.925191+00:00
+e5e64193-e3b0-4e6a-b470-28235fb0dea8,token_approved,S-312,class=S,user,2026-07-24T10:45:41.962339+00:00
+c120a566-7cb0-49fa-a0ca-0064a4aa6729,token_approved,S-311,class=S,user,2026-07-24T10:45:41.997946+00:00
+b5f9f046-29e8-460a-bbc7-dd551151f053,token_approved,S-302,class=S,user,2026-07-24T10:45:42.034055+00:00
+25cdb700-6cc5-44c2-84ec-1aceb3365601,token_approved,S-301,class=S,user,2026-07-24T10:45:42.071266+00:00
+7a97b710-249c-4dee-a877-ef19ceaf4837,token_approved,S-209,class=S,user,2026-07-24T10:45:42.108461+00:00
+2cce22d9-4c0a-4425-b103-3ae903db28a2,token_approved,S-208,class=S,user,2026-07-24T10:45:42.145779+00:00
+b9da7a0a-a06a-4ba4-9f8f-fb1c95f1c1dd,token_approved,S-207,class=S,user,2026-07-24T10:45:42.180396+00:00
+965fdcbd-3b0d-4eb8-8431-445235639863,token_approved,S-206,class=S,user,2026-07-24T10:45:42.216778+00:00
+bbbd64fb-6d8d-4f97-83a0-1d2724d03c96,token_approved,S-205,class=S,user,2026-07-24T10:45:42.258882+00:00
+b0f0f48b-ff3b-4bba-bed0-c2c4d49f2837,token_approved,S-204,class=S,user,2026-07-24T10:45:42.295551+00:00
+c15fe7c9-5a08-461a-961c-243407d1aa7b,token_approved,S-203,class=S,user,2026-07-24T10:45:42.331488+00:00
+c8885c8d-35c5-4ada-9921-7bb71bbf42ab,token_approved,S-202,class=S,user,2026-07-24T10:45:42.369522+00:00
+ea11164b-5899-45cb-986d-d795cd4b3d64,token_approved,S-201,class=S,user,2026-07-24T10:45:42.409003+00:00
+0479c86d-2bd2-4d78-bf19-4a0ed04d78fc,token_approved,S-200,class=S,user,2026-07-24T10:45:42.450764+00:00
+77f27add-b327-43f7-959b-ae173fa7397e,token_approved,S-142,class=S,user,2026-07-24T10:45:42.487200+00:00
+ac1da1c0-ca8e-455b-b50c-523fe6269bc2,token_approved,S-141,class=S,user,2026-07-24T10:46:23.887336+00:00
+1faf8b97-2e8a-42d4-840a-b27ad343d815,token_approved,S-132,class=S,user,2026-07-24T10:46:23.985428+00:00
+a3150fdd-7c33-4cb9-83ec-2689843ea655,token_approved,S-131,class=S,user,2026-07-24T10:46:24.060954+00:00
+edcc1244-4099-4a0e-b20f-381b7bddc990,token_approved,S-124,class=S,user,2026-07-24T10:46:24.170028+00:00
+5965262c-9c42-4ec5-a3ef-a3d1ef8f5e8e,token_approved,S-123,class=S,user,2026-07-24T10:46:24.230936+00:00
+63b373dc-74bc-4fe5-b74b-a35271d6529a,token_approved,S-122,class=S,user,2026-07-24T10:46:24.267865+00:00
+25683513-2cb7-402d-8bef-de879e749c13,token_approved,S-121,class=S,user,2026-07-24T10:46:24.303675+00:00
+d4e0664d-2f5f-4e1e-b63c-34802d9cfcd2,token_approved,S-113,class=S,user,2026-07-24T10:46:24.336344+00:00
+9b1faa47-be48-47d6-b0e0-01227d145416,token_approved,S-112,class=S,user,2026-07-24T10:46:24.367183+00:00
+ef101529-fdba-4faa-95ff-74501fff1aa7,token_approved,S-111,class=S,user,2026-07-24T10:46:24.398207+00:00
+edea1e93-3bc7-4b5e-add1-d7b80ae1f140,token_approved,S-005,class=S,user,2026-07-24T10:46:24.429841+00:00
+ec8f536d-d1f9-4762-a85b-4c8450acf78d,token_approved,S-004,class=S,user,2026-07-24T10:46:24.460895+00:00
+a3a99e6b-dd6a-4e94-a057-cbb7d8e58fcc,token_approved,S-003,class=S,user,2026-07-24T10:46:24.490728+00:00
+c0870d0f-4a96-485f-9f19-5f8d0174fe01,token_approved,S-002,class=S,user,2026-07-24T10:46:24.521372+00:00
+7952b337-5bd5-462f-b31e-82fec5aaff4f,token_approved,S-001,class=S,user,2026-07-24T10:46:24.552748+00:00
+a5000b79-fc0b-48fa-aabd-4ba5e05716d5,token_approved,L5x5x1/4,class=L,user,2026-07-24T10:46:24.588066+00:00
+5a7aa1df-82bf-4ffa-b3bd-10328676d098,token_approved,L4X3,class=L,user,2026-07-24T10:46:24.624882+00:00
+8f3e9b92-c755-4299-a13d-704e2d3c9e02,token_approved,L1x1x1/4,class=L,user,2026-07-24T10:46:24.667850+00:00
+7f5e2c5b-46b0-4985-93eb-86a475035563,token_approved,HSS8X6,class=HSS,user,2026-07-24T10:46:24.703943+00:00
+22407418-c143-4fd9-8fa3-805a44e3035e,token_approved,HSS6x6,class=HSS,user,2026-07-24T10:46:24.741143+00:00
+070169d3-26ba-4eb7-8084-66c96fc6f8fa,token_approved,HSS6X0,class=HSS,user,2026-07-24T10:46:24.779757+00:00
+0a32bd90-9d52-48a7-9cd3-5a6a2b526f5a,token_approved,HSS4x0,class=HSS,user,2026-07-24T10:46:24.816215+00:00
+75924ca0-1251-48ed-8aff-db299ffdeb20,token_approved,HSS12X4,class=HSS,user,2026-07-24T10:46:24.851741+00:00
+ba10ab64-f1ee-41bd-88a1-b0f58de3e8de,token_approved,HSS10X0,class=HSS,user,2026-07-24T10:46:24.888345+00:00
+4f1da16a-1ca1-4847-be9d-ff490e57469a,token_approved,L5X3,class=L,user,2026-07-24T10:46:51.593549+00:00
+0ffce8ba-6448-4424-8655-eca78ea5592a,token_rejected,A6,class=A,user,2026-07-24T10:46:58.656874+00:00
+49be996e-91a7-4210-82ff-c118e4774c5d,token_approved,A992,class=A992,user,2026-07-24T10:48:16.399465+00:00
+6c823cf4-de2c-4c3d-9763-201bb86f686b,token_approved,A970,class=A970,user,2026-07-24T10:48:16.523175+00:00
+250f2362-e2f2-41f3-9aef-00c4d6ed80b7,token_approved,A913,class=A913,user,2026-07-24T10:48:16.593098+00:00
+6217e77a-6cfc-48db-bbf3-db24e0b917f8,token_approved,A653,class=A653,user,2026-07-24T10:48:16.651212+00:00
+94cd64c3-05e3-4d2e-9429-45c884662cdc,token_approved,A615,class=A615,user,2026-07-24T10:48:16.684467+00:00
+28512992-a5d5-4b4b-b006-48eaed7014a2,token_approved,A588,class=A588,user,2026-07-24T10:48:16.721851+00:00
+7b3f58f7-1ce4-4bca-8664-574d85750c55,token_approved,A572,class=A572,user,2026-07-24T10:48:16.759888+00:00
+0985acc2-0317-4c11-86c7-449a457fffd0,token_approved,A568,class=A568,user,2026-07-24T10:48:16.796765+00:00
+629317fb-d8f6-40b0-a0cd-d5d45142ee21,token_approved,A53,class=A53,user,2026-07-24T10:48:16.832804+00:00
+61d3fa9c-fb85-4c34-8692-6fdedbd21f97,token_approved,A500,class=A500,user,2026-07-24T10:48:16.864557+00:00
+edec25ae-9435-41e9-bf5c-69315111f6df,token_approved,A36,class=A36,user,2026-07-24T10:48:16.894244+00:00
+c18bc804-0f4c-4e2b-95f2-6fef42978ac1,token_approved,A325,class=A325,user,2026-07-24T10:48:16.924414+00:00
+4140911c-be08-492c-a8e9-20f8ea42bcfc,token_approved,A307,class=A307,user,2026-07-24T10:48:16.954218+00:00
+d5ed2237-2962-41d1-bfde-74f1f49280fa,token_approved,A3,class=A,user,2026-07-24T10:48:16.983145+00:00
+08451f1b-e223-4e56-9b47-ff024ba79b4e,token_approved,A2,class=A,user,2026-07-24T10:48:17.015779+00:00
+e74d7f2b-1d0a-446d-a9f6-c4ce05d79b19,token_approved,A1064,class=A1064,user,2026-07-24T10:48:17.047388+00:00
+a6071bb9-0a11-4ebf-b3a5-84cc7e7dee13,model_retrained,,"{""model"": ""XGBoost"", ""accuracy"": 0.9886, ""f1"": 0.9874, ""rows"": 31239, ""augmented"": 21777}",user,2026-07-24T10:51:14.927073+00:00
+b1bd99c4-ef28-4dd1-b850-30872158b7b8,unknown_queued,A1064,Queued for review (material),system,2026-07-24T10:52:14.461924+00:00
+4a56257b-f99c-4dd2-8a86-73fe6943bb57,unknown_queued,A108,Queued for review (material),system,2026-07-24T10:52:14.563384+00:00
+20c6242b-ed91-4d73-9b3f-bde01ea9fa70,unknown_queued,A2,Queued for review (structural_section),system,2026-07-24T10:52:14.672207+00:00
+78b99953-0899-44bf-9265-234158154908,unknown_queued,A3,Queued for review (structural_section),system,2026-07-24T10:52:14.779270+00:00
+895983f9-b488-43fd-b425-8381193b466e,unknown_queued,A307,Queued for review (bolt),system,2026-07-24T10:52:14.884657+00:00
+9cbd4d34-12c0-471b-ba39-68aacd217823,unknown_queued,A325,Queued for review (bolt),system,2026-07-24T10:52:14.995608+00:00
+15ad676f-7139-438b-9435-75e5476fe285,unknown_queued,A36,Queued for review (material),system,2026-07-24T10:52:15.105325+00:00
+95025b9f-5154-4272-a184-c1d71f967d1d,unknown_queued,A500,Queued for review (material),system,2026-07-24T10:52:15.212159+00:00
+e7df8fad-d1c3-40d9-9114-a162702b614f,unknown_queued,A53,Queued for review (material),system,2026-07-24T10:52:15.288733+00:00
+d7ef3ac6-0352-491a-bed6-6e1e9599e2b0,unknown_queued,A568,Queued for review (material),system,2026-07-24T10:52:15.369434+00:00
+1812b31e-f7ca-4d6c-be1d-7a873d19593e,unknown_queued,A572,Queued for review (material),system,2026-07-24T10:52:15.442471+00:00
+3d3fb01f-6401-446c-8ea7-7de356ee8412,unknown_queued,A588,Queued for review (material),system,2026-07-24T10:52:15.539726+00:00
+1126440a-34da-4884-83d0-93f6a33a166c,unknown_queued,A6,Queued for review (structural_section),system,2026-07-24T10:52:15.644908+00:00
+961e6b21-8148-4bdc-8ae2-34d14d78b335,unknown_queued,A615,Queued for review (material),system,2026-07-24T10:52:15.741001+00:00
+97168537-9a0c-46ce-b20a-fa42990ce491,unknown_queued,A653,Queued for review (material),system,2026-07-24T10:52:15.859282+00:00
+fdbd741d-06e3-4688-91dd-b858fbb8e46c,unknown_queued,A706,Queued for review (material),system,2026-07-24T10:52:15.962086+00:00
+0eccc2f5-a670-444e-93ad-ec696434896a,unknown_queued,A913,Queued for review (material),system,2026-07-24T10:52:16.071902+00:00
+7f25c643-3252-4ec8-a4bf-765375689ab6,unknown_queued,A970,Queued for review (material),system,2026-07-24T10:52:16.176646+00:00
+300084ea-eb86-4bf3-bfe2-c9bc14e4d54c,unknown_queued,A992,Queued for review (material),system,2026-07-24T10:52:16.277377+00:00
+97c9c8c3-88f5-4cb6-a142-eadc64ec80a4,unknown_queued,HSS10X0,Queued for review (structural_section),system,2026-07-24T10:52:16.386670+00:00
+0348f2a2-ea69-4c58-baaa-aca3696df14a,unknown_queued,HSS16X0,Queued for review (structural_section),system,2026-07-24T10:52:16.618160+00:00
+08530a11-3cdc-460c-88f7-e9ed0e187752,unknown_queued,HSS18X0,Queued for review (structural_section),system,2026-07-24T10:52:16.844802+00:00
+1fa90dbb-6733-481f-98e0-cc3027970b25,unknown_queued,L1x1x1/4,Queued for review (structural_section),system,2026-07-24T10:52:17.787174+00:00
+a7519f03-8175-45f1-bb8e-72f6bae2d4e4,unknown_queued,L4X3,Queued for review (structural_section),system,2026-07-24T10:52:18.225062+00:00
+3a6b60b7-10a9-4d09-8999-92fd46389339,unknown_queued,L4x4,Queued for review (structural_section),system,2026-07-24T10:52:18.709654+00:00
+3ec1dd39-ce31-4e5f-9eb6-05e381cdfbca,unknown_queued,L5X3,Queued for review (structural_section),system,2026-07-24T10:52:18.875836+00:00
+c2cb9a1e-bc97-4243-af42-6ee4a61d526c,unknown_queued,L6X3,Queued for review (structural_section),system,2026-07-24T10:52:19.104822+00:00
+002dc7c8-2712-47de-a5d1-fcf5f524fc1e,unknown_queued,S-001,Queued for review (structural_section),system,2026-07-24T10:52:19.462712+00:00
+004a3bf9-f53a-403d-8f77-a62d18122b05,unknown_queued,S-002,Queued for review (structural_section),system,2026-07-24T10:52:19.574200+00:00
+92bf2afd-6a26-4738-ac58-253d431b6d99,unknown_queued,S-003,Queued for review (structural_section),system,2026-07-24T10:52:19.685544+00:00
+53fefb71-a191-46c2-ae8b-ade063268681,unknown_queued,S-004,Queued for review (structural_section),system,2026-07-24T10:52:19.796421+00:00
+abf4c61d-16cb-4f6e-afb3-96a4cb7d7532,unknown_queued,S-111,Queued for review (structural_section),system,2026-07-24T10:52:19.919258+00:00
+5f9c49bf-2e27-49fe-b05d-7b534c8ad6d7,unknown_queued,S-112,Queued for review (structural_section),system,2026-07-24T10:52:20.035656+00:00
+dafad4f6-175a-4e81-9c37-4fa7e9c6544c,unknown_queued,S-113,Queued for review (structural_section),system,2026-07-24T10:52:20.139913+00:00
+0e0b5b90-e27c-4178-9500-48e6645caa1e,unknown_queued,S-201,Queued for review (structural_section),system,2026-07-24T10:52:20.247583+00:00
+ef4fca37-07f0-4bc2-89c8-e942d0b2969a,unknown_queued,S-202,Queued for review (structural_section),system,2026-07-24T10:52:20.360197+00:00
+0fb54357-2d47-41ee-8a5b-83ed6c18b322,unknown_queued,S-203,Queued for review (structural_section),system,2026-07-24T10:52:20.474170+00:00
+548cc919-b1c1-4ff4-87aa-e38824b23c47,unknown_queued,S-204,Queued for review (structural_section),system,2026-07-24T10:52:20.580525+00:00
+81d25f2d-538b-48f8-8614-76e3040a3267,unknown_queued,S-205,Queued for review (structural_section),system,2026-07-24T10:52:20.694989+00:00
+576acaf2-dbd5-43b7-8c06-b00ea995b88c,unknown_queued,S-206,Queued for review (structural_section),system,2026-07-24T10:52:20.822758+00:00
+2652eded-4398-4bc3-bb06-eba4c14c20fb,unknown_queued,S-301,Queued for review (structural_section),system,2026-07-24T10:52:20.931129+00:00
+f159915b-e693-40e4-a217-8dbbb4d64e34,unknown_queued,S-311,Queued for review (structural_section),system,2026-07-24T10:52:21.042785+00:00
+33125de6-e79e-448a-9d22-46898950cb6b,unknown_queued,S-312,Queued for review (structural_section),system,2026-07-24T10:52:21.125545+00:00
+bf754acb-23d8-49f8-909a-8821efdff8c7,unknown_queued,S-321,Queued for review (structural_section),system,2026-07-24T10:52:21.208417+00:00
+3fc94e16-5dc4-4c58-9eac-36198eb473d0,unknown_queued,S-322,Queued for review (structural_section),system,2026-07-24T10:52:21.289911+00:00
+564eceb0-43c1-40e9-b40d-150397a259e3,unknown_queued,S-401,Queued for review (structural_section),system,2026-07-24T10:52:21.412540+00:00
+1adac0b9-3a1c-4d3e-bc54-fa9c6f14b7d3,unknown_queued,S-402,Queued for review (structural_section),system,2026-07-24T10:52:21.529175+00:00
+cf97a3d0-4db8-43a2-996c-107788e28cbe,unknown_queued,S-403,Queued for review (structural_section),system,2026-07-24T10:52:21.644645+00:00
+b1afd88b-6e53-487a-a0a6-b657252a4ccf,unknown_queued,S-404,Queued for review (structural_section),system,2026-07-24T10:52:21.764660+00:00
+c4677f81-4ad6-4d20-8d44-c33df739a9af,unknown_queued,S-501,Queued for review (structural_section),system,2026-07-24T10:52:21.880466+00:00
+a486aa32-1eea-4cbd-8058-fcbb95c04f9d,unknown_queued,S-502,Queued for review (structural_section),system,2026-07-24T10:52:21.995640+00:00
+5ec4ba10-d56e-4ced-8bdd-0d84639c9903,unknown_queued,S-601,Queued for review (structural_section),system,2026-07-24T10:52:22.119824+00:00
+a2b48d1e-57d3-4745-8075-125a202a0632,token_approved,S-601,class=S,user,2026-07-24T10:53:10.254465+00:00
+beae0827-e6c7-4c61-b3ea-0f247f9079d9,token_approved,S-502,class=S,user,2026-07-24T10:53:10.369864+00:00
+7b375e2a-d781-494b-9b05-8cc7f6f5ecd7,token_approved,S-501,class=S,user,2026-07-24T10:53:10.456160+00:00
+1f18e749-aad7-4311-93fc-94c533ea0554,token_approved,S-404,class=S,user,2026-07-24T10:53:10.575555+00:00
+eb6e016d-defa-4ae6-b92d-d8a83d3ae7e9,token_approved,S-403,class=S,user,2026-07-24T10:53:10.643869+00:00
+68cc4ce7-65dc-4aa2-ab5c-9962234d42d3,token_approved,S-402,class=S,user,2026-07-24T10:53:10.685881+00:00
+99eb8b6d-e724-4355-90b9-d6cd68249a50,token_approved,S-401,class=S,user,2026-07-24T10:53:10.725496+00:00
+8847138a-dc3c-49f8-a4e5-4088fd93fc75,token_approved,S-322,class=S,user,2026-07-24T10:53:10.766453+00:00
+a185382f-7494-487a-bffd-b4945e943888,token_approved,S-321,class=S,user,2026-07-24T10:53:10.807346+00:00
+cdc70b02-2633-43b2-a95a-2f5ff856c7c7,token_approved,S-312,class=S,user,2026-07-24T10:53:10.847910+00:00
+c045cef6-b61e-4426-a759-3982ddd75576,token_approved,S-311,class=S,user,2026-07-24T10:53:10.891728+00:00
+8a1ffd65-b39a-42c1-a07b-758ef93cf872,token_approved,S-301,class=S,user,2026-07-24T10:53:10.931116+00:00
+b9754952-3c90-4f47-964b-f139fb6bddc2,token_approved,S-206,class=S,user,2026-07-24T10:53:10.970316+00:00
+58e9f255-dca5-42cd-b884-c3542ac71753,token_approved,S-205,class=S,user,2026-07-24T10:53:11.010832+00:00
+119ee824-8a0c-4dc8-8b86-23df5a81c2ac,token_approved,S-204,class=S,user,2026-07-24T10:53:11.045525+00:00
+68967cf9-3ba9-4792-a954-74ed381bdaf2,token_approved,S-203,class=S,user,2026-07-24T10:53:11.077719+00:00
+2c0a8552-8f17-442e-a2fd-f86c7f9bb4ac,token_approved,S-202,class=S,user,2026-07-24T10:53:11.109896+00:00
+7265b64f-cd38-4fa6-9ecc-c8c5edaa935a,token_approved,S-201,class=S,user,2026-07-24T10:53:11.142995+00:00
+405c55a3-8868-4ede-a3f5-f03130a0d9e7,token_approved,S-113,class=S,user,2026-07-24T10:53:11.179146+00:00
+6d3f5cfd-1790-4f53-8d1d-15b0bb59af07,token_approved,S-112,class=S,user,2026-07-24T10:53:11.214387+00:00
+6de56482-d040-4193-b09d-70d548d0d3f0,token_approved,S-111,class=S,user,2026-07-24T10:53:11.250095+00:00
+8fbc7b59-11d6-4c49-a97f-21f58cf612a9,token_approved,S-004,class=S,user,2026-07-24T10:53:11.283318+00:00
+5c41d235-5a4a-44d4-8271-d15d1b3ebe63,token_approved,S-003,class=S,user,2026-07-24T10:53:11.321593+00:00
+84e3941c-533d-46a1-840e-a9b7f78434ba,token_approved,S-002,class=S,user,2026-07-24T10:53:11.361144+00:00
+78c5dcff-2ff6-459b-a929-3fbb5a1ee2fa,token_approved,S-001,class=S,user,2026-07-24T10:53:11.401620+00:00
+100b345c-f9bb-4103-8892-8d412cdfc2c7,token_approved,L6X3,class=L,user,2026-07-24T10:53:23.826645+00:00
+bfd6dd9e-38b3-405b-ad3f-d8364aaafc06,token_approved,L4x4,class=L,user,2026-07-24T10:53:23.957129+00:00
+a75b541e-ac3c-45ca-8d63-3483652484a8,token_approved,L4X3,class=L,user,2026-07-24T10:53:24.056587+00:00
+e8ccd1f2-99ef-4178-a833-0d35ab9a2d7d,token_approved,L1x1x1/4,class=L,user,2026-07-24T10:53:24.183384+00:00
+4ffd85a5-fcbb-4451-a3fa-42acf141bd82,token_approved,HSS18X0,class=HSS,user,2026-07-24T10:53:24.263238+00:00
+09d7cdf7-f473-4373-b9fa-71e5609d5e74,token_approved,HSS16X0,class=HSS,user,2026-07-24T10:53:24.302378+00:00
+034fa629-e0cc-4bcb-bb29-b2e45a5f33f0,token_approved,HSS10X0,class=HSS,user,2026-07-24T10:53:24.344482+00:00
+3fbbfa27-491c-42f4-b018-e98f8c593f7e,token_rejected,L5X3,class=C,user,2026-07-24T10:53:29.523320+00:00
+2a727dc4-0f49-4ad8-954e-b7be7d908a77,token_approved,A992,class=A992,user,2026-07-24T10:53:58.428815+00:00
+9bd43d2d-f9cf-494c-a5a0-cacee9abf72f,token_approved,A970,class=A970,user,2026-07-24T10:53:58.542837+00:00
+1780b848-bb83-4358-b318-26fcdb130247,token_approved,A913,class=A913,user,2026-07-24T10:53:58.640762+00:00
+72368e29-33f0-47e2-8084-72903288c950,token_approved,A706,class=A706,user,2026-07-24T10:53:58.694211+00:00
+341dba93-d6b5-4a43-a48e-cb15802ae8d2,token_approved,A653,class=A653,user,2026-07-24T10:53:58.733001+00:00
+d3cf5c87-5138-4148-b1d7-001ee4bbf3ff,token_approved,A615,class=A615,user,2026-07-24T10:53:58.777173+00:00
+5b725b67-aca4-40a5-a3b3-06c51ff94271,token_approved,A6,class=A,user,2026-07-24T10:53:58.819632+00:00
+72538890-b3c8-44fc-af60-9ef64fcfc168,token_approved,A588,class=A588,user,2026-07-24T10:53:58.861877+00:00
+ecccf880-8000-4078-b8be-f744d6d0447e,token_approved,A572,class=A572,user,2026-07-24T10:53:58.903664+00:00
+0fc460fa-8462-47d3-871b-c528b84bd2e6,token_approved,A568,class=A568,user,2026-07-24T10:53:58.955586+00:00
+1209937d-b278-464c-929a-5028926b405a,token_approved,A53,class=A53,user,2026-07-24T10:53:59.003183+00:00
+4705364d-cdfe-4be1-9f8a-4390d60660e0,token_approved,A500,class=A500,user,2026-07-24T10:53:59.045236+00:00
+41b86b7a-36e2-43b4-b252-398d0a63e239,token_approved,A36,class=A36,user,2026-07-24T10:53:59.088683+00:00
+34e8bded-e7d7-419a-9e29-c010b7c8a1f2,token_approved,A325,class=A325,user,2026-07-24T10:53:59.130020+00:00
+e63fe480-a5a4-461e-a606-6f34f8e490ce,token_approved,A307,class=A307,user,2026-07-24T10:53:59.174260+00:00
+064fa433-bb99-442a-ab61-80ef2d0158ad,token_approved,A3,class=A,user,2026-07-24T10:53:59.215474+00:00
+8a2fd608-0be7-427b-bcbb-af370ce1cdbf,token_approved,A2,class=A,user,2026-07-24T10:53:59.256435+00:00
+33c40200-4cce-4a8d-ab20-85db60160b3c,token_approved,A108,class=A108,user,2026-07-24T10:53:59.297347+00:00
+3aa73cb7-fdc1-4b76-960a-a64455fcb308,token_approved,A1064,class=A1064,user,2026-07-24T10:53:59.338803+00:00
+fa002480-5abb-4ae8-8077-ea932e586fcb,model_retrained,,"{""model"": ""XGBoost"", ""accuracy"": 0.9886, ""f1"": 0.9874, ""rows"": 31239, ""augmented"": 21777}",user,2026-07-24T10:56:57.446593+00:00
+0142892e-8c5e-4009-ae05-b14df07bb77c,unknown_queued,A1064,Queued for review (material),system,2026-07-27T10:10:59.934206+00:00
+09919581-2dcb-402c-88c4-9aef3a687e6c,unknown_queued,A2,Queued for review (structural_section),system,2026-07-27T10:11:00.058167+00:00
+6948189a-9d3b-4db5-bf4a-80681ff708d9,unknown_queued,A3,Queued for review (structural_section),system,2026-07-27T10:11:00.191060+00:00
+e2e7a132-40ee-4a5d-ab8a-8093b9ceacd8,unknown_queued,A307,Queued for review (bolt),system,2026-07-27T10:11:00.285286+00:00
+86aae0b8-0e2c-4e40-8f61-4b2bc23930df,unknown_queued,A325,Queued for review (bolt),system,2026-07-27T10:11:00.395890+00:00
+a34faf6b-ab6e-4ca4-8ee5-88ea9c08e563,unknown_queued,A36,Queued for review (material),system,2026-07-27T10:11:00.550425+00:00
+14190152-bc21-41b5-8d53-fcce058e1ad2,unknown_queued,A500,Queued for review (material),system,2026-07-27T10:11:00.749161+00:00
+92a9da2b-8ea8-4484-9d3f-2ad9a58617a0,unknown_queued,A53,Queued for review (material),system,2026-07-27T10:11:00.874565+00:00
+9707ca48-6fdb-4198-8243-dd127b3cdbe5,unknown_queued,A568,Queued for review (material),system,2026-07-27T10:11:01.015128+00:00
+77998396-fb12-415c-a5ca-1b368ab9cc4f,unknown_queued,A572,Queued for review (material),system,2026-07-27T10:11:01.137831+00:00
+89cf84d0-6cb4-44fb-8b1d-d06853429810,unknown_queued,A588,Queued for review (material),system,2026-07-27T10:11:01.404563+00:00
+27fec4a1-3e85-4446-89e1-46f68e63352b,unknown_queued,A6,Queued for review (structural_section),system,2026-07-27T10:11:01.503386+00:00
+ceb9e481-699c-4196-a5f6-8c6898ece1fd,unknown_queued,A615,Queued for review (material),system,2026-07-27T10:11:01.616077+00:00
+0d4cf183-b67e-4a4d-804d-c70df6369cdc,unknown_queued,A653,Queued for review (material),system,2026-07-27T10:11:01.700165+00:00
+e5148275-8603-4f93-8259-6ea170bb2765,unknown_queued,A706,Queued for review (material),system,2026-07-27T10:11:01.779994+00:00
+fa25d0dd-d262-42e9-b2e7-634744f2f664,unknown_queued,A913,Queued for review (material),system,2026-07-27T10:11:01.862207+00:00
+e3251560-18e0-4a22-83f3-0f7f0be6ac67,unknown_queued,A970,Queued for review (material),system,2026-07-27T10:11:01.962991+00:00
+65712201-ae86-4bbe-9225-4b8564312b39,unknown_queued,A992,Queued for review (material),system,2026-07-27T10:11:02.062457+00:00
+3cdfec14-c4a5-4ec2-996f-924fee1a1051,unknown_queued,HSS10X0,Queued for review (structural_section),system,2026-07-27T10:11:02.155215+00:00
+57f59bf8-dfc0-476e-bc42-d0cc607d8216,unknown_queued,L1x1x1/4,Queued for review (structural_section),system,2026-07-27T10:11:02.848724+00:00
+588d19f5-a8a0-4169-8e3b-55b8f28340fa,unknown_queued,L4X3,Queued for review (structural_section),system,2026-07-27T10:11:03.396986+00:00
+a05ce963-16fd-41bf-a236-7dc68f04e3c1,unknown_queued,L5X3,Queued for review (structural_section),system,2026-07-27T10:11:03.838922+00:00
+c14ddbb8-fdd6-4273-9e88-d673ec3bca88,unknown_queued,L6x3,Queued for review (structural_section),system,2026-07-27T10:11:04.068005+00:00
+eee98e43-9add-4db7-be3b-862030d6f4c0,unknown_queued,S-001,Queued for review (structural_section),system,2026-07-27T10:11:04.219260+00:00
+be5bf4d0-d1dd-4a34-8387-ec0e5c3910c7,unknown_queued,S-002,Queued for review (structural_section),system,2026-07-27T10:11:04.334748+00:00
+47f5930d-3ec9-4481-b22f-4090a82f116d,unknown_queued,S-003,Queued for review (structural_section),system,2026-07-27T10:11:04.446772+00:00
+3f42d380-9402-4902-a634-3aeefb5e3d77,unknown_queued,S-004,Queued for review (structural_section),system,2026-07-27T10:11:04.553732+00:00
+43a7582d-2658-480a-b6cd-e25cfc8c144b,unknown_queued,S-101,Queued for review (structural_section),system,2026-07-27T10:11:04.645702+00:00
+5609d81c-022b-4203-bbac-9b6a1559dd3f,unknown_queued,S-102,Queued for review (structural_section),system,2026-07-27T10:11:04.749145+00:00
+ee43b3b7-7175-4381-a173-b6949a53adb3,unknown_queued,S-103,Queued for review (structural_section),system,2026-07-27T10:11:04.841203+00:00
+284c8d09-b786-4c4a-8509-7a8a417df6c0,unknown_queued,S-104,Queued for review (structural_section),system,2026-07-27T10:11:04.950051+00:00
+03327662-dfa5-4167-a1dd-1aae5cfdc860,unknown_queued,S-201,Queued for review (structural_section),system,2026-07-27T10:11:05.058904+00:00
+08741497-2269-4f43-94b0-41e39f9005c3,unknown_queued,S-202,Queued for review (structural_section),system,2026-07-27T10:11:05.172851+00:00
+6a1f2aaa-d564-4d1c-b25c-a7285a03b33f,unknown_queued,S-203,Queued for review (structural_section),system,2026-07-27T10:11:05.283342+00:00
+96f70916-6f6c-4dad-80aa-060bc05b5294,unknown_queued,S-204,Queued for review (structural_section),system,2026-07-27T10:11:05.390797+00:00
+afdade50-d21e-4563-b45f-8cf47e3cc22f,unknown_queued,S-205,Queued for review (structural_section),system,2026-07-27T10:11:05.496480+00:00
+ed36642e-13dc-4aaa-b4c7-33ef5240edf2,unknown_queued,S-206,Queued for review (structural_section),system,2026-07-27T10:11:05.600321+00:00
+d894306b-67ba-47ba-a4a2-367a8d39ed55,unknown_queued,S-207,Queued for review (structural_section),system,2026-07-27T10:11:05.704882+00:00
+5c37c65e-2a72-4dbf-ae2d-8fe1432fa369,unknown_queued,S-208,Queued for review (structural_section),system,2026-07-27T10:11:05.809657+00:00
+5923d25b-f992-45c0-888e-c932e6be0dc8,unknown_queued,S-301,Queued for review (structural_section),system,2026-07-27T10:11:05.921575+00:00
+15a90c41-c840-4437-9372-920031d1bd84,unknown_queued,S-311,Queued for review (structural_section),system,2026-07-27T10:11:06.020577+00:00
+d71e7c9c-8060-4dbd-860e-471fdaccde66,unknown_queued,S-321,Queued for review (structural_section),system,2026-07-27T10:11:06.142302+00:00
+118de3c1-8f12-42ee-b907-58312bfc2abf,unknown_queued,S-322,Queued for review (structural_section),system,2026-07-27T10:11:06.255584+00:00
+f01ecd6f-438f-4499-8cb3-1753c448fef9,unknown_queued,S-401,Queued for review (structural_section),system,2026-07-27T10:11:06.367393+00:00
+0d4fd744-62c2-4f48-af98-218f9810422f,unknown_queued,S-402,Queued for review (structural_section),system,2026-07-27T10:11:06.471993+00:00
+5bc6b375-9fd9-4a8e-b0ad-adfdcd404240,unknown_queued,S-501,Queued for review (structural_section),system,2026-07-27T10:11:06.586236+00:00
+db2d10f5-7daa-4bf5-b5d3-9559efa1a166,unknown_queued,S-502,Queued for review (structural_section),system,2026-07-27T10:11:06.690359+00:00
+8ee85a49-8ce3-41b0-a236-f98eddca38d9,unknown_queued,W14X198,Queued for review (structural_section),system,2026-07-27T10:11:08.092024+00:00
+c1df340c-c757-46d3-b1ea-014de24cac2a,token_approved,W14X198,class=W,user,2026-07-27T10:11:37.151812+00:00
+6c6721d1-71dd-40e6-afd4-fd51aeb0e725,token_approved,S-502,class=S,user,2026-07-27T10:12:24.607022+00:00
+6147601a-6ca4-4dfa-9c90-3bd68fe5eb8f,token_approved,S-501,class=S,user,2026-07-27T10:12:24.706277+00:00
+9448fc87-a039-43f8-8ce6-dc65c5d81cad,token_approved,S-402,class=S,user,2026-07-27T10:12:24.844284+00:00
+27a03c71-67b4-4c32-bd4c-51e9be28c9d7,token_approved,S-401,class=S,user,2026-07-27T10:12:24.905968+00:00
+76d8c8fe-65b8-458c-a077-d5ae2f8f08e5,token_approved,S-322,class=S,user,2026-07-27T10:12:24.946588+00:00
+be44a824-7217-4648-9374-8e7248bd173e,token_approved,S-321,class=S,user,2026-07-27T10:12:24.992991+00:00
+74b13b5f-0a2f-455a-ab1b-f33aed08f718,token_approved,S-311,class=S,user,2026-07-27T10:12:25.047748+00:00
+0f679a40-d216-43ef-baaa-7335594c4b67,token_approved,S-301,class=S,user,2026-07-27T10:12:25.092958+00:00
+615ed22c-5e59-418d-a3ae-09eb13edf6e6,token_approved,S-208,class=S,user,2026-07-27T10:12:25.134574+00:00
+cbc85d7c-da19-4960-9a05-00cc62626756,token_approved,S-207,class=S,user,2026-07-27T10:12:25.173190+00:00
+6075ff54-31d5-42d2-9dcd-6dbbc067d189,token_approved,S-206,class=S,user,2026-07-27T10:12:25.208621+00:00
+127d38aa-ffc5-498a-adf4-21c304e9a106,token_approved,S-205,class=S,user,2026-07-27T10:12:25.247027+00:00
+453c9e68-81ef-4dec-9b80-8655d8c761e1,token_approved,S-204,class=S,user,2026-07-27T10:12:25.286620+00:00
+c05cc479-d799-4df6-b797-034611920bb8,token_approved,S-203,class=S,user,2026-07-27T10:12:25.327071+00:00
+496e7a19-2a62-4791-9531-7b47794ec553,token_approved,S-202,class=S,user,2026-07-27T10:12:25.369560+00:00
+6031ac15-3676-4216-ad9b-f2cc0ea3984e,token_approved,S-201,class=S,user,2026-07-27T10:12:25.412268+00:00
+6d983635-fe4a-42af-a69b-ac33dbd91c19,token_approved,S-104,class=S,user,2026-07-27T10:12:25.455709+00:00
+b113cbd4-e5f6-4add-bee4-328a683349cd,token_approved,S-103,class=S,user,2026-07-27T10:12:25.499848+00:00
+b6d96212-b850-4f5d-9acd-22595a929b27,token_approved,S-102,class=S,user,2026-07-27T10:12:25.543883+00:00
+7688ebdd-2a09-43ee-9941-ebadd27a0d62,token_approved,S-101,class=S,user,2026-07-27T10:12:25.589331+00:00
+78413472-50fa-4055-b665-2fa0b6b04b75,token_approved,S-004,class=S,user,2026-07-27T10:12:25.633040+00:00
+3c5e431d-c62c-4360-9d13-9d7d79039e8f,token_approved,S-003,class=S,user,2026-07-27T10:12:25.683274+00:00
+797be627-f1a0-4435-bbd3-d95c19d41f66,token_approved,S-002,class=S,user,2026-07-27T10:12:25.726312+00:00
+f87cb4e3-710c-4b47-8ac7-e0c8032c319d,token_approved,S-001,class=S,user,2026-07-27T10:12:25.773043+00:00
+ebcb02e0-c40b-463d-a46b-a6508a049f9c,token_approved,L6x3,class=L,user,2026-07-27T10:12:25.816923+00:00
+cf1a63da-f3e5-42d3-9f6a-1abfb6c6ba3c,token_rejected,L5X3,class=C,user,2026-07-27T10:12:40.662571+00:00
+918f3cae-15c4-475a-a981-19c4fbbe3168,token_approved,L4X3,class=L,user,2026-07-27T10:12:49.863494+00:00
+84ac0dd7-ce97-444d-a071-bfb1c2e4c1a0,token_approved,L1x1x1/4,class=L,user,2026-07-27T10:12:51.541533+00:00
+3ad95364-99e5-4708-b65a-8a3250eae187,token_approved,HSS10X0,class=HSS,user,2026-07-27T10:12:54.129723+00:00
+0fd5917e-42c6-4d1e-87fa-7b94ec7bfdd3,token_rejected,A6,class=A,user,2026-07-27T10:13:34.917017+00:00
+228d18d1-f860-4b02-8dc2-7fd8bca9408e,token_rejected,A3,class=A,user,2026-07-27T10:13:40.053155+00:00
+24105f2b-8ce4-4673-bdd7-deae5c1da29b,token_rejected,A2,class=A,user,2026-07-27T10:13:42.577183+00:00
+b95fe086-64b9-42ff-836b-aec411d1b8a2,token_approved,A1064,class=A1064,user,2026-07-27T10:13:58.145840+00:00
+c97d91a8-b819-4595-9114-449f867be531,token_approved,A307,class=A307,user,2026-07-27T10:13:58.269099+00:00
+b671f133-473a-4abe-905e-20e23e503380,token_approved,A325,class=A325,user,2026-07-27T10:13:58.375637+00:00
+f92a281c-b724-42dc-93e3-3aa343732938,token_approved,A36,class=A36,user,2026-07-27T10:13:58.436346+00:00
+821b62d8-8baa-4bed-a635-2b86c578b7cc,token_approved,A500,class=A500,user,2026-07-27T10:13:58.493178+00:00
+7aee5c16-ac2b-4ddc-975b-2c949446a92e,token_approved,A53,class=A53,user,2026-07-27T10:13:58.557781+00:00
+ac453191-ab92-47e5-838e-59c5a2a15773,token_approved,A568,class=A568,user,2026-07-27T10:13:58.619826+00:00
+49843605-215c-45cb-857e-35f923848a6a,token_approved,A572,class=A572,user,2026-07-27T10:13:58.677614+00:00
+43e50aeb-11d2-436d-81bb-a48328e0d249,token_approved,A588,class=A588,user,2026-07-27T10:13:58.739943+00:00
+349a609c-e7ec-451a-b40e-2deb370b020a,token_approved,A615,class=A615,user,2026-07-27T10:13:58.804359+00:00
+ff6665e4-bdec-4f0b-8f4e-46280e1c87f8,token_approved,A653,class=A653,user,2026-07-27T10:13:58.866629+00:00
+259220da-e033-41ad-976b-ccdb75b46008,token_approved,A706,class=A706,user,2026-07-27T10:13:58.925327+00:00
+95235d0a-4f5f-40df-8d28-023baa907ba0,token_approved,A913,class=A913,user,2026-07-27T10:13:58.987613+00:00
+91c4efdb-e338-41b7-8457-e993da1083a1,token_approved,A970,class=A970,user,2026-07-27T10:13:59.049609+00:00
+0bc1a210-7b66-4eef-b86b-a62f93807d7a,token_approved,A992,class=A992,user,2026-07-27T10:13:59.109685+00:00
+fa1aa50a-b926-43f2-b87a-48cc8b649106,model_retrained,,"{""model"": ""XGBoost"", ""accuracy"": 0.9886, ""f1"": 0.9874, ""rows"": 31239, ""augmented"": 21777}",user,2026-07-27T10:17:02.418303+00:00
+6769e4e0-c90b-43a7-a480-c9f5f2df18eb,unknown_queued,A1,Queued for review (structural_section),system,2026-07-27T10:32:58.785379+00:00
+c3197657-032b-4521-b3b6-38d31b0e0db4,unknown_queued,A1064,Queued for review (material),system,2026-07-27T10:32:58.918312+00:00
+92c695a3-311a-40e9-be13-ba79ff1447ba,unknown_queued,A22,Queued for review (material),system,2026-07-27T10:32:59.050855+00:00
+6addfc1d-f521-4f27-aad2-737e4fe169b0,unknown_queued,A307,Queued for review (bolt),system,2026-07-27T10:32:59.204504+00:00
+709feaab-a355-472f-b3a2-64a2c3269fe5,unknown_queued,A36,Queued for review (material),system,2026-07-27T10:32:59.393256+00:00
+b4dffa64-4235-43a6-bbe0-8a2b3bd5bffd,unknown_queued,A500,Queued for review (material),system,2026-07-27T10:32:59.512898+00:00
+12322c45-9191-4e06-b0e3-1d197008ac9e,unknown_queued,A615,Queued for review (material),system,2026-07-27T10:32:59.649037+00:00
+0837855e-f0df-404f-8a29-85a1d77f2b3e,unknown_queued,A706,Queued for review (material),system,2026-07-27T10:32:59.772044+00:00
+66785b59-5fa7-4929-b6a1-c34b93648f4e,unknown_queued,A775,Queued for review (material),system,2026-07-27T10:32:59.895113+00:00
+4743d356-ade4-44bf-80e9-dc9a65f14372,unknown_queued,A992,Queued for review (material),system,2026-07-27T10:33:00.020549+00:00
+e428ea35-187e-4e88-afc2-fddef57e43dc,unknown_queued,L5x3,Queued for review (structural_section),system,2026-07-27T10:33:00.866052+00:00
+9b155acf-11d0-42b8-9197-7d3c2c144ff4,unknown_queued,W10X24,Queued for review (structural_section),system,2026-07-27T10:33:01.419956+00:00
+6fe6b1e0-353e-4dc9-b166-29a582177297,token_approved,W10X24,class=W,user,2026-07-27T10:33:29.413316+00:00
+d2c46393-1a7b-4678-88cd-750c90420b89,token_rejected,L5x3,class=C,user,2026-07-27T10:33:34.426090+00:00
+f6b7d635-b746-4456-b439-aa180a50e95d,token_rejected,A1,class=A,user,2026-07-27T10:33:41.749039+00:00
+9aa5eb9c-2f60-4088-a4e4-34b06e2cc41e,token_approved,A992,class=A992,user,2026-07-27T10:33:48.556633+00:00
+8ddd80f8-a42b-4090-9de6-26ef1657b7ec,token_approved,A775,class=A775,user,2026-07-27T10:33:48.664273+00:00
+b817129d-6660-4ce3-993e-59899b8f2c30,token_approved,A706,class=A706,user,2026-07-27T10:33:48.732577+00:00
+cbe03f58-0517-4d7c-aa89-b971051b7a4a,token_approved,A615,class=A615,user,2026-07-27T10:33:48.782041+00:00
+750b31e9-2d88-4e55-bbd7-886f0ad62be6,token_approved,A500,class=A500,user,2026-07-27T10:33:48.834354+00:00
+36f52c09-6d99-4c2b-97f5-c78e63ad95b3,token_approved,A36,class=A36,user,2026-07-27T10:33:48.882050+00:00
+96e871ea-7d93-41f3-9a10-4d73e15feb71,token_approved,A307,class=A307,user,2026-07-27T10:33:48.929155+00:00
+7e35f289-555f-4640-9727-2ea373b8a73e,token_approved,A22,class=A22,user,2026-07-27T10:33:48.986195+00:00
+ba80d638-d22e-49c1-903e-dc11c746b1b1,token_approved,A1064,class=A1064,user,2026-07-27T10:33:49.036564+00:00
+e3b44ad0-8ffb-4cc4-8a03-98bdc9d25a01,unknown_queued,A1064,Queued for review (material),system,2026-07-27T11:01:23.448053+00:00
+32f9fdaf-fa26-4b5a-97f6-9496237d87c7,unknown_queued,A108,Queued for review (material),system,2026-07-27T11:01:23.584797+00:00
+41e94a4f-8e57-447f-b66b-04a14fc4d567,unknown_queued,A2280,Queued for review (material),system,2026-07-27T11:01:23.715881+00:00
+7a0f2a5d-598d-40cd-9ed2-a6b23e9e6e48,unknown_queued,A29,Queued for review (material),system,2026-07-27T11:01:23.850742+00:00
+68570ade-9430-4740-8a65-aeb05ee61f4d,unknown_queued,A307,Queued for review (bolt),system,2026-07-27T11:01:23.999825+00:00
+d7917957-1bf9-4c8d-8098-1ac887f2f8ed,unknown_queued,A325,Queued for review (bolt),system,2026-07-27T11:01:24.145882+00:00
+3d27bd5f-45a6-4def-b455-d35cfa9df65d,unknown_queued,A36,Queued for review (material),system,2026-07-27T11:01:24.286131+00:00
+cbe48d86-5a75-4b2e-b63a-2c3e8dd0a254,unknown_queued,A416,Queued for review (material),system,2026-07-27T11:01:24.418036+00:00
+d2e049ad-4f67-421e-9500-4483f827385a,unknown_queued,A446,Queued for review (material),system,2026-07-27T11:01:24.573561+00:00
+196d26c1-fdba-49ba-b0ab-c8091911a8a7,unknown_queued,A490,Queued for review (bolt),system,2026-07-27T11:01:24.711050+00:00
+8b6bbfb0-e3a9-4894-a987-c2198804c8ff,unknown_queued,A5,Queued for review (structural_section),system,2026-07-27T11:01:24.850770+00:00
+77252ed0-a3b0-406e-8f3a-b4d4936338e0,unknown_queued,A500,Queued for review (material),system,2026-07-27T11:01:24.964630+00:00
+f5731333-113a-40f2-b4b9-8f914e93f99c,unknown_queued,A53,Queued for review (material),system,2026-07-27T11:01:25.093724+00:00
+c7ac55b2-0c17-40f0-9f47-54c5a7d70b13,unknown_queued,A563,Queued for review (bolt),system,2026-07-27T11:01:25.223376+00:00
+14297946-336b-4b25-a29f-992b42f0f65d,unknown_queued,A572,Queued for review (material),system,2026-07-27T11:01:25.367821+00:00
+e65adf49-229a-4483-9d4c-0abb9618e9ec,unknown_queued,A615,Queued for review (material),system,2026-07-27T11:01:25.507887+00:00
+dfd94136-054d-4c46-ab6b-8768f4696dba,unknown_queued,A653,Queued for review (material),system,2026-07-27T11:01:25.656715+00:00
+3dc90851-2566-4dd8-93b0-aae8f2b4cff5,unknown_queued,A706,Queued for review (material),system,2026-07-27T11:01:25.805657+00:00
+eb6c7cb8-50b9-44e9-9204-6eb3c90e5dfd,unknown_queued,A913,Queued for review (material),system,2026-07-27T11:01:25.953789+00:00
+f21da22c-cb5b-40ce-b74b-e6d4c2b784cc,unknown_queued,A959,Queued for review (material),system,2026-07-27T11:01:26.092567+00:00
+f5e40850-cc13-4407-b522-3fcc13a7f07f,unknown_queued,A992,Queued for review (material),system,2026-07-27T11:01:26.231571+00:00
+17aaea77-2d75-4c1b-92e2-57b873c993b0,unknown_queued,HSS5x5,Queued for review (structural_section),system,2026-07-27T11:01:26.964952+00:00
+d5438302-fbd6-4860-a6ec-f7248e523779,unknown_queued,L18x12x3/8,Queued for review (structural_section),system,2026-07-27T11:01:27.940371+00:00
+bd7721d8-edbd-4205-b5a8-3627267565e1,unknown_queued,L5x5,Queued for review (structural_section),system,2026-07-27T11:01:28.704255+00:00
+e6d9af80-9332-4c51-adbc-a2be63f9a1ff,unknown_queued,w16x64,Queued for review (structural_section),system,2026-07-27T11:02:09.730207+00:00
+5efc1544-0df9-4d66-a9ce-ea9bf071bf66,token_approved,w16x64,class=W,user,2026-07-27T11:03:04.715356+00:00
+3252a7fb-7d41-4719-b269-649a49a47a1e,token_approved,L5x5,class=L,user,2026-07-27T11:03:17.869432+00:00
+cae43f38-a98d-4125-8ba9-e4112a9b6f39,token_approved,L18x12x3/8,class=L,user,2026-07-27T11:03:19.814470+00:00
+4e661c1c-bb46-4e88-8728-cb1e7279f4a7,token_approved,HSS5x5,class=HSS,user,2026-07-27T11:03:20.897250+00:00
+c0730a2d-b4b2-4290-bfa5-71909019bbfe,token_approved,A1064,class=A1064,user,2026-07-27T11:03:37.165985+00:00
+dbc9e940-9443-4915-bc69-e6e315a3393b,token_approved,A108,class=A108,user,2026-07-27T11:03:37.311702+00:00
+7f2be58a-31cc-4aa5-aa65-2b9200ea9fa2,token_approved,A2280,class=A2280,user,2026-07-27T11:03:37.417726+00:00
+d43269d1-a199-40b8-ab6a-634324ac2674,token_approved,A29,class=A29,user,2026-07-27T11:03:37.499649+00:00
+0b37fa07-cdd4-43ee-9310-84141afdebac,token_approved,A307,class=A307,user,2026-07-27T11:03:37.581241+00:00
+12e2ee4c-8a01-4440-8e9a-5c68bd46ee52,token_approved,A325,class=A325,user,2026-07-27T11:03:37.659675+00:00
+707e4376-724c-4de1-b155-780ff9d1b6b5,token_approved,A36,class=A36,user,2026-07-27T11:03:37.741578+00:00
+49871ff2-9de7-4241-b1e1-5f1e16db930a,token_approved,A416,class=A416,user,2026-07-27T11:03:37.825656+00:00
+3ba400c3-f4fe-4321-8597-8187b69c11c0,token_approved,A446,class=A446,user,2026-07-27T11:03:37.907351+00:00
+f69480ad-66ba-4772-9f38-505804578758,token_approved,A490,class=A490,user,2026-07-27T11:03:38.004998+00:00
+66da03d7-d6bc-442b-8849-48a4e77b7d88,token_approved,A5,class=A,user,2026-07-27T11:03:38.088013+00:00
+642a548c-c529-48ef-8e1d-af95951f04a3,token_approved,A500,class=A500,user,2026-07-27T11:03:38.171218+00:00
+644ca8e5-30e3-4d64-afc1-577c685cc10f,token_approved,A53,class=A53,user,2026-07-27T11:03:38.272611+00:00
+ab214262-5fd4-42b8-8e52-87f7c9cdc0b0,token_approved,A563,class=A563,user,2026-07-27T11:03:38.353449+00:00
+49a6ae41-4570-4da1-93f6-504ca9f999df,token_approved,A572,class=A572,user,2026-07-27T11:03:38.439097+00:00
+d816a9f8-204e-45d4-ab4c-79e74445f638,token_approved,A615,class=A615,user,2026-07-27T11:03:38.523534+00:00
+42ceef40-d081-4c8e-b81a-7958e2cc3338,token_approved,A653,class=A653,user,2026-07-27T11:03:38.606293+00:00
+14cad628-ad70-4afa-88ef-da7928212dd0,token_approved,A706,class=A706,user,2026-07-27T11:03:38.690870+00:00
+19a8155a-7346-4522-83f6-eada5a91edf6,token_approved,A913,class=A913,user,2026-07-27T11:03:38.783007+00:00
+60d192fc-9b1b-4afc-bbb6-811abe230ef0,token_approved,A959,class=A959,user,2026-07-27T11:03:38.882802+00:00
+df599384-3ffd-4b48-8ca9-a3e005fb442f,token_approved,A992,class=A992,user,2026-07-27T11:03:38.968201+00:00
+33641f92-acbd-46dd-ba58-460386e730b6,model_retrained,,"{""model"": ""XGBoost"", ""accuracy"": 0.9882, ""f1"": 0.9868, ""rows"": 31272, ""augmented"": 21801}",user,2026-07-27T11:06:49.479219+00:00
+b635d5fb-c5ca-4885-a30e-3593d6db5c86,unknown_queued,A1064,Queued for review (material),system,2026-07-28T10:52:01.771438+00:00
+290e8ff6-defa-4f28-b76e-886f27a1f665,unknown_queued,A108,Queued for review (material),system,2026-07-28T10:52:01.870078+00:00
+6385efef-9fd6-4954-af4c-00a46dfb49b2,unknown_queued,A2,Queued for review (structural_section),system,2026-07-28T10:52:01.982244+00:00
+e898f68b-d7a0-4353-a8bb-cd2ae0b6f6c0,unknown_queued,A3,Queued for review (structural_section),system,2026-07-28T10:52:02.099118+00:00
+442bc253-3218-46c0-9fc1-287b09327910,unknown_queued,A307,Queued for review (bolt),system,2026-07-28T10:52:02.239784+00:00
+22a2d028-f67b-44ed-a6c4-11eb90ba7c18,unknown_queued,A325,Queued for review (bolt),system,2026-07-28T10:52:02.388782+00:00
+f293281e-d558-4856-ac69-be4c58cad1be,unknown_queued,A36,Queued for review (material),system,2026-07-28T10:52:02.538848+00:00
+e2b24913-2395-42ad-9344-8949d863bfcc,unknown_queued,A500,Queued for review (material),system,2026-07-28T10:52:02.675881+00:00
+fd52ce2a-eaee-44e4-be10-61cad9a1a481,unknown_queued,A53,Queued for review (material),system,2026-07-28T10:52:02.815900+00:00
+bdda6dd3-d738-457b-8536-1e6345f5ba04,unknown_queued,A568,Queued for review (material),system,2026-07-28T10:52:02.956214+00:00
+e32313cf-fb13-4a4b-a8f5-59ecd358e27d,unknown_queued,A572,Queued for review (material),system,2026-07-28T10:52:03.092738+00:00
+25640d2f-cd2e-4f2a-b63a-85ccc77223ce,unknown_queued,A588,Queued for review (material),system,2026-07-28T10:52:03.235490+00:00
+fa3369d8-cba6-46fd-9c58-500e11dd3a00,unknown_queued,A6,Queued for review (structural_section),system,2026-07-28T10:52:03.375169+00:00
+ad36fa46-0921-4904-82b2-479970cddead,unknown_queued,A615,Queued for review (material),system,2026-07-28T10:52:03.508969+00:00
+d4a2470a-7962-489f-8787-92ea3427d3ea,unknown_queued,A653,Queued for review (material),system,2026-07-28T10:52:03.645210+00:00
+fbf3f4d7-6940-445a-892e-2a4db3789581,unknown_queued,A706,Queued for review (material),system,2026-07-28T10:52:03.788384+00:00
+525233ec-a777-475b-ba2b-9c418b8af8f3,unknown_queued,A913,Queued for review (material),system,2026-07-28T10:52:03.928557+00:00
+1bcb2b52-5618-4c05-98bc-1a790f83c25a,unknown_queued,A970,Queued for review (material),system,2026-07-28T10:52:04.081214+00:00
+56cf5a2e-a47b-4df7-8f6c-ea95c20d4de8,unknown_queued,A992,Queued for review (material),system,2026-07-28T10:52:04.220600+00:00
+e66ce03b-77ca-4d9f-ad34-f90d735e614e,unknown_queued,HSS10X0,Queued for review (structural_section),system,2026-07-28T10:52:04.370594+00:00
+f944cbd0-2175-480b-b998-0deb5e0ea15e,unknown_queued,HSS16X0,Queued for review (structural_section),system,2026-07-28T10:52:04.722493+00:00
+058ba741-de41-430a-8a39-b31c11d9f4d4,unknown_queued,HSS18X0,Queued for review (structural_section),system,2026-07-28T10:52:05.038985+00:00
+50d0e5de-486b-4225-9cde-aada4a301ea7,unknown_queued,L1x1x1/4,Queued for review (structural_section),system,2026-07-28T10:52:05.937292+00:00
+8e21f965-f47c-4d46-bd39-69aa7e9b6556,unknown_queued,L4X3,Queued for review (structural_section),system,2026-07-28T10:52:06.462979+00:00
+eb45710b-81ee-404f-a9c0-34711385973f,unknown_queued,L4x4,Queued for review (structural_section),system,2026-07-28T10:52:07.057520+00:00
+dd3e71f9-bbae-400a-8ac6-543d06baae23,unknown_queued,L5X3,Queued for review (structural_section),system,2026-07-28T10:52:07.258323+00:00
+8a3fb991-eb6c-4389-ae8a-6f2a4d5dc01d,unknown_queued,L6X3,Queued for review (structural_section),system,2026-07-28T10:52:07.522629+00:00
+836167f2-0ce0-4acb-b473-f93485a08fa9,unknown_queued,S-001,Queued for review (structural_section),system,2026-07-28T10:52:07.981494+00:00
+b671d05f-165d-458a-9b05-15d689cdf2cc,unknown_queued,S-002,Queued for review (structural_section),system,2026-07-28T10:52:08.112740+00:00
+5f328c1f-ad24-4419-89c2-66af13164872,unknown_queued,S-003,Queued for review (structural_section),system,2026-07-28T10:52:08.244242+00:00
+c16d6ea3-3c4e-4e62-b2a8-79a895eb2b74,unknown_queued,S-004,Queued for review (structural_section),system,2026-07-28T10:52:08.348251+00:00
+4041eabd-71b4-49a6-9c8e-9e228fe520e9,unknown_queued,S-111,Queued for review (structural_section),system,2026-07-28T10:52:08.455207+00:00
+3af41325-0d72-4846-9012-c318c3b1e760,unknown_queued,S-112,Queued for review (structural_section),system,2026-07-28T10:52:08.580793+00:00
+0f41db7a-bd08-4ce2-9097-a472795d1307,unknown_queued,S-113,Queued for review (structural_section),system,2026-07-28T10:52:08.719018+00:00
+c6359b6e-4a15-4fff-b356-02f46c77c94d,unknown_queued,S-201,Queued for review (structural_section),system,2026-07-28T10:52:08.857494+00:00
+a213ec24-34a3-4011-9eac-b394f2821ceb,unknown_queued,S-202,Queued for review (structural_section),system,2026-07-28T10:52:09.002202+00:00
+a3877ebc-6e63-49d0-89d5-47e382e9ee84,unknown_queued,S-203,Queued for review (structural_section),system,2026-07-28T10:52:09.135678+00:00
+f5ba0395-c02e-4652-8028-500ea8a1ee4a,unknown_queued,S-204,Queued for review (structural_section),system,2026-07-28T10:52:09.271036+00:00
+5bd717b8-b937-4c62-9a07-7ec4f3033305,unknown_queued,S-205,Queued for review (structural_section),system,2026-07-28T10:52:09.413017+00:00
+67d6425a-09c0-445b-b08f-14bbffc530e6,unknown_queued,S-206,Queued for review (structural_section),system,2026-07-28T10:52:09.561638+00:00
+5a2a6770-040d-46ee-9692-780753da31fa,unknown_queued,S-301,Queued for review (structural_section),system,2026-07-28T10:52:09.705299+00:00
+d10966c1-e900-4587-a205-40d44ffaa99e,unknown_queued,S-311,Queued for review (structural_section),system,2026-07-28T10:52:09.843699+00:00
+3a70f8a7-c7bb-4425-af59-968d55a57370,unknown_queued,S-312,Queued for review (structural_section),system,2026-07-28T10:52:09.993670+00:00
+6e6c3cf5-1274-4e14-94af-31018b2355ad,unknown_queued,S-321,Queued for review (structural_section),system,2026-07-28T10:52:10.137400+00:00
+ee892c3e-2a0d-42c9-8ed3-2475fc10b49a,unknown_queued,S-322,Queued for review (structural_section),system,2026-07-28T10:52:10.279309+00:00
+6d7676d4-33c4-498d-ae93-eeba5e6edae3,unknown_queued,S-401,Queued for review (structural_section),system,2026-07-28T10:52:10.426157+00:00
+b8658e35-068e-47b4-be53-a0f056e0ce92,unknown_queued,S-402,Queued for review (structural_section),system,2026-07-28T10:52:10.556146+00:00
+cfe2e1c8-33dc-4406-b2d2-9f64fffcdc0a,unknown_queued,S-403,Queued for review (structural_section),system,2026-07-28T10:52:10.701756+00:00
+4e5ab76a-92b9-4480-a81d-bda90aed459b,unknown_queued,S-404,Queued for review (structural_section),system,2026-07-28T10:52:10.843361+00:00
+6b793917-5a0d-4b8e-8e60-2c3617485dea,unknown_queued,S-501,Queued for review (structural_section),system,2026-07-28T10:52:10.980148+00:00
+ccbe179e-502b-4439-bc72-04cd5cbdcf7c,unknown_queued,S-502,Queued for review (structural_section),system,2026-07-28T10:52:11.121478+00:00
+ac653b72-6900-4a50-815c-650e7c327ca8,unknown_queued,S-601,Queued for review (structural_section),system,2026-07-28T10:52:11.263804+00:00
+6588dc85-5cbc-44d7-aa09-9576a802ad33,token_approved,S-601,class=S,user,2026-07-28T10:53:03.993218+00:00
+ccd583e1-2eb2-421f-bcc6-2b7794b0cb7f,token_approved,S-502,class=S,user,2026-07-28T10:53:35.441586+00:00
+c7cffd18-8afa-46d6-9f60-d56f44686238,token_approved,S-501,class=S,user,2026-07-28T10:53:35.590019+00:00
+425ed1b6-f41a-4b9f-82c4-5b905101551a,token_approved,S-404,class=S,user,2026-07-28T10:53:35.685635+00:00
+fea09892-c818-4517-825a-6af1a9600a95,token_approved,S-403,class=S,user,2026-07-28T10:53:35.813427+00:00
+f4c8f1b7-67da-4779-ad64-7e2d359ea979,token_approved,S-402,class=S,user,2026-07-28T10:53:35.924586+00:00
+ea1bcbd7-3515-434f-9735-179a4b8320fe,token_approved,S-401,class=S,user,2026-07-28T10:53:35.994225+00:00
+e9d7fcd5-78a6-4e38-853f-385d309cb479,token_approved,S-322,class=S,user,2026-07-28T10:53:36.051111+00:00
+27e3717c-6cfb-428a-96fb-560483afcbd3,token_approved,S-321,class=S,user,2026-07-28T10:53:36.108947+00:00
+70be373f-e738-4e8f-9132-10f65354d6bb,token_approved,S-312,class=S,user,2026-07-28T10:53:36.178318+00:00
+85f7312c-e1c9-4fef-937c-2a56a895f19d,token_approved,S-311,class=S,user,2026-07-28T10:53:36.234110+00:00
+ad026dcd-d2a8-4931-9a59-5269b7a2e5dd,token_approved,S-301,class=S,user,2026-07-28T10:53:36.291294+00:00
+583aa9b0-1fdb-41e1-b755-eea70e793201,token_approved,S-206,class=S,user,2026-07-28T10:53:36.349196+00:00
+dfe652ae-5f12-4d4b-8e27-85a40e40622b,token_approved,S-205,class=S,user,2026-07-28T10:53:36.404629+00:00
+eba0b318-471c-42af-9486-e83adcf2014f,token_approved,S-204,class=S,user,2026-07-28T10:53:36.459939+00:00
+258403e5-de9d-4b65-ade7-905dc17752f8,token_approved,S-203,class=S,user,2026-07-28T10:53:36.516512+00:00
+b959a3af-5961-4609-b9be-44d8f37b8f60,token_approved,S-202,class=S,user,2026-07-28T10:53:36.572216+00:00
+f5bfa184-fc7a-43f7-87ea-1c14dd75b88e,token_approved,S-201,class=S,user,2026-07-28T10:53:36.629336+00:00
+31ee60c2-ad21-4136-9552-ceceeb9dff35,token_approved,S-113,class=S,user,2026-07-28T10:53:36.690573+00:00
+4354fbe0-dff6-452c-adf1-01f588670e08,token_approved,S-112,class=S,user,2026-07-28T10:53:36.747980+00:00
+44b78495-5c5c-4c8e-846a-da4290323879,token_approved,S-111,class=S,user,2026-07-28T10:53:36.804158+00:00
+16176a4b-3fb0-4988-8c2a-e9db6ed797d1,token_approved,S-004,class=S,user,2026-07-28T10:53:36.860774+00:00
+d52ba2aa-b8a4-4972-8153-aed8088e2a68,token_approved,S-003,class=S,user,2026-07-28T10:53:36.916945+00:00
+5ad388d4-0203-47b2-b4ad-a659933a6579,token_approved,S-002,class=S,user,2026-07-28T10:53:36.972189+00:00
+a0dd0200-5684-4c7c-b5b8-edec3373ddd3,token_approved,S-001,class=S,user,2026-07-28T10:53:37.029046+00:00
+28ff3dac-8042-4072-8a39-e348a182928e,token_approved,L6X3,class=L,user,2026-07-28T10:53:37.083461+00:00
+077b3706-24bb-47de-a186-11cad8248071,token_approved,L5X3,class=L,user,2026-07-28T10:53:50.191995+00:00
+102417f1-5a34-433c-b4dc-deeb8631d95a,token_approved,L4x4,class=L,user,2026-07-28T10:53:50.322065+00:00
+407cbb3d-18da-4c19-8474-61ac90599c17,token_approved,L4X3,class=L,user,2026-07-28T10:53:50.451380+00:00
+131ec01e-1973-4018-8b56-6350117b3925,token_approved,L1x1x1/4,class=L,user,2026-07-28T10:53:50.566478+00:00
+eda2b6f3-d78a-4630-b082-33b15fb7ceed,token_approved,HSS18X0,class=HSS,user,2026-07-28T10:53:50.652786+00:00
+88d31be7-31ed-41a3-a0e5-a0d1cb8f2045,token_approved,HSS16X0,class=HSS,user,2026-07-28T10:53:50.709610+00:00
+d55731f4-817a-471d-8217-268c16b09c83,token_approved,HSS10X0,class=HSS,user,2026-07-28T10:53:50.766399+00:00
+4b29d883-6021-4941-9f02-863ad272082f,token_rejected,A3,class=A,user,2026-07-28T10:54:40.531505+00:00
+67c5f198-bacf-4eb5-a70b-fbd530a4f91c,token_rejected,A2,class=A,user,2026-07-28T10:54:43.113713+00:00
+1ddd9b59-888b-47f7-8ea3-6f5eec4110a1,token_approved,A992,class=A992,user,2026-07-28T10:54:48.204302+00:00
+09b7e3a2-37c2-4fa3-bac9-e6d2602bc5b3,token_approved,A970,class=A970,user,2026-07-28T10:54:48.342787+00:00
+d7dab527-98f3-4cd2-8bbe-b9980ca112a5,token_approved,A913,class=A913,user,2026-07-28T10:54:48.437699+00:00
+76e5059e-988f-4cdc-a901-fa903974f512,token_approved,A706,class=A706,user,2026-07-28T10:54:48.502042+00:00
+7f758cd5-6f87-49f4-a883-87f536a4f475,token_approved,A653,class=A653,user,2026-07-28T10:54:48.560365+00:00
+e73a7aa7-8c7a-45ef-9533-b24d6f1b31cc,token_approved,A615,class=A615,user,2026-07-28T10:54:48.617877+00:00
+e09c5f5f-9663-4ff7-bfe2-9d6d4ebed3e8,token_approved,A6,class=A,user,2026-07-28T10:54:48.673123+00:00
+98fa099d-2f74-4041-a683-a387df75ec60,token_approved,A588,class=A588,user,2026-07-28T10:54:48.728433+00:00
+7c398c0c-73aa-4c66-9275-69a413440034,token_approved,A572,class=A572,user,2026-07-28T10:54:48.786813+00:00
+80561fee-a19d-4cd0-8508-6b2cc65f531f,token_approved,A568,class=A568,user,2026-07-28T10:54:48.844000+00:00
+37d4c008-4e77-48f5-bc6d-257ce6c068bb,token_approved,A53,class=A53,user,2026-07-28T10:54:48.897265+00:00
+84cf1296-8269-4bd0-87f9-f3db2cb1d67e,token_approved,A500,class=A500,user,2026-07-28T10:54:48.953018+00:00
+63a9c902-dc00-4d9e-ac81-8976fe016fa1,token_approved,A36,class=A36,user,2026-07-28T10:54:49.008061+00:00
+1458e635-8d74-423f-8abf-53588bd02d77,token_approved,A325,class=A325,user,2026-07-28T10:54:49.063230+00:00
+bce5851d-0198-4678-8778-6f3f815b606e,token_approved,A307,class=A307,user,2026-07-28T10:54:49.118066+00:00
+e2bfb1b7-dacc-44e7-a115-59550ff9c577,token_approved,A108,class=A108,user,2026-07-28T10:54:49.173384+00:00
+9e25f0e3-90dc-4699-819a-096ec6287fec,token_approved,A1064,class=A1064,user,2026-07-28T10:54:49.228013+00:00
+3bbd746b-018d-4298-9cab-a97f1a5d5365,model_retrained,,"{""model"": ""XGBoost"", ""accuracy"": 0.9882, ""f1"": 0.9868, ""rows"": 31272, ""augmented"": 21801}",user,2026-07-28T10:57:57.956900+00:00
+87d41755-1ee6-43dc-8481-75e589ba67f1,unknown_queued,A1064,Queued for review (material),system,2026-07-28T11:41:24.703481+00:00
+33f041a2-b586-4698-aff8-6eda5959beca,unknown_queued,A108,Queued for review (material),system,2026-07-28T11:41:25.483921+00:00
+2800bf76-eec8-4965-821e-0b91a9529bb2,unknown_queued,A2,Queued for review (structural_section),system,2026-07-28T11:41:26.032595+00:00
+3add186c-b93c-432a-bb3e-4828eeff86aa,unknown_queued,A3,Queued for review (structural_section),system,2026-07-28T11:41:26.735027+00:00
+35ba6d1d-8e88-4b3e-b8ea-1fdfdccf6395,unknown_queued,A307,Queued for review (bolt),system,2026-07-28T11:41:27.596733+00:00
+6377926f-16bf-4259-a5ae-3f416a03d2d7,unknown_queued,A325,Queued for review (bolt),system,2026-07-28T11:41:28.204076+00:00
+eab43bf1-a0d6-433a-9350-780c21c1d64e,unknown_queued,A36,Queued for review (material),system,2026-07-28T11:41:28.935919+00:00
+d662d0ce-5b73-4b5f-b221-bcae68ed2198,unknown_queued,A500,Queued for review (material),system,2026-07-28T11:41:29.612839+00:00
+0cc28928-6b78-48ec-b22a-f4e57f47c011,unknown_queued,A53,Queued for review (material),system,2026-07-28T11:41:32.513175+00:00
+34d0d719-b635-42e6-a44d-54772c4ab2e4,unknown_queued,A568,Queued for review (material),system,2026-07-28T11:41:33.256915+00:00
+af04619d-3cff-4730-94af-c4ccd5afa1da,unknown_queued,A572,Queued for review (material),system,2026-07-28T11:41:34.035479+00:00
+57f34fdc-5454-416d-a654-4d5880acf04b,unknown_queued,A588,Queued for review (material),system,2026-07-28T11:41:34.693671+00:00
+7eebaf26-55fc-4596-be6f-d7128e812158,unknown_queued,A6,Queued for review (structural_section),system,2026-07-28T11:41:35.492454+00:00
+0d31c9c5-fb59-4fc6-950c-e737566fe350,unknown_queued,A615,Queued for review (material),system,2026-07-28T11:41:36.422393+00:00
+1510023c-eacb-447b-86ee-8371dba1cec0,unknown_queued,A653,Queued for review (material),system,2026-07-28T11:41:37.204200+00:00
+fafb1095-c61f-4e2d-8630-a9de5c1a1e9f,unknown_queued,A706,Queued for review (material),system,2026-07-28T11:41:38.180966+00:00
+26963f19-42c3-4981-b023-8f35a8546938,unknown_queued,A913,Queued for review (material),system,2026-07-28T11:41:38.979993+00:00
+04d1a2fc-e0aa-4ab4-bb1e-6517c1fcc153,unknown_queued,A970,Queued for review (material),system,2026-07-28T11:41:39.687613+00:00
+4b15ccff-85a0-4085-8b47-2dc3cabc553e,unknown_queued,A992,Queued for review (material),system,2026-07-28T11:41:40.508073+00:00
+db00e57a-2247-4dd2-adc3-ab82ae63a615,unknown_queued,HSS10X0,Queued for review (structural_section),system,2026-07-28T11:41:41.339212+00:00
+d77d8541-3e3b-4f9e-b6b2-d262bbfc82e4,unknown_queued,HSS16X0,Queued for review (structural_section),system,2026-07-28T11:41:43.487016+00:00
+c6619309-a3c6-4a9a-9199-fd26a85297d2,unknown_queued,HSS18X0,Queued for review (structural_section),system,2026-07-28T11:41:45.039210+00:00
+93696336-b83e-487d-ba97-e5b4b1cd786a,unknown_queued,L1x1x1/4,Queued for review (structural_section),system,2026-07-28T11:41:51.488480+00:00
+b4008c50-d8ed-4564-be68-5e61719082c1,unknown_queued,L4X3,Queued for review (structural_section),system,2026-07-28T11:41:55.323949+00:00
+f3c5b106-19ef-4b81-a02d-33da259afbbb,unknown_queued,L4x4,Queued for review (structural_section),system,2026-07-28T11:41:58.919842+00:00
+ffab6434-1412-4e12-8b1c-cb1455defd62,unknown_queued,L5X3,Queued for review (structural_section),system,2026-07-28T11:42:00.369863+00:00
+01718225-e26c-4272-a15f-ac6623b1c260,unknown_queued,L6X3,Queued for review (structural_section),system,2026-07-28T11:42:02.240941+00:00
+863d5957-b2b9-429e-bb43-4e57bdc3a1ec,unknown_queued,S-001,Queued for review (structural_section),system,2026-07-28T11:42:05.164829+00:00
+cec98ae6-3e89-4190-8ef6-0337f1cc9651,unknown_queued,S-002,Queued for review (structural_section),system,2026-07-28T11:42:06.175939+00:00
+9d4529d8-987e-416a-ac24-b354603ab3f9,unknown_queued,S-003,Queued for review (structural_section),system,2026-07-28T11:42:06.820527+00:00
+04cd4558-89af-4450-a3cd-bcfe7be7ac95,unknown_queued,S-004,Queued for review (structural_section),system,2026-07-28T11:42:08.325521+00:00
+0b560536-108c-437b-8fd0-29692a815b29,unknown_queued,S-111,Queued for review (structural_section),system,2026-07-28T11:42:09.282797+00:00
+2950c680-f594-4dc1-8de1-0add727ed313,unknown_queued,S-112,Queued for review (structural_section),system,2026-07-28T11:42:10.166504+00:00
+73aae393-a0d4-460a-8ec5-abd4ebb08f4d,unknown_queued,S-113,Queued for review (structural_section),system,2026-07-28T11:42:10.740774+00:00
+98137453-a755-4a41-91a6-0d6f02e48a49,unknown_queued,S-201,Queued for review (structural_section),system,2026-07-28T11:42:12.260687+00:00
+a43eb951-14b2-46f4-be43-ee669d0f7c92,unknown_queued,S-202,Queued for review (structural_section),system,2026-07-28T11:42:13.276736+00:00
+27b03b2c-2d1b-465a-b29f-b928ee36e2c0,unknown_queued,S-203,Queued for review (structural_section),system,2026-07-28T11:42:14.950364+00:00
+ec770fc1-0e68-4aff-9ce1-9784cc4b0319,unknown_queued,S-204,Queued for review (structural_section),system,2026-07-28T11:42:16.909383+00:00
+5a60dd16-153f-428e-b669-07b1d473e553,unknown_queued,S-205,Queued for review (structural_section),system,2026-07-28T11:42:18.768097+00:00
+930a1916-87d4-438d-b25e-462f8a3f16a1,unknown_queued,S-206,Queued for review (structural_section),system,2026-07-28T11:42:19.863178+00:00
+93a28a14-9497-44d1-b61e-fcb2ea67dcc7,unknown_queued,S-301,Queued for review (structural_section),system,2026-07-28T11:42:21.169470+00:00
+0bf8caa6-12f4-43ff-a6eb-382560686aae,unknown_queued,S-311,Queued for review (structural_section),system,2026-07-28T11:42:22.189640+00:00
+3334a988-41b5-4e51-9934-6fd92238ac48,unknown_queued,S-312,Queued for review (structural_section),system,2026-07-28T11:42:23.209768+00:00
+d2ab4534-c586-4482-a89e-ac8fb3f21b87,unknown_queued,S-321,Queued for review (structural_section),system,2026-07-28T11:42:24.154130+00:00
+3c5e92a5-e86f-4bec-b0f9-0925216db232,unknown_queued,S-322,Queued for review (structural_section),system,2026-07-28T11:42:25.376547+00:00
+e5f69b2f-1ebb-4c98-9643-735091fdf0a5,unknown_queued,S-401,Queued for review (structural_section),system,2026-07-28T11:42:26.104493+00:00
+ca7ba022-1ded-4272-9452-da5afa6fac86,unknown_queued,S-402,Queued for review (structural_section),system,2026-07-28T11:42:26.956900+00:00
+436416f7-5965-46f4-a225-286410d4420f,unknown_queued,S-403,Queued for review (structural_section),system,2026-07-28T11:42:28.069956+00:00
+1d9de5f9-17a4-4ac0-9462-4d5bc11b990f,unknown_queued,S-404,Queued for review (structural_section),system,2026-07-28T11:42:29.056196+00:00
+ee420504-0f11-428b-89b9-41a6c4edae1e,unknown_queued,S-501,Queued for review (structural_section),system,2026-07-28T11:42:29.815137+00:00
+a0f38b8b-1c6d-4a6d-8d46-99c27487bfbb,unknown_queued,S-502,Queued for review (structural_section),system,2026-07-28T11:42:30.919173+00:00
+13cf6e68-38ba-417b-a3f9-632c46e1c5c6,unknown_queued,S-601,Queued for review (structural_section),system,2026-07-28T11:42:31.736266+00:00
+279600fe-76f5-4aaf-80c0-7082830b6b39,unknown_queued,S-101,Queued for review (structural_section),system,2026-07-28T13:42:16.728540+00:00
+6c1fdd73-7a37-4d2b-b905-eee64850dc4b,unknown_queued,S-102,Queued for review (structural_section),system,2026-07-28T13:42:16.856187+00:00
+9fa9ebe6-c9cc-414a-83b1-e04c098a0304,unknown_queued,S-103,Queued for review (structural_section),system,2026-07-28T13:42:16.964284+00:00
+26476169-dd76-477e-ab9b-1cc4fcd4fb66,unknown_queued,S-104,Queued for review (structural_section),system,2026-07-28T13:42:17.089758+00:00
+c9a9c5d8-e4cf-4ae7-ab3c-a478bd466eaf,unknown_queued,S-207,Queued for review (structural_section),system,2026-07-28T13:42:17.616306+00:00
+58096098-1cd4-447f-9c5f-a3331e9a6f19,unknown_queued,S-208,Queued for review (structural_section),system,2026-07-28T13:42:17.740667+00:00
+499dd94d-9b32-47bc-bab3-383af8b01165,unknown_queued,W14X198,Queued for review (structural_section),system,2026-07-28T13:42:19.663197+00:00
+34575195-2d0f-4df5-80dc-a395079f6fd4,unknown_queued,A2280,Queued for review (material),system,2026-07-28T14:18:20.276431+00:00
+ea1395ab-73ff-4637-8169-503da62a3f9b,unknown_queued,A29,Queued for review (material),system,2026-07-28T14:18:20.447492+00:00
+2d6981a2-bf6a-48b2-8043-7b039e8b79b5,unknown_queued,A416,Queued for review (material),system,2026-07-28T14:18:20.966295+00:00
+123e1435-d175-4a5f-903a-709db3fb1a0c,unknown_queued,A446,Queued for review (material),system,2026-07-28T14:18:21.123542+00:00
+6d513066-9efb-4a57-ad22-7ce0122b35af,unknown_queued,A490,Queued for review (bolt),system,2026-07-28T14:18:21.314961+00:00
+bf47af85-48ec-458c-bed2-36f54d9a5c94,unknown_queued,A5,Queued for review (structural_section),system,2026-07-28T14:18:21.886454+00:00
+b06e3d43-7be4-467f-93fa-8b3bc063669f,unknown_queued,A563,Queued for review (bolt),system,2026-07-28T14:18:22.264691+00:00
+29b0c754-a6d6-45b3-a70f-31a3ffb874b2,unknown_queued,A959,Queued for review (material),system,2026-07-28T14:18:22.833505+00:00
+6886d313-02d6-4a6e-9eb3-a360704f1a7b,unknown_queued,HSS5x5,Queued for review (structural_section),system,2026-07-28T14:18:23.538988+00:00
+3f4a1fad-d142-42c5-89bf-28666c030b4b,unknown_queued,L18x12x3/8,Queued for review (structural_section),system,2026-07-28T14:18:24.382572+00:00
+60cc3de1-898d-4605-8b8a-92be70bc944a,unknown_queued,L5x5,Queued for review (structural_section),system,2026-07-28T14:18:25.152721+00:00
+5ea7bb4d-bde1-4874-86f2-95269430c2f3,unknown_queued,F1554,Queued for review (structural_section),system,2026-07-29T06:41:23.722267+00:00
+c71138b1-d0de-4120-a6a4-1222ca793e7c,unknown_queued,HSS10X0.500,Queued for review (structural_section),system,2026-07-29T06:41:23.873414+00:00
+2cf12c82-ffdb-4f5e-9701-1b91b427d20e,unknown_queued,HSS10X0.625,Queued for review (structural_section),system,2026-07-29T06:41:24.007386+00:00
+3fc9f6db-935b-459a-8e01-fbed4019010a,unknown_queued,L3X3X1,Queued for review (structural_section),system,2026-07-29T06:41:24.972982+00:00
+24868c73-f573-4e9b-b84e-176a5b988153,unknown_queued,L3X3X3,Queued for review (structural_section),system,2026-07-29T06:41:25.179693+00:00
+dbc85656-216c-4df3-902c-baf48d82cd69,unknown_queued,L4X3X1,Queued for review (structural_section),system,2026-07-29T06:41:25.547532+00:00
+d8ab3fbe-1032-49d4-94e9-1ebbf8bb0ebe,unknown_queued,L4X3X3,Queued for review (structural_section),system,2026-07-29T06:41:25.635302+00:00
+4c6f776f-92ec-45f7-ab3d-4dea62b018da,unknown_queued,L4X4X3,Queued for review (structural_section),system,2026-07-29T06:41:25.818083+00:00
+c5a0a699-cc14-4147-8906-7306ab8c1863,unknown_queued,PIPE1,Queued for review (pipe),system,2026-07-29T06:41:26.288416+00:00
+e23c55eb-a34d-4c9f-a4f6-9b7b8d958eb5,unknown_queued,PL1,Queued for review (plate),system,2026-07-29T06:41:26.424481+00:00
+1868889e-aa15-4bd8-be1e-3201f73c46b1,unknown_queued,PL3,Queued for review (plate),system,2026-07-29T06:41:26.553841+00:00
+fbe19005-835e-4c29-8981-a51d6b858f78,unknown_queued,PL4,Queued for review (plate),system,2026-07-29T06:41:26.671970+00:00
+f65c1f5d-8147-475b-8875-e7d4e7ce8f66,unknown_queued,PL5,Queued for review (plate),system,2026-07-29T06:41:26.887910+00:00
+c8e09572-c70e-4380-8ebe-02607d45be60,token_rejected,A1064,class=A1064,user,2026-07-29T07:46:18.899624+00:00
+f934c3df-f76d-42e4-bec6-6e03f7f25f0e,token_rejected,A108,class=A108,user,2026-07-29T07:46:18.990623+00:00
+0380324e-ea3c-4417-8840-4c242f43aa19,token_rejected,A2,class=A,user,2026-07-29T07:46:19.077409+00:00
+b387c9b1-68e8-485d-9e63-f76e5bc56563,token_rejected,A3,class=A,user,2026-07-29T07:46:19.184463+00:00
+209eeb31-8852-46c3-8163-7d5236368efa,token_rejected,A307,class=A307,user,2026-07-29T07:46:19.332720+00:00
+65f96767-3ac7-4a48-83f9-593c13e1ec54,token_rejected,A325,class=A325,user,2026-07-29T07:46:19.433606+00:00
+1d38d0a1-6454-40a4-8878-3e5c48e7f3fb,token_rejected,A36,class=A36,user,2026-07-29T07:46:19.515225+00:00
+0d0398e8-7a1c-4637-be03-dcc45e36fbb4,token_rejected,A500,class=A500,user,2026-07-29T07:46:19.567647+00:00
+eb688b09-6a16-491c-b361-4c5e6f5a2401,token_rejected,A53,class=A53,user,2026-07-29T07:46:19.621154+00:00
+97df858b-db3a-4eca-a435-22b2d597a8f8,token_rejected,A568,class=A568,user,2026-07-29T07:46:19.679839+00:00
+b3630c70-327d-4d12-bd0e-b9a0a37f74ac,token_rejected,A572,class=A572,user,2026-07-29T07:46:19.729912+00:00
+99b06a57-47ea-4603-9e0a-2e9221ec4446,token_rejected,A588,class=A588,user,2026-07-29T07:46:19.782300+00:00
+94ca23b8-3ec9-4386-867b-7d7b48b61ff6,token_rejected,A6,class=A,user,2026-07-29T07:46:19.832082+00:00
+9d18567f-34f1-461a-b719-23c5581af3ab,token_rejected,A615,class=A615,user,2026-07-29T07:46:19.886178+00:00
+9779dfd9-e744-4496-9cde-1bd5e7c69ff2,token_rejected,A653,class=A653,user,2026-07-29T07:46:19.948111+00:00
+417d4f0e-8136-4f92-86ef-92c006d4554f,token_rejected,A706,class=A706,user,2026-07-29T07:46:20.003501+00:00
+4d26c73d-8c03-460f-bcd8-b85853c2295d,token_rejected,A913,class=A913,user,2026-07-29T07:46:20.053769+00:00
+7e4283da-d7ea-445d-831d-71e8076c6089,token_rejected,A970,class=A970,user,2026-07-29T07:46:20.105473+00:00
+6cbac561-c3fc-4d2a-a0cc-202e6993342f,token_rejected,A992,class=A992,user,2026-07-29T07:46:20.162070+00:00
+7d8d2b27-fc7d-41a4-b3d6-bce97d9d7625,token_rejected,HSS10X0,class=HSS,user,2026-07-29T07:46:20.212659+00:00
+f005ee1a-2731-4a53-a8c6-4fcf7c456306,token_rejected,HSS16X0,class=HSS,user,2026-07-29T07:46:20.260351+00:00
+3fd286a1-db90-4fbd-8649-a951bda13906,token_rejected,HSS18X0,class=HSS,user,2026-07-29T07:46:20.309843+00:00
+de7dd882-1c97-49a8-82ea-4828770cdc87,token_rejected,L1x1x1/4,class=L,user,2026-07-29T07:46:20.358372+00:00
+1f00a80e-beec-49b9-b2da-62e5d634ef5d,token_rejected,L4X3,class=L,user,2026-07-29T07:46:20.409950+00:00
+c5eeba65-f48c-4a04-868b-b8ae01c3044e,token_rejected,L4x4,class=L,user,2026-07-29T07:46:20.458440+00:00
+9b8ae04c-42af-4408-8664-01aaae449e1c,token_rejected,L5X3,class=L,user,2026-07-29T07:46:20.506165+00:00
+d453ea4a-9ef0-41ed-a293-1079901169a9,token_rejected,L6X3,class=L,user,2026-07-29T07:46:20.561910+00:00
+aa9b36fb-fc46-41dc-9ba3-ff70c72c37e8,token_rejected,S-001,class=S,user,2026-07-29T07:46:20.631849+00:00
+62861c92-8315-4a0a-9372-834a31d2462b,token_rejected,S-002,class=S,user,2026-07-29T07:46:20.691279+00:00
+6a991849-2576-4eb8-8495-b25c915d8c76,token_rejected,S-003,class=S,user,2026-07-29T07:46:20.739240+00:00
+e2df60f7-5d59-41de-84a0-06b9d6c86ded,token_rejected,S-004,class=S,user,2026-07-29T07:46:20.787880+00:00
+2d1590f2-69a4-496a-8315-d67ada8447c8,token_rejected,S-111,class=S,user,2026-07-29T07:46:20.837517+00:00
+b1b862d5-05a2-4736-94e8-6171089cd765,token_rejected,S-112,class=S,user,2026-07-29T07:46:20.882804+00:00
+ebe9f9f1-1099-4690-87c9-f37e485b177d,token_rejected,S-113,class=S,user,2026-07-29T07:46:20.928521+00:00
+9cdf7f84-aa34-48e6-9406-c206e80f04b7,token_rejected,S-201,class=S,user,2026-07-29T07:46:20.979246+00:00
+6189dbcc-9cc5-4788-8a97-be4de8b0beb8,token_rejected,S-202,class=S,user,2026-07-29T07:46:21.030053+00:00
+4e22f914-da29-418d-b37e-3b5f545a41c1,token_rejected,S-203,class=S,user,2026-07-29T07:46:21.082395+00:00
+c374452a-c9f0-4fed-8f25-d8654ec3e50c,token_rejected,S-204,class=S,user,2026-07-29T07:46:21.140715+00:00
+8a195c09-0926-426b-abdb-78a37a6c70c3,token_rejected,S-205,class=S,user,2026-07-29T07:46:21.179386+00:00
+30cba2a4-105d-4532-8958-407b1de5476d,token_rejected,S-206,class=S,user,2026-07-29T07:46:21.215364+00:00
+5a535648-56bc-439c-99d3-c04caa611fbc,token_rejected,S-301,class=S,user,2026-07-29T07:46:21.249414+00:00
+86a4a19a-7f56-429c-b312-d71a424629c7,token_rejected,S-311,class=S,user,2026-07-29T07:46:21.289768+00:00
+0780f4e8-1e4c-4c3c-be36-0953daced647,token_rejected,S-312,class=S,user,2026-07-29T07:46:21.337719+00:00
+4f8f8e16-2137-496d-bcd6-e54256a00731,token_rejected,S-321,class=S,user,2026-07-29T07:46:21.385134+00:00
+555ae04f-77ee-4df9-a978-9944c89ebbd0,token_rejected,S-322,class=S,user,2026-07-29T07:46:21.432454+00:00
+32ee312d-ce85-43cd-bc42-7528b7073cd1,token_rejected,S-401,class=S,user,2026-07-29T07:46:21.478523+00:00
+61a83220-dae7-4277-9435-4b048ffd5332,token_rejected,S-402,class=S,user,2026-07-29T07:46:21.525313+00:00
+e0cb74aa-e502-474b-a6a4-47a9b8e53c71,token_rejected,S-403,class=S,user,2026-07-29T07:46:21.570665+00:00
+f5cffcee-27de-40d1-ba8f-1b7329f9057c,token_rejected,S-404,class=S,user,2026-07-29T07:46:21.621736+00:00
+0a4bef18-6528-4445-ba93-c85708ecf9b8,token_rejected,S-501,class=S,user,2026-07-29T07:46:21.670849+00:00
+e68fdba6-2384-4e61-99e0-ecc916fcb81a,token_rejected,S-502,class=S,user,2026-07-29T07:46:21.718622+00:00
+fa581f4f-b129-4e65-ad24-c1afec7fa1df,token_rejected,S-601,class=S,user,2026-07-29T07:46:21.763907+00:00
+6e8526c5-e34f-47dc-a793-cc73975db9e3,token_rejected,S-101,class=S,user,2026-07-29T07:46:21.823974+00:00
+9ba1a751-e828-4a22-a023-444a7c775ba5,token_rejected,S-102,class=S,user,2026-07-29T07:46:21.873617+00:00
+f5cae8eb-3d93-446a-8de9-d292b049757b,token_rejected,S-103,class=S,user,2026-07-29T07:46:21.921056+00:00
+1b71289d-5484-4c21-96d6-93fa420e042b,token_rejected,S-104,class=S,user,2026-07-29T07:46:21.972384+00:00
+91218d91-3b4a-445a-9f49-546d0cea9939,token_rejected,S-207,class=S,user,2026-07-29T07:46:22.021098+00:00
+971f4798-f5a2-4171-8d3d-9d76b9757137,token_rejected,S-208,class=S,user,2026-07-29T07:46:22.068801+00:00
+10d598c4-3942-4d90-9f66-33226d5bbdb7,token_rejected,W14X198,class=W,user,2026-07-29T07:46:22.116381+00:00
+92bbbfd1-3ca1-41a3-b417-ced81a0370c1,token_rejected,A2280,class=A2280,user,2026-07-29T07:46:22.161813+00:00
+7ccfd4c4-6a34-4ab5-a439-052b06eb0541,token_rejected,A29,class=A29,user,2026-07-29T07:46:22.207803+00:00
+2c115568-b307-42b8-ab1b-c4d994986c94,token_rejected,A416,class=A416,user,2026-07-29T07:46:22.252369+00:00
+75d13181-0b4a-447d-8f87-a7599586bf37,token_rejected,A446,class=A446,user,2026-07-29T07:46:22.298394+00:00
+e1065918-5fab-48a3-956b-34e04dc480b3,token_rejected,A490,class=A490,user,2026-07-29T07:46:22.344096+00:00
+7e7cb43e-4eb0-42b0-a7e7-62e53d01abb3,token_rejected,A5,class=A,user,2026-07-29T07:46:22.390670+00:00
+f664b540-c855-4c16-ab3e-c77965d6c72a,token_rejected,A563,class=A563,user,2026-07-29T07:46:22.441622+00:00
+8621aef3-d4ef-449f-b5e5-99f6c8b1cba5,token_rejected,A959,class=A959,user,2026-07-29T07:46:22.489057+00:00
+b5762091-c262-4cf4-ae32-f72027189693,token_rejected,HSS5x5,class=HSS,user,2026-07-29T07:46:22.534997+00:00
+b1328996-dbe7-4c50-8406-7c94f737109b,token_rejected,L18x12x3/8,class=L,user,2026-07-29T07:46:22.582020+00:00
+3e4b451e-6bef-4528-9dc2-d32b73f88443,token_rejected,L5x5,class=L,user,2026-07-29T07:46:22.637044+00:00
+67624807-3bd8-473e-a196-9aa431fda3a8,token_rejected,F1554,class=A,user,2026-07-29T07:46:22.696718+00:00
+74e7bec4-119b-4cc0-8910-b27d5fca850a,token_rejected,HSS10X0.500,class=HSS,user,2026-07-29T07:46:22.742923+00:00
+bc0df745-06b3-47df-8b58-9c1a30874746,token_rejected,HSS10X0.625,class=HSS,user,2026-07-29T07:46:22.791789+00:00
+249ff718-e920-4de9-9183-d7b08e2a5864,token_rejected,L3X3X1,class=L,user,2026-07-29T07:46:22.838758+00:00
+3627828b-597a-4b46-868a-392e2d8bf852,token_rejected,L3X3X3,class=L,user,2026-07-29T07:46:22.886077+00:00
+ba306f83-46ed-4e54-b141-4b6e8a03e56e,token_rejected,L4X3X1,class=L,user,2026-07-29T07:46:22.935543+00:00
+317de6ba-3be6-4874-a3d9-3531ca8f610b,token_rejected,L4X3X3,class=L,user,2026-07-29T07:46:22.979681+00:00
+260fa897-de4b-47dd-8f8c-92f0f667f562,token_rejected,L4X4X3,class=L,user,2026-07-29T07:46:23.021982+00:00
+62f55549-6c41-4795-b0e9-0b93ab651b75,token_rejected,PIPE1,class=PIPE,user,2026-07-29T07:46:23.060377+00:00
+2b4e6901-b7fb-4b9b-8fe4-0f85751ea78e,token_rejected,PL1,class=PL,user,2026-07-29T07:46:23.098082+00:00
+7f11cea5-b6e9-4398-97a0-9aefa465e2a0,token_rejected,PL3,class=PL,user,2026-07-29T07:46:23.133711+00:00
+f08cabb0-eec5-44f0-9028-ce82f66a13f8,token_rejected,PL4,class=PL,user,2026-07-29T07:46:23.169395+00:00
+d31b8576-5de4-4ab2-a111-1c7c0facabf7,token_rejected,PL5,class=PL,user,2026-07-29T07:46:23.205581+00:00
+947b56b6-ea25-4581-b449-f094b73e38a4,unknown_queued,A307,Queued for review (bolt),system,2026-07-29T08:45:56.312008+00:00
+3b7e0c87-99a1-4528-a02e-69b8e7e4e5f7,unknown_queued,A500,Queued for review (material),system,2026-07-29T08:45:56.458105+00:00
+9875d332-cc0c-4c3d-902b-eba256b7ce85,unknown_queued,A615,Queued for review (material),system,2026-07-29T08:45:56.575056+00:00
+c79d69ae-51a1-4c92-b1ee-541618b415b1,unknown_queued,A992,Queued for review (material),system,2026-07-29T08:45:56.754067+00:00
+224ed388-50c2-4ae4-a124-b4f72c783c3f,unknown_queued,PL8X4X3,Queued for review (plate),system,2026-07-29T08:45:58.910052+00:00
+bbd354f2-24b5-4e27-af0d-f48d00f2eedf,unknown_queued,W18 X 35,Queued for review (structural_section),system,2026-07-29T12:28:39.597327+00:00
+7f26e561-2ca6-44fc-9737-aa4cec73ee54,unknown_queued,S-101,Queued for review (structural_section),system,2026-07-29T12:28:39.985233+00:00
+a3180c8e-d1ec-432a-91ad-22a2855bc9c6,unknown_queued,A706,Queued for review (structural_section),system,2026-07-29T12:30:34.254577+00:00
+0d65b96f-ed1e-4357-ab3d-a877f713968c,unknown_queued,A1064,Queued for review (structural_section),system,2026-07-29T12:30:34.311931+00:00
+4d9282e4-89bf-4dc4-850d-801132e4f1a8,unknown_queued,A416,Queued for review (structural_section),system,2026-07-29T12:30:34.374789+00:00
+0243ce75-ac59-45e1-9ba9-bb348e85a181,unknown_queued,A572,Queued for review (structural_section),system,2026-07-29T12:30:34.429403+00:00
+491c5f8b-6ba9-4700-b31c-0b7d0fc9baaa,unknown_queued,A913,Queued for review (structural_section),system,2026-07-29T12:30:34.486461+00:00
+ba427c72-54ce-497b-9a69-984bde814266,unknown_queued,A446,Queued for review (structural_section),system,2026-07-29T12:30:34.563145+00:00
+8053d819-bd70-4104-8b0b-b777506ff133,unknown_queued,A325,Queued for review (structural_section),system,2026-07-29T12:30:34.623931+00:00
+bbe83a35-63f5-4078-a083-766a94703240,unknown_queued,A490,Queued for review (structural_section),system,2026-07-29T12:30:34.684840+00:00
+97ccd752-bad2-4828-ae93-66f68f201c4a,unknown_queued,F1852,Queued for review (structural_section),system,2026-07-29T12:30:34.742857+00:00
+abb1e497-41d1-4175-92e0-5cd33ba19daf,unknown_queued,A2280,Queued for review (structural_section),system,2026-07-29T12:30:34.805153+00:00
+e2175bb7-b134-41ff-b68a-9e79d749a69a,unknown_queued,F1554,Queued for review (structural_section),system,2026-07-29T12:30:34.874760+00:00
+dc7254f4-4d82-4327-aaed-fd1802345551,unknown_queued,A563,Queued for review (structural_section),system,2026-07-29T12:30:34.936130+00:00
+7e585586-7a3e-4ed2-84de-d9c37e282a03,unknown_queued,F436,Queued for review (structural_section),system,2026-07-29T12:30:34.992019+00:00
+0bd36222-56b8-4006-862a-4cf56cbc2fd5,unknown_queued,A959,Queued for review (structural_section),system,2026-07-29T12:30:35.053141+00:00
+982c9b0d-aa9f-4573-9efc-a7ec88969eaa,unknown_queued,A108,Queued for review (structural_section),system,2026-07-29T12:30:35.109634+00:00
+4854c8c2-9477-4384-8ed9-c080cd37f164,unknown_queued,A653,Queued for review (structural_section),system,2026-07-29T12:30:35.168518+00:00
+9ece7480-5587-46fb-9e3c-ed16e13c72a2,unknown_queued,HSS8X4X3/8,Queued for review (structural_section),system,2026-07-29T12:30:35.237028+00:00
+8b4f1852-32f0-4a71-90e7-3563c33b63cf,unknown_queued,HSS4X4X3/8,Queued for review (structural_section),system,2026-07-29T12:30:35.298097+00:00
+e7a666b6-b671-412a-9e8d-f20cc81a83d2,unknown_queued,HSS6X6X3/8,Queued for review (structural_section),system,2026-07-29T12:30:35.388319+00:00
+2aa5755d-e82f-4115-9e0f-d82e6305dadc,unknown_queued,HSS6X4X3,Queued for review (structural_section),system,2026-07-29T12:30:35.442099+00:00
+581c58d7-a66b-487e-be39-890795bd0faf,unknown_queued,HSS 6X4X3/8,Queued for review (structural_section),system,2026-07-29T12:30:35.515250+00:00
+41601ba4-e398-425c-b8d6-d8f73d7a1b4e,unknown_queued,L7X4X3/8,Queued for review (structural_section),system,2026-07-29T12:30:35.602110+00:00
+9d0ffe6e-8455-4ee8-8f1d-6bed50c23856,unknown_queued,HSS10X6X3/8,Queued for review (structural_section),system,2026-07-29T12:30:35.762328+00:00
+4c9c1567-9d8b-4296-8afe-a3c7c5416464,unknown_queued,HSS8X8X5/8,Queued for review (structural_section),system,2026-07-29T12:30:35.845365+00:00
+148c1d07-c6e8-41f9-a467-a062bcb3d53f,unknown_queued,HSS8X6X3/8,Queued for review (structural_section),system,2026-07-29T12:30:35.908503+00:00
+2a9b1eca-4950-4a1c-8460-dc4dadea16db,unknown_queued,PIPE 8,Queued for review (pipe),system,2026-07-29T12:30:35.990188+00:00
+5047d4e3-a5d0-4f2e-a52d-f1dec5a8b2a9,unknown_queued,HSS6X6X1/4,Queued for review (structural_section),system,2026-07-29T12:30:36.045493+00:00
+bc3f613f-d1a5-47e4-afce-23fd27690862,unknown_queued,W8X15,Queued for review (structural_section),system,2026-07-29T12:30:36.100780+00:00
+7808606e-54c4-4d58-8f3c-3274890a6a20,unknown_queued,W12X19,Queued for review (structural_section),system,2026-07-29T12:30:36.159982+00:00
+44314316-7f29-4206-8aac-2f4c023c84a0,unknown_queued,W14X26,Queued for review (structural_section),system,2026-07-29T12:30:36.221832+00:00
+f3d55646-64e0-4ebf-891e-696b2a36284b,unknown_queued,W12X22,Queued for review (structural_section),system,2026-07-29T12:30:36.286731+00:00
+c82cb40d-3526-4c37-b846-a4fc5641c328,unknown_queued,W12X40,Queued for review (structural_section),system,2026-07-29T12:30:36.339063+00:00
+66be2007-574f-45ec-9277-5844b6e835c2,unknown_queued,W14X22,Queued for review (structural_section),system,2026-07-29T12:30:36.398315+00:00
+24d06cb2-af2c-4c17-b2ea-390abf75dd4f,unknown_queued,W10X15,Queued for review (structural_section),system,2026-07-29T12:30:36.448434+00:00
+c3172045-7e05-423a-ba23-ae9f1d95cedf,unknown_queued,W12X50,Queued for review (structural_section),system,2026-07-29T12:30:36.499771+00:00
+7438b9ec-5ba9-40bf-b93e-7f76c4f90170,unknown_queued,W14X43,Queued for review (structural_section),system,2026-07-29T12:30:36.549098+00:00
+1148ade9-9c6d-4bdd-bedd-5be747fdda62,unknown_queued,W12X16,Queued for review (structural_section),system,2026-07-29T12:30:36.595855+00:00
+d0454ab2-c297-4f4c-8e13-3fc0758cd0a8,unknown_queued,HSS8X4X5,Queued for review (structural_section),system,2026-07-29T12:30:36.733261+00:00
+89a5f1ce-87de-4bf6-bfa6-29f3ab42affc,unknown_queued,W8X24,Queued for review (structural_section),system,2026-07-29T12:30:36.797822+00:00
+df1d486b-a75c-4e0f-8305-220cce6f2e8f,unknown_queued,PL 3,Queued for review (structural_section),system,2026-07-29T12:30:36.871338+00:00
+b827abdc-b0bb-4a46-abdd-2b0d72e521a5,unknown_queued,PL 1,Queued for review (structural_section),system,2026-07-29T12:30:36.935497+00:00
+820492ab-a6c1-4481-b193-312c785fc4d3,unknown_queued,PLATE 1,Queued for review (pipe),system,2026-07-29T12:30:37.004688+00:00
+fb572880-812d-4b25-b0e6-e23abd15ce60,unknown_queued,WT 8x18,Queued for review (structural_section),system,2026-07-29T12:30:37.049897+00:00
+bb1429b5-17e3-4f4a-ab1c-f5e25773c2a6,unknown_queued,WT8x18,Queued for review (structural_section),system,2026-07-29T12:30:37.114676+00:00
+320a5da9-e929-4801-9870-aed3de57ce44,unknown_queued,HSS 3 x 3 x 1/4,Queued for review (structural_section),system,2026-07-29T12:30:37.161905+00:00
+e755ce67-c0ec-49f8-9987-3ef52bfa6a1d,unknown_queued,L5x5x5/16,Queued for review (structural_section),system,2026-07-29T12:30:37.216452+00:00
+9fde6961-cc33-4161-8571-f77bab0382fd,unknown_queued,L5x5,Queued for review (structural_section),system,2026-07-29T12:30:37.264819+00:00
+4d595c7d-1e92-484a-af14-07d13f513a3e,unknown_queued,L 3 x 3 x 1/4,Queued for review (structural_section),system,2026-07-29T12:30:37.325727+00:00
+9a0dc5ba-b8e6-43d3-86a9-57f8862a4b13,unknown_queued,L 5 x 3 x 5/16,Queued for review (structural_section),system,2026-07-29T12:30:37.390089+00:00
+ae205ecd-cdc3-4a6f-af1a-7d54ee3359b4,unknown_queued,L 5 x 3,Queued for review (structural_section),system,2026-07-29T12:30:37.441441+00:00
+bfa031c3-1cf3-43e9-97c9-d9d273fd94e1,unknown_queued,L 4 x 3 x 1/4,Queued for review (structural_section),system,2026-07-29T12:30:37.503306+00:00
+372d8885-099c-4dfd-b1f7-d53b949148c9,unknown_queued,L4X3X1,Queued for review (structural_section),system,2026-07-29T12:30:37.551717+00:00
+2bfeba16-431f-4ba3-a199-57706c140007,unknown_queued,L7 x 4 x 3/8,Queued for review (structural_section),system,2026-07-29T12:30:37.608798+00:00
+a1285069-b861-4893-ba2b-5bdf21d0502d,unknown_queued,L7X4X3,Queued for review (structural_section),system,2026-07-29T12:30:37.656687+00:00
+4c95d1e6-d991-42ad-adec-0fe0f2d195c5,unknown_queued,HSS8X4X5/16,Queued for review (structural_section),system,2026-07-29T12:30:37.730263+00:00
+fd3efcc0-ef82-4d08-9a2f-7e16e5d52f7e,unknown_queued,L6X4X3/8,Queued for review (structural_section),system,2026-07-29T12:30:37.776445+00:00
+ec31e3c3-6863-49d8-af7e-cf3f02309d8e,unknown_queued,HSS4X4X5/16,Queued for review (structural_section),system,2026-07-29T12:30:37.844533+00:00
+002e2393-71e3-4d62-ad93-280f33e148f3,unknown_queued,HSS8X3X1,Queued for review (structural_section),system,2026-07-29T12:30:37.910051+00:00
+86f38193-d456-49ce-8e19-1c858c27f586,unknown_queued,L18x12x3/8,Queued for review (structural_section),system,2026-07-29T12:30:37.966135+00:00
+686ad412-ba13-46fc-9de2-e8f0c7350e88,unknown_queued,PL 10,Queued for review (structural_section),system,2026-07-29T12:30:38.020973+00:00
+f21f3948-7f42-428d-8d9d-893647343815,unknown_queued,L5x5x3/8,Queued for review (structural_section),system,2026-07-29T12:30:38.069099+00:00
+bc4a0422-2cba-452e-af4e-bd54e98aec26,unknown_queued,HSS8X8X1/2,Queued for review (structural_section),system,2026-07-29T13:07:12.149446+00:00
+38c7f7c5-a65d-4d90-979b-d86dc1c77ed0,unknown_queued,L4X4X3/8,Queued for review (structural_section),system,2026-07-29T22:07:37.643483+00:00
+96b2096c-b283-4e99-b6e3-448ac6720a39,unknown_queued,L4X4X3,Queued for review (structural_section),system,2026-07-29T22:07:37.710927+00:00
+50e31e14-c31a-4740-a6f9-ec8d1072881b,unknown_queued,HSS5x5x3/8,Queued for review (structural_section),system,2026-07-29T22:07:58.822084+00:00
+0aecc059-b44b-4c02-b646-89911756ee9c,unknown_queued,HSS 8x4x1/4,Queued for review (structural_section),system,2026-07-29T22:07:58.967030+00:00
+a3f327ed-ebfc-45f8-ab6e-2c1a9160a6f1,unknown_queued,L3 x 3,Queued for review (structural_section),system,2026-07-29T22:07:59.302484+00:00
+903af873-62e1-4e0f-8b1f-f56e3056b339,unknown_queued,L2 x 2,Queued for review (structural_section),system,2026-07-29T22:07:59.438194+00:00
+439b366c-82f4-4b3b-985c-641dca0dfd20,unknown_queued,HSS 3 x 3,Queued for review (structural_section),system,2026-07-29T22:07:59.483044+00:00
+906325a0-eb38-4a81-bcf8-af3be9f41c9f,unknown_queued,L 3 x 3,Queued for review (structural_section),system,2026-07-29T22:07:59.550747+00:00
+49a77862-90d0-4adc-8e34-ae5bce08311e,unknown_queued,L 4 x 3,Queued for review (structural_section),system,2026-07-29T22:07:59.669864+00:00
+a430d1b6-ff68-40d0-a4d5-b29497b100c0,unknown_queued,L3 x 3 x 3/16,Queued for review (structural_section),system,2026-07-29T22:07:59.746181+00:00
+f87f2373-56ed-44e1-83da-25e2b77b91a3,unknown_queued,S-004,Queued for review (structural_section),system,2026-07-29T22:25:28.039477+00:00
+0c147ea6-4379-4ef9-a9d0-8500a0485c86,unknown_queued,A588,Queued for review (material),system,2026-07-29T22:25:28.121404+00:00
+8462a3d3-5531-48ae-9cf8-d0386e04a61d,unknown_queued,A970,Queued for review (material),system,2026-07-29T22:25:28.201556+00:00
+ec185462-51ad-4aae-88db-98bc348648ee,unknown_queued,S-002,Queued for review (structural_section),system,2026-07-29T22:25:28.264811+00:00
+2a4f1c15-9782-4bdd-97ee-9b03692cc673,unknown_queued,L4X3,Queued for review (structural_section),system,2026-07-29T22:25:28.314839+00:00
+211d5aa5-8e96-472b-b931-b32515338a11,unknown_queued,L5X3,Queued for review (structural_section),system,2026-07-29T22:25:28.365541+00:00
+3502dfbe-33d7-4487-a8ae-29b4d9412797,unknown_queued,L3x3x1/4,Queued for review (structural_section),system,2026-07-29T22:25:28.425976+00:00
+5842c705-3bea-4f63-89b7-240adfc9ba07,unknown_queued,L3x3x1,Queued for review (structural_section),system,2026-07-29T22:25:28.480051+00:00
+e5ef4555-8a18-48d6-8fdf-a8bd5c013f6c,unknown_queued,A568,Queued for review (material),system,2026-07-29T22:25:28.529024+00:00
+93cf8a43-6a89-4daa-b198-25120e908d4e,unknown_queued,S-401,Queued for review (structural_section),system,2026-07-29T22:25:28.580334+00:00
+d2545007-d3b0-42fc-8467-8097c4404c0f,unknown_queued,S-301,Queued for review (structural_section),system,2026-07-29T22:25:28.655354+00:00
+93848364-5d9b-4bd7-91c1-9ede1b6d140d,unknown_queued,S-402,Queued for review (structural_section),system,2026-07-29T22:25:28.914380+00:00
+55c2def7-c576-40e6-810d-537f88190f90,unknown_queued,W16X31,Queued for review (structural_section),system,2026-07-29T22:25:29.425147+00:00
+fe3d1f4f-1b90-4d62-87ce-cc779571b069,unknown_queued,W21X44,Queued for review (structural_section),system,2026-07-29T22:25:29.970195+00:00
+ac905085-2d82-4d83-b6ed-98869567e431,unknown_queued,S-311,Queued for review (structural_section),system,2026-07-29T22:25:30.106939+00:00
+e9ea04f9-6a99-4c55-b4f3-f5d2a489b25e,unknown_queued,S-321,Queued for review (structural_section),system,2026-07-29T22:25:30.418678+00:00
+7312ccf6-7c40-43f8-9b21-f246029adfff,unknown_queued,W18X35,Queued for review (structural_section),system,2026-07-29T22:25:30.576360+00:00
+67e08570-8c71-456a-ace3-2886c3f348d5,unknown_queued,W10X19,Queued for review (structural_section),system,2026-07-29T22:25:30.780813+00:00
+8b3ebf56-51a5-4bc9-9ba5-fe2d1890e187,unknown_queued,W18X50,Queued for review (structural_section),system,2026-07-29T22:25:30.967708+00:00
+70fe0480-35e8-480c-8dea-74ccefc124bb,unknown_queued,W16X26,Queued for review (structural_section),system,2026-07-29T22:25:31.109252+00:00
+042a361f-d851-46dd-afce-7d77c1ea3b7d,unknown_queued,W12X30,Queued for review (structural_section),system,2026-07-29T22:25:31.242540+00:00
+d0693f16-a58d-4f0c-a7a3-e29402bc7840,unknown_queued,S-322,Queued for review (structural_section),system,2026-07-29T22:25:31.373508+00:00
+ea18f316-102e-42ad-8589-7bd59c63df5d,unknown_queued,HSS14X6X1/2,Queued for review (structural_section),system,2026-07-29T22:25:31.615296+00:00
+f4722878-d79e-4007-aa63-56b9365c9855,unknown_queued,HSS20X8X5/8,Queued for review (structural_section),system,2026-07-29T22:25:32.122640+00:00
+f3ddb1c8-b19f-4ead-bd07-bfd38c30d1f0,unknown_queued,S-104,Queued for review (structural_section),system,2026-07-29T22:25:32.685106+00:00
+44497e23-ae31-4d85-a8f0-b18959cbc2e2,unknown_queued,S-201,Queued for review (structural_section),system,2026-07-29T22:25:32.759618+00:00
+fb30a5e4-4790-4deb-abe8-4e7c2bb4a2a3,unknown_queued,S-202,Queued for review (structural_section),system,2026-07-29T22:25:32.866434+00:00
+b2c5064c-0826-4965-a613-9412750700d0,unknown_queued,L2x2x3/16,Queued for review (structural_section),system,2026-07-29T22:25:32.957884+00:00
+adbc5812-c13f-4fcb-9ce2-1391d1b1828d,unknown_queued,S-203,Queued for review (structural_section),system,2026-07-29T22:25:33.038466+00:00
+ddb396df-bb72-4996-a4d4-74fab35d13af,unknown_queued,L4X3X3/8,Queued for review (structural_section),system,2026-07-29T22:25:33.101408+00:00
+a274635a-fd9c-44a5-9b63-11b81298d852,unknown_queued,S-204,Queued for review (structural_section),system,2026-07-29T22:25:33.210613+00:00
+73ccc28e-288c-4cd1-93e4-ffa631a1b599,unknown_queued,PL11,Queued for review (structural_section),system,2026-07-29T22:25:33.403264+00:00
+1f95cf6c-b145-44e9-8bbf-39c75e890bb6,unknown_queued,S-205,Queued for review (structural_section),system,2026-07-29T22:25:33.492490+00:00
+0bff83fc-38d5-4e31-823f-71f701ef1de2,unknown_queued,S-206,Queued for review (structural_section),system,2026-07-29T22:25:33.598151+00:00
+511e08dc-cee1-4e5f-a1af-0b2850258c3f,unknown_queued,PL 5,Queued for review (structural_section),system,2026-07-29T22:25:33.651471+00:00
+b9749723-40df-4488-824d-ba9133ec9314,unknown_queued,PL3,Queued for review (structural_section),system,2026-07-29T22:25:33.706254+00:00
+1fbd7672-a4df-45b1-b128-0c04afbc4689,unknown_queued,PL1,Queued for review (structural_section),system,2026-07-29T22:25:33.762790+00:00
+f4a1eab5-367e-4bca-b196-311488037be3,unknown_queued,L4x4x1/4,Queued for review (structural_section),system,2026-07-29T22:25:33.818220+00:00
+3d07baca-ddb7-42a5-8af0-a0e8b967ac2b,unknown_queued,PL43,Queued for review (structural_section),system,2026-07-29T22:25:33.967067+00:00
+462bd61c-09a4-4173-a149-f86f847db7a3,unknown_queued,S-207,Queued for review (structural_section),system,2026-07-29T22:25:34.039433+00:00
+3efc2fe7-77b3-48e0-acbe-f6bdd96ddb69,unknown_queued,S-208,Queued for review (structural_section),system,2026-07-29T22:25:34.217331+00:00
+ec14af0e-6895-4ebb-a34c-fa941fb1a212,unknown_queued,HSS5x3x3,Queued for review (structural_section),system,2026-07-29T22:25:34.679866+00:00
+8d7c2c1b-004b-4e00-af3e-c1efd108a294,unknown_queued,W10X45,Queued for review (structural_section),system,2026-07-29T22:25:35.377075+00:00
+69572983-21fc-4c47-ab46-998d8c97deb3,unknown_queued,W10X33,Queued for review (structural_section),system,2026-07-29T22:25:35.475519+00:00
+3c823302-5f19-4351-aa7a-c22e9fea9b48,unknown_queued,HSS10X0.500,Queued for review (structural_section),system,2026-07-29T22:25:35.578730+00:00
+e1dcb401-0810-49a7-be08-f8d5552d8149,unknown_queued,W10X39,Queued for review (structural_section),system,2026-07-29T22:25:35.661870+00:00
+32e62a99-e068-4ec7-9fbb-472b53c60380,unknown_queued,HSS10X0.625,Queued for review (structural_section),system,2026-07-29T22:25:35.746744+00:00
+611f020e-6f6e-495f-a6f4-0305ec8ace15,unknown_queued,S-501,Queued for review (structural_section),system,2026-07-29T22:25:35.868857+00:00
+2ada4760-d51d-41c6-9bfa-2ce1faf68ec9,unknown_queued,W10X49,Queued for review (structural_section),system,2026-07-29T22:25:35.955632+00:00
+f87d4040-a175-4dbc-b3e1-07d184789b37,unknown_queued,W8X40,Queued for review (structural_section),system,2026-07-29T22:25:36.128350+00:00
+d4b192d8-323f-4d0d-b539-f68da41f854a,unknown_queued,S-502,Queued for review (structural_section),system,2026-07-29T22:25:36.243840+00:00
+17f3bd9f-59a2-49e4-8632-bdc940fca62e,unknown_queued,A775,Queued for review (material),system,2026-07-29T23:26:22.215655+00:00
+8eac9cd7-6069-43b9-9d67-678cdca7fff4,unknown_queued,F3125,Queued for review (bolt),system,2026-07-29T23:26:22.294388+00:00
+4c9bc4da-58f5-4a6f-935f-759c7ded59e4,unknown_queued,PL 8,Queued for review (structural_section),system,2026-07-29T23:26:22.369758+00:00
+1ee37f4c-d9a5-4b11-9bf1-8df209c5847f,unknown_queued,PL 8 X 4,Queued for review (structural_section),system,2026-07-29T23:26:22.426631+00:00
+09978189-ba00-4cd9-9426-3c5e96a8789b,unknown_queued,PL 8 X 4 X 3,Queued for review (structural_section),system,2026-07-29T23:26:22.497152+00:00
+17142ff8-2214-41f2-a92c-5bd45f79d7fd,unknown_queued,L2X2X1/4,Queued for review (structural_section),system,2026-07-29T23:26:22.605767+00:00
+6aed2260-e0d2-4a17-8b36-f7857f5b5ab2,unknown_queued,WT3X4.5,Queued for review (structural_section),system,2026-07-29T23:26:22.691773+00:00
+0b2345e7-e857-4f39-b6e0-cb1c444accc5,unknown_queued,W10X24,Queued for review (structural_section),system,2026-07-29T23:26:22.764680+00:00
+e594a089-1e40-424e-a25a-28ddda2ba9e5,unknown_queued,L6x4x5/16,Queued for review (structural_section),system,2026-07-29T23:26:22.906552+00:00
+3219eb10-9275-4d65-aae4-9f892ce49421,unknown_queued,L6x4x5,Queued for review (structural_section),system,2026-07-29T23:26:22.974190+00:00
+c785c568-184f-4e71-95e1-2633d3385868,unknown_queued,L6x4x3,Queued for review (structural_section),system,2026-07-29T23:26:23.090636+00:00
+1dae70f4-61c3-40d4-ab82-29f6c445f6a2,unknown_queued,L3x3x3/16,Queued for review (structural_section),system,2026-07-29T23:26:23.176542+00:00
+734106d7-4a61-4d47-baee-06759ca40cec,unknown_queued,L3x3x3,Queued for review (structural_section),system,2026-07-29T23:26:23.239361+00:00
+d41d04b1-ca2a-40df-b520-5f5c825145af,unknown_queued,C6x10,Queued for review (structural_section),system,2026-07-29T23:26:23.308185+00:00
+bd98a976-f447-42d0-8da3-a3f31098c470,unknown_queued,L2x2x1/8,Queued for review (structural_section),system,2026-07-29T23:26:23.393343+00:00
+b4cda042-06ca-4174-aee2-7e6d1fa1e29e,unknown_queued,HSS 5x2,Queued for review (structural_section),system,2026-07-29T23:26:23.464513+00:00
+15fa2b0b-5e24-493c-ad12-d5c58330aca0,unknown_queued,L5x3x5/16,Queued for review (structural_section),system,2026-07-29T23:26:23.561473+00:00
+e78c3984-45c3-469d-a7ca-fcaa427eaa10,unknown_queued,W24X68,Queued for review (structural_section),system,2026-07-29T23:26:23.657516+00:00
+a03449c9-6fbb-454a-ad53-518be0952c9e,unknown_queued,W21X55,Queued for review (structural_section),system,2026-07-29T23:26:23.789143+00:00
+93c1f0ba-0a89-47f2-b259-71b9fee60e1a,unknown_queued,W30X90,Queued for review (structural_section),system,2026-07-29T23:26:23.944240+00:00
+413507be-d20e-44c3-a985-3f0cac8df9ec,unknown_queued,W27X84,Queued for review (structural_section),system,2026-07-29T23:26:24.016471+00:00
+fefac456-198a-4dbb-be41-d0989b7762e1,unknown_queued,W30X108,Queued for review (structural_section),system,2026-07-29T23:26:24.094320+00:00
+66d778b7-eee3-416f-9080-1fde4d152756,unknown_queued,W21X48,Queued for review (structural_section),system,2026-07-29T23:26:24.273324+00:00
+3e69c803-5a8f-49cd-bccb-b1dc286b03b5,unknown_queued,A205,Queued for review (structural_section),system,2026-07-30T00:04:33.806262+00:00
+c595ccc2-6af8-4f59-80ae-593ac2d30647,unknown_queued,S-003,Queued for review (structural_section),system,2026-07-30T00:04:33.863339+00:00
+a470bf3b-1ba7-43ad-bbb4-6c9b7e08f323,unknown_queued,S-005,Queued for review (structural_section),system,2026-07-30T00:04:33.934920+00:00
+018667e5-5bfe-41c3-a08c-e3655c22e5a8,unknown_queued,F1249,Queued for review (structural_section),system,2026-07-30T00:04:33.987578+00:00
+e0c56b5a-1cce-4511-b4a5-82b22902eca4,unknown_queued,A123,Queued for review (material),system,2026-07-30T00:04:34.103807+00:00
+0a697c2b-6c8e-4dd6-b70f-b9537d600610,unknown_queued,S-302,Queued for review (structural_section),system,2026-07-30T00:04:34.162936+00:00
+a61581e8-54ce-4e4f-b30e-d3c9d9d64f71,unknown_queued,S-102,Queued for review (structural_section),system,2026-07-30T00:04:34.275902+00:00
+57960181-84ec-4eb1-8121-4ef65a307d95,unknown_queued,S-400,Queued for review (structural_section),system,2026-07-30T00:04:34.328849+00:00
+717e3d1e-475e-404e-9836-d7761a084b58,unknown_queued,S-700,Queued for review (structural_section),system,2026-07-30T00:04:34.389637+00:00
+acc04c5b-ee42-4704-8f42-33984d145855,unknown_queued,S-200,Queued for review (structural_section),system,2026-07-30T00:04:34.447970+00:00
+11aad090-0dfa-4e14-b217-e26599a81985,unknown_queued,S-500,Queued for review (structural_section),system,2026-07-30T00:04:34.495145+00:00
+f72053b6-51e6-4928-958e-a3cc53591eb4,unknown_queued,HSS10x10,Queued for review (structural_section),system,2026-07-30T00:04:34.552037+00:00
+dc485f7f-b536-4671-8322-d9365f050af4,unknown_queued,S-800,Queued for review (structural_section),system,2026-07-30T00:04:34.628609+00:00
+542400b3-c50a-44fb-bca4-dc50cb2fac4d,unknown_queued,HSS8x8,Queued for review (structural_section),system,2026-07-30T00:04:34.712403+00:00
+c799231b-fe73-418f-9999-45b2e7da940a,unknown_queued,S-100,Queued for review (structural_section),system,2026-07-30T00:04:34.855578+00:00
+01c5cffd-844a-4239-b3f5-9c479b1b72aa,unknown_queued,S-701,Queued for review (structural_section),system,2026-07-30T00:04:35.165836+00:00
+bd722ccb-dd11-4e2f-8348-dbe09753b7d7,unknown_queued,WT16.5x59,Queued for review (structural_section),system,2026-07-30T00:04:35.241661+00:00
+186ca250-ffb8-40a8-a093-28e16772657e,unknown_queued,S-300,Queued for review (structural_section),system,2026-07-30T00:04:35.395680+00:00
+126ca1ed-0fed-4759-abeb-843a61dca2ac,unknown_queued,HSS 8X8,Queued for review (structural_section),system,2026-07-30T00:04:35.461408+00:00
+87a10b9f-9854-4dbf-93e0-47ed6e00b067,unknown_queued,W8x10,Queued for review (structural_section),system,2026-07-30T00:04:35.689533+00:00
+f0551a28-da4e-443f-a2de-d018803fa5ec,unknown_queued,W21x50,Queued for review (structural_section),system,2026-07-30T00:04:35.768292+00:00
+d19bacf6-9e07-4d20-936a-37b7420b1151,unknown_queued,W18x40,Queued for review (structural_section),system,2026-07-30T00:04:35.852669+00:00
+cae6e4b6-3ef0-4765-b04b-038de13ab4e1,unknown_queued,HSS8x8x3/8,Queued for review (structural_section),system,2026-07-30T00:04:35.935997+00:00
+1a090397-c971-4f94-a504-ba1287367d4a,unknown_queued,HSS10x10x1/2,Queued for review (structural_section),system,2026-07-30T00:04:36.039574+00:00
+9a3d4ef6-fc95-417b-b304-6a9465ba8b56,unknown_queued,S-710,Queued for review (structural_section),system,2026-07-30T00:04:36.247076+00:00
+36235b73-8986-4f6e-bc94-0e8c7e6d3bcf,unknown_queued,S-600,Queued for review (structural_section),system,2026-07-30T00:04:36.349671+00:00
+3e2b654b-c717-4adf-86b6-9fcc5b2e4320,unknown_queued,W36x150,Queued for review (structural_section),system,2026-07-30T00:04:36.448071+00:00
+2b5af7b3-e59e-4fd8-b08d-2c4cbb6bcce1,unknown_queued,W16x45,Queued for review (structural_section),system,2026-07-30T00:04:36.550312+00:00
+c83e39b4-2320-493f-8191-d8d8c1789c1a,unknown_queued,PLATE 3,Queued for review (material),system,2026-07-30T00:04:36.748087+00:00
+de9d2dfb-d474-40c9-b32a-db1127ebfd7a,unknown_queued,L5x3x1,Queued for review (structural_section),system,2026-07-30T00:04:36.859270+00:00
+9262bc8b-fe06-4c50-96d2-856ae020ca51,unknown_queued,S-711,Queued for review (structural_section),system,2026-07-30T00:04:37.037508+00:00
+80a90f92-ac07-412f-80e0-ccd1571cb451,unknown_queued,PL 1x9x1,Queued for review (structural_section),system,2026-07-30T00:04:37.505226+00:00
+45e61d4e-4e77-4d0f-bff7-f8a2d739aa5d,unknown_queued,HSS6x8x1/2,Queued for review (structural_section),system,2026-07-30T00:04:37.576067+00:00
+96c1007c-68b3-4395-adba-dac15b590765,unknown_queued,HSS3x3,Queued for review (structural_section),system,2026-07-30T00:04:37.651445+00:00
+19b8daa6-d982-447d-a8e6-c82a1d261cb8,unknown_queued,W8x31,Queued for review (structural_section),system,2026-07-30T00:04:37.851220+00:00
+0f6c1325-6110-47b6-917a-901a99a9f237,unknown_queued,W8x35,Queued for review (structural_section),system,2026-07-30T00:04:37.907644+00:00
+85a3930a-f003-4215-b031-ec97da43a00b,unknown_queued,W8x28,Queued for review (structural_section),system,2026-07-30T00:04:37.985935+00:00
+8eb16da2-fcaa-4ea0-b6a2-81709b8deb83,token_approved,W8x28,class=W8X28,user,2026-07-31T08:31:00.887500+00:00
+5b86f0af-906f-4b72-be4a-a99daed84c0f,unknown_queued,W8x58,Queued for review (structural_section),system,2026-07-31T08:35:46.356589+00:00
+a814f70a-e416-4573-8f9f-e7a388799514,unknown_queued,W8x28,Queued for review (structural_section),system,2026-07-31T08:35:46.524761+00:00
+10570537-e1db-4167-addf-a495632ee5ff,unknown_queued,L3X31,Queued for review (structural_section),system,2026-07-31T09:52:54.417725+00:00
+6f345b30-1c25-4962-98d8-4c7d2ebaf5d9,unknown_queued,L 6 X 3,Queued for review (structural_section),system,2026-07-31T09:52:54.550419+00:00
+a3174a3c-2eac-4adf-9e4f-4d522c29d0dc,unknown_queued,L 4 X 4,Queued for review (structural_section),system,2026-07-31T09:52:54.665651+00:00
+12135283-6dbc-4935-a6de-75a2b481ab7a,unknown_queued,L 4 X 4 X 5/16,Queued for review (structural_section),system,2026-07-31T09:52:54.758816+00:00
+694370a6-71ed-4ccf-89ac-a72b0b67ecaf,unknown_queued,L 6 X 4,Queued for review (structural_section),system,2026-07-31T09:52:54.848497+00:00
+441eb70d-8aee-4cee-bb8d-a381b32bf4ed,unknown_queued,L 6 X 4 X 3/8,Queued for review (structural_section),system,2026-07-31T09:52:54.940456+00:00
+227adc34-7189-4439-8601-0746b257fb11,unknown_queued,L 5 X 3 X 1/4,Queued for review (structural_section),system,2026-07-31T09:52:55.073889+00:00
+2e7c59d5-4ac1-4522-a306-ed0ad512210f,unknown_queued,L 5 X 5,Queued for review (structural_section),system,2026-07-31T09:52:55.197223+00:00
+b906db11-0204-48bf-b846-4fb7b95428c3,unknown_queued,L 5 X 5 X 5/16,Queued for review (structural_section),system,2026-07-31T09:52:55.295548+00:00
+bfc15285-09fd-4a2e-bedd-009baa1e0b11,unknown_queued,L 5 X 5 X 3/8,Queued for review (structural_section),system,2026-07-31T09:52:55.391765+00:00
+7583319a-f903-4dad-888f-adaf45a89fed,unknown_queued,W12X14,Queued for review (structural_section),system,2026-07-31T09:52:55.809646+00:00
+b1adf429-819d-40c1-9fc8-e65749c3d40c,unknown_queued,W18X46,Queued for review (structural_section),system,2026-07-31T09:52:57.315180+00:00
+e78dc624-a1c6-4928-be7e-23751cac865b,token_approved,W18X46,class=W18X46,user,2026-07-31T09:58:29.718561+00:00

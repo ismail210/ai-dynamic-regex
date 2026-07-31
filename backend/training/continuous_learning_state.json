@@ -1,0 +1,12 @@
+{
+  "pending_approved_count": 2,
+  "last_trigger_at": null,
+  "last_completed_at": null,
+  "last_dataset_versions": {},
+  "last_model_versions": {},
+  "last_consumed_source_counts": {},
+  "last_trigger_reason": null,
+  "last_result": null,
+  "last_error": null,
+  "status": "idle"
+}
