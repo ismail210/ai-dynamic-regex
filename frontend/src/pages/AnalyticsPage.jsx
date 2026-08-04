@@ -145,7 +145,7 @@ export default function AnalyticsPage() {
           ))}
         </Grid>
       ) : (
-        <Grid container spacing={2.5} alignItems="stretch">
+        <Grid container spacing={2.5} sx={{ alignItems: "stretch" }}>
           <Grid size={{ xs: 12, lg: 7 }}>
             <ChartPanel
               title="Learning trend"

@@ -147,12 +147,12 @@ export default function DatasetPage() {
             <Typography variant="subtitle2" fontWeight={700} mb={1}>
               Continuous-learning ingestion
             </Typography>
-            <Stack direction="row" flexWrap="wrap" useFlexGap spacing={1}>
+            <Stack direction="row" useFlexGap spacing={1} sx={{ flexWrap: "wrap" }}>
               {Object.entries(learning.sources.sources || {}).map(([name, count]) => (
                 <Chip key={name} size="small" label={`${name}: ${count}`} />
               ))}
             </Stack>
-            <Stack direction="row" flexWrap="wrap" useFlexGap spacing={1} mt={1.25}>
+            <Stack direction="row" useFlexGap spacing={1} mt={1.25} sx={{ flexWrap: "wrap" }}>
               {Object.entries(learning.sources.modality_counts || {}).map(([name, count]) => (
                 <Chip
                   key={name}
@@ -236,7 +236,7 @@ export default function DatasetPage() {
             Known classes
           </Typography>
           {(stats?.known_classes || []).length ? (
-            <Stack direction="row" flexWrap="wrap" useFlexGap gap={0.75}>
+            <Stack direction="row" useFlexGap gap={0.75} sx={{ flexWrap: "wrap" }}>
               {(stats?.known_classes || []).map((c) => (
                 <Chip key={c} size="small" label={c} />
               ))}

@@ -28,8 +28,15 @@ import {
 } from "@mui/icons-material";
 import PredictionDetailModal from "./PredictionDetailModal";
 import EmptyState from "./ui/EmptyState";
+import MatchStatusBadge, { matchStatusLabel } from "./ui/MatchStatusBadge";
 import { TipIconButton } from "./ui/ActionButtons";
-import { getConfidence, getFamily, getSection } from "../lib/predictionContract";
+import {
+  getConfidence,
+  getFamily,
+  getMatchStatus,
+  getSection,
+  isLegacyPrediction,
+} from "../lib/predictionContract";
 
 async function copyText(text) {
   try {
@@ -53,7 +60,7 @@ export default function TokensTable({ results = [] }) {
         header: "Original OCR",
         accessorFn: (row) => row.original_token || row.token || "",
         cell: ({ getValue }) => (
-          <Stack direction="row" spacing={0.5} alignItems="center">
+          <Stack direction="row" spacing={0.5} sx={{ alignItems: "center" }}>
             <Typography fontFamily="monospace" fontSize={13} fontWeight={700}>
               {getValue()}
             </Typography>
@@ -89,7 +96,7 @@ export default function TokensTable({ results = [] }) {
         header: "Section",
         accessorFn: (row) => getSection(row),
         cell: ({ getValue, row }) => (
-          <Stack direction="row" spacing={0.5} alignItems="center">
+          <Stack direction="row" spacing={0.5} sx={{ alignItems: "center" }}>
             <Typography fontFamily="monospace" fontSize={13}>
               {getValue() || "—"}
             </Typography>
@@ -121,6 +128,17 @@ export default function TokensTable({ results = [] }) {
             />
           );
         },
+      },
+      {
+        id: "match_status",
+        header: "Match",
+        accessorFn: (row) => matchStatusLabel(getMatchStatus(row), isLegacyPrediction(row)),
+        cell: ({ row }) => (
+          <MatchStatusBadge
+            matchStatus={getMatchStatus(row.original)}
+            isLegacy={isLegacyPrediction(row.original)}
+          />
+        ),
       },
       {
         id: "validation",
@@ -220,6 +238,17 @@ export default function TokensTable({ results = [] }) {
                   hover
                   key={row.id}
                   onClick={() => setSelected(row.original)}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`View prediction details for ${
+                    row.original.original_token || row.original.token || "token"
+                  }`}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      setSelected(row.original);
+                    }
+                  }}
                   sx={{ cursor: "pointer", height: 56 }}
                 >
                   {row.getVisibleCells().map((cell) => (

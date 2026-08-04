@@ -13,7 +13,7 @@ import { TipButton } from "./ui/ActionButtons";
 
 export default function FileUpload() {
   const input = useRef(null);
-  const { setData, setDocument, setExtraction } = useAnalysis();
+  const { setData, setDocument, setExtraction, setRestoreNotice } = useAnalysis();
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -40,6 +40,7 @@ export default function FileUpload() {
       setDocument(data);
       setExtraction(null);
       setData(null);
+      setRestoreNotice(null);
       setProgress(100);
       setSuccess(true);
     } catch (err) {

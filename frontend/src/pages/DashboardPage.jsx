@@ -244,9 +244,8 @@ export default function DashboardPage() {
                 <Stack
                   key={t.id}
                   direction="row"
-                  justifyContent="space-between"
-                  alignItems="center"
                   spacing={1}
+                  sx={{ justifyContent: "space-between", alignItems: "center" }}
                 >
                   <Typography
                     fontFamily="monospace"

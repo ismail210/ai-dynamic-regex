@@ -154,7 +154,7 @@ export default function HistoryPage() {
             <Card>
               <CardContent sx={{ py: 2, "&:last-child": { pb: 2 } }}>
                 <Typography fontWeight={700}>Baseline model</Typography>
-                <Stack direction="row" spacing={3} flexWrap="wrap" useFlexGap mt={1.5}>
+                <Stack direction="row" spacing={3} useFlexGap mt={1.5} sx={{ flexWrap: "wrap" }}>
                   <Meta
                     label="Date"
                     value={
@@ -209,13 +209,13 @@ export default function HistoryPage() {
                 />
                 <Card>
                   <CardContent sx={{ py: 2, "&:last-child": { pb: 2 } }}>
-                    <Stack direction="row" spacing={1} alignItems="center" mb={1}>
+                    <Stack direction="row" spacing={1} mb={1} sx={{ alignItems: "center" }}>
                       <Chip size="small" label={e.event} color={COLOR[e.event] || "secondary"} />
                       <Typography variant="caption" color="text.secondary">
                         {e.created_at ? new Date(e.created_at).toLocaleString() : "—"}
                       </Typography>
                     </Stack>
-                    <Stack direction="row" spacing={3} flexWrap="wrap" useFlexGap>
+                    <Stack direction="row" spacing={3} useFlexGap sx={{ flexWrap: "wrap" }}>
                       <Meta
                         label="Date"
                         value={e.created_at ? new Date(e.created_at).toLocaleDateString() : "—"}

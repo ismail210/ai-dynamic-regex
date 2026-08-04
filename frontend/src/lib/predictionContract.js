@@ -1,4 +1,141 @@
-/** Additive prediction contract helpers (family + section + confidence). */
+/**
+ * Prediction contract helpers.
+ *
+ * `getCanonical*` functions below read the canonical backend contract (see
+ * backend/services/prediction/canonical_contract.py) and are the preferred
+ * way to read a prediction going forward — they never guess across
+ * differently-named aliases.
+ *
+ * The plain `get*` functions further down (getSection/getFamily/
+ * getConfidence/getExplanation) are the pre-canonical migration adapter: they
+ * fall back across legacy field-name variants (`multimodal_confidence`,
+ * `overall_confidence`, `prediction`, `predicted_shape`, ...) for responses
+ * that predate the canonical contract, or for the few call sites not yet
+ * migrated. New code should prefer the canonical helpers.
+ * DEPRECATED — remove the fallback chains once every producer/consumer is
+ * confirmed on the canonical contract.
+ */
+
+const DEFAULT_CANONICAL = {
+  object_id: null,
+  document_id: null,
+  source_text: {
+    raw: null,
+    normalized: null,
+    page_number: null,
+    bounding_box: null,
+    block_number: null,
+    line_number: null,
+    word_number: null,
+    extraction_method: "unknown",
+    available: false,
+  },
+  prediction: {
+    final_label: null,
+    family: null,
+    ranking_score: 0,
+    final_confidence: null,
+    confidence_is_calibrated: false,
+  },
+  comparison: {
+    exact_match: false,
+    normalized_match: false,
+    prediction_required: true,
+    match_status: "unresolved",
+  },
+  decision: {
+    source: "none",
+    used_text: false,
+    used_geometry: false,
+    used_graph: false,
+    used_engineering_rules: false,
+    used_catalog: false,
+  },
+  candidates: [],
+  evidence: {},
+  catalog_version: null,
+  needs_review: false,
+  review_reason: null,
+};
+
+/** True once `result` carries the canonical contract (backend has been updated). */
+export function hasCanonicalContract(result = {}) {
+  return Boolean(result.canonical || result.comparison || result.source_text);
+}
+
+/** Shown wherever a legacy prediction would otherwise need to fabricate or
+ * omit provenance the pipeline never recorded for it. */
+export const LEGACY_PROVENANCE_MESSAGE =
+  "Provenance unavailable — this document was analyzed with an older pipeline " +
+  "version. Re-analysis is required.";
+
+/**
+ * True when a prediction record exists but predates the canonical provenance
+ * contract — i.e. it carries none of `canonical`/`comparison`/`source_text`.
+ * This is a pipeline-compatibility gap, not a prediction outcome: a genuinely
+ * new canonical prediction that happens to resolve to `unresolved` still
+ * carries `comparison`/`source_text` (with `available: false`), so it is
+ * never misclassified as legacy by this check.
+ *
+ * The single source of truth for "is this record legacy" — call sites should
+ * use this rather than re-deriving the same check from raw fields.
+ */
+export function isLegacyPrediction(result = {}) {
+  return !hasCanonicalContract(result);
+}
+
+/** Read the canonical prediction contract, defaulting missing pieces rather
+ * than fabricating them — an absent field stays absent/unavailable. */
+export function getCanonicalPrediction(result = {}) {
+  const canonical = result.canonical || {};
+  return {
+    objectId: canonical.object_id ?? result.object_id ?? DEFAULT_CANONICAL.object_id,
+    documentId:
+      canonical.document_id ?? result.document_id ?? DEFAULT_CANONICAL.document_id,
+    sourceText: {
+      ...DEFAULT_CANONICAL.source_text,
+      ...(canonical.source_text || result.source_text || {}),
+    },
+    prediction: {
+      ...DEFAULT_CANONICAL.prediction,
+      ...(canonical.prediction || {
+        final_label: getSection(result) || null,
+        family: getFamily(result) || null,
+        ranking_score: result.ranking_score ?? getConfidence(result).overall,
+        final_confidence: result.final_confidence ?? null,
+        confidence_is_calibrated: result.confidence_is_calibrated ?? false,
+      }),
+    },
+    comparison: {
+      ...DEFAULT_CANONICAL.comparison,
+      ...(canonical.comparison || result.comparison || {}),
+    },
+    decision: {
+      ...DEFAULT_CANONICAL.decision,
+      ...(canonical.decision || result.decision || {}),
+    },
+    candidates: canonical.candidates || result.canonical_candidates || [],
+    evidence: canonical.evidence || result.evidence || {},
+    catalogVersion: canonical.catalog_version ?? result.catalog_version ?? null,
+    needsReview: canonical.needs_review ?? result.needs_review ?? false,
+    reviewReason: canonical.review_reason ?? result.review_reason ?? null,
+  };
+}
+
+export function getMatchStatus(result = {}) {
+  return getCanonicalPrediction(result).comparison.match_status || "unresolved";
+}
+
+/** ``{ value, isCalibrated }`` — value is either a calibrated probability
+ * (0-1) or the raw ranking/fusion score; callers must label it accordingly
+ * and never present an uncalibrated score as a probability. */
+export function getDisplayConfidence(result = {}) {
+  const { prediction } = getCanonicalPrediction(result);
+  if (prediction.confidence_is_calibrated && prediction.final_confidence != null) {
+    return { value: prediction.final_confidence, isCalibrated: true };
+  }
+  return { value: prediction.ranking_score, isCalibrated: false };
+}
 
 export function getSection(result = {}) {
   return (

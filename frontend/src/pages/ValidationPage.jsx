@@ -94,8 +94,8 @@ function ExtractionQualityPanel({ report }) {
       <Stack spacing={2}>
         <Stack
           direction={{ xs: "column", sm: "row" }}
-          justifyContent="space-between"
           spacing={1}
+          sx={{ justifyContent: "space-between" }}
         >
           <Box>
             <Typography variant="h6" fontWeight={750}>
@@ -513,7 +513,7 @@ function MultiModalReport({ report, onApprove, approvingId }) {
         <Typography variant="subtitle1" fontWeight={750} mb={1.25}>
           Issue coverage
         </Typography>
-        <Stack direction="row" flexWrap="wrap" useFlexGap spacing={1}>
+        <Stack direction="row" useFlexGap spacing={1} sx={{ flexWrap: "wrap" }}>
           {Object.entries(ISSUE_LABELS).map(([key, label]) => (
             <Chip
               key={key}
@@ -531,9 +531,8 @@ function MultiModalReport({ report, onApprove, approvingId }) {
         <Box sx={{ px: 2, py: 1.6, borderBottom: 1, borderColor: "divider" }}>
           <Stack
             direction={{ xs: "column", sm: "row" }}
-            justifyContent="space-between"
             spacing={1}
-            alignItems={{ sm: "center" }}
+            sx={{ justifyContent: "space-between", alignItems: { sm: "center" } }}
           >
             <Box>
               <Typography variant="subtitle1" fontWeight={750}>

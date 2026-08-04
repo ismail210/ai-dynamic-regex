@@ -203,7 +203,7 @@ export default function ModelPage() {
         ))}
       </Grid>
 
-      <Grid container spacing={2.5} alignItems="stretch">
+      <Grid container spacing={2.5} sx={{ alignItems: "stretch" }}>
         <Grid size={{ xs: 12, lg: 7 }}>
           <Card sx={{ height: "100%" }}>
             <CardContent sx={{ p: 2.5, "&:last-child": { pb: 2.5 } }}>
@@ -236,7 +236,7 @@ export default function ModelPage() {
         <Grid size={{ xs: 12, lg: 5 }}>
           <Card sx={{ height: "100%" }}>
             <CardContent sx={{ p: 2.5, "&:last-child": { pb: 2.5 } }}>
-              <Stack direction="row" alignItems="center" justifyContent="space-between">
+              <Stack direction="row" sx={{ alignItems: "center", justifyContent: "space-between" }}>
                 <Typography variant="subtitle1">Model pipeline</Typography>
                 <Chip
                   size="small"
@@ -334,10 +334,9 @@ export default function ModelPage() {
                       >
                         <Stack
                           direction="row"
-                          alignItems="center"
-                          justifyContent="space-between"
                           spacing={1}
                           mb={1.25}
+                          sx={{ alignItems: "center", justifyContent: "space-between" }}
                         >
                           <Typography fontWeight={700} fontSize={13.5} noWrap>
                             {row.entity_type_label}
@@ -514,7 +513,7 @@ export default function ModelPage() {
 
 function MetricLine({ label, value }) {
   return (
-    <Stack direction="row" justifyContent="space-between" spacing={1}>
+    <Stack direction="row" spacing={1} sx={{ justifyContent: "space-between" }}>
       <Typography variant="caption" color="text.secondary">
         {label}
       </Typography>
@@ -527,7 +526,7 @@ function MetricLine({ label, value }) {
 
 function PipelineStep({ icon: Icon, title, detail }) {
   return (
-    <Stack direction="row" spacing={1.25} alignItems="center">
+    <Stack direction="row" spacing={1.25} sx={{ alignItems: "center" }}>
       <Box className="icon-surface" sx={{ width: "36px !important", height: "36px !important" }}>
         <Icon sx={{ fontSize: 18 }} />
       </Box>

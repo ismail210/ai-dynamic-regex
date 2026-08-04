@@ -150,7 +150,7 @@ export default function TrainingPage() {
         title="Training"
         subtitle="Continuous learning across text, geometry, graph, and fusion datasets with versioned models and quality-gated promotion."
         actions={
-          <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+          <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: "wrap" }}>
             <Button variant="outlined" startIcon={<RefreshRounded />} onClick={refresh}>
               Refresh
             </Button>

@@ -385,7 +385,7 @@ export default function UnknownReviewPage() {
         }}
       >
         <Stack spacing={1.25}>
-          <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap alignItems="center">
+          <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: "wrap", alignItems: "center" }}>
             <TextField
               placeholder="Search token, class, source…"
               value={search}
@@ -509,7 +509,7 @@ export default function UnknownReviewPage() {
             </FormControl>
           </Stack>
 
-          <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap alignItems="center">
+          <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: "wrap", alignItems: "center" }}>
             <Typography variant="caption" color="text.secondary" sx={{ mr: 0.5 }}>
               <strong>{selected.length}</strong> selected · {filtered.length} shown
             </Typography>
@@ -725,7 +725,7 @@ export default function UnknownReviewPage() {
                       />
                     </TableCell>
                     <TableCell align="right" onClick={(e) => e.stopPropagation()}>
-                      <Stack direction="row" spacing={0.25} justifyContent="flex-end">
+                      <Stack direction="row" spacing={0.25} sx={{ justifyContent: "flex-end" }}>
                         {row.status === "pending" && (
                           <>
                             <TipIconButton
@@ -807,9 +807,14 @@ export default function UnknownReviewPage() {
           <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
             <Stack
               direction="row"
-              alignItems="center"
-              justifyContent="space-between"
-              sx={{ px: 2.5, py: 2, borderBottom: 1, borderColor: "divider" }}
+              sx={{
+                alignItems: "center",
+                justifyContent: "space-between",
+                px: 2.5,
+                py: 2,
+                borderBottom: 1,
+                borderColor: "divider",
+              }}
             >
               <Typography fontWeight={750}>Token details</Typography>
               <TipIconButton title="Close" onClick={() => setDetail(null)}>

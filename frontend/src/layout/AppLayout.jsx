@@ -1,10 +1,12 @@
-import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
+  Alert,
   AppBar,
   Box,
   Divider,
   Drawer,
   IconButton,
+  LinearProgress,
   List,
   ListItemButton,
   ListItemIcon,
@@ -23,6 +25,7 @@ import {
   InsightsOutlined,
   ModelTrainingOutlined,
   RateReviewOutlined,
+  RestartAltOutlined,
   SettingsOutlined,
   TableRowsOutlined,
   UploadFileOutlined,
@@ -31,6 +34,7 @@ import {
   ViewListOutlined,
 } from "@mui/icons-material";
 import { useThemeMode } from "../context/ThemeContext";
+import { useAnalysis } from "../context/AnalysisContext";
 
 const DRAWER_WIDTH = 260;
 
@@ -56,6 +60,8 @@ const NAV_ITEMS = [...WORKFLOW_ITEMS, ...OPERATIONS_ITEMS];
 export default function AppLayout() {
   const { mode, toggleMode } = useThemeMode();
   const location = useLocation();
+  const navigate = useNavigate();
+  const { stage, rehydrating, rehydrationError, startNewAnalysis } = useAnalysis();
   const title =
     NAV_ITEMS.find((item) => item.to === location.pathname)?.label ||
     "Steel Takeoff";
@@ -87,8 +93,13 @@ export default function AppLayout() {
         >
           <HubOutlined sx={{ fontSize: 20 }} />
         </Box>
-        <Box minWidth={0}>
-          <Typography fontWeight={760} fontSize={14.5} letterSpacing="-0.03em" lineHeight={1.15}>
+        <Box sx={{ minWidth: 0 }}>
+          <Typography
+            fontWeight={760}
+            fontSize={14.5}
+            letterSpacing="-0.03em"
+            sx={{ lineHeight: 1.15 }}
+          >
             Steel Takeoff AI
           </Typography>
           <Typography variant="caption" color="text.secondary">
@@ -113,7 +124,7 @@ export default function AppLayout() {
               </ListItemIcon>
               <ListItemText
                 primary={label}
-                primaryTypographyProps={{ fontSize: 13.5, fontWeight: 600 }}
+                slotProps={{ primary: { fontSize: 13.5, fontWeight: 600 } }}
               />
             </ListItemButton>
           ))}
@@ -131,7 +142,7 @@ export default function AppLayout() {
               </ListItemIcon>
               <ListItemText
                 primary={label}
-                primaryTypographyProps={{ fontSize: 13.5, fontWeight: 600 }}
+                slotProps={{ primary: { fontSize: 13.5, fontWeight: 600 } }}
               />
             </ListItemButton>
           ))}
@@ -178,12 +189,27 @@ export default function AppLayout() {
           <Typography variant="subtitle1" sx={{ flex: 1 }}>
             {title}
           </Typography>
+          {stage !== "empty" && (
+            <Tooltip title="Start new analysis (clears the active document)">
+              <IconButton
+                onClick={() => {
+                  startNewAnalysis();
+                  navigate("/upload");
+                }}
+                size="small"
+                aria-label="Start new analysis"
+              >
+                <RestartAltOutlined fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          )}
           <Tooltip title={mode === "dark" ? "Light mode" : "Dark mode"}>
             <IconButton onClick={toggleMode} size="small" aria-label="Toggle color mode">
               {mode === "dark" ? <Brightness7 fontSize="small" /> : <Brightness4 fontSize="small" />}
             </IconButton>
           </Tooltip>
         </Toolbar>
+        {rehydrating && <LinearProgress />}
       </AppBar>
 
       <Box
@@ -205,6 +231,11 @@ export default function AppLayout() {
             py: { xs: 2.25, sm: 3, lg: 3.5 },
           }}
         >
+          {rehydrationError && (
+            <Alert severity="warning" variant="outlined" sx={{ mb: 2 }}>
+              {rehydrationError}
+            </Alert>
+          )}
           <Outlet />
         </Box>
       </Box>

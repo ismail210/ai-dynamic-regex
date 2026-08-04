@@ -46,7 +46,7 @@ export default function RetrainProgressDialog({ open, status, onClose }) {
         }}
       />
       <DialogTitle sx={{ px: 3, pt: 3, pb: 1 }}>
-        <Stack direction="row" alignItems="center" spacing={1.5}>
+        <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
           <Box
             sx={{
               width: 40,
@@ -89,7 +89,7 @@ export default function RetrainProgressDialog({ open, status, onClose }) {
       <DialogContent sx={{ px: 3, pt: 2.5, pb: 2 }}>
         {!failed && (
           <>
-            <Stack direction="row" justifyContent="space-between" alignItems="baseline" mb={1}>
+            <Stack direction="row" mb={1} sx={{ justifyContent: "space-between", alignItems: "baseline" }}>
               <Typography fontWeight={650} fontSize={13}>
                 {status?.step || "Preparing retrain"}
               </Typography>
@@ -149,7 +149,7 @@ export default function RetrainProgressDialog({ open, status, onClose }) {
         </Box>
 
         {running && (
-          <Stack direction="row" spacing={1} mt={2.5} flexWrap="wrap" useFlexGap>
+          <Stack direction="row" spacing={1} mt={2.5} useFlexGap sx={{ flexWrap: "wrap" }}>
             {["Merge data", "Build features", "Train XGBoost", "Reload model"].map(
               (label, index) => {
                 const thresholds = [5, 25, 40, 97];

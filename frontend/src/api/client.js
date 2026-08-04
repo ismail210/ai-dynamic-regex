@@ -79,6 +79,13 @@ export async function uploadPdf(file, onUploadProgress) {
   );
 }
 
+export async function getDocument(documentId) {
+  const { data } = await client.get(
+    `/api/documents/${encodeURIComponent(documentId)}`,
+  );
+  return data;
+}
+
 export async function extractDocument(documentId, force = false) {
   const { data } = await client.post(
     `/api/documents/${encodeURIComponent(documentId)}/extract`,

@@ -138,22 +138,21 @@ export default function SettingsPage() {
           </Grid>
         </Grid>
       ) : (
-      <Grid container spacing={2.5} alignItems="stretch">
+      <Grid container spacing={2.5} sx={{ alignItems: "stretch" }}>
         <Grid size={{ xs: 12, lg: 8 }}>
           <Card sx={{ height: "100%" }}>
             <CardContent sx={{ p: 3, "&:last-child": { pb: 3 } }}>
               <Stack
                 direction={{ xs: "column", sm: "row" }}
-                justifyContent="space-between"
-                alignItems={{ sm: "flex-start" }}
                 spacing={2}
+                sx={{ justifyContent: "space-between", alignItems: { sm: "flex-start" } }}
               >
                 <Stack direction="row" spacing={1.5}>
                   <Box className="icon-surface">
                     <ModelTrainingOutlined />
                   </Box>
                   <Box>
-                    <Stack direction="row" spacing={1} alignItems="center">
+                    <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
                       <Typography variant="h6">Production model</Typography>
                       <Chip
                         size="small"
@@ -293,7 +292,7 @@ export default function SettingsPage() {
 
 function InfoRow({ label, value }) {
   return (
-    <Stack direction="row" justifyContent="space-between" spacing={2}>
+    <Stack direction="row" spacing={2} sx={{ justifyContent: "space-between" }}>
       <Typography variant="body2" color="text.secondary">
         {label}
       </Typography>

@@ -12,8 +12,26 @@ import { useAnalysis } from "../context/AnalysisContext";
 
 
 export default function ResultsPage() {
-  const { data } = useAnalysis();
+  const { data, restoreNotice } = useAnalysis();
   if (!data) {
+    if (restoreNotice) {
+      const isMissingSource = restoreNotice.kind === "missing-source";
+      return (
+        <EmptyState
+          title={
+            isMissingSource
+              ? "Original file no longer available"
+              : "Previous analysis could not be restored"
+          }
+          subtitle={restoreNotice.message}
+          action={
+            <TipButton component={Link} to="/upload" variant="contained">
+              {isMissingSource ? "Upload the PDF again" : "Start new analysis"}
+            </TipButton>
+          }
+        />
+      );
+    }
     return (
       <EmptyState
         title="No analysis results"

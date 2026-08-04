@@ -5,6 +5,7 @@ export default function EmptyState({
   title = "Nothing to show",
   subtitle = "",
   icon: Icon = InboxOutlined,
+  action,
   sx,
 }) {
   return (
@@ -33,6 +34,7 @@ export default function EmptyState({
           {subtitle}
         </Typography>
       ) : null}
+      {action ? <Box mt={2}>{action}</Box> : null}
     </Box>
   );
 }

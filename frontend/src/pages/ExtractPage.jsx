@@ -91,7 +91,7 @@ export default function ExtractPage() {
       {extraction && (
         <>
           <Paper variant="outlined" sx={{ p: 2.5 }}>
-            <Stack direction="row" gap={1} flexWrap="wrap" mb={2}>
+            <Stack direction="row" gap={1} mb={2} sx={{ flexWrap: "wrap" }}>
               <Chip label={`${counts.engineering_objects || 0} engineering objects`} />
               <Chip label={`${counts.discarded_text_candidates || 0} text candidates ignored`} />
               <Chip label={`${extraction.layout?.tables?.length || 0} tables`} />
@@ -100,7 +100,7 @@ export default function ExtractPage() {
               {extraction.cached && <Chip color="info" label="Cached extraction" />}
             </Stack>
             <Typography variant="subtitle2" mb={1}>Detected structural labels</Typography>
-            <Stack direction="row" gap={0.75} flexWrap="wrap">
+            <Stack direction="row" gap={0.75} sx={{ flexWrap: "wrap" }}>
               {(extraction.tokens || []).slice(0, 80).map((token) => (
                 <Chip
                   key={token.token_id}
