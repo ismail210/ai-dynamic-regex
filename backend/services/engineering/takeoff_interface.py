@@ -11,6 +11,17 @@ Architecture stubs for generating:
 
 Do NOT fully implement exporters yet — only prepare interfaces and
 summary builders that other modules can call later.
+
+Not the live exporter. The production ``POST /api/takeoff/generate`` endpoint
+(``routers/takeoff.py``) is served by ``services.takeoff.takeoff_exporter``
+(``generate_takeoff_excel`` / ``build_takeoff_rows``), which is fully
+implemented and tested (``tests/test_takeoff_platform.py::
+TakeoffExporterTests``, ``tests/test_documents_api.py::
+DocumentWorkflowApiTests::test_takeoff_generate_succeeds_after_analysis``).
+Nothing here is imported by any router; ``build_takeoff_preview`` below is
+exercised only by ``tests/test_engineering_pipeline.py`` as a preview-only
+helper. The two modules do not overlap or conflict — this one is a forward
+architecture placeholder, not a duplicate/legacy path.
 """
 
 from __future__ import annotations

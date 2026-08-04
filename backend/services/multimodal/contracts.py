@@ -96,6 +96,8 @@ class MultiModalPrediction:
     graph_preview: Optional[dict] = None
     component_id: Optional[str] = None
     material: Optional[str] = None
+    document_id: Optional[str] = None
+    canonical: Optional[dict] = None
 
     def to_dict(self) -> dict:
         fusion = self.feature_bundle.fusion or {}
@@ -109,9 +111,10 @@ class MultiModalPrediction:
                     f"AI predicted family={family or '—'} section={section}"
                 ),
             }
-        return {
+        payload = {
             "schema_version": "2.0",
             "object_id": self.object_id,
+            "document_id": self.document_id,
             "component_id": self.component_id
             or fusion.get("component_id")
             or self.object_id,
@@ -164,6 +167,26 @@ class MultiModalPrediction:
             "ai_first": True,
             "database_decides_prediction": False,
         }
+        # Canonical contract (see services.prediction.canonical_contract).
+        # New consumers should read from here; the fields above remain only
+        # for the migration period (see contract.py::apply_legacy_aliases).
+        if self.canonical:
+            payload["canonical"] = self.canonical
+            payload["source_text"] = self.canonical["source_text"]
+            payload["comparison"] = self.canonical["comparison"]
+            payload["decision"] = self.canonical["decision"]
+            payload["ranking_score"] = self.canonical["prediction"]["ranking_score"]
+            payload["final_confidence"] = self.canonical["prediction"][
+                "final_confidence"
+            ]
+            payload["confidence_is_calibrated"] = self.canonical["prediction"][
+                "confidence_is_calibrated"
+            ]
+            payload["canonical_candidates"] = self.canonical["candidates"]
+            payload["catalog_version"] = self.canonical["catalog_version"]
+            payload["needs_review"] = self.canonical["needs_review"]
+            payload["review_reason"] = self.canonical["review_reason"]
+        return payload
 
 
 class FeatureProvider(Protocol):

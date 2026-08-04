@@ -64,6 +64,24 @@ def lookup_shape(token: str) -> Optional[dict]:
     return dict(entry) if entry else None
 
 
+def catalog_version() -> str:
+    """Identify the loaded AISC catalog file/sheet for response provenance."""
+
+    return f"{settings.database_file.name}#{settings.database_sheet}"
+
+
+def catalog_entries() -> List[tuple[str, str]]:
+    """Yield ``(normalized_label, type)`` for every row of the loaded catalog."""
+
+    return list(zip(_NORMALIZED_LABELS, _TYPES))
+
+
+def is_catalog_label(token: str) -> bool:
+    """True when ``token`` (normalized) is an authoritative AISC manual label."""
+
+    return str(token).upper().replace(" ", "") in _LABEL_INDEX
+
+
 def examples_for_type(shape_type: str, limit: Optional[int] = None) -> List[str]:
     """Return example manual labels belonging to a given shape ``Type``."""
 

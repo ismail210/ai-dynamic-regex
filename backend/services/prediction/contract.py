@@ -21,6 +21,30 @@ def confidence_overall(confidence: Any) -> float:
         return 0.0
 
 
+def apply_legacy_aliases(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    DEPRECATED MIGRATION ADAPTER — isolate here, remove once every frontend
+    consumer reads the canonical contract (``services.prediction.
+    canonical_contract``) instead of guessing across these bare-string /
+    differently-named duplicates:
+
+    * ``prediction`` / ``predicted_shape``   -> alias of ``section``
+    * ``confidence.score``                    -> alias of ``confidence.overall``
+    * ``reasoning``                           -> alias of ``explanation``
+
+    Do not add new fields here. New fields belong on the canonical contract.
+    """
+
+    section = payload.get("section")
+    payload.setdefault("prediction", section)
+    payload.setdefault("predicted_shape", section)
+    confidence = payload.get("confidence")
+    if isinstance(confidence, dict):
+        confidence.setdefault("score", confidence.get("overall"))
+    payload.setdefault("reasoning", payload.get("explanation"))
+    return payload
+
+
 def to_token_prediction(
     *,
     token: str,
@@ -32,7 +56,8 @@ def to_token_prediction(
     database_match: bool,
     extras: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
-    """Serialize the additive v1 prediction contract."""
+    """Serialize the canonical prediction contract (plus one migration-period
+    legacy-alias layer, see ``apply_legacy_aliases``)."""
 
     section = str(section or "").strip()
     family = str(family).strip().upper() if family else None
@@ -40,7 +65,6 @@ def to_token_prediction(
     conf = {
         **confidence,
         "overall": round(overall, 4),
-        "score": round(overall, 4),  # deprecated alias
         "level": confidence.get("level")
         or (
             "High"
@@ -55,12 +79,8 @@ def to_token_prediction(
         "token": token,
         "family": family,
         "section": section,
-        # Legacy aliases (additive migration).
-        "prediction": section,
-        "predicted_shape": section,
         "confidence": conf,
         "explanation": explanation,
-        "reasoning": explanation,  # alias
         "evidence": evidence,
         "top_candidate_sections": explanation.get("top_candidate_sections") or [],
         "why_selected": explanation.get("why_selected") or [],
@@ -76,7 +96,7 @@ def to_token_prediction(
     }
     if extras:
         payload.update(extras)
-    return payload
+    return apply_legacy_aliases(payload)
 
 
 def derive_family_from_section(section: str, fallback: Optional[str] = None) -> Optional[str]:

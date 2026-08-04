@@ -149,6 +149,8 @@ class WeightedFusionEngine(FusionModel):
             graph_preview=result.get("graph_preview"),
             component_id=result.get("component_id"),
             material=result.get("material"),
+            document_id=result.get("document_id"),
+            canonical=result.get("canonical"),
         )
 
 

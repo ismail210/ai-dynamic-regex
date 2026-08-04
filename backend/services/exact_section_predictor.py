@@ -305,22 +305,21 @@ def _candidate_scores(
     return _cached_candidate_scores(normalize_section_text(token), pool_size)
 
 
-def predict_exact_sections(
-    token: str,
+def _score_candidates(
+    candidates: List[tuple],
     *,
-    limit: int = 5,
     geometry: Optional[dict] = None,
     graph: Optional[dict] = None,
     engineering_rules: Optional[dict] = None,
 ) -> List[ExactSectionCandidate]:
     """
-    Predict exact labels and rerank with live multimodal evidence.
-
-    Geometry/graph do not merely affect confidence: they can reorder candidates
-    when text scores are close.
+    Rerank a pool of ``(shape, text_score)`` pairs with live multimodal
+    evidence. Geometry/graph do not merely affect confidence: they can
+    reorder candidates when text scores are close or absent (a
+    ``text_score`` of ``0.0`` is valid input — e.g. a deterministic
+    wildcard-mask candidate with no text-similarity signal of its own).
     """
 
-    candidates = _candidate_scores(token)
     if not candidates:
         return []
 
@@ -378,4 +377,54 @@ def predict_exact_sections(
             )
         )
     scored.sort(key=lambda item: (-item.confidence, item.shape))
+    return scored
+
+
+def predict_exact_sections(
+    token: str,
+    *,
+    limit: int = 5,
+    geometry: Optional[dict] = None,
+    graph: Optional[dict] = None,
+    engineering_rules: Optional[dict] = None,
+) -> List[ExactSectionCandidate]:
+    """Predict exact labels via fuzzy character-retrieval, reranked with live
+    multimodal evidence. Callers that already have a deterministic candidate
+    set (e.g. wildcard-mask matches) should use
+    ``predict_exact_sections_for_labels`` instead so fuzzy retrieval never
+    runs ahead of a deterministic match."""
+
+    candidates = _candidate_scores(token)
+    scored = _score_candidates(
+        candidates,
+        geometry=geometry,
+        graph=graph,
+        engineering_rules=engineering_rules,
+    )
+    return scored[: max(1, limit)]
+
+
+def predict_exact_sections_for_labels(
+    labels: List[str],
+    *,
+    geometry: Optional[dict] = None,
+    graph: Optional[dict] = None,
+    engineering_rules: Optional[dict] = None,
+    limit: int = 8,
+) -> List[ExactSectionCandidate]:
+    """
+    Rerank an already-determined, catalog-valid label set (e.g. deterministic
+    wildcard-mask candidates) using the same live multimodal evidence as
+    fuzzy retrieval — without running any fuzzy text-similarity search.
+    ``text_similarity`` is ``0.0`` for these candidates: the match came from
+    exact positional agreement, not a text-similarity model.
+    """
+
+    candidates = [(str(label), 0.0) for label in labels if label]
+    scored = _score_candidates(
+        candidates,
+        geometry=geometry,
+        graph=graph,
+        engineering_rules=engineering_rules,
+    )
     return scored[: max(1, limit)]

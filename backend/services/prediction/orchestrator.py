@@ -10,10 +10,17 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 
 from services.component_tracker import allocate_component_id
-from services.database_loader import lookup_shape, search_similar_shapes
+from services.database_loader import (
+    catalog_version as aisc_catalog_version,
+    lookup_shape,
+    search_similar_shapes,
+)
 from services.engineering.rule_engine import evaluate_engineering_rules
 from services.entity_taxonomy import resolve_entity
-from services.exact_section_predictor import predict_exact_sections
+from services.exact_section_predictor import (
+    predict_exact_sections,
+    predict_exact_sections_for_labels,
+)
 from services.feature_extractor import extract_structural_features
 from services.model_predictor import predict_with_confidence
 from services.multimodal.correction_engine import (
@@ -26,14 +33,21 @@ from services.multimodal.feature_providers import (
 )
 from services.multimodal.encoder_registry import encoder_registry
 from services.multimodal.modular_fusion import unified_multimodal_fusion
+from services.prediction.calibration import calibrate_score
+from services.prediction.canonical_contract import (
+    build_canonical_prediction,
+    determine_review_from_status,
+)
 from services.prediction.confidence_engine import (
     level_from_score,
 )
 from services.prediction.contract import derive_family_from_section, to_token_prediction
 from services.prediction.explanation_engine import build_explanation
+from services.prediction.ranking import build_ranking
 from services.prediction.review_policy import decide_review_status
 from services.regex_knowledge_base import knowledge_base
 from services.regex_validator import full_match
+from services.wildcard_matcher import has_wildcards, match_wildcard_mask
 
 
 STRUCTURAL_FAMILIES = {
@@ -94,9 +108,27 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         },
     )
 
+    # Deterministic wildcard/mask matching runs before fuzzy retrieval: a
+    # label with explicit unknown-character markers (e.g. "W44X3**") is
+    # resolved against the real AISC catalog by position, not by string
+    # similarity. Fuzzy retrieval only takes over when there are no wildcard
+    # characters, or the mask matched nothing in the catalog.
+    used_wildcards = has_wildcards(original) or has_wildcards(normalized)
+    wildcard_hits = (
+        match_wildcard_mask(original or normalized, limit=8) if used_wildcards else []
+    )
+
     # Single exact-section AI call with multimodal rerank (Priority 1).
     exact_candidates = []
-    if _is_structural_family(family_label) or not family_label:
+    if wildcard_hits:
+        exact_candidates = predict_exact_sections_for_labels(
+            [hit.label for hit in wildcard_hits],
+            geometry=geometry,
+            graph=graph,
+            engineering_rules=provisional_rules.to_dict(),
+            limit=8,
+        )
+    elif _is_structural_family(family_label) or not family_label:
         exact_candidates = predict_exact_sections(
             normalized,
             limit=8,
@@ -386,6 +418,52 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         source_file=source_file,
     )
 
+    # --- Canonical prediction contract (additive) ---------------------------
+    # Single ranking stage: merge fusion candidate scores with any
+    # deterministic wildcard-mask candidates into one catalog-checked,
+    # human-readable candidate list instead of several disconnected
+    # weighted-sum stages.
+    ranking = build_ranking(
+        fusion_candidate_scores=unified_fusion.candidate_scores,
+        wildcard_candidates=wildcard_hits,
+        limit=8,
+    )
+    ranking_score = float(confidence["overall"])
+    final_confidence, confidence_is_calibrated = calibrate_score(ranking_score)
+    document_id = str((context.get("document") or {}).get("document_id") or "") or None
+    bbox = token_record.get("bbox")
+    line_info = token_record.get("line") or {}
+    block_info = token_record.get("block") or {}
+    canonical = build_canonical_prediction(
+        object_id=str(token_record.get("token_id") or component_id),
+        document_id=document_id,
+        raw_text=original,
+        normalized_text=normalized,
+        page_number=token_record.get("page"),
+        bounding_box=list(bbox) if bbox else None,
+        block_number=block_info.get("number"),
+        line_number=line_info.get("number"),
+        word_number=None,  # a token may merge several source words; see token_extractor
+        extraction_method="pdf_text" if bbox else "unknown",
+        source_available=bool(original.strip()),
+        final_label=section,
+        family=family,
+        ranking_score=ranking_score,
+        final_confidence=final_confidence,
+        confidence_is_calibrated=confidence_is_calibrated,
+        used_text=bool(original.strip()),
+        used_geometry=bool(geometry.get("available")),
+        used_graph=float(graph.get("degree") or 0) > 0,
+        used_engineering_rules=True,
+        used_catalog=True,
+        candidates=[item.to_dict() for item in ranking.candidates],
+        evidence=dict(evidence),
+        catalog_version=aisc_catalog_version(),
+        review_status=review_status,
+        near_tie=ranking.near_tie,
+        used_wildcards=used_wildcards,
+    )
+
     alternatives = []
     for candidate in corrections:
         if candidate.corrected != section:
@@ -416,6 +494,7 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         "exact_section_candidates": [
             candidate.to_dict() for candidate in exact_candidates
         ],
+        "wildcard_candidates": [hit.to_dict() for hit in wildcard_hits],
         "family_fallback": family_prediction.to_dict(),
         "distribution": distribution,
         "extraction_confidence": extraction_confidence,
@@ -424,8 +503,11 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         "extraction_diagnostics": token_record.get("diagnostics") or {},
         "context": token_record.get("context") or {},
         "surrounding_text": token_record.get("surrounding_text") or "",
+        "normalized_text": normalized,
         "page": token_record.get("page"),
         "bbox": token_record.get("bbox"),
+        "line": line_info or None,
+        "block": block_info or None,
         "reading_order": token_record.get("reading_order"),
         "rotation": token_record.get("rotation"),
         "font_size": token_record.get("font_size"),
@@ -442,8 +524,10 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         ),
     }
 
+    canonical_dict = canonical.model_dump(mode="json")
     extras = {
         "object_id": str(token_record.get("token_id") or component_id),
+        "document_id": document_id,
         "component_id": component_id,
         "original_token": original,
         "corrected_token": corrected,
@@ -455,6 +539,26 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         "material": rules.material_grade,
         "alternatives": alternatives[:4],
         "review_status": review_status,
+        # Canonical contract (see services.prediction.canonical_contract).
+        # New consumers should read from here rather than guessing across
+        # the legacy top-level aliases kept below for migration.
+        "canonical": canonical_dict,
+        "source_text": canonical_dict["source_text"],
+        "comparison": canonical_dict["comparison"],
+        "decision": canonical_dict["decision"],
+        "ranking_score": canonical_dict["prediction"]["ranking_score"],
+        "final_confidence": canonical_dict["prediction"]["final_confidence"],
+        "confidence_is_calibrated": canonical_dict["prediction"][
+            "confidence_is_calibrated"
+        ],
+        "canonical_candidates": canonical_dict["candidates"],
+        "catalog_version": canonical_dict["catalog_version"],
+        "needs_review": canonical_dict["needs_review"],
+        "review_reason": canonical_dict["review_reason"],
+        # Internal only — lets predict_token() keep needs_review/review_reason
+        # in sync after it recomputes review_status from regex matching.
+        # Popped before the response is returned; not part of the contract.
+        "_ranking_near_tie": ranking.near_tie,
         "geometry_preview": geometry.get("object"),
         "graph_preview": {
             "degree": graph.get("degree"),
@@ -591,6 +695,21 @@ def predict_token(
     )
     result["review_status"] = review_status
     result["uncertain"] = review_status == "pending_review"
+
+    # review_status above is recomputed from regex matching after the
+    # canonical contract was already built inside predict_from_context —
+    # refresh needs_review/review_reason so they reflect this final status
+    # rather than the one computed before regex learning ran.
+    near_tie = bool(result.pop("_ranking_near_tie", False))
+    match_status = str((result.get("comparison") or {}).get("match_status") or "unresolved")
+    needs_review, review_reason = determine_review_from_status(
+        match_status=match_status, near_tie=near_tie, review_status=review_status
+    )
+    result["needs_review"] = needs_review
+    result["review_reason"] = review_reason
+    if isinstance(result.get("canonical"), dict):
+        result["canonical"]["needs_review"] = needs_review
+        result["canonical"]["review_reason"] = review_reason
 
     unknown_id = None
     if queue_unknown and review_status == "pending_review":
