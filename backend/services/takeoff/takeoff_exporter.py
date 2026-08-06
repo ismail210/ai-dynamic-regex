@@ -17,6 +17,7 @@ import pandas as pd
 from config import settings
 from services.database_loader import lookup_shape
 from services.entity_taxonomy import classify_category
+from services.prediction.contract import confidence_overall
 
 
 def build_takeoff_rows(predictions: List[dict]) -> List[dict]:
@@ -25,7 +26,6 @@ def build_takeoff_rows(predictions: List[dict]) -> List[dict]:
     for result in predictions:
         label = str(
             result.get("section")
-            or result.get("prediction")
             or result.get("token")
             or ""
         ).upper().replace(" ", "")
@@ -35,8 +35,7 @@ def build_takeoff_rows(predictions: List[dict]) -> List[dict]:
         if label not in meta:
             aisc = lookup_shape(label)
             entity = classify_category(label)
-            conf = result.get("confidence") or {}
-            overall = conf.get("overall") if isinstance(conf, dict) else conf
+            overall = confidence_overall(result.get("confidence"))
             meta[label] = {
                 "Mark": label,
                 "Family": result.get("family") or entity.class_name,
@@ -47,7 +46,11 @@ def build_takeoff_rows(predictions: List[dict]) -> List[dict]:
                 "Database Match": bool(result.get("database_match") or aisc),
                 "AISC Confirmed": bool(result.get("database_match") or aisc),
                 "Avg Confidence": overall,
-                "Confidence Level": conf.get("level") if isinstance(conf, dict) else None,
+                "Confidence Level": (
+                    "High" if overall >= 0.80
+                    else "Medium" if overall >= 0.55
+                    else "Low"
+                ),
             }
     rows = []
     for label, qty in counts.most_common():

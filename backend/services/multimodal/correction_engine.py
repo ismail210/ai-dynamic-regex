@@ -425,11 +425,17 @@ class MultimodalCorrectionEngine:
                 if value > 0
             )
         )
+        # Alternatives keep their scores, not the full evidence record of the
+        # winner they lost to: that record is repeated per prediction and was
+        # the largest single contributor to the analysis payload.
         alternatives = [
             {
                 "corrected": item["corrected"],
                 "confidence": item["confidence"],
-                "evidence": item["evidence"],
+                "evidence": {
+                    "contributions": (item["evidence"] or {}).get("contributions")
+                    or {},
+                },
             }
             for item in ranked[1:limit]
         ]

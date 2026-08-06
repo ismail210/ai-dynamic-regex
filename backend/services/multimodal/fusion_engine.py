@@ -31,14 +31,14 @@ FUSION_WEIGHTS = {
 class WeightedFusionEngine(FusionModel):
     """Explainable multimodal fusion delegated to the AI-primary orchestrator."""
 
-    name = "weighted_classical_multimodal_v2_ai_first"
+    name = "learned_multimodal_mlp_v1"
 
     def predict(self, context: Dict[str, Any]) -> MultiModalPrediction:
         from services.prediction.orchestrator import predict_from_context
 
         result = predict_from_context(context)
         features = result.get("features") or {}
-        explanation = result.get("explanation") or result.get("reasoning") or {}
+        explanation = result.get("explanation") or {}
         confidence = result.get("confidence") or {}
         overall = float(
             confidence.get("overall")
@@ -101,9 +101,6 @@ class WeightedFusionEngine(FusionModel):
                     explanation.get("contribution_percentages") or {}
                 ),
                 attention=dict(explanation.get("attention") or {}),
-                candidate_scores=list(
-                    explanation.get("candidate_scores") or []
-                ),
                 encoders=dict(explanation.get("encoders") or {}),
                 correction=dict(explanation.get("correction") or {}),
                 prediction=dict(explanation.get("prediction") or {}),
@@ -112,9 +109,6 @@ class WeightedFusionEngine(FusionModel):
                 why_rejected=list(explanation.get("why_rejected") or []),
                 top_candidate_sections=list(
                     explanation.get("top_candidate_sections") or []
-                ),
-                modality_evidence=dict(
-                    explanation.get("modality_evidence") or {}
                 ),
                 text_evidence=dict(explanation.get("text_evidence") or {}),
                 ocr_evidence=dict(explanation.get("ocr_evidence") or {}),
@@ -134,6 +128,12 @@ class WeightedFusionEngine(FusionModel):
                 correction_history=list(
                     explanation.get("correction_history") or []
                 ),
+                engineer_explanation=dict(
+                    explanation.get("engineer_explanation") or {}
+                ),
+                ai_engineer_explanation=dict(
+                    explanation.get("ai_engineer_explanation") or {}
+                ),
                 geometry_evidence=dict(
                     explanation.get("geometry_evidence") or {}
                 ),
@@ -151,6 +151,17 @@ class WeightedFusionEngine(FusionModel):
             material=result.get("material"),
             document_id=result.get("document_id"),
             canonical=result.get("canonical"),
+            raw_text=str(
+                result.get("raw_text")
+                or result.get("original_token")
+                or ""
+            ),
+            normalized_text=str(result.get("normalized_text") or ""),
+            page_number=result.get("page_number"),
+            bounding_box=result.get("bounding_box"),
+            evidence_source=list(result.get("evidence_source") or []),
+            prediction_source=str(result.get("prediction_source") or "Fusion"),
+            missing_label_prediction=result.get("missing_label_prediction"),
         )
 
 

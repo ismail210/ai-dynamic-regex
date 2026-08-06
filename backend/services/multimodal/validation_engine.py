@@ -72,9 +72,51 @@ def _fusion_issues(prediction: dict) -> set:
     )
 
 
+def _compact_correction(correction: Dict[str, Any]) -> Dict[str, Any]:
+    """Keep the decision, not the full candidate search that produced it.
+
+    An issue is emitted per token per check, so embedding every correction
+    candidate here multiplied the validation payload by an order of magnitude.
+    """
+
+    if not correction:
+        return {}
+    return {
+        "original": correction.get("original"),
+        "corrected": correction.get("corrected"),
+        "confidence": correction.get("confidence"),
+        "reason": correction.get("reason"),
+        "source": correction.get("source"),
+    }
+
+
+def _compact_alternatives(alternatives: Any) -> List[Dict[str, Any]]:
+    return [
+        {
+            "shape": item.get("shape") or item.get("corrected"),
+            "confidence": item.get("confidence"),
+        }
+        for item in (alternatives or [])[:3]
+        if isinstance(item, dict)
+    ]
+
+
+def _compact_issue(issue: Dict[str, Any]) -> Dict[str, Any]:
+    """A per-token view of an issue; the full record stays in the issue list."""
+
+    return {
+        "issue_id": issue.get("issue_id"),
+        "type": issue.get("type"),
+        "severity": issue.get("severity"),
+        "why": issue.get("why"),
+        "suggested_correction": issue.get("suggested_correction"),
+        "approvable": issue.get("approvable"),
+    }
+
+
 def _evidence_map(prediction: dict) -> Dict[str, Any]:
     evidence = prediction.get("evidence") or {}
-    explanation = prediction.get("explanation") or prediction.get("reasoning") or {}
+    explanation = prediction.get("explanation") or {}
     text = _features(prediction).get("text") or {}
     geometry = _features(prediction).get("geometry") or {}
     graph = _features(prediction).get("graph") or {}
@@ -97,10 +139,10 @@ def _evidence_map(prediction: dict) -> Dict[str, Any]:
         "database_role": "verification_only",
         "family": prediction.get("family"),
         "section": _section(prediction),
-        "alternatives": prediction.get("alternatives") or [],
-        "correction": prediction.get("correction")
-        or explanation.get("correction")
-        or {},
+        "alternatives": _compact_alternatives(prediction.get("alternatives")),
+        "correction": _compact_correction(
+            prediction.get("correction") or explanation.get("correction") or {}
+        ),
     }
 
 
@@ -863,7 +905,7 @@ def validate_multimodal_predictions(
                         for item in actionable
                     }
                 ),
-                "issues": actionable,
+                "issues": [_compact_issue(item) for item in actionable],
                 "reasons": [
                     item["why"] for item in actionable
                 ]
@@ -871,9 +913,11 @@ def validate_multimodal_predictions(
                 "correction_suggestions": (
                     [suggestion]
                     if suggestion
-                    else prediction.get("alternatives") or []
+                    else _compact_alternatives(prediction.get("alternatives"))
                 ),
-                "alternative_predictions": prediction.get("alternatives") or [],
+                "alternative_predictions": _compact_alternatives(
+                    prediction.get("alternatives")
+                ),
                 "expected_quantity": expected_counts.get(_section(prediction))
                 if expected_counts
                 else None,
@@ -918,7 +962,9 @@ def validate_multimodal_predictions(
             ),
         },
         "tokens": tokens,
-        "issues": all_issues,
+        # The full issue list is intentionally not returned: every entry also
+        # appears in actionable_issues or passed_checks, and repeating it made
+        # the validation payload three times larger than necessary.
         "actionable_issues": actionable_issues,
         "passed_checks": pass_issues,
         "expected_counts": dict(expected_counts),

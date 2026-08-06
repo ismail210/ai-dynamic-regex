@@ -126,7 +126,7 @@ def validate_takeoff(
         confidence_value = float(
             conf.get("overall") if isinstance(conf, dict) else conf or 0.0
         )
-        reasoning = result.get("explanation") or result.get("reasoning") or {}
+        explanation = result.get("explanation") or {}
         geometry = result.get("geometry_preview") or {}
         features = result.get("features") or {}
         db = (features.get("database") or {}).get("exact_match") or {}
@@ -158,11 +158,10 @@ def validate_takeoff(
                 ),
                 "database_match": bool(result.get("database_match")),
                 "aisc_confirmed": bool(result.get("database_match")),
-                "model_probability": reasoning.get("ai_probability"),
-                "regex_confidence": reasoning.get("regex_contribution"),
+                "model_probability": explanation.get("ai_probability"),
+                "regex_confidence": explanation.get("regex_contribution"),
                 "review_status": result.get("review_status"),
-                "explanation": reasoning,
-                "explainability": reasoning,
+                "explanation": explanation,
                 "evidence": result.get("evidence") or {},
                 "geometry_preview": geometry,
                 "graph_preview": result.get("graph_preview"),

@@ -222,6 +222,8 @@ def build_structural_graph(
             for edge in incident
         )
         source_features[str(source_id)] = {
+            "source_node": node["node_id"],
+            "node_kind": node.get("kind"),
             "degree": float(len(incident)),
             "geometry_links": float(
                 sum(
@@ -257,11 +259,13 @@ def graph_features_for_source(graph: dict, source_id: str) -> Dict[str, float]:
     )
     if not node:
         return {
+            "source_node": None,
+            "node_kind": None,
             "degree": 0.0,
             "geometry_links": 0.0,
             "structural_links": 0.0,
             "min_distance": 999.0,
-            "graph_consistency": 0.35,
+            "graph_consistency": 0.0,
         }
     incident = [
         edge
@@ -287,6 +291,8 @@ def graph_features_for_source(graph: dict, source_id: str) -> Dict[str, float]:
     )
     consistency = min(1.0, 0.35 + structural_count * 0.09)
     return {
+        "source_node": node["node_id"],
+        "node_kind": node.get("kind"),
         "degree": float(len(incident)),
         "geometry_links": float(
             sum(

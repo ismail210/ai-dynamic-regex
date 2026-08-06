@@ -20,6 +20,25 @@ TOKEN_PATTERNS = (
     r"\b(?:A|F)\d{3,4}M?\b",
 )
 _COMPILED = [re.compile(pattern, re.IGNORECASE) for pattern in TOKEN_PATTERNS]
+# One alternation replaces seven separate scans of every candidate window. The
+# longest, most specific families come first so a shorter family prefix cannot
+# win inside them.
+_COMBINED = re.compile(
+    "|".join(
+        f"(?:{pattern})"
+        for pattern in (
+            TOKEN_PATTERNS[1],  # HSS
+            TOKEN_PATTERNS[2],  # L / 2L
+            TOKEN_PATTERNS[3],  # PIPE
+            TOKEN_PATTERNS[4],  # PL / PLATE
+            TOKEN_PATTERNS[0],  # W / WT / S / M / HP / C / MC
+            TOKEN_PATTERNS[5],  # sheet reference
+            TOKEN_PATTERNS[6],  # material grade
+        )
+    ),
+    re.IGNORECASE,
+)
+_DIGIT_RE = re.compile(r"\d")
 EXTRACTION_STATUSES = ("VALID", "SUSPICIOUS", "BROKEN", "INVALID")
 _NOISE_RE = re.compile(r"^[\W_]+$")
 
@@ -39,8 +58,11 @@ def normalize_engineering_token(text: str) -> str:
 
 
 def _matches(text: str) -> Iterable[re.Match[str]]:
-    for pattern in _COMPILED:
-        yield from pattern.finditer(str(text or ""))
+    value = str(text or "")
+    if not _DIGIT_RE.search(value):
+        # Every engineering token carries at least one digit.
+        return ()
+    return _COMBINED.finditer(value)
 
 
 def _token_status(
@@ -55,6 +77,8 @@ def _token_status(
     """Classify extraction quality independently from prediction quality."""
 
     issues: List[str] = []
+    # Successful repairs and rotated drawing text are recorded for traceability
+    # but do not degrade extraction status: both are normal on steel drawings.
     if was_merged:
         issues.append("split_label_reconstructed")
     if repair_count:
@@ -68,25 +92,37 @@ def _token_status(
         return "INVALID", issues
     if confidence < 0.35:
         return "INVALID", issues + ["very_low_extraction_confidence"]
-    if confidence < 0.55 or len(issues) >= 3:
+    if confidence < 0.50:
         return "BROKEN", issues + ["low_extraction_confidence"]
-    if confidence < 0.78 or issues:
+    if confidence < 0.65 or not has_context:
         return "SUSPICIOUS", issues
     return "VALID", issues
 
 
 def _candidate_windows(ordered: List[dict]) -> Iterable[tuple[str, List[dict]]]:
-    """Yield bounded adjacent-word windows to repair split labels safely."""
+    """Yield bounded adjacent-word windows to repair split labels safely.
+
+    A window is only offered when it can still form a label: it must contain a
+    digit and start with an alphanumeric word. Multi-word windows are limited to
+    the joined form once, which keeps large drawings from generating millions of
+    candidates that cannot match.
+    """
 
     max_words = min(6, len(ordered))
     seen: set[tuple[str, tuple[str, ...]]] = set()
     for start in range(len(ordered)):
+        first = str(ordered[start].get("text") or "")
+        if not first or not first[0].isalnum():
+            continue
         for size in range(1, max_words + 1):
             window = ordered[start : start + size]
             if len(window) < size:
                 break
             texts = [str(word.get("text") or "") for word in window]
-            variants = (" ".join(texts), "".join(texts))
+            spaced = " ".join(texts)
+            if not _DIGIT_RE.search(spaced):
+                continue
+            variants = (spaced,) if size == 1 else (spaced, "".join(texts))
             source_ids = tuple(str(word.get("object_id") or "") for word in window)
             for variant in variants:
                 key = (variant, source_ids)
@@ -176,6 +212,10 @@ def extract_engineering_token_records(
             ]
             if not contributing:
                 contributing = candidate_words
+            raw_source = " ".join(
+                str(word.get("raw_text") or word.get("text") or "")
+                for word in contributing
+            ).strip()
             x0 = min(word["bbox"][0] for word in contributing)
             y0 = min(word["bbox"][1] for word in contributing)
             x1 = max(word["bbox"][2] for word in contributing)
@@ -244,6 +284,8 @@ def extract_engineering_token_records(
                 {
                     "token_id": f"token_p{page_number}_{reading_order}",
                     "text": raw.strip(),
+                    "raw_text": raw_source or raw.strip(),
+                    "corrected_text": raw.strip(),
                     "normalized_text": normalized,
                     "page": page_number,
                     "bbox": bbox,

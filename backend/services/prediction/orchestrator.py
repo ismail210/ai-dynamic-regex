@@ -82,8 +82,13 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     """
 
     token_record = context["token"]
-    original = str(token_record.get("text") or "")
-    normalized = str(token_record.get("normalized_text") or original).strip()
+    extracted_text = str(token_record.get("text") or "")
+    raw_text = str(token_record.get("raw_text") or extracted_text)
+    # Alias for wildcard matching / legacy callers expecting extracted text.
+    original = extracted_text or raw_text
+    normalized = str(
+        token_record.get("normalized_text") or extracted_text
+    ).strip()
     source_file = str(
         context.get("source_file")
         or (context.get("document") or {}).get("source_file")
@@ -131,7 +136,15 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     elif _is_structural_family(family_label) or not family_label:
         exact_candidates = predict_exact_sections(
             normalized,
-            limit=8,
+            limit=10,
+            geometry=geometry,
+            graph=graph,
+            engineering_rules=provisional_rules.to_dict(),
+        )
+    if not exact_candidates and _is_structural_family(family_label):
+        exact_candidates = predict_exact_sections(
+            str(family_label),
+            limit=10,
             geometry=geometry,
             graph=graph,
             engineering_rules=provisional_rules.to_dict(),
@@ -141,7 +154,7 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         str(family_label) if _is_structural_family(family_label) else None
     )
     corrections = suggest_token_corrections(
-        original or normalized,
+        extracted_text or normalized,
         expected_family=expected_family,
         geometry=geometry,
         graph=graph,
@@ -151,32 +164,67 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     )
     fusion_candidates: List[Any] = list(exact_candidates)
     existing_shapes = {candidate.shape for candidate in exact_candidates}
+    for geometry_candidate in geometry.get("geometry_candidates") or []:
+        shape = str(geometry_candidate.get("section") or "")
+        if not shape or shape in existing_shapes or lookup_shape(shape) is None:
+            continue
+        fusion_candidates.append(
+            {
+                "shape": shape,
+                "evidence": {
+                    "text": 0.0,
+                    "geometry": float(
+                        geometry_candidate.get("similarity") or 0.0
+                    ),
+                    "graph": float(
+                        graph.get("graph_confidence")
+                        or graph.get("graph_consistency")
+                        or 0.0
+                    ),
+                    "engineering_rules": float(provisional_rules.score),
+                },
+            }
+        )
+        existing_shapes.add(shape)
     for correction in corrections:
-        if correction.corrected in existing_shapes:
+        if (
+            correction.corrected in existing_shapes
+            or lookup_shape(correction.corrected) is None
+        ):
             continue
         fusion_candidates.append(
             {
                 "shape": correction.corrected,
                 "evidence": {
                     "text": float(correction.confidence),
-                    "geometry": float(geometry.get("similarity") or 0.35),
-                    "graph": float(graph.get("graph_consistency") or 0.35),
+                    "geometry": float(geometry.get("similarity") or 0.0),
+                    "graph": float(
+                        graph.get("graph_confidence")
+                        or graph.get("graph_consistency")
+                        or 0.0
+                    ),
                     "engineering_rules": float(provisional_rules.score),
                 },
             }
         )
-    if not fusion_candidates and family_label:
-        fusion_candidates.append(
-            {
-                "shape": str(family_label),
-                "evidence": {
-                    "text": family_probability,
-                    "geometry": float(geometry.get("similarity") or 0.35),
-                    "graph": float(graph.get("graph_consistency") or 0.35),
-                    "engineering_rules": float(provisional_rules.score),
-                },
-            }
+    fusion_candidates = [
+        candidate
+        for candidate in fusion_candidates
+        if lookup_shape(
+            str(
+                getattr(candidate, "shape", None)
+                or (
+                    candidate.get("shape")
+                    if isinstance(candidate, dict)
+                    else ""
+                )
+            )
         )
+        is not None
+    ]
+    corrected_text = (
+        corrections[0].corrected if corrections else normalized
+    )
 
     encodings = encoder_registry.encode_all(
         {
@@ -194,10 +242,8 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
                 "candidates": exact_candidates,
             },
             "ocr": {
-                "original": original,
-                "corrected": (
-                    corrections[0].corrected if corrections else normalized
-                ),
+                "original": raw_text,
+                "corrected": corrected_text,
                 "confidence": float(token_record.get("confidence") or 0.5),
                 "repairs": (
                     (token_record.get("diagnostics") or {}).get(
@@ -228,10 +274,11 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     unified_fusion = unified_multimodal_fusion.predict(
         encodings=encodings,
         candidates=fusion_candidates,
-        fallback_section=normalized or str(family_label or ""),
+        fallback_section=corrected_text,
     )
     section = unified_fusion.section
-    corrected = section
+    if _is_structural_family(section) and exact_candidates:
+        section = exact_candidates[0].shape
     ai_reasons = list(unified_fusion.reasons)
     model_label = section
     model_probability = float(unified_fusion.confidence)
@@ -241,7 +288,7 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     }
     family = derive_family_from_section(section, fallback=family_label)
 
-    # Priority 6 — database verification only (never overrides section/family).
+    # Post-prediction AISC plausibility check; it never generates candidates.
     db_exact = lookup_shape(section)
     similar = search_similar_shapes(normalized, limit=8, minimum_score=0.35)
     best_similarity = (
@@ -274,15 +321,24 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         + 0.20 * extraction_confidence
         + 0.10 * regex_contribution,
     )
-    geometry_similarity = float(geometry.get("similarity") or 0.35)
-    graph_consistency = float(graph.get("graph_consistency") or 0.35)
+    geometry_similarity = float(geometry.get("similarity") or 0.0)
+    graph_consistency = float(
+        graph.get("structural_consistency")
+        or graph.get("graph_consistency")
+        or 0.0
+    )
+    graph_similarity = float(
+        graph.get("graph_confidence")
+        if graph.get("graph_embedding")
+        else graph_consistency
+    )
 
     signals = {
         "text": text_similarity,
         "ocr": float(encodings["ocr"].confidence),
         "layout": float(encodings["layout"].confidence),
         "geometry": geometry_similarity,
-        "graph": graph_consistency,
+        "graph": graph_similarity,
         "engineering_rules": rule_score,
         # Database is recorded for verification/explanation only.
         "database": db_similarity if database_verified else min(0.35, db_similarity),
@@ -291,8 +347,11 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         "text": True,
         "ocr": bool(encodings["ocr"].available),
         "layout": bool(encodings["layout"].available),
-        "geometry": bool(geometry.get("available")),
-        "graph": float(graph.get("degree") or 0) > 0,
+        "geometry": bool(geometry.get("available"))
+        or bool(geometry.get("geometry_embedding")),
+        "graph": bool(graph.get("graph_embedding"))
+        or bool(graph.get("source_node"))
+        or float(graph.get("degree") or 0) > 0,
         "engineering_rules": True,
         "database": True,
     }
@@ -300,11 +359,8 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     confidence_value = float(unified_fusion.confidence)
     confidence = {
         "overall": round(confidence_value, 4),
-        "score": round(confidence_value, 4),
         "level": level_from_score(confidence_value),
         "model_probability": round(model_probability, 4),
-        "regex_confidence": round(regex_contribution, 4),
-        "database_signal": 1.0 if database_verified else 0.0,
         "breakdown": {
             "ai": round(model_probability, 4),
             **{
@@ -315,6 +371,30 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         "weights": dict(unified_fusion.contributions),
         "database_role": "verification_only",
     }
+    learned_disagreement = (
+        bool(normalized)
+        and section != normalized
+        and (
+            bool(geometry.get("geometry_embedding"))
+            or bool(graph.get("graph_embedding"))
+        )
+    )
+    final_correction = (
+        {
+            "original": raw_text or normalized,
+            "corrected": section,
+            "reason": (
+                "Learned text, geometry, and structural-graph evidence "
+                "disagreed with the extracted label."
+            ),
+            "confidence": round(confidence_value, 4),
+        }
+        if learned_disagreement
+        else corrections[0].to_dict() if corrections else None
+    )
+    output_corrected_text = (
+        section if learned_disagreement else corrected_text
+    )
     # Contribution scores are normalized attention shares, not raw similarities.
     evidence = dict(unified_fusion.contributions)
     explanation = build_explanation(
@@ -330,7 +410,10 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         candidate_scores=unified_fusion.candidate_scores,
         text_evidence={
             "token": normalized,
-            "original_token": original,
+            "raw_text": raw_text,
+            "corrected_text": corrected_text,
+            "normalized_text": normalized,
+            "original_token": raw_text,
             "model_label": model_label,
             "model_probability": round(model_probability, 4),
             "family_label": family_label,
@@ -342,15 +425,46 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
             ),
         },
         geometry_evidence={
+            "available": bool(geometry.get("available")),
+            "encoder": (
+                "mobilenet_v3_small"
+                if geometry.get("geometry_embedding")
+                else geometry.get("similarity_source") or "vector_geometry"
+            ),
             "object": geometry.get("object"),
             "similarity": round(geometry_similarity, 4),
+            "similarity_source": geometry.get("similarity_source")
+            or "vector_geometry",
+            # Embedding vectors stay out of the response; only their presence
+            # and size are needed to explain the evidence.
+            "embedding_dimension": len(geometry.get("geometry_embedding") or []),
+            "confidence": geometry.get("geometry_confidence"),
+            "candidates": (geometry.get("geometry_candidates") or [])[:5],
+            "top_candidates": (geometry.get("geometry_candidates") or [])[:5],
+            "features": geometry.get("geometry_features") or {},
+            "nearest_distance": geometry.get("nearest_distance"),
             "source": geometry.get("source"),
         },
         graph_evidence={
+            "available": bool(
+                graph.get("graph_embedding")
+                or graph.get("source_node")
+                or float(graph.get("degree") or 0) > 0
+            ),
+            "model": "graphsage" if graph.get("graph_embedding") else "structural_graph",
+            "node_id": graph.get("source_node"),
+            "node_kind": graph.get("node_kind"),
             "degree": graph.get("degree"),
             "structural_links": graph.get("structural_links"),
             "min_distance": graph.get("min_distance"),
             "consistency": round(graph_consistency, 4),
+            "structural_consistency": round(graph_consistency, 4),
+            "embedding_dimension": len(graph.get("graph_embedding") or []),
+            "prediction": graph.get("graph_prediction"),
+            "role_prediction": graph.get("graph_prediction"),
+            "confidence": graph.get("graph_confidence"),
+            "missing_label_probability": graph.get("missing_label_probability"),
+            "incorrect_label_probability": graph.get("incorrect_label_probability"),
         },
         engineering_evidence={
             "score": round(rule_score, 4),
@@ -367,12 +481,11 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         for name, value in unified_fusion.contributions.items()
     }
     explanation["attention"] = unified_fusion.attention.to_dict()
-    explanation["candidate_scores"] = unified_fusion.candidate_scores
     explanation["encoders"] = {
         name: encoding.encoder for name, encoding in encodings.items()
     }
-    if corrections:
-        correction_payload = corrections[0].to_dict()
+    if final_correction:
+        correction_payload = final_correction
         explanation["correction"] = correction_payload
         reviewed_example = (
             correction_payload.get("evidence") or {}
@@ -390,7 +503,7 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     )
 
     issues = detect_extraction_issues(token_record)
-    if corrected != normalized:
+    if corrected_text != normalized:
         issues.append("automatic_correction_suggested")
     if not database_verified:
         issues.append("database_unverified")
@@ -404,8 +517,8 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     review_status = decide_review_status(
         confidence=float(confidence["overall"]),
         issues=issues,
-        corrected=corrected != normalized,
-        regex_matches=bool(regex_contribution),
+        corrected=corrected_text != normalized,
+        regex_matches=False,
         model_probability=model_probability,
         database_verified=database_verified,
     )
@@ -474,18 +587,23 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
                     "entity_type": resolve_entity(candidate.corrected).category,
                 }
             )
-    if not alternatives:
-        for label, probability in sorted(
-            distribution.items(), key=lambda item: item[1], reverse=True
-        )[:4]:
-            if str(label) != section:
-                alternatives.append(
-                    {
-                        "shape": str(label),
-                        "confidence": round(float(probability), 4),
-                        "entity_type": resolve_entity(str(label)).category,
-                    }
-                )
+    existing_alternatives = {item["shape"] for item in alternatives}
+    for label, probability in sorted(
+        distribution.items(), key=lambda item: item[1], reverse=True
+    ):
+        label = str(label)
+        if label == section or label in existing_alternatives:
+            continue
+        alternatives.append(
+            {
+                "shape": label,
+                "confidence": round(float(probability), 4),
+                "entity_type": resolve_entity(label).category,
+            }
+        )
+        existing_alternatives.add(label)
+        if len(alternatives) >= 5:
+            break
 
     text_features = {
         "engineered": extract_structural_features(normalized),
@@ -529,15 +647,45 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         "object_id": str(token_record.get("token_id") or component_id),
         "document_id": document_id,
         "component_id": component_id,
-        "original_token": original,
-        "corrected_token": corrected,
-        "correction": corrections[0].to_dict() if corrections else None,
+        "raw_text": raw_text,
+        "corrected_text": output_corrected_text,
+        "normalized_text": normalized,
+        "original_token": raw_text,
+        "corrected_token": output_corrected_text,
+        "page_number": token_record.get("page"),
+        "bounding_box": token_record.get("bbox"),
+        "evidence_source": [
+            name
+            for name, is_available in available.items()
+            if is_available and name != "database"
+        ]
+        + ["fusion"],
+        "prediction_source": (
+            "Correction"
+            if final_correction and output_corrected_text != normalized
+            else "Geometry"
+            if not raw_text and geometry.get("geometry_embedding")
+            else "Fusion"
+        ),
+        "missing_label_prediction": (
+            {
+                "predicted_missing_label": section,
+                "family": family,
+                "member_role": rules.member_role
+                or graph.get("graph_prediction"),
+                "confidence": round(confidence_value, 4),
+                "reason": ai_reasons,
+            }
+            if not raw_text
+            else None
+        ),
+        "correction": final_correction,
         "entity_type": entity.category,
         "category": entity.category,
         "category_label": entity.category_label,
         "entity": entity.to_dict(),
         "material": rules.material_grade,
-        "alternatives": alternatives[:4],
+        "alternatives": alternatives[:5],
         "review_status": review_status,
         # Canonical contract (see services.prediction.canonical_contract).
         # New consumers should read from here rather than guessing across
@@ -572,14 +720,29 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         "aisc_confirmed": database_verified,
         "features": {
             "text": text_features,
-            "ocr": encodings["ocr"].to_dict(),
-            "layout": encodings["layout"].to_dict(),
-            "geometry": geometry,
-            "graph": graph,
+            "ocr": encodings["ocr"].to_dict(include_vector=False),
+            "layout": encodings["layout"].to_dict(include_vector=False),
+            "geometry": {
+                **{
+                    key: value
+                    for key, value in geometry.items()
+                    if key != "geometry_embedding"
+                },
+                "embedding_dimension": len(
+                    geometry.get("geometry_embedding") or []
+                ),
+            },
+            "graph": {
+                **{
+                    key: value
+                    for key, value in graph.items()
+                    if key != "graph_embedding"
+                },
+                "embedding_dimension": len(graph.get("graph_embedding") or []),
+            },
             "database": {
                 "exact_match": db_exact,
                 "similar_shapes": similar,
-                "best_similarity": best_similarity,
                 "role": "verification_only",
                 "verified_prediction": database_verified,
                 "verified_shape": (db_exact or {}).get("shape"),
@@ -595,7 +758,7 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
                 "attention": unified_fusion.attention.to_dict(),
                 "fused_features": unified_fusion.fused_features.to_dict(),
                 "encodings": {
-                    name: encoding.to_dict()
+                    name: encoding.to_dict(include_vector=False)
                     for name, encoding in encodings.items()
                 },
                 "candidate_scores": unified_fusion.candidate_scores,
@@ -613,18 +776,22 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         "prediction_details": {
             "label": section,
             "probability": round(model_probability, 4),
-            "target": "exact_section" if exact_candidates else "family_fallback",
+            "target": (
+                "exact_section"
+                if exact_candidates
+                else "correction_candidate"
+            ),
             "family": {"label": family, "probability": round(family_probability, 4)},
             "top_classes": [
                 {"class": a["shape"], "probability": a["confidence"]}
-                for a in alternatives[:4]
+                for a in alternatives[:5]
             ],
             "family_fallback": family_prediction.to_dict(),
         },
     }
 
     return to_token_prediction(
-        token=original or normalized,
+        token=raw_text or normalized,
         family=family,
         section=section,
         confidence=confidence,
@@ -645,6 +812,8 @@ def predict_token(
     """Token-only AI prediction (used by /api/analyze and takeoff export)."""
 
     from services.dataset_manager import dataset_manager
+    from services.regex_knowledge_base import knowledge_base
+    from services.regex_validator import full_match
     from services.self_learning_engine import process_token
 
     token = str(token).strip()
@@ -674,9 +843,8 @@ def predict_token(
         (knowledge_base.get(section) or {}).get("variants", []) if section else []
     )
 
-    # Refresh confidence regex signal for token-only path.
+    # Dynamic regex remains an output helper and cannot change AI confidence.
     conf = dict(result.get("confidence") or {})
-    conf["regex_confidence"] = round(float(learning.regex_confidence), 4)
     result["confidence"] = conf
     result["validation"] = {
         "matched": regex_matches,
@@ -687,9 +855,9 @@ def predict_token(
 
     review_status = decide_review_status(
         confidence=float(conf.get("overall") or 0.0),
-        issues=[] if regex_matches else ["regex_mismatch"],
+        issues=[],
         corrected=False,
-        regex_matches=regex_matches,
+        regex_matches=True,
         model_probability=float(conf.get("model_probability") or 0.0),
         database_verified=bool(result.get("database_match")),
     )

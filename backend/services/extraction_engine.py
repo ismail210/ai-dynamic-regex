@@ -6,8 +6,14 @@ from pathlib import Path
 from typing import Any, Dict
 
 from services.artifact_store import write_artifact
+from services.document_intelligence import build_extraction_diagnostics
 from services.engineering_object_filter import filter_engineering_objects
 from services.pdf_parser import extract_document_structure
+
+
+# Bumped whenever extraction output changes, so cached documents are rebuilt
+# instead of replaying stale artifacts.
+EXTRACTION_VERSION = "3.0"
 
 
 def extract_engineering_document(
@@ -28,7 +34,49 @@ def extract_engineering_document(
     document["engineering_tokens"] = filter_engineering_objects(raw_tokens)
     document["engineering_object_count"] = len(document["engineering_tokens"])
     document["source_file"] = path.name
+    document["extraction_version"] = EXTRACTION_VERSION
+    _rescope_diagnostics_to_engineering_objects(document)
     return document
+
+
+def _rescope_diagnostics_to_engineering_objects(document: Dict[str, Any]) -> None:
+    """Report extraction quality for structural objects, not all page text.
+
+    Raw pattern matches include material grades, sheet references, and note
+    fragments. Scoring those made every drawing look mostly "suspicious".
+    """
+
+    previous = document.get("extraction_diagnostics") or {}
+    diagnostics = build_extraction_diagnostics(
+        document=document,
+        tokens=document.get("engineering_tokens") or [],
+        word_count_before_cleanup=int(
+            previous.get("word_count_before_cleanup") or 0
+        ),
+        word_count_after_cleanup=int(
+            previous.get("word_count_after_cleanup") or 0
+        ),
+        ocr_repairs=int(previous.get("ocr_repairs") or 0),
+        tables=document.get("tables") or [],
+        schedules=document.get("schedules") or [],
+        callouts=document.get("callouts") or [],
+        dimensions=document.get("dimensions") or [],
+        title_blocks=document.get("title_blocks") or [],
+    )
+    diagnostics["scope"] = "engineering_objects"
+    diagnostics["text_candidates_scanned"] = int(
+        document.get("raw_engineering_token_count") or 0
+    )
+    document["extraction_diagnostics"] = diagnostics
+    document["extraction_quality"] = {
+        **diagnostics,
+        "decorative_words_removed": (
+            document.get("extraction_quality") or {}
+        ).get("decorative_words_removed", diagnostics["noise_removed"]),
+        "duplicate_tokens_removed": (
+            document.get("extraction_quality") or {}
+        ).get("duplicate_tokens_removed", 0),
+    }
 
 
 def extraction_response(document: Dict[str, Any]) -> Dict[str, Any]:

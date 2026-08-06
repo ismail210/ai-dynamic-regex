@@ -20,8 +20,8 @@ export function TipButton({ title, loading, startIcon, children, ...props }) {
           startIcon={
             loading ? <CircularProgress size={14} color="inherit" /> : startIcon
           }
-          disabled={loading || props.disabled}
           {...props}
+          disabled={Boolean(loading) || Boolean(props.disabled)}
         >
           {children}
         </Button>

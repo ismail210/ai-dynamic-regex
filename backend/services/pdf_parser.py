@@ -108,29 +108,30 @@ def _layer_names(doc: fitz.Document) -> List[str]:
         return []
 
 
+_DRAWING_REF_RE = re.compile(
+    r"\bS-\d+\b|\bDWG[-\s]?\d+\b|\bSHT[-\s]?\d+\b|\bDET[-\s]?\d+\b|\bA-\d+\b",
+    re.IGNORECASE,
+)
+_HAS_DIGIT_RE = re.compile(r"\d")
+
+
 def _drawing_ref_hints(text: str) -> List[str]:
-    """Heuristic drawing / sheet references inside text (e.g. S-101, DWG-12)."""
+    """Heuristic drawing / sheet references inside text (e.g. S-101, DWG-12).
 
-    import re
+    Called once per word, line, block, and page, so the pattern is compiled
+    once and text without a digit is rejected before any scanning.
+    """
 
-    patterns = [
-        r"\bS-\d+\b",
-        r"\bDWG[-\s]?\d+\b",
-        r"\bSHT[-\s]?\d+\b",
-        r"\bDET[-\s]?\d+\b",
-        r"\bA-\d+\b",
-    ]
-    found: List[str] = []
-    for pattern in patterns:
-        found.extend(re.findall(pattern, text, flags=re.IGNORECASE))
-    # Deduplicate preserving order
+    value = str(text or "")
+    if not _HAS_DIGIT_RE.search(value):
+        return []
     seen = set()
     ordered: List[str] = []
-    for item in found:
+    for item in _DRAWING_REF_RE.findall(value):
         key = item.upper().replace(" ", "")
         if key not in seen:
             seen.add(key)
-            ordered.append(item.upper().replace(" ", ""))
+            ordered.append(key)
     return ordered
 
 
@@ -146,15 +147,25 @@ def _span_rotation(span: dict) -> float:
     return round(math.degrees(math.atan2(dy, dx)), 2)
 
 
-def _extract_page_text_objects(page: fitz.Page, page_number: int) -> Dict[str, List[dict]]:
-    """Extract words, lines, blocks with layout metadata from one page."""
+def _extract_page_text_objects(
+    page: fitz.Page,
+    page_number: int,
+    *,
+    textpage: Any = None,
+) -> Dict[str, List[dict]]:
+    """Extract words, lines, blocks with layout metadata from one page.
+
+    A prepared ``textpage`` is reused across the words and dict passes; parsing
+    the text layer once per page instead of three times is the single largest
+    saving on drawing sets.
+    """
 
     words_out: List[dict] = []
     lines_out: List[dict] = []
     blocks_out: List[dict] = []
 
     # Words with bbox (x0, y0, x1, y1, word, block_no, line_no, word_no)
-    raw_words = page.get_text("words") or []
+    raw_words = page.get_text("words", textpage=textpage) or []
     for idx, w in enumerate(raw_words):
         if len(w) < 5:
             continue
@@ -181,7 +192,7 @@ def _extract_page_text_objects(page: fitz.Page, page_number: int) -> Dict[str, L
             }
         )
 
-    raw = page.get_text("dict") or {}
+    raw = page.get_text("dict", textpage=textpage) or {}
     reading_order = 0
     for block_number, block in enumerate(raw.get("blocks") or []):
         if block.get("type", 0) != 0:
@@ -388,7 +399,8 @@ def extract_document_structure(
         for page_index, page in iter_pdf_pages(document, skipped=skipped_pages):
             page_number = page_index + 1
             try:
-                page_text = page.get_text() or ""
+                textpage = page.get_textpage()
+                page_text = page.get_text(textpage=textpage) or ""
             except Exception as exc:  # pragma: no cover - defensive
                 skipped_pages.append(
                     {
@@ -403,7 +415,9 @@ def extract_document_structure(
             page_scores[page_index] = len(_ENGINEERING_PAGE_RE.findall(page_text))
             loaded_indices.add(page_index)
             try:
-                extracted = _extract_page_text_objects(page, page_number)
+                extracted = _extract_page_text_objects(
+                    page, page_number, textpage=textpage
+                )
                 rich_page = True
             except Exception as exc:  # pragma: no cover - defensive
                 skipped_pages.append(

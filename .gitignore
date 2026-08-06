@@ -7,7 +7,7 @@ frontend/.vite/
 frontend/.cache/
 
 # =========================
-# Backend
+# Backend runtime
 # =========================
 backend/venv/
 backend/uploads/
@@ -26,45 +26,42 @@ __pycache__/
 htmlcov/
 
 # =========================
-# Environment Variables
+# Environment
 # =========================
 .env
 .env.*
 !.env.example
 
 # =========================
-# IDE
+# IDE / OS
 # =========================
 .vscode/
 .idea/
-
-# =========================
-# macOS
-# =========================
 .DS_Store
-
-# =========================
-# Logs
-# =========================
+.cursor/
+*.orig
 *.log
-
-# =========================
-# Build / Cache
-# =========================
+*.zip
 build/
 dist/
 
 # =========================
-# Git
+# Local-only training data (keep on disk, do not push)
 # =========================
-*.orig
+backend/training/datasets/
+backend/training/engineering_artifacts/
+backend/training/takeoff_exports/
+backend/training/pdf/
+backend/training/pdfs/
+backend/training/excel/
+backend/training/excels/
 
-# =========================
-# Cursor
-# =========================
-.cursor/
+# Torch / system binaries never belong in git
+*.dylib
+*.pth
 
-# =========================
-# Optional Large Files
-# =========================
-*.zip
+# Ignore generic weight dumps, but keep the three small neural artifacts
+# that the multimodal pipeline loads at runtime (<1 MB each).
+*.pt
+!backend/training/graphsage_model.pt
+!backend/training/multimodal_fusion.pt

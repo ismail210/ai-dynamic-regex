@@ -26,6 +26,7 @@ from services.engineering.correction_dataset import (
 from services.engineering.excel_loader import load_aisc_catalog, load_engineering_excel
 from services.engineering.geometry_adapters import geometry_capabilities
 from services.multimodal.encoder_registry import encoder_registry
+from services.stage_runner import run_shared_stage
 from services.staged_pipeline import run_analysis_stage, run_extraction_stage
 from services.upload_service import (
     EXCEL_SUFFIXES,
@@ -122,16 +123,24 @@ async def analyze_multimodal_document(
     document = register_document(
         pdf_path, original_name=Path(pdf.filename or pdf_path.name).name
     )
-    await run_analysis(
-        "document extraction",
-        run_extraction_stage,
-        document["document_id"],
+    await run_shared_stage(
+        stage="document extraction",
+        document_id=document["document_id"],
+        runner=lambda: run_analysis(
+            "document extraction",
+            run_extraction_stage,
+            document["document_id"],
+        ),
     )
-    result = await run_analysis(
-        "multimodal document analysis",
-        run_analysis_stage,
-        document["document_id"],
-        expected_excel_path=excel_path,
+    result = await run_shared_stage(
+        stage="multimodal document analysis",
+        document_id=document["document_id"],
+        runner=lambda: run_analysis(
+            "multimodal document analysis",
+            run_analysis_stage,
+            document["document_id"],
+            expected_excel_path=excel_path,
+        ),
     )
 
     # Excel uploads are ground-truth pairs — auto-register for dataset generation.
@@ -171,10 +180,14 @@ async def extract_multimodal_document(
     document = register_document(
         pdf_path, original_name=Path(pdf.filename or pdf_path.name).name
     )
-    return await run_analysis(
-        "document extraction",
-        run_extraction_stage,
-        document["document_id"],
+    return await run_shared_stage(
+        stage="document extraction",
+        document_id=document["document_id"],
+        runner=lambda: run_analysis(
+            "document extraction",
+            run_extraction_stage,
+            document["document_id"],
+        ),
     )
 
 

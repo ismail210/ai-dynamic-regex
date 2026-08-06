@@ -71,14 +71,16 @@ def prune_documents(keep: int | None = None) -> dict[str, Any]:
 
     limit = settings.artifact_retention_documents if keep is None else keep
     root = settings.engineering_artifacts_dir
-    if limit <= 0 or not root.exists():
+    if limit < 0 or not root.exists():
         return {"removed": 0, "freed_bytes": 0, "kept": 0}
 
     directories = sorted(
         (item for item in root.iterdir() if item.is_dir()),
         key=lambda item: item.stat().st_mtime,
     )
-    stale = directories[:-limit] if len(directories) > limit else []
+    stale = directories[:-limit] if limit > 0 and len(directories) > limit else (
+        directories if limit == 0 else []
+    )
     freed = 0
     for directory in stale:
         try:
@@ -100,8 +102,58 @@ def prune_documents(keep: int | None = None) -> dict[str, Any]:
     return {
         "removed": len(stale),
         "freed_bytes": freed,
-        "kept": min(len(directories), limit),
+        "kept": min(len(directories), limit) if limit > 0 else 0,
     }
+
+
+def reclaim_space(*, protect_document_id: str | None = None) -> dict[str, Any]:
+    """
+    Free artifact disk until the reserve is met, or nothing older remains.
+
+    Normal retention keeps a few recent documents. When the volume is already
+    below the reserve, that soft cap is ignored and older caches are deleted
+    until writes can proceed again.
+    """
+
+    summary = prune_documents()
+    if has_free_space():
+        return summary
+
+    root = settings.engineering_artifacts_dir
+    if not root.exists():
+        return summary
+
+    directories = sorted(
+        (
+            item
+            for item in root.iterdir()
+            if item.is_dir()
+            and (protect_document_id is None or item.name != protect_document_id)
+        ),
+        key=lambda item: item.stat().st_mtime,
+    )
+    freed = int(summary.get("freed_bytes") or 0)
+    removed = int(summary.get("removed") or 0)
+    for directory in directories:
+        if has_free_space():
+            break
+        try:
+            size = sum(
+                file.stat().st_size
+                for file in directory.rglob("*")
+                if file.is_file()
+            )
+            shutil.rmtree(directory, ignore_errors=True)
+            freed += size
+            removed += 1
+            logger.info(
+                "reclaimed artifact document %s (%.1f MB) under disk pressure",
+                directory.name,
+                size / (1024 * 1024),
+            )
+        except OSError:
+            continue
+    return {"removed": removed, "freed_bytes": freed, "kept": "pressure"}
 
 
 def write_artifact(document_id: str, name: str, payload: Any) -> str | None:
@@ -109,13 +161,14 @@ def write_artifact(document_id: str, name: str, payload: Any) -> str | None:
     Write one artifact compactly; return its path, or ``None`` when skipped.
 
     Persistence is best-effort: a full disk degrades diagnostics but must never
-    fail an otherwise successful analysis.
+    fail an otherwise successful analysis. Extraction still tries harder than
+    optional caches because later stages reuse ``document.json``.
     """
 
     path = artifact_path(document_id, name)
     directory = path.parent
     if not has_free_space(settings.engineering_artifacts_dir):
-        prune_documents()
+        reclaim_space(protect_document_id=document_id)
     if not has_free_space(settings.engineering_artifacts_dir):
         logger.warning(
             "skipping artifact %s/%s: only %.0f MB free (need %.0f MB)",
@@ -136,8 +189,24 @@ def write_artifact(document_id: str, name: str, payload: Any) -> str | None:
     except OSError as exc:
         # Remove the partial file so a truncated artifact is never read back.
         try:
-            (directory / name).unlink(missing_ok=True)
+            path.unlink(missing_ok=True)
         except OSError:  # pragma: no cover
             pass
+        if getattr(exc, "errno", None) == 28:  # ENOSPC
+            reclaim_space(protect_document_id=document_id)
+            try:
+                directory.mkdir(parents=True, exist_ok=True)
+                path.write_text(
+                    json.dumps(payload, separators=(",", ":")), encoding="utf-8"
+                )
+                return str(path)
+            except OSError as retry_exc:
+                logger.warning(
+                    "artifact %s/%s could not be written after reclaim: %s",
+                    document_id,
+                    name,
+                    retry_exc,
+                )
+                return None
         logger.warning("artifact %s/%s could not be written: %s", document_id, name, exc)
         return None

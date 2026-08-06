@@ -12,6 +12,7 @@ import {
 import { ArrowForwardRounded, HubOutlined } from "@mui/icons-material";
 import { analyzeDocument } from "../api/client";
 import { useAnalysis } from "../context/AnalysisContext";
+import useElapsedSeconds from "../hooks/useElapsedSeconds";
 import PageHeader from "../components/ui/PageHeader";
 import EmptyState from "../components/ui/EmptyState";
 import { TipButton } from "../components/ui/ActionButtons";
@@ -22,9 +23,10 @@ export default function AnalyzePage() {
   const [excel, setExcel] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const elapsed = useElapsedSeconds(loading);
 
   async function run() {
-    if (!document?.document_id || !extraction) return;
+    if (!document?.document_id || !extraction || loading) return;
     setLoading(true);
     setError("");
     try {
@@ -90,7 +92,8 @@ export default function AnalyzePage() {
             <Box>
               <LinearProgress />
               <Typography variant="caption" color="text.secondary">
-                Extracting geometry, constructing the graph, fusing evidence, correcting OCR, and validating predictions…
+                Extracting geometry, constructing the graph, fusing evidence,
+                correcting OCR, and validating predictions… {elapsed}s elapsed
               </Typography>
             </Box>
           )}

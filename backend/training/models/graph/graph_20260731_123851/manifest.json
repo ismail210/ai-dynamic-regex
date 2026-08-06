@@ -1,0 +1,31 @@
+{
+  "version_id": "graph_20260731_123851",
+  "family": "graph",
+  "schema_version": "1.0",
+  "created_at": "2026-07-31T12:38:51.796000+00:00",
+  "dataset_versions": {
+    "graph": "graph_20260731_123059"
+  },
+  "metrics": {
+    "accuracy": 0.5,
+    "f1_weighted": 0.5,
+    "skipped": false,
+    "ready": true,
+    "supervised_count": 1940,
+    "class_count": 114,
+    "minimum": 80
+  },
+  "hyperparameters": {},
+  "feature_schema": [],
+  "artifact_checksums": {
+    "latest_features.json": "cdda757dd53d0f9142bc44a14b8134aa772419ba940235c532f145aaa319d929"
+  },
+  "promotion_status": "candidate",
+  "rejection_reasons": [],
+  "parent_version": null,
+  "dependencies": {},
+  "notes": "graph lane prepared; GCN/GraphSAGE deferred until denser coverage",
+  "artifacts": {
+    "graph_features": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/training/models/graph/graph_20260731_123851/latest_features.json"
+  }
+}

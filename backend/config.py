@@ -53,6 +53,11 @@ class Settings:
     exact_section_dataset_path: Path = (
         BASE_DIR / "training" / "exact_section_dataset.csv"
     )
+    geometry_embedding_index_path: Path = (
+        BASE_DIR / "training" / "geometry_embedding_index.joblib"
+    )
+    graphsage_model_path: Path = BASE_DIR / "training" / "graphsage_model.pt"
+    fusion_model_path: Path = BASE_DIR / "training" / "multimodal_fusion.pt"
     # Compatibility file read by older deployments and existing API code.
     legacy_model_meta_path: Path = BASE_DIR / "training" / "model_meta.json"
     # Immutable AISC-derived dataset — never overwrite at runtime.
@@ -112,11 +117,13 @@ class Settings:
     # retained and refuse to write when the volume is nearly full, so a large
     # drawing set can never exhaust the disk mid-analysis.
     artifact_retention_documents: int = field(
-        default_factory=lambda: int(os.getenv("ARTIFACT_RETENTION_DOCUMENTS", "5"))
+        default_factory=lambda: int(os.getenv("ARTIFACT_RETENTION_DOCUMENTS", "3"))
     )
+    # Keep this well below a typical laptop free-space floor. A 2 GB reserve
+    # blocked extraction while 1.4 GB was still free — enough for artifacts.
     artifact_min_free_bytes: int = field(
         default_factory=lambda: int(
-            os.getenv("ARTIFACT_MIN_FREE_BYTES", str(2 * 1024 * 1024 * 1024))
+            os.getenv("ARTIFACT_MIN_FREE_BYTES", str(400 * 1024 * 1024))
         )
     )
 
@@ -149,6 +156,12 @@ class Settings:
         default_factory=lambda: float(
             os.getenv("UPLOAD_ANALYSIS_TIMEOUT_SECONDS", "600")
         )
+    )
+    # Extraction and analysis are CPU-bound and hold the GIL. Running several
+    # at once makes each one several times slower and starves uploads, so the
+    # number of simultaneous heavy stages is capped.
+    stage_concurrency: int = field(
+        default_factory=lambda: max(1, int(os.getenv("STAGE_CONCURRENCY", "2")))
     )
     # Both dev loopback spellings are distinct browser origins.
     cors_allow_origins: List[str] = field(

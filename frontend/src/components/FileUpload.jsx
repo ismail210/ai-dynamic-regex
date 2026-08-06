@@ -21,7 +21,9 @@ export default function FileUpload() {
   const [dragging, setDragging] = useState(false);
 
   const submit = async (file) => {
-    if (!file) return;
+    // A second upload while one is in flight stores the drawing twice and puts
+    // two heavy stages on the server for the same document.
+    if (!file || loading) return;
     if (file.type !== "application/pdf") {
       setError("Select a PDF file.");
       return;

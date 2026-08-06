@@ -26,12 +26,28 @@ export default function PredictionDetailModal({ result, onClose }) {
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, sm: 6 }}>
               <Field label="ORIGINAL OCR">
-                {result.original_token || result.token}
+                {result.raw_text || result.original_token || result.token}
               </Field>
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
               <Field label="CORRECTED OCR">
-                {result.corrected_token || result.original_token || result.token}
+                {result.corrected_text || result.corrected_token || result.original_token || result.token}
+              </Field>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Field label="NORMALIZED TEXT">{result.normalized_text}</Field>
+            </Grid>
+            <Grid size={{ xs: 6, sm: 3 }}>
+              <Field label="PAGE">{result.page_number}</Field>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 9 }}>
+              <Field label="BOUNDING BOX">
+                {(result.bounding_box || []).join(", ")}
+              </Field>
+            </Grid>
+            <Grid size={{ xs: 12 }}>
+              <Field label="PREDICTION SOURCE">
+                {result.prediction_source || (result.evidence_source || []).join(", ")}
               </Field>
             </Grid>
             <Grid size={{ xs: 6, sm: 3 }}><Field label="FAMILY">{family}</Field></Grid>

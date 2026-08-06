@@ -636,3 +636,317 @@ A108,A108,material,human_review,2026-07-28T10:54:49.144635+00:00,fcd1886d-7121-4
 A1064,A1064,material,human_review,2026-07-28T10:54:49.199658+00:00,4eaf6682-cc58-4487-bf31-f325dc5564e7
 W8x28,W8X28,structural_section,human_review,2026-07-31T08:31:00.765604+00:00,fd4e1e4a-301c-407b-b570-c0cbb61cb5ba
 W18X46,W18X46,structural_section,human_review,2026-07-31T09:58:29.631015+00:00,94c59e73-7a80-49b2-8666-2f3dc191d526
+L3x3x1/4,L3X3X1/4,structural_section,human_review,2026-07-31T12:10:50.042361+00:00,aa257691-4dfe-41de-b224-cdd8235d5834
+L3x3x1/4,L3X3X1/4,,human_review,2026-07-31T12:11:02.062194+00:00,4c4744d9-bb1c-4b61-91c1-3c7fb59faac8
+L3x3x1/4,L3X3X1/4,,human_review,2026-07-31T12:11:23.475899+00:00,f25b446e-1f46-4797-9d34-88b10709c61f
+HSS18X0.500,HSS18X0.500,structural_section,human_review,2026-07-31T12:12:09.610736+00:00,7ff99272-b06c-4998-a322-bbf5147ebef4
+W18X65,W18X65,structural_section,human_review,2026-07-31T12:12:23.094614+00:00,3754110c-2e99-4e60-ac12-3b9ca3f11f2e
+W12X65,W12X65,structural_section,human_review,2026-07-31T12:29:59.773725+00:00,ff08c888-ea9f-491b-9481-fe036fb6a50e
+L3X3X3/8,L3X3X3/8,structural_section,human_review,2026-07-31T12:30:01.777802+00:00,c66d0539-82eb-4402-be08-e3cb8e00fde4
+HSS6X4X3/8,HSS6X4X3/8,structural_section,human_review,2026-07-31T12:30:02.888602+00:00,7fb301e7-592e-4873-8f3b-28e3806f9582
+L6X3,L6X3,structural_section,human_review,2026-07-31T12:30:03.904136+00:00,cbfe1eaf-fb71-470c-9c32-851066a91226
+WT3X8,WT3X8,structural_section,human_review,2026-07-31T12:30:04.993454+00:00,fb11ec5a-7583-4718-a310-9f1272b45250
+L8X8X1,L8X8X1,structural_section,human_review,2026-07-31T12:30:06.304277+00:00,08a17e06-200a-4c36-95dd-67e580274b54
+L4X3X5,L4X3X5/8,structural_section,human_review,2026-07-31T12:30:07.374100+00:00,2c77ec73-6147-4101-8542-2abef7294723
+W24X62,W24X62,structural_section,human_review,2026-07-31T12:30:09.208887+00:00,2bc68752-80f0-49b9-819e-b658c08ffa3e
+L4x4,L4X4,structural_section,human_review,2026-07-31T12:30:10.992323+00:00,5bce87a6-1f8f-428e-8c31-56c28b31f325
+W16X36,W16X36,structural_section,human_review,2026-07-31T12:30:14.343943+00:00,a24ad597-0f53-4a40-b58a-e0f4b3f5e523
+HSS6x2x5/16,HSS6X2X5/16,structural_section,human_review,2026-07-31T12:30:17.920865+00:00,831db791-ca98-4db4-8fca-b4088a709bc2
+HSS16X0.5,HSS16X0.5,structural_section,human_review,2026-07-31T12:30:20.684187+00:00,825d57a5-4b92-4c0b-b3e0-81b05a840142
+W12X26,W12X26,structural_section,human_review,2026-07-31T12:30:23.843516+00:00,1e449bc7-44d0-4ddb-82e9-d44cecf063d3
+L4X3X5/16,L4X3X5/16,structural_section,human_review,2026-07-31T12:30:26.779789+00:00,c16def53-9225-48a0-b41d-122c0bf3e907
+W21X62,W21X62,structural_section,human_review,2026-07-31T12:30:28.469878+00:00,130b4c20-d779-4d92-976a-066ad786c7bd
+W18X76,W18X76,structural_section,human_review,2026-07-31T12:30:30.335960+00:00,40fff393-3869-41c2-b4d7-d470a1aa1a3b
+W18X71,W18X71,structural_section,human_review,2026-07-31T12:30:32.053205+00:00,2a0d5385-fac9-48a9-a7b8-268566213790
+W8X18,W8X18,structural_section,human_review,2026-07-31T12:30:35.856545+00:00,d5030ed4-8435-4135-bea9-e17bd21ac08a
+W16X40,W16X40,structural_section,human_review,2026-07-31T12:30:38.725510+00:00,365a03aa-8d66-4053-a399-b0ad4cbda3f4
+W16X50,W16X50,structural_section,human_review,2026-07-31T12:30:42.290375+00:00,b458f13d-0c9b-43cd-b378-8fbb7776e219
+W14X30,W14X30,structural_section,human_review,2026-07-31T12:30:45.480751+00:00,e84d3106-7ddd-43b4-8488-ae4b7923fee8
+HSS14X10X3/8,HSS14X10X3/8,structural_section,human_review,2026-07-31T12:30:46.906939+00:00,5ae8fce3-df9b-4c7b-b552-97a3e96828e0
+W18X55,W18X55,structural_section,human_review,2026-07-31T12:30:49.211605+00:00,fe594ab2-4670-4331-8ad0-614fcb54a225
+W18X46,W18X46,structural_section,human_review,2026-07-31T12:30:50.092397+00:00,f34fb5f4-72c0-45ef-b995-99e60587eee2
+W18X97,W18X97,structural_section,human_review,2026-07-31T12:30:51.469203+00:00,ff6f286b-3af2-4941-a61d-4b59282b528c
+W18X60,W18X60,structural_section,human_review,2026-07-31T12:33:43.231035+00:00,9511f0c1-4abb-45c5-9893-5c92c4047210
+W18X86,W18X86,structural_section,human_review,2026-07-31T12:33:44.971864+00:00,a9f5db11-907b-4802-a3bb-3619e64bd7ac
+W12X14,W12X14,structural_section,human_review,2026-07-31T12:33:46.344635+00:00,a020a7f9-21dd-4f8a-baa7-467036e1a234
+L 5 X 5 X 3/8,L5X5X3/8,structural_section,human_review,2026-07-31T12:33:47.626248+00:00,430544fa-e048-4dfa-843d-bd3f159b53bb
+L 5 X 5 X 5/16,L5X5X5/16,structural_section,human_review,2026-07-31T12:33:48.840673+00:00,3bc00a09-c3d9-43f7-965c-f023abb03091
+L 5 X 5,L5X5,structural_section,human_review,2026-07-31T12:33:50.111086+00:00,ab7710ca-be2b-458b-852d-9204d00768d0
+L 5 X 3 X 1/4,L5X3X1/4,structural_section,human_review,2026-07-31T12:33:51.063886+00:00,92b43993-f9d2-4911-aee4-2b6122f0f680
+L 6 X 4 X 3/8,L6X4X3/8,structural_section,human_review,2026-07-31T12:33:52.328867+00:00,885c2db9-2ae9-4582-8135-700714a755fc
+L 6 X 4,L6X4X1/2,structural_section,human_review,2026-07-31T12:33:53.624160+00:00,25b34e21-cf97-4c19-af85-c32ddcdb15ff
+L 4 X 4 X 5/16,L4X4X5/16,structural_section,human_review,2026-07-31T12:33:54.865254+00:00,141d5666-79bb-4788-a3f5-a5578f5d913d
+L 4 X 4,L4X4,structural_section,human_review,2026-07-31T12:33:56.094313+00:00,ab02393c-5fe3-4cfe-bb3c-a4cb8f7a0973
+L 6 X 3,L6X3,structural_section,human_review,2026-07-31T12:33:57.430799+00:00,4c9a69af-49d8-45c9-b771-876b94f4999b
+L3X31,W33X318,structural_section,human_review,2026-07-31T12:33:58.655915+00:00,dfa66af5-3760-458d-9867-5c1b59bc3ef8
+W8x28,W8X28,structural_section,human_review,2026-07-31T12:33:59.935025+00:00,077b79fb-0a48-45cf-b996-582ae815f624
+W8x58,W8X58,structural_section,human_review,2026-07-31T12:34:01.228364+00:00,2e396fd6-4e4a-4926-ac85-542eb5618957
+W8x35,W8X35,structural_section,human_review,2026-07-31T12:34:02.351432+00:00,1e6c011c-3971-43a5-86f5-3f35f69ccf0e
+W8x31,W8X31,structural_section,human_review,2026-07-31T12:34:03.640614+00:00,0903b2f1-27aa-4136-b1f4-6e4ae4d7dc49
+L5x3x1,L5X3X1/2,structural_section,human_review,2026-07-31T12:34:04.958175+00:00,0f8bd264-e22d-43e9-aa31-8da96db6a486
+W16x45,W16X45,structural_section,human_review,2026-07-31T12:34:06.017210+00:00,8cda6b2c-0531-4848-b881-3e41c336d387
+W36x150,W36X150,structural_section,human_review,2026-07-31T12:34:07.352209+00:00,7a52891c-192c-42b1-abb3-8c36059ea99e
+W8x24,W8X24,structural_section,human_review,2026-08-03T10:34:54.911812+00:00,6c22f251-17f0-41e5-bd8a-696018cdbb60
+HSS6x8x1/2,HSS8X8X1/2,structural_section,human_review,2026-08-03T10:35:12.460675+00:00,7e55b113-806b-4229-b95c-9b87f6f7dfa5
+HSS8x8x1/2,HSS8X8X1/2,structural_section,human_review,2026-08-03T10:35:19.930613+00:00,a763d437-b0ea-41bb-84ee-8a573cec97b3
+W18x35,W18X35,structural_section,human_review,2026-08-03T10:35:38.054382+00:00,29fb6713-59b6-44fd-8000-381a28964426
+W8x10,W8X10,structural_section,human_review,2026-08-03T10:35:39.025645+00:00,2320494c-bc51-4d5d-95e0-93de26dc044c
+W21x50,W16X50,structural_section,human_review,2026-08-03T10:35:39.823828+00:00,b703f42b-4ac0-452d-841d-751f7d009286
+W24x55,W24X55,structural_section,human_review,2026-08-03T10:35:40.643465+00:00,28a3c0f4-13c4-44be-8da0-be45e95129d6
+W8x35,W8X31,structural_section,human_review,2026-08-03T10:35:41.409388+00:00,8d6d16aa-f939-43c5-8646-a3a17899ee66
+W8x28,W8X28,structural_section,human_review,2026-08-03T10:35:42.199128+00:00,bd1d4b17-9d3a-4c6b-b04c-ef32c62e3d7a
+W8x31,W8X18,structural_section,human_review,2026-08-03T10:35:43.150425+00:00,270a06c9-68af-4fdb-be86-c31e952e8a4c
+W8x48,W8X40,structural_section,human_review,2026-08-03T10:35:43.924318+00:00,bc0fb3c6-d7c6-47b3-914c-654dc2fb4e9d
+W8x40,W8X24,structural_section,human_review,2026-08-03T10:35:44.711620+00:00,321ef712-dbfa-4a02-919b-4d01445fb439
+HSS10x10,HSS10X10X1/2,structural_section,human_review,2026-08-03T10:35:45.464118+00:00,958bdb4f-d7f6-4497-a570-c19de30ca6b1
+W8x58,W8X58,structural_section,human_review,2026-08-03T10:36:11.161324+00:00,4d5624fa-85d6-4513-9428-2bbd1c63e844
+L3x3x1,L3X3X1/2,structural_section,human_review,2026-08-03T10:36:12.345812+00:00,2e4a6504-6baa-4ab7-bddc-4f8403d6888e
+L5x5x5/16,L5X5X5/16,structural_section,human_review,2026-08-03T10:36:13.145105+00:00,e4a491a1-1318-4e27-8e85-ee5de6b15aeb
+L4x4x1/4,L4X4X1/4,structural_section,human_review,2026-08-03T10:36:13.948054+00:00,3a470a1e-382a-4348-b4a1-3767a16e500c
+L3x3x1/4,L3X3X1/4,structural_section,human_review,2026-08-03T10:36:14.742781+00:00,be8bf46d-5b14-4552-b0b0-05301ee1768f
+L2x2x1/4,L2X2X1/4,structural_section,human_review,2026-08-03T10:36:15.520786+00:00,3065623d-b12b-4db7-8ece-68f84a6ae5da
+HSS 8X8X3/8,HSS8X6X3/8,structural_section,human_review,2026-08-03T10:36:16.310946+00:00,1da86169-a242-4621-8cdf-fa91db81ecc2
+W36x150,W36X150,structural_section,human_review,2026-08-03T10:36:17.089437+00:00,50767afc-16c5-4d94-8b6b-b10842502e88
+W24x84,W24X84,structural_section,human_review,2026-08-03T10:36:17.847083+00:00,de516c00-414d-4e39-94d7-dd37b0c0deed
+W33x130,W33X130,structural_section,human_review,2026-08-03T10:36:18.595762+00:00,e956e3cc-d524-4379-a3dc-a3534ff49966
+W24x68,W24X68,structural_section,human_review,2026-08-03T10:36:19.586665+00:00,5bf78676-2a3b-431f-8aa2-a208f7a1badd
+W16x45,W16X45,structural_section,human_review,2026-08-03T10:36:20.351654+00:00,9f7a8611-3e22-40dd-9cdd-343f71ab7791
+HSS10x10x1/2,HSS10X10X1/2,structural_section,human_review,2026-08-03T10:36:21.224846+00:00,818890de-338f-466e-a001-eda028d8688b
+HSS8x8x3,HSS8X8X3/8,structural_section,human_review,2026-08-03T10:36:21.995707+00:00,780a59bc-4187-4b98-9975-1c11ddacb0f9
+HSS8x8x3/8,HSS8X6X3/8,structural_section,human_review,2026-08-03T10:36:22.721163+00:00,ed1dc98f-1067-4abc-843b-8b32ae7c65f0
+W18x40,W18X40,structural_section,human_review,2026-08-03T10:36:23.529734+00:00,669249c6-47a6-4f06-ace2-10f45ca1e951
+W14x22,W14X22,structural_section,human_review,2026-08-03T10:36:24.296952+00:00,c9fdc6a1-2d53-4bdf-ba5a-5a6e93eb7a3b
+W27x84,W27X84,structural_section,human_review,2026-08-03T10:36:25.018452+00:00,1351fda2-6abc-471a-93d0-b94053c4be7d
+W16x26,W16X26,structural_section,human_review,2026-08-03T10:36:25.773328+00:00,a9aa4e88-6cbf-4ba0-ba94-d0c7392b7acb
+WT16.5x59,WT16.5X59,structural_section,human_review,2026-08-03T10:36:26.554315+00:00,ffec3339-a3d6-47f3-832b-28b32122a717
+HSS8x8,HSS8X8,structural_section,human_review,2026-08-03T10:36:27.275326+00:00,42c47a0f-ee42-4d14-9328-5b1875272e67
+W21x44,W21X44,structural_section,human_review,2026-08-03T10:36:28.035607+00:00,c5b7ebd9-8878-4799-9c5d-44ea1369f294
+W18x46,W18X46,structural_section,human_review,2026-08-03T10:36:28.795985+00:00,726fe61a-fce1-4380-9ba0-cf25a2f8431c
+W16x31,W16X31,structural_section,human_review,2026-08-03T10:36:29.506745+00:00,9526f5a4-0abc-4e20-80f0-5abbe8de2e0b
+W16x26,W16X26,,human_review,2026-08-03T10:47:12.690161+00:00,6684f73c-0ab8-40ce-94d9-461db62e3356
+W16x26,W16X26,,human_review,2026-08-03T10:47:30.570562+00:00,e3426105-0213-44c9-af73-0e0fd9d725aa
+HSS10X0.625,HSS10.000X0.625,structural_section,human_review,2026-08-03T14:24:24.239676+00:00,f5e49973-5bac-4441-8158-f871bb598b4d
+HSS18X0.375,HSS18.000X0.375,structural_section,human_review,2026-08-03T14:24:38.907992+00:00,dddf8e37-0153-4d80-bacf-08deed70c191
+HSS10X0.500,HSS10.000X0.500,structural_section,human_review,2026-08-03T14:24:41.188544+00:00,6d2a350b-653f-45e5-9562-3a73d58a81bc
+HSS10x10,HSS10X10X1/2,structural_section,human_review,2026-08-03T14:25:11.375657+00:00,ac82fae5-981e-4b5c-a7a8-f4d6785c5add
+HSS8x8,HSS8X8X3/8,structural_section,human_review,2026-08-03T14:25:11.545219+00:00,c02facfb-fcbd-4417-adc3-c06154c2bc57
+HSS10x10x1/2,HSS10X10X1/2,structural_section,human_review,2026-08-03T14:25:11.815184+00:00,65164e07-b6f1-4879-b262-146ffab98bcf
+HSS8x8x3/8,HSS8X8X3/8,structural_section,human_review,2026-08-03T14:25:11.964051+00:00,1f6a0f01-7952-426b-a1a5-e316cdb954dd
+L2x2x1/4,L2X2X1/4,structural_section,human_review,2026-08-03T14:25:12.103146+00:00,8395d8a7-5319-4c8d-88df-36bf52d1c65a
+L3x3x1/4,L3X3X1/4,structural_section,human_review,2026-08-03T14:25:12.236118+00:00,c2693165-5393-424e-9469-9eff545806db
+L4x4x1/4,L4X4X1/4,structural_section,human_review,2026-08-03T14:25:12.362217+00:00,91f15c75-a329-42ef-98f6-9b3ab3d85b30
+L5x5x5/16,L5X5X5/16,structural_section,human_review,2026-08-03T14:25:12.491866+00:00,11b457e4-d8bd-4bc2-be8e-4962c041a406
+L5x3x1/4,L3X3X1/2,structural_section,human_review,2026-08-03T14:25:12.611113+00:00,7f63def4-e8f4-40c1-8145-33fb253f6a00
+PL,L8X8X1,structural_section,human_review,2026-08-03T14:25:12.720073+00:00,48e07b94-5e70-415a-9599-99b18f7aacf7
+HSS6x8x1/2,HSS8X8X1/2,structural_section,human_review,2026-08-03T14:25:12.843156+00:00,9b51d9c4-5993-47f1-8fe1-7ce81abc0935
+"HSS3x3,",HSS3X3X3/8,structural_section,human_review,2026-08-03T14:25:12.973401+00:00,ec1baa26-f31a-431f-8568-5ec5417e5a69
+W8x58,W8X58,structural_section,human_review,2026-08-03T14:25:13.105123+00:00,7ba13bb5-c3e5-4925-b3e7-6aee185c990f
+W8x40,W8X24,structural_section,human_review,2026-08-03T14:25:13.242059+00:00,10932a5a-1359-49c8-92bc-ef2f60601622
+W8x31,W8X18,structural_section,human_review,2026-08-03T14:25:13.375218+00:00,9f2517fa-460a-467b-b779-e5e025fec123
+W8x35,W8X31,structural_section,human_review,2026-08-03T14:25:13.521700+00:00,3f9e6d53-5ecd-4c20-831b-8fb0947057b4
+W8x28,W8X28,structural_section,human_review,2026-08-03T14:25:13.661335+00:00,0e6c24e0-cfdf-4d74-aa35-e956b4922e08
+W8x24,W8X24,structural_section,human_review,2026-08-03T14:25:13.796538+00:00,91b292d8-5f7d-4d3b-b114-91a12a3d547d
+HSS8X8X1/2,HSS8X8X1/2,structural_section,human_review,2026-08-03T14:25:13.927771+00:00,b6266842-7d3e-407e-b337-220dd55f7015
+WT16.5x59,WT16.5X59,structural_section,human_review,2026-08-03T14:25:14.061888+00:00,c9278857-037c-4333-b322-34bea0bccdfb
+W16x26,W16X26,structural_section,human_review,2026-08-03T14:25:14.207344+00:00,c7ed4ba6-76c2-48b3-b47b-9ea4f1238ed9
+W16x31,W16X31,structural_section,human_review,2026-08-03T14:25:14.363917+00:00,b603f23e-a5e2-4553-a13d-d76272d6acfb
+W27x84,W27X84,structural_section,human_review,2026-08-03T14:25:14.507221+00:00,92aca52b-e92a-4a7c-b409-ec8bb56a4891
+W18x35,W18X35,structural_section,human_review,2026-08-03T14:25:14.656369+00:00,b2dca9eb-4e17-4b4e-95d5-563fb68950d1
+W36x150,W36X150,structural_section,human_review,2026-08-03T14:25:14.781718+00:00,3f3f2ae9-fa60-4ba4-84e1-2a0b48f40de5
+W16x45,W16X45,structural_section,human_review,2026-08-03T14:25:14.925099+00:00,cc5f6f30-86f4-42b2-ac1e-86749516f286
+L4X3-1/2X5/16,L4X3X5/8,structural_section,human_review,2026-08-03T14:25:15.058920+00:00,38a694f1-2f5f-4e00-be21-591c5e24e866
+L5X3-1/2X5/16,L5X3X1/2,structural_section,human_review,2026-08-03T14:25:15.206936+00:00,76cdec87-56af-4ace-ac63-58130fb1d0d8
+HSS8X6X3/8,HSS10X6X3/8,structural_section,human_review,2026-08-03T14:25:15.346795+00:00,deb014f5-7f27-44eb-b7ab-02a8daf10fdb
+L4x4,L4X4X3/8,structural_section,human_review,2026-08-03T14:25:15.495220+00:00,82dbb67d-e0f8-4e37-ab33-f888fc11b6cd
+L4X4X3/8,L4X4X3/8,structural_section,human_review,2026-08-03T14:25:15.654274+00:00,984824dc-eeb4-45b2-8a92-f14086f986c8
+L2x2x3/16,L2X2X3/8,structural_section,human_review,2026-08-03T14:25:15.777361+00:00,c889c918-f317-4b65-9173-2b5aa480fc4b
+L3x3x3/16,2L3X3X3/8,structural_section,human_review,2026-08-03T14:25:15.910540+00:00,6233b38a-fbec-4a2e-a564-3840ce05e176
+L1x1x1/4,L2X2X1/4,structural_section,human_review,2026-08-03T14:25:16.157620+00:00,13a9d5f1-dec8-414d-876f-f2bb3daa2a9f
+2 L1x1x1/4,HSS2X1X1/8,structural_section,human_review,2026-08-03T14:25:16.355506+00:00,5bebf1c5-db4a-4990-b1ba-1add76a7f888
+"L3x3x1/4x0'-3"",",L3X3X1/2,structural_section,human_review,2026-08-03T14:25:16.507674+00:00,be76f1b2-6aee-4e4e-ba15-c6db879a9666
+"L4x3x1/4x6""",L4X3X5/16,structural_section,human_review,2026-08-03T14:25:16.660446+00:00,e5672714-0b8e-45a1-b566-f4d830ee989b
+"L4x3x1/4x1'-0""",L4X3X5/16,structural_section,human_review,2026-08-03T14:25:16.799264+00:00,33d9bc99-ee49-49b5-95c1-feaed06bbe41
+C8X13.7,C8X13.75,structural_section,human_review,2026-08-03T14:25:16.957632+00:00,7de78468-7121-4527-98e6-8fd0d1507083
+"L4X4X5/16X0'-5""",L4X4X5/16,structural_section,human_review,2026-08-03T14:25:17.094070+00:00,a1564bd7-f966-42c5-ad49-5f3687adce73
+HSS16X0.5,HSS10X10X1/2,structural_section,human_review,2026-08-03T14:25:17.243272+00:00,336a0e9d-aada-4308-80d5-9b06a37fdfd2
+L6X3,L6X4X3/8,structural_section,human_review,2026-08-03T14:25:17.377458+00:00,e71101bf-5d35-4749-93a5-33f0417dbeb9
+HSS6X4X3/8,HSS6X4X3/8,structural_section,human_review,2026-08-03T14:25:17.515735+00:00,46aa9c9a-75f1-4532-93a3-1f069737d074
+"L7X4X3/8X0'-11""",L7X4X3/8,structural_section,human_review,2026-08-03T14:25:17.656859+00:00,7fdc500a-1cff-4265-a84b-efe29634a816
+"L5X3X3/8X0'-5""",L5X3X3/8,structural_section,human_review,2026-08-03T14:25:17.806270+00:00,f5e29522-10c3-4730-b1a6-6a57b4dbe41a
+"L4X4X3/8X0'-4""",L4X4X3/8,structural_section,human_review,2026-08-03T14:25:17.944562+00:00,09246475-59c6-41c2-a5c1-75c6d1af4aa5
+A325,W14X132,structural_section,human_review,2026-08-03T14:25:18.081694+00:00,4bfd9db4-8006-45cd-9db5-34e226a15fb0
+"L4X3X3/8X0'-8""",L4X3X3/8,structural_section,human_review,2026-08-03T14:25:18.230023+00:00,d7851f69-dccd-42ab-ae08-571d7abff4f3
+L4X3X1/4,L4X3X5/16,structural_section,human_review,2026-08-03T14:25:18.375884+00:00,2996712d-aa0f-4b57-afa6-555802290cd1
+L3x3x1/4,L3X3X1/4,,human_review,2026-08-03T14:30:58.861761+00:00,8edb3adf-2f5e-4432-84d6-ad5e31062462
+L3x3x1/4,L3X3X1/4,,human_review,2026-08-03T14:31:11.947132+00:00,2d429ae3-123a-4f7e-b6d8-5a67a652ec40
+HSS12.750X0.375,HSS12.750X0.375,structural_section,human_review,2026-08-05T11:41:54.834463+00:00,03573454-b1c5-4fc3-9c54-0096177f934d
+HSS8X8X3/8,HSS8X6X3/8,structural_section,human_review,2026-08-05T11:41:55.101456+00:00,f1c88383-26dc-47dc-aa88-721258ffdf1c
+HSS18X0.375,HSS18.000X0.375,structural_section,human_review,2026-08-05T11:41:55.218225+00:00,af089236-f1f7-4f65-8e5e-368b6fbcbad2
+HSS6X6X5/8,HSS6X6X3/8,structural_section,human_review,2026-08-05T11:41:55.318100+00:00,f7bc71b6-640e-4a4e-83ad-4ab28377c495
+HSS4X4X3/8,HSS4X4X3/8,structural_section,human_review,2026-08-05T11:41:55.419871+00:00,cfa9980d-55af-4c5d-8845-851ddaf63210
+HSS12.750X0.375,HSS12.750X0.375,structural_section,human_review,2026-08-05T13:41:55.118903+00:00,f6f5a3b0-e1c2-4be6-8380-e7022de69f1e
+HSS18X0.375,HSS18.000X0.375,structural_section,human_review,2026-08-05T13:41:55.372275+00:00,b51c9aa4-8aa0-4234-a687-91fab6bb91fd
+HSS6X6X5/8,HSS6X6X3/8,structural_section,human_review,2026-08-05T13:41:55.602367+00:00,dff2b24b-7fc0-4cb7-9103-101b96a6e8df
+L6x6x3/8,2L6X6X3/8X3/4,structural_section,human_review,2026-08-05T13:41:55.739177+00:00,12b59107-e55f-4b9f-9ee2-b1ef1d6cc107
+HSS5x5,HSS6X4X3/8,structural_section,human_review,2026-08-05T13:41:55.853893+00:00,4d60aa73-7a9a-4c6a-9db7-e852f7c7ea89
+L5x5x3/8,L5X3X3/8,structural_section,human_review,2026-08-05T13:41:55.968837+00:00,768b2fab-d24d-4732-b6ca-233e98d13c22
+L18x12x3/8,L2X2X3/8,structural_section,human_review,2026-08-05T13:41:56.090812+00:00,3f8d4ddc-5933-4e99-ac58-cc94f56a7593
+W14X233,W14X233,structural_section,human_review,2026-08-05T13:41:56.198702+00:00,8d0a35f3-d2a8-4efa-8a00-9849bf951c82
+HSS 6x6x3/8,HSS10X6X3/8,structural_section,human_review,2026-08-05T13:41:56.308632+00:00,341277a1-3fc6-4375-99af-4abc661cfeb0
+C4X5.4,C8X13.75,structural_section,human_review,2026-08-05T13:41:56.415754+00:00,deafa577-0990-470a-bd4c-c65e0909f33a
+L3 x 3 x,2L3X3X3/16,structural_section,human_review,2026-08-05T13:41:56.514467+00:00,138de885-df63-422e-a108-c989afe57a6d
+L7 x 4 x x,L7X4X3/8,structural_section,human_review,2026-08-05T13:41:56.619144+00:00,d1154c20-13a9-411e-a884-b414e5675144
+L 3 x 3 x,L4X3X3/8,structural_section,human_review,2026-08-05T13:41:56.719997+00:00,cb9af23e-4900-4bff-aff6-7df01b387190
+L4x3x1/4 x,L4X3X1/4,structural_section,human_review,2026-08-05T13:41:56.816333+00:00,2089407f-d63b-42e2-a21a-05020cde8fe7
+L 4 x 3 x 1/4,L4X3X1/4,structural_section,human_review,2026-08-05T13:41:56.913295+00:00,5523bf89-48bc-43c8-9e07-2c98cf2e6267
+L7 x 4 x 3/8 x,L4X4X3/8,structural_section,human_review,2026-08-05T13:41:57.012314+00:00,f52c1693-c9ca-448a-b6e6-20a4f48ce85c
+L7 x 4 x,L7X4X1/2,structural_section,human_review,2026-08-05T13:41:57.113323+00:00,515ba511-9ddb-4f22-aa26-3119c7a90652
+L 5 x 3,L5X3X1/4,structural_section,human_review,2026-08-05T13:41:57.213123+00:00,316216e3-0cfe-43fc-bdca-5441da4118e4
+L 5 x 3 x 5/16,HSS5X3X5/16,structural_section,human_review,2026-08-05T13:41:57.310801+00:00,ec57f057-5777-4c43-bfa9-fef9a292da55
+L 5 x 3 x,L5X3X1/2,structural_section,human_review,2026-08-05T13:41:57.410547+00:00,e2851e6f-7458-4ce4-ae8b-734198cd6ef2
+L 3 x 3 x 1/4,L3X3X1/2,structural_section,human_review,2026-08-05T13:41:57.511710+00:00,90c14897-73e8-40e4-8728-650ab91b1c68
+L 3 x 3,2L3X3X5/16,structural_section,human_review,2026-08-05T13:41:57.612145+00:00,dc60c474-75e8-494d-9426-36009ba1b7a6
+L 4 x 4 x,L4X4X3/8,structural_section,human_review,2026-08-05T13:41:57.717218+00:00,6756dedb-8db8-4447-a3af-134fddb9b62b
+3 x 3,HSS3X3X3/8,structural_section,human_review,2026-08-05T13:41:57.817678+00:00,abada826-5a33-4c3a-a797-7f92dba3a3a4
+L5x5,L5X5X5/8,structural_section,human_review,2026-08-05T13:41:57.919557+00:00,19061a90-e7bd-4798-b4ad-865ba9d15acf
+L5x5x5/16,L4X3X5/16,structural_section,human_review,2026-08-05T13:42:07.842715+00:00,3a8a3301-c64c-477c-a6f8-cca3c4e291bf
+L4 x 4 x x,L4X4X1/4,structural_section,human_review,2026-08-05T13:42:08.147868+00:00,f60c621f-92dd-4177-bbae-f8f5ccc3ae53
+L4 x 4,L4X4X3/8,structural_section,human_review,2026-08-05T13:42:08.430146+00:00,95b5568a-1e4d-4e87-a757-2db124f7abc4
+HSS 3 x 3 x 1/4,HSS3X3X1/4,structural_section,human_review,2026-08-05T13:42:08.566462+00:00,0fab6855-b24a-42ed-a1a2-072a834d0a6e
+L2 x 2 x,2L2X2X3/16,structural_section,human_review,2026-08-05T13:42:08.674264+00:00,12e164df-14fd-4d8e-a2d1-4be6d1aeb45b
+L4 x 4 x,L4X4X3/8,structural_section,human_review,2026-08-05T13:42:08.779580+00:00,675d54ff-589c-4801-bf6c-dd1c2a59603a
+W8 x 15,W8X15,structural_section,human_review,2026-08-05T13:42:08.886734+00:00,0a2a5124-c1da-4aaa-87b8-fa6fa9caab8c
+WT4x15.5,WT4X15.5,structural_section,human_review,2026-08-05T13:42:08.991846+00:00,1570a852-b5ea-4234-8830-86d66fb29dbe
+L3x3x5/16,L4X3X5/16,structural_section,human_review,2026-08-05T13:42:09.130650+00:00,f4e2a2e6-a8a6-4015-befc-a393c0b3e9ba
+L3 x 3 x x,2L3X3X1/4,structural_section,human_review,2026-08-05T13:42:09.240598+00:00,25bcd248-2797-47bc-967e-9347ed0c098f
+L3 x 3 x 1/4 x,L3X3X1/2,structural_section,human_review,2026-08-05T13:42:09.345335+00:00,e71e91f7-af08-4e6e-94db-2ac7c0895045
+L3 x 3,2L3X3X5/16,structural_section,human_review,2026-08-05T13:42:09.450959+00:00,d19b0af8-ec78-446d-9044-190145ed3746
+HSS8X3X1/4,HSS8X3X1/4,structural_section,human_review,2026-08-05T13:42:09.559937+00:00,f6b2675f-4444-427c-818e-fd9a0e4597b3
+HSS8X8X3/8,HSS8X6X3/8,structural_section,human_review,2026-08-05T13:42:09.672668+00:00,742afac5-aa42-45a9-9c2b-020ce986cdad
+W10X26,W12X26,structural_section,human_review,2026-08-05T13:42:09.780377+00:00,20b1643c-f36a-4cb7-a6f4-f91b84695272
+HSS8X6X1/2,HSS8X6X1/2,structural_section,human_review,2026-08-05T13:42:09.884681+00:00,6e7a6c40-794e-4cce-8fa6-08b61b0eca66
+HSS18X6X5/16,HSS18X6X5/16,structural_section,human_review,2026-08-05T13:42:09.986631+00:00,84d660ea-b3eb-46af-9632-0897d10d1f2e
+W8X15,W8X15,structural_section,human_review,2026-08-05T13:42:10.090795+00:00,5c7a286d-7848-4e22-9ec1-64bf6dee21ba
+HSS6X6X1/4,HSS6X6X1/4,structural_section,human_review,2026-08-05T13:42:10.201973+00:00,9fa749e3-48c3-4aa8-98e6-cd9aff0c62da
+HSS8X8X5/8,HSS8X8X3/8,structural_section,human_review,2026-08-05T13:42:10.312240+00:00,e00f14a9-286f-4b7b-a343-1d0cf9fb8ec6
+HSS6X6X3/8 HSS6X6X3/8,HSS10X6X3/8,structural_section,human_review,2026-08-05T13:42:10.409389+00:00,caf3bcde-ac75-490a-90c2-d32207c67ee8
+HSS,HSS6X4X3/8,structural_section,human_review,2026-08-05T13:42:10.499769+00:00,543ab208-6f9e-4ce2-8274-5d5d99e39ffa
+"HSS5x5x3/8,",HSS5X5X3/8,structural_section,human_review,2026-08-05T13:42:10.591672+00:00,92d55fec-8ece-4364-b7e5-650ea6f13cee
+HSS5x5x3/8,HSS5X5X3/8,structural_section,human_review,2026-08-05T13:42:10.696872+00:00,e218ae53-b6e9-4e32-8317-d2f24dc3c7b2
+W8X13,W8X13,structural_section,human_review,2026-08-05T13:42:10.799492+00:00,4edf0d75-5036-4b72-a743-624a9e8912a0
+A A325,W14X132,structural_section,human_review,2026-08-05T13:42:18.416853+00:00,48882777-9c9d-4cd1-b0a9-e3ed0b9a85d5
+L4X3-1/2X5/16,L4X3X5/8,structural_section,human_review,2026-08-05T13:42:18.678264+00:00,6e621f6a-b007-4ac5-8a43-0e1db8f68bcc
+L5X3-1/2X5/16,L5X3X1/4,structural_section,human_review,2026-08-05T13:42:18.879365+00:00,b8ec9892-d349-41f3-85ed-8ce195e6142f
+L6X4X3/8,L4X4X3/8,structural_section,human_review,2026-08-05T13:42:19.059594+00:00,5d0176db-0884-499c-aa46-d05d7cfe105a
+L3x3x1/4,2L3X3X1/4,structural_section,human_review,2026-08-05T13:42:19.220203+00:00,84cdd8ed-41df-41bf-a29b-00a7afad1f88
+W12X16,W12X16,structural_section,human_review,2026-08-05T13:42:19.384302+00:00,09c00232-08dd-4c5e-9e18-212db1995c73
+W18X40,W16X40,structural_section,human_review,2026-08-05T13:42:19.550892+00:00,259038db-ef67-40ce-9d0a-613a71148659
+W21X50,W16X50,structural_section,human_review,2026-08-05T13:42:19.719067+00:00,c883022c-098c-4502-bce5-d39c34161b8c
+W18X50,W12X50,structural_section,human_review,2026-08-05T13:42:19.882682+00:00,d99d7fb7-1cb1-4afe-bccf-9f83523ea1e6
+W10X15,W10X15,structural_section,human_review,2026-08-05T13:42:20.049591+00:00,93d2823d-3c93-4dad-89b3-6d8ab23c65c7
+W21X55,W21X55,structural_section,human_review,2026-08-05T13:42:20.218755+00:00,f0288d3f-3f0a-4dc8-bbc0-92c5c2fc7bc6
+W21X44,W21X44,structural_section,human_review,2026-08-05T13:42:20.393492+00:00,12dddeb2-6d6e-4b01-b871-e6a1be5e6ba4
+W10X19,W10X15,structural_section,human_review,2026-08-05T13:42:20.570906+00:00,bb3213dc-a8a1-4c31-bb45-f1a82d7fd29b
+W14X22,W14X22,structural_section,human_review,2026-08-05T13:42:20.759692+00:00,3dc331cd-e75e-474d-b133-068a533fbc4b
+W16X26,W14X132,structural_section,human_review,2026-08-05T13:42:20.945781+00:00,56d82ce1-1ce2-4b02-87e6-556fc69bfb94
+HSS10X8X3/8,HSS10X8X3/8,structural_section,human_review,2026-08-05T13:42:21.219026+00:00,13ff47fb-97e5-4397-a3e3-cf80b5b8f095
+HSS10X6X3/8,HSS10X6X3/8,structural_section,human_review,2026-08-05T13:42:21.469913+00:00,4250ca93-4c4e-4aea-94f8-b05a9822f148
+W16X36,W16X36,structural_section,human_review,2026-08-05T13:42:21.662677+00:00,a4218290-da24-45aa-975b-6b34d8d98eec
+W12X26,W10X26,structural_section,human_review,2026-08-05T13:42:21.867435+00:00,522f1ed8-fb82-465d-9ee8-89937ecc8d15
+HSS12X6X3/8,HSS12X6X3/8,structural_section,human_review,2026-08-05T13:42:22.082210+00:00,df45c5a6-17b9-4995-bb53-5f4ff26b2512
+W10X22,W10X22,structural_section,human_review,2026-08-05T13:42:22.301054+00:00,c053f52f-d73c-4bec-9448-220b7683034f
+W12X16.,W12X16,structural_section,human_review,2026-08-05T13:42:22.508211+00:00,e991d3c7-a0df-488c-8a91-bd9280adf91c
+W12X22,W12X22,structural_section,human_review,2026-08-05T13:42:22.710901+00:00,a504ae08-18e3-4d9c-bcaf-422290b03bf1
+W10X30,W10X30,structural_section,human_review,2026-08-05T13:42:22.930282+00:00,83494e18-f354-4217-a19c-15ac6cdfe898
+HSS14X6X1/2,HSS14X6X1/2,structural_section,human_review,2026-08-05T13:42:23.161979+00:00,f372ad6b-4987-437b-9d35-9f6b77e78ac0
+W12X40,W12X40,structural_section,human_review,2026-08-05T13:42:23.368714+00:00,668449c0-1400-4b0d-a6ed-24e685ee2e21
+W14X26,W14X26,structural_section,human_review,2026-08-05T13:42:23.578105+00:00,57206d30-ad62-4dd6-b9fd-f86966974f27
+W24X84,W24X84,structural_section,human_review,2026-08-05T13:42:23.800808+00:00,0b18fd0a-97e3-46e1-b9d3-5d7f667acee6
+W8x31,W8X18,structural_section,human_review,2026-08-05T13:42:24.015954+00:00,58bb7d4e-9b53-40ed-a402-5cc79ac4b666
+HSS14X6X5/8,HSS14X6X5/8,structural_section,human_review,2026-08-05T13:42:24.198859+00:00,0e438bcb-9372-4aa1-9eb5-e303091282ba
+L4X4X3/8,L4X4X3/8,structural_section,human_review,2026-08-05T13:42:24.351065+00:00,7cefade5-cdee-48f7-9e7e-62a75850b09e
+L2x2x3/16,L2X2X3/8,structural_section,human_review,2026-08-05T13:42:24.560492+00:00,194a88e0-f616-474b-a9ca-14211a91c663
+L3x3x3/16,2L3X3X3/16,structural_section,human_review,2026-08-05T13:42:24.766159+00:00,a25e450e-e8f9-4159-8a60-b27b3dacaab4
+C6 X 8.2,C6X8.2,structural_section,human_review,2026-08-05T13:42:24.969065+00:00,e820a5ad-520f-4581-92f9-2ce35f64a1e8
+C6 X 10.5,WT4X10.5,structural_section,human_review,2026-08-05T13:42:25.166988+00:00,03ec58b9-7706-4ff4-a51b-e50b95e01a28
+L2X2X1/4,2L2X2X1/4,structural_section,human_review,2026-08-05T13:42:25.455278+00:00,d735353e-bc11-4c12-94cb-e12cb0046eb1
+L4X3X3/8,L4X3X3/8,structural_section,human_review,2026-08-05T13:42:25.654456+00:00,d38b4075-ac5e-459c-94d4-0f23765d301c
+L3x3x3/8,HSS3X3X3/8,structural_section,human_review,2026-08-05T13:42:25.861786+00:00,b2a069a0-e7a7-4922-896f-4e8b2d10a76e
+L5x3-1/2x3/8,L5X3X1/2,structural_section,human_review,2026-08-05T13:42:26.053536+00:00,ba9f6818-6b93-43ae-bca4-7aedb181d848
+"L3X3X3/8X0'-6""",2L3X3X1/4,structural_section,human_review,2026-08-05T13:42:26.245609+00:00,1ce9f54f-9762-4c7d-a137-800286f2aff2
+W10X33,W10X33,structural_section,human_review,2026-08-05T13:42:26.450305+00:00,90b86211-ef01-4ed9-b201-7b78f9890e6d
+W10X112,W10X112,structural_section,human_review,2026-08-05T13:42:26.649872+00:00,7823fbf4-c082-4fa2-a4a9-fe88e58b118e
+W12X106,W12X106,structural_section,human_review,2026-08-05T13:42:26.844363+00:00,e1b9a67b-5384-4f7a-9d69-ff0b3b73c4de
+W12X230,W12X230,structural_section,human_review,2026-08-05T13:42:27.044873+00:00,d9cfa16a-9d63-41b0-af52-6ea15b569baf
+W12X252,W12X22,structural_section,human_review,2026-08-05T13:42:27.244988+00:00,5992e8c3-25a1-4323-b39c-ca07ddf10a4e
+W12X336,W12X336,structural_section,human_review,2026-08-05T13:42:27.436641+00:00,1d745723-0715-419f-b5a1-16efe61d9d04
+W14X43,W14X30,structural_section,human_review,2026-08-05T13:42:27.628795+00:00,29d28def-55ec-4327-90e6-24343031e1cf
+W14X61,W14X26,structural_section,human_review,2026-08-05T13:42:27.833706+00:00,2836c8bf-e6bb-48ff-ad5a-60dcc784d1ad
+W14X68,W14X68,structural_section,human_review,2026-08-05T13:42:28.178201+00:00,b22b057e-ac83-4c42-8bbe-03ac1932508b
+W14X82,W14X22,structural_section,human_review,2026-08-05T13:42:28.412124+00:00,8add5bed-7f16-46e4-a10f-4c7e1804da51
+W14X132,W14X132,structural_section,human_review,2026-08-05T13:42:28.617470+00:00,f0d06d98-1bf7-449f-a7c5-95d974ade9b3
+W14X198,W8X18,structural_section,human_review,2026-08-05T13:42:28.912855+00:00,9c77359a-f2a4-4f2e-9e0d-d4524ba92498
+L4X4X1/4,L4X4X1/4,structural_section,human_review,2026-08-05T13:42:29.103063+00:00,8950d390-cf99-43e6-b85d-f887f9009a2e
+"L3x3x1/4x0'-3"",",2L3X3X1/4,structural_section,human_review,2026-08-05T13:42:29.307779+00:00,0cba5406-402e-4548-ade0-6c9df49414fc
+L1x1x1/4,L2X2X1/4,structural_section,human_review,2026-08-05T13:42:29.508133+00:00,0b519077-d8bf-450c-aa07-ba88349e8c07
+2 L1x1x1/4,2L3X3X3/8,structural_section,human_review,2026-08-05T13:42:29.710712+00:00,4a2c14f6-d5b3-4a68-b03a-053255d55583
+"L3X3X5/16,",HSS3X3X5/16,structural_section,human_review,2026-08-05T13:42:30.152622+00:00,e9013558-06d3-449f-87c0-2f3fae8be94c
+"L4X4X3/8X0'-8""",L4X4X3/8,structural_section,human_review,2026-08-05T13:42:30.304728+00:00,41fcca70-0bed-41c7-acad-0a07f1decd5c
+2L3x3x1/4,2L3X3X1/2X3/4,structural_section,human_review,2026-08-05T13:42:30.502564+00:00,6fca34c3-aa98-494c-a81c-e956ed0f1f94
+"L4x3x1/4x6""",L4X3X5/16,structural_section,human_review,2026-08-05T13:42:30.704372+00:00,58e48d96-9f5e-4f51-bec7-09e36e1d8e80
+"L4x3x1/4x2'-0""",L4X3X5/16,structural_section,human_review,2026-08-05T13:42:30.911772+00:00,ccf91bff-212f-45e5-97cf-8822a28f28f3
+"L4x3x1/4x1'-0""",L4X3X5/16,structural_section,human_review,2026-08-05T13:42:31.130519+00:00,d187588a-79cf-43f3-85f6-d45f8f56ff07
+"L4x4x3/8x0'-6""",L4X4X3/8,structural_section,human_review,2026-08-05T13:42:31.344188+00:00,8fbc1e9a-a333-4695-8874-8fbf0c0ca947
+L6x3-1/2x3/8,L3X3X1/4,structural_section,human_review,2026-08-05T13:42:31.565656+00:00,6380cf94-c080-44ff-9ffc-a80991cc3966
+"L4X3X3/8X0'-6""",L4X3X3/8,structural_section,human_review,2026-08-05T13:42:31.750666+00:00,66200105-d7ab-4629-9bad-f2e5c1d7ca5f
+A325,W14X132,structural_section,human_review,2026-08-05T13:42:31.927333+00:00,6536096b-ea47-4b98-a216-c91225506027
+HSS5x3x3/16,HSS5X3X3/16,structural_section,human_review,2026-08-05T13:42:32.116251+00:00,baa28702-a87e-4ff4-9e6c-7ebe9b97bb82
+L7X4X3/8,L4X4X3/8,structural_section,human_review,2026-08-05T13:42:32.295652+00:00,1ec09329-583a-46ba-9cf4-2a28b19e9b27
+"L3X3X3/8X0'-10""",2L3X3X1/4,structural_section,human_review,2026-08-05T13:42:32.481357+00:00,63ff8074-2e9e-4c1a-b887-8f3c3a8507a1
+HSS6X6X3/8,HSS10X6X3/8,structural_section,human_review,2026-08-05T13:42:32.666274+00:00,45def984-6cf2-4d35-8e40-24e7231f5654
+HSS8X6X3/8,HSS10X6X3/8,structural_section,human_review,2026-08-05T13:42:32.848036+00:00,6ef7ee28-8b1c-400d-9b10-2be9aae5b981
+HSS6X6X1/2,HSS14X6X1/2,structural_section,human_review,2026-08-05T13:42:33.054366+00:00,2292d9ac-7d70-4fc0-86e6-a376cc7f91ef
+W10X54,W12X14,structural_section,human_review,2026-08-05T13:42:33.310394+00:00,c3ce665b-99e5-44b4-90dc-ac68c0424b1f
+HSS10X0.500,HSS10.000X0.500,structural_section,human_review,2026-08-05T13:42:33.502938+00:00,1f813fe1-fa92-4303-9946-3687b91bbbef
+W10X49,W10X49,structural_section,human_review,2026-08-05T13:42:33.695286+00:00,ea8dc994-2a20-4eb1-9cbb-9e7ef2cecf1a
+HSS10X0.625,HSS10.000X0.625,structural_section,human_review,2026-08-05T13:42:33.893148+00:00,c004a31d-c3b2-4cee-960e-f665c228d7c2
+W8X40,W8X24,structural_section,human_review,2026-08-05T13:42:34.092082+00:00,796f239b-70df-4322-ba38-d73b92b625f6
+HSS6X4X3/8,HSS6X4X3/8,structural_section,human_review,2026-08-05T13:42:34.294519+00:00,cc17d384-b393-4731-bd33-51ec25d6a07b
+W18X86,W8X28,structural_section,human_review,2026-08-05T13:42:34.496213+00:00,0925789b-0f88-45fe-bf80-92d1369837f1
+W18X71,W18X71,structural_section,human_review,2026-08-05T13:42:34.698848+00:00,73860b09-92cd-48f8-83cb-3b9d15cc6f5f
+W18X46,W18X46,structural_section,human_review,2026-08-05T13:42:34.897290+00:00,4280a5b5-9091-4b0a-ab59-fe84d8f417e9
+W18X65,W18X65,structural_section,human_review,2026-08-05T13:42:35.113383+00:00,8617d197-4543-42dc-892e-44379c8c52e8
+W18X55,W18X65,structural_section,human_review,2026-08-05T13:42:35.314229+00:00,746b2c6f-e090-4ee7-bd49-45394b15698f
+W16X50,W16X50,structural_section,human_review,2026-08-05T13:42:35.529350+00:00,439c04c3-8689-4940-a991-bcb9d667b8bc
+W16X40,W16X40,structural_section,human_review,2026-08-05T13:42:35.762352+00:00,90367436-d5f6-430e-9f76-6e3223579c54
+W18X76,W18X46,structural_section,human_review,2026-08-05T13:42:35.960646+00:00,e6b3d83c-9bb1-4504-9339-d5601222fbec
+W8X24,W8X24,structural_section,human_review,2026-08-05T13:42:36.161858+00:00,2b3172bf-e1fb-4aec-afc5-5bae083ae2bb
+W24X62,W24X62,structural_section,human_review,2026-08-05T13:42:36.363745+00:00,9615fcf6-4859-4e4b-8283-47a493e1ad12
+W21X68,W21X68,structural_section,human_review,2026-08-05T13:42:36.582290+00:00,685dd986-aba0-47a4-99e1-f9a79bc46f29
+HSS16X8X3/8,HSS16X8X3/8,structural_section,human_review,2026-08-05T13:42:36.780896+00:00,d059893d-faca-4582-bfdd-65996b3c0c5b
+C8X11.5,C8X11.5,structural_section,human_review,2026-08-05T13:42:36.995595+00:00,3fa14ff0-40a8-4bf5-bee1-00b412623be9
+L5X5X1/2,L5X5X1/2,structural_section,human_review,2026-08-05T13:42:37.203201+00:00,9b7496a1-90fb-4337-9574-92077b543068
+L4x4,L4X4X3/8,structural_section,human_review,2026-08-05T13:42:37.409893+00:00,3bc329f9-a011-4bfd-aa06-0eef70c9153e
+W21X73,W14X30,structural_section,human_review,2026-08-05T13:42:37.610078+00:00,4cf41454-b362-41fa-9587-4c75e80412fe
+HSS20X12X1/2,HSS20X12X1/2,structural_section,human_review,2026-08-05T13:42:37.800090+00:00,3a9015bb-a52d-43d8-81e2-1f8f43884e80
+L4X3X1/4,L4X3X1/4,structural_section,human_review,2026-08-05T13:42:37.997280+00:00,5b90828c-0b0e-4776-b03e-57584f27492a
+L4X3,L4X3X5/16,structural_section,human_review,2026-08-05T13:42:38.193839+00:00,f4c01029-c1e6-4782-9062-09ccf5f680dc
+HSS4X3X5/16,HSS4X3X5/16,structural_section,human_review,2026-08-05T13:42:38.386304+00:00,d9805159-852e-49b7-9c6c-2dda4d099cdc
+HSS4X4X5/16,HSS4X4X5/16,structural_section,human_review,2026-08-05T13:42:38.601386+00:00,95396995-8cd2-4197-8c30-802a940c4b38
+C8X13.7,C8X13.75,structural_section,human_review,2026-08-05T13:42:38.808801+00:00,251a39e7-43ca-4913-a510-abc1922c71bb
+"L4X4X5/16X0'-5""",L4X4X5/16,structural_section,human_review,2026-08-05T13:42:39.004238+00:00,166ac932-05e5-43d9-b9a1-2dd55bb06444
+HSS16X0.5,HSS10X10X1/2,structural_section,human_review,2026-08-05T13:42:39.213489+00:00,e340b9be-230f-4d1c-8af2-9dd42a73e7e4
+HSS6x2x5/16,HSS6X2X5/16,structural_section,human_review,2026-08-05T13:42:39.414332+00:00,aa6d0cf7-ef02-4952-8394-397afcf950c7
+L8X6X1/2X1',L8X8X1,structural_section,human_review,2026-08-05T13:42:39.617961+00:00,695378e7-bc9e-47a7-8bc4-ef2c24d5b57a
+L8X8X1/2X1',2L8X8X1,structural_section,human_review,2026-08-05T13:42:39.824361+00:00,618199c7-7d49-4d29-91da-66a7e35e79e5
+WT6X15,WT6X11,structural_section,human_review,2026-08-05T13:42:40.020141+00:00,11ff0eba-b4b6-4ab3-8106-4cb941c40443
+L6X3,L6X4X3/8,structural_section,human_review,2026-08-05T13:42:40.231042+00:00,efdad92a-3fbd-44dc-82e4-b29772af455c
+"L7X4X3/8X0'-11""",L7X4X3/8,structural_section,human_review,2026-08-05T13:42:40.443344+00:00,95f98596-ab00-4027-92b1-223e4f3316a0
+"L5X3X3/8X0'-5""",2L5X3X3/8SLBB,structural_section,human_review,2026-08-05T13:42:40.653691+00:00,c2d045f3-b88b-4566-9532-6f0c8cbe29dc
+"L4X4X3/8X0'-4""",L4X4X3/8,structural_section,human_review,2026-08-05T13:42:40.861662+00:00,75284e01-141b-4f67-ba12-97a3ca1a485d
+"L3X3X3/8,",HSS3X3X3/8,structural_section,human_review,2026-08-05T13:42:41.026398+00:00,aa087af0-5125-4e26-84e7-165e14df41bc
+"L4X3X3/8X0'-8""",L4X3X3/8,structural_section,human_review,2026-08-05T13:42:41.203723+00:00,d6ec68fb-b5db-4945-a9c7-29eaf088c99f
+C15X33.9,WT8X33.5,structural_section,human_review,2026-08-05T13:42:41.403836+00:00,7dd91f8e-1067-4ae8-ac7f-394e11b97a98
+HSS 8x4x1/4,HSS4X4X1/4,structural_section,human_review,2026-08-05T13:42:41.602285+00:00,846928fe-8f0d-4bc6-9630-60efd08f35f1
+HSS8X4X3/8,HSS6X4X3/8,structural_section,human_review,2026-08-05T13:42:41.800152+00:00,227851eb-06f1-48e7-86dd-edd795a5bc36
+HSS4X4X3/8,HSS4X4X3/8,structural_section,human_review,2026-08-05T13:42:41.980757+00:00,17ac8c00-2ebf-4512-bd06-121fe7dbe532

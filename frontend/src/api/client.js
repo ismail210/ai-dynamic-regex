@@ -86,31 +86,39 @@ export async function getDocument(documentId) {
   return data;
 }
 
-export async function extractDocument(documentId, force = false) {
-  const { data } = await client.post(
-    `/api/documents/${encodeURIComponent(documentId)}/extract`,
-    null,
-    { params: force ? { force: true } : undefined },
-  );
-  return data;
+/** Time a stage request so a slow drawing is visible instead of silent. */
+async function timedRequest(label, request) {
+  console.info(`[stage] ${label}: started`);
+  const startedAt = performance.now();
+  try {
+    const data = await request();
+    console.info(
+      `[stage] ${label}: completed in ${Math.round(performance.now() - startedAt)}ms`,
+    );
+    return data;
+  } catch (error) {
+    const message = describeError(error, label);
+    console.error(`[stage] ${label}: failed — ${message}`, error);
+    error.friendlyMessage = message;
+    throw error;
+  }
 }
 
-export async function analyzeDocument(
-  documentId,
-  excelFile = null,
-  onUploadProgress,
-  force = false,
-) {
-  const data = await postMultipart(
-    `/api/documents/${encodeURIComponent(documentId)}/analyze${
-      force ? "?force=true" : ""
-    }`,
-    { excel: excelFile },
-    { onUploadProgress, label: "Multimodal analysis" },
-  );
+export async function extractDocument(documentId, force = false) {
+  return timedRequest("Extraction", async () => {
+    const { data } = await client.post(
+      `/api/documents/${encodeURIComponent(documentId)}/extract`,
+      null,
+      { params: force ? { force: true } : undefined },
+    );
+    return data;
+  });
+}
+
+function normalizeAnalysis(data) {
   const results = (data.predictions || []).map((prediction) => ({
     ...prediction,
-    token: prediction.original_token,
+    token: prediction.raw_text || prediction.original_token,
     validation: {
       status:
         (data.validation?.tokens || []).find(
@@ -145,6 +153,40 @@ export async function analyzeDocument(
       extraction_quality: data.extraction?.quality,
     },
   };
+}
+
+export async function restoreDocument(documentId) {
+  const encoded = encodeURIComponent(documentId);
+  const { data: document } = await client.get(`/api/documents/${encoded}`);
+  let extraction = null;
+  let analysis = null;
+  if (["extracted", "analyzing", "analyzed"].includes(document.stage)) {
+    extraction = (
+      await client.get(`/api/documents/${encoded}/extraction`)
+    ).data;
+  }
+  if (document.stage === "analyzed") {
+    analysis = normalizeAnalysis(
+      (await client.get(`/api/documents/${encoded}/analysis`)).data,
+    );
+  }
+  return { document, extraction, analysis };
+}
+
+export async function analyzeDocument(
+  documentId,
+  excelFile = null,
+  onUploadProgress,
+  force = false,
+) {
+  const data = await postMultipart(
+    `/api/documents/${encodeURIComponent(documentId)}/analyze${
+      force ? "?force=true" : ""
+    }`,
+    { excel: excelFile },
+    { onUploadProgress, label: "Multimodal analysis" },
+  );
+  return normalizeAnalysis(data);
 }
 
 export async function getUnknownTokens(status = "pending") {

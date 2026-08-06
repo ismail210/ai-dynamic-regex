@@ -2,7 +2,7 @@
 Unified additive TokenPrediction contract.
 
 Canonical fields: family, section, confidence, explanation, evidence.
-Legacy aliases: prediction, predicted_shape, reasoning, confidence.score.
+Legacy aliases: prediction, predicted_shape, confidence.score.
 """
 
 from __future__ import annotations
@@ -80,15 +80,10 @@ def to_token_prediction(
         "family": family,
         "section": section,
         "confidence": conf,
+        # `explanation` is the only place the reasoning lives. It used to be
+        # duplicated under `reasoning`, which doubled every response.
         "explanation": explanation,
         "evidence": evidence,
-        "top_candidate_sections": explanation.get("top_candidate_sections") or [],
-        "why_selected": explanation.get("why_selected") or [],
-        "why_rejected": explanation.get("why_rejected") or [],
-        "text_evidence": explanation.get("text_evidence") or {},
-        "geometry_evidence": explanation.get("geometry_evidence") or {},
-        "graph_evidence": explanation.get("graph_evidence") or {},
-        "engineering_evidence": explanation.get("engineering_evidence") or {},
         "database_match": bool(database_match),
         "database_role": "verification_only",
         "ai_first": True,

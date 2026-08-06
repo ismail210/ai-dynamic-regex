@@ -1,0 +1,39 @@
+{
+  "version_id": "fusion_20260731_123854",
+  "family": "fusion",
+  "schema_version": "1.0",
+  "created_at": "2026-07-31T12:38:54.669296+00:00",
+  "dataset_versions": {
+    "fusion": "fusion_20260731_123101"
+  },
+  "metrics": {
+    "accuracy": 0.6,
+    "f1_weighted": 0.6,
+    "calibrated_samples": 1940,
+    "priors": {
+      "text": 0.4710801546391748,
+      "geometry": 0.30288371134020653,
+      "graph": 0.12549262886597928,
+      "engineering_rules": 0.040692886597938016,
+      "database": 0.0
+    },
+    "skipped": false,
+    "ready": true,
+    "supervised_count": 1940,
+    "class_count": 114,
+    "minimum": 80
+  },
+  "hyperparameters": {},
+  "feature_schema": [],
+  "artifact_checksums": {
+    "contribution_priors.json": "bd25a7213d726b57e8c25b3ca232bac0c490109cff0309090d485759d63f7eba"
+  },
+  "promotion_status": "candidate",
+  "rejection_reasons": [],
+  "parent_version": null,
+  "dependencies": {},
+  "notes": "fusion contribution calibration from reviewed multimodal samples",
+  "artifacts": {
+    "contribution_priors": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/training/models/fusion/fusion_20260731_123854/contribution_priors.json"
+  }
+}

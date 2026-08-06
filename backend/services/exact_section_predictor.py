@@ -305,6 +305,25 @@ def _candidate_scores(
     return _cached_candidate_scores(normalize_section_text(token), pool_size)
 
 
+def encode_exact_section_text(token: str, *, dimension: int = 128) -> List[float]:
+    """Return a compact embedding from the fitted exact-section text encoder."""
+
+    normalized_input = normalize_section_text(token)
+    if not normalized_input:
+        return [0.0] * dimension
+    query = normalize(
+        _artifact()["vectorizer"].transform([normalized_input]), copy=False
+    ).tocsr()
+    vector = np.zeros(dimension, dtype=np.float32)
+    for index, value in zip(query.indices, query.data):
+        bucket = int(index) % dimension
+        sign = 1.0 if (int(index) // dimension) % 2 == 0 else -1.0
+        vector[bucket] += sign * float(value)
+    norm = float(np.linalg.norm(vector))
+    if norm > 0:
+        vector /= norm
+    return vector.round(6).tolist()
+
 def _score_candidates(
     candidates: List[tuple],
     *,

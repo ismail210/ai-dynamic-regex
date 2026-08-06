@@ -12,6 +12,7 @@ from services.multimodal.encoder_contracts import (
     ModalityEncoding,
     UnifiedFusionResult,
 )
+from services.multimodal.learned_fusion import predict_learned_fusion
 
 
 # Decision priors. Database is intentionally absent from label selection.
@@ -25,6 +26,20 @@ ATTENTION_PRIORS = {
 }
 
 
+def _missing_encoding(modality: str) -> ModalityEncoding:
+    """A modality no encoder produced counts as unavailable, never an error."""
+
+    return ModalityEncoding(
+        modality=modality,
+        encoder="unavailable",
+        vector=[],
+        confidence=0.0,
+        available=False,
+        features={},
+        reasons=[f"{modality} produced no encoding"],
+    )
+
+
 class FeatureFusion:
     """Concatenate encoder vectors behind a stable modality-slice contract."""
 
@@ -36,7 +51,7 @@ class FeatureFusion:
         availability: Dict[str, bool] = {}
         encoders: Dict[str, str] = {}
         for modality in ATTENTION_PRIORS:
-            encoding = encodings[modality]
+            encoding = encodings.get(modality) or _missing_encoding(modality)
             start = len(vector)
             vector.extend(float(value) for value in encoding.vector)
             slices[modality] = [start, len(vector)]
@@ -60,7 +75,7 @@ class AttentionFusion:
     ) -> AttentionResult:
         logits: Dict[str, float] = {}
         for modality, prior in ATTENTION_PRIORS.items():
-            encoding = encodings[modality]
+            encoding = encodings.get(modality) or _missing_encoding(modality)
             if not encoding.available:
                 continue
             quality = max(0.05, min(1.0, float(encoding.confidence)))
@@ -137,9 +152,9 @@ def _role_compatibility(shape: str, encoding: ModalityEncoding) -> float:
 
 
 class UnifiedMultimodalFusion:
-    """Select one section using encoder attention; database cannot participate."""
+    """Select one section using a learned MLP; database cannot participate."""
 
-    name = "unified_multimodal_attention_v1"
+    name = "learned_multimodal_fusion_v1"
 
     def __init__(
         self,
@@ -179,21 +194,23 @@ class UnifiedMultimodalFusion:
                 or getattr(candidate, "text_similarity", 0.0)
                 or 0.0
             )
+            def encoding_for(modality: str) -> ModalityEncoding:
+                return encodings.get(modality) or _missing_encoding(modality)
+
             modality_scores = {
                 "text": text_score,
-                "ocr": float(encodings["ocr"].confidence),
-                "layout": _role_compatibility(
-                    shape, encodings["layout"]
-                ),
+                "ocr": float(encoding_for("ocr").confidence),
+                "layout": _role_compatibility(shape, encoding_for("layout")),
                 "geometry": float(
                     evidence.get("geometry")
-                    or encodings["geometry"].confidence
+                    or encoding_for("geometry").confidence
                 ),
                 "graph": float(
-                    evidence.get("graph") or encodings["graph"].confidence
+                    evidence.get("graph")
+                    or _role_compatibility(shape, encoding_for("graph"))
                 ),
                 "engineering_rules": _role_compatibility(
-                    shape, encodings["engineering_rules"]
+                    shape, encoding_for("engineering_rules")
                 ),
             }
             final = sum(
@@ -211,27 +228,46 @@ class UnifiedMultimodalFusion:
                 }
             )
         scored.sort(key=lambda item: (-item["score"], item["shape"]))
-        section = scored[0]["shape"] if scored else fallback_section
-        confidence = self.confidence_fusion.fuse(
-            encodings, attention, scored
+        learned = predict_learned_fusion(
+            fused.vector,
+            scored,
+            fused.modality_slices,
         )
-
-        contributions = {
-            modality: float(attention.weights.get(modality, 0.0))
-            for modality in ATTENTION_PRIORS
-        }
+        if learned:
+            scored = learned["candidate_scores"]
+            section = learned["section"]
+            confidence = learned["confidence"]
+            contributions = {
+                modality: float(learned["contributions"].get(modality, 0.0))
+                for modality in ATTENTION_PRIORS
+            }
+        else:
+            section = scored[0]["shape"] if scored else fallback_section
+            confidence = self.confidence_fusion.fuse(
+                encodings, attention, scored
+            )
+            contributions = {
+                modality: float(attention.weights.get(modality, 0.0))
+                for modality in ATTENTION_PRIORS
+            }
         contributions["database"] = 0.0
         reasons = [
             (
                 f"{modality.replace('_', ' ').title()} contributed "
-                f"{weight * 100:.1f}% via {encodings[modality].encoder}"
+                f"{weight * 100:.1f}% via "
+                f"{(encodings.get(modality) or _missing_encoding(modality)).encoder}"
             )
             for modality, weight in attention.weights.items()
         ]
         if scored:
             reasons.append(
-                f"Attention fusion selected {section} with score "
+                f"{'Calibrated MLP' if learned else 'Fallback attention'} selected {section} with score "
                 f"{scored[0]['score']:.3f}"
+            )
+        if learned:
+            reasons.append(
+                f"Confidence calibrated by temperature scaling "
+                f"(T={learned['temperature']:.3f})"
             )
         reasons.append(
             "Database contribution to prediction was 0%; lookup is post-prediction verification"
@@ -242,7 +278,7 @@ class UnifiedMultimodalFusion:
             contributions=contributions,
             attention=attention,
             fused_features=fused,
-            candidate_scores=scored[:8],
+            candidate_scores=scored[:5],
             reasons=reasons,
         )
 

@@ -209,6 +209,66 @@ export function getExplanation(result = {}) {
   };
 }
 
+/** Plain-language explanation, rebuilt from evidence for legacy payloads. */
+export function getEngineerExplanation(result = {}) {
+  const explanation = getExplanation(result);
+  const engineer = explanation.engineer_explanation || {};
+  if ((engineer.bullets || []).length > 0) return engineer;
+
+  const evidence = (key) => explanation[key] || {};
+  const asPercent = (value) =>
+    Number.isFinite(Number(value)) ? `${Math.round(Number(value) * 100)}%` : "—";
+  const bullets = [
+    `Extracted text reads ${result.raw_text || result.original_token || "—"}${
+      result.corrected_text && result.corrected_text !== result.raw_text
+        ? `, corrected to ${result.corrected_text}.`
+        : "."
+    }`,
+    evidence("geometry_evidence").available === false
+      ? "No geometry was linked to this label."
+      : `Drawing geometry agrees at ${asPercent(
+          evidence("geometry_evidence").score ?? explanation.geometry_similarity,
+        )}.`,
+    evidence("graph_evidence").available === false
+      ? "No structural connections were linked to this label."
+      : `Structural connections agree at ${asPercent(
+          evidence("graph_evidence").score ?? explanation.graph_consistency,
+        )}.`,
+    `Engineering constraints score ${asPercent(
+      evidence("engineering_evidence").score,
+    )}.`,
+    result.aisc_confirmed || result.database_match
+      ? "AISC confirms this section is physically plausible."
+      : "AISC could not confirm the section; review is recommended.",
+  ];
+  return {
+    summary: engineer.summary || explanation.summary || "",
+    bullets,
+    aisc_plausibility:
+      engineer.aisc_plausibility
+      || (result.aisc_confirmed || result.database_match ? "verified" : "unverified"),
+  };
+}
+
+/** Technical explanation, falling back to modality scores when absent. */
+export function getTechnicalExplanation(result = {}) {
+  const explanation = getExplanation(result);
+  const technical = explanation.ai_engineer_explanation || {};
+  return {
+    text_confidence: technical.text_confidence ?? explanation.text_similarity ?? 0,
+    ocr_confidence: technical.ocr_confidence ?? explanation.ocr_score ?? 0,
+    geometry_embedding_similarity:
+      technical.geometry_embedding_similarity ?? explanation.geometry_similarity ?? 0,
+    graph_embedding_similarity:
+      technical.graph_embedding_similarity ?? explanation.graph_consistency ?? 0,
+    fusion_score: technical.fusion_score ?? explanation.fusion_score ?? 0,
+    confidence_calibration: technical.confidence_calibration || "—",
+    database_plausibility_filter:
+      technical.database_plausibility_filter
+      || (result.aisc_confirmed || result.database_match ? "passed" : "not_verified"),
+  };
+}
+
 export function confidenceLevel(score) {
   if (score >= 0.8) return "High";
   if (score >= 0.55) return "Medium";

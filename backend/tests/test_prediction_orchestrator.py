@@ -26,7 +26,8 @@ class ContractSerializerTests(unittest.TestCase):
         self.assertEqual(payload["prediction"], "W18X35")
         self.assertEqual(payload["predicted_shape"], "W18X35")
         self.assertEqual(payload["confidence"]["score"], 0.91)
-        self.assertEqual(payload["reasoning"]["summary"], "ok")
+        self.assertEqual(payload["explanation"]["summary"], "ok")
+        self.assertNotIn("reasoning", payload)
         self.assertTrue(payload["ai_first"])
         self.assertFalse(payload["database_decides_prediction"])
         self.assertEqual(payload["database_role"], "verification_only")
@@ -63,9 +64,6 @@ class OrchestratorPolicyTests(unittest.TestCase):
             "services.prediction.orchestrator.lookup_shape",
             return_value={"shape": "W21X44", "type": "W"},
         ), patch(
-            "services.prediction.orchestrator.search_similar_shapes",
-            return_value=[],
-        ), patch(
             "services.prediction.orchestrator.suggest_token_corrections",
             return_value=[],
         ), patch(
@@ -94,13 +92,14 @@ class OrchestratorPolicyTests(unittest.TestCase):
         self.assertIn("explanation", result)
         self.assertIn("evidence", result)
         self.assertEqual(result["schema_version"], "2.0")
-        self.assertTrue(result["top_candidate_sections"])
-        self.assertTrue(result["why_selected"])
-        self.assertIn("why_rejected", result)
-        self.assertIn("text_evidence", result)
-        self.assertIn("geometry_evidence", result)
-        self.assertIn("graph_evidence", result)
-        self.assertIn("engineering_evidence", result)
+        explanation = result["explanation"]
+        self.assertTrue(explanation["top_candidate_sections"])
+        self.assertTrue(explanation["why_selected"])
+        self.assertIn("why_rejected", explanation)
+        self.assertIn("text_evidence", explanation)
+        self.assertIn("geometry_evidence", explanation)
+        self.assertIn("graph_evidence", explanation)
+        self.assertIn("engineering_evidence", explanation)
         self.assertEqual(
             result["explanation"]["prediction"]["section"], "W18X35"
         )

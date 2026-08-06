@@ -19,10 +19,16 @@ class ModalityEncoding:
     features: Dict[str, Any] = field(default_factory=dict)
     reasons: List[str] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self, *, include_vector: bool = True) -> Dict[str, Any]:
         payload = asdict(self)
-        payload["vector"] = [round(float(value), 6) for value in self.vector]
         payload["confidence"] = round(float(self.confidence), 4)
+        payload["dimension"] = len(self.vector)
+        if include_vector:
+            payload["vector"] = [round(float(value), 6) for value in self.vector]
+        else:
+            # The fused vector already carries every modality slice, so the
+            # per-modality copies are omitted from API and artifact payloads.
+            payload.pop("vector", None)
         return payload
 
 

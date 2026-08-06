@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from config import settings
 from services.artifact_store import read_artifact, write_artifact
 from services.document_registry import (
     document_source,
@@ -13,16 +15,44 @@ from services.document_registry import (
 )
 from services.dataset_manager import dataset_manager
 from services.extraction_engine import (
+    EXTRACTION_VERSION,
     extract_engineering_document,
     extraction_response,
 )
-from services.multimodal.pipeline import run_multimodal_pipeline
+from services.multimodal.pipeline import PIPELINE_VERSION, run_multimodal_pipeline
+
+logger = logging.getLogger("takeoff.stages")
+
+
+def _analysis_fingerprint() -> str:
+    """Identify the code and model state that produced an analysis.
+
+    Cached artifacts are only replayed when extraction, pipeline, and neural
+    model versions all match, so retrained models or code changes take effect
+    on the next run instead of returning a stale result.
+    """
+
+    parts = [EXTRACTION_VERSION, PIPELINE_VERSION]
+    for path in (
+        settings.geometry_embedding_index_path,
+        settings.graphsage_model_path,
+        settings.fusion_model_path,
+    ):
+        stamp = int(path.stat().st_mtime) if path.exists() else 0
+        parts.append(f"{path.name}:{stamp}")
+    return "|".join(parts)
 
 
 def _analysis_metadata(result: Dict[str, Any]) -> Dict[str, Any]:
-    """Persist only fields not already stored in the stage artifacts."""
+    """
+    Persist only fields not already stored in the stage artifacts.
 
-    return {
+    Geometry and graph are reduced to their digests here so replaying a cached
+    analysis never has to parse the multi-megabyte geometry and graph
+    documents just to answer the API contract.
+    """
+
+    metadata = {
         key: value
         for key, value in result.items()
         if key
@@ -35,34 +65,132 @@ def _analysis_metadata(result: Dict[str, Any]) -> Dict[str, Any]:
             "expected_excel",
         }
     }
+    metadata["geometry"] = _geometry_digest(result.get("geometry") or {})
+    metadata["graph"] = _graph_digest(result.get("graph") or {})
+    metadata["pipeline_fingerprint"] = _analysis_fingerprint()
+    return metadata
 
 
-def _cached_analysis(document_id: str) -> Optional[Dict[str, Any]]:
+def _geometry_digest(geometry: Dict[str, Any]) -> Dict[str, Any]:
+    """Summarize the geometry document instead of shipping every object."""
+
+    return {
+        "source_file": geometry.get("source_file"),
+        "source_format": geometry.get("source_format"),
+        "units": geometry.get("units"),
+        "geometry_count": geometry.get("geometry_count")
+        or len(geometry.get("objects") or []),
+        "counts_by_kind": geometry.get("counts_by_kind") or {},
+        "page_summaries": (geometry.get("metadata") or {}).get("page_summaries")
+        or [],
+        "geometry_ai": geometry.get("geometry_ai") or {},
+        "artifact": "geometry.json",
+    }
+
+
+def _graph_digest(graph: Dict[str, Any]) -> Dict[str, Any]:
+    """Summarize the structural graph; the full graph stays an artifact."""
+
+    return {
+        "stats": graph.get("stats") or {},
+        "schema": graph.get("schema") or {},
+        "graph_ai": graph.get("graph_ai") or {},
+        "artifact": "graph.json",
+    }
+
+
+def analysis_response(result: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Project one analysis onto the API contract.
+
+    Geometry and graph documents plus per-prediction training feature bundles
+    are tens of megabytes and no page consumes them, so they stay in the
+    artifacts (downloadable through ``/artifacts/{name}``) and are summarized
+    here. Sending them made a finished analysis look like a hung request.
+    """
+
+    predictions = [
+        {key: value for key, value in prediction.items() if key != "features"}
+        for prediction in result.get("predictions") or []
+    ]
+    return {
+        **result,
+        "geometry": _geometry_digest(result.get("geometry") or {}),
+        "graph": _graph_digest(result.get("graph") or {}),
+        "predictions": predictions,
+    }
+
+
+def _current_document(document_id: str) -> Optional[Dict[str, Any]]:
+    """Read the cached document only when it matches the extraction contract."""
+
     document = read_artifact(document_id, "document.json")
-    geometry = read_artifact(document_id, "geometry.json")
-    graph = read_artifact(document_id, "graph.json")
-    prediction_artifact = read_artifact(document_id, "predictions.json")
-    validation = read_artifact(document_id, "validation.json")
-    metadata = read_artifact(document_id, "analysis.json")
-    if not all(
-        item is not None
-        for item in (
-            document,
-            geometry,
-            graph,
-            prediction_artifact,
-            validation,
-            metadata,
-        )
-    ):
+    if document is None:
         return None
-    predictions = prediction_artifact.get("predictions") or []
+    if str(document.get("extraction_version") or "") != EXTRACTION_VERSION:
+        return None
+    return document
+
+
+def _write_extraction_view(document: Dict[str, Any]) -> Optional[str]:
+    """
+    Store the extraction API projection next to the raw document.
+
+    ``document.json`` holds every word, line, and block of the drawing and is
+    tens of megabytes; parsing it on each request to rebuild a ~1 MB response
+    dominated the response time of every page that reloads a document.
+
+    Returns the written path, or ``None`` when the cache write was skipped.
+    """
+
+    view = {
+        **extraction_response(document),
+        "extraction_version": EXTRACTION_VERSION,
+    }
+    return write_artifact(
+        str(document.get("document_id") or ""), "extraction.json", view
+    )
+
+
+def load_cached_extraction(document_id: str) -> Optional[Dict[str, Any]]:
+    """Return the persisted extraction without starting extraction."""
+
+    view = read_artifact(document_id, "extraction.json")
+    if view is not None and str(view.get("extraction_version") or "") == EXTRACTION_VERSION:
+        return view
+    document = _current_document(document_id)
+    if document is None:
+        return None
+    _write_extraction_view(document)
+    return {
+        **extraction_response(document),
+        "extraction_version": EXTRACTION_VERSION,
+    }
+
+
+def load_cached_analysis(document_id: str) -> Optional[Dict[str, Any]]:
+    """
+    Return the persisted analysis without running inference.
+
+    Only projected artifacts are read: the fingerprint is verified first, and
+    geometry, graph, and per-prediction training features stay on disk because
+    no page consumes them.
+    """
+
+    metadata = read_artifact(document_id, "analysis.json")
+    if metadata is None:
+        return None
+    if str(metadata.get("pipeline_fingerprint") or "") != _analysis_fingerprint():
+        return None
+    extraction = load_cached_extraction(document_id)
+    prediction_view = read_artifact(document_id, "predictions_view.json")
+    validation = read_artifact(document_id, "validation.json")
+    if extraction is None or prediction_view is None or validation is None:
+        return None
     return {
         **metadata,
-        "extraction": extraction_response(document),
-        "geometry": geometry,
-        "graph": graph,
-        "predictions": predictions,
+        "extraction": extraction,
+        "predictions": prediction_view.get("predictions") or [],
         "validation": validation,
         "cached": True,
     }
@@ -76,7 +204,7 @@ def run_extraction_stage(
     """Extract engineering objects exactly once for a registered document."""
 
     source = document_source(document_id)
-    cached = None if force else read_artifact(document_id, "document.json")
+    cached = None if force else _current_document(document_id)
     if cached is not None:
         update_document(
             document_id,
@@ -91,12 +219,22 @@ def run_extraction_stage(
             source, document_id=document_id
         )
         artifact = write_artifact(document_id, "document.json", document)
-        if artifact is None:
-            raise OSError("Extraction artifact could not be stored")
+        view_path = _write_extraction_view(document)
+        if artifact is None and view_path is None:
+            # Extraction itself succeeded; only the disk cache failed. Return
+            # the live response so the UI is not blocked by a full volume.
+            logger.warning(
+                "extraction for %s succeeded in memory but could not be cached",
+                document_id,
+            )
         update_document(
             document_id,
             stage="extracted",
-            extraction_artifact="document.json",
+            extraction_artifact=(
+                "document.json"
+                if artifact
+                else ("extraction.json" if view_path else None)
+            ),
             engineering_object_count=len(
                 document.get("engineering_tokens") or []
             ),
@@ -115,8 +253,14 @@ def run_analysis_stage(
 ) -> Dict[str, Any]:
     """Run geometry, graph, fusion, correction, and validation after extraction."""
 
+    document = _current_document(document_id)
+    stale_extraction = document is None
+    if stale_extraction:
+        # Cached extraction predates the current contract. Rebuild it so
+        # analysis never runs on an outdated document, geometry, or graph.
+        run_extraction_stage(document_id, force=True)
+        document = _current_document(document_id)
     manifest = get_document(document_id)
-    document = read_artifact(document_id, "document.json")
     if document is None or manifest.get("stage") not in {
         "extracted",
         "analyzing",
@@ -126,14 +270,21 @@ def run_analysis_stage(
         raise RuntimeError("Extraction must complete before analysis starts")
 
     if not force and expected_excel_path is None:
-        cached = _cached_analysis(document_id)
+        cached = load_cached_analysis(document_id)
         if cached is not None:
             update_document(document_id, stage="analyzed")
             return cached
 
     source = document_source(document_id)
-    geometry = None if force else read_artifact(document_id, "geometry.json")
-    graph = None if force else read_artifact(document_id, "graph.json")
+    reuse_stage_artifacts = not force and not stale_extraction
+    geometry = (
+        read_artifact(document_id, "geometry.json")
+        if reuse_stage_artifacts
+        else None
+    )
+    graph = (
+        read_artifact(document_id, "graph.json") if reuse_stage_artifacts else None
+    )
     update_document(document_id, stage="analyzing")
     try:
         result = run_multimodal_pipeline(
@@ -168,7 +319,15 @@ def run_analysis_stage(
             analysis_artifact="analysis.json",
             prediction_count=len(result.get("predictions") or []),
         )
-        return {**result, "cached": False}
+        response = analysis_response({**result, "cached": False})
+        # The projected predictions are what every page reads, so they are
+        # cached separately from the training feature bundles.
+        write_artifact(
+            document_id,
+            "predictions_view.json",
+            {"predictions": response.get("predictions") or []},
+        )
+        return response
     except Exception as exc:
         update_document(document_id, stage="failed", error=str(exc))
         raise

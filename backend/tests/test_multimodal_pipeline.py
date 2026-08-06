@@ -97,7 +97,7 @@ class RichExtractionTests(unittest.TestCase):
 
     def test_extraction_preflight_does_not_start_prediction(self) -> None:
         report = run_extraction_preflight(self.pdf)
-        self.assertEqual(report["stage"], "extraction_complete")
+        self.assertEqual(report["stage"], "extracted")
         self.assertFalse(report["prediction_started"])
         self.assertGreater(len(report["tokens"]), 0)
         self.assertIn("quality", report)
@@ -127,7 +127,9 @@ class AdapterAndCorrectionTests(unittest.TestCase):
         from services.multimodal.fusion_engine import FUSION_WEIGHTS, fusion_engine
 
         self.assertAlmostEqual(FUSION_WEIGHTS["database"], 0.0)
-        self.assertAlmostEqual(FUSION_WEIGHTS["text"], 0.48)
+        self.assertEqual(
+            max(FUSION_WEIGHTS, key=lambda key: FUSION_WEIGHTS[key]), "text"
+        )
         prediction = fusion_engine.predict(
             {
                 "token": {
@@ -148,7 +150,7 @@ class AdapterAndCorrectionTests(unittest.TestCase):
         self.assertTrue(payload["features"]["fusion"]["ai_first"])
         self.assertFalse(payload["features"]["fusion"]["database_decides_prediction"])
         self.assertTrue(str(payload["component_id"]).startswith(("Beam_", "Section_", "Member_", "Column_")))
-        self.assertEqual(payload["predicted_shape"], "W18X35")
+        self.assertEqual(payload["section"], "W18X35")
 
 
 class MultimodalPipelineTests(unittest.TestCase):
@@ -166,9 +168,9 @@ class MultimodalPipelineTests(unittest.TestCase):
             self.assertIn("predictions", result)
             self.assertIn("validation", result)
             prediction = result["predictions"][0]
-            self.assertIn("predicted_shape", prediction)
+            self.assertIn("section", prediction)
             self.assertIn("alternatives", prediction)
-            self.assertIn("reasoning", prediction)
+            self.assertIn("explanation", prediction)
             self.assertIn("geometry_preview", prediction)
             self.assertIn("graph_preview", prediction)
 

@@ -12,6 +12,7 @@ import {
 import { ArrowForwardRounded, ManageSearchOutlined } from "@mui/icons-material";
 import { extractDocument } from "../api/client";
 import { useAnalysis } from "../context/AnalysisContext";
+import useElapsedSeconds from "../hooks/useElapsedSeconds";
 import PageHeader from "../components/ui/PageHeader";
 import EmptyState from "../components/ui/EmptyState";
 import { TipButton } from "../components/ui/ActionButtons";
@@ -21,9 +22,10 @@ export default function ExtractPage() {
   const { document, extraction, setExtraction, setData } = useAnalysis();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const elapsed = useElapsedSeconds(loading);
 
   async function runExtraction() {
-    if (!document?.document_id) return;
+    if (!document?.document_id || loading) return;
     setLoading(true);
     setError("");
     setData(null);
@@ -81,7 +83,8 @@ export default function ExtractPage() {
           <Box sx={{ mt: 2 }}>
             <LinearProgress />
             <Typography variant="caption" color="text.secondary">
-              Reading OCR, layout, tables, dimensions, and structural callouts…
+              Reading OCR, layout, tables, dimensions, and structural callouts…{" "}
+              {elapsed}s elapsed
             </Typography>
           </Box>
         )}

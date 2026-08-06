@@ -49,7 +49,6 @@ class Explainability:
     contributions: Dict[str, float] = field(default_factory=dict)
     contribution_percentages: Dict[str, float] = field(default_factory=dict)
     attention: Dict[str, Any] = field(default_factory=dict)
-    candidate_scores: List[Dict[str, Any]] = field(default_factory=list)
     encoders: Dict[str, str] = field(default_factory=dict)
     correction: Dict[str, Any] = field(default_factory=dict)
     prediction: Dict[str, Any] = field(default_factory=dict)
@@ -57,7 +56,6 @@ class Explainability:
     why_selected: List[str] = field(default_factory=list)
     why_rejected: List[Dict[str, Any]] = field(default_factory=list)
     top_candidate_sections: List[Dict[str, Any]] = field(default_factory=list)
-    modality_evidence: Dict[str, Any] = field(default_factory=dict)
     text_evidence: Dict[str, Any] = field(default_factory=dict)
     ocr_evidence: Dict[str, Any] = field(default_factory=dict)
     layout_evidence: Dict[str, Any] = field(default_factory=dict)
@@ -69,6 +67,8 @@ class Explainability:
     fusion_score: float = 0.0
     matched_neighbors: List[str] = field(default_factory=list)
     correction_history: List[Dict[str, Any]] = field(default_factory=list)
+    engineer_explanation: Dict[str, Any] = field(default_factory=dict)
+    ai_engineer_explanation: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         payload = {
@@ -98,6 +98,13 @@ class MultiModalPrediction:
     material: Optional[str] = None
     document_id: Optional[str] = None
     canonical: Optional[dict] = None
+    raw_text: str = ""
+    normalized_text: str = ""
+    page_number: Optional[int] = None
+    bounding_box: Optional[List[float]] = None
+    evidence_source: List[str] = field(default_factory=list)
+    prediction_source: str = "Fusion"
+    missing_label_prediction: Optional[dict] = None
 
     def to_dict(self) -> dict:
         fusion = self.feature_bundle.fusion or {}
@@ -112,7 +119,7 @@ class MultiModalPrediction:
                 ),
             }
         payload = {
-            "schema_version": "2.0",
+            "schema_version": "3.0",
             "object_id": self.object_id,
             "document_id": self.document_id,
             "component_id": self.component_id
@@ -120,41 +127,24 @@ class MultiModalPrediction:
             or self.object_id,
             "original_token": self.original_token,
             "corrected_token": self.corrected_token,
+            "raw_text": self.raw_text or self.original_token,
+            "corrected_text": self.corrected_token,
+            "normalized_text": self.normalized_text,
+            "page_number": self.page_number,
+            "bounding_box": self.bounding_box,
+            "evidence_source": self.evidence_source,
+            "prediction_source": self.prediction_source,
+            "missing_label_prediction": self.missing_label_prediction,
             "entity_type": self.entity_type,
             "family": family,
             "section": section,
-            "predicted_shape": section,
-            "prediction": section,
             "material": self.material or fusion.get("material"),
-            "confidence": {
-                "overall": round(self.confidence, 4),
-                "score": round(self.confidence, 4),
-                "level": (
-                    "High"
-                    if self.confidence >= 0.80
-                    else "Medium"
-                    if self.confidence >= 0.55
-                    else "Low"
-                ),
-                "model_probability": round(
-                    float(explanation.get("ai_probability") or self.confidence), 4
-                ),
-                "weights": explanation.get("contributions") or {},
-                "breakdown": explanation.get("contributions") or {},
-                "database_role": "verification_only",
-            },
+            "confidence": round(self.confidence, 4),
             "alternatives": [item.to_dict() for item in self.alternatives],
+            # Candidates, reasons, and per-modality evidence live inside
+            # `explanation`. They used to be repeated at the top level, which
+            # doubled the size of every prediction on the wire and on disk.
             "explanation": explanation,
-            "reasoning": explanation,
-            "top_candidate_sections": explanation.get("top_candidate_sections") or [],
-            "why_selected": explanation.get("why_selected") or [],
-            "why_rejected": explanation.get("why_rejected") or [],
-            "text_evidence": explanation.get("text_evidence") or {},
-            "ocr_evidence": explanation.get("ocr_evidence") or {},
-            "layout_evidence": explanation.get("layout_evidence") or {},
-            "geometry_evidence": explanation.get("geometry_evidence") or {},
-            "graph_evidence": explanation.get("graph_evidence") or {},
-            "engineering_evidence": explanation.get("engineering_evidence") or {},
             "correction": explanation.get("correction") or None,
             "evidence": fusion.get("evidence_contributions") or {},
             "features": self.feature_bundle.to_dict(),

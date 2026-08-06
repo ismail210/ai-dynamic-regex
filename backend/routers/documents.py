@@ -16,7 +16,13 @@ from services.document_registry import (
     public_document,
     register_document,
 )
-from services.staged_pipeline import run_analysis_stage, run_extraction_stage
+from services.stage_runner import run_shared_stage
+from services.staged_pipeline import (
+    load_cached_analysis,
+    load_cached_extraction,
+    run_analysis_stage,
+    run_extraction_stage,
+)
 from services.upload_service import (
     EXCEL_SUFFIXES,
     PDF_SUFFIXES,
@@ -28,9 +34,11 @@ from services.upload_service import (
 router = APIRouter()
 _ARTIFACTS = {
     "document.json",
+    "extraction.json",
     "geometry.json",
     "graph.json",
     "predictions.json",
+    "predictions_view.json",
     "validation.json",
     "analysis.json",
     "expected_excel.json",
@@ -72,12 +80,24 @@ async def extract_document(
         document_source(document_id)
     except (FileNotFoundError, ValueError) as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
-    return await run_analysis(
-        "document extraction",
-        run_extraction_stage,
-        document_id,
-        force=force,
+    return await run_shared_stage(
+        stage="document extraction",
+        document_id=document_id,
+        runner=lambda: run_analysis(
+            "document extraction",
+            run_extraction_stage,
+            document_id,
+            force=force,
+        ),
     )
+
+
+@router.get("/documents/{document_id}/extraction")
+def document_extraction(document_id: str):
+    result = load_cached_extraction(document_id)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Extraction not found")
+    return result
 
 
 @router.post("/documents/{document_id}/analyze")
@@ -99,13 +119,25 @@ async def analyze_document(
             allowed_suffixes=EXCEL_SUFFIXES,
             field="excel",
         )
-    return await run_analysis(
-        "multimodal document analysis",
-        run_analysis_stage,
-        document_id,
-        expected_excel_path=excel_path,
-        force=force,
+    return await run_shared_stage(
+        stage="multimodal document analysis",
+        document_id=document_id,
+        runner=lambda: run_analysis(
+            "multimodal document analysis",
+            run_analysis_stage,
+            document_id,
+            expected_excel_path=excel_path,
+            force=force,
+        ),
     )
+
+
+@router.get("/documents/{document_id}/analysis")
+def document_analysis(document_id: str):
+    result = load_cached_analysis(document_id)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Analysis not found")
+    return result
 
 
 @router.get("/documents/{document_id}/artifacts/{name}")

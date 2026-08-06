@@ -19,16 +19,78 @@ from services.token_extractor import extract_engineering_token_records
 
 
 _DECORATIVE_RE = re.compile(r"^[\W_]{2,}$")
+# Drawing callouts are short annotations that reference another view or sheet.
+# Matching bare words such as "SECTION" or "SEE" also captures general notes,
+# which inflated callout counts by an order of magnitude.
 _CALLOUT_RE = re.compile(
-    r"\b(?:SEE|DETAIL|SECTION|SHEET|TYP|SIM|REF)\b|"
-    r"\b[A-Z]?\d{1,3}/S[- ]?\d{2,4}\b",
+    r"\b[A-Z]?\d{1,3}\s*/\s*(?:S|A|M|E)[- ]?\d{2,4}\b"
+    r"|\bSEE\s+(?:DETAIL|SECTION|SHEET|PLAN|DWG|DRAWING)\b"
+    r"|\bDETAIL\s+[A-Z0-9](?:[-.][A-Z0-9]{1,3})?\b"
+    r"|\bSECTION\s+[A-Z]\s*[-–]\s*[A-Z]\b"
+    r"|\b(?:TYP|SIM)\.?$",
     re.IGNORECASE,
 )
+# Dimension annotations use feet-inch notation or an explicit unit suffix.
+# A bare "M" unit matched ordinary prose, so it is excluded.
 _DIMENSION_RE = re.compile(
-    r"(?:\d+\s*['′]\s*(?:-\s*)?\d*(?:\s+\d+/\d+)?\s*[\"″]?)|"
-    r"(?:\d+(?:\.\d+)?\s*(?:MM|CM|M|IN|FT)\b)",
+    r"\d{1,4}\s*['′]\s*-?\s*\d{0,2}(?:\s+\d+/\d+)?\s*[\"″]?"
+    r"|\d{1,4}(?:\.\d+)?(?:\s+\d+/\d+)?\s*[\"″]"
+    r"|\d{1,4}(?:\.\d+)?\s*(?:MM|CM|FT|IN)\b",
     re.IGNORECASE,
 )
+# Prose blocks (notes, specifications, legends) never become layout objects.
+_PROSE_RE = re.compile(
+    r"\b(?:NOTES?|SPECIFICATIONS?|GENERAL|LEGEND|REVISIONS?|"
+    r"SHALL|CONTRACTOR|ACCORDANCE|ASTM|AISC\s+SPECIFICATION)\b",
+    re.IGNORECASE,
+)
+
+
+def _is_prose(text: str) -> bool:
+    """Detect note/specification text that must not become a layout object."""
+
+    cleaned = str(text or "").strip()
+    return (
+        len(cleaned) > 110
+        or len(cleaned.split()) > 16
+        or bool(_PROSE_RE.search(cleaned))
+    )
+
+
+def _layout_objects(
+    lines: List[dict],
+    pattern: re.Pattern[str],
+    *,
+    id_prefix: str,
+    id_field: str,
+) -> List[dict]:
+    """Collect deduplicated short annotations matching a layout pattern."""
+
+    objects: List[dict] = []
+    seen: set[tuple] = set()
+    for line in lines:
+        text = str(line.get("text") or "").strip()
+        if not text or _is_prose(text) or not pattern.search(text):
+            continue
+        bbox = line.get("bbox") or [0, 0, 0, 0]
+        key = (
+            line.get("page_number"),
+            re.sub(r"\s+", "", text.upper()),
+            tuple(round(float(value), 1) for value in bbox),
+        )
+        if key in seen:
+            continue
+        seen.add(key)
+        objects.append(
+            {
+                id_field: f"{id_prefix}_{line['object_id']}",
+                "page_number": line["page_number"],
+                "bbox": bbox,
+                "text": text,
+                "source_line_id": line["object_id"],
+            }
+        )
+    return objects
 
 
 def _bbox_area(bbox: Sequence[float]) -> float:
@@ -124,7 +186,13 @@ def _font_for_word(word: dict, lines: Iterable[dict]) -> Dict[str, Any]:
     return best
 
 
-def _text_confidence(word: dict, duplicate_count: int) -> float:
+def _text_confidence(word: dict) -> float:
+    """Score how reliably a word was recovered from the page.
+
+    Repeated text is not penalized: a member label legitimately appears on
+    every framing bay it applies to.
+    """
+
     text = str(word.get("text") or "")
     score = 0.45
     if len(text) >= 2:
@@ -135,8 +203,8 @@ def _text_confidence(word: dict, duplicate_count: int) -> float:
         score += 0.1
     if word.get("block_id"):
         score += 0.08
-    if duplicate_count > 1:
-        score -= min(0.25, 0.07 * (duplicate_count - 1))
+    if word.get("ocr_repairs"):
+        score -= 0.05
     if _DECORATIVE_RE.fullmatch(text):
         score -= 0.35
     return round(max(0.05, min(0.99, score)), 4)
@@ -276,12 +344,13 @@ def _extract_schedules(tables: List[dict], lines: List[dict]) -> List[dict]:
     return schedules
 
 
-def _build_extraction_diagnostics(
+def build_extraction_diagnostics(
     *,
     document: Dict[str, Any],
-    original_words: List[dict],
-    filtered_words: List[dict],
     tokens: List[dict],
+    word_count_before_cleanup: int,
+    word_count_after_cleanup: int,
+    ocr_repairs: int,
     tables: List[dict],
     schedules: List[dict],
     callouts: List[dict],
@@ -348,10 +417,12 @@ def _build_extraction_diagnostics(
         },
         "issue_counts": dict(issue_counts),
         "token_count": len(tokens),
-        "word_count_before_cleanup": len(original_words),
-        "word_count_after_cleanup": len(filtered_words),
-        "noise_removed": len(original_words) - len(filtered_words),
-        "ocr_repairs": sum(bool(word.get("ocr_repairs")) for word in filtered_words),
+        "word_count_before_cleanup": int(word_count_before_cleanup),
+        "word_count_after_cleanup": int(word_count_after_cleanup),
+        "noise_removed": max(
+            0, int(word_count_before_cleanup) - int(word_count_after_cleanup)
+        ),
+        "ocr_repairs": int(ocr_repairs),
         "split_labels_reconstructed": sum(bool(t.get("was_merged")) for t in tokens),
         "repeated_labels": sum(
             1 for count in Counter(t["normalized_text"] for t in tokens).values()
@@ -436,10 +507,6 @@ def enrich_document_structure(
         for line in lines
     }
     block_by_id = {block["object_id"]: block for block in blocks}
-    normalized_counts = Counter(
-        repair_ocr_text(str(word.get("text") or ""))[0].upper()
-        for word in words
-    )
 
     filtered_words: List[dict] = []
     for word in words:
@@ -479,9 +546,7 @@ def enrich_document_structure(
         word["hierarchy_role"] = (block or {}).get("hierarchy_role", "body")
         word["ocr_repairs"] = changes
         word["is_decorative"] = bool(_DECORATIVE_RE.fullmatch(repaired))
-        word["confidence"] = _text_confidence(
-            word, normalized_counts[repaired.upper()]
-        )
+        word["confidence"] = _text_confidence(word)
         if repaired and not word["is_decorative"]:
             filtered_words.append(word)
 
@@ -515,28 +580,12 @@ def enrich_document_structure(
             except RuntimeError:
                 continue
 
-    callouts = [
-        {
-            "callout_id": f"callout_{line['object_id']}",
-            "page_number": line["page_number"],
-            "bbox": line["bbox"],
-            "text": line["text"],
-            "source_line_id": line["object_id"],
-        }
-        for line in lines
-        if _CALLOUT_RE.search(str(line.get("text") or ""))
-    ]
-    dimensions = [
-        {
-            "dimension_id": f"dimension_{line['object_id']}",
-            "page_number": line["page_number"],
-            "bbox": line["bbox"],
-            "text": line["text"],
-            "source_line_id": line["object_id"],
-        }
-        for line in lines
-        if _DIMENSION_RE.search(str(line.get("text") or ""))
-    ]
+    callouts = _layout_objects(
+        lines, _CALLOUT_RE, id_prefix="callout", id_field="callout_id"
+    )
+    dimensions = _layout_objects(
+        lines, _DIMENSION_RE, id_prefix="dimension", id_field="dimension_id"
+    )
     title_blocks = [
         title
         for page in document.get("pages") or []
@@ -568,11 +617,12 @@ def enrich_document_structure(
             "engineering_tokens": len(tokens),
         }
     )
-    diagnostics = _build_extraction_diagnostics(
+    diagnostics = build_extraction_diagnostics(
         document=document,
-        original_words=words,
-        filtered_words=filtered_words,
         tokens=tokens,
+        word_count_before_cleanup=len(words),
+        word_count_after_cleanup=len(filtered_words),
+        ocr_repairs=sum(bool(word.get("ocr_repairs")) for word in filtered_words),
         tables=tables,
         schedules=schedules,
         callouts=callouts,

@@ -131,10 +131,52 @@ def build_explanation(
     top_candidates, why_selected, why_rejected = _candidate_explanations(
         section, candidate_scores
     )
-    summary = (
-        f"AI predicted family={family or '—'} section={section} "
-        f"(database {'confirmed' if database_verified else 'unverified'})"
+    calibration_method = (
+        "temperature_scaling"
+        if any("temperature scaling" in reason.lower() for reason in ai_reasons)
+        else "unavailable_model_fallback"
     )
+    summary = f"AI predicted family={family or '—'} section={section}."
+    raw_text = str((text_evidence or {}).get("raw_text") or "")
+    corrected_text = str((text_evidence or {}).get("corrected_text") or "")
+    neighbors = (text_evidence or {}).get("matched_neighbors") or []
+    engineer_bullets = [
+        (
+            f"OCR detected {raw_text or section}"
+            + (
+                f" and corrected it to {corrected_text}."
+                if corrected_text and corrected_text != raw_text
+                else "."
+            )
+        ),
+        (
+            f"Geometry evidence supports the selected section at "
+            f"{float(signals.get('geometry') or 0):.0%}."
+            if available.get("geometry")
+            else "No geometry evidence was available for this label."
+        ),
+        (
+            f"Structural connections support the member at "
+            f"{float(signals.get('graph') or 0):.0%}."
+            if available.get("graph")
+            else "No structural graph neighborhood was available."
+        ),
+        (
+            f"Nearby annotations support the member: {', '.join(map(str, neighbors[:3]))}."
+            if neighbors
+            else "No nearby annotation changed the prediction."
+        ),
+        (
+            "Engineering constraints are satisfied."
+            if float(signals.get("engineering_rules") or 0) >= 0.55
+            else "Engineering constraints require review."
+        ),
+        (
+            "AISC confirms this section is physically plausible."
+            if database_verified
+            else "AISC plausibility could not be confirmed; the AI result requires review."
+        ),
+    ]
     modality_evidence = {
         "text": {
             "available": bool(available.get("text")),
@@ -174,8 +216,14 @@ def build_explanation(
             "available": bool(available.get("geometry")),
             "score": round(float(signals.get("geometry") or 0.0), 4),
             "summary": (
-                f"Geometry {'supports' if available.get('geometry') else 'was unavailable for'} "
-                f"the selected section."
+                f"MobileNet geometry encoder supports the selected section "
+                f"(similarity {float(signals.get('geometry') or 0.0):.0%})."
+                if available.get("geometry")
+                and (geometry_evidence or {}).get("embedding_dimension")
+                else (
+                    f"Geometry {'supports' if available.get('geometry') else 'was unavailable for'} "
+                    f"the selected section."
+                )
             ),
             "details": dict(geometry_evidence or {}),
         },
@@ -183,8 +231,14 @@ def build_explanation(
             "available": bool(available.get("graph")),
             "score": round(float(signals.get("graph") or 0.0), 4),
             "summary": (
-                f"Structural graph {'supports' if available.get('graph') else 'was unavailable for'} "
-                f"the selected section."
+                f"GraphSAGE role={(graph_evidence or {}).get('role_prediction') or (graph_evidence or {}).get('prediction') or 'member'} "
+                f"confidence {float((graph_evidence or {}).get('confidence') or signals.get('graph') or 0.0):.0%}."
+                if available.get("graph")
+                and (graph_evidence or {}).get("embedding_dimension")
+                else (
+                    f"Structural graph {'supports' if available.get('graph') else 'was unavailable for'} "
+                    f"the selected section."
+                )
             ),
             "details": dict(graph_evidence or {}),
         },
@@ -203,11 +257,40 @@ def build_explanation(
         "prediction": {"family": family, "section": section},
         "confidence": round(float(ai_probability), 4),
         "summary": summary,
+        "engineer_explanation": {
+            "summary": f"Predicted {section}.",
+            "bullets": engineer_bullets,
+            "aisc_plausibility": (
+                "verified" if database_verified else "unverified"
+            ),
+        },
+        "ai_engineer_explanation": {
+            "text_confidence": round(
+                float(signals.get("text") or 0.0), 4
+            ),
+            "ocr_confidence": round(
+                float(signals.get("ocr") or 0.0), 4
+            ),
+            "geometry_embedding_similarity": round(
+                float(signals.get("geometry") or 0.0), 4
+            ),
+            "graph_embedding_similarity": round(
+                float(signals.get("graph") or 0.0), 4
+            ),
+            "fusion_score": round(float(ai_probability), 4),
+            "confidence_calibration": calibration_method,
+            "database_plausibility_filter": (
+                "passed" if database_verified else "not_verified"
+            ),
+            "final_confidence": round(float(ai_probability), 4),
+        },
         "reasons": reasons,
+        # `why_selected`, `why_rejected`, and the per-modality evidence appear
+        # exactly once. Repeating them under an aggregate key made every
+        # explanation twice as large for no additional information.
         "why_selected": why_selected,
         "why_rejected": why_rejected,
         "top_candidate_sections": top_candidates,
-        "modality_evidence": modality_evidence,
         "text_evidence": modality_evidence["text"],
         "ocr_evidence": modality_evidence["ocr"],
         "layout_evidence": modality_evidence["layout"],

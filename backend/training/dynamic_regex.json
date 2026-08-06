@@ -289,21 +289,21 @@
         "coverage": 0.4667,
         "confidence": 0.704,
         "confidence_level": "Medium",
+        "category": "structural_section",
         "distinct_structures": 9,
-        "usage_count": 3,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-29T07:44:22.628921+00:00",
-        "category": "structural_section"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A": {
-        "pattern": "(?:A|F|PL|PLATE)\\d+",
+        "pattern": "A\\d+",
         "variants": [
             {
-                "pattern": "(?:A|F|PL|PLATE)\\d+",
-                "support": 36,
-                "frequency": 0.9474,
-                "confidence": 0.9503,
+                "pattern": "A\\d+",
+                "support": 47,
+                "frequency": 0.9792,
+                "confidence": 0.97,
                 "distinct_structure": [
                     "A",
                     "N"
@@ -315,13 +315,13 @@
                     "A3",
                     "A307"
                 ],
-                "readability": 0.87
+                "readability": 1.0
             },
             {
                 "pattern": "WF\\d+X\\d+",
                 "support": 1,
-                "frequency": 0.0263,
-                "confidence": 0.2818,
+                "frequency": 0.0208,
+                "confidence": 0.2794,
                 "distinct_structure": [
                     "A",
                     "N",
@@ -330,24 +330,6 @@
                 ],
                 "examples": [
                     "WF99X99"
-                ],
-                "readability": 1.0
-            },
-            {
-                "pattern": "PL\\d+X\\d+X\\d+",
-                "support": 1,
-                "frequency": 0.0263,
-                "confidence": 0.2818,
-                "distinct_structure": [
-                    "A",
-                    "N",
-                    "A",
-                    "N",
-                    "A",
-                    "N"
-                ],
-                "examples": [
-                    "PL8X4X3"
                 ],
                 "readability": 1.0
             }
@@ -387,21 +369,31 @@
             "A775",
             "A780",
             "WF99X99",
-            "F1554",
-            "PL1",
-            "PL8X4X3",
-            "PLATE3"
+            "A5",
+            "A5",
+            "A5",
+            "A2",
+            "A3",
+            "A6",
+            "A5",
+            "A3",
+            "A2",
+            "A6",
+            "A3",
+            "A2",
+            "A5",
+            "A6"
         ],
-        "example_count": 38,
-        "coverage": 0.9474,
-        "confidence": 0.9379,
+        "example_count": 48,
+        "coverage": 0.9792,
+        "confidence": 0.9374,
         "confidence_level": "High",
-        "distinct_structures": 3,
-        "usage_count": 61,
+        "category": "material",
+        "distinct_structures": 2,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-29T08:45:58.997763+00:00",
-        "category": "material"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A1064": {
         "pattern": "A\\d+",
@@ -441,12 +433,12 @@
         "coverage": 1.0,
         "confidence": 0.949,
         "confidence_level": "High",
+        "category": "bolt",
         "distinct_structures": 1,
-        "usage_count": 12,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-29T06:41:22.597008+00:00",
-        "category": "bolt"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A108": {
         "pattern": "A\\d+",
@@ -481,12 +473,12 @@
         "coverage": 1.0,
         "confidence": 0.9227,
         "confidence_level": "High",
+        "category": "material",
         "distinct_structures": 1,
-        "usage_count": 7,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-28T14:24:15.948913+00:00",
-        "category": "material"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A123": {
         "pattern": "A\\d+",
@@ -519,12 +511,12 @@
         "coverage": 1.0,
         "confidence": 0.902,
         "confidence_level": "High",
+        "category": "material",
         "distinct_structures": 1,
         "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-28T10:57:57.565754+00:00",
-        "category": "material"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A153": {
         "pattern": "A\\d+",
@@ -551,12 +543,12 @@
         "coverage": 1.0,
         "confidence": 0.8127,
         "confidence_level": "High",
+        "category": "material",
         "distinct_structures": 1,
         "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-28T10:57:57.565754+00:00",
-        "category": "material"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A205": {
         "pattern": "A\\d+",
@@ -585,12 +577,12 @@
         "coverage": 1.0,
         "confidence": 0.8425,
         "confidence_level": "High",
+        "category": "material",
         "distinct_structures": 1,
         "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-28T10:57:57.565754+00:00",
-        "category": "material"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A22": {
         "pattern": "A\\d+",
@@ -617,12 +609,12 @@
         "coverage": 1.0,
         "confidence": 0.8127,
         "confidence_level": "High",
+        "category": "material",
         "distinct_structures": 1,
         "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-28T10:57:57.565754+00:00",
-        "category": "material"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A2280": {
         "pattern": "A\\d+",
@@ -653,12 +645,12 @@
         "coverage": 1.0,
         "confidence": 0.8722,
         "confidence_level": "High",
+        "category": "material",
         "distinct_structures": 1,
-        "usage_count": 6,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-28T14:24:16.025006+00:00",
-        "category": "material"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A29": {
         "pattern": "A\\d+",
@@ -687,12 +679,12 @@
         "coverage": 1.0,
         "confidence": 0.8425,
         "confidence_level": "High",
+        "category": "material",
         "distinct_structures": 1,
-        "usage_count": 6,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-28T14:24:16.099313+00:00",
-        "category": "material"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A307": {
         "pattern": "A\\d+",
@@ -733,12 +725,12 @@
         "coverage": 1.0,
         "confidence": 0.949,
         "confidence_level": "High",
+        "category": "bolt",
         "distinct_structures": 1,
-        "usage_count": 12,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-29T06:41:22.649198+00:00",
-        "category": "bolt"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A325": {
         "pattern": "A\\d+",
@@ -779,12 +771,12 @@
         "coverage": 1.0,
         "confidence": 0.949,
         "confidence_level": "High",
+        "category": "bolt",
         "distinct_structures": 1,
-        "usage_count": 14,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-29T07:44:22.796084+00:00",
-        "category": "bolt"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A36": {
         "pattern": "A\\d+",
@@ -825,12 +817,12 @@
         "coverage": 1.0,
         "confidence": 0.949,
         "confidence_level": "High",
+        "category": "material",
         "distinct_structures": 1,
-        "usage_count": 11,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-28T14:26:18.440628+00:00",
-        "category": "material"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A416": {
         "pattern": "A\\d+",
@@ -859,12 +851,12 @@
         "coverage": 1.0,
         "confidence": 0.8425,
         "confidence_level": "High",
+        "category": "material",
         "distinct_structures": 1,
-        "usage_count": 6,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-28T14:24:16.416649+00:00",
-        "category": "material"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A446": {
         "pattern": "A\\d+",
@@ -893,12 +885,12 @@
         "coverage": 1.0,
         "confidence": 0.8425,
         "confidence_level": "High",
+        "category": "material",
         "distinct_structures": 1,
-        "usage_count": 6,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-28T14:24:16.521824+00:00",
-        "category": "material"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A490": {
         "pattern": "A\\d+",
@@ -931,12 +923,12 @@
         "coverage": 1.0,
         "confidence": 0.902,
         "confidence_level": "High",
+        "category": "bolt",
         "distinct_structures": 1,
-        "usage_count": 6,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-28T14:24:16.661615+00:00",
-        "category": "bolt"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A496": {
         "pattern": "A\\d+",
@@ -965,12 +957,12 @@
         "coverage": 1.0,
         "confidence": 0.8425,
         "confidence_level": "High",
+        "category": "material",
         "distinct_structures": 1,
         "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-28T10:57:57.565754+00:00",
-        "category": "material"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A500": {
         "pattern": "A\\d+",
@@ -1010,12 +1002,12 @@
         "coverage": 1.0,
         "confidence": 0.949,
         "confidence_level": "High",
+        "category": "material",
         "distinct_structures": 1,
-        "usage_count": 12,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-29T06:41:22.752492+00:00",
-        "category": "material"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A525": {
         "pattern": "A\\d+",
@@ -1044,12 +1036,12 @@
         "coverage": 1.0,
         "confidence": 0.8425,
         "confidence_level": "High",
+        "category": "material",
         "distinct_structures": 1,
         "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-28T10:57:57.565754+00:00",
-        "category": "material"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A53": {
         "pattern": "A\\d+",
@@ -1087,12 +1079,12 @@
         "coverage": 1.0,
         "confidence": 0.949,
         "confidence_level": "High",
+        "category": "material",
         "distinct_structures": 1,
-        "usage_count": 11,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-28T14:26:18.567484+00:00",
-        "category": "material"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A563": {
         "pattern": "A\\d+",
@@ -1123,12 +1115,12 @@
         "coverage": 1.0,
         "confidence": 0.8722,
         "confidence_level": "High",
+        "category": "bolt",
         "distinct_structures": 1,
-        "usage_count": 6,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-28T14:24:16.970732+00:00",
-        "category": "bolt"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A568": {
         "pattern": "A\\d+",
@@ -1164,12 +1156,12 @@
         "coverage": 1.0,
         "confidence": 0.9315,
         "confidence_level": "High",
+        "category": "bolt",
         "distinct_structures": 1,
-        "usage_count": 6,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-29T06:41:22.802131+00:00",
-        "category": "bolt"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A572": {
         "pattern": "A\\d+",
@@ -1209,12 +1201,12 @@
         "coverage": 1.0,
         "confidence": 0.949,
         "confidence_level": "High",
+        "category": "material",
         "distinct_structures": 1,
-        "usage_count": 12,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-29T06:41:22.853332+00:00",
-        "category": "material"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A588": {
         "pattern": "A\\d+",
@@ -1250,12 +1242,12 @@
         "coverage": 1.0,
         "confidence": 0.9315,
         "confidence_level": "High",
+        "category": "bolt",
         "distinct_structures": 1,
-        "usage_count": 6,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-29T06:41:22.930401+00:00",
-        "category": "bolt"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A615": {
         "pattern": "A\\d+",
@@ -1296,12 +1288,12 @@
         "coverage": 1.0,
         "confidence": 0.949,
         "confidence_level": "High",
+        "category": "bolt",
         "distinct_structures": 1,
-        "usage_count": 15,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-29T08:45:56.539872+00:00",
-        "category": "bolt"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A653": {
         "pattern": "A\\d+",
@@ -1340,12 +1332,12 @@
         "coverage": 1.0,
         "confidence": 0.949,
         "confidence_level": "High",
+        "category": "material",
         "distinct_structures": 1,
-        "usage_count": 12,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-29T06:41:23.131909+00:00",
-        "category": "material"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A706": {
         "pattern": "A\\d+",
@@ -1382,12 +1374,12 @@
         "coverage": 1.0,
         "confidence": 0.9403,
         "confidence_level": "High",
+        "category": "material",
         "distinct_structures": 1,
-        "usage_count": 12,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-29T06:41:23.205455+00:00",
-        "category": "material"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A775": {
         "pattern": "A\\d+",
@@ -1418,12 +1410,12 @@
         "coverage": 1.0,
         "confidence": 0.8722,
         "confidence_level": "High",
+        "category": "material",
         "distinct_structures": 1,
         "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-28T10:57:57.565754+00:00",
-        "category": "material"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A780": {
         "pattern": "A\\d+",
@@ -1452,12 +1444,12 @@
         "coverage": 1.0,
         "confidence": 0.8425,
         "confidence_level": "High",
+        "category": "material",
         "distinct_structures": 1,
         "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-28T10:57:57.565754+00:00",
-        "category": "material"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A913": {
         "pattern": "A\\d+",
@@ -1495,12 +1487,12 @@
         "coverage": 1.0,
         "confidence": 0.949,
         "confidence_level": "High",
+        "category": "material",
         "distinct_structures": 1,
-        "usage_count": 12,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-29T06:41:23.271207+00:00",
-        "category": "material"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A959": {
         "pattern": "A\\d+",
@@ -1529,12 +1521,12 @@
         "coverage": 1.0,
         "confidence": 0.8425,
         "confidence_level": "High",
+        "category": "material",
         "distinct_structures": 1,
-        "usage_count": 6,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-28T14:24:17.436081+00:00",
-        "category": "material"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A970": {
         "pattern": "A\\d+",
@@ -1570,12 +1562,12 @@
         "coverage": 1.0,
         "confidence": 0.9315,
         "confidence_level": "High",
+        "category": "material",
         "distinct_structures": 1,
-        "usage_count": 6,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-29T06:41:23.339931+00:00",
-        "category": "material"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "A992": {
         "pattern": "A\\d+",
@@ -1617,12 +1609,12 @@
         "coverage": 1.0,
         "confidence": 0.949,
         "confidence_level": "High",
+        "category": "material",
         "distinct_structures": 1,
-        "usage_count": 15,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-29T08:45:56.724379+00:00",
-        "category": "material"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "C": {
         "pattern": "(?:C|L)\\d+X\\d+(?:\\.\\d+)?",
@@ -1689,12 +1681,12 @@
         "coverage": 1.0,
         "confidence": 0.9616,
         "confidence_level": "High",
+        "category": "structural_section",
         "distinct_structures": 1,
-        "usage_count": 12,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-29T08:45:56.945977+00:00",
-        "category": "structural_section"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "HP": {
         "pattern": "HP\\d+X\\d+",
@@ -1748,21 +1740,21 @@
         "coverage": 1.0,
         "confidence": 0.97,
         "confidence_level": "High",
+        "category": "structural_section",
         "distinct_structures": 1,
         "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-28T10:57:57.565754+00:00",
-        "category": "structural_section"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "HSS": {
         "pattern": "HSS\\d+X\\d+X\\d+/\\d+",
         "variants": [
             {
                 "pattern": "HSS\\d+X\\d+X\\d+/\\d+",
-                "support": 56,
-                "frequency": 0.918,
-                "confidence": 0.9631,
+                "support": 112,
+                "frequency": 0.9333,
+                "confidence": 0.97,
                 "distinct_structure": [
                     "A",
                     "N",
@@ -1784,9 +1776,9 @@
             },
             {
                 "pattern": "HSS\\d+X\\d+X\\d+",
-                "support": 4,
-                "frequency": 0.0656,
-                "confidence": 0.5095,
+                "support": 8,
+                "frequency": 0.0667,
+                "confidence": 0.58,
                 "distinct_structure": [
                     "A",
                     "N",
@@ -1799,23 +1791,8 @@
                     "HSS34X10X1",
                     "HSS30X10X1",
                     "HSS24X12X1",
-                    "HSS22X22X1"
-                ],
-                "readability": 1.0
-            },
-            {
-                "pattern": "HSS\\d+X\\d+",
-                "support": 1,
-                "frequency": 0.0164,
-                "confidence": 0.2774,
-                "distinct_structure": [
-                    "A",
-                    "N",
-                    "A",
-                    "N"
-                ],
-                "examples": [
-                    "HSS5X2"
+                    "HSS22X22X1",
+                    "HSS20X20X1"
                 ],
                 "readability": 1.0
             }
@@ -1882,25 +1859,432 @@
             "HSS22X16X5/8",
             "HSS22X16X1/2"
         ],
-        "example_count": 61,
-        "coverage": 0.918,
-        "confidence": 0.9479,
+        "example_count": 780,
+        "coverage": 0.9333,
+        "confidence": 0.9599,
         "confidence_level": "High",
-        "distinct_structures": 3,
-        "usage_count": 222,
+        "category": "structural_section",
+        "distinct_structures": 2,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-29T08:45:57.262583+00:00",
-        "category": "structural_section"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "HSS10X10X1/2": {
+        "pattern": "HSS\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "HSS\\d+X\\d+",
+                "support": 1,
+                "frequency": 0.5,
+                "confidence": 0.495,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "HSS10x10"
+                ],
+                "readability": 1.0
+            },
+            {
+                "pattern": "HSS\\d+X\\d+X\\d+/\\d+",
+                "support": 1,
+                "frequency": 0.5,
+                "confidence": 0.495,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "S:/",
+                    "N"
+                ],
+                "examples": [
+                    "HSS10x10x1/2"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "HSS10x10",
+            "HSS10x10x1/2"
+        ],
+        "example_count": 2,
+        "coverage": 0.5,
+        "confidence": 0.607,
+        "confidence_level": "Medium",
+        "category": "structural_section",
+        "distinct_structures": 2,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "HSS14X10X3/8": {
+        "pattern": "HSS\\d+X\\d+X\\d+/\\d+",
+        "variants": [
+            {
+                "pattern": "HSS\\d+X\\d+X\\d+/\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "S:/",
+                    "N"
+                ],
+                "examples": [
+                    "HSS14X10X3/8"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "HSS14X10X3/8"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8547,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "HSS16X0.5": {
+        "pattern": "HSS\\d+X\\d+\\.\\d+",
+        "variants": [
+            {
+                "pattern": "HSS\\d+X\\d+\\.\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "HSS16X0.5"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "HSS16X0.5"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8477,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "HSS18X0.500": {
+        "pattern": "HSS\\d+X\\d+\\.\\d+",
+        "variants": [
+            {
+                "pattern": "HSS\\d+X\\d+\\.\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "HSS18X0.500"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "HSS18X0.500"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8477,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "HSS6X2X5/16": {
+        "pattern": "HSS\\d+X\\d+X\\d+/\\d+",
+        "variants": [
+            {
+                "pattern": "HSS\\d+X\\d+X\\d+/\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "S:/",
+                    "N"
+                ],
+                "examples": [
+                    "HSS6x2x5/16"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "HSS6x2x5/16"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8547,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "HSS6X4X3/8": {
+        "pattern": "HSS\\d+X\\d+X\\d+/\\d+",
+        "variants": [
+            {
+                "pattern": "HSS\\d+X\\d+X\\d+/\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "S:/",
+                    "N"
+                ],
+                "examples": [
+                    "HSS6X4X3/8"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "HSS6X4X3/8"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8547,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "HSS8X6X3/8": {
+        "pattern": "HSS\\ \\d+X\\d+X\\d+/\\d+",
+        "variants": [
+            {
+                "pattern": "HSS\\ \\d+X\\d+X\\d+/\\d+",
+                "support": 1,
+                "frequency": 0.5,
+                "confidence": 0.495,
+                "distinct_structure": [
+                    "A",
+                    "S: ",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "S:/",
+                    "N"
+                ],
+                "examples": [
+                    "HSS 8X8X3/8"
+                ],
+                "readability": 1.0
+            },
+            {
+                "pattern": "HSS\\d+X\\d+X\\d+/\\d+",
+                "support": 1,
+                "frequency": 0.5,
+                "confidence": 0.495,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "S:/",
+                    "N"
+                ],
+                "examples": [
+                    "HSS8x8x3/8"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "HSS 8X8X3/8",
+            "HSS8x8x3/8"
+        ],
+        "example_count": 2,
+        "coverage": 0.5,
+        "confidence": 0.621,
+        "confidence_level": "Medium",
+        "category": "structural_section",
+        "distinct_structures": 2,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "HSS8X8": {
+        "pattern": "HSS\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "HSS\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "HSS8x8"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "HSS8x8"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8407,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "HSS8X8X1/2": {
+        "pattern": "HSS\\d+X\\d+X\\d+/\\d+",
+        "variants": [
+            {
+                "pattern": "HSS\\d+X\\d+X\\d+/\\d+",
+                "support": 2,
+                "frequency": 1.0,
+                "confidence": 0.79,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "S:/",
+                    "N"
+                ],
+                "examples": [
+                    "HSS6x8x1/2",
+                    "HSS8x8x1/2"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "HSS6x8x1/2",
+            "HSS8x8x1/2"
+        ],
+        "example_count": 2,
+        "coverage": 1.0,
+        "confidence": 0.8845,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "HSS8X8X3/8": {
+        "pattern": "HSS\\d+X\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "HSS\\d+X\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "HSS8x8x3"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "HSS8x8x3"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8547,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "L": {
         "pattern": "L\\d+X\\d+X\\d+/\\d+",
         "variants": [
             {
                 "pattern": "L\\d+X\\d+X\\d+/\\d+",
-                "support": 44,
-                "frequency": 0.7213,
-                "confidence": 0.8746,
+                "support": 74,
+                "frequency": 0.6167,
+                "confidence": 0.8275,
                 "distinct_structure": [
                     "A",
                     "N",
@@ -1921,10 +2305,70 @@
                 "readability": 1.0
             },
             {
+                "pattern": "L\\d+X\\d+\\-\\d+/\\d+X\\d+/\\d+",
+                "support": 19,
+                "frequency": 0.1583,
+                "confidence": 0.6181,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "S:-",
+                    "N",
+                    "S:/",
+                    "N",
+                    "A",
+                    "N",
+                    "S:/",
+                    "N"
+                ],
+                "examples": [
+                    "L6X3-1/2X1/2",
+                    "L6X3-1/2X3/8",
+                    "L6X3-1/2X5/16",
+                    "L5X3-1/2X3/4",
+                    "L5X3-1/2X5/8"
+                ],
+                "readability": 0.9844
+            },
+            {
+                "pattern": "L\\d+\\-\\d+/\\d+X\\d+\\-\\d+/\\d+X\\d+/\\d+",
+                "support": 9,
+                "frequency": 0.075,
+                "confidence": 0.5525,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "S:-",
+                    "N",
+                    "S:/",
+                    "N",
+                    "A",
+                    "N",
+                    "S:-",
+                    "N",
+                    "S:/",
+                    "N",
+                    "A",
+                    "N",
+                    "S:/",
+                    "N"
+                ],
+                "examples": [
+                    "L3-1/2X3-1/2X1/2",
+                    "L3-1/2X3-1/2X7/16",
+                    "L3-1/2X3-1/2X3/8",
+                    "L3-1/2X3-1/2X5/16",
+                    "L3-1/2X3-1/2X1/4"
+                ],
+                "readability": 0.8438
+            },
+            {
                 "pattern": "L\\d+X\\d+X\\d+\\-\\d+/\\d+",
                 "support": 7,
-                "frequency": 0.1148,
-                "confidence": 0.6016,
+                "frequency": 0.0583,
+                "confidence": 0.5762,
                 "distinct_structure": [
                     "A",
                     "N",
@@ -1949,8 +2393,8 @@
             {
                 "pattern": "L\\d+X\\d+X\\d+",
                 "support": 6,
-                "frequency": 0.0984,
-                "confidence": 0.5943,
+                "frequency": 0.05,
+                "confidence": 0.5725,
                 "distinct_structure": [
                     "A",
                     "N",
@@ -1969,13 +2413,11 @@
                 "readability": 1.0
             },
             {
-                "pattern": "L\\d+X\\d+\\-\\d+/\\d+X\\d+/\\d+",
-                "support": 3,
-                "frequency": 0.0492,
-                "confidence": 0.429,
+                "pattern": "L\\d+\\-\\d+/\\d+X\\d+X\\d+/\\d+",
+                "support": 5,
+                "frequency": 0.0417,
+                "confidence": 0.5656,
                 "distinct_structure": [
-                    "A",
-                    "N",
                     "A",
                     "N",
                     "S:-",
@@ -1984,31 +2426,19 @@
                     "N",
                     "A",
                     "N",
+                    "A",
+                    "N",
                     "S:/",
                     "N"
                 ],
                 "examples": [
-                    "L6X3-1/2X1/2",
-                    "L6X3-1/2X3/8",
-                    "L6X3-1/2X5/16"
+                    "L3-1/2X3X1/2",
+                    "L3-1/2X3X7/16",
+                    "L3-1/2X3X3/8",
+                    "L3-1/2X3X5/16",
+                    "L3-1/2X3X1/4"
                 ],
                 "readability": 0.9844
-            },
-            {
-                "pattern": "L\\d+X\\d+",
-                "support": 1,
-                "frequency": 0.0164,
-                "confidence": 0.2774,
-                "distinct_structure": [
-                    "A",
-                    "N",
-                    "A",
-                    "N"
-                ],
-                "examples": [
-                    "L4X3"
-                ],
-                "readability": 1.0
             }
         ],
         "examples": [
@@ -2073,16 +2503,708 @@
             "L5X5X5/8",
             "L5X5X1/2"
         ],
-        "example_count": 61,
-        "coverage": 0.7213,
-        "confidence": 0.8307,
-        "confidence_level": "High",
-        "distinct_structures": 5,
-        "usage_count": 287,
+        "example_count": 185,
+        "coverage": 0.6167,
+        "confidence": 0.7795,
+        "confidence_level": "Medium",
+        "category": "structural_section",
+        "distinct_structures": 6,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-29T08:45:58.806862+00:00",
-        "category": "structural_section"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "L2X2X1/4": {
+        "pattern": "L\\d+X\\d+X\\d+/\\d+",
+        "variants": [
+            {
+                "pattern": "L\\d+X\\d+X\\d+/\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "S:/",
+                    "N"
+                ],
+                "examples": [
+                    "L2x2x1/4"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "L2x2x1/4"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8477,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "L3X3X1/2": {
+        "pattern": "L\\d+X\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "L\\d+X\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "L3x3x1"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "L3x3x1"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8407,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "L3X3X1/4": {
+        "pattern": "L\\d+X\\d+X\\d+/\\d+",
+        "variants": [
+            {
+                "pattern": "L\\d+X\\d+X\\d+/\\d+",
+                "support": 4,
+                "frequency": 1.0,
+                "confidence": 0.93,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "S:/",
+                    "N"
+                ],
+                "examples": [
+                    "L3x3x1/4",
+                    "L3x3x1/4",
+                    "L3x3x1/4",
+                    "L3x3x1/4"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "L3x3x1/4",
+            "L3x3x1/4",
+            "L3x3x1/4",
+            "L3x3x1/4"
+        ],
+        "example_count": 4,
+        "coverage": 1.0,
+        "confidence": 0.937,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "L3X3X3/8": {
+        "pattern": "L\\d+X\\d+X\\d+/\\d+",
+        "variants": [
+            {
+                "pattern": "L\\d+X\\d+X\\d+/\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "S:/",
+                    "N"
+                ],
+                "examples": [
+                    "L3X3X3/8"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "L3X3X3/8"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8477,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "L4X3X5/16": {
+        "pattern": "L\\d+X\\d+X\\d+/\\d+",
+        "variants": [
+            {
+                "pattern": "L\\d+X\\d+X\\d+/\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "S:/",
+                    "N"
+                ],
+                "examples": [
+                    "L4X3X5/16"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "L4X3X5/16"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8477,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "L4X3X5/8": {
+        "pattern": "L\\d+X\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "L\\d+X\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "L4X3X5"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "L4X3X5"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8407,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "L4X4": {
+        "pattern": "L\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "L\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "L4x4"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "L4x4"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "L4X4X1/4": {
+        "pattern": "L\\d+X\\d+X\\d+/\\d+",
+        "variants": [
+            {
+                "pattern": "L\\d+X\\d+X\\d+/\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "S:/",
+                    "N"
+                ],
+                "examples": [
+                    "L4x4x1/4"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "L4x4x1/4"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8477,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "L4X4X5/16": {
+        "pattern": "L\\ \\d+\\ X\\ \\d+\\ X\\ \\d+/\\d+",
+        "variants": [
+            {
+                "pattern": "L\\ \\d+\\ X\\ \\d+\\ X\\ \\d+/\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.7137,
+                "distinct_structure": [
+                    "A",
+                    "S: ",
+                    "N",
+                    "S: ",
+                    "A",
+                    "S: ",
+                    "N",
+                    "S: ",
+                    "A",
+                    "S: ",
+                    "N",
+                    "S:/",
+                    "N"
+                ],
+                "examples": [
+                    "L 4 X 4 X 5/16"
+                ],
+                "readability": 0.9688
+            }
+        ],
+        "examples": [
+            "L 4 X 4 X 5/16"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8415,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "L5X3X1/2": {
+        "pattern": "L\\d+X\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "L\\d+X\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "L5x3x1"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "L5x3x1"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8407,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "L5X3X1/4": {
+        "pattern": "L\\ \\d+\\ X\\ \\d+\\ X\\ \\d+/\\d+",
+        "variants": [
+            {
+                "pattern": "L\\ \\d+\\ X\\ \\d+\\ X\\ \\d+/\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.7137,
+                "distinct_structure": [
+                    "A",
+                    "S: ",
+                    "N",
+                    "S: ",
+                    "A",
+                    "S: ",
+                    "N",
+                    "S: ",
+                    "A",
+                    "S: ",
+                    "N",
+                    "S:/",
+                    "N"
+                ],
+                "examples": [
+                    "L 5 X 3 X 1/4"
+                ],
+                "readability": 0.9688
+            }
+        ],
+        "examples": [
+            "L 5 X 3 X 1/4"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8415,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "L5X5": {
+        "pattern": "L\\ \\d+\\ X\\ \\d+",
+        "variants": [
+            {
+                "pattern": "L\\ \\d+\\ X\\ \\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "S: ",
+                    "N",
+                    "S: ",
+                    "A",
+                    "S: ",
+                    "N"
+                ],
+                "examples": [
+                    "L 5 X 5"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "L 5 X 5"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "L5X5X3/8": {
+        "pattern": "L\\ \\d+\\ X\\ \\d+\\ X\\ \\d+/\\d+",
+        "variants": [
+            {
+                "pattern": "L\\ \\d+\\ X\\ \\d+\\ X\\ \\d+/\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.7137,
+                "distinct_structure": [
+                    "A",
+                    "S: ",
+                    "N",
+                    "S: ",
+                    "A",
+                    "S: ",
+                    "N",
+                    "S: ",
+                    "A",
+                    "S: ",
+                    "N",
+                    "S:/",
+                    "N"
+                ],
+                "examples": [
+                    "L 5 X 5 X 3/8"
+                ],
+                "readability": 0.9688
+            }
+        ],
+        "examples": [
+            "L 5 X 5 X 3/8"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8415,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "L5X5X5/16": {
+        "pattern": "L\\d+X\\d+X\\d+/\\d+",
+        "variants": [
+            {
+                "pattern": "L\\d+X\\d+X\\d+/\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "S:/",
+                    "N"
+                ],
+                "examples": [
+                    "L5x5x5/16"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "L5x5x5/16"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8477,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "L6X3": {
+        "pattern": "L\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "L\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "L6X3"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "L6X3"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "L6X4X1/2": {
+        "pattern": "L\\ \\d+\\ X\\ \\d+",
+        "variants": [
+            {
+                "pattern": "L\\ \\d+\\ X\\ \\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "S: ",
+                    "N",
+                    "S: ",
+                    "A",
+                    "S: ",
+                    "N"
+                ],
+                "examples": [
+                    "L 6 X 4"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "L 6 X 4"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "L6X4X3/8": {
+        "pattern": "L\\ \\d+\\ X\\ \\d+\\ X\\ \\d+/\\d+",
+        "variants": [
+            {
+                "pattern": "L\\ \\d+\\ X\\ \\d+\\ X\\ \\d+/\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.7137,
+                "distinct_structure": [
+                    "A",
+                    "S: ",
+                    "N",
+                    "S: ",
+                    "A",
+                    "S: ",
+                    "N",
+                    "S: ",
+                    "A",
+                    "S: ",
+                    "N",
+                    "S:/",
+                    "N"
+                ],
+                "examples": [
+                    "L 6 X 4 X 3/8"
+                ],
+                "readability": 0.9688
+            }
+        ],
+        "examples": [
+            "L 6 X 4 X 3/8"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8415,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "L8X8X1": {
+        "pattern": "L\\d+X\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "L\\d+X\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "L8X8X1"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "L8X8X1"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8407,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "M": {
         "pattern": "M\\d+(?:\\.\\d+)?X\\d+(?:\\.\\d+)?",
@@ -2130,12 +3252,12 @@
         "coverage": 1.0,
         "confidence": 0.957,
         "confidence_level": "High",
+        "category": "structural_section",
         "distinct_structures": 1,
         "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-28T10:57:57.565754+00:00",
-        "category": "structural_section"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "MC": {
         "pattern": "MC\\d+X\\d+(?:\\.\\d+)?",
@@ -2207,12 +3329,12 @@
         "coverage": 1.0,
         "confidence": 0.97,
         "confidence_level": "High",
+        "category": "structural_section",
         "distinct_structures": 1,
         "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-28T10:57:57.565754+00:00",
-        "category": "structural_section"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "MT": {
         "pattern": "MT\\d+(?:\\.\\d+)?X\\d+(?:\\.\\d+)?",
@@ -2258,12 +3380,12 @@
         "coverage": 1.0,
         "confidence": 0.9614,
         "confidence_level": "High",
+        "category": "structural_section",
         "distinct_structures": 1,
         "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-28T10:57:57.565754+00:00",
-        "category": "structural_section"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "PIPE": {
         "pattern": "PIPE\\d+(?:STD|XS|XXS)",
@@ -2271,8 +3393,8 @@
             {
                 "pattern": "PIPE\\d+(?:STD|XS|XXS)",
                 "support": 38,
-                "frequency": 0.7308,
-                "confidence": 0.8588,
+                "frequency": 0.7451,
+                "confidence": 0.8653,
                 "distinct_structure": [
                     "A",
                     "N",
@@ -2290,8 +3412,8 @@
             {
                 "pattern": "PIPE\\d+\\-\\d+/\\d+(?:STD|XS|XXS)",
                 "support": 9,
-                "frequency": 0.1731,
-                "confidence": 0.5891,
+                "frequency": 0.1765,
+                "confidence": 0.5907,
                 "distinct_structure": [
                     "A",
                     "N",
@@ -2313,8 +3435,8 @@
             {
                 "pattern": "PIPE\\d+/\\d+(?:STD|XS)",
                 "support": 4,
-                "frequency": 0.0769,
-                "confidence": 0.5006,
+                "frequency": 0.0784,
+                "confidence": 0.5013,
                 "distinct_structure": [
                     "A",
                     "N",
@@ -2329,20 +3451,6 @@
                     "Pipe1/2XS"
                 ],
                 "readability": 0.93
-            },
-            {
-                "pattern": "PIPE\\d+",
-                "support": 1,
-                "frequency": 0.0192,
-                "confidence": 0.2787,
-                "distinct_structure": [
-                    "A",
-                    "N"
-                ],
-                "examples": [
-                    "PIPE1"
-                ],
-                "readability": 1.0
             }
         ],
         "examples": [
@@ -2396,19 +3504,18 @@
             "Pipe4XXS",
             "Pipe3XXS",
             "Pipe2-1/2XXS",
-            "Pipe2XXS",
-            "PIPE1"
+            "Pipe2XXS"
         ],
-        "example_count": 52,
-        "coverage": 0.7308,
-        "confidence": 0.8238,
+        "example_count": 51,
+        "coverage": 0.7451,
+        "confidence": 0.8333,
         "confidence_level": "High",
-        "distinct_structures": 4,
-        "usage_count": 3,
+        "category": "pipe",
+        "distinct_structures": 3,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-29T07:44:25.556702+00:00",
-        "category": "pipe"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "S": {
         "pattern": "S\\-\\d+",
@@ -2519,12 +3626,12 @@
         "coverage": 0.7667,
         "confidence": 0.8275,
         "confidence_level": "High",
+        "category": "structural_section",
         "distinct_structures": 2,
-        "usage_count": 184,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-29T07:44:27.042706+00:00",
-        "category": "structural_section"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "ST": {
         "pattern": "ST\\d+(?:\\.\\d+)?X\\d+(?:\\.\\d+)?",
@@ -2584,12 +3691,12 @@
         "coverage": 1.0,
         "confidence": 0.9614,
         "confidence_level": "High",
+        "category": "structural_section",
         "distinct_structures": 1,
         "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-28T10:57:57.565754+00:00",
-        "category": "structural_section"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "W": {
         "pattern": "W\\d+X\\d+",
@@ -2681,12 +3788,1360 @@
         "coverage": 1.0,
         "confidence": 0.963,
         "confidence_level": "High",
+        "category": "structural_section",
         "distinct_structures": 1,
-        "usage_count": 582,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-29T08:46:00.496482+00:00",
-        "category": "structural_section"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W12X14": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W12X14"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W12X14"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W12X26": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W12X26"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W12X26"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W12X65": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W12X65"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W12X65"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W14X22": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W14x22"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W14x22"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W14X30": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W14X30"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W14X30"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W16X26": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W16x26"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W16x26"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W16X31": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W16x31"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W16x31"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W16X36": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W16X36"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W16X36"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W16X40": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W16X40"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W16X40"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W16X45": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 2,
+                "frequency": 1.0,
+                "confidence": 0.79,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W16x45",
+                    "W16x45"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W16x45",
+            "W16x45"
+        ],
+        "example_count": 2,
+        "coverage": 1.0,
+        "confidence": 0.8565,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W16X50": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 2,
+                "frequency": 1.0,
+                "confidence": 0.79,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W16X50",
+                    "W21x50"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W16X50",
+            "W21x50"
+        ],
+        "example_count": 2,
+        "coverage": 1.0,
+        "confidence": 0.8565,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W18X35": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W18x35"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W18x35"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W18X40": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W18x40"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W18x40"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W18X46": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 3,
+                "frequency": 1.0,
+                "confidence": 0.86,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W18X46",
+                    "W18X46",
+                    "W18x46"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W18X46",
+            "W18X46",
+            "W18x46"
+        ],
+        "example_count": 3,
+        "coverage": 1.0,
+        "confidence": 0.8862,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W18X55": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W18X55"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W18X55"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W18X60": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W18X60"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W18X60"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W18X65": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W18X65"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W18X65"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W18X71": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W18X71"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W18X71"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W18X76": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W18X76"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W18X76"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W18X86": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W18X86"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W18X86"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W18X97": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W18X97"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W18X97"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W21X44": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W21x44"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W21x44"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W21X62": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W21X62"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W21X62"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W24X55": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W24x55"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W24x55"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W24X62": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W24X62"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W24X62"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W24X68": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W24x68"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W24x68"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W24X84": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W24x84"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W24x84"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W27X84": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W27x84"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W27x84"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W33X130": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W33x130"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W33x130"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W33X318": {
+        "pattern": "L\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "L\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "L3X31"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "L3X31"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W36X150": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 2,
+                "frequency": 1.0,
+                "confidence": 0.79,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W36x150",
+                    "W36x150"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W36x150",
+            "W36x150"
+        ],
+        "example_count": 2,
+        "coverage": 1.0,
+        "confidence": 0.8565,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W8X10": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W8x10"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W8x10"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W8X18": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 2,
+                "frequency": 1.0,
+                "confidence": 0.79,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W8X18",
+                    "W8x31"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W8X18",
+            "W8x31"
+        ],
+        "example_count": 2,
+        "coverage": 1.0,
+        "confidence": 0.8565,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W8X24": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 2,
+                "frequency": 1.0,
+                "confidence": 0.79,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W8x24",
+                    "W8x40"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W8x24",
+            "W8x40"
+        ],
+        "example_count": 2,
+        "coverage": 1.0,
+        "confidence": 0.8565,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W8X28": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 3,
+                "frequency": 1.0,
+                "confidence": 0.86,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W8x28",
+                    "W8x28",
+                    "W8x28"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W8x28",
+            "W8x28",
+            "W8x28"
+        ],
+        "example_count": 3,
+        "coverage": 1.0,
+        "confidence": 0.8862,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W8X31": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 2,
+                "frequency": 1.0,
+                "confidence": 0.79,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W8x31",
+                    "W8x35"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W8x31",
+            "W8x35"
+        ],
+        "example_count": 2,
+        "coverage": 1.0,
+        "confidence": 0.8565,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W8X35": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W8x35"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W8x35"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W8X40": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W8x48"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W8x48"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8267,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "W8X58": {
+        "pattern": "W\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "W\\d+X\\d+",
+                "support": 2,
+                "frequency": 1.0,
+                "confidence": 0.79,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "W8x58",
+                    "W8x58"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "W8x58",
+            "W8x58"
+        ],
+        "example_count": 2,
+        "coverage": 1.0,
+        "confidence": 0.8565,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
     "WT": {
         "pattern": "WT\\d+(?:\\.\\d+)?X\\d+(?:\\.\\d+)?",
@@ -2778,42 +5233,79 @@
         "coverage": 1.0,
         "confidence": 0.9614,
         "confidence_level": "High",
+        "category": "structural_section",
         "distinct_structures": 1,
-        "usage_count": 4,
+        "usage_count": 0,
         "source": "training+approved",
-        "created_at": "2026-07-28T10:57:57.565754+00:00",
-        "updated_at": "2026-07-29T08:46:00.557032+00:00",
-        "category": "structural_section"
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     },
-    "PL": {
-        "pattern": "PL\\d+",
+    "WT16.5X59": {
+        "pattern": "WT\\d+\\.\\d+X\\d+",
         "variants": [
             {
-                "pattern": "PL\\d+",
+                "pattern": "WT\\d+\\.\\d+X\\d+",
                 "support": 1,
                 "frequency": 1.0,
                 "confidence": 0.72,
                 "distinct_structure": [
                     "A",
+                    "N",
+                    "A",
                     "N"
                 ],
                 "examples": [
-                    "PL1"
+                    "WT16.5x59"
                 ],
                 "readability": 1.0
             }
         ],
         "examples": [
-            "PL1"
+            "WT16.5x59"
         ],
         "example_count": 1,
         "coverage": 1.0,
-        "confidence": 0.8197,
+        "confidence": 0.8407,
         "confidence_level": "High",
+        "category": "structural_section",
         "distinct_structures": 1,
-        "usage_count": 4,
-        "source": "self-learned",
-        "created_at": "2026-07-29T06:41:26.375072+00:00",
-        "updated_at": "2026-07-29T06:41:26.818173+00:00"
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
+    },
+    "WT3X8": {
+        "pattern": "WT\\d+X\\d+",
+        "variants": [
+            {
+                "pattern": "WT\\d+X\\d+",
+                "support": 1,
+                "frequency": 1.0,
+                "confidence": 0.72,
+                "distinct_structure": [
+                    "A",
+                    "N",
+                    "A",
+                    "N"
+                ],
+                "examples": [
+                    "WT3X8"
+                ],
+                "readability": 1.0
+            }
+        ],
+        "examples": [
+            "WT3X8"
+        ],
+        "example_count": 1,
+        "coverage": 1.0,
+        "confidence": 0.8337,
+        "confidence_level": "High",
+        "category": "structural_section",
+        "distinct_structures": 1,
+        "usage_count": 0,
+        "source": "training+approved",
+        "created_at": "2026-08-03T10:45:07.965717+00:00",
+        "updated_at": "2026-08-03T10:45:07.965717+00:00"
     }
 }

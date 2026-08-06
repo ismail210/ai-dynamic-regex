@@ -81,21 +81,44 @@ class GeometryFeatureProvider:
             return {
                 "available": False,
                 "nearest_distance": 999.0,
-                "similarity": 0.35,
+                "similarity": 0.0,
                 "object": None,
             }
         distance, obj = nearest
-        proximity = max(0.1, 1.0 - distance / 180.0)
+        embedding = obj.get("geometry_embedding") or []
+        proximity = max(0.0, 1.0 - distance / 180.0)
+        # Learned visual similarity is preferred; the vector-geometry signal
+        # keeps the modality usable before the embedding index is trained.
         kind_bonus = (
             0.1
             if obj.get("kind")
             in {"line", "polyline", "dimension", "leader", "rectangle"}
             else 0.0
         )
+        similarity = (
+            float(obj.get("geometry_similarity") or 0.0)
+            if embedding
+            else min(1.0, max(0.1, proximity) + kind_bonus)
+        )
         return {
             "available": True,
             "nearest_distance": round(distance, 3),
-            "similarity": round(min(1.0, proximity + kind_bonus), 4),
+            "similarity": round(similarity, 6),
+            "similarity_source": "geometry_embedding" if embedding else "vector_geometry",
+            "geometry_embedding": embedding,
+            "geometry_confidence": float(obj.get("geometry_confidence") or 0.0),
+            "geometry_candidates": obj.get("geometry_candidates") or [],
+            "geometry_features": obj.get("geometry_features")
+            or {
+                "length": obj.get("length"),
+                "orientation": obj.get("orientation"),
+                "aspect_ratio": obj.get("aspect_ratio"),
+                "width": obj.get("width"),
+                "height": obj.get("height"),
+                "area": obj.get("area"),
+                "bbox": obj.get("bbox"),
+            },
+            "fallback_proximity": round(proximity, 4),
             "object": {
                 "object_id": obj.get("object_id") or obj.get("geometry_id"),
                 "kind": obj.get("kind"),
@@ -112,12 +135,20 @@ class GraphFeatureProvider:
 
     def extract(self, context: Dict[str, Any]) -> Dict[str, Any]:
         token = context["token"]
-        source_ids = token.get("source_word_ids") or []
-        source_id = (
-            token.get("line", {}).get("id")
-            or (source_ids[0] if source_ids else token.get("token_id"))
-        )
-        return graph_features_for_source(context.get("graph") or {}, source_id)
+        graph = context.get("graph") or {}
+        candidates = [
+            token.get("token_id"),
+            (token.get("line") or {}).get("id"),
+            *(token.get("source_word_ids") or []),
+        ]
+        features: Dict[str, Any] = {}
+        for candidate in candidates:
+            if not candidate:
+                continue
+            features = graph_features_for_source(graph, candidate)
+            if features.get("source_node"):
+                return features
+        return features or graph_features_for_source(graph, "")
 
 
 class DatabaseFeatureProvider:

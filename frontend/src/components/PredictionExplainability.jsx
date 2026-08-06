@@ -17,9 +17,11 @@ import {
   getCanonicalPrediction,
   getConfidence,
   getDisplayConfidence,
+  getEngineerExplanation,
   getExplanation,
   getFamily,
   getSection,
+  getTechnicalExplanation,
   isLegacyPrediction,
   LEGACY_PROVENANCE_MESSAGE,
 } from "../lib/predictionContract";
@@ -116,7 +118,12 @@ function DetailFields({ details }) {
 
 function Evidence({ label, evidence, fallbackScore }) {
   const score = evidence?.score ?? fallbackScore;
-  const available = evidence?.available !== false;
+  const details = evidence?.details || {};
+  const learned =
+    Number(details.embedding_dimension || 0) > 0
+    || details.model === "graphsage"
+    || String(details.encoder || "").includes("mobilenet");
+  const available = learned || evidence?.available !== false;
   return (
     <Paper variant="outlined" sx={{ p: 1.5, height: "100%" }}>
       <Stack
@@ -253,6 +260,8 @@ export default function PredictionExplainability({ result, compact = false }) {
   const family = getFamily(result);
   const rejected = explanation.why_rejected || [];
   const legacy = isLegacyPrediction(result);
+  const engineer = getEngineerExplanation(result);
+  const technical = getTechnicalExplanation(result);
 
   return (
     <Stack spacing={compact ? 1.5 : 2}>
@@ -291,6 +300,46 @@ export default function PredictionExplainability({ result, compact = false }) {
       </Grid>
 
       <Divider />
+
+      <Grid container spacing={1.5}>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Paper variant="outlined" sx={{ p: 1.5, height: "100%" }}>
+            <Typography variant="subtitle2" fontWeight={750} mb={0.75}>
+              Engineer explanation
+            </Typography>
+            <Stack spacing={0.5}>
+              {(engineer.bullets || []).map((bullet, index) => (
+                <Typography key={index} variant="body2">• {bullet}</Typography>
+              ))}
+            </Stack>
+          </Paper>
+        </Grid>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Paper variant="outlined" sx={{ p: 1.5, height: "100%" }}>
+            <Typography variant="subtitle2" fontWeight={750} mb={0.75}>
+              AI technical explanation
+            </Typography>
+            <Stack spacing={0.5}>
+              <Typography variant="body2" color="text.secondary">
+                Text encoder {percent(technical.text_confidence)} · OCR{" "}
+                {percent(technical.ocr_confidence)}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Geometry embedding {percent(technical.geometry_embedding_similarity)} ·
+                Graph embedding {percent(technical.graph_embedding_similarity)}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Fusion {percent(technical.fusion_score)} · calibration{" "}
+                {String(technical.confidence_calibration).replaceAll("_", " ")}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                AISC plausibility filter{" "}
+                {String(technical.database_plausibility_filter).replaceAll("_", " ")}
+              </Typography>
+            </Stack>
+          </Paper>
+        </Grid>
+      </Grid>
 
       <CandidateList candidates={canonical.candidates} section={section} />
 

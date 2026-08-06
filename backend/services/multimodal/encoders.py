@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
+from services.exact_section_predictor import encode_exact_section_text
 from services.feature_extractor import extract_structural_features
 from services.multimodal.encoder_contracts import ModalityEncoder, ModalityEncoding
 
@@ -13,6 +14,11 @@ def _clip(value: Any, default: float = 0.0) -> float:
         return max(0.0, min(1.0, float(value)))
     except (TypeError, ValueError):
         return default
+
+
+def _fixed_vector(values: list[float], size: int) -> list[float]:
+    vector = [float(value) for value in values[:size]]
+    return vector + [0.0] * (size - len(vector))
 
 
 class ClassicalTextEncoder(ModalityEncoder):
@@ -64,19 +70,11 @@ class ClassicalTextEncoder(ModalityEncoder):
             + 0.15 * top_text
             + 0.05 * regex_confidence
         )
+        text_embedding = encode_exact_section_text(token)
         return ModalityEncoding(
             modality=self.modality,
-            encoder=self.name,
-            vector=[
-                model_probability,
-                extraction_confidence,
-                top_text,
-                regex_confidence,
-                length_score,
-                digit_ratio,
-                alpha_ratio,
-                _clip(candidate_margin),
-            ],
+            encoder="exact_section_tfidf_text_encoder_v1",
+            vector=text_embedding,
             confidence=confidence,
             available=bool(token),
             features={
@@ -85,6 +83,10 @@ class ClassicalTextEncoder(ModalityEncoder):
                 "top_text_similarity": top_text,
                 "candidate_margin": round(candidate_margin, 4),
                 "shape_family": engineered.get("shape_family"),
+                "embedding_dimension": len(text_embedding),
+                "length_score": length_score,
+                "digit_ratio": digit_ratio,
+                "alpha_ratio": alpha_ratio,
             },
             reasons=[
                 f"Text model confidence {model_probability:.0%}",
@@ -198,7 +200,7 @@ class ClassicalLayoutEncoder(ModalityEncoder):
 
 
 class ClassicalGeometryEncoder(ModalityEncoder):
-    """Vector-geometry encoder. PointNet/ViT can replace this adapter."""
+    """MobileNet geometry encoder with vector-geometry fallback."""
 
     modality = "geometry"
     name = "classical_geometry_encoder_v1"
@@ -207,7 +209,8 @@ class ClassicalGeometryEncoder(ModalityEncoder):
         geometry = context.get("geometry") or {}
         available = bool(geometry.get("available"))
         obj = geometry.get("object") or {}
-        similarity = _clip(geometry.get("similarity"), 0.35)
+        learned_embedding = geometry.get("geometry_embedding") or []
+        similarity = _clip(geometry.get("similarity"), 0.0)
         distance = float(geometry.get("nearest_distance") or 999.0)
         proximity = max(0.0, min(1.0, 1.0 - distance / 180.0))
         orientation = abs(float(obj.get("orientation") or 0.0)) % 180
@@ -218,22 +221,33 @@ class ClassicalGeometryEncoder(ModalityEncoder):
         structural_kind = 1.0 if kind in {
             "line", "polyline", "dimension", "leader", "rectangle"
         } else 0.0
-        confidence = _clip(
-            0.50 * similarity + 0.30 * proximity + 0.20 * structural_kind
+        confidence = (
+            _clip(geometry.get("geometry_confidence"), 0.0)
+            if learned_embedding
+            else _clip(
+                0.50 * similarity + 0.30 * proximity + 0.20 * structural_kind
+            )
         ) if available else 0.0
         return ModalityEncoding(
             modality=self.modality,
-            encoder=self.name,
-            vector=[
-                similarity,
-                proximity,
-                horizontal,
-                vertical,
-                length,
-                structural_kind,
-                1.0 if obj.get("bbox") else 0.0,
-                1.0 if available else 0.0,
-            ],
+            encoder=(
+                "mobilenet_v3_small_geometry_v1"
+                if learned_embedding
+                else self.name
+            ),
+            vector=_fixed_vector(
+                list(learned_embedding) if learned_embedding else [
+                    similarity,
+                    proximity,
+                    horizontal,
+                    vertical,
+                    length,
+                    structural_kind,
+                    1.0 if obj.get("bbox") else 0.0,
+                    1.0 if available else 0.0,
+                ],
+                128,
+            ),
             confidence=confidence,
             available=available,
             features={
@@ -241,6 +255,9 @@ class ClassicalGeometryEncoder(ModalityEncoder):
                 "orientation": orientation,
                 "nearest_distance": distance,
                 "object_id": obj.get("object_id"),
+                "geometry_similarity": similarity,
+                "geometry_candidates": geometry.get("geometry_candidates") or [],
+                "geometry_features": geometry.get("geometry_features") or {},
             },
             reasons=(
                 [
@@ -255,43 +272,61 @@ class ClassicalGeometryEncoder(ModalityEncoder):
 
 
 class ClassicalGraphEncoder(ModalityEncoder):
-    """Structural graph encoder. GraphSAGE/GCN can replace this adapter."""
+    """GraphSAGE encoder with constructed-graph fallback."""
 
     modality = "graph"
     name = "classical_graph_encoder_v1"
 
     def encode(self, context: Dict[str, Any]) -> ModalityEncoding:
         graph = context.get("graph") or {}
+        learned_embedding = graph.get("graph_embedding") or []
         degree = float(graph.get("degree") or 0.0)
         links = float(graph.get("structural_links") or 0.0)
-        consistency = _clip(graph.get("graph_consistency"), 0.35)
+        consistency = _clip(
+            graph.get("structural_consistency")
+            if learned_embedding
+            else graph.get("graph_consistency"),
+            0.35,
+        )
         distance = float(graph.get("min_distance") or 999.0)
         proximity = max(0.0, min(1.0, 1.0 - distance / 180.0))
-        available = degree > 0
-        confidence = _clip(
-            0.50 * consistency
-            + 0.25 * min(1.0, degree / 6.0)
-            + 0.25 * min(1.0, links / 4.0)
+        available = bool(learned_embedding) or degree > 0
+        confidence = (
+            _clip(graph.get("graph_confidence"), 0.0)
+            if learned_embedding
+            else _clip(
+                0.50 * consistency
+                + 0.25 * min(1.0, degree / 6.0)
+                + 0.25 * min(1.0, links / 4.0)
+            )
         ) if available else 0.0
         return ModalityEncoding(
             modality=self.modality,
-            encoder=self.name,
-            vector=[
-                consistency,
-                min(1.0, degree / 8.0),
-                min(1.0, links / 6.0),
-                proximity,
-                1.0 if degree >= 2 else 0.0,
-                1.0 if links >= 1 else 0.0,
-                1.0 if graph.get("source_node") else 0.0,
-                1.0 if available else 0.0,
-            ],
+            encoder="graphsage_v1" if learned_embedding else self.name,
+            vector=_fixed_vector(
+                list(learned_embedding) if learned_embedding else [
+                    consistency,
+                    min(1.0, degree / 8.0),
+                    min(1.0, links / 6.0),
+                    proximity,
+                    1.0 if degree >= 2 else 0.0,
+                    1.0 if links >= 1 else 0.0,
+                    1.0 if graph.get("source_node") else 0.0,
+                    1.0 if available else 0.0,
+                ],
+                48,
+            ),
             confidence=confidence,
             available=available,
             features={
                 "degree": degree,
                 "structural_links": links,
                 "min_distance": distance,
+                "graph_prediction": graph.get("graph_prediction"),
+                "member_role": graph.get("graph_prediction"),
+                "structural_consistency": graph.get("structural_consistency"),
+                "missing_label_probability": graph.get("missing_label_probability"),
+                "incorrect_label_probability": graph.get("incorrect_label_probability"),
             },
             reasons=(
                 [

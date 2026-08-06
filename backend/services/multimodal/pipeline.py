@@ -6,6 +6,7 @@ import time
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from config import settings
 from services.artifact_store import prune_documents, write_artifact
 from services.dataset_manager import dataset_manager
 from services.engineering.geometry_adapters import (
@@ -17,12 +18,78 @@ from services.engineering.structural_graph import build_structural_graph
 from services.extraction_engine import extract_engineering_document
 from services.multimodal.duplicate_detector import merge_duplicate_predictions
 from services.multimodal.fusion_engine import fusion_engine
+from services.multimodal.geometry_ai import enrich_geometry_embeddings
+from services.multimodal.graph_ai import enrich_graph_embeddings
 from services.multimodal.review_enrichment import index_predictions
 from services.multimodal.validation_engine import (
     validate_multimodal_predictions,
 )
 from services.prediction.contract import confidence_overall
 from services.takeoff.ground_truth_excel import parse_ground_truth_excel
+
+
+# Bumped whenever prediction behaviour changes, so cached analyses are replaced.
+PIPELINE_VERSION = "4.0-learned-fusion"
+
+
+def _neural_model_status() -> Dict[str, Any]:
+    """Report which learned modules are trained, and the active fallback."""
+
+    geometry_trained = settings.geometry_embedding_index_path.exists()
+    graph_trained = settings.graphsage_model_path.exists()
+    fusion_trained = settings.fusion_model_path.exists()
+    return {
+        "geometry_model": (
+            "mobilenet_v3_small_embedding_index"
+            if geometry_trained
+            else "vector_geometry_fallback"
+        ),
+        "graph_model": "graphsage" if graph_trained else "structural_rules_fallback",
+        "fusion_model": (
+            "candidate_fusion_mlp" if fusion_trained else "attention_fallback"
+        ),
+        "confidence_calibration": (
+            "temperature_scaling" if fusion_trained else "attention_confidence"
+        ),
+    }
+
+
+def _missing_label_tokens(
+    geometry: Dict[str, Any],
+    graph: Dict[str, Any],
+) -> list[dict]:
+    """Create inference records only when trained geometry and graph models agree."""
+
+    graph_features = graph.get("source_features") or {}
+    records = []
+    for obj in geometry.get("objects") or []:
+        geometry_id = str(obj.get("geometry_id") or "")
+        learned_graph = graph_features.get(geometry_id) or {}
+        candidates = obj.get("geometry_candidates") or []
+        if (
+            not geometry_id
+            or obj.get("nearby_text")
+            or not candidates
+            or float(obj.get("geometry_confidence") or 0.0) < 0.55
+            or float(learned_graph.get("missing_label_probability") or 0.0)
+            < 0.50
+        ):
+            continue
+        records.append(
+            {
+                "token_id": geometry_id,
+                "text": "",
+                "raw_text": "",
+                "corrected_text": "",
+                "normalized_text": "",
+                "page": obj.get("page_number"),
+                "bbox": obj.get("bbox"),
+                "confidence": 0.0,
+                "engineering_object_type": learned_graph.get("graph_prediction"),
+                "missing_label": True,
+            }
+        )
+    return records
 
 
 def _merge_audit(deduped: Dict[str, Any]) -> Dict[str, Any]:
@@ -80,6 +147,7 @@ def run_multimodal_pipeline(
     geometry = geometry_document or extract_geometry_document(
         path, document_structure=document
     )
+    geometry = enrich_geometry_embeddings(path, geometry)
     timings["geometry_ms"] = (
         0.0
         if geometry_document is not None
@@ -88,6 +156,7 @@ def run_multimodal_pipeline(
 
     stage_started = time.perf_counter()
     graph = graph_document or build_structural_graph(document, geometry)
+    graph = enrich_graph_embeddings(graph)
     document_rules = evaluate_document_rules(graph)
     timings["graph_rules_ms"] = round(
         (time.perf_counter() - stage_started) * 1000, 2
@@ -100,7 +169,9 @@ def run_multimodal_pipeline(
 
     stage_started = time.perf_counter()
     raw_predictions = []
-    for token in document.get("engineering_tokens") or []:
+    prediction_tokens = list(document.get("engineering_tokens") or [])
+    prediction_tokens.extend(_missing_label_tokens(geometry, graph))
+    for token in prediction_tokens:
         raw_predictions.append(
             fusion_engine.predict(
                 {
@@ -199,7 +270,13 @@ def run_multimodal_pipeline(
     if persist:
         prune_documents()
         written = {
-            "document": write_artifact(document_id, "document.json", document),
+            # A document supplied by the extraction stage is already stored;
+            # rewriting it would re-serialize tens of megabytes per analysis.
+            "document": (
+                write_artifact(document_id, "document.json", document)
+                if document_structure is None
+                else None
+            ),
             "geometry": write_artifact(document_id, "geometry.json", geometry),
             "graph": write_artifact(document_id, "graph.json", graph),
             "predictions": write_artifact(
@@ -320,16 +397,8 @@ def run_multimodal_pipeline(
             "ai_predicts": True,
             "database_decides_prediction": False,
             "database_role": "verification_only",
-            "fusion_weights": {
-                "text": 0.32,
-                "ocr": 0.08,
-                "layout": 0.08,
-                "geometry": 0.30,
-                "graph": 0.17,
-                "engineering_rules": 0.05,
-                "database": 0.0,
-            },
-            "attention_is_dynamic": True,
+            "pipeline_version": PIPELINE_VERSION,
+            **_neural_model_status(),
         },
         "capabilities": {
             "geometry_adapters": geometry_capabilities(),
