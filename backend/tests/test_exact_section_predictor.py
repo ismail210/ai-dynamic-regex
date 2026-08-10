@@ -44,6 +44,12 @@ class ApprovedIngestionTests(unittest.TestCase):
                 exact_section_dataset_path = root / "exact_section_dataset.csv"
                 training_dataset_path = root / "training_dataset.csv"
                 training_dir = root
+                # Engineering corrections are an optional additional retrieval
+                # anchor source (services.exact_section_predictor reads this
+                # path if it exists). Left pointing at a nonexistent file so
+                # that code path is exercised (skips gracefully) without this
+                # fixture needing to seed real correction data.
+                engineering_corrections_path = root / "engineering_corrections.jsonl"
 
             # Minimal seed labels so training has AISC-like inventory too.
             pd.DataFrame(

@@ -30,9 +30,17 @@ def apply_legacy_aliases(payload: Dict[str, Any]) -> Dict[str, Any]:
 
     * ``prediction`` / ``predicted_shape``   -> alias of ``section``
     * ``confidence.score``                    -> alias of ``confidence.overall``
-    * ``reasoning``                           -> alias of ``explanation``
 
     Do not add new fields here. New fields belong on the canonical contract.
+
+    ``reasoning`` is deliberately NOT aliased here: ``explanation`` is the
+    single source of truth for reasoning text (see
+    ``canonical_contract``'s module docstring, which lists the legacy fields
+    this adapter exists for and does not include ``reasoning``). Duplicating
+    the entire explanation object under a second top-level key doubled every
+    response payload for no migration benefit — unlike the flat string/float
+    aliases above, no consumer needs a *different name* for the same nested
+    object, since both names would need to be read as the same shape anyway.
     """
 
     section = payload.get("section")
@@ -41,7 +49,6 @@ def apply_legacy_aliases(payload: Dict[str, Any]) -> Dict[str, Any]:
     confidence = payload.get("confidence")
     if isinstance(confidence, dict):
         confidence.setdefault("score", confidence.get("overall"))
-    payload.setdefault("reasoning", payload.get("explanation"))
     return payload
 
 
