@@ -61,7 +61,21 @@ def _center(bbox: Sequence[float]) -> List[float]:
     return [(float(bbox[0]) + float(bbox[2])) / 2.0, (float(bbox[1]) + float(bbox[3])) / 2.0]
 
 
+_CANONICAL_ROLES = {"beam", "column", "brace", "plate", "connection", "other"}
+
+
 def _infer_role(text: str, graph_preview: Optional[dict], geometry: Optional[dict]) -> str:
+    """
+    Structural role from explicit signals only: drawing-text keywords, then
+    geometry orientation plus graph connectivity. Section family (the shape
+    designation itself, e.g. "HSS8X8X1/2" or "W14X90") is NEVER used to infer
+    role — a member with no explicit role keyword and no usable orientation/
+    connectivity signal returns "other" (unknown) rather than a guess.
+
+    Always returns one of ``_CANONICAL_ROLES`` so callers never need a
+    family-based fallback for an unrecognized value.
+    """
+
     upper = (text or "").upper()
     if "COL" in upper or "COLUMN" in upper:
         return "column"
@@ -70,14 +84,29 @@ def _infer_role(text: str, graph_preview: Optional[dict], geometry: Optional[dic
     if "PL" in upper[:3] or "PLATE" in upper:
         return "plate"
     if "BOLT" in upper or upper.startswith("A3") or upper.startswith("A4"):
-        return "bolt"
-    orientation = float((geometry or {}).get("orientation") or 0.0)
+        return "connection"
+
+    geom = geometry or {}
+    has_orientation_signal = geom.get("orientation") is not None
+    if not has_orientation_signal:
+        # No geometry evidence at all — do not default a missing signal to
+        # "beam" (0.0 degrees) just because that happens to be the numeric
+        # fallback for a missing value.
+        return "other"
+
+    orientation = float(geom.get("orientation") or 0.0)
     structural_links = float((graph_preview or {}).get("structural_links") or 0.0)
     if abs(orientation) > 60 and structural_links >= 1:
         return "column"
     if abs(orientation) <= 35:
         return "beam"
-    return "member"
+    if 35 < abs(orientation) <= 60 and structural_links >= 1:
+        # Diagonal orientation with confirmed structural connectivity — a
+        # real, non-family-derived signal for "brace", not a shape lookup.
+        return "brace"
+    # Diagonal but unconfirmed (no structural_links), or steep-but-isolated:
+    # not enough independent evidence to pick a role.
+    return "other"
 
 
 def _depth_from_label(text: str) -> Optional[float]:
@@ -214,12 +243,12 @@ def evaluate_engineering_rules(
             )
         )
 
-    if role == "bolt" and structural_links == 0:
+    if role == "connection" and structural_links == 0:
         findings.append(
             RuleFinding(
                 "bolt_belongs_to_connection",
                 "warning",
-                "Bolt has no nearby connection/plate relationship",
+                "Bolt/connection has no nearby connection/plate relationship",
             )
         )
     if role == "plate" and structural_links >= 1:
