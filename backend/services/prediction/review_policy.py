@@ -6,7 +6,7 @@ Database miss alone never queues a token for review.
 
 from __future__ import annotations
 
-from typing import Iterable, Set
+from typing import Iterable, Optional, Set
 
 from config import settings
 
@@ -28,12 +28,21 @@ def decide_review_status(
     model_probability: float | None = None,
     database_verified: bool = False,
     abstain: bool = False,
+    protected_label_conflict: bool = False,
 ) -> str:
     """
     Return review_status string.
 
     Priority: auto_accepted / pending_review / correction_suggested /
     accepted_unverified.
+
+    ``protected_label_conflict`` means the final section is a clean,
+    catalog-valid exact text match that fusion/graph/ranker evidence
+    disagreed with. The label is never silently swapped in that case (see
+    ``orchestrator._gated_exact_override`` and its caller), but the
+    disagreement itself is real evidence a human should look at, so it always
+    routes to review — the same way ``abstain`` does — rather than being
+    diluted into the two-issue ``modality_conflict`` threshold below.
     """
 
     issue_set: Set[str] = set(issues or [])
@@ -43,7 +52,7 @@ def decide_review_status(
         and model_probability < settings.auto_accept_probability_threshold
     )
 
-    if abstain or "retrieval_gate_failed" in issue_set:
+    if abstain or protected_label_conflict or "retrieval_gate_failed" in issue_set:
         return "pending_review"
 
     if (
@@ -66,3 +75,80 @@ def decide_review_status(
 
 def should_enqueue(review_status: str) -> bool:
     return review_status in {"pending_review", "queued"}
+
+
+# Standardized abstention/review reason codes. A prediction that is not
+# "auto_accepted" should be able to say WHY in one of these terms, instead of
+# only exposing an ad-hoc issue-string bag — reviewers and downstream
+# tooling can filter/prioritize by cause this way.
+ABSTENTION_REASON_LOW_CONFIDENCE = "LOW_CONFIDENCE"
+ABSTENTION_REASON_INSUFFICIENT_EVIDENCE = "INSUFFICIENT_EVIDENCE"
+ABSTENTION_REASON_MODAL_DISAGREEMENT = "MODAL_DISAGREEMENT"
+ABSTENTION_REASON_OUT_OF_DISTRIBUTION = "OUT_OF_DISTRIBUTION"
+ABSTENTION_REASON_PIPELINE_FAILURE = "PIPELINE_FAILURE"
+
+_ABSTENTION_REASONS = {
+    ABSTENTION_REASON_LOW_CONFIDENCE,
+    ABSTENTION_REASON_INSUFFICIENT_EVIDENCE,
+    ABSTENTION_REASON_MODAL_DISAGREEMENT,
+    ABSTENTION_REASON_OUT_OF_DISTRIBUTION,
+    ABSTENTION_REASON_PIPELINE_FAILURE,
+}
+
+
+def determine_abstention_reason(
+    *,
+    review_status: str,
+    confidence: float,
+    issues: Iterable[str],
+    model_probability: float | None = None,
+    database_verified: bool = False,
+    regex_matches: bool = True,
+    protected_label_conflict: bool = False,
+    retrieval_gate_failed: bool = False,
+    pipeline_error: bool = False,
+) -> Optional[str]:
+    """One canonical reason code for why a prediction is not auto-accepted.
+
+    Returns ``None`` when the prediction was auto-accepted (nothing to
+    explain). Priority order below is deliberate: a pipeline failure or an
+    explicit evidence conflict is a more specific, more actionable cause than
+    a generic low-confidence score, so those are checked first even though
+    they usually also happen to have low confidence.
+    """
+
+    if review_status == "auto_accepted":
+        return None
+
+    if pipeline_error:
+        return ABSTENTION_REASON_PIPELINE_FAILURE
+
+    issue_set: Set[str] = set(issues or [])
+
+    if protected_label_conflict:
+        return ABSTENTION_REASON_MODAL_DISAGREEMENT
+    if len(issue_set & CONFLICT_ISSUES) >= 2:
+        return ABSTENTION_REASON_MODAL_DISAGREEMENT
+
+    if retrieval_gate_failed or "retrieval_gate_failed" in issue_set:
+        return ABSTENTION_REASON_INSUFFICIENT_EVIDENCE
+
+    if not database_verified and not regex_matches:
+        # Neither the catalog nor any known regex pattern recognizes this
+        # text at all — the closest proxy available today for "this input
+        # doesn't resemble anything the system has learned," in the absence
+        # of a dedicated learned OOD detector.
+        return ABSTENTION_REASON_OUT_OF_DISTRIBUTION
+
+    uncertain = (
+        model_probability is not None
+        and model_probability < settings.auto_accept_probability_threshold
+    )
+    if confidence < settings.confidence_medium_threshold or uncertain:
+        return ABSTENTION_REASON_LOW_CONFIDENCE
+
+    # review_status is not auto_accepted but none of the more specific causes
+    # above matched (e.g. accepted_unverified/correction_suggested paths) —
+    # still low-confidence in spirit: nothing about this prediction cleared
+    # the bar for automatic acceptance.
+    return ABSTENTION_REASON_LOW_CONFIDENCE
