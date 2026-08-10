@@ -140,6 +140,27 @@ def document_analysis(document_id: str):
     return result
 
 
+@router.get("/documents/{document_id}/pdf")
+def document_pdf(document_id: str):
+    """Serve the registered source PDF for in-browser drawing review."""
+
+    try:
+        source = document_source(document_id)
+    except (FileNotFoundError, ValueError) as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    if not source.exists():
+        raise HTTPException(
+            status_code=404,
+            detail="The original uploaded file is no longer available",
+        )
+    return FileResponse(
+        source,
+        media_type="application/pdf",
+        filename=source.name,
+        content_disposition_type="inline",
+    )
+
+
 @router.get("/documents/{document_id}/artifacts/{name}")
 def document_artifact(document_id: str, name: str):
     if name not in _ARTIFACTS:

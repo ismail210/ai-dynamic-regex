@@ -127,18 +127,65 @@ def section_prediction_performance() -> Dict[str, Any]:
     """B. Prediction performance — approved (human-confirmed) rows are the
     only labeled ground truth this repository has; each is re-predicted
     fresh (queue_unknown=False, persist_learning=False so this is read-only)
-    and scored against the human-confirmed label."""
+    and scored against the human-confirmed label.
+
+    Uses a hash holdout split and a shadow exact-section index that excludes
+    test tokens so metrics are not inflated by memorization.
+    """
+
+    from services.exact_section_predictor import (
+        reload_exact_section_artifact,
+        train_exact_section_model,
+    )
+    from services.training_pipeline.preprocessing import assign_split
 
     approved = dataset_manager.load_approved_dataset()
     if approved is None or approved.empty:
         return {"status": "no_labeled_data", "rows": 0}
 
     rows = approved.to_dict("records")
-    evaluated = _predict_holdout(rows)
+    holdout: List[dict] = []
+    for row in rows:
+        split = str(row.get("eval_split") or "").strip()
+        if not split:
+            split = assign_split(str(row.get("unknown_id") or row.get("token") or ""))
+            row["eval_split"] = split
+        if split == "test":
+            holdout.append(row)
+
+    if not holdout:
+        # Fall back to hashing every row when legacy CSVs lack eval_split.
+        holdout = [
+            row
+            for row in rows
+            if assign_split(str(row.get("unknown_id") or row.get("token") or ""))
+            == "test"
+        ]
+
+    if not holdout:
+        return {"status": "no_holdout_rows", "rows": len(rows)}
+
+    exclude_tokens = {
+        str(row.get("token") or "").strip()
+        for row in holdout
+        if str(row.get("token") or "").strip()
+    }
+    # Shadow index: train without test tokens so retrieval cannot memorize them.
+    train_exact_section_model(
+        persist=False,
+        exclude_tokens=exclude_tokens,
+        exclude_split="test",
+    )
+    reload_exact_section_artifact()
+
+    evaluated = _predict_holdout(holdout)
     if not evaluated:
-        return {"status": "no_usable_rows", "rows": len(rows)}
+        return {"status": "no_usable_rows", "rows": len(holdout)}
 
     top1 = top3 = top5 = candidate_recall = 0
+    auto_accepted = 0
+    auto_accepted_correct = 0
+    abstained = 0
     by_family: Dict[str, List[int]] = defaultdict(list)
     by_corruption: Dict[str, List[int]] = defaultdict(list)
     wildcard_correct = wildcard_total = 0
@@ -147,13 +194,17 @@ def section_prediction_performance() -> Dict[str, Any]:
         true_label = item["true_label"].upper().replace(" ", "")
         prediction = item["prediction"]
         predicted = str(prediction.get("section") or "").upper().replace(" ", "")
+        if not predicted:
+            abstained += 1
         candidates = [
             str(c.get("label") or "").upper().replace(" ", "")
             for c in prediction.get("canonical_candidates") or []
         ]
-        ranked = ([predicted] if predicted else []) + [c for c in candidates if c != predicted]
+        ranked = ([predicted] if predicted else []) + [
+            c for c in candidates if c != predicted
+        ]
 
-        is_top1 = predicted == true_label
+        is_top1 = bool(predicted) and predicted == true_label
         is_top3 = true_label in ranked[:3]
         is_top5 = true_label in ranked[:5]
         in_candidates = true_label in candidates or is_top1
@@ -162,6 +213,11 @@ def section_prediction_performance() -> Dict[str, Any]:
         top3 += is_top3
         top5 += is_top5
         candidate_recall += in_candidates
+
+        review_status = str(prediction.get("review_status") or "")
+        if review_status == "auto_accepted":
+            auto_accepted += 1
+            auto_accepted_correct += int(is_top1)
 
         family = str(prediction.get("family") or "UNKNOWN")
         by_family[family].append(int(is_top1))
@@ -176,10 +232,17 @@ def section_prediction_performance() -> Dict[str, Any]:
     return {
         "status": "ok",
         "rows": n,
+        "holdout_rows": n,
+        "approved_rows_total": len(rows),
         "top_1_accuracy": round(top1 / n, 4),
         "top_3_accuracy": round(top3 / n, 4),
         "top_5_accuracy": round(top5 / n, 4),
         "candidate_generation_recall": round(candidate_recall / n, 4),
+        "abstention_rate": round(abstained / n, 4),
+        "auto_accepted_rate": round(auto_accepted / n, 4),
+        "auto_accepted_accuracy": (
+            round(auto_accepted_correct / auto_accepted, 4) if auto_accepted else None
+        ),
         "accuracy_by_family": {
             family: round(sum(values) / len(values), 4)
             for family, values in by_family.items()
@@ -192,6 +255,10 @@ def section_prediction_performance() -> Dict[str, Any]:
             round(wildcard_correct / wildcard_total, 4) if wildcard_total else None
         ),
         "wildcard_sample_count": wildcard_total,
+        "note": (
+            "Metrics use hash holdout (eval_split=test) and a shadow "
+            "exact-section index that excludes those tokens."
+        ),
     }, evaluated
 
 

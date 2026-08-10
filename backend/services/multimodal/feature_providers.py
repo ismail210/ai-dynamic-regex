@@ -6,7 +6,10 @@ import math
 from typing import Any, Dict, List, Optional
 
 from services.database_loader import lookup_shape, search_similar_shapes
-from services.engineering.structural_graph import graph_features_for_source
+from services.engineering.structural_graph import (
+    build_source_lookup,
+    graph_features_for_token,
+)
 from services.feature_extractor import extract_structural_features
 from services.model_predictor import predict_with_confidence
 
@@ -107,6 +110,13 @@ class GeometryFeatureProvider:
             "similarity_source": "geometry_embedding" if embedding else "vector_geometry",
             "geometry_embedding": embedding,
             "geometry_confidence": float(obj.get("geometry_confidence") or 0.0),
+            "geometry_role": obj.get("geometry_role"),
+            "geometry_orientation": obj.get("geometry_orientation"),
+            "geometry_role_confidence": float(
+                obj.get("geometry_role_confidence")
+                or obj.get("geometry_confidence")
+                or 0.0
+            ),
             "geometry_candidates": obj.get("geometry_candidates") or [],
             "geometry_features": obj.get("geometry_features")
             or {
@@ -125,6 +135,7 @@ class GeometryFeatureProvider:
                 "bbox": obj.get("bbox"),
                 "length": obj.get("length"),
                 "orientation": obj.get("orientation"),
+                "geometry_role": obj.get("geometry_role"),
                 "layer": obj.get("layer"),
             },
         }
@@ -133,22 +144,36 @@ class GeometryFeatureProvider:
 class GraphFeatureProvider:
     name = "structural_graph_features"
 
+    def __init__(self) -> None:
+        self._lookup_fingerprint: Optional[tuple] = None
+        self._lookup: Optional[Dict[str, Any]] = None
+
+    @staticmethod
+    def _fingerprint(graph: Dict[str, Any]) -> tuple:
+        nodes = graph.get("nodes") or []
+        return (
+            id(graph),
+            len(nodes),
+            len(graph.get("edges") or []),
+            str((nodes[0] or {}).get("node_id")) if nodes else "",
+        )
+
+    def _source_lookup(self, graph: Dict[str, Any]) -> Dict[str, Any]:
+        # One index per graph, reused across the whole prediction loop; a
+        # per-token scan of every node would be quadratic on real drawings.
+        fingerprint = self._fingerprint(graph)
+        if self._lookup_fingerprint != fingerprint or self._lookup is None:
+            self._lookup = build_source_lookup(graph)
+            self._lookup_fingerprint = fingerprint
+        return self._lookup
+
     def extract(self, context: Dict[str, Any]) -> Dict[str, Any]:
-        token = context["token"]
         graph = context.get("graph") or {}
-        candidates = [
-            token.get("token_id"),
-            (token.get("line") or {}).get("id"),
-            *(token.get("source_word_ids") or []),
-        ]
-        features: Dict[str, Any] = {}
-        for candidate in candidates:
-            if not candidate:
-                continue
-            features = graph_features_for_source(graph, candidate)
-            if features.get("source_node"):
-                return features
-        return features or graph_features_for_source(graph, "")
+        if not graph.get("nodes"):
+            return graph_features_for_token(graph, context["token"])
+        return graph_features_for_token(
+            graph, context["token"], lookup=self._source_lookup(graph)
+        )
 
 
 class DatabaseFeatureProvider:

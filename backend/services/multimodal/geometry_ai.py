@@ -56,7 +56,8 @@ def _page_image(page: fitz.Page, zoom: float = 1.5) -> Image.Image:
 
 def _crop(image: Image.Image, bbox: List[float], zoom: float = 1.5) -> Image.Image:
     x0, y0, x1, y1 = (float(value) * zoom for value in bbox)
-    padding = max(10.0, min(32.0, max(x1 - x0, y1 - y0) * 0.15))
+    # Larger padding gives the role classifier member context (leaders, neighbors).
+    padding = max(18.0, min(48.0, max(x1 - x0, y1 - y0) * 0.25))
     box = (
         max(0, int(x0 - padding)),
         max(0, int(y0 - padding)),
@@ -66,6 +67,91 @@ def _crop(image: Image.Image, bbox: List[float], zoom: float = 1.5) -> Image.Ima
     if box[2] <= box[0] or box[3] <= box[1]:
         raise ValueError("Geometry crop has no visible area")
     return image.crop(box)
+
+
+_ROLE_LABELS = ("beam", "column", "brace", "plate", "connection", "other")
+
+
+def orientation_bin(degrees: float) -> str:
+    """Map absolute orientation degrees into a coarse drawing bin."""
+
+    angle = abs(float(degrees or 0.0)) % 180.0
+    angle = min(angle, 180.0 - angle)
+    if angle <= 25.0:
+        return "horizontal"
+    if angle >= 65.0:
+        return "vertical"
+    return "diagonal"
+
+
+def _role_from_label(label: str) -> str:
+    text = str(label or "").strip().lower()
+    if ":" in text:
+        text = text.split(":", 1)[0]
+    if text in _ROLE_LABELS:
+        return text
+    # Legacy section-string indexes: treat designation families as "other"
+    # until the index is rebuilt with role labels.
+    return "other"
+
+
+def _orientation_from_label(label: str, fallback: str = "horizontal") -> str:
+    text = str(label or "").strip().lower()
+    if ":" in text:
+        parts = text.split(":")
+        if len(parts) > 1 and parts[1] in {"horizontal", "vertical", "diagonal"}:
+            return parts[1]
+    return fallback
+
+
+def search_geometry_embedding(
+    embedding: List[float],
+    *,
+    limit: int = 5,
+) -> List[Dict[str, Any]]:
+    """Find labeled geometry examples by cosine similarity (role + orientation).
+
+    Rebuild the geometry embedding index after deploy so labels are
+    ``role:orientation`` rather than AISC section strings. Legacy section
+    indexes still load but map to role ``other``.
+    """
+
+    index = _load_index()
+    if not index:
+        return []
+    matrix = index["embeddings"]
+    query = np.asarray(embedding, dtype=np.float32)
+    query /= max(float(np.linalg.norm(query)), 1e-8)
+    similarities = matrix @ query
+    ranked = np.argsort(-similarities)[: max(1, limit)]
+    labels = index.get("labels") or []
+    roles = index.get("roles") or []
+    orientations = index.get("orientations") or []
+    results: List[Dict[str, Any]] = []
+    for position in ranked:
+        if position >= len(labels):
+            continue
+        label = str(labels[position])
+        role = (
+            str(roles[position])
+            if position < len(roles)
+            else _role_from_label(label)
+        )
+        orientation = (
+            str(orientations[position])
+            if position < len(orientations)
+            else _orientation_from_label(label)
+        )
+        results.append(
+            {
+                "role": role,
+                "orientation": orientation,
+                "similarity": round(float(similarities[position]), 6),
+                # Backward-compatible alias; never treat as an AISC section.
+                "label": f"{role}:{orientation}",
+            }
+        )
+    return results
 
 
 def encode_images(images: Iterable[Image.Image]) -> List[List[float]]:
@@ -104,32 +190,6 @@ def _load_index() -> Optional[Dict[str, Any]]:
             payload["embeddings"] = embeddings / np.maximum(norms, 1e-8)
             _INDEX = payload
     return _INDEX
-
-
-def search_geometry_embedding(
-    embedding: List[float],
-    *,
-    limit: int = 5,
-) -> List[Dict[str, Any]]:
-    """Find labeled geometry examples by cosine similarity."""
-
-    index = _load_index()
-    if not index:
-        return []
-    matrix = index["embeddings"]
-    query = np.asarray(embedding, dtype=np.float32)
-    query /= max(float(np.linalg.norm(query)), 1e-8)
-    similarities = matrix @ query
-    ranked = np.argsort(-similarities)[: max(1, limit)]
-    labels = index.get("labels") or []
-    return [
-        {
-            "section": str(labels[position]),
-            "similarity": round(float(similarities[position]), 6),
-        }
-        for position in ranked
-        if position < len(labels)
-    ]
 
 
 def enrich_geometry_embeddings(
@@ -193,6 +253,11 @@ def enrich_geometry_embeddings(
                         if top and len(matches) > 1
                         else float(top["similarity"]) if top else 0.0
                     )
+                    role = str((top or {}).get("role") or "other")
+                    orientation = str(
+                        (top or {}).get("orientation")
+                        or orientation_bin(float(obj.get("orientation") or 0.0))
+                    )
                     obj["geometry_embedding"] = embedding
                     obj["geometry_similarity"] = (
                         max(0.0, float(top["similarity"])) if top else 0.0
@@ -205,10 +270,17 @@ def enrich_geometry_embeddings(
                             + 0.15 * max(0.0, margin),
                         ),
                     )
+                    obj["geometry_role"] = role
+                    obj["geometry_orientation"] = orientation
+                    obj["geometry_role_confidence"] = float(
+                        obj["geometry_confidence"]
+                    )
                     obj["geometry_candidates"] = matches
                     obj["geometry_features"] = {
                         "length": obj.get("length"),
                         "orientation": obj.get("orientation"),
+                        "orientation_bin": orientation,
+                        "role": role,
                         "aspect_ratio": obj.get("aspect_ratio"),
                         "width": obj.get("width"),
                         "height": obj.get("height"),
@@ -249,8 +321,21 @@ def build_geometry_embedding_index(
     selected: List[Dict[str, Any]] = []
     per_label: Dict[str, int] = {}
     for sample in samples:
-        label = str(sample.get("section") or sample.get("label") or "").strip()
-        if not label:
+        # Prefer explicit member_role; fall back to legacy section/label fields.
+        role = str(
+            sample.get("member_role")
+            or sample.get("role")
+            or sample.get("section")
+            or sample.get("label")
+            or ""
+        ).strip()
+        role = _role_from_label(role)
+        orientation = str(
+            sample.get("orientation_bin")
+            or orientation_bin(float(sample.get("orientation") or 0.0))
+        )
+        label = f"{role}:{orientation}"
+        if role not in _ROLE_LABELS:
             continue
         image_path = sample.get("image_path")
         pdf_path = sample.get("pdf_path")
@@ -260,7 +345,11 @@ def build_geometry_embedding_index(
         if per_label.get(label, 0) >= max_per_label:
             continue
         per_label[label] = per_label.get(label, 0) + 1
-        selected.append(sample)
+        row = dict(sample)
+        row["_role_label"] = label
+        row["_role"] = role
+        row["_orientation"] = orientation
+        selected.append(row)
         if len(selected) >= max_samples:
             break
 
@@ -273,16 +362,22 @@ def build_geometry_embedding_index(
 
     images: List[Image.Image] = []
     labels: List[str] = []
+    roles: List[str] = []
+    orientations: List[str] = []
     page_cache: Dict[tuple[str, int], Image.Image] = {}
     open_documents: Dict[str, fitz.Document] = {}
     try:
         for sample in selected:
-            label = str(sample.get("section") or sample.get("label") or "").strip()
+            label = str(sample.get("_role_label") or "")
+            role = str(sample.get("_role") or "other")
+            orientation = str(sample.get("_orientation") or "horizontal")
             image_path = sample.get("image_path")
             if image_path and Path(str(image_path)).exists():
                 with Image.open(image_path) as image:
                     images.append(image.convert("RGB").copy())
                 labels.append(label)
+                roles.append(role)
+                orientations.append(orientation)
                 continue
 
             pdf_path = str(sample.get("pdf_path") or "")
@@ -309,6 +404,8 @@ def build_geometry_embedding_index(
             except ValueError:
                 continue
             labels.append(label)
+            roles.append(role)
+            orientations.append(orientation)
     finally:
         for document in open_documents.values():
             document.close()
@@ -318,11 +415,15 @@ def build_geometry_embedding_index(
         raise ValueError("No labeled geometry crops were provided")
     path = Path(destination or settings.geometry_embedding_index_path)
     payload = {
-        "schema_version": "1.0",
+        # schema 2.0: labels are role:orientation, not AISC sections.
+        # Rebuild this index after deploy via the geometry training CLI.
+        "schema_version": "2.0",
         "encoder": "mobilenet_v3_small_imagenet",
         "embedding_dimension": _EMBEDDING_DIM,
         "embeddings": np.asarray(embeddings, dtype=np.float32),
         "labels": labels,
+        "roles": roles,
+        "orientations": orientations,
     }
     joblib.dump(payload, path)
     global _INDEX
@@ -332,4 +433,5 @@ def build_geometry_embedding_index(
         "samples": len(labels),
         "unique_labels": len(set(labels)),
         "pages_rendered": len(page_cache),
+        "target": "role_orientation",
     }

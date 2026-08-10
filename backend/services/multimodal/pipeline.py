@@ -20,6 +20,7 @@ from services.multimodal.duplicate_detector import merge_duplicate_predictions
 from services.multimodal.fusion_engine import fusion_engine
 from services.multimodal.geometry_ai import enrich_geometry_embeddings
 from services.multimodal.graph_ai import enrich_graph_embeddings
+from services.multimodal.label_propagation import propagate_section_labels
 from services.multimodal.review_enrichment import index_predictions
 from services.multimodal.validation_engine import (
     validate_multimodal_predictions,
@@ -66,11 +67,16 @@ def _missing_label_tokens(
         geometry_id = str(obj.get("geometry_id") or "")
         learned_graph = graph_features.get(geometry_id) or {}
         candidates = obj.get("geometry_candidates") or []
+        role_confidence = float(
+            obj.get("geometry_role_confidence")
+            or obj.get("geometry_confidence")
+            or 0.0
+        )
         if (
             not geometry_id
             or obj.get("nearby_text")
-            or not candidates
-            or float(obj.get("geometry_confidence") or 0.0) < 0.55
+            or (not candidates and role_confidence < 0.55)
+            or role_confidence < 0.55
             or float(learned_graph.get("missing_label_probability") or 0.0)
             < 0.50
         ):
@@ -85,8 +91,10 @@ def _missing_label_tokens(
                 "page": obj.get("page_number"),
                 "bbox": obj.get("bbox"),
                 "confidence": 0.0,
-                "engineering_object_type": learned_graph.get("graph_prediction"),
+                "engineering_object_type": learned_graph.get("graph_prediction")
+                or obj.get("geometry_role"),
                 "missing_label": True,
+                "extraction_method": "geometry_inference",
             }
         )
     return records
@@ -189,7 +197,7 @@ def run_multimodal_pipeline(
     )
 
     deduped = merge_duplicate_predictions(raw_predictions)
-    predictions = deduped["predictions"]
+    predictions = propagate_section_labels(deduped["predictions"], graph)
 
     # Human review is driven by multimodal confidence/conflicts, never by a
     # database miss alone.

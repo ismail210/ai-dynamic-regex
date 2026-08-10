@@ -290,7 +290,11 @@ class ClassicalGraphEncoder(ModalityEncoder):
         )
         distance = float(graph.get("min_distance") or 999.0)
         proximity = max(0.0, min(1.0, 1.0 - distance / 180.0))
-        available = bool(learned_embedding) or degree > 0
+        available = (
+            bool(learned_embedding)
+            or bool(graph.get("graph_available"))
+            or degree > 0
+        )
         confidence = (
             _clip(graph.get("graph_confidence"), 0.0)
             if learned_embedding

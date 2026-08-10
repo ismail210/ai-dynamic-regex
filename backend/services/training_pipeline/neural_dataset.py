@@ -47,13 +47,15 @@ GRAPH_DIR = NEURAL_DATASET_DIR / "graph"
 FUSION_DIR = NEURAL_DATASET_DIR / "fusion"
 CROPS_DIR = GEOMETRY_DIR / "crops"
 
+# Fallback role supervision used only when the rule engine did not determine a
+# member role. A shape family constrains the section, not always the role:
+# channels and tees are not beams by virtue of their family, so they are left
+# as "other" rather than teaching the role head a label the drawing never
+# stated.
 _ROLE_FROM_FAMILY = {
     "W": "beam",
     "S": "beam",
     "M": "beam",
-    "C": "beam",
-    "MC": "beam",
-    "WT": "beam",
     "HP": "column",
     "HSS": "column",
     "PIPE": "column",
@@ -61,6 +63,11 @@ _ROLE_FROM_FAMILY = {
     "2L": "brace",
     "PL": "plate",
     "PLATE": "plate",
+    "C": "other",
+    "MC": "other",
+    "WT": "other",
+    "MT": "other",
+    "ST": "other",
 }
 
 
@@ -340,8 +347,9 @@ def _build_fusion_sample(
         "text_prediction": normalized,
         "geometry_prediction": (
             ((geometry_features.get("geometry_candidates") or [{}])[0] or {}).get(
-                "section"
+                "role"
             )
+            or geometry_features.get("geometry_role")
             or correct_section
         ),
         "graph_prediction": graph_features.get("graph_prediction")

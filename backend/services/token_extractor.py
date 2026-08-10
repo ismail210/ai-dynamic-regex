@@ -41,6 +41,7 @@ _COMBINED = re.compile(
 _DIGIT_RE = re.compile(r"\d")
 EXTRACTION_STATUSES = ("VALID", "SUSPICIOUS", "BROKEN", "INVALID")
 _NOISE_RE = re.compile(r"^[\W_]+$")
+_MAX_WORD_GAP_PTS = 24.0
 
 
 def normalize_engineering_token(text: str) -> str:
@@ -99,13 +100,69 @@ def _token_status(
     return "VALID", issues
 
 
+def _words_for_match(
+    candidate_text: str,
+    candidate_words: List[dict],
+    match: re.Match[str],
+) -> List[dict]:
+    """Map a regex match span back onto the words that formed ``candidate_text``."""
+
+    start, end = match.start(), match.end()
+    spaced = " ".join(str(word.get("text") or "") for word in candidate_words)
+    compact = "".join(str(word.get("text") or "") for word in candidate_words)
+    if candidate_text == spaced:
+        pos = 0
+        contributing: List[dict] = []
+        for index, word in enumerate(candidate_words):
+            text = str(word.get("text") or "")
+            if index > 0:
+                pos += 1  # space separator
+            w_start = pos
+            w_end = pos + len(text)
+            pos = w_end
+            if w_end > start and w_start < end:
+                contributing.append(word)
+        return contributing or list(candidate_words)
+    if candidate_text == compact:
+        pos = 0
+        contributing = []
+        for word in candidate_words:
+            text = str(word.get("text") or "")
+            w_start = pos
+            w_end = pos + len(text)
+            pos = w_end
+            if w_end > start and w_start < end:
+                contributing.append(word)
+        return contributing or list(candidate_words)
+    return list(candidate_words)
+
+
+def _window_has_large_gap(
+    candidate_words: List[dict],
+    *,
+    max_gap: float = _MAX_WORD_GAP_PTS,
+) -> bool:
+    """True when adjacent words in a multi-word window are spatially disconnected."""
+
+    if len(candidate_words) < 2:
+        return False
+    for left, right in zip(candidate_words, candidate_words[1:]):
+        left_bbox = left.get("bbox") or [0, 0, 0, 0]
+        right_bbox = right.get("bbox") or [0, 0, 0, 0]
+        gap = float(right_bbox[0]) - float(left_bbox[2])
+        if gap > max_gap:
+            return True
+    return False
+
+
 def _candidate_windows(ordered: List[dict]) -> Iterable[tuple[str, List[dict]]]:
     """Yield bounded adjacent-word windows to repair split labels safely.
 
     A window is only offered when it can still form a label: it must contain a
     digit and start with an alphanumeric word. Multi-word windows are limited to
     the joined form once, which keeps large drawings from generating millions of
-    candidates that cannot match.
+    candidates that cannot match. Windows spanning large horizontal gaps are
+    rejected so bboxes cannot stretch across unrelated table cells.
     """
 
     max_words = min(6, len(ordered))
@@ -117,6 +174,8 @@ def _candidate_windows(ordered: List[dict]) -> Iterable[tuple[str, List[dict]]]:
         for size in range(1, max_words + 1):
             window = ordered[start : start + size]
             if len(window) < size:
+                break
+            if _window_has_large_gap(window):
                 break
             texts = [str(word.get("text") or "") for word in window]
             spaced = " ".join(texts)
@@ -204,12 +263,7 @@ def extract_engineering_token_records(
         for match, candidate_words in candidate_matches:
             raw = match.group(0)
             normalized = normalize_engineering_token(raw)
-            contributing = [
-                word
-                for word in candidate_words
-                if normalize_engineering_token(word.get("text", "")) in normalized
-                or normalized in normalize_engineering_token(word.get("text", ""))
-            ]
+            contributing = _words_for_match(match.string, candidate_words, match)
             if not contributing:
                 contributing = candidate_words
             raw_source = " ".join(

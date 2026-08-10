@@ -83,14 +83,27 @@ def _canonical_labels() -> List[str]:
     return sorted({value for value in values if is_exact_section_label(value)})
 
 
-def train_exact_section_model(*, persist: bool = True) -> Dict[str, Any]:
-    """Train complete-label character retrieval and optionally persist it."""
+def train_exact_section_model(
+    *,
+    persist: bool = True,
+    exclude_tokens: Optional[set[str]] = None,
+    exclude_split: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Train complete-label character retrieval and optionally persist it.
+
+    ``exclude_tokens`` / ``exclude_split`` keep holdout rows out of the matrix
+    for honest evaluation runs.
+    """
 
     labels = _canonical_labels()
     texts: List[str] = []
     targets: List[str] = []
     training_rows: List[dict] = []
     seen = set()
+    excluded = {
+        normalize_section_text(token) for token in (exclude_tokens or set())
+    }
+    excluded |= {str(token).strip().upper() for token in (exclude_tokens or set())}
     for label in labels:
         variants = set(generate_variants_for_token(label, None))
         variants.update(_ocr_variants(label))
@@ -156,6 +169,13 @@ def train_exact_section_model(*, persist: bool = True) -> Dict[str, Any]:
             )
             for _, row in approved.iterrows():
                 token = str(row.get("token") or "").strip()
+                if exclude_split and str(row.get("eval_split") or "") == exclude_split:
+                    continue
+                if (
+                    normalize_section_text(token) in excluded
+                    or token.upper() in excluded
+                ):
+                    continue
                 # Prefer the exact token as the section target when it is a
                 # full designation; fall back to class only if it is exact.
                 token_target = normalize_section_text(token)
@@ -185,6 +205,57 @@ def train_exact_section_model(*, persist: bool = True) -> Dict[str, Any]:
                     }
                 )
         except (OSError, ValueError):
+            pass
+
+    # Engineering corrections also become retrieval anchors.
+    corrections_path = settings.engineering_corrections_path
+    if corrections_path.exists():
+        try:
+            with corrections_path.open("r", encoding="utf-8") as handle:
+                for line in handle:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        payload = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+                    token = str(
+                        payload.get("token")
+                        or payload.get("original_token")
+                        or payload.get("raw_text")
+                        or ""
+                    ).strip()
+                    target = normalize_section_text(
+                        payload.get("correct_label")
+                        or payload.get("corrected_label")
+                        or payload.get("section")
+                        or ""
+                    )
+                    if not token or not is_exact_section_label(target):
+                        continue
+                    if (
+                        normalize_section_text(token) in excluded
+                        or token.upper() in excluded
+                    ):
+                        continue
+                    key = (token.upper(), target)
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    texts.append(token)
+                    targets.append(target)
+                    training_rows.append(
+                        {
+                            "token": token,
+                            "normalized_token": normalize_section_text(token),
+                            "target_section": target,
+                            "source": "engineering_correction",
+                            "reviewer_correction": True,
+                            "validation_status": "corrected",
+                        }
+                    )
+        except OSError:
             pass
 
     vectorizer = TfidfVectorizer(
@@ -226,6 +297,33 @@ def train_exact_section_model(*, persist: bool = True) -> Dict[str, Any]:
     _ARTIFACT = artifact
     _cached_candidate_scores.cache_clear()
     return metadata
+
+
+def reload_exact_section_artifact() -> None:
+    """Drop the in-memory exact-section cache so the next call reloads from disk."""
+
+    global _ARTIFACT
+    with _LOCK:
+        _ARTIFACT = None
+        _cached_candidate_scores.cache_clear()
+
+
+def append_exact_section_anchor(token: object, target: object) -> bool:
+    """
+    Immediately fold one human-approved (token → section) pair into the index.
+
+    Rebuilds the artifact so live retrieval reflects the approval without
+    waiting for the continuous-learning batch threshold.
+    """
+
+    token_text = str(token or "").strip()
+    target_text = normalize_section_text(target)
+    if not token_text or not is_exact_section_label(target_text):
+        return False
+    train_exact_section_model(persist=True)
+    reload_exact_section_artifact()
+    _artifact()
+    return True
 
 
 def _artifact() -> dict:
@@ -350,7 +448,12 @@ def _score_candidates(
     )
     graph_links = float(graph.get("structural_links") or 0.0)
     graph_degree = float(graph.get("degree") or 0.0)
-    role = str(rules.get("member_role") or "").lower()
+    learned_role = str(
+        geometry.get("geometry_role")
+        or (geometry.get("object") or {}).get("geometry_role")
+        or ""
+    ).lower()
+    role = learned_role or str(rules.get("member_role") or "").lower()
 
     scored: List[ExactSectionCandidate] = []
     for shape, text_score in candidates:
@@ -359,7 +462,7 @@ def _score_candidates(
         geometry_score = float(geometry.get("similarity") or 0.35)
         graph_score = float(graph.get("graph_consistency") or 0.35)
 
-        # Orientation + topology influence family choice among close candidates.
+        # Learned geometry role / orientation influence family choice.
         if role == "beam" or (abs(orientation) <= 35 and graph_links >= 1):
             if family_name in {"W", "S", "M", "C", "MC"}:
                 geometry_score = min(1.0, geometry_score + 0.15)
@@ -369,6 +472,10 @@ def _score_candidates(
         elif role == "column" or abs(orientation) >= 55:
             if family_name in {"W", "HSS", "PIPE"}:
                 geometry_score = min(1.0, geometry_score + 0.10)
+        if role == "brace" and family_name in {"HSS", "L", "2L", "WT"}:
+            geometry_score = min(1.0, geometry_score + 0.12)
+        if learned_role and role != learned_role:
+            geometry_score *= 0.9
         if graph_degree == 0 and role in {"beam", "brace"}:
             graph_score *= 0.7
 

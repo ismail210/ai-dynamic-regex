@@ -27,6 +27,7 @@ def decide_review_status(
     regex_matches: bool = True,
     model_probability: float | None = None,
     database_verified: bool = False,
+    abstain: bool = False,
 ) -> str:
     """
     Return review_status string.
@@ -41,6 +42,9 @@ def decide_review_status(
         model_probability is not None
         and model_probability < settings.auto_accept_probability_threshold
     )
+
+    if abstain or "retrieval_gate_failed" in issue_set:
+        return "pending_review"
 
     if (
         confidence >= settings.confidence_high_threshold

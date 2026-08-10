@@ -13,6 +13,7 @@ from services.multimodal.encoder_contracts import (
     UnifiedFusionResult,
 )
 from services.multimodal.learned_fusion import predict_learned_fusion
+from config import settings
 
 
 # Decision priors. Database is intentionally absent from label selection.
@@ -228,11 +229,13 @@ class UnifiedMultimodalFusion:
                 }
             )
         scored.sort(key=lambda item: (-item["score"], item["shape"]))
-        learned = predict_learned_fusion(
-            fused.vector,
-            scored,
-            fused.modality_slices,
-        )
+        learned = None
+        if settings.learned_fusion_enabled:
+            learned = predict_learned_fusion(
+                fused.vector,
+                scored,
+                fused.modality_slices,
+            )
         if learned:
             scored = learned["candidate_scores"]
             section = learned["section"]

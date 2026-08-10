@@ -147,6 +147,41 @@ export function getSection(result = {}) {
   );
 }
 
+/**
+ * Page + bbox for drawing review. Prefers canonical source_text; falls back
+ * to top-level prediction fields used by the multimodal API payload.
+ */
+export function getPredictionLocation(result = {}) {
+  const { sourceText } = getCanonicalPrediction(result);
+  const pageNumber = sourceText.page_number ?? result.page_number ?? null;
+  const rawBox = sourceText.bounding_box ?? result.bounding_box ?? null;
+  const boundingBox =
+    Array.isArray(rawBox) && rawBox.length >= 4
+      ? rawBox.slice(0, 4).map(Number)
+      : null;
+  const hasLocation =
+    pageNumber != null
+    && Number.isFinite(Number(pageNumber))
+    && boundingBox != null
+    && boundingBox.every((value) => Number.isFinite(value));
+  return {
+    pageNumber: hasLocation ? Number(pageNumber) : pageNumber != null ? Number(pageNumber) : null,
+    boundingBox: hasLocation ? boundingBox : null,
+    hasLocation,
+  };
+}
+
+/** True when the highlight comes from geometry inference, not OCR text. */
+export function isInferredLocation(result = {}) {
+  const { sourceText, comparison } = getCanonicalPrediction(result);
+  return (
+    comparison.match_status === "geometry_only"
+    || !sourceText.available
+    || Boolean(result.missing_label_prediction)
+    || result.prediction_source === "Geometry"
+  );
+}
+
 export function getFamily(result = {}) {
   return (
     result.family

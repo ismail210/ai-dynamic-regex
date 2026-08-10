@@ -19,7 +19,17 @@ UNKNOWN_COLUMNS = [
     "regex_suggested", "status", "reviewed_category", "reviewed_class",
     "notes", "created_at", "updated_at",
 ]
-APPROVED_COLUMNS = ["token", "class", "category", "source", "approved_at", "unknown_id"]
+APPROVED_COLUMNS = [
+    "token",
+    "class",
+    "category",
+    "source",
+    "approved_at",
+    "unknown_id",
+    "ranking_score",
+    "correct",
+    "eval_split",
+]
 HISTORY_COLUMNS = ["id", "event", "token", "detail", "actor", "created_at"]
 UPLOAD_LOG_COLUMNS = [
     "id", "filename", "pages", "token_count", "known_count", "unknown_count",
@@ -101,8 +111,16 @@ class DatasetManager:
             return [row for row in rows if not status or row["status"] == status]
 
     def review_token(
-        self, unknown_id: str, action: str, reviewed_class: str = "",
-        reviewed_category: str = "", notes: str = "", actor: str = "user",
+        self,
+        unknown_id: str,
+        action: str,
+        reviewed_class: str = "",
+        reviewed_category: str = "",
+        notes: str = "",
+        actor: str = "user",
+        *,
+        ranking_score: float | None = None,
+        predicted_section: str = "",
     ) -> dict[str, str]:
         action = action.lower().strip()
         if action not in {"approve", "reject"}:
@@ -122,17 +140,49 @@ class DatasetManager:
                 "notes": notes.strip(), "updated_at": now,
             })
             if action == "approve":
+                from services.training_pipeline.preprocessing import assign_split
+
                 final_class = reviewed_class.strip() or record.get("prediction", "").strip()
                 if not final_class:
                     raise ValueError("reviewed_class is required when approving a token")
                 record["reviewed_class"] = final_class
+                predicted = (
+                    predicted_section.strip()
+                    or str(record.get("prediction") or "").strip()
+                )
+                score = (
+                    ranking_score
+                    if ranking_score is not None
+                    else float(record.get("overall_confidence") or 0.0)
+                )
+                correct_flag = (
+                    "1"
+                    if predicted.upper().replace(" ", "")
+                    == final_class.upper().replace(" ", "")
+                    else "0"
+                )
                 approved = self._read_rows(settings.approved_dataset_path, APPROVED_COLUMNS)
                 approved.append({
-                    "token": record["token"], "class": final_class.upper(),
+                    "token": record["token"],
+                    "class": final_class.upper(),
                     "category": reviewed_category.strip() or record["category"],
-                    "source": "human_review", "approved_at": now, "unknown_id": record["id"],
+                    "source": "human_review",
+                    "approved_at": now,
+                    "unknown_id": record["id"],
+                    "ranking_score": f"{float(score):.6f}",
+                    "correct": correct_flag,
+                    "eval_split": assign_split(record["id"] or record["token"]),
                 })
                 self._write_rows(settings.approved_dataset_path, APPROVED_COLUMNS, approved)
+                try:
+                    from services.exact_section_predictor import (
+                        append_exact_section_anchor,
+                    )
+
+                    append_exact_section_anchor(record["token"], final_class.upper())
+                except Exception:
+                    # Approval must succeed even if the retrieval index is unavailable.
+                    pass
             self._write_rows(settings.unknown_tokens_path, UNKNOWN_COLUMNS, rows)
             self.log_event(
                 f"token_{record['status']}", record["token"],

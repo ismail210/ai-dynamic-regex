@@ -86,6 +86,11 @@ export async function getDocument(documentId) {
   return data;
 }
 
+/** Same-origin URL for the registered drawing PDF (proxied in Vite). */
+export function documentPdfUrl(documentId) {
+  return `${baseURL}/api/documents/${encodeURIComponent(documentId)}/pdf`;
+}
+
 /** Time a stage request so a slow drawing is visible instead of silent. */
 async function timedRequest(label, request) {
   console.info(`[stage] ${label}: started`);

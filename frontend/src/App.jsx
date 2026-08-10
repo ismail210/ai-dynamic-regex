@@ -9,6 +9,7 @@ const UploadPage = lazy(() => import("./pages/UploadPage"));
 const ExtractPage = lazy(() => import("./pages/ExtractPage"));
 const AnalyzePage = lazy(() => import("./pages/AnalyzePage"));
 const ResultsPage = lazy(() => import("./pages/ResultsPage"));
+const DrawingReviewPage = lazy(() => import("./pages/DrawingReviewPage"));
 const TakeoffPage = lazy(() => import("./pages/TakeoffPage"));
 const ValidationPage = lazy(() => import("./pages/ValidationPage"));
 const UnknownReviewPage = lazy(() => import("./pages/UnknownReviewPage"));
@@ -49,6 +50,7 @@ export default function App() {
               <Route path="/extract" element={<ExtractPage />} />
               <Route path="/analyze" element={<AnalyzePage />} />
               <Route path="/results" element={<ResultsPage />} />
+              <Route path="/review-drawing" element={<DrawingReviewPage />} />
               <Route path="/takeoff" element={<TakeoffPage />} />
               <Route path="/prediction" element={<Navigate to="/results" replace />} />
               <Route path="/tokens" element={<Navigate to="/results" replace />} />

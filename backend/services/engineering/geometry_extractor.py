@@ -28,8 +28,8 @@ orientation, page_number, points, and optional metadata.
 
 from __future__ import annotations
 
+import hashlib
 import math
-import uuid
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence
 
@@ -38,8 +38,63 @@ import fitz
 from services.engineering.models import GeometryKind
 
 
-def _gid() -> str:
-    return f"geom_{uuid.uuid4().hex[:12]}"
+def _drawing_bbox_area(item: dict) -> float:
+    """Raw PyMuPDF drawing bbox area — the ORIGINAL (defective) cap sort key.
+
+    Axis-aligned lines have zero width or zero height, so this is
+    ``0.0`` for them, which makes them the first entities dropped once a
+    page exceeds the dense-page cap. See
+    docs/geometry_graph_audit/03_geometry_audit.md §7. Kept as its own
+    function (rather than folded into ``_drawing_significance``) so the
+    A/B diagnostic in ``extract_geometry`` can compare both strategies.
+    """
+
+    rect = item.get("rect")
+    if rect is None:
+        return 0.0
+    return abs(float(rect.width) * float(rect.height))
+
+
+def _drawing_significance(item: dict) -> float:
+    """Corrected dense-page cap sort key: ``max(area, perimeter)``.
+
+    A zero-area axis-aligned line still has a nonzero perimeter
+    (``2 * length``), so a long orthogonal structural line now outranks a
+    small zero-length hatch fragment instead of tying with it at zero.
+    Large filled regions still rank highest via ``area``. This does not
+    change production behavior by itself — see the
+    ``dense_page_cap_strategy`` parameter below, which defaults to the
+    original ``_drawing_bbox_area`` key.
+    """
+
+    rect = item.get("rect")
+    if rect is None:
+        return 0.0
+    width = abs(float(rect.width))
+    height = abs(float(rect.height))
+    return max(width * height, 2.0 * (width + height))
+
+
+def _gid(page_number: int, ordinal: int, bbox: Sequence[float], kind: str) -> str:
+    """Deterministic geometry ID derived from stable extraction facts.
+
+    Two runs over the same PDF produce identical IDs (PyMuPDF's
+    ``get_drawings()`` order is stable for a given file), which lets
+    downstream graph/diagnostic artifacts be byte-for-byte reproducible.
+    Previously this used ``uuid.uuid4()``, which made every extraction of
+    the same document produce different IDs.
+    """
+
+    seed = "|".join(
+        [
+            str(page_number),
+            str(ordinal),
+            kind,
+            ",".join(f"{v:.2f}" for v in bbox),
+        ]
+    )
+    digest = hashlib.sha1(seed.encode("utf-8")).hexdigest()[:12]
+    return f"geom_{digest}"
 
 
 def _round(values: Sequence[float], nd: int = 2) -> List[float]:
@@ -225,11 +280,34 @@ def _nearby_text(
     return best
 
 
+_DENSE_PAGE_CAP_STRATEGIES = {
+    "legacy_area": _drawing_bbox_area,
+    "length_aware": _drawing_significance,
+}
+
+
 def extract_geometry(
     pdf_path: str,
     document_structure: Optional[dict] = None,
+    *,
+    dense_page_cap_strategy: str = "length_aware",
 ) -> Dict[str, Any]:
-    """Extract geometry objects from all pages of ``pdf_path``."""
+    """Extract geometry objects from all pages of ``pdf_path``.
+
+    ``dense_page_cap_strategy`` controls which sort key the >250-drawing
+    cap uses to decide what to keep. Production default is ``"length_aware"``
+    so thin structural lines are not dropped before large filled regions.
+    Pass ``"legacy_area"`` only for A/B comparison against the historical
+    zero-area-drop behavior. Regardless of which strategy is active, every
+    page where the cap triggers records an A/B diagnostic comparing what
+    both strategies would have kept.
+    """
+
+    if dense_page_cap_strategy not in _DENSE_PAGE_CAP_STRATEGIES:
+        raise ValueError(
+            "dense_page_cap_strategy must be one of "
+            f"{sorted(_DENSE_PAGE_CAP_STRATEGIES)}, got {dense_page_cap_strategy!r}"
+        )
 
     path = Path(pdf_path)
     objects: List[dict] = []
@@ -290,19 +368,65 @@ def extract_geometry(
                 )
                 continue
             raw_drawing_count = len(drawings)
+            zero_area_path_count = sum(
+                1 for item in drawings if _drawing_bbox_area(item) == 0.0
+            )
             # Dense CAD PDFs can contain tens of thousands of tiny hatch paths.
             # Keep the most structurally significant paths so geometry and graph
             # construction remain bounded and interactive.
-            if raw_drawing_count > 250:
-                def _drawing_area(item: dict) -> float:
-                    rect = item.get("rect")
-                    if rect is None:
-                        return 0.0
-                    return abs(float(rect.width) * float(rect.height))
-
+            #
+            # ``dense_page_cap_strategy`` selects the sort key. The default,
+            # "legacy_area", is the ORIGINAL behavior and has a known defect:
+            # axis-aligned lines have zero bounding-box area, so they are the
+            # first entities dropped once a page exceeds the cap — see
+            # docs/geometry_graph_audit/03_geometry_audit.md §7. The
+            # "length_aware" strategy fixes this (see
+            # docs/geometry_graph_audit/08_prioritized_roadmap.md P0.1) but is
+            # opt-in only: this phase does not change production behavior by
+            # default, it only makes the loss observable via the
+            # cap_strategy_agreement diagnostic below.
+            drawing_cap_applied = raw_drawing_count > 250
+            cap_strategy_agreement: Optional[dict] = None
+            if drawing_cap_applied:
+                active_sort_key = _DENSE_PAGE_CAP_STRATEGIES[dense_page_cap_strategy]
+                legacy_kept_ids = {
+                    id(item)
+                    for item in sorted(
+                        drawings, key=_drawing_bbox_area, reverse=True
+                    )[:250]
+                }
+                length_aware_kept_ids = {
+                    id(item)
+                    for item in sorted(
+                        drawings, key=_drawing_significance, reverse=True
+                    )[:250]
+                }
+                zero_area_dropped_by_legacy = sum(
+                    1
+                    for item in drawings
+                    if id(item) not in legacy_kept_ids
+                    and _drawing_bbox_area(item) == 0.0
+                )
+                zero_area_dropped_by_length_aware = sum(
+                    1
+                    for item in drawings
+                    if id(item) not in length_aware_kept_ids
+                    and _drawing_bbox_area(item) == 0.0
+                )
+                cap_strategy_agreement = {
+                    "legacy_area_kept_count": len(legacy_kept_ids),
+                    "length_aware_kept_count": len(length_aware_kept_ids),
+                    "strategies_agree_count": len(
+                        legacy_kept_ids & length_aware_kept_ids
+                    ),
+                    "zero_area_paths_dropped_by_legacy_area": zero_area_dropped_by_legacy,
+                    "zero_area_paths_dropped_by_length_aware": zero_area_dropped_by_length_aware,
+                }
                 drawings = sorted(
-                    drawings, key=_drawing_area, reverse=True
+                    drawings, key=active_sort_key, reverse=True
                 )[:250]
+            drawings_dropped_by_cap = raw_drawing_count - len(drawings)
+            dropped_degenerate_count = 0
 
             for drawing in drawings:
                 items = list(drawing.get("items") or [])
@@ -350,6 +474,7 @@ def extract_geometry(
                 elif points:
                     bbox = _bbox_from_points(points)
                 else:
+                    dropped_degenerate_count += 1
                     continue
 
                 kind = _classify_path(item_dicts, rect)
@@ -379,8 +504,9 @@ def extract_geometry(
                 if kind in {GeometryKind.RECTANGLE, GeometryKind.CIRCLE} and area < 400:
                     kind = GeometryKind.SYMBOL
 
+                ordinal = len(objects) - page_count_before
                 obj = {
-                    "geometry_id": _gid(),
+                    "geometry_id": _gid(page_number, ordinal, bbox, kind.value),
                     "kind": kind.value,
                     "geometry_type": kind.value,
                     "page_number": page_number,
@@ -415,7 +541,26 @@ def extract_geometry(
                     "geometry_count": len(objects) - page_count_before,
                     "drawing_count": raw_drawing_count,
                     "processed_drawing_count": len(drawings),
-                    "drawing_cap_applied": raw_drawing_count > len(drawings),
+                    "drawing_cap_applied": drawing_cap_applied,
+                    # --- diagnostics added for the ML-association Phase 1
+                    # observability work (docs/ml_association_phase/) ---
+                    "raw_drawing_count": raw_drawing_count,
+                    "retained_drawing_count": len(drawings),
+                    "drawings_dropped_by_cap": drawings_dropped_by_cap,
+                    "drawing_cap_threshold": 250,
+                    "zero_area_path_count": zero_area_path_count,
+                    "dropped_degenerate_count": dropped_degenerate_count,
+                    "dense_page_cap_strategy": dense_page_cap_strategy,
+                    "cap_strategy_agreement": cap_strategy_agreement,
+                    "page_rotation": int(page.rotation or 0),
+                    # Scale detection is not implemented anywhere in this
+                    # pipeline yet (docs/geometry_graph_audit/09_open_questions.md
+                    # Q4). These fields are reserved schema placeholders so
+                    # consumers can distinguish "not populated" from "zero"
+                    # once scale detection lands.
+                    "scale_value": None,
+                    "scale_source": None,
+                    "scale_confidence": None,
                 }
             )
 

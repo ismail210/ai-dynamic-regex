@@ -58,6 +58,17 @@ class Settings:
     )
     graphsage_model_path: Path = BASE_DIR / "training" / "graphsage_model.pt"
     fusion_model_path: Path = BASE_DIR / "training" / "multimodal_fusion.pt"
+    # Promotion gate for the learned fusion MLP. When false, attention fusion
+    # ranks candidates without letting multimodal_fusion.pt override the label
+    # solely because the checkpoint file exists on disk.
+    learned_fusion_enabled: bool = field(
+        default_factory=lambda: os.getenv(
+            "LEARNED_FUSION_ENABLED", "true"
+        )
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
     # Compatibility file read by older deployments and existing API code.
     legacy_model_meta_path: Path = BASE_DIR / "training" / "model_meta.json"
     # Immutable AISC-derived dataset — never overwrite at runtime.
@@ -104,6 +115,49 @@ class Settings:
     fusion_min_samples: int = 80
     promotion_accuracy_tolerance: float = 0.02
     promotion_f1_tolerance: float = 0.02
+
+    # ---- ML association dataset (Phase 2, experimental) ---------------
+    # Disabled by default. Gates dataset building / review export/import so
+    # the package cannot silently run in production paths.
+    ml_association_dataset_enabled: bool = field(
+        default_factory=lambda: os.getenv(
+            "ML_ASSOCIATION_DATASET_ENABLED", "false"
+        )
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
+    ml_association_dir: Path = BASE_DIR / "training" / "ml_association"
+    ml_association_outcomes_path: Path = (
+        BASE_DIR / "training" / "ml_association" / "reviewed_outcomes.jsonl"
+    )
+    ml_association_export_dir: Path = (
+        BASE_DIR / "training" / "ml_association" / "exports"
+    )
+    ml_association_schema_version: str = "2.0"
+
+    # ---- Damaged-label reconstruction ranker (shadow mode only) -------
+    # ML_LABEL_RANKER_ENABLED must stay false until a promoted model + review.
+    # ML_LABEL_RANKER_SHADOW may log disagreements without changing predictions.
+    ml_label_ranker_enabled: bool = field(
+        default_factory=lambda: os.getenv(
+            "ML_LABEL_RANKER_ENABLED", "false"
+        )
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
+    ml_label_ranker_shadow: bool = field(
+        default_factory=lambda: os.getenv(
+            "ML_LABEL_RANKER_SHADOW", "false"
+        )
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
+    ml_label_ranker_shadow_log_path: Path = (
+        BASE_DIR / "training" / "label_reconstruction_shadow_log.jsonl"
+    )
 
     # ---- Engineering validation / takeoff (additive) ------------------
     engineering_artifacts_dir: Path = BASE_DIR / "training" / "engineering_artifacts"
@@ -182,3 +236,5 @@ settings.takeoff_exports_dir.mkdir(parents=True, exist_ok=True)
 settings.datasets_registry_dir.mkdir(parents=True, exist_ok=True)
 settings.models_registry_dir.mkdir(parents=True, exist_ok=True)
 settings.document_registry_dir.mkdir(parents=True, exist_ok=True)
+settings.ml_association_dir.mkdir(parents=True, exist_ok=True)
+settings.ml_association_export_dir.mkdir(parents=True, exist_ok=True)

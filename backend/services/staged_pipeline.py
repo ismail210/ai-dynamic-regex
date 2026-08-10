@@ -14,6 +14,7 @@ from services.document_registry import (
     update_document,
 )
 from services.dataset_manager import dataset_manager
+from services.engineering.structural_graph import graph_matches_document
 from services.extraction_engine import (
     EXTRACTION_VERSION,
     extract_engineering_document,
@@ -285,6 +286,15 @@ def run_analysis_stage(
     graph = (
         read_artifact(document_id, "graph.json") if reuse_stage_artifacts else None
     )
+    if graph is not None and not graph_matches_document(graph, document):
+        # Token ids are positional, so a graph cached before the current
+        # extraction covers a different id space; reusing it would leave those
+        # tokens with no structural neighborhood.
+        logger.info(
+            "Rebuilding graph for %s: cached graph predates current token ids",
+            document_id,
+        )
+        graph = None
     update_document(document_id, stage="analyzing")
     try:
         result = run_multimodal_pipeline(

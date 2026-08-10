@@ -47,8 +47,17 @@ EDGE_RELATIONS = (
     "intersects",
     "adjacent",
     "touches",
+    "same_tag",
     "other",
 )
+# The relation vocabulary is positional in the trained edge-gate weights, so
+# growing EDGE_RELATIONS changes the edge-attribute width and stops older
+# checkpoints from loading. Checkpoints now record their own vocabulary;
+# these entries recover it for ones saved before that, keyed by relation
+# count. Add a new entry here whenever EDGE_RELATIONS grows.
+_LEGACY_EDGE_RELATIONS = {
+    18: tuple(name for name in EDGE_RELATIONS if name != "same_tag"),
+}
 _LOCK = threading.RLock()
 _RUNTIME: Optional[tuple[Any, Any, Dict[str, Any]]] = None
 
@@ -63,7 +72,12 @@ class _GraphSAGEModel:
     """Thin wrapper that builds a torch module without importing torch eagerly."""
 
     @staticmethod
-    def create(input_dim: int, hidden_dim: int, role_count: int):
+    def create(
+        input_dim: int,
+        hidden_dim: int,
+        role_count: int,
+        relation_count: int = len(EDGE_RELATIONS),
+    ):
         torch = _torch()
 
         class Model(torch.nn.Module):
@@ -77,8 +91,8 @@ class _GraphSAGEModel:
                 self.consistency_head = torch.nn.Linear(hidden_dim, 1)
                 self.missing_head = torch.nn.Linear(hidden_dim, 1)
                 self.incorrect_head = torch.nn.Linear(hidden_dim, 1)
-                self.edge_gate_1 = torch.nn.Linear(len(EDGE_RELATIONS) + 2, 1)
-                self.edge_gate_2 = torch.nn.Linear(len(EDGE_RELATIONS) + 2, 1)
+                self.edge_gate_1 = torch.nn.Linear(relation_count + 2, 1)
+                self.edge_gate_2 = torch.nn.Linear(relation_count + 2, 1)
 
             @staticmethod
             def aggregate(features, edge_index, edge_attributes, gate_layer):
@@ -140,11 +154,28 @@ def _node_features(nodes: List[dict]) -> np.ndarray:
     return np.asarray(values, dtype=np.float32)
 
 
+def _checkpoint_edge_relations(checkpoint: Dict[str, Any]) -> tuple[str, ...]:
+    """Relation vocabulary a checkpoint was trained with."""
+
+    recorded = checkpoint.get("edge_relations")
+    if recorded:
+        return tuple(str(name) for name in recorded)
+    weight = (checkpoint.get("state_dict") or {}).get("edge_gate_1.weight")
+    if weight is not None:
+        # Attribute vector is one-hot(relations) + [distance, reference].
+        count = int(weight.shape[1]) - 2
+        legacy = _LEGACY_EDGE_RELATIONS.get(count)
+        if legacy:
+            return legacy
+    return EDGE_RELATIONS
+
+
 def _edge_tensors(
     graph: Dict[str, Any],
     node_positions: Dict[str, int],
     *,
     max_edges: Optional[int] = None,
+    relations: tuple[str, ...] = EDGE_RELATIONS,
 ) -> tuple[np.ndarray, np.ndarray]:
     pairs: List[tuple[int, int]] = []
     attributes: List[List[float]] = []
@@ -153,12 +184,15 @@ def _edge_tensors(
         # Prefer structural relations; keep training graphs tractable.
         priority = {
             "connected_to",
+            "connected",
             "supports",
             "intersects",
             "nearest_label",
             "nearest_geometry",
             "inside",
             "touches",
+            "same_tag",
+            "reference",
         }
         preferred = [
             edge
@@ -181,11 +215,12 @@ def _edge_tensors(
         relation = str(
             edge.get("relationship") or edge.get("relation") or "other"
         )
-        if relation not in EDGE_RELATIONS:
+        # Normalize legacy CONNECTED edges onto CONNECTED_TO for GraphSAGE.
+        if relation == "connected":
+            relation = "connected_to"
+        if relation not in relations:
             relation = "other"
-        relation_vector = [
-            1.0 if relation == name else 0.0 for name in EDGE_RELATIONS
-        ]
+        relation_vector = [1.0 if relation == name else 0.0 for name in relations]
         distance = min(float(edge.get("distance") or 0.0) / 500.0, 1.0)
         reference = float(
             edge.get("confidence")
@@ -203,7 +238,7 @@ def _edge_tensors(
     edge_attributes = (
         np.asarray(attributes, dtype=np.float32)
         if attributes
-        else np.empty((0, len(EDGE_RELATIONS) + 2), dtype=np.float32)
+        else np.empty((0, len(relations) + 2), dtype=np.float32)
     )
     return edge_index, edge_attributes
 
@@ -217,13 +252,16 @@ def _load_runtime() -> Optional[tuple[Any, Any, Dict[str, Any]]]:
         if _RUNTIME is None:
             torch = _torch()
             checkpoint = torch.load(path, map_location="cpu", weights_only=False)
+            relations = _checkpoint_edge_relations(checkpoint)
             model = _GraphSAGEModel.create(
                 int(checkpoint["input_dim"]),
                 int(checkpoint["hidden_dim"]),
                 len(checkpoint["role_labels"]),
+                relation_count=len(relations),
             )
             model.load_state_dict(checkpoint["state_dict"])
             model.eval()
+            checkpoint["edge_relations"] = relations
             _RUNTIME = (torch, model, checkpoint)
     return _RUNTIME
 
@@ -255,7 +293,9 @@ def enrich_graph_embeddings(graph: Dict[str, Any]) -> Dict[str, Any]:
     features = torch.from_numpy(
         np.ascontiguousarray(_node_features(nodes), dtype=np.float32)
     )
-    edge_index, edge_attributes = _edge_tensors(graph, positions)
+    edge_index, edge_attributes = _edge_tensors(
+        graph, positions, relations=_checkpoint_edge_relations(checkpoint)
+    )
     edges = torch.from_numpy(np.ascontiguousarray(edge_index)).long()
     edge_features = torch.from_numpy(np.ascontiguousarray(edge_attributes))
     with torch.inference_mode():
@@ -407,11 +447,15 @@ def train_graphsage(
     path = Path(destination or settings.graphsage_model_path)
     torch.save(
         {
-            "schema_version": "1.0",
+            "schema_version": "1.1",
             "model": "graphsage",
             "input_dim": input_dim,
             "hidden_dim": hidden_dim,
             "role_labels": ROLE_LABELS,
+            # Recorded so a later EDGE_RELATIONS/NODE_KINDS change cannot
+            # silently invalidate this checkpoint at inference time.
+            "edge_relations": EDGE_RELATIONS,
+            "node_kinds": NODE_KINDS,
             "state_dict": model.state_dict(),
         },
         path,

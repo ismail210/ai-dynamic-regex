@@ -64,6 +64,12 @@ def reload_model() -> bool:
     _artifact_mode = artifact_mode
     _CLASS_LABELS = list(encoder.classes_)
     _cached_prediction.cache_clear()
+    try:
+        from services.exact_section_predictor import reload_exact_section_artifact
+
+        reload_exact_section_artifact()
+    except Exception:
+        pass
     return True
 
 

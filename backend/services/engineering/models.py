@@ -36,6 +36,11 @@ class NodeKind(str, Enum):
     BOLT = "bolt"
     WELD = "weld"
     CONNECTION = "connection"
+    # A catalog member whose structural role is not implied by its shape
+    # family (channels, angles, tees, tubes). Preferred over guessing
+    # "beam"/"column". Already part of graph_ai.NODE_KINDS, so using it does
+    # not change the GraphSAGE input dimension.
+    STEEL_SECTION = "steel_section"
     OTHER = "other"
 
 
@@ -59,6 +64,7 @@ class RelationKind(str, Enum):
     LEFT_OF = "left_of"
     RIGHT_OF = "right_of"
     REFERENCE = "reference"
+    SAME_TAG = "same_tag"
 
 
 class MatchStatus(str, Enum):

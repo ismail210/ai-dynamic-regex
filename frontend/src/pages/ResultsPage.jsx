@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Stack } from "@mui/material";
-import { FactCheckOutlined, RateReviewOutlined } from "@mui/icons-material";
+import { FactCheckOutlined, PictureAsPdfOutlined, RateReviewOutlined } from "@mui/icons-material";
 import StatsCards from "../components/StatsCards";
 import Charts from "../components/Charts";
 import DownloadButtons from "../components/DownloadButtons";
@@ -55,11 +55,19 @@ export default function ResultsPage() {
       <StatsCards data={data} />
       <Charts data={data} />
       <TokensTable results={data.results} />
-      <Stack direction="row" spacing={1}>
+      <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: "wrap" }}>
+        <TipButton
+          component={Link}
+          to="/review-drawing"
+          variant="contained"
+          startIcon={<PictureAsPdfOutlined />}
+        >
+          Review on drawing
+        </TipButton>
         <TipButton
           component={Link}
           to="/validation"
-          variant="contained"
+          variant="outlined"
           startIcon={<FactCheckOutlined />}
         >
           Review validation

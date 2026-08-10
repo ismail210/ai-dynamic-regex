@@ -81,6 +81,8 @@ def approve_token(payload: ReviewRequest):
             reviewed_class=reviewed_class or "",
             reviewed_category=payload.reviewed_category or "",
             notes=payload.notes,
+            ranking_score=float((existing or {}).get("overall_confidence") or 0.0),
+            predicted_section=str((existing or {}).get("prediction") or ""),
         )
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc

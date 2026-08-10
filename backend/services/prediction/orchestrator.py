@@ -18,9 +18,11 @@ from services.database_loader import (
 from services.engineering.rule_engine import evaluate_engineering_rules
 from services.entity_taxonomy import resolve_entity
 from services.exact_section_predictor import (
+    is_exact_section_label,
     predict_exact_sections,
     predict_exact_sections_for_labels,
 )
+from services.section_parser import plausible_against_ocr
 from services.feature_extractor import extract_structural_features
 from services.model_predictor import predict_with_confidence
 from services.multimodal.correction_engine import (
@@ -34,6 +36,7 @@ from services.multimodal.feature_providers import (
 from services.multimodal.encoder_registry import encoder_registry
 from services.multimodal.modular_fusion import unified_multimodal_fusion
 from services.prediction.calibration import calibrate_score
+from services.prediction.label_ranker_hook import apply_label_ranker_for_analyze
 from services.prediction.canonical_contract import (
     build_canonical_prediction,
     determine_review_from_status,
@@ -70,8 +73,71 @@ _geometry_provider = GeometryFeatureProvider()
 _graph_provider = GraphFeatureProvider()
 
 
+EXACT_OVERRIDE_MIN_CONFIDENCE = 0.72
+EXACT_OVERRIDE_MIN_MARGIN = 0.06
+LEARNED_DISAGREEMENT_GEOM_MIN = 0.75
+LEARNED_DISAGREEMENT_GRAPH_MIN = 0.7
+
+
 def _is_structural_family(label: Optional[str]) -> bool:
     return str(label or "").strip().upper() in STRUCTURAL_FAMILIES
+
+
+def _candidate_confidence(candidate: Any) -> float:
+    if hasattr(candidate, "confidence"):
+        return float(candidate.confidence or 0.0)
+    if isinstance(candidate, dict):
+        return float(candidate.get("confidence") or 0.0)
+    return 0.0
+
+
+def _candidate_shape(candidate: Any) -> str:
+    if hasattr(candidate, "shape"):
+        return str(candidate.shape or "")
+    if isinstance(candidate, dict):
+        return str(candidate.get("shape") or "")
+    return ""
+
+
+def _gated_exact_override(
+    fusion_section: str,
+    exact_candidates: List[Any],
+    ocr_text: str,
+) -> tuple[str, bool]:
+    """
+    Optionally replace a family-only fusion label with the top exact candidate.
+
+    Returns ``(section, retrieval_gate_failed)``. Gate failure means no
+    confident exact candidate and fusion did not yield a catalog label, so the
+    caller should abstain (empty section) and force review.
+    """
+
+    if not (_is_structural_family(fusion_section) and exact_candidates):
+        if is_exact_section_label(fusion_section) or lookup_shape(fusion_section):
+            return fusion_section, False
+        # Family-only or garbage fusion output with no exact candidates → abstain.
+        return "", True
+
+    top = exact_candidates[0]
+    top_shape = _candidate_shape(top)
+    top_confidence = _candidate_confidence(top)
+    second_confidence = (
+        _candidate_confidence(exact_candidates[1])
+        if len(exact_candidates) > 1
+        else 0.0
+    )
+    margin = top_confidence - second_confidence
+    if (
+        top_shape
+        and top_confidence >= EXACT_OVERRIDE_MIN_CONFIDENCE
+        and margin >= EXACT_OVERRIDE_MIN_MARGIN
+        and plausible_against_ocr(top_shape, ocr_text)
+    ):
+        return top_shape, False
+
+    if is_exact_section_label(fusion_section) or lookup_shape(fusion_section):
+        return fusion_section, False
+    return "", True
 
 
 def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
@@ -162,30 +228,11 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         similarity_candidates=exact_candidates,
         limit=8,
     )
+    # Geometry vector hits contribute role/consistency evidence only — they
+    # must not inject section strings into fusion (plan-view lines cannot
+    # distinguish W12X26 from W21X44).
     fusion_candidates: List[Any] = list(exact_candidates)
     existing_shapes = {candidate.shape for candidate in exact_candidates}
-    for geometry_candidate in geometry.get("geometry_candidates") or []:
-        shape = str(geometry_candidate.get("section") or "")
-        if not shape or shape in existing_shapes or lookup_shape(shape) is None:
-            continue
-        fusion_candidates.append(
-            {
-                "shape": shape,
-                "evidence": {
-                    "text": 0.0,
-                    "geometry": float(
-                        geometry_candidate.get("similarity") or 0.0
-                    ),
-                    "graph": float(
-                        graph.get("graph_confidence")
-                        or graph.get("graph_consistency")
-                        or 0.0
-                    ),
-                    "engineering_rules": float(provisional_rules.score),
-                },
-            }
-        )
-        existing_shapes.add(shape)
     for correction in corrections:
         if (
             correction.corrected in existing_shapes
@@ -276,12 +323,35 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         candidates=fusion_candidates,
         fallback_section=corrected_text,
     )
-    section = unified_fusion.section
-    if _is_structural_family(section) and exact_candidates:
-        section = exact_candidates[0].shape
+    section, retrieval_gate_failed = _gated_exact_override(
+        str(unified_fusion.section or ""),
+        exact_candidates,
+        normalized or raw_text,
+    )
+    # Shadow / enable path via indirection (never imports the ranker package
+    # here). Shadow-only never changes ``section``; ENABLED may replace it.
+    label_ranker_meta = apply_label_ranker_for_analyze(
+        raw_text=original or normalized,
+        live_section=section,
+    )
+    if label_ranker_meta.get("applied") and label_ranker_meta.get(
+        "selected_prediction"
+    ):
+        section = str(label_ranker_meta["selected_prediction"])
+        retrieval_gate_failed = False
     ai_reasons = list(unified_fusion.reasons)
+    if retrieval_gate_failed:
+        ai_reasons.append(
+            "Exact-section retrieval gate failed; abstaining for human review."
+        )
+    if label_ranker_meta.get("applied"):
+        ai_reasons.append(
+            "Damaged-label ranker enabled; replaced section with learned pick."
+        )
     model_label = section
-    model_probability = float(unified_fusion.confidence)
+    model_probability = (
+        0.0 if retrieval_gate_failed else float(unified_fusion.confidence)
+    )
     distribution = {
         item["shape"]: float(item["score"])
         for item in unified_fusion.candidate_scores
@@ -349,14 +419,17 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         "layout": bool(encodings["layout"].available),
         "geometry": bool(geometry.get("available"))
         or bool(geometry.get("geometry_embedding")),
-        "graph": bool(graph.get("graph_embedding"))
+        "graph": bool(graph.get("graph_available"))
+        or bool(graph.get("graph_embedding"))
         or bool(graph.get("source_node"))
         or float(graph.get("degree") or 0) > 0,
         "engineering_rules": True,
         "database": True,
     }
 
-    confidence_value = float(unified_fusion.confidence)
+    confidence_value = (
+        0.0 if retrieval_gate_failed else float(unified_fusion.confidence)
+    )
     confidence = {
         "overall": round(confidence_value, 4),
         "level": level_from_score(confidence_value),
@@ -371,12 +444,22 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         "weights": dict(unified_fusion.contributions),
         "database_role": "verification_only",
     }
+    geometry_confidence = float(
+        geometry.get("geometry_confidence")
+        or geometry.get("geometry_role_confidence")
+        or geometry.get("similarity")
+        or 0.0
+    )
     learned_disagreement = (
         bool(normalized)
+        and bool(section)
         and section != normalized
+        and geometry_confidence >= LEARNED_DISAGREEMENT_GEOM_MIN
+        and graph_consistency >= LEARNED_DISAGREEMENT_GRAPH_MIN
+        and bool(geometry.get("geometry_embedding"))
         and (
-            bool(geometry.get("geometry_embedding"))
-            or bool(graph.get("graph_embedding"))
+            bool(graph.get("graph_embedding"))
+            or float(graph.get("degree") or 0) > 0
         )
     )
     final_correction = (
@@ -446,11 +529,7 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
             "source": geometry.get("source"),
         },
         graph_evidence={
-            "available": bool(
-                graph.get("graph_embedding")
-                or graph.get("source_node")
-                or float(graph.get("degree") or 0) > 0
-            ),
+            "available": bool(available["graph"]),
             "model": "graphsage" if graph.get("graph_embedding") else "structural_graph",
             "node_id": graph.get("source_node"),
             "node_kind": graph.get("node_kind"),
@@ -493,6 +572,23 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         explanation["correction_history"] = (
             [reviewed_example] if reviewed_example else []
         )
+    if label_ranker_meta.get("invoked"):
+        explanation["label_ranker"] = {
+            "applied": bool(label_ranker_meta.get("applied")),
+            "reason": label_ranker_meta.get("reason"),
+            "selected_prediction": label_ranker_meta.get("selected_prediction"),
+            "model_version": label_ranker_meta.get("model_version"),
+            "shadow_disagreement": (
+                (label_ranker_meta.get("shadow") or {}).get("disagreement")
+                if label_ranker_meta.get("shadow")
+                else None
+            ),
+            "live_disagreement": (
+                (label_ranker_meta.get("shadow") or {}).get("live_disagreement")
+                if label_ranker_meta.get("shadow")
+                else None
+            ),
+        }
 
     # Entity metadata — AI family/section first; AISC only for category enrichment.
     entity = resolve_entity(
@@ -513,6 +609,8 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         issues.append("geometry_conflict")
     if float(graph.get("degree") or 0) > 0 and graph_consistency < 0.45:
         issues.append("graph_conflict")
+    if retrieval_gate_failed or not section:
+        issues.append("retrieval_gate_failed")
 
     review_status = decide_review_status(
         confidence=float(confidence["overall"]),
@@ -521,6 +619,7 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         regex_matches=False,
         model_probability=model_probability,
         database_verified=database_verified,
+        abstain=retrieval_gate_failed or not section,
     )
 
     component_id = allocate_component_id(
@@ -557,7 +656,13 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         block_number=block_info.get("number"),
         line_number=line_info.get("number"),
         word_number=None,  # a token may merge several source words; see token_extractor
-        extraction_method="pdf_text" if bbox else "unknown",
+        extraction_method=(
+            "geometry_inference"
+            if token_record.get("missing_label") or not original.strip()
+            else "pdf_text"
+            if bbox
+            else "unknown"
+        ),
         source_available=bool(original.strip()),
         final_label=section,
         family=family,

@@ -11,18 +11,23 @@ from __future__ import annotations
 import math
 import re
 from collections import Counter
-from typing import Any, Dict, List, Sequence
+from typing import Any, Dict, List, Optional, Sequence
 
 from services.engineering.graph_builder import build_graph
 
 
+# Only explicit structural WORDS may override the kind graph_builder already
+# resolved. Shape-family patterns are deliberately excluded: matching "HSS" or
+# "W16X26" here used to relabel every tube a brace and every wide flange a
+# beam, overwriting better upstream evidence and reporting a role the drawing
+# never stated.
 _ENTITY_RULES = (
     ("bolt", re.compile(r"\b(?:A325|A490|A307|BOLT)\b", re.I)),
     ("weld", re.compile(r"\b(?:WELD|CJP|PJP|FILLET)\b", re.I)),
-    ("plate", re.compile(r"\b(?:PL|PLATE|BASE\s*PLATE|STIFFENER)\b", re.I)),
-    ("brace", re.compile(r"\b(?:BRACE|BRACING|HSS|2L)\b", re.I)),
+    ("plate", re.compile(r"\b(?:PLATE|BASE\s*PLATE|STIFFENER)\b", re.I)),
+    ("brace", re.compile(r"\b(?:BRACE|BRACING)\b", re.I)),
     ("column", re.compile(r"\b(?:COLUMN|COL\.?)\b", re.I)),
-    ("beam", re.compile(r"\b(?:BEAM|GIRDER|W\d+X\d+)\b", re.I)),
+    ("beam", re.compile(r"\b(?:BEAM|GIRDER|JOIST)\b", re.I)),
     ("connection", re.compile(r"\b(?:CONNECTION|CONN\.?|CLIP\s*ANGLE)\b", re.I)),
 )
 
@@ -114,11 +119,17 @@ def build_structural_graph(
             )
             existing.add(key)
 
-    for page_nodes in by_page.values():
+    semantic_window_cap = 350
+    semantic_window_size = 44
+    semantic_diagnostics_by_page: Dict[int, dict] = {}
+
+    for page_number, page_nodes in by_page.items():
         # Bound pairwise work for large vector drawings.
-        candidates = page_nodes[:350]
+        candidates = page_nodes[:semantic_window_cap]
+        semantic_considered = 0
         for index, a in enumerate(candidates):
-            for b in candidates[index + 1 : index + 45]:
+            for b in candidates[index + 1 : index + 1 + semantic_window_size]:
+                semantic_considered += 1
                 distance = _distance(a, b)
                 if distance > max_near_distance:
                     continue
@@ -153,6 +164,31 @@ def build_structural_graph(
                     bolt = a if a["kind"] == "bolt" else b
                     host = b if bolt is a else a
                     add(bolt, host, "inside", 0.75, "fastener within connection zone")
+
+        semantic_diagnostics_by_page[page_number] = {
+            "semantic_node_count": len(page_nodes),
+            "semantic_pairwise_window_cap": semantic_window_cap,
+            "semantic_pairwise_window_size": semantic_window_size,
+            "semantic_pairwise_window_triggered": len(page_nodes) > semantic_window_cap,
+            "semantic_candidate_pairs_considered": semantic_considered,
+        }
+
+    # Merge the semantic-pass window diagnostics into build_graph's own
+    # per-page diagnostics list (docs/ml_association_phase/) so a single
+    # artifact shows both windowing regimes' coverage.
+    for entry in graph.get("diagnostics") or []:
+        entry.update(
+            semantic_diagnostics_by_page.get(
+                entry.get("page_number"),
+                {
+                    "semantic_node_count": 0,
+                    "semantic_pairwise_window_cap": semantic_window_cap,
+                    "semantic_pairwise_window_size": semantic_window_size,
+                    "semantic_pairwise_window_triggered": False,
+                    "semantic_candidate_pairs_considered": 0,
+                },
+            )
+        )
 
     node_counts = Counter(node["kind"] for node in nodes)
     edge_counts = Counter(edge["relationship"] for edge in edges)
@@ -222,8 +258,12 @@ def build_structural_graph(
             for edge in incident
         )
         source_features[str(source_id)] = {
+            # Identity fields let consumers tell "this source really has a
+            # graph node" apart from the not-found fallback below. Without
+            # them every lookup looked like a miss.
             "source_node": node["node_id"],
             "node_kind": node.get("kind"),
+            "graph_available": True,
             "degree": float(len(incident)),
             "geometry_links": float(
                 sum(
@@ -242,30 +282,178 @@ def build_structural_graph(
     return graph
 
 
-def graph_features_for_source(graph: dict, source_id: str) -> Dict[str, float]:
-    """Build model-neutral numeric graph features for one source object."""
+def _normalized_node_text(text: Any) -> str:
+    return re.sub(r"\s+", "", str(text or "")).upper()
 
-    cached = (graph.get("source_features") or {}).get(str(source_id))
-    if cached is not None:
-        return dict(cached)
 
-    node = next(
+def _bbox_key(bbox: Any) -> Optional[tuple]:
+    if not bbox or len(bbox) < 4:
+        return None
+    try:
+        return tuple(round(float(value), 1) for value in bbox[:4])
+    except (TypeError, ValueError):
+        return None
+
+
+def build_source_lookup(graph: dict) -> Dict[str, Any]:
+    """Index a graph for token→node resolution.
+
+    Token ids are positional (``token_p3_32``), so they shift whenever
+    extraction re-runs. A graph built from an earlier pass then shares no ids
+    with the current document and every token silently loses its
+    neighborhood. Page + bbox + text is stable across re-extraction, so it
+    serves as the fallback identity.
+    """
+
+    sources: set = set()
+    by_bbox: Dict[tuple, str] = {}
+    by_text: Dict[tuple, List[str]] = {}
+    for node in graph.get("nodes") or []:
+        source_id = node.get("source_id")
+        if not source_id:
+            continue
+        sources.add(str(source_id))
+        # "txt_" prefix marks text nodes (see graph_builder.build_graph);
+        # geometry nodes carry nearby_text that could collide with a label.
+        if not str(node.get("node_id") or "").startswith("txt_"):
+            continue
+        text = _normalized_node_text(node.get("text"))
+        if not text:
+            continue
+        page = int(node.get("page_number") or 0)
+        bbox = _bbox_key(node.get("bbox"))
+        if bbox is not None:
+            by_bbox.setdefault((page, bbox, text), str(source_id))
+        by_text.setdefault((page, text), []).append(str(source_id))
+    return {"sources": sources, "by_bbox": by_bbox, "by_text": by_text}
+
+
+def resolve_source_id(
+    graph: dict,
+    token: Dict[str, Any],
+    *,
+    lookup: Optional[Dict[str, Any]] = None,
+) -> tuple[Optional[str], str]:
+    """Resolve a prediction token to a graph source id.
+
+    Returns ``(source_id, how)`` where ``how`` records which identity matched,
+    so a fallback match is never mistaken for an exact id hit.
+    """
+
+    index = lookup or build_source_lookup(graph)
+    sources = index["sources"]
+    for candidate, how in (
+        (token.get("token_id"), "token_id"),
+        ((token.get("line") or {}).get("id"), "line_id"),
+        *((word_id, "word_id") for word_id in token.get("source_word_ids") or []),
+    ):
+        if candidate and str(candidate) in sources:
+            return str(candidate), how
+
+    text = _normalized_node_text(token.get("text") or token.get("raw_text"))
+    if not text:
+        return None, "unresolved"
+    page = int(token.get("page") or 0)
+    bbox = _bbox_key(token.get("bbox"))
+    if bbox is not None:
+        # Same text at the same place: a re-keyed token, safe to accept.
+        matched = index["by_bbox"].get((page, bbox, text))
+        if matched:
+            return matched, "page_bbox_text"
+    candidates = index["by_text"].get((page, text)) or []
+    if len(candidates) == 1:
+        # Only when unambiguous; duplicate tags on a page would otherwise
+        # hand back some other member's neighborhood as if it were this one's.
+        return candidates[0], "page_text"
+    return None, "unresolved"
+
+
+def graph_features_for_token(
+    graph: dict,
+    token: Dict[str, Any],
+    *,
+    lookup: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    """Graph features for a prediction token, with id-drift fallbacks."""
+
+    source_id, how = resolve_source_id(graph, token, lookup=lookup)
+    features = graph_features_for_source(graph, source_id or "")
+    features["source_match"] = how if source_id else "unresolved"
+    return features
+
+
+def graph_matches_document(graph: dict, document: Dict[str, Any]) -> bool:
+    """True when a cached graph still covers the document's token ids.
+
+    Guards artifact reuse: re-running extraction renumbers positional token
+    ids, so a stale graph would leave those tokens without a neighborhood.
+    """
+
+    sources = {
+        str(node.get("source_id"))
+        for node in graph.get("nodes") or []
+        if node.get("source_id")
+    }
+    if not sources:
+        return False
+    tokens = [
+        token
+        for token in document.get("engineering_tokens") or []
+        if str(token.get("text") or "").strip()
+    ]
+    return all(str(token.get("token_id")) in sources for token in tokens)
+
+
+def _node_for_source(graph: dict, source_id: Any) -> Optional[dict]:
+    """Find the graph node for a source object id, comparing as strings.
+
+    Node ``source_id`` values round-trip through JSON artifacts, so a raw
+    ``==`` against a non-string caller id can miss a node that exists.
+    """
+
+    wanted = str(source_id)
+    return next(
         (
             candidate
             for candidate in graph.get("nodes") or []
-            if candidate.get("source_id") == source_id
+            if str(candidate.get("source_id")) == wanted
         ),
         None,
     )
+
+
+def graph_features_for_source(graph: dict, source_id: str) -> Dict[str, Any]:
+    """Build model-neutral numeric graph features for one source object.
+
+    Always reports ``graph_available`` / ``source_node`` so callers can
+    distinguish a real graph neighborhood from the not-found fallback.
+    """
+
+    cached = (graph.get("source_features") or {}).get(str(source_id))
+    if cached is not None:
+        features = dict(cached)
+        if not features.get("source_node"):
+            # Graph artifacts written before identity fields existed are
+            # reused on re-analysis; backfill from the node list instead of
+            # reporting a spurious miss.
+            cached_node = _node_for_source(graph, source_id)
+            if cached_node:
+                features["source_node"] = cached_node["node_id"]
+                features.setdefault("node_kind", cached_node.get("kind"))
+        features["graph_available"] = bool(features.get("source_node"))
+        return features
+
+    node = _node_for_source(graph, source_id)
     if not node:
         return {
             "source_node": None,
             "node_kind": None,
+            "graph_available": False,
             "degree": 0.0,
             "geometry_links": 0.0,
             "structural_links": 0.0,
             "min_distance": 999.0,
-            "graph_consistency": 0.0,
+            "graph_consistency": 0.35,
         }
     incident = [
         edge
@@ -293,6 +481,7 @@ def graph_features_for_source(graph: dict, source_id: str) -> Dict[str, float]:
     return {
         "source_node": node["node_id"],
         "node_kind": node.get("kind"),
+        "graph_available": True,
         "degree": float(len(incident)),
         "geometry_links": float(
             sum(

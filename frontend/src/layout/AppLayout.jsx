@@ -31,6 +31,7 @@ import {
   UploadFileOutlined,
   HubOutlined,
   ManageSearchOutlined,
+  PictureAsPdfOutlined,
   ViewListOutlined,
 } from "@mui/icons-material";
 import { useThemeMode } from "../context/ThemeContext";
@@ -43,6 +44,7 @@ const WORKFLOW_ITEMS = [
   { to: "/extract", label: "Extract", icon: ManageSearchOutlined },
   { to: "/analyze", label: "Analyze", icon: HubOutlined },
   { to: "/results", label: "Results", icon: TableRowsOutlined },
+  { to: "/review-drawing", label: "Drawing review", icon: PictureAsPdfOutlined },
   { to: "/validation", label: "Validation", icon: FactCheckOutlined },
   { to: "/review", label: "Corrections", icon: RateReviewOutlined },
   { to: "/takeoff", label: "Takeoff", icon: ViewListOutlined },

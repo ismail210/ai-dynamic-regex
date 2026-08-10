@@ -15,6 +15,7 @@ MODALITIES = (
     "graph",
     "engineering",
     "fusion",
+    "label_reconstruction",
 )
 MODEL_FAMILIES = (
     "family_classifier",
@@ -25,6 +26,7 @@ MODEL_FAMILIES = (
     "graph",
     "engineering",
     "fusion",
+    "label_reconstruction",
 )
 SPLITS = ("train", "validation", "test")
 
