@@ -79,12 +79,14 @@ export default function SectionResultsList({
         value={filter}
         onChange={(event) => setFilter(event.target.value)}
         placeholder="Filter sections…"
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <SearchOutlined fontSize="small" />
-            </InputAdornment>
-          ),
+        slotProps={{
+          input: {
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchOutlined fontSize="small" />
+              </InputAdornment>
+            ),
+          },
         }}
       />
       <Typography variant="caption" color="text.secondary">
@@ -185,7 +187,7 @@ export default function SectionResultsList({
                     </Stack>
                   </Stack>
                 }
-                secondaryTypographyProps={{ component: "div" }}
+                slotProps={{ secondary: { component: "div" } }}
               />
             </ListItemButton>
           );

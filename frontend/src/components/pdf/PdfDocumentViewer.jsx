@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Alert, Box, CircularProgress, Stack, Typography } from "@mui/material";
+import { Alert, Box, CircularProgress, Typography } from "@mui/material";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
@@ -118,19 +118,39 @@ export default function PdfDocumentViewer({
       <Document
         file={fileUrl}
         loading={
-          <Stack alignItems="center" py={6} spacing={1.5}>
+          // react-pdf clones/wraps this element internally (via its Message
+          // component) rather than rendering it as an ordinary child, which
+          // dropped MUI's Stack-specific prop handling and forwarded
+          // `alignItems` straight through to a DOM node. sx-based styling
+          // compiles to CSS at build time, so there is no component prop
+          // left for that wrapping to strip.
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              py: 6,
+              gap: 1.5,
+            }}
+          >
             <CircularProgress size={28} />
             <Typography variant="body2" color="text.secondary">
               Loading drawing…
             </Typography>
-          </Stack>
+          </Box>
         }
         onLoadSuccess={onDocumentLoadSuccess}
         onLoadError={(error) => {
           setLoadError(error?.message || "Could not load the drawing PDF.");
         }}
       >
-        <Stack spacing={2} alignItems="center">
+        {/* react-pdf's <Document> wraps its children in its own internal
+            container rather than rendering them as ordinary React children,
+            which drops MUI Stack's component-level prop handling and
+            forwards `alignItems` straight through to a DOM node (same root
+            cause as the `loading` prop above) — sx-based flex styling sidesteps
+            it entirely. */}
+        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
           {pages.map((pageNumber) => {
             const isSelectedPage =
               selection?.pageNumber != null
@@ -195,7 +215,7 @@ export default function PdfDocumentViewer({
               </Box>
             );
           })}
-        </Stack>
+        </Box>
       </Document>
     </Box>
   );
