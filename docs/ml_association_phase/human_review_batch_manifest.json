@@ -1,0 +1,83 @@
+{
+  "manifest_version": "1.0",
+  "supersedes_note": "Rebalanced export of the same 11 pilot pages defined in real_project_pilot_manifest.json (Phase 2.5), which is preserved unchanged. This file does not replace it -- it records the revised per-page export caps used to build a less project-imbalanced 108-group human-review batch, and the resulting distribution.",
+  "rebalance_reason": "The original flat 'export top 10 per page' rule (Phase 2.5) produced a batch where project_004 (present in 3 of the 11 pilot pages: pilot_04, pilot_05, pilot_12) contributed 28/108 groups (25.9%) versus an ideal even share of ~14.3% across 7 projects. Step 2 of Phase 2.6 flagged this as a real imbalance per the phase spec's explicit instruction to check for single-project domination.",
+  "rebalanced_caps": {
+    "pilot_01": {"project_id": "project_002", "cap": 15},
+    "pilot_02": {"project_id": "project_003", "cap": 15},
+    "pilot_03": {"project_id": "project_005", "cap": 14, "note": "capped by availability -- only 14 label groups exist on this page"},
+    "pilot_04": {"project_id": "project_004", "cap": 5},
+    "pilot_05": {"project_id": "project_004", "cap": 5},
+    "pilot_07": {"project_id": "project_006", "cap": 8},
+    "pilot_08": {"project_id": "project_006", "cap": 8},
+    "pilot_09": {"project_id": "project_001", "cap": 8},
+    "pilot_10": {"project_id": "project_007", "cap": 15},
+    "pilot_11": {"project_id": "project_001", "cap": 8},
+    "pilot_12": {"project_id": "project_004", "cap": 7}
+  },
+  "resulting_distribution": {
+    "total_groups": 108,
+    "by_project": {
+      "project_001": 16,
+      "project_002": 15,
+      "project_003": 15,
+      "project_004": 17,
+      "project_005": 14,
+      "project_006": 16,
+      "project_007": 15
+    },
+    "by_project_percent": {
+      "project_001": 14.8,
+      "project_002": 13.9,
+      "project_003": 13.9,
+      "project_004": 15.7,
+      "project_005": 13.0,
+      "project_006": 14.8,
+      "project_007": 13.9
+    },
+    "ideal_even_share_percent": 14.3,
+    "max_deviation_from_ideal_percent": 1.4,
+    "by_page_type": {
+      "structural framing plan #1": 15,
+      "structural framing plan #2": 15,
+      "detail page #1": 14,
+      "detail page #2": 5,
+      "dense vector page": 5,
+      "leaders or arrows": 8,
+      "repeated steel labels": 8,
+      "incomplete or damaged labels": 8,
+      "several adjacent candidate members": 15,
+      "no valid geometry target likely": 8,
+      "schedule or table page": 7
+    },
+    "by_steel_family": {
+      "W": 85,
+      "L": 19,
+      "HSS": 4
+    },
+    "candidate_count_distribution": {
+      "2": 3, "3": 3, "4": 5, "5": 6, "6": 4, "7": 7, "8": 4, "9": 4, "10": 72
+    },
+    "current_heuristic_selected_geometry_kind": {
+      "dimension": 27,
+      "no_selection_made_by_heuristic": 22,
+      "leader": 20,
+      "rectangle": 18,
+      "symbol": 5,
+      "line": 10,
+      "arc": 4,
+      "circle": 2
+    },
+    "leader_supported_groups": 68,
+    "non_leader_supported_groups": 40,
+    "zero_candidate_no_valid_target_groups": 0,
+    "multi_candidate_2plus_groups": 108,
+    "repeated_label_page_combinations": 27,
+    "distinct_label_page_combinations": 57,
+    "adjacent_parallel_member_pattern_detected": 107,
+    "cross_region_contamination_cases": "not measurable -- no region/detail-segmentation layer exists (docs/geometry_graph_audit/08_prioritized_roadmap.md P1.4, still open)",
+    "damaged_or_incomplete_label_cases": "not separately flagged in this batch; one confirmed real fraction-splitting example exists on pilot_09 (project_001, page 22) per real_project_error_taxonomy.md #5, whether it landed in this specific 108-group export was not individually re-verified"
+  },
+  "balance_assessment": "After rebalancing, every project's share falls within 13.0%-15.7% of the batch (ideal even split: 14.3%), a maximum deviation of 1.4 percentage points. Not dominated by any single project, page, or page type. Every group in the batch has 2+ real candidates by construction (the difficulty-prioritization rule from Phase 2.5 was preserved) -- this means the batch is NOT representative of the full population's difficulty distribution (which has some zero-candidate and single-candidate groups too, see real_project_pilot_results.md), by deliberate design: the pilot spec asks this batch to prioritize commercially meaningful, difficult cases, not a random sample.",
+  "known_limitation": "No group in this batch has candidate_count=0, even though pilot_11 was specifically selected as a 'no valid target likely' page and the full population contains 44 such groups (3.5% of 1,253) across all 11 pilot pages. Difficulty-prioritization filled every page's quota with 2+-candidate groups before considering sparse ones. A future export pass could specifically target zero/one-candidate groups if no-valid-target review examples are needed."
+}

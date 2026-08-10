@@ -24,9 +24,9 @@ Output JSON::
 
 from __future__ import annotations
 
+import hashlib
 import math
 import re
-import uuid
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from services.engineering.models import NodeKind, RelationKind
@@ -51,8 +51,18 @@ _OBJECT_NODE_KIND = {
 }
 
 
-def _nid(prefix: str = "node") -> str:
-    return f"{prefix}_{uuid.uuid4().hex[:10]}"
+def _nid(prefix: str, *parts: Any) -> str:
+    """Deterministic node/edge ID derived from stable identifying facts.
+
+    Two builds over the same document produce byte-identical ``graph.json``
+    output, which lets diagnostics, regression tests, and reviewer tooling
+    diff runs meaningfully. Previously this used ``uuid.uuid4()``, which
+    made every graph build of the same document produce different IDs.
+    """
+
+    seed = "|".join(str(p) for p in parts)
+    digest = hashlib.sha1(seed.encode("utf-8")).hexdigest()[:10]
+    return f"{prefix}_{digest}"
 
 
 def _dist(a: Sequence[float], b: Sequence[float]) -> float:
@@ -96,20 +106,17 @@ def _classify_text_node(text: str) -> NodeKind:
     return NodeKind.TEXT
 
 
-def build_graph(
-    document_structure: dict,
-    geometry: dict,
-    *,
-    max_edge_distance: float = 160.0,
-) -> Dict[str, Any]:
-    """Construct node/edge graph from document text + geometry extraction."""
+def build_text_nodes(document_structure: dict) -> List[dict]:
+    """Construct text/label graph nodes from ``document_structure``.
+
+    Extracted from ``build_graph`` so the experimental STRtree candidate
+    generator (``services.engineering.spatial_index``) can build the same
+    node shape without duplicating this logic or drifting from it. Body
+    prose is excluded upstream by ``engineering_object_filter``.
+    """
 
     nodes: List[dict] = []
-    edges: List[dict] = []
-    id_index: Dict[str, dict] = {}
-    # Prediction-ready engineering objects become semantic graph nodes. Body
-    # prose is excluded upstream by ``engineering_object_filter``.
-    for token in document_structure.get("engineering_tokens") or []:
+    for token_index, token in enumerate(document_structure.get("engineering_tokens") or []):
         text = str(token.get("text") or "").strip()
         if not text:
             continue
@@ -119,45 +126,72 @@ def build_graph(
         )
         line = token.get("line") or {}
         bbox = token.get("bbox") or [0, 0, 0, 0]
-        node = {
-            "node_id": _nid("txt"),
-            "source_id": token.get("token_id"),
-            "kind": kind.value,
-            "page_number": token.get("page"),
-            "text": text,
-            "bbox": bbox,
-            "center": [
-                round((float(bbox[0]) + float(bbox[2])) / 2.0, 3),
-                round((float(bbox[1]) + float(bbox[3])) / 2.0, 3),
-            ],
-            "font_size": token.get("font_size"),
-            "rotation": token.get("rotation"),
-            "drawing_references": line.get("drawing_references") or [],
-            "engineering_object_type": token.get("engineering_object_type"),
-        }
-        nodes.append(node)
-        id_index[node["node_id"]] = node
+        token_id = token.get("token_id") or f"idx{token_index}"
+        nodes.append(
+            {
+                "node_id": _nid("txt", token_id, token_index),
+                "source_id": token.get("token_id"),
+                "kind": kind.value,
+                "page_number": token.get("page"),
+                "text": text,
+                "bbox": bbox,
+                "center": [
+                    round((float(bbox[0]) + float(bbox[2])) / 2.0, 3),
+                    round((float(bbox[1]) + float(bbox[3])) / 2.0, 3),
+                ],
+                "font_size": token.get("font_size"),
+                "rotation": token.get("rotation"),
+                "drawing_references": line.get("drawing_references") or [],
+                "engineering_object_type": token.get("engineering_object_type"),
+            }
+        )
+    return nodes
 
-    # Geometry nodes
-    for geom in geometry.get("objects") or []:
+
+def build_geometry_nodes(geometry: dict) -> List[dict]:
+    """Construct geometry graph nodes from a ``geometry`` extraction dict.
+
+    See ``build_text_nodes`` docstring for why this is a standalone,
+    reusable function rather than inline code in ``build_graph``.
+    """
+
+    nodes: List[dict] = []
+    for geom_index, geom in enumerate(geometry.get("objects") or []):
         kind = NodeKind.DIMENSION if geom.get("kind") == "dimension" else NodeKind.GEOMETRY
         if geom.get("kind") == "leader":
             kind = NodeKind.CONNECTION
-        node = {
-            "node_id": _nid("geo"),
-            "source_id": geom.get("geometry_id"),
-            "kind": kind.value,
-            "page_number": geom.get("page_number"),
-            "text": geom.get("nearby_text") or "",
-            "bbox": geom.get("bbox"),
-            "center": geom.get("center"),
-            "geometry_kind": geom.get("kind"),
-            "length": geom.get("length"),
-            "width": geom.get("width"),
-            "area": geom.get("area"),
-            "orientation": geom.get("orientation"),
-        }
-        nodes.append(node)
+        geometry_id = geom.get("geometry_id") or f"idx{geom_index}"
+        nodes.append(
+            {
+                "node_id": _nid("geo", geometry_id, geom_index),
+                "source_id": geom.get("geometry_id"),
+                "kind": kind.value,
+                "page_number": geom.get("page_number"),
+                "text": geom.get("nearby_text") or "",
+                "bbox": geom.get("bbox"),
+                "center": geom.get("center"),
+                "geometry_kind": geom.get("kind"),
+                "length": geom.get("length"),
+                "width": geom.get("width"),
+                "area": geom.get("area"),
+                "orientation": geom.get("orientation"),
+            }
+        )
+    return nodes
+
+
+def build_graph(
+    document_structure: dict,
+    geometry: dict,
+    *,
+    max_edge_distance: float = 160.0,
+) -> Dict[str, Any]:
+    """Construct node/edge graph from document text + geometry extraction."""
+
+    edges: List[dict] = []
+    id_index: Dict[str, dict] = {}
+    nodes: List[dict] = build_text_nodes(document_structure) + build_geometry_nodes(geometry)
+    for node in nodes:
         id_index[node["node_id"]] = node
 
     semantic_kinds = {
@@ -180,6 +214,11 @@ def build_graph(
     geom_nodes = [n for n in nodes if n["kind"] in {NodeKind.GEOMETRY.value, NodeKind.DIMENSION.value, NodeKind.CONNECTION.value}]
     label_nodes = list(text_nodes)
 
+    # Occurrence counter disambiguates the rare case of two edges sharing
+    # the same (source, target, relation) triple, keeping edge_id
+    # deterministic without ever colliding.
+    edge_occurrence: Dict[Tuple[str, str, str], int] = {}
+
     def add_edge(
         source: dict,
         target: dict,
@@ -189,9 +228,12 @@ def build_graph(
         weight: float = 1.0,
         meta: Optional[dict] = None,
     ) -> None:
+        edge_key = (source["node_id"], target["node_id"], relation.value)
+        occurrence = edge_occurrence.get(edge_key, 0)
+        edge_occurrence[edge_key] = occurrence + 1
         edges.append(
             {
-                "edge_id": _nid("edge"),
+                "edge_id": _nid("edge", *edge_key, occurrence),
                 "source": source["node_id"],
                 "target": target["node_id"],
                 "relationship": relation.value,
@@ -207,7 +249,16 @@ def build_graph(
     for n in nodes:
         by_page.setdefault(int(n.get("page_number") or 0), []).append(n)
 
-    for page_nodes in by_page.values():
+    # Per-page diagnostics for the ML-association Phase 1 observability work
+    # (docs/ml_association_phase/). These make the windowed pairwise loop's
+    # coverage loss visible instead of silent — see
+    # docs/geometry_graph_audit/04_graph_audit.md §5 and §12.
+    diagnostics: List[dict] = []
+    geometry_pairwise_window_cap = 60
+    geometry_pairwise_window_size = 12
+
+    for page_number_key, page_nodes in by_page.items():
+        pairwise_considered = 0
         page_text = [
             n
             for n in page_nodes
@@ -278,9 +329,10 @@ def build_graph(
                 add_edge(lab, nearest[1], RelationKind.NEAREST_GEOMETRY, distance=nearest[0], weight=1.0 / (1.0 + nearest[0]))
 
         # Pairwise geometric relations (sampled for large pages)
-        candidates = page_geom[:60]
+        candidates = page_geom[:geometry_pairwise_window_cap]
         for i, a in enumerate(candidates):
-            for b in candidates[i + 1 : i + 12]:
+            for b in candidates[i + 1 : i + 1 + geometry_pairwise_window_size]:
+                pairwise_considered += 1
                 if a["node_id"] == b["node_id"]:
                     continue
                 d = _dist(a["center"], b["center"])
@@ -362,6 +414,33 @@ def build_graph(
                         meta={"shared_references": sorted(shared)},
                     )
 
+        candidate_pairs_possible = len(page_geom) * (len(page_geom) - 1) // 2
+        diagnostics.append(
+            {
+                "page_number": page_number_key,
+                "text_node_count": len(page_text),
+                "geometry_node_count": len(page_geom),
+                "geometry_pairwise_window_cap": geometry_pairwise_window_cap,
+                "geometry_pairwise_window_size": geometry_pairwise_window_size,
+                "geometry_pairwise_window_triggered": len(page_geom)
+                > geometry_pairwise_window_cap,
+                "candidate_pairs_considered": pairwise_considered,
+                "candidate_pairs_possible": candidate_pairs_possible,
+                "candidate_pairs_pruned": max(
+                    0, candidate_pairs_possible - pairwise_considered
+                ),
+            }
+        )
+
+    edges_by_page: Dict[int, int] = {}
+    for e in edges:
+        edges_by_page[int(e.get("page_number") or 0)] = (
+            edges_by_page.get(int(e.get("page_number") or 0), 0) + 1
+        )
+    for entry in diagnostics:
+        entry["edge_count"] = edges_by_page.get(entry["page_number"], 0)
+    diagnostics.sort(key=lambda entry: entry["page_number"])
+
     kind_counts: Dict[str, int] = {}
     for n in nodes:
         kind_counts[n["kind"]] = kind_counts.get(n["kind"], 0) + 1
@@ -372,6 +451,7 @@ def build_graph(
     return {
         "nodes": nodes,
         "edges": edges,
+        "diagnostics": diagnostics,
         "stats": {
             "node_count": len(nodes),
             "edge_count": len(edges),

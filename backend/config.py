@@ -100,6 +100,52 @@ class Settings:
     promotion_accuracy_tolerance: float = 0.02
     promotion_f1_tolerance: float = 0.02
 
+    # ---- ML association dataset (Phase 2, experimental) ---------------
+    # Disabled by default. This gates every ml_association service entry
+    # point (dataset building, outcome writes, review export/import) so
+    # the new package cannot silently run in production paths even
+    # though nothing currently imports it. See
+    # docs/ml_association_phase/review_workflow.md.
+    ml_association_dataset_enabled: bool = field(
+        default_factory=lambda: os.getenv(
+            "ML_ASSOCIATION_DATASET_ENABLED", "false"
+        ).strip().lower()
+        in ("1", "true", "yes", "on")
+    )
+    ml_association_dir: Path = BASE_DIR / "training" / "ml_association"
+    ml_association_outcomes_path: Path = (
+        BASE_DIR / "training" / "ml_association" / "reviewed_outcomes.jsonl"
+    )
+    ml_association_export_dir: Path = (
+        BASE_DIR / "training" / "ml_association" / "exports"
+    )
+    ml_association_schema_version: str = "2.0"
+
+    # ---- Damaged-label reconstruction ranker (shadow mode only) -------
+    # Both default false. ML_LABEL_RANKER_SHADOW may be turned on
+    # independently of ML_LABEL_RANKER_ENABLED to log the trained
+    # ranker's disagreement with the current deterministic candidate
+    # order WITHOUT changing any returned prediction; ML_LABEL_RANKER_ENABLED
+    # gates actually using the ranker's ordering for a real response, and
+    # must stay false until a promoted model + review process says
+    # otherwise. See docs/ml_integration/partner_vs_local_comparison.md
+    # and services/label_reconstruction/shadow.py.
+    ml_label_ranker_enabled: bool = field(
+        default_factory=lambda: os.getenv(
+            "ML_LABEL_RANKER_ENABLED", "false"
+        ).strip().lower()
+        in ("1", "true", "yes", "on")
+    )
+    ml_label_ranker_shadow: bool = field(
+        default_factory=lambda: os.getenv(
+            "ML_LABEL_RANKER_SHADOW", "false"
+        ).strip().lower()
+        in ("1", "true", "yes", "on")
+    )
+    ml_label_ranker_shadow_log_path: Path = (
+        BASE_DIR / "training" / "label_reconstruction_shadow_log.jsonl"
+    )
+
     # ---- Engineering validation / takeoff (additive) ------------------
     engineering_artifacts_dir: Path = BASE_DIR / "training" / "engineering_artifacts"
     engineering_corrections_path: Path = (
@@ -169,3 +215,5 @@ settings.takeoff_exports_dir.mkdir(parents=True, exist_ok=True)
 settings.datasets_registry_dir.mkdir(parents=True, exist_ok=True)
 settings.models_registry_dir.mkdir(parents=True, exist_ok=True)
 settings.document_registry_dir.mkdir(parents=True, exist_ok=True)
+settings.ml_association_dir.mkdir(parents=True, exist_ok=True)
+settings.ml_association_export_dir.mkdir(parents=True, exist_ok=True)

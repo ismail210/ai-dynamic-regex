@@ -114,11 +114,17 @@ def build_structural_graph(
             )
             existing.add(key)
 
-    for page_nodes in by_page.values():
+    semantic_window_cap = 350
+    semantic_window_size = 44
+    semantic_diagnostics_by_page: Dict[int, dict] = {}
+
+    for page_number, page_nodes in by_page.items():
         # Bound pairwise work for large vector drawings.
-        candidates = page_nodes[:350]
+        candidates = page_nodes[:semantic_window_cap]
+        semantic_considered = 0
         for index, a in enumerate(candidates):
-            for b in candidates[index + 1 : index + 45]:
+            for b in candidates[index + 1 : index + 1 + semantic_window_size]:
+                semantic_considered += 1
                 distance = _distance(a, b)
                 if distance > max_near_distance:
                     continue
@@ -153,6 +159,31 @@ def build_structural_graph(
                     bolt = a if a["kind"] == "bolt" else b
                     host = b if bolt is a else a
                     add(bolt, host, "inside", 0.75, "fastener within connection zone")
+
+        semantic_diagnostics_by_page[page_number] = {
+            "semantic_node_count": len(page_nodes),
+            "semantic_pairwise_window_cap": semantic_window_cap,
+            "semantic_pairwise_window_size": semantic_window_size,
+            "semantic_pairwise_window_triggered": len(page_nodes) > semantic_window_cap,
+            "semantic_candidate_pairs_considered": semantic_considered,
+        }
+
+    # Merge the semantic-pass window diagnostics into build_graph's own
+    # per-page diagnostics list (docs/ml_association_phase/) so a single
+    # artifact shows both windowing regimes' coverage.
+    for entry in graph.get("diagnostics") or []:
+        entry.update(
+            semantic_diagnostics_by_page.get(
+                entry.get("page_number"),
+                {
+                    "semantic_node_count": 0,
+                    "semantic_pairwise_window_cap": semantic_window_cap,
+                    "semantic_pairwise_window_size": semantic_window_size,
+                    "semantic_pairwise_window_triggered": False,
+                    "semantic_candidate_pairs_considered": 0,
+                },
+            )
+        )
 
     node_counts = Counter(node["kind"] for node in nodes)
     edge_counts = Counter(edge["relationship"] for edge in edges)

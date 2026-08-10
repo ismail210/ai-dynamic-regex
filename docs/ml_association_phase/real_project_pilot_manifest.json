@@ -1,0 +1,118 @@
+{
+  "manifest_version": "1.0",
+  "created_at": "2026-08-06",
+  "source_archive_note": "PDF & Excel (1).zip, provided locally by the user; not committed, not renamed, not modified",
+  "selection_note": "Pages chosen from the full 262-page real_project_page_profile.md using measured evidence (leader counts, repeated-label counts, drawing density, page category), not guessed. Two required categories from the pilot spec have no naturally-occurring example in this corpus and are explicitly marked unavailable rather than faked.",
+  "pages": [
+    {
+      "pilot_id": "pilot_01",
+      "project_id": "project_002",
+      "project_pdf_sha256": "0d910a43b4a021e3593b45dc38d11aa4b813c4a31bca950953d4441a5f7fe73f",
+      "page_number": 10,
+      "selection_criteria": ["structural framing plan #1"],
+      "reason": "Heuristic category 'structural framing plan'; 160 detected engineering tokens, 140 regex-matched steel labels, 81 leader-kind geometry objects, dense repeated designations (W12X16 x21, W10X19 x22) -- realistic framing-plan complexity."
+    },
+    {
+      "pilot_id": "pilot_02",
+      "project_id": "project_003",
+      "project_pdf_sha256": "47dc7ef27f6e5d7ea2ebee44c7d447502f20a80f822ab588d45a613437cb281f",
+      "page_number": 39,
+      "selection_criteria": ["structural framing plan #2"],
+      "reason": "Heuristic category 'structural framing plan'; 118 engineering tokens, 118 steel labels, 24 leaders, distinct project from pilot_01 for cross-project variety."
+    },
+    {
+      "pilot_id": "pilot_03",
+      "project_id": "project_005",
+      "project_pdf_sha256": "9414716bffc67596b5701b6694e7dc82198455040985279ed866b6890ffa443a",
+      "page_number": 8,
+      "selection_criteria": ["detail page #1"],
+      "reason": "Heuristic category 'detail sheet'; moderate density (16 engineering tokens, 15 steel labels, 3996 raw drawing paths) -- a tractable detail page for close manual SVG review."
+    },
+    {
+      "pilot_id": "pilot_04",
+      "project_id": "project_004",
+      "project_pdf_sha256": "0bfc2d61245dbce24e8ed55a700fef60eb82da5b8f675a4cf9655448994d912e",
+      "page_number": 19,
+      "selection_criteria": ["detail page #2"],
+      "reason": "Heuristic category 'detail sheet'; denser than pilot_03 (102 engineering tokens, 68 steel labels, 11501 raw drawing paths, cap triggered) -- tests detail-page review at higher density."
+    },
+    {
+      "pilot_id": "pilot_05",
+      "project_id": "project_004",
+      "project_pdf_sha256": "0bfc2d61245dbce24e8ed55a700fef60eb82da5b8f675a4cf9655448994d912e",
+      "page_number": 8,
+      "selection_criteria": ["dense vector page"],
+      "reason": "41,501 raw drawing paths (2nd-densest page in the corpus) AND genuinely label-rich (267 engineering tokens, 243 steel labels) -- unlike the single densest page in the corpus (same project, page 6, which has only 4 tokens and 0 steel labels and would not exercise label-to-geometry association at all), this page stresses both the dense-page cap and real candidate generation simultaneously."
+    },
+    {
+      "pilot_id": "pilot_06",
+      "project_id": null,
+      "project_pdf_sha256": null,
+      "page_number": null,
+      "selection_criteria": ["rotated page"],
+      "reason": "NOT AVAILABLE: all 262 pages across all 7 real PDFs report page-level rotation=0 (see real_project_page_profile.md). No naturally-rotated page exists in this corpus to select. Rotation handling is covered instead by Phase 1's existing synthetic-fixture tests (backend/tests/test_pdf_rotation_coordinates.py, backend/tests/test_ml_association_review_export.py's RotatedPageExportTests), which remain the only rotation coverage this pilot can honestly claim. Not fabricated by rotating a real page, since that would require modifying/deriving from confidential source content in a way not clearly authorized."
+    },
+    {
+      "pilot_id": "pilot_07",
+      "project_id": "project_006",
+      "project_pdf_sha256": "6a9a9684bb19343b503cb9ce36d392305d35dceb28f03787ddf180b4dbdedfdd",
+      "page_number": 43,
+      "selection_criteria": ["leaders or arrows", "repeated steel labels (secondary)"],
+      "reason": "163 leader-kind geometry objects (among the highest in the corpus) AND rich repeated designations (W12X65 x18, W8X31 x16, W10X45 x14) -- a genuine, real dual-purpose leader/repeated-label page rather than an arbitrary pick."
+    },
+    {
+      "pilot_id": "pilot_08",
+      "project_id": "project_006",
+      "project_pdf_sha256": "6a9a9684bb19343b503cb9ce36d392305d35dceb28f03787ddf180b4dbdedfdd",
+      "page_number": 22,
+      "selection_criteria": ["repeated steel labels"],
+      "reason": "Widest repeated-label variety measured in the entire corpus: 23 distinct designations each repeated 3+ times on one page (e.g. W16X36 x23, HSS6X6X3/8 x19, W12X40 x11) -- the strongest real 'repeated marks' example available."
+    },
+    {
+      "pilot_id": "pilot_09",
+      "project_id": "project_001",
+      "project_pdf_sha256": "240bd2541fbca14751951a6796d445e73f9e0932e55fc9fa974650881260d048",
+      "page_number": 22,
+      "selection_criteria": ["incomplete or damaged labels"],
+      "reason": "Confirmed real tokenization defect: the same physical label appears as both a complete token ('HSS5X4X5/16', 6 occurrences) and a truncated token missing the fraction denominator ('HSS5X4X5', 6 occurrences), and again for 'HSS8X4X5/16' vs 'HSS8X4X5' -- a genuine, reproducible incomplete-label case, not a synthetic guess. See real_project_error_taxonomy.md."
+    },
+    {
+      "pilot_id": "pilot_10",
+      "project_id": "project_007",
+      "project_pdf_sha256": "f6ddc4a7e233ffb089dddcbb671aa2781b1e5f5d6298a2146c2b22a5addf3562",
+      "page_number": 7,
+      "selection_criteria": ["several adjacent candidate members"],
+      "reason": "257 engineering tokens, 210 steel labels, with several designations repeated 10-34 times each in close proximity (W18X35 x34, W16X26 x32, W18X50 x16) -- the densest real concentration of visually-similar adjacent members in the corpus, the exact scenario that stresses one-label-near-multiple-geometries disambiguation."
+    },
+    {
+      "pilot_id": "pilot_11",
+      "project_id": "project_001",
+      "project_pdf_sha256": "240bd2541fbca14751951a6796d445e73f9e0932e55fc9fa974650881260d048",
+      "page_number": 30,
+      "selection_criteria": ["no valid geometry target likely"],
+      "reason": "Heuristic category 'architectural or non-structural' but still contains 24 engineering tokens / 9 regex-matched steel labels alongside 5738 raw drawing paths -- labels present on a page whose content is largely non-structural are a realistic real-world source of genuine no-valid-target review decisions, as opposed to an empty page that would trivially have no label groups to review at all."
+    },
+    {
+      "pilot_id": "pilot_12",
+      "project_id": "project_004",
+      "project_pdf_sha256": "0bfc2d61245dbce24e8ed55a700fef60eb82da5b8f675a4cf9655448994d912e",
+      "page_number": 3,
+      "selection_criteria": ["schedule or table page"],
+      "reason": "Heuristic category 'connection schedule'; 16 engineering tokens, 7 steel labels, tabular content -- tests candidate generation on a page whose text is organized as a schedule rather than a plan."
+    },
+    {
+      "pilot_id": "pilot_13",
+      "project_id": null,
+      "project_pdf_sha256": null,
+      "page_number": null,
+      "selection_criteria": ["noisy or scan-heavy page"],
+      "reason": "NOT AVAILABLE: every sampled page across all 7 PDFs is born-digital/vector (nonzero extractable text and nonzero vector drawing count on every first/middle/last-page sample -- see real_project_inventory.md). No scanned/raster page exists in this archive to select."
+    }
+  ],
+  "summary": {
+    "pages_selected": 12,
+    "categories_unavailable_in_corpus": 2,
+    "total_projects_touched": 7,
+    "note": "All 7 real projects are represented at least once across the 12 selected pages."
+  }
+}
