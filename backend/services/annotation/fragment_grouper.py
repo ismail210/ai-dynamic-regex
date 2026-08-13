@@ -89,6 +89,27 @@ def group_annotation_fragments(
 
     joined: List[Dict[str, Any]] = []
     for group in groups:
+        if len(group) == 1:
+            # Nothing was merged -- pass the original record through
+            # untouched. Reconstructing text/normalized_text from the raw
+            # ``text`` field below (needed for real multi-fragment merges)
+            # would otherwise clobber the already-correct, whitespace-
+            # stripped ``normalized_text`` that token_extractor produced
+            # for the common single-token case with a re-spaced version of
+            # the raw OCR text.
+            seed = dict(group[0])
+            seed["fragments"] = [
+                {
+                    "text": group[0].get("text"),
+                    "bbox": group[0].get("bbox"),
+                    "rotation": group[0].get("rotation"),
+                    "font_size": group[0].get("font_size"),
+                    "page": group[0].get("page"),
+                }
+            ]
+            seed["was_merged"] = False
+            joined.append(seed)
+            continue
         texts = [str(part.get("text") or "").strip() for part in group]
         raw = " ".join(texts)
         if any(t.lower() in {"x", "×", "✕"} for t in texts) or all(
