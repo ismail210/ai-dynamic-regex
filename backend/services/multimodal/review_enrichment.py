@@ -71,6 +71,32 @@ def _explanation_digest(explanation: Dict[str, Any]) -> Dict[str, Any]:
         "graph_consistency": explanation.get("graph_consistency"),
         "engineer_explanation": explanation.get("engineer_explanation") or {},
         "ai_engineer_explanation": explanation.get("ai_engineer_explanation") or {},
+        "annotation": _annotation_digest(
+            explanation.get("annotation_interpretation") or {}
+        ),
+    }
+
+
+def _annotation_digest(pack: Dict[str, Any]) -> Dict[str, Any]:
+    """Compact annotation state so reviewers see why a case needs a decision."""
+
+    if not pack:
+        return {}
+    annotation = pack.get("annotation") or {}
+    understandability = pack.get("understandability") or {}
+    ambiguity = pack.get("ambiguity") or {}
+    return {
+        "annotation_type": annotation.get("annotation_type"),
+        "subtype": annotation.get("subtype"),
+        "dimensions": annotation.get("dimensions") or [],
+        "thickness": annotation.get("thickness"),
+        "angle_degrees": annotation.get("angle_degrees"),
+        "text_rotation": annotation.get("text_rotation"),
+        "understandability": understandability.get("status"),
+        "understandability_reasons": (understandability.get("reasons") or [])[:3],
+        "ambiguity_resolution": ambiguity.get("resolution"),
+        "ambiguity_reason": ambiguity.get("reason"),
+        "abstain_for_review": bool(pack.get("abstain_for_review")),
     }
 
 

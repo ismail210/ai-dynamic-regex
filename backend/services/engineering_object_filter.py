@@ -57,6 +57,32 @@ def classify_engineering_object(token: Dict[str, Any]) -> str | None:
     context = _context(token)
     if not text or _NON_OBJECT_CONTEXT.search(context):
         return None
+
+    # Annotation layer: plates / bent plates / compound dims with context.
+    try:
+        from services.annotation.parser import interpret_annotation
+        from services.annotation.taxonomy import AnnotationType
+
+        parsed = interpret_annotation(
+            raw_text=str(token.get("raw_text") or token.get("text") or ""),
+            normalized_text=str(token.get("normalized_text") or token.get("text") or ""),
+            page=token.get("page"),
+            bbox=token.get("bbox"),
+            text_rotation=token.get("rotation"),
+            nearby_text=list((token.get("context") or {}).get("neighbor_text") or []),
+            page_context=context,
+            fragments=list(token.get("fragments") or []),
+        )
+        if parsed.annotation_type == AnnotationType.BENT_PLATE.value and parsed.structure_confirmed:
+            return "plate"
+        if parsed.annotation_type == AnnotationType.PLATE.value and parsed.structure_confirmed:
+            return "plate"
+        if parsed.annotation_type == AnnotationType.STANDARD_SECTION.value:
+            # Fall through to existing section role logic below using compact text.
+            text = _normalized(parsed.normalized_text or text)
+    except Exception:
+        pass
+
     if _SECTION.fullmatch(text):
         if re.search(r"\b(?:COL|COLUMN)\b", context, re.IGNORECASE):
             return "column"

@@ -7,10 +7,12 @@ All production prediction entry points should call ``predict_token`` or
 
 from __future__ import annotations
 
+import re
 from typing import Any, Dict, List, Optional
 
 from services.component_tracker import allocate_component_id
 from services.database_loader import (
+    catalog_form,
     catalog_version as aisc_catalog_version,
     lookup_shape,
     search_similar_shapes,
@@ -35,6 +37,14 @@ from services.multimodal.feature_providers import (
 )
 from services.multimodal.encoder_registry import encoder_registry
 from services.multimodal.modular_fusion import unified_multimodal_fusion
+from services.annotation.normalize import compact_normalize
+from services.annotation.service import interpret_token_annotation
+from services.annotation.taxonomy import (
+    Understandability,
+    requires_review,
+    understandability_value,
+)
+from services.annotation.model_governance import model_may_influence
 from services.prediction.calibration import calibrate_score
 from services.prediction.label_ranker_hook import apply_label_ranker_for_analyze
 from services.prediction.canonical_contract import (
@@ -138,6 +148,25 @@ def _gated_exact_override(
     if is_exact_section_label(fusion_section) or lookup_shape(fusion_section):
         return fusion_section, False
     return "", True
+
+
+def _text_locked_section(text: str, fusion_section: str) -> str:
+    """Return the designation the extracted characters themselves resolve to.
+
+    An undamaged annotation that is already a catalog designation is stronger
+    evidence than a fusion Top-1 that won by a fraction of a percent. AISC is
+    used here only to confirm the text is a real designation, never to generate
+    a different answer.
+    """
+
+    if has_wildcards(text) or "?" in text:
+        return ""
+    resolved = catalog_form(compact_normalize(text))
+    if not resolved:
+        return ""
+    if resolved == catalog_form(compact_normalize(fusion_section or "")):
+        return ""
+    return resolved
 
 
 def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
@@ -348,6 +377,41 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         ai_reasons.append(
             "Damaged-label ranker enabled; replaced section with learned pick."
         )
+
+    if not label_ranker_meta.get("applied"):
+        text_locked = _text_locked_section(normalized or raw_text, section)
+        if text_locked:
+            ai_reasons.append(
+                f"Text evidence resolves the annotation to {text_locked}; the "
+                f"fusion pick {section or 'none'} was not supported by the "
+                "extracted characters."
+            )
+            section = text_locked
+            retrieval_gate_failed = False
+
+    annotation_pack = interpret_token_annotation(
+        token_record,
+        geometry=geometry,
+        graph=graph,
+        candidate_scores=unified_fusion.candidate_scores,
+        selected_section=section,
+    )
+    understand = annotation_pack.get("understandability") or {}
+    understandability_status = understandability_value(understand.get("status"))
+    if requires_review(understandability_status):
+        # Unreadable/unsupported text must not be answered from candidates.
+        section = ""
+        retrieval_gate_failed = True
+        ai_reasons.append(
+            f"Annotation {understandability_status}: "
+            + "; ".join(str(item) for item in (understand.get("reasons") or []))
+        )
+    elif annotation_pack.get("abstain_for_review"):
+        retrieval_gate_failed = True
+        ai_reasons.append(
+            "Top-K candidates remain ambiguous; abstaining for human review."
+        )
+
     model_label = section
     model_probability = (
         0.0 if retrieval_gate_failed else float(unified_fusion.confidence)
@@ -417,12 +481,22 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         "text": True,
         "ocr": bool(encodings["ocr"].available),
         "layout": bool(encodings["layout"].available),
-        "geometry": bool(geometry.get("available"))
-        or bool(geometry.get("geometry_embedding")),
-        "graph": bool(graph.get("graph_available"))
-        or bool(graph.get("graph_embedding"))
-        or bool(graph.get("source_node"))
-        or float(graph.get("degree") or 0) > 0,
+        "geometry": (
+            model_may_influence("geometry_mobilenet")
+            and (
+                bool(geometry.get("available"))
+                or bool(geometry.get("geometry_embedding"))
+            )
+        ),
+        "graph": (
+            model_may_influence("graph_graphsage")
+            and (
+                bool(graph.get("graph_available"))
+                or bool(graph.get("graph_embedding"))
+                or bool(graph.get("source_node"))
+                or float(graph.get("degree") or 0) > 0
+            )
+        ),
         "engineering_rules": True,
         "database": True,
     }
@@ -471,9 +545,30 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
                 "disagreed with the extracted label."
             ),
             "confidence": round(confidence_value, 4),
+            "evidence": {
+                "geometry_available": bool(geometry.get("available")),
+                "graph_available": bool(available.get("graph")),
+                "annotation_type": (annotation_pack.get("annotation") or {}).get(
+                    "annotation_type"
+                ),
+            },
+            "reviewer_state": "suggested",
         }
         if learned_disagreement
-        else corrections[0].to_dict() if corrections else None
+        else (
+            {
+                **corrections[0].to_dict(),
+                "evidence": {
+                    "sources": ["correction_engine"],
+                    "annotation_type": (annotation_pack.get("annotation") or {}).get(
+                        "annotation_type"
+                    ),
+                },
+                "reviewer_state": "suggested",
+            }
+            if corrections
+            else None
+        )
     )
     output_corrected_text = (
         section if learned_disagreement else corrected_text
@@ -589,6 +684,39 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
                 else None
             ),
         }
+    explanation["annotation_interpretation"] = annotation_pack
+    ann = (annotation_pack.get("annotation") or {})
+    eng_bits = [
+        f"Annotation typed as {ann.get('annotation_type') or 'UNKNOWN'}"
+        + (f"/{ann.get('subtype')}" if ann.get("subtype") else "")
+        + f" ({understandability_status})."
+    ]
+    if ann.get("dimensions"):
+        eng_bits.append(
+            "Parsed dimensions "
+            + " × ".join(str(d) for d in ann.get("dimensions") or [])
+            + (f", thickness {ann.get('thickness')}" if ann.get("thickness") else "")
+            + (" (plate semantics confirmed)." if ann.get("structure_confirmed") else " (semantics not confirmed from text alone).")
+        )
+    if (annotation_pack.get("ambiguity") or {}).get("reason"):
+        eng_bits.append(str(annotation_pack["ambiguity"]["reason"]))
+    if ann.get("text_rotation") is not None or ann.get("geometry_orientation") is not None:
+        eng_bits.append(
+            f"Text rotation={ann.get('text_rotation')}; "
+            f"geometry orientation={ann.get('geometry_orientation')} (independent signals)."
+        )
+    existing_eng = explanation.get("engineer_explanation") or {}
+    bullets = list(existing_eng.get("bullets") or []) + eng_bits
+    explanation["engineer_explanation"] = {
+        **existing_eng,
+        "bullets": bullets,
+        "summary": existing_eng.get("summary")
+        or (
+            f"Selected {section} with understandability={understandability_status}."
+            if section
+            else f"No automatic section — {understandability_status}."
+        ),
+    }
 
     # Entity metadata — AI family/section first; AISC only for category enrichment.
     entity = resolve_entity(
@@ -611,6 +739,14 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         issues.append("graph_conflict")
     if retrieval_gate_failed or not section:
         issues.append("retrieval_gate_failed")
+    if annotation_pack.get("abstain_for_review"):
+        issues.append("annotation_requires_review")
+    if understandability_status == Understandability.UNREADABLE.value:
+        issues.append("annotation_unreadable")
+    if understandability_status == Understandability.UNSUPPORTED.value:
+        issues.append("annotation_unsupported")
+    if understandability_status == Understandability.AMBIGUOUS.value:
+        issues.append("annotation_ambiguous")
 
     review_status = decide_review_status(
         confidence=float(confidence["overall"]),
@@ -785,6 +921,7 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
             else None
         ),
         "correction": final_correction,
+        "annotation_interpretation": annotation_pack,
         "entity_type": entity.category,
         "category": entity.category,
         "category_label": entity.category_label,

@@ -7,13 +7,14 @@ from typing import Any, Dict
 
 from services.artifact_store import write_artifact
 from services.document_intelligence import build_extraction_diagnostics
+from services.annotation.fragment_grouper import group_annotation_fragments
 from services.engineering_object_filter import filter_engineering_objects
 from services.pdf_parser import extract_document_structure
 
 
 # Bumped whenever extraction output changes, so cached documents are rebuilt
 # instead of replaying stale artifacts.
-EXTRACTION_VERSION = "3.0"
+EXTRACTION_VERSION = "3.1-annotation-fragments"
 
 
 def extract_engineering_document(
@@ -31,7 +32,9 @@ def extract_engineering_document(
         document["document_id"] = document_id
     raw_tokens = document.get("engineering_tokens") or []
     document["raw_engineering_token_count"] = len(raw_tokens)
-    document["engineering_tokens"] = filter_engineering_objects(raw_tokens)
+    # Rotation-aware merge of split shards (6 / x / 4 / x / 5/6) before filter.
+    grouped = group_annotation_fragments(raw_tokens)
+    document["engineering_tokens"] = filter_engineering_objects(grouped)
     document["engineering_object_count"] = len(document["engineering_tokens"])
     document["source_file"] = path.name
     document["extraction_version"] = EXTRACTION_VERSION

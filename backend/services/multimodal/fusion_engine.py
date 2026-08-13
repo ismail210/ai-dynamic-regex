@@ -141,6 +141,9 @@ class WeightedFusionEngine(FusionModel):
                 engineering_evidence=dict(
                     explanation.get("engineering_evidence") or {}
                 ),
+                annotation_interpretation=dict(
+                    explanation.get("annotation_interpretation") or {}
+                ),
             ),
             feature_bundle=bundle,
             database_match=bool(result.get("database_match")),

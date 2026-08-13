@@ -69,6 +69,7 @@ class Explainability:
     correction_history: List[Dict[str, Any]] = field(default_factory=list)
     engineer_explanation: Dict[str, Any] = field(default_factory=dict)
     ai_engineer_explanation: Dict[str, Any] = field(default_factory=dict)
+    annotation_interpretation: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         payload = {

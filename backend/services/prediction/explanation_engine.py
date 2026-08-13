@@ -216,30 +216,33 @@ def build_explanation(
             "available": bool(available.get("geometry")),
             "score": round(float(signals.get("geometry") or 0.0), 4),
             "summary": (
-                f"MobileNet geometry encoder supports the selected section "
-                f"(similarity {float(signals.get('geometry') or 0.0):.0%})."
-                if available.get("geometry")
-                and (geometry_evidence or {}).get("embedding_dimension")
-                else (
-                    f"Geometry {'supports' if available.get('geometry') else 'was unavailable for'} "
-                    f"the selected section."
+                (
+                    "Geometry evidence supports this interpretation because the "
+                    "annotation is spatially associated with a "
+                    f"{(geometry_evidence or {}).get('object', {}).get('geometry_role') or (geometry_evidence or {}).get('geometry_role') or 'nearby'} "
+                    "object; geometry confirms association/orientation and does "
+                    f"not invent an AISC size (similarity {float(signals.get('geometry') or 0.0):.0%})."
                 )
+                if available.get("geometry")
+                else "Geometry was unavailable for association confirmation."
             ),
+            "role": "evidence_only",
             "details": dict(geometry_evidence or {}),
         },
         "graph": {
             "available": bool(available.get("graph")),
             "score": round(float(signals.get("graph") or 0.0), 4),
             "summary": (
-                f"GraphSAGE role={(graph_evidence or {}).get('role_prediction') or (graph_evidence or {}).get('prediction') or 'member'} "
-                f"confidence {float((graph_evidence or {}).get('confidence') or signals.get('graph') or 0.0):.0%}."
-                if available.get("graph")
-                and (graph_evidence or {}).get("embedding_dimension")
-                else (
-                    f"Structural graph {'supports' if available.get('graph') else 'was unavailable for'} "
-                    f"the selected section."
+                (
+                    "Graph evidence supports "
+                    f"{(graph_evidence or {}).get('role_prediction') or (graph_evidence or {}).get('node_kind') or 'the member role'} "
+                    "from neighborhood connectivity and topology; GraphSAGE "
+                    "does not invent an AISC designation."
                 )
+                if available.get("graph")
+                else "Structural graph was unavailable for neighborhood confirmation."
             ),
+            "role": "evidence_only",
             "details": dict(graph_evidence or {}),
         },
         "engineering": {

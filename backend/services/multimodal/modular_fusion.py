@@ -231,11 +231,18 @@ class UnifiedMultimodalFusion:
         scored.sort(key=lambda item: (-item["score"], item["shape"]))
         learned = None
         if settings.learned_fusion_enabled:
-            learned = predict_learned_fusion(
-                fused.vector,
-                scored,
-                fused.modality_slices,
-            )
+            try:
+                from services.annotation.model_governance import model_may_influence
+
+                fusion_allowed = model_may_influence("learned_fusion")
+            except Exception:
+                fusion_allowed = True
+            if fusion_allowed:
+                learned = predict_learned_fusion(
+                    fused.vector,
+                    scored,
+                    fused.modality_slices,
+                )
         if learned:
             scored = learned["candidate_scores"]
             section = learned["section"]

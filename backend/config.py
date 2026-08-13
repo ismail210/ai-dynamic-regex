@@ -158,6 +158,9 @@ class Settings:
     ml_label_ranker_shadow_log_path: Path = (
         BASE_DIR / "training" / "label_reconstruction_shadow_log.jsonl"
     )
+    annotation_edge_cases_path: Path = (
+        BASE_DIR / "training" / "annotation_edge_cases.jsonl"
+    )
 
     # ---- Engineering validation / takeoff (additive) ------------------
     engineering_artifacts_dir: Path = BASE_DIR / "training" / "engineering_artifacts"

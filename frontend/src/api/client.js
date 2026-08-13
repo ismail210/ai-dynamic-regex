@@ -287,6 +287,7 @@ export async function approveValidationCorrection({
   features = {},
   notes = "",
   correctGeometry = null,
+  userDecision = "approve",
 }) {
   const { data } = await client.post("/api/engineering/corrections", {
     document_id: documentId || null,
@@ -295,7 +296,7 @@ export async function approveValidationCorrection({
     prediction,
     features,
     correct_geometry: correctGeometry,
-    user_decision: "approve",
+    user_decision: userDecision,
     notes,
   });
   return data;

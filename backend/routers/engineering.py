@@ -7,6 +7,7 @@ Additive router. Does not replace /upload or existing learning endpoints.
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 from typing import Optional
 
@@ -15,6 +16,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
 from config import settings
+from services.annotation.normalize import as_float
 from services.artifact_store import artifact_path
 from services.dataset_manager import dataset_manager
 from services.document_registry import register_document
@@ -36,6 +38,7 @@ from services.upload_service import (
 )
 
 router = APIRouter()
+logger = logging.getLogger("takeoff.engineering")
 
 
 class CorrectionRequest(BaseModel):
@@ -45,7 +48,10 @@ class CorrectionRequest(BaseModel):
     prediction: Optional[dict] = None
     correct_label: Optional[str] = None
     correct_geometry: Optional[dict] = None
-    user_decision: str = Field(..., description="approve | reject | edit | correct")
+    user_decision: str = Field(
+        ...,
+        description="approve | reject | edit | correct | mark_unreadable | mark_unsupported",
+    )
     notes: str = ""
 
 
@@ -240,6 +246,41 @@ def get_uploaded_engineering_pdf(filename: str):
     return FileResponse(path, media_type="application/pdf", filename=filename)
 
 
+def _edge_case_category(
+    *,
+    user_decision: str,
+    annotation: dict,
+    raw_text: str,
+) -> str:
+    """Bucket a reviewed annotation into the engineering edge-case dataset."""
+
+    if user_decision == "mark_unreadable":
+        return "unreadable"
+    if user_decision == "mark_unsupported":
+        return "unsupported"
+
+    annotation_type = str(annotation.get("annotation_type") or "").upper()
+    by_type = {
+        "BENT_PLATE": "bent_plates",
+        "PLATE": "plates",
+        "DIMENSION": "compound_dimensions",
+        "RANGE": "ranges",
+        "CALL_OUT": "callouts",
+        "SCHEDULE_REFERENCE": "schedule_references",
+        "UNREADABLE": "unreadable",
+    }
+    if annotation_type in by_type:
+        return by_type[annotation_type]
+    if annotation.get("unit") and annotation.get("dimensions"):
+        return "mixed_units"
+    rotation = as_float(annotation.get("text_rotation"))
+    if rotation is not None and abs(rotation) > 2.0:
+        return "rotated_annotations"
+    if any(marker in raw_text for marker in ("?", "*")):
+        return "damaged_labels"
+    return "unsupported"
+
+
 @router.post("/engineering/corrections")
 def post_correction(body: CorrectionRequest):
     sample = record_correction(
@@ -252,6 +293,50 @@ def post_correction(body: CorrectionRequest):
         object_id=body.object_id,
         notes=body.notes,
     )
+    # Controlled edge-case capture — never auto-retrains.
+    try:
+        from services.annotation.edge_cases import record_edge_case
+
+        pred = body.prediction or {}
+        feats = body.features or {}
+        raw = str(
+            pred.get("original_token")
+            or pred.get("raw_text")
+            or feats.get("original_token")
+            or ""
+        )
+        interpretation = (pred.get("explanation") or {}).get(
+            "annotation_interpretation"
+        ) or pred.get("annotation_interpretation") or {}
+        ann = interpretation.get("annotation") or {}
+        category = _edge_case_category(
+            user_decision=body.user_decision,
+            annotation=ann,
+            raw_text=raw,
+        )
+        record_edge_case(
+            category=category,
+            raw_text=raw,
+            normalized_text=str(pred.get("normalized_text") or raw),
+            annotation_type=str(ann.get("annotation_type") or ""),
+            parsed_structure=ann,
+            page=pred.get("page_number") or pred.get("page"),
+            bbox=pred.get("bounding_box") or pred.get("bbox"),
+            text_rotation=ann.get("text_rotation") or pred.get("rotation"),
+            geometry_reference=feats.get("geometry") or {},
+            graph_reference=feats.get("graph") or {},
+            ground_truth=body.correct_label or "",
+            correction=body.correct_label or "",
+            reviewer_decision=body.user_decision,
+            reason=body.notes or "",
+            provenance={"source": "engineering_corrections"},
+            document_id=body.document_id or "",
+            object_id=body.object_id or "",
+        )
+    except Exception as exc:
+        # Edge-case capture must never fail the reviewer's correction.
+        logger.warning("edge-case capture skipped: %s", exc)
+
     approved = None
     if body.user_decision in {"approve", "edit", "correct"} and body.correct_label:
         original = str(

@@ -8,6 +8,7 @@ current working directory.
 
 from __future__ import annotations
 
+import re
 from difflib import SequenceMatcher
 from functools import lru_cache
 from typing import List, Optional
@@ -80,6 +81,32 @@ def is_catalog_label(token: str) -> bool:
     """True when ``token`` (normalized) is an authoritative AISC manual label."""
 
     return str(token).upper().replace(" ", "") in _LABEL_INDEX
+
+
+# Drawings write round HSS/pipe as ``HSS10X0.625`` while the catalog stores
+# ``HSS10.000X0.625``. That is a spelling difference, not a different member.
+_ROUND_SHORTHAND = re.compile(r"^(HSS|PIPE)(\d+(?:\.\d+)?)X(\d+(?:\.\d+)?)$")
+
+
+def catalog_form(token: str) -> str:
+    """Return the catalog spelling of ``token``, or ``""`` when it is not one.
+
+    Only spelling variants of the same designation are resolved here; no
+    similar-but-different shape is ever substituted.
+    """
+
+    normalized = str(token or "").upper().replace(" ", "")
+    if not normalized:
+        return ""
+    if normalized in _LABEL_INDEX:
+        return normalized
+    match = _ROUND_SHORTHAND.match(normalized)
+    if match:
+        family, diameter, wall = match.groups()
+        padded = f"{family}{float(diameter):.3f}X{float(wall):.3f}"
+        if padded in _LABEL_INDEX:
+            return padded
+    return ""
 
 
 def examples_for_type(shape_type: str, limit: Optional[int] = None) -> List[str]:
