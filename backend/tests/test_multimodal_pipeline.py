@@ -149,7 +149,16 @@ class AdapterAndCorrectionTests(unittest.TestCase):
         self.assertEqual(payload["database_role"], "verification_only")
         self.assertTrue(payload["features"]["fusion"]["ai_first"])
         self.assertFalse(payload["features"]["fusion"]["database_decides_prediction"])
-        self.assertTrue(str(payload["component_id"]).startswith(("Beam_", "Section_", "Member_", "Column_")))
+        # No geometry/graph evidence is provided in this fixture, so the
+        # correct role is "other" (unknown) — not a fabricated "beam" default
+        # — which allocate_component_id prefixes as "Component_". See
+        # rule_engine._infer_role: a missing orientation signal must not
+        # silently resolve to 0.0 degrees and therefore "beam".
+        self.assertTrue(
+            str(payload["component_id"]).startswith(
+                ("Beam_", "Section_", "Member_", "Column_", "Component_")
+            )
+        )
         self.assertEqual(payload["section"], "W18X35")
 
 

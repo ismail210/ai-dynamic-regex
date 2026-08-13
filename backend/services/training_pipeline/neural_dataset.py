@@ -47,30 +47,6 @@ GRAPH_DIR = NEURAL_DATASET_DIR / "graph"
 FUSION_DIR = NEURAL_DATASET_DIR / "fusion"
 CROPS_DIR = GEOMETRY_DIR / "crops"
 
-# Fallback role supervision used only when the rule engine did not determine a
-# member role. A shape family constrains the section, not always the role:
-# channels and tees are not beams by virtue of their family, so they are left
-# as "other" rather than teaching the role head a label the drawing never
-# stated.
-_ROLE_FROM_FAMILY = {
-    "W": "beam",
-    "S": "beam",
-    "M": "beam",
-    "HP": "column",
-    "HSS": "column",
-    "PIPE": "column",
-    "L": "brace",
-    "2L": "brace",
-    "PL": "plate",
-    "PLATE": "plate",
-    "C": "other",
-    "MC": "other",
-    "WT": "other",
-    "MT": "other",
-    "ST": "other",
-}
-
-
 def _norm(token: str) -> str:
     return str(token or "").upper().replace(" ", "").replace("-", "")
 
@@ -84,10 +60,21 @@ def _family(section: str) -> str:
 
 
 def _member_role(section: str, rules_role: Optional[str] = None) -> str:
+    """Structural role training label.
+
+    Section family (``section``, e.g. "HSS8X8X1/2") must NEVER stand in for
+    role — only an explicit, canonical role computed elsewhere (typically
+    ``rule_engine._infer_role``, from text keywords / orientation /
+    connectivity, or a human-reviewed truth) is accepted. Anything else —
+    including no signal at all — is "other" (unknown), never a family-derived
+    guess. ``section`` is accepted only so callers can still report which
+    label a row was about; it does not influence the returned role.
+    """
+
     role = str(rules_role or "").lower().strip()
     if role in {"beam", "column", "brace", "plate", "connection", "other"}:
         return role
-    return _ROLE_FROM_FAMILY.get(_family(section), "other")
+    return "other"
 
 
 def _parse_bbox(value: Any) -> Optional[List[float]]:

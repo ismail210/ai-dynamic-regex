@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import math
+import threading
+from collections import OrderedDict
 from typing import Any, Dict, List, Optional
 
 from services.database_loader import lookup_shape, search_similar_shapes
@@ -12,6 +14,48 @@ from services.engineering.structural_graph import (
 )
 from services.feature_extractor import extract_structural_features
 from services.model_predictor import predict_with_confidence
+
+
+class _KeyedCache:
+    """Thread-safe, bounded, content-keyed cache.
+
+    Replaces the "single global mutable slot, overwritten on every miss"
+    pattern that previously backed both the geometry page-index cache and
+    the graph source-index cache. That pattern is a real correctness bug
+    under concurrency, not just a performance detail: two threads handling
+    *different* documents at the same time could interleave a
+    check-then-write on the shared slot such that one document's cached
+    index silently got used to answer another document's lookup — a
+    positional token ID (e.g. ``token_p3_32``) colliding between two
+    unrelated documents would then attach the wrong graph/geometry evidence
+    to a prediction, with no error raised.
+
+    Keying by content fingerprint instead of overwriting a single slot means
+    a reader can only ever be served the entry for its OWN fingerprint —
+    concurrent writes for different documents land in different dict
+    entries, so there is no cross-document data path at all. The bounded
+    size (evicting least-recently-used entries) keeps memory flat even if
+    many distinct documents are analyzed in the same process lifetime.
+    """
+
+    def __init__(self, max_entries: int = 8) -> None:
+        self._max_entries = max_entries
+        self._lock = threading.Lock()
+        self._entries: "OrderedDict[Any, Any]" = OrderedDict()
+
+    def get(self, key: Any) -> Optional[Any]:
+        with self._lock:
+            value = self._entries.get(key)
+            if value is not None:
+                self._entries.move_to_end(key)
+            return value
+
+    def put(self, key: Any, value: Any) -> None:
+        with self._lock:
+            self._entries[key] = value
+            self._entries.move_to_end(key)
+            while len(self._entries) > self._max_entries:
+                self._entries.popitem(last=False)
 
 
 class TextFeatureProvider:
@@ -40,7 +84,30 @@ class TextFeatureProvider:
         }
 
 
-_PAGE_INDEX_CACHE: Dict[str, Any] = {"objects": None, "index": {}}
+_PAGE_INDEX_CACHE = _KeyedCache(max_entries=8)
+
+
+def _objects_fingerprint(objects: List[dict]) -> tuple:
+    """Content-based identity for a document's geometry object list.
+
+    Deliberately NOT based on Python object identity (``is``)/``id()``: two
+    unrelated documents processed concurrently could otherwise be assigned
+    the same memory address once one list is garbage collected, or — more
+    subtly — the previous single-slot cache didn't even need an identity
+    collision to fail, since a second document's ``_objects_by_page`` call
+    would simply overwrite the shared slot the first document's call was
+    about to read from.
+    """
+
+    if not objects:
+        return (0, "", "")
+    first = objects[0] or {}
+    last = objects[-1] or {}
+    return (
+        len(objects),
+        str(first.get("object_id") or first.get("geometry_id") or ""),
+        str(last.get("object_id") or last.get("geometry_id") or ""),
+    )
 
 
 def _objects_by_page(objects: List[dict]) -> Dict[int, List[tuple[float, float, dict]]]:
@@ -49,11 +116,14 @@ def _objects_by_page(objects: List[dict]) -> Dict[int, List[tuple[float, float, 
 
     Without this, every token rescans every object on the sheet set, which is
     quadratic in a dense drawing (thousands of tokens x thousands of objects).
-    The object list is held in the cache so its identity cannot be recycled.
+    Cached per-document (see ``_KeyedCache``) so concurrent analyze calls for
+    different documents can never read each other's page index.
     """
 
-    if _PAGE_INDEX_CACHE["objects"] is objects:
-        return _PAGE_INDEX_CACHE["index"]
+    fingerprint = _objects_fingerprint(objects)
+    cached = _PAGE_INDEX_CACHE.get(fingerprint)
+    if cached is not None:
+        return cached
 
     index: Dict[int, List[tuple[float, float, dict]]] = {}
     for geometry in objects:
@@ -61,8 +131,7 @@ def _objects_by_page(objects: List[dict]) -> Dict[int, List[tuple[float, float, 
         index.setdefault(int(geometry.get("page_number") or 0), []).append(
             (float(center[0]), float(center[1]), geometry)
         )
-    _PAGE_INDEX_CACHE["objects"] = objects
-    _PAGE_INDEX_CACHE["index"] = index
+    _PAGE_INDEX_CACHE.put(fingerprint, index)
     return index
 
 
@@ -145,27 +214,43 @@ class GraphFeatureProvider:
     name = "structural_graph_features"
 
     def __init__(self) -> None:
-        self._lookup_fingerprint: Optional[tuple] = None
-        self._lookup: Optional[Dict[str, Any]] = None
+        # Bounded, content-keyed cache (see ``_KeyedCache``) — NOT a single
+        # mutable "current graph" slot. The prior single-slot design was a
+        # real accuracy bug under concurrency: this provider is a
+        # process-lifetime singleton (see ``orchestrator._graph_provider``),
+        # so two concurrent /analyze calls for two DIFFERENT documents could
+        # interleave a check-then-write on the one shared slot such that a
+        # prediction for document A got scored against document B's graph
+        # source-index — silently attaching the wrong ``source_node``/
+        # ``node_kind``/``degree`` evidence, with no error raised. Keying by
+        # content fingerprint instead means each document's lookup can only
+        # ever be served from its own cache entry.
+        self._lookups = _KeyedCache(max_entries=8)
 
     @staticmethod
     def _fingerprint(graph: Dict[str, Any]) -> tuple:
+        # Deliberately content-based, not ``id(graph)``: two different
+        # documents' graph dicts could coincidentally receive the same
+        # Python object id once one is garbage collected, which would be a
+        # silent cross-document cache hit rather than a safe miss.
         nodes = graph.get("nodes") or []
         return (
-            id(graph),
             len(nodes),
             len(graph.get("edges") or []),
             str((nodes[0] or {}).get("node_id")) if nodes else "",
+            str((nodes[-1] or {}).get("node_id")) if nodes else "",
         )
 
     def _source_lookup(self, graph: Dict[str, Any]) -> Dict[str, Any]:
         # One index per graph, reused across the whole prediction loop; a
         # per-token scan of every node would be quadratic on real drawings.
         fingerprint = self._fingerprint(graph)
-        if self._lookup_fingerprint != fingerprint or self._lookup is None:
-            self._lookup = build_source_lookup(graph)
-            self._lookup_fingerprint = fingerprint
-        return self._lookup
+        cached = self._lookups.get(fingerprint)
+        if cached is not None:
+            return cached
+        built = build_source_lookup(graph)
+        self._lookups.put(fingerprint, built)
+        return built
 
     def extract(self, context: Dict[str, Any]) -> Dict[str, Any]:
         graph = context.get("graph") or {}

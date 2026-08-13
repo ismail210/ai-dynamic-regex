@@ -20,7 +20,7 @@ from services.database_loader import (
 from services.engineering.rule_engine import evaluate_engineering_rules
 from services.entity_taxonomy import resolve_entity
 from services.exact_section_predictor import (
-    is_exact_section_label,
+    catalog_valid_exact_section,
     predict_exact_sections,
     predict_exact_sections_for_labels,
 )
@@ -57,7 +57,10 @@ from services.prediction.confidence_engine import (
 from services.prediction.contract import derive_family_from_section, to_token_prediction
 from services.prediction.explanation_engine import build_explanation
 from services.prediction.ranking import build_ranking
-from services.prediction.review_policy import decide_review_status
+from services.prediction.review_policy import (
+    decide_review_status,
+    determine_abstention_reason,
+)
 from services.regex_knowledge_base import knowledge_base
 from services.regex_validator import full_match
 from services.wildcard_matcher import has_wildcards, match_wildcard_mask
@@ -118,14 +121,21 @@ def _gated_exact_override(
     Optionally replace a family-only fusion label with the top exact candidate.
 
     Returns ``(section, retrieval_gate_failed)``. Gate failure means no
-    confident exact candidate and fusion did not yield a catalog label, so the
-    caller should abstain (empty section) and force review.
+    confident exact candidate and fusion did not yield a catalog-valid label,
+    so the caller should abstain (empty section) and force review.
+
+    Only ``catalog_valid_exact_section`` (real AISC catalog membership) may
+    ever produce a returned section. ``is_exact_section_label`` alone is a
+    regex *format* check — a well-formatted but non-existent shape (e.g.
+    "W12X999") must never be accepted as a final prediction just because it
+    looks like a section designation.
     """
 
     if not (_is_structural_family(fusion_section) and exact_candidates):
-        if is_exact_section_label(fusion_section) or lookup_shape(fusion_section):
-            return fusion_section, False
-        # Family-only or garbage fusion output with no exact candidates → abstain.
+        catalog_label = catalog_valid_exact_section(fusion_section)
+        if catalog_label:
+            return catalog_label, False
+        # Family-only or non-catalog fusion output with no exact candidates → abstain.
         return "", True
 
     top = exact_candidates[0]
@@ -143,10 +153,13 @@ def _gated_exact_override(
         and margin >= EXACT_OVERRIDE_MIN_MARGIN
         and plausible_against_ocr(top_shape, ocr_text)
     ):
-        return top_shape, False
+        catalog_label = catalog_valid_exact_section(top_shape)
+        if catalog_label:
+            return catalog_label, False
 
-    if is_exact_section_label(fusion_section) or lookup_shape(fusion_section):
-        return fusion_section, False
+    catalog_label = catalog_valid_exact_section(fusion_section)
+    if catalog_label:
+        return catalog_label, False
     return "", True
 
 
@@ -189,6 +202,18 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         or (context.get("document") or {}).get("source_file")
         or ""
     )
+
+    # PROTECTED EXACT LABEL PATH: if the conservatively-normalized OCR text is
+    # already a real, catalog-valid AISC section on its own, that text-exact
+    # reading is authoritative. Fusion/graph/geometry may still add
+    # corroborating or conflicting evidence used for review routing below,
+    # but nothing downstream may silently substitute a different section for
+    # a clean catalog-valid exact label (see the applied check after the
+    # label-ranker hook, further down this function).
+    protected_exact_section = catalog_valid_exact_section(
+        normalized
+    ) or catalog_valid_exact_section(raw_text)
+    extraction_confidence = float(token_record.get("confidence") or 0.5)
 
     family_prediction = predict_with_confidence(normalized)
     family_label = family_prediction.label
@@ -368,6 +393,28 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     ):
         section = str(label_ranker_meta["selected_prediction"])
         retrieval_gate_failed = False
+
+    # Enforce the protected exact label path. This is the last word: neither
+    # fusion, the exact-candidate gate, nor the label ranker may silently
+    # replace a clean catalog-valid exact text match. If they picked
+    # something else, that disagreement is surfaced for review below, but the
+    # final section stays the protected one.
+    protected_label_conflict = False
+    if protected_exact_section:
+        if section and section != protected_exact_section:
+            protected_label_conflict = True
+        section = protected_exact_section
+        retrieval_gate_failed = False
+
+    # Whether the RETURNED section is actually the ranker's pick (as opposed
+    # to the ranker applying but then being overridden by the protected exact
+    # label above). Only this case needs its downstream evidence recomputed —
+    # everything computed from ``unified_fusion``/``encodings`` below
+    # describes the PRE-swap candidate, not the ranker's replacement.
+    ranker_applied_effective = bool(
+        label_ranker_meta.get("applied")
+    ) and not protected_label_conflict
+
     ai_reasons = list(unified_fusion.reasons)
     if retrieval_gate_failed:
         ai_reasons.append(
@@ -377,7 +424,6 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         ai_reasons.append(
             "Damaged-label ranker enabled; replaced section with learned pick."
         )
-
     if not label_ranker_meta.get("applied"):
         text_locked = _text_locked_section(normalized or raw_text, section)
         if text_locked:
@@ -399,23 +445,54 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     understand = annotation_pack.get("understandability") or {}
     understandability_status = understandability_value(understand.get("status"))
     if requires_review(understandability_status):
-        # Unreadable/unsupported text must not be answered from candidates.
-        section = ""
-        retrieval_gate_failed = True
         ai_reasons.append(
             f"Annotation {understandability_status}: "
             + "; ".join(str(item) for item in (understand.get("reasons") or []))
         )
+        if protected_exact_section:
+            # The extracted characters already resolve to a clean,
+            # catalog-valid AISC section (see the protected-label check
+            # above) — that text evidence outranks annotation-taxonomy
+            # heuristics derived from geometry/graph context. Text
+            # resolution and annotation understandability are different
+            # questions: keep the label, but still force review via the
+            # "annotation_*" issue tags appended further down.
+            pass
+        else:
+            # Unreadable/unsupported text with no protected exact label must
+            # not be answered from candidates.
+            section = ""
+            retrieval_gate_failed = True
     elif annotation_pack.get("abstain_for_review"):
-        retrieval_gate_failed = True
         ai_reasons.append(
             "Top-K candidates remain ambiguous; abstaining for human review."
+        )
+        if not protected_exact_section:
+            retrieval_gate_failed = True
+
+    if protected_label_conflict:
+        ai_reasons.append(
+            f"Kept catalog-valid exact text match ({protected_exact_section}); "
+            "fusion/graph/ranker evidence favored a different candidate but "
+            "cannot silently override a clean exact label. Flagged for review."
         )
 
     model_label = section
     model_probability = (
         0.0 if retrieval_gate_failed else float(unified_fusion.confidence)
     )
+    if protected_exact_section and not retrieval_gate_failed:
+        # A clean catalog-valid exact text match is itself strong evidence;
+        # do not surface the (rejected) fusion candidate's own confidence as
+        # if it belonged to the protected label.
+        model_probability = max(model_probability, extraction_confidence)
+    elif ranker_applied_effective:
+        # The ranker's own score for ITS pick, not unified_fusion's score for
+        # the candidate it replaced. ranking_scores is sorted by the ranker's
+        # own ordering (highest first); fall back to a conservative,
+        # explicitly-not-fabricated mid value if the ranker didn't report one.
+        ranker_scores = label_ranker_meta.get("ranking_scores") or []
+        model_probability = float(ranker_scores[0]) if ranker_scores else 0.5
     distribution = {
         item["shape"]: float(item["score"])
         for item in unified_fusion.candidate_scores
@@ -448,7 +525,6 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     regex = (record or {}).get("primary_pattern") or (record or {}).get("pattern")
     regex_contribution = 1.0 if regex and full_match(regex, normalized) else 0.0
 
-    extraction_confidence = float(token_record.get("confidence") or 0.5)
     text_similarity = min(
         1.0,
         0.70 * model_probability
@@ -504,6 +580,20 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     confidence_value = (
         0.0 if retrieval_gate_failed else float(unified_fusion.confidence)
     )
+    if protected_exact_section and not retrieval_gate_failed:
+        confidence_value = max(confidence_value, extraction_confidence)
+    elif ranker_applied_effective:
+        confidence_value = model_probability
+    # breakdown/weights describe WHICH modality produced ``section``'s score.
+    # unified_fusion.contributions is only correct when unified_fusion's own
+    # candidate is what's being reported — for the ranker-applied case those
+    # per-modality shares belong to the candidate the ranker REPLACED, so
+    # showing them next to the ranker's own pick would misattribute a
+    # learned-ranker decision to text/geometry/graph evidence it never used.
+    if ranker_applied_effective:
+        contributions_for_display: Dict[str, float] = {"label_ranker": 1.0}
+    else:
+        contributions_for_display = dict(unified_fusion.contributions)
     confidence = {
         "overall": round(confidence_value, 4),
         "level": level_from_score(confidence_value),
@@ -512,10 +602,10 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
             "ai": round(model_probability, 4),
             **{
                 name: round(float(value), 4)
-                for name, value in unified_fusion.contributions.items()
+                for name, value in contributions_for_display.items()
             },
         },
-        "weights": dict(unified_fusion.contributions),
+        "weights": dict(contributions_for_display),
         "database_role": "verification_only",
     }
     geometry_confidence = float(
@@ -525,7 +615,9 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         or 0.0
     )
     learned_disagreement = (
-        bool(normalized)
+        not protected_exact_section
+        and not ranker_applied_effective
+        and bool(normalized)
         and bool(section)
         and section != normalized
         and geometry_confidence >= LEARNED_DISAGREEMENT_GEOM_MIN
@@ -538,6 +630,16 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     )
     final_correction = (
         {
+            "original": raw_text or normalized,
+            "corrected": section,
+            "reason": (
+                "Damaged-label ranker (ENABLED) replaced the extracted "
+                "label with its top-ranked learned candidate."
+            ),
+            "confidence": round(confidence_value, 4),
+        }
+        if ranker_applied_effective
+        else {
             "original": raw_text or normalized,
             "corrected": section,
             "reason": (
@@ -571,10 +673,13 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         )
     )
     output_corrected_text = (
-        section if learned_disagreement else corrected_text
+        section if (learned_disagreement or ranker_applied_effective) else corrected_text
     )
-    # Contribution scores are normalized attention shares, not raw similarities.
-    evidence = dict(unified_fusion.contributions)
+    # Contribution scores are normalized attention shares, not raw
+    # similarities — and (see above) not valid at all for the ranker-applied
+    # case, where contributions_for_display already substitutes an honest
+    # {"label_ranker": 1.0} marker instead of the pre-swap candidate's shares.
+    evidence = dict(contributions_for_display)
     explanation = build_explanation(
         family=family,
         section=section,
@@ -648,11 +753,11 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     )
     explanation["contributions"] = {
         name: round(value, 4)
-        for name, value in unified_fusion.contributions.items()
+        for name, value in contributions_for_display.items()
     }
     explanation["contribution_percentages"] = {
         name: round(value * 100.0, 1)
-        for name, value in unified_fusion.contributions.items()
+        for name, value in contributions_for_display.items()
     }
     explanation["attention"] = unified_fusion.attention.to_dict()
     explanation["encoders"] = {
@@ -747,6 +852,8 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         issues.append("annotation_unsupported")
     if understandability_status == Understandability.AMBIGUOUS.value:
         issues.append("annotation_ambiguous")
+    if protected_label_conflict:
+        issues.append("protected_label_conflict")
 
     review_status = decide_review_status(
         confidence=float(confidence["overall"]),
@@ -756,6 +863,18 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         model_probability=model_probability,
         database_verified=database_verified,
         abstain=retrieval_gate_failed or not section,
+        protected_label_conflict=protected_label_conflict,
+    )
+    abstention_reason = determine_abstention_reason(
+        review_status=review_status,
+        confidence=float(confidence["overall"]),
+        issues=issues,
+        model_probability=model_probability,
+        database_verified=database_verified,
+        regex_matches=False,
+        protected_label_conflict=protected_label_conflict,
+        retrieval_gate_failed=retrieval_gate_failed or not section,
+        pipeline_error=label_ranker_meta.get("ranker_status") == "error",
     )
 
     component_id = allocate_component_id(
@@ -929,6 +1048,7 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         "material": rules.material_grade,
         "alternatives": alternatives[:5],
         "review_status": review_status,
+        "abstention_reason": abstention_reason,
         # Canonical contract (see services.prediction.canonical_contract).
         # New consumers should read from here rather than guessing across
         # the legacy top-level aliases kept below for migration.
@@ -996,7 +1116,7 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
                 "signals": signals,
                 "evidence_contributions": evidence,
                 "available_modalities": available,
-                "weights": dict(unified_fusion.contributions),
+                "weights": dict(contributions_for_display),
                 "attention": unified_fusion.attention.to_dict(),
                 "fused_features": unified_fusion.fused_features.to_dict(),
                 "encodings": {
@@ -1006,7 +1126,7 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
                 "candidate_scores": unified_fusion.candidate_scores,
                 "contribution_percentages": {
                     name: round(value * 100.0, 1)
-                    for name, value in unified_fusion.contributions.items()
+                    for name, value in contributions_for_display.items()
                 },
                 "detected_issues": sorted(set(issues)),
                 "ai_first": True,
@@ -1104,6 +1224,17 @@ def predict_token(
         database_verified=bool(result.get("database_match")),
     )
     result["review_status"] = review_status
+    # Recomputed with the same inputs as review_status just above, so the two
+    # stay consistent — the inner predict_from_context() abstention_reason
+    # would otherwise go stale relative to this final, regex-informed status.
+    result["abstention_reason"] = determine_abstention_reason(
+        review_status=review_status,
+        confidence=float(conf.get("overall") or 0.0),
+        issues=[],
+        model_probability=float(conf.get("model_probability") or 0.0),
+        database_verified=bool(result.get("database_match")),
+        regex_matches=True,
+    )
     result["uncertain"] = review_status == "pending_review"
 
     # review_status above is recomputed from regex matching after the

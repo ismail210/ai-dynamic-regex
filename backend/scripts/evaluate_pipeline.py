@@ -25,7 +25,9 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import subprocess
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -39,6 +41,44 @@ from services.dataset_manager import dataset_manager  # noqa: E402
 from services.prediction.calibration import fit_calibration  # noqa: E402
 from services.prediction.orchestrator import predict_token  # noqa: E402
 from services.wildcard_matcher import has_wildcards  # noqa: E402
+
+
+def _code_commit() -> Optional[str]:
+    """Best-effort git SHA for this evaluation run. ``None`` if unavailable
+    (e.g. running from a source archive, not a git checkout)."""
+
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=Path(__file__).resolve().parent.parent,
+            capture_output=True,
+            text=True,
+            timeout=5,
+            check=False,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    sha = result.stdout.strip()
+    return sha or None
+
+
+def _dataset_version(rows: List[dict]) -> str:
+    """Deterministic content hash of the approved-dataset rows used for this
+    evaluation, so a report can be tied back to the exact data it scored
+    against even as the CSV keeps growing."""
+
+    digest = hashlib.sha256()
+    for row in sorted(
+        rows, key=lambda r: (str(r.get("unknown_id") or ""), str(r.get("token") or ""))
+    ):
+        digest.update(
+            "|".join(
+                str(row.get(key) or "")
+                for key in ("token", "class", "category", "source", "approved_at", "unknown_id")
+            ).encode("utf-8")
+        )
+        digest.update(b"\n")
+    return digest.hexdigest()[:16]
 
 
 def _corruption_type(token: str) -> str:
@@ -170,15 +210,28 @@ def section_prediction_performance() -> Dict[str, Any]:
         for row in holdout
         if str(row.get("token") or "").strip()
     }
-    # Shadow index: train without test tokens so retrieval cannot memorize them.
-    train_exact_section_model(
+    # Shadow index: train without test tokens so retrieval cannot memorize
+    # them. ``train_exact_section_model`` sets the in-memory artifact cache
+    # to this shadow model as a side effect (even with persist=False) — that
+    # is precisely what must be used for scoring below. Reloading the
+    # on-disk (production, leaked) artifact must only happen AFTER scoring
+    # is complete; doing it before (the historical bug here) silently
+    # discards the leakage-free model and scores against the full production
+    # index instead, which had already seen every "test" token via the
+    # approve-flow anchor path (see dataset_manager.review_token).
+    shadow_metadata = train_exact_section_model(
         persist=False,
         exclude_tokens=exclude_tokens,
         exclude_split="test",
     )
-    reload_exact_section_artifact()
 
     evaluated = _predict_holdout(holdout)
+
+    # Now it is safe to drop the shadow model and force the next caller
+    # (e.g. a live prediction in this same process) back onto the real,
+    # persisted production artifact.
+    reload_exact_section_artifact()
+
     if not evaluated:
         return {"status": "no_usable_rows", "rows": len(holdout)}
 
@@ -257,8 +310,48 @@ def section_prediction_performance() -> Dict[str, Any]:
         "wildcard_sample_count": wildcard_total,
         "note": (
             "Metrics use hash holdout (eval_split=test) and a shadow "
-            "exact-section index that excludes those tokens."
+            "exact-section index that excludes those tokens. The shadow "
+            "model (trained without holdout tokens) is the model actually "
+            "used to score every prediction above; the on-disk production "
+            "artifact is only restored after scoring completes."
         ),
+        "reproducibility": {
+            "dataset_version": _dataset_version(rows),
+            "split_manifest": {
+                "method": "sha256(unknown_id or token) hash bucket, deterministic",
+                "random_seed": None,
+                "seed_note": (
+                    "Split is a deterministic content hash, not a random "
+                    "seed — reruns against the same dataset always reproduce "
+                    "the same split."
+                ),
+                "train_rows": len(rows) - len(holdout),
+                "holdout_rows": len(holdout),
+                "holdout_token_count_hash": hashlib.sha256(
+                    "|".join(sorted(exclude_tokens)).encode("utf-8")
+                ).hexdigest()[:16],
+            },
+            "project_level_split": False,
+            "project_level_split_note": (
+                "approved_dataset.csv has no project/document identifier "
+                "column today (only token/class/category/source/approved_at/"
+                "unknown_id) — this split is token-level, not project-level. "
+                "NOT YET MEASURABLE at project granularity until a project "
+                "ID is captured at approval time."
+            ),
+            "model_artifact": {
+                "used_for_scoring": "in-memory shadow (persist=False)",
+                "trained_at": shadow_metadata.get("trained_at"),
+                "schema_version": shadow_metadata.get("schema_version"),
+                "model": shadow_metadata.get("model"),
+                "exact_label_count": shadow_metadata.get("exact_label_count"),
+                "training_variant_count": shadow_metadata.get("training_variant_count"),
+                "excluded_split": "test",
+                "excluded_token_count": len(exclude_tokens),
+                "production_artifact_path": str(settings.exact_section_model_path),
+            },
+            "code_commit": _code_commit(),
+        },
     }, evaluated
 
 

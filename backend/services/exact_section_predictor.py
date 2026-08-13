@@ -26,7 +26,7 @@ from sklearn.preprocessing import normalize
 
 from config import settings
 from services.data_augmentation import generate_variants_for_token
-from services.database_loader import df
+from services.database_loader import df, lookup_shape
 
 
 _LOCK = threading.RLock()
@@ -52,6 +52,28 @@ def normalize_section_text(value: object) -> str:
 
 def is_exact_section_label(value: object) -> bool:
     return bool(_EXACT_SHAPE_RE.fullmatch(normalize_section_text(value)))
+
+
+def catalog_valid_exact_section(value: object) -> Optional[str]:
+    """Single shared catalog-validity check.
+
+    Conservatively normalizes ``value`` (case/whitespace/separator only — no
+    fuzzy correction) and returns the AISC catalog's own canonical label
+    string when that normalized text is an authoritative catalog entry,
+    otherwise ``None``.
+
+    ``is_exact_section_label`` only checks that text is *shaped* like a
+    section designation (a regex format check); it says nothing about
+    whether the shape actually exists. This function is the only place that
+    should be used to decide "is this text a real, exact, catalog-valid
+    section" — callers must not substitute the regex check for this one.
+    """
+
+    normalized = normalize_section_text(value)
+    if not normalized:
+        return None
+    entry = lookup_shape(normalized)
+    return str(entry["shape"]) if entry else None
 
 
 def _ocr_variants(label: str) -> List[str]:

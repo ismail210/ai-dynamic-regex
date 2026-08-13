@@ -61,15 +61,12 @@ def _load_holdout_examples() -> pd.DataFrame:
     """
     Load reviewer-approved corrections as candidate calibration data.
 
-    ``services.dataset_manager.APPROVED_COLUMNS`` currently records
-    ``token``/``class``/``category``/``source``/``approved_at``/``unknown_id``
-    — it does not yet record the ranking score that produced each approval,
-    or an explicit correct/incorrect label relative to that score. Until that
-    schema is extended, this function (and therefore calibration) has nothing
-    to fit, which is why ``fit_calibration`` returns ``None`` today rather
-    than inventing a curve. Extending ``APPROVED_COLUMNS`` to capture
-    ``ranking_score`` and ``correct`` at approval time is the natural next
-    step — see the final report for this as a decision for the team.
+    ``services.dataset_manager.APPROVED_COLUMNS`` records ``ranking_score``
+    and ``correct`` alongside each approval, so this has real data to fit
+    once ``MIN_CALIBRATION_SAMPLES`` rows are available. If those columns are
+    ever missing (an older CSV, or a fresh install with an empty dataset),
+    ``fit_calibration`` still returns ``None`` rather than inventing a curve
+    — see the checks below.
     """
 
     if not settings.approved_dataset_path.exists():
