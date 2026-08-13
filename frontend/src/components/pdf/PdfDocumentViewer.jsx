@@ -20,12 +20,14 @@ const ZOOM_STEP = 1.5;
  * `selection` shape: `{ pageNumber, boundingBox, key }`
  * pageNumber is 1-based (matches backend / pdf.js).
  *
- * View modes:
- * - "fit-page": whole page visible, aspect ratio preserved (default).
- * - "fit-width": page fills the available width (may need vertical scroll).
- * - "selection": zoomed just enough to read the selected bbox, driven by
+ * Deliberately small state model -- exactly one mode owns `pageWidth` at a
+ * time, and `currentPage` is tracked explicitly rather than derived, so
+ * zooming can never accidentally change which page is being viewed:
+ *
+ * - "fit-page" (default): whole page visible, aspect ratio preserved.
+ * - "manual-zoom": user-controlled via the zoom in/out buttons, same page.
+ * - "selection-zoom": zoomed in on the selected label, driven by
  *   pageWidthForBbox.
- * - "manual": user-controlled via the zoom in/out buttons.
  */
 export default function PdfDocumentViewer({
   fileUrl,
@@ -38,7 +40,11 @@ export default function PdfDocumentViewer({
   const [pageSizes, setPageSizes] = useState({});
   const [containerSize, setContainerSize] = useState({ width: 720, height: 540 });
   const [pageWidth, setPageWidth] = useState(720);
-  const [viewMode, setViewMode] = useState("fit-page");
+  const [mode, setMode] = useState("fit-page");
+  // The page being viewed. Set on mount and whenever a NEW selection lands
+  // on a different page -- and ONLY there. Zooming (in/out or back to Fit
+  // Page) must never touch this.
+  const [currentPage, setCurrentPage] = useState(1);
   // { key, pageNumber, width } for a selection whose scroll-into-view is
   // waiting on react-pdf to finish (re)rendering the target page's canvas
   // at the new zoomed width -- see the onRenderSuccess handler below.
@@ -52,6 +58,10 @@ export default function PdfDocumentViewer({
   // requesting a new zoom -- reproducing the exact premature-scroll race
   // this whole mechanism exists to avoid.
   const renderedWidthsRef = useRef({});
+  // Which selection.key has already been acted on, so a new selection
+  // triggers zoom-to-label exactly once, not every time unrelated state
+  // (e.g. another page finishing its own load) re-runs this effect.
+  const lastHandledSelectionKeyRef = useRef(null);
 
   useEffect(() => {
     const node = containerRef.current;
@@ -67,34 +77,23 @@ export default function PdfDocumentViewer({
     return () => observer.disconnect();
   }, []);
 
-  // The page whose dimensions currently drive Fit Page / Fit Width: the
-  // selected page while something is selected, otherwise the first page
-  // (what's visible by default before any selection is made).
-  const relevantPageNumber = Number(selection?.pageNumber) || 1;
-  const relevantPageSize = pageSizes[relevantPageNumber];
+  const currentPageSize = pageSizes[currentPage];
 
-  // Fit Page / Fit Width recompute when the container is resized or the
-  // relevant page's own dimensions become known -- but only while one of
-  // those two automatic modes is active. Manual/selection zoom is left
-  // alone on resize (matching how most PDF viewers behave): the highlight
-  // stays correctly aligned regardless via BboxHighlight's own scale
-  // calculation, so nothing goes stale, it just doesn't fight the user's
-  // explicit zoom choice.
+  // The one effect that computes Fit Page's width -- only while that mode
+  // is active, only for currentPage. Never fires as a side effect of
+  // zooming or selecting; those are separate, explicit actions below.
   useEffect(() => {
-    if (viewMode === "fit-page") {
-      setPageWidth(
-        computeFitPageWidth({
-          pageWidthPts: relevantPageSize?.width,
-          pageHeightPts: relevantPageSize?.height,
-          availableWidth: containerSize.width,
-          availableHeight: containerSize.height,
-          minWidth: MIN_PAGE_WIDTH,
-        }),
-      );
-    } else if (viewMode === "fit-width") {
-      setPageWidth(Math.max(MIN_PAGE_WIDTH, containerSize.width));
-    }
-  }, [viewMode, containerSize, relevantPageSize?.width, relevantPageSize?.height]);
+    if (mode !== "fit-page") return;
+    setPageWidth(
+      computeFitPageWidth({
+        pageWidthPts: currentPageSize?.width,
+        pageHeightPts: currentPageSize?.height,
+        availableWidth: containerSize.width,
+        availableHeight: containerSize.height,
+        minWidth: MIN_PAGE_WIDTH,
+      }),
+    );
+  }, [mode, containerSize, currentPageSize?.width, currentPageSize?.height]);
 
   // Scrolls the page + highlight into view. Only safe to call once
   // react-pdf's canvas has actually finished (re)rendering at `pageWidth`
@@ -107,15 +106,10 @@ export default function PdfDocumentViewer({
     highlight?.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
   }, []);
 
-  // Tracks which selection.key has already been auto-zoomed-to, so this
-  // effect acts EXACTLY ONCE per distinct selection -- see below for why
-  // that matters.
-  const lastHandledSelectionKeyRef = useRef(null);
-
-  // A new selection takes over the view: switch to "selection" mode and
-  // zoom just enough to read the label (pageWidthForBbox floors at Fit
-  // Page and only zooms in further when the bbox would otherwise be too
-  // small to read -- see BboxHighlight.jsx), then scroll it into view.
+  // A NEW selection takes over the view: navigate to its page, switch to
+  // "selection-zoom", and zoom in enough to read the label clearly
+  // (pageWidthForBbox floors at Fit Page and scales up from there -- see
+  // BboxHighlight.jsx), then scroll it into view once rendered.
   //
   // The scroll must not fire until react-pdf's <Page> has actually finished
   // repainting its canvas at the NEW zoomed width: the scrollable
@@ -134,11 +128,10 @@ export default function PdfDocumentViewer({
   // in the document (all ~30 pages of a real drawing set mount and load
   // concurrently) -- so it keeps re-running for a while after a selection
   // as OTHER, unrelated pages finish loading, well after this selection's
-  // own zoom was already applied. Without the lastHandledSelectionKeyRef
-  // guard below, each of those re-runs would recompute the SAME zoom and
-  // call setViewMode("selection") again, silently overwriting a reviewer's
-  // very next "Fit page"/"Fit width"/zoom click a moment later -- which is
-  // exactly what made those controls look broken/unresponsive.
+  // own zoom was already applied. The lastHandledSelectionKeyRef guard
+  // below is what stops each of those re-runs from recomputing the SAME
+  // zoom and silently overwriting a reviewer's very next Fit Page/zoom
+  // click a moment later.
   useEffect(() => {
     if (!selection?.pageNumber || !selection?.boundingBox) {
       pendingScrollRef.current = null;
@@ -153,6 +146,8 @@ export default function PdfDocumentViewer({
     if (!size?.width) return undefined; // not loaded yet; retry when pageSizes updates
 
     lastHandledSelectionKeyRef.current = selection.key;
+    setCurrentPage(pageNumber);
+    setMode("selection-zoom");
 
     const nextWidth = pageWidthForBbox({
       boundingBox: selection.boundingBox,
@@ -161,7 +156,6 @@ export default function PdfDocumentViewer({
       availableWidth: containerSize.width,
       availableHeight: containerSize.height,
     });
-    setViewMode("selection");
 
     if (Math.abs(nextWidth - (renderedWidthsRef.current[pageNumber] ?? -1)) < 0.5) {
       // This exact page has ALREADY finished rendering at (approximately)
@@ -183,19 +177,44 @@ export default function PdfDocumentViewer({
     return undefined;
     // eslint-disable-next-line react-hooks/exhaustive-deps -- containerSize
     // intentionally omitted: a resize while a selection is active should
-    // not yank the view back into "selection" mode math (see the
-    // fit-page/fit-width effect's own comment on this same tradeoff).
+    // not re-trigger this effect's zoom math (see the Fit Page effect's own
+    // comment on the same tradeoff).
   }, [selection?.key, selection?.pageNumber, selection?.boundingBox, pageSizes, scrollToSelection]);
 
+  // Manual zoom: same page, no mode fighting -- just scales pageWidth from
+  // wherever it currently is, and does a best-effort job of keeping the
+  // same point roughly centered (PDF viewers don't jump to a corner on
+  // zoom). Never touches currentPage or selection.
   const zoomBy = useCallback((factor) => {
-    setViewMode("manual");
+    const node = containerRef.current;
+    const before = node && node.scrollWidth > 0 && node.scrollHeight > 0
+      ? {
+          xFrac: (node.scrollLeft + node.clientWidth / 2) / node.scrollWidth,
+          yFrac: (node.scrollTop + node.clientHeight / 2) / node.scrollHeight,
+        }
+      : null;
+
+    setMode("manual-zoom");
     setPageWidth((prev) => {
-      const size = pageSizes[relevantPageNumber];
-      const nativeWidth = size?.width || prev;
+      const nativeWidth = currentPageSize?.width || prev;
       const maxWidth = nativeWidth * 6;
       return Math.min(maxWidth, Math.max(MIN_PAGE_WIDTH, prev * factor));
     });
-  }, [pageSizes, relevantPageNumber]);
+
+    if (node && before) {
+      // Two frames: one for React to commit the new width prop, one for
+      // the browser to reflow the (still-old-canvas) layout before we read
+      // scrollWidth/Height again. Approximate on purpose -- "reasonably
+      // centered", not pixel-perfect (that's what selection-zoom + the
+      // onRenderSuccess sync above is for).
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          node.scrollLeft = before.xFrac * node.scrollWidth - node.clientWidth / 2;
+          node.scrollTop = before.yFrac * node.scrollHeight - node.clientHeight / 2;
+        });
+      });
+    }
+  }, [currentPageSize?.width]);
 
   const onDocumentLoadSuccess = useCallback(({ numPages: next }) => {
     setNumPages(next);
@@ -216,7 +235,12 @@ export default function PdfDocumentViewer({
   }
 
   return (
-    <Box sx={{ height: "100%", display: "flex", flexDirection: "column", minHeight: 0 }}>
+    <Box
+      data-testid="pdf-viewer-root"
+      data-current-page={currentPage}
+      data-view-mode={mode}
+      sx={{ height: "100%", display: "flex", flexDirection: "column", minHeight: 0 }}
+    >
       <Stack
         direction="row"
         spacing={0.5}
@@ -225,19 +249,10 @@ export default function PdfDocumentViewer({
         <Tooltip title="Show the entire sheet">
           <Button
             size="small"
-            variant={viewMode === "fit-page" ? "contained" : "outlined"}
-            onClick={() => setViewMode("fit-page")}
+            variant={mode === "fit-page" ? "contained" : "outlined"}
+            onClick={() => setMode("fit-page")}
           >
             Fit page
-          </Button>
-        </Tooltip>
-        <Tooltip title="Fill the panel width (may need vertical scrolling)">
-          <Button
-            size="small"
-            variant={viewMode === "fit-width" ? "contained" : "outlined"}
-            onClick={() => setViewMode("fit-width")}
-          >
-            Fit width
           </Button>
         </Tooltip>
         <Tooltip title="Zoom in">

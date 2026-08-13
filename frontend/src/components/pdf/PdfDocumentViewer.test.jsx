@@ -169,7 +169,7 @@ describe("PdfDocumentViewer zoom-to-selection scroll timing", () => {
   });
 });
 
-describe("PdfDocumentViewer Fit Page / Fit Width / resize", () => {
+describe("PdfDocumentViewer Fit Page / manual zoom / resize", () => {
   let originalResizeObserver;
 
   beforeEach(() => {
@@ -210,21 +210,6 @@ describe("PdfDocumentViewer Fit Page / Fit Width / resize", () => {
     // viewport -- not just the width.
     expect(width).toBeLessThanOrEqual(731 - 8 + 0.5);
     expect(impliedHeight).toBeLessThanOrEqual(403 - 8 + 0.5);
-  });
-
-  it("Fit Width mode fills the available width even if the page overflows vertically", () => {
-    const { container } = render(
-      <PdfDocumentViewer fileUrl="test.pdf" selection={null} />,
-    );
-    setContainerClientSize(container, 731, 403);
-    triggerResize();
-    finishRender(1);
-
-    fireEvent.click(screen.getByText("Fit width"));
-    finishRender(1);
-
-    // 731 - 8px measurement margin, per the component's own convention.
-    expect(canvasWidth()).toBeCloseTo(731 - 8, 0);
   });
 
   it("resizing the panel recalculates Fit Page instead of leaving an obsolete scale", () => {
@@ -310,5 +295,34 @@ describe("PdfDocumentViewer Fit Page / Fit Width / resize", () => {
     // Fit Page must still be in effect -- not silently reverted to the
     // selection zoom.
     expect(canvasWidth()).toBeCloseTo(fitPageWidth, 0);
+  });
+
+  it("manual zoom in/out changes scale but never changes the current page", () => {
+    const { container, rerender } = render(
+      <PdfDocumentViewer fileUrl="test.pdf" selection={null} />,
+    );
+    setContainerClientSize(container, 731, 403);
+    triggerResize();
+    finishRender(1);
+
+    // Select a label -- navigates to and zooms into its page.
+    rerender(
+      <PdfDocumentViewer
+        fileUrl="test.pdf"
+        selection={{ key: "a", pageNumber: 1, boundingBox: [1647.96, 544.11, 1687.8, 556.7] }}
+      />,
+    );
+    finishRender(1);
+    expect(screen.getByTestId("pdf-viewer-root").dataset.currentPage).toBe("1");
+    const zoomedWidth = canvasWidth();
+
+    const zoomInBtn = screen.getByLabelText("Zoom in");
+    fireEvent.click(zoomInBtn);
+    expect(canvasWidth()).toBeGreaterThan(zoomedWidth);
+    expect(screen.getByTestId("pdf-viewer-root").dataset.currentPage).toBe("1");
+
+    fireEvent.click(screen.getByLabelText("Zoom out"));
+    fireEvent.click(screen.getByLabelText("Zoom out"));
+    expect(screen.getByTestId("pdf-viewer-root").dataset.currentPage).toBe("1");
   });
 });

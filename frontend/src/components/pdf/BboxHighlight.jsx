@@ -125,11 +125,12 @@ export function computeFitPageWidth({
 }
 
 /**
- * Rendered page width (px) for viewing a selected bbox: fits the whole
- * page (Fit Page) UNLESS the bbox would render too small to read at that
- * scale, in which case it zooms in only as far as needed for legibility --
- * capped well below "fill half the viewport" so the reviewer keeps
- * surrounding drawing context instead of the label filling the screen.
+ * Rendered page width (px) for zooming into a selected bbox: the label
+ * should end up clearly, comfortably readable -- not just barely legible --
+ * so this targets the bbox filling a real fraction of the available width,
+ * the same shape of calculation the locator used before, just floored at
+ * Fit Page (never zooms OUT past showing the whole page) and capped
+ * relative to Fit Page (so it can't run away to an unusable extreme).
  */
 export function pageWidthForBbox({
   boundingBox,
@@ -137,8 +138,8 @@ export function pageWidthForBbox({
   pageHeightPts,
   availableWidth,
   availableHeight,
-  minLegibleHeightPx = 26,
-  maxZoomMultiplier = 2.5,
+  fillRatio = 0.4,
+  maxZoomMultiplier = 4,
 }) {
   const fitWidth = computeFitPageWidth({
     pageWidthPts,
@@ -154,14 +155,8 @@ export function pageWidthForBbox({
   ) {
     return fitWidth;
   }
-  const fitScale = fitWidth / pageWidthPts;
-  const boxHeightPts = Math.max(Math.abs(boundingBox[3] - boundingBox[1]), 1);
-  const renderedAtFit = boxHeightPts * fitScale;
-  if (renderedAtFit >= minLegibleHeightPx) {
-    // Already readable with the whole page visible -- no extra zoom.
-    return fitWidth;
-  }
-  const neededScale = minLegibleHeightPx / boxHeightPts;
-  const zoomedWidth = pageWidthPts * neededScale;
-  return Math.min(zoomedWidth, fitWidth * maxZoomMultiplier);
+  const boxWidthPts = Math.max(Math.abs(boundingBox[2] - boundingBox[0]), 8);
+  const target = (Math.max(availableWidth || fitWidth, 1) * fillRatio * pageWidthPts)
+    / boxWidthPts;
+  return Math.min(fitWidth * maxZoomMultiplier, Math.max(fitWidth, target));
 }

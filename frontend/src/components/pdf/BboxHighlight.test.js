@@ -93,9 +93,9 @@ describe("computeFitPageWidth", () => {
 });
 
 describe("pageWidthForBbox — selected-label zoom", () => {
-  it("uses Fit Page scale (no extra zoom) when the bbox is already legible", () => {
-    // A reasonably large bbox on a modest page/viewport -- already readable
-    // at Fit Page scale, so no extra zoom should be applied.
+  it("uses Fit Page scale (no extra zoom) when the bbox already fills enough of the viewport", () => {
+    // A bbox wide enough that it already clears the fill-ratio target at
+    // Fit Page scale -- no extra zoom needed.
     const fitWidth = computeFitPageWidth({
       pageWidthPts: 800,
       pageHeightPts: 600,
@@ -103,7 +103,7 @@ describe("pageWidthForBbox — selected-label zoom", () => {
       availableHeight: 500,
     });
     const width = pageWidthForBbox({
-      boundingBox: [100, 100, 300, 250], // 150pt tall
+      boundingBox: [100, 100, 500, 300], // 400pt wide
       pageWidthPts: 800,
       pageHeightPts: 600,
       availableWidth: 700,
@@ -112,22 +112,24 @@ describe("pageWidthForBbox — selected-label zoom", () => {
     expect(width).toBeCloseTo(fitWidth, 6);
   });
 
-  it("zooms in just enough to make a tiny label legible, not to fill the viewport", () => {
-    // Reproduces the real case: a ~13pt-tall text token on a huge 3024x2160
-    // sheet. At Fit Page scale it would render far too small to read.
+  it("zooms in clearly and significantly on a small label -- not just barely legible", () => {
+    // Reproduces the real case: a ~40pt-wide text token on a huge 3024x2160
+    // sheet. At Fit Page scale it would be tiny; Locate should zoom in
+    // clearly (per direct product feedback: it's fine to zoom in a lot,
+    // don't leave the label tiny), capped at a sane multiple of Fit Page.
     const fitWidth = computeFitPageWidth({
       ...LANDSCAPE_PAGE,
       availableWidth: 722,
       availableHeight: 412,
     });
     const width = pageWidthForBbox({
-      boundingBox: [1647.96, 544.11, 1687.8, 556.7], // real token bbox, ~12.6pt tall
+      boundingBox: [1647.96, 544.11, 1687.8, 556.7], // real token bbox
       ...LANDSCAPE_PAGE,
       availableWidth: 722,
       availableHeight: 412,
     });
-    expect(width).toBeGreaterThan(fitWidth); // did zoom in
-    expect(width).toBeLessThanOrEqual(fitWidth * 2.5 + 0.001); // capped, not extreme
+    expect(width).toBeGreaterThan(fitWidth * 2); // a clear, significant zoom
+    expect(width).toBeLessThanOrEqual(fitWidth * 4 + 0.001); // still capped, not unbounded
   });
 
   it("never zooms below Fit Page scale", () => {
@@ -148,9 +150,9 @@ describe("pageWidthForBbox — selected-label zoom", () => {
 
 describe("source bbox -> rendered highlight coordinate transformation", () => {
   // BboxHighlight itself just multiplies by (renderedWidth / pageWidthPts);
-  // this pins that transformation stays correct across Fit Page, Fit Width,
-  // and selected-element zoom -- i.e. for ANY renderedWidth this module
-  // hands back, the highlight stays aligned with the real label.
+  // this pins that transformation stays correct across Fit Page, manual
+  // zoom, and selected-element zoom -- i.e. for ANY renderedWidth this
+  // module hands back, the highlight stays aligned with the real label.
   function highlightRect(boundingBox, pageWidthPts, renderedWidth) {
     const scale = renderedWidth / pageWidthPts;
     const [x0, y0, x1, y1] = boundingBox;
@@ -175,11 +177,11 @@ describe("source bbox -> rendered highlight coordinate transformation", () => {
     expect(rect.top).toBeCloseTo(544.11 * scale, 6);
   });
 
-  it("stays aligned under Fit Width scale", () => {
-    const fitWidthOnlyWidth = 722; // Fit Width just uses availableWidth directly
+  it("stays aligned under an arbitrary manual-zoom width", () => {
+    const manualWidth = 900;
     const bbox = [1647.96, 544.11, 1687.8, 556.7];
-    const rect = highlightRect(bbox, LANDSCAPE_PAGE.pageWidthPts, fitWidthOnlyWidth);
-    const scale = fitWidthOnlyWidth / LANDSCAPE_PAGE.pageWidthPts;
+    const rect = highlightRect(bbox, LANDSCAPE_PAGE.pageWidthPts, manualWidth);
+    const scale = manualWidth / LANDSCAPE_PAGE.pageWidthPts;
     expect(rect.left).toBeCloseTo(1647.96 * scale, 6);
     expect(rect.width).toBeCloseTo((1687.8 - 1647.96) * scale, 6);
   });
