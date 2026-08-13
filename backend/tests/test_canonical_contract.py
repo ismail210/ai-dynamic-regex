@@ -107,10 +107,21 @@ class MatchStatusTests(unittest.TestCase):
 
 class ProvenanceTests(unittest.TestCase):
     def test_raw_is_never_overwritten_by_prediction(self):
+        # "W18X3S" -> "W18X35" is a corrected (not exact/normalized) match --
+        # per the resolution contract, final_label is None here (a corrected
+        # guess must never be presented as a resolved answer; see
+        # ResolutionContractTests below). The provenance guarantee this test
+        # protects is narrower and still holds regardless: raw stays exactly
+        # what was extracted, never silently coerced into whatever the
+        # caller passed as a candidate label.
         result = _build(raw_text="W18X3S", final_label="W18X35")
         self.assertEqual(result.source_text.raw, "W18X3S")
+        self.assertNotEqual(result.source_text.raw, "W18X35")
+
+    def test_raw_is_preserved_for_an_accepted_exact_match_too(self):
+        result = _build(raw_text="W18X35", final_label="W18X35")
+        self.assertEqual(result.source_text.raw, "W18X35")
         self.assertEqual(result.prediction.final_label, "W18X35")
-        self.assertNotEqual(result.source_text.raw, result.prediction.final_label)
 
     def test_bounding_box_and_page_carried_through(self):
         result = _build(page_number=7, bounding_box=[1.0, 2.0, 3.0, 4.0])

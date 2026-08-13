@@ -282,18 +282,29 @@ def build_canonical_prediction(
         extraction_method=extraction_method,
         available=bool(source_available),
     )
-    prediction = PredictionSummary(
-        final_label=final_label or None,
-        family=family or None,
-        ranking_score=round(float(ranking_score or 0.0), 4),
-        final_confidence=final_confidence,
-        confidence_is_calibrated=bool(confidence_is_calibrated),
-    )
     comparison = determine_comparison(
         raw_text=raw_text,
         final_label=final_label,
         source_available=source_available,
         used_wildcards=used_wildcards,
+    )
+    # ``final_label`` is the canonical, automatically-accepted answer -- it
+    # must never carry a fuzzy-retrieved or learned-corrected guess dressed
+    # up as a resolved result (resolution contract, Case B/C). Every
+    # match_status other than EXACT_MATCH/NORMALIZED_MATCH already forces
+    # needs_review below via _REVIEW_REASONS; reuse that same partition here
+    # so "not authoritative enough to auto-accept" and "not authoritative
+    # enough to review" can never drift apart. The un-nulled guess is still
+    # available to reviewers via ``candidates``.
+    accepted_final_label = (
+        final_label if comparison.match_status not in _REVIEW_REASONS else None
+    )
+    prediction = PredictionSummary(
+        final_label=accepted_final_label or None,
+        family=family or None,
+        ranking_score=round(float(ranking_score or 0.0), 4),
+        final_confidence=final_confidence,
+        confidence_is_calibrated=bool(confidence_is_calibrated),
     )
     decision = Decision(
         used_text=bool(used_text),

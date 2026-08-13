@@ -118,23 +118,43 @@ def _gated_exact_override(
     ocr_text: str,
 ) -> tuple[str, bool]:
     """
-    Optionally replace a family-only fusion label with the top exact candidate.
+    Compute the best available section for explanation/candidate purposes,
+    and decide whether it may be treated as an automatically accepted final
+    answer.
 
-    Returns ``(section, retrieval_gate_failed)``. Gate failure means no
-    confident exact candidate and fusion did not yield a catalog-valid label,
-    so the caller should abstain (empty section) and force review.
+    Returns ``(section, retrieval_gate_failed)``. ``section`` is always the
+    single best guess available (still useful for geometry/rule evaluation,
+    entity typing, and the reviewer-facing candidate list even when not
+    trustworthy enough to auto-accept). ``retrieval_gate_failed=True`` means
+    the caller must abstain from treating ``section`` as a resolved final
+    label and force human review instead.
 
     Only ``catalog_valid_exact_section`` (real AISC catalog membership) may
     ever produce a returned section. ``is_exact_section_label`` alone is a
     regex *format* check — a well-formatted but non-existent shape (e.g.
     "W12X999") must never be accepted as a final prediction just because it
     looks like a section designation.
+
+    Catalog membership alone is NOT sufficient for automatic acceptance,
+    either: fuzzy text-similarity retrieval and the learned correction
+    engine can both propose a *different*, perfectly real catalog entry for
+    text that does not actually spell it out (e.g. "W12X999" -> nearest
+    real neighbor "W12X190"). Per the resolution contract, that is a
+    candidate/suggestion, never a silently auto-accepted answer -- so gate
+    failure is also forced whenever the accepted label is not exactly what
+    ``ocr_text`` itself resolves to under safe, non-fuzzy normalization
+    (i.e. this reduces to the same check as the protected-exact-label path
+    above; it exists here too because this function's non-text-grounded
+    candidates are otherwise indistinguishable from a genuine match once
+    they're both catalog-valid strings).
     """
+
+    text_grounded_label = catalog_valid_exact_section(ocr_text)
 
     if not (_is_structural_family(fusion_section) and exact_candidates):
         catalog_label = catalog_valid_exact_section(fusion_section)
         if catalog_label:
-            return catalog_label, False
+            return catalog_label, catalog_label != text_grounded_label
         # Family-only or non-catalog fusion output with no exact candidates → abstain.
         return "", True
 
@@ -155,11 +175,11 @@ def _gated_exact_override(
     ):
         catalog_label = catalog_valid_exact_section(top_shape)
         if catalog_label:
-            return catalog_label, False
+            return catalog_label, catalog_label != text_grounded_label
 
     catalog_label = catalog_valid_exact_section(fusion_section)
     if catalog_label:
-        return catalog_label, False
+        return catalog_label, catalog_label != text_grounded_label
     return "", True
 
 
@@ -391,8 +411,18 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     if label_ranker_meta.get("applied") and label_ranker_meta.get(
         "selected_prediction"
     ):
-        section = str(label_ranker_meta["selected_prediction"])
-        retrieval_gate_failed = False
+        ranker_label = str(label_ranker_meta["selected_prediction"])
+        section = ranker_label
+        # A learned reconstruction is exactly the kind of candidate the
+        # resolution contract requires review for (Case C/D) -- it is a
+        # damaged/ambiguous-label RECONSTRUCTION, not a reading of what the
+        # extracted characters themselves say. It only clears the gate when
+        # it happens to equal the text's own safe-normalized catalog form
+        # (i.e. it degenerates to a Case A match), never on the strength of
+        # the ranker's own score.
+        retrieval_gate_failed = ranker_label != catalog_valid_exact_section(
+            original or normalized
+        )
 
     # Enforce the protected exact label path. This is the last word: neither
     # fusion, the exact-candidate gate, nor the label ranker may silently
@@ -1215,13 +1245,28 @@ def predict_token(
         "database_verified": bool(result.get("database_match")),
     }
 
+    # Carry forward the REAL issues/gate signals predict_from_context already
+    # computed (protected_label_conflict, retrieval_gate_failed, ...) rather
+    # than recomputing review_status from an empty issues list. Discarding
+    # them here previously let a genuine protected-label conflict (exact
+    # text kept, but fusion/graph disagreed -- see the protected-exact-label
+    # path above) come back as review_status="auto_accepted" from this
+    # token-only entry point, even though a human is supposed to look at it.
+    inner_issues = list(
+        (result.get("features") or {}).get("fusion", {}).get("detected_issues") or []
+    )
+    protected_label_conflict = "protected_label_conflict" in inner_issues
+    abstain = "retrieval_gate_failed" in inner_issues or not section
+
     review_status = decide_review_status(
         confidence=float(conf.get("overall") or 0.0),
-        issues=[],
+        issues=inner_issues,
         corrected=False,
         regex_matches=True,
         model_probability=float(conf.get("model_probability") or 0.0),
         database_verified=bool(result.get("database_match")),
+        abstain=abstain,
+        protected_label_conflict=protected_label_conflict,
     )
     result["review_status"] = review_status
     # Recomputed with the same inputs as review_status just above, so the two
@@ -1230,10 +1275,12 @@ def predict_token(
     result["abstention_reason"] = determine_abstention_reason(
         review_status=review_status,
         confidence=float(conf.get("overall") or 0.0),
-        issues=[],
+        issues=inner_issues,
         model_probability=float(conf.get("model_probability") or 0.0),
         database_verified=bool(result.get("database_match")),
         regex_matches=True,
+        protected_label_conflict=protected_label_conflict,
+        retrieval_gate_failed=abstain,
     )
     result["uncertain"] = review_status == "pending_review"
 
