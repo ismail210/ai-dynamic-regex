@@ -296,8 +296,10 @@ def extract_geometry(
 
     ``dense_page_cap_strategy`` controls which sort key the >250-drawing
     cap uses to decide what to keep. Production default is ``"length_aware"``
-    so thin structural lines are not dropped before large filled regions.
-    Pass ``"legacy_area"`` only for A/B comparison against the historical
+    so thin structural lines are not dropped before large filled regions —
+    this is the same defect independently documented in
+    docs/geometry_graph_audit/08_prioritized_roadmap.md P0.1. Pass
+    ``"legacy_area"`` only for A/B comparison against the historical
     zero-area-drop behavior. Regardless of which strategy is active, every
     page where the cap triggers records an A/B diagnostic comparing what
     both strategies would have kept.

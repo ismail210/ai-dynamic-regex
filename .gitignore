@@ -65,3 +65,13 @@ backend/training/excels/
 *.pt
 !backend/training/graphsage_model.pt
 !backend/training/multimodal_fusion.pt
+
+# =========================
+# ML-association real-project pilot data (Phase 2.5)
+# Confidential source PDFs/Excel files, extracted pages, reviewer
+# SVG/JSON exports, and any other artifact derived from a real
+# customer project must never be committed. See
+# docs/ml_association_phase/real_project_inventory.md for the
+# sanitized, non-confidential summary that IS committed.
+# =========================
+backend/training/ml_association/real_project_pilot/

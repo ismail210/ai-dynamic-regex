@@ -117,8 +117,11 @@ class Settings:
     promotion_f1_tolerance: float = 0.02
 
     # ---- ML association dataset (Phase 2, experimental) ---------------
-    # Disabled by default. Gates dataset building / review export/import so
-    # the package cannot silently run in production paths.
+    # Disabled by default. This gates every ml_association service entry
+    # point (dataset building, outcome writes, review export/import) so
+    # the new package cannot silently run in production paths even
+    # though nothing currently imports it. See
+    # docs/ml_association_phase/review_workflow.md.
     ml_association_dataset_enabled: bool = field(
         default_factory=lambda: os.getenv(
             "ML_ASSOCIATION_DATASET_ENABLED", "false"
@@ -137,8 +140,14 @@ class Settings:
     ml_association_schema_version: str = "2.0"
 
     # ---- Damaged-label reconstruction ranker (shadow mode only) -------
-    # ML_LABEL_RANKER_ENABLED must stay false until a promoted model + review.
-    # ML_LABEL_RANKER_SHADOW may log disagreements without changing predictions.
+    # Both default false. ML_LABEL_RANKER_SHADOW may be turned on
+    # independently of ML_LABEL_RANKER_ENABLED to log the trained
+    # ranker's disagreement with the current deterministic candidate
+    # order WITHOUT changing any returned prediction; ML_LABEL_RANKER_ENABLED
+    # gates actually using the ranker's ordering for a real response, and
+    # must stay false until a promoted model + review process says
+    # otherwise. See docs/ml_integration/partner_vs_local_comparison.md
+    # and services/label_reconstruction/shadow.py.
     ml_label_ranker_enabled: bool = field(
         default_factory=lambda: os.getenv(
             "ML_LABEL_RANKER_ENABLED", "false"
