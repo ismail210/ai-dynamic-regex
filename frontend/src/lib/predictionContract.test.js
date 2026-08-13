@@ -3,6 +3,7 @@ import {
   getCanonicalPrediction,
   getDisplayConfidence,
   getMatchStatus,
+  getPredictionLocation,
   hasCanonicalContract,
   isLegacyPrediction,
   LEGACY_PROVENANCE_MESSAGE,
@@ -145,6 +146,109 @@ describe("isLegacyPrediction", () => {
     expect(LEGACY_PROVENANCE_MESSAGE).toBe(
       "Provenance unavailable — this document was analyzed with an older pipeline " +
         "version. Re-analysis is required.",
+    );
+  });
+});
+
+// Locator rule: the drawing must be located by stable source provenance
+// (page/bbox of the ACTUAL extracted characters), never by re-searching for
+// the predicted/corrected label string. getPredictionLocation is the single
+// function both SectionResultsList and DrawingReviewPage rely on for this,
+// so it is the right place to pin the contract down directly.
+describe("getPredictionLocation — locates source text, never the prediction", () => {
+  function canonicalResult({ raw, pageNumber, boundingBox, matchStatus, finalLabel }) {
+    return {
+      canonical: {
+        source_text: {
+          raw,
+          normalized: raw,
+          page_number: pageNumber,
+          bounding_box: boundingBox,
+          available: boundingBox != null,
+        },
+        prediction: { final_label: finalLabel },
+        comparison: { match_status: matchStatus },
+      },
+    };
+  }
+
+  it("exact text match: locates using the source bbox", () => {
+    const result = canonicalResult({
+      raw: "W18X35",
+      pageNumber: 7,
+      boundingBox: [10, 20, 60, 40],
+      matchStatus: "exact_match",
+      finalLabel: "W18X35",
+    });
+    const location = getPredictionLocation(result);
+    expect(location).toEqual({ pageNumber: 7, boundingBox: [10, 20, 60, 40], hasLocation: true });
+  });
+
+  it("formatting normalization: still locates the ORIGINAL source span, not a re-search for the normalized string", () => {
+    // Raw text "W18 X 35" would not be found by searching the page for the
+    // normalized "W18X35" -- the bbox must come from where "W18 X 35"
+    // itself was extracted, independent of what it normalizes to.
+    const result = canonicalResult({
+      raw: "W18 X 35",
+      pageNumber: 7,
+      boundingBox: [10, 20, 75, 40],
+      matchStatus: "normalized_match",
+      finalLabel: "W18X35",
+    });
+    const location = getPredictionLocation(result);
+    expect(location).toEqual({ pageNumber: 7, boundingBox: [10, 20, 75, 40], hasLocation: true });
+  });
+
+  it("OCR correction: locates the damaged RAW text's own position, not a position derived from the corrected suggestion", () => {
+    // "W18X3S" is what is actually on the page; "W18X35" is only a
+    // suggestion. The highlight must stay on W18X3S's own bbox regardless
+    // of what gets suggested/predicted.
+    const result = canonicalResult({
+      raw: "W18X3S",
+      pageNumber: 12,
+      boundingBox: [200, 300, 260, 320],
+      matchStatus: "corrected_prediction",
+      finalLabel: null,
+    });
+    const location = getPredictionLocation(result);
+    expect(location).toEqual({
+      pageNumber: 12,
+      boundingBox: [200, 300, 260, 320],
+      hasLocation: true,
+    });
+  });
+
+  it("missing/incomplete label with no resolvable source position reports hasLocation=false rather than guessing", () => {
+    const result = canonicalResult({
+      raw: "W44X3**",
+      pageNumber: null,
+      boundingBox: null,
+      matchStatus: "incomplete_label",
+      finalLabel: null,
+    });
+    const location = getPredictionLocation(result);
+    expect(location.hasLocation).toBe(false);
+  });
+
+  it("multiple identical labels on the same page: each result's own bbox is used, not a shared/first match", () => {
+    const first = canonicalResult({
+      raw: "W16X26",
+      pageNumber: 7,
+      boundingBox: [100, 100, 140, 120],
+      matchStatus: "exact_match",
+      finalLabel: "W16X26",
+    });
+    const second = canonicalResult({
+      raw: "W16X26",
+      pageNumber: 7,
+      boundingBox: [400, 500, 440, 520],
+      matchStatus: "exact_match",
+      finalLabel: "W16X26",
+    });
+    expect(getPredictionLocation(first).boundingBox).toEqual([100, 100, 140, 120]);
+    expect(getPredictionLocation(second).boundingBox).toEqual([400, 500, 440, 520]);
+    expect(getPredictionLocation(first).boundingBox).not.toEqual(
+      getPredictionLocation(second).boundingBox,
     );
   });
 });

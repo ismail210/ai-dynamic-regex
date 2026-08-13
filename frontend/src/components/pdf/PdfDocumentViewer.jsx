@@ -27,6 +27,19 @@ export default function PdfDocumentViewer({
   const [pageSizes, setPageSizes] = useState({});
   const [containerWidth, setContainerWidth] = useState(720);
   const [pageWidth, setPageWidth] = useState(720);
+  // { key, pageNumber, width } for a selection whose scroll-into-view is
+  // waiting on react-pdf to finish (re)rendering the target page's canvas
+  // at the new zoomed width -- see the onRenderSuccess handler below.
+  const pendingScrollRef = useRef(null);
+  // { [pageNumber]: width } the width each page has ACTUALLY finished
+  // rendering its canvas at, per onRenderSuccess -- deliberately separate
+  // from the `pageWidth` state (the REQUESTED width). `pageWidth` updates
+  // the instant setPageWidth is called, well before react-pdf has painted
+  // anything at that size, so comparing against it (instead of this ref)
+  // would make the effect below think "already rendered" immediately after
+  // requesting a new zoom -- reproducing the exact premature-scroll race
+  // this whole mechanism exists to avoid.
+  const renderedWidthsRef = useRef({});
 
   useEffect(() => {
     const node = containerRef.current;
@@ -49,9 +62,36 @@ export default function PdfDocumentViewer({
     }
   }, [containerWidth, selection?.key, selection?.boundingBox]);
 
+  // Scrolls the page + highlight into view. Only safe to call once
+  // react-pdf's canvas has actually finished (re)rendering at `pageWidth`
+  // -- see the race this fixes, below.
+  const scrollToSelection = useCallback((pageNumber) => {
+    const pageNode = pageRefs.current[pageNumber];
+    if (!pageNode) return;
+    pageNode.scrollIntoView({ behavior: "smooth", block: "center" });
+    const highlight = pageNode.querySelector('[data-bbox-highlight="active"]');
+    highlight?.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+  }, []);
+
   // Zoom so the selected bbox fills ~half the pane, then scroll into view.
+  //
+  // The scroll must not fire until react-pdf's <Page> has actually finished
+  // repainting its canvas at the NEW zoomed width: the scrollable
+  // container's scrollWidth/scrollHeight only grow once that repaint
+  // completes, so scrolling any earlier computes the target against the
+  // page's OLD (smaller) extents and clamps short -- the highlight ends up
+  // correctly positioned in the DOM but outside the viewport, which is
+  // exactly what made "locating" a label look like it silently failed. A
+  // fixed setTimeout delay used to paper over this, but a dense page (lots
+  // of text/geometry) can take longer to rasterize than a simple one, so a
+  // constant delay is inherently unreliable. Waiting for the real
+  // onRenderSuccess signal (below) instead of guessing a delay fixes it for
+  // every page, not just fast-rendering ones.
   useEffect(() => {
-    if (!selection?.pageNumber || !selection?.boundingBox) return undefined;
+    if (!selection?.pageNumber || !selection?.boundingBox) {
+      pendingScrollRef.current = null;
+      return undefined;
+    }
     const pageNumber = Number(selection.pageNumber);
     const size = pageSizes[pageNumber];
     if (!size?.width) return undefined;
@@ -61,22 +101,32 @@ export default function PdfDocumentViewer({
       pageWidthPts: size.width,
       containerWidth,
     });
-    setPageWidth(nextWidth);
 
-    const timer = window.setTimeout(() => {
-      const pageNode = pageRefs.current[pageNumber];
-      if (!pageNode) return;
-      pageNode.scrollIntoView({ behavior: "smooth", block: "center" });
-      const highlight = pageNode.querySelector('[data-bbox-highlight="active"]');
-      highlight?.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
-    }, 80);
-    return () => window.clearTimeout(timer);
+    if (Math.abs(nextWidth - (renderedWidthsRef.current[pageNumber] ?? -1)) < 0.5) {
+      // This exact page has ALREADY finished rendering at (approximately)
+      // the target width -- e.g. selecting a different label on the same
+      // page/zoom level -- so no new onRenderSuccess will fire to trigger
+      // the scroll. Defer one frame so the (unchanged) highlight has
+      // committed to the DOM first.
+      pendingScrollRef.current = null;
+      const raf = window.requestAnimationFrame(() => scrollToSelection(pageNumber));
+      return () => window.cancelAnimationFrame(raf);
+    }
+
+    pendingScrollRef.current = {
+      key: selection.key,
+      pageNumber,
+      width: nextWidth,
+    };
+    setPageWidth(nextWidth);
+    return undefined;
   }, [
     selection?.key,
     selection?.pageNumber,
     selection?.boundingBox,
     pageSizes,
     containerWidth,
+    scrollToSelection,
   ]);
 
   const onDocumentLoadSuccess = useCallback(({ numPages: next }) => {
@@ -185,6 +235,18 @@ export default function PdfDocumentViewer({
                         height: viewport.height,
                       },
                     }));
+                  }}
+                  onRenderSuccess={() => {
+                    renderedWidthsRef.current[pageNumber] = pageWidth;
+                    const pending = pendingScrollRef.current;
+                    if (
+                      pending
+                      && pending.pageNumber === pageNumber
+                      && Math.abs(pending.width - pageWidth) < 0.5
+                    ) {
+                      pendingScrollRef.current = null;
+                      scrollToSelection(pageNumber);
+                    }
                   }}
                 />
                 {isSelectedPage && selection?.boundingBox && size?.width ? (
