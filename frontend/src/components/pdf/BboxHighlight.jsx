@@ -81,28 +81,87 @@ export default function BboxHighlight({
   );
 }
 
-/** Compute CSS page width so the bbox fills ~half the pane (clamped). */
+/**
+ * The core "Fit Page" calculation: the largest scale at which BOTH the
+ * page's width and height fit inside the available viewport, preserving
+ * aspect ratio (never stretching X/Y independently). Using only one
+ * dimension -- e.g. fitting width alone -- is what let landscape pages
+ * taller-than-the-viewport-at-that-width get cut off vertically by
+ * default; this is the fix.
+ */
+export function computeFitPageScale({
+  pageWidthPts,
+  pageHeightPts,
+  availableWidth,
+  availableHeight,
+}) {
+  if (!pageWidthPts || !pageHeightPts || pageWidthPts <= 0 || pageHeightPts <= 0) {
+    return 1;
+  }
+  const widthRatio = Math.max(availableWidth || 0, 1) / pageWidthPts;
+  const heightRatio = Math.max(availableHeight || 0, 1) / pageHeightPts;
+  return Math.min(widthRatio, heightRatio);
+}
+
+/** Rendered page width (px) that fits the whole page inside the available
+ * viewport -- see computeFitPageScale. */
+export function computeFitPageWidth({
+  pageWidthPts,
+  pageHeightPts,
+  availableWidth,
+  availableHeight,
+  minWidth = 280,
+}) {
+  if (!pageWidthPts || pageWidthPts <= 0) {
+    return Math.max(minWidth, availableWidth || minWidth);
+  }
+  const scale = computeFitPageScale({
+    pageWidthPts,
+    pageHeightPts,
+    availableWidth,
+    availableHeight,
+  });
+  return Math.max(minWidth, pageWidthPts * scale);
+}
+
+/**
+ * Rendered page width (px) for viewing a selected bbox: fits the whole
+ * page (Fit Page) UNLESS the bbox would render too small to read at that
+ * scale, in which case it zooms in only as far as needed for legibility --
+ * capped well below "fill half the viewport" so the reviewer keeps
+ * surrounding drawing context instead of the label filling the screen.
+ */
 export function pageWidthForBbox({
   boundingBox,
   pageWidthPts,
-  containerWidth,
-  fillRatio = 0.5,
-  minWidth,
-  maxWidth,
+  pageHeightPts,
+  availableWidth,
+  availableHeight,
+  minLegibleHeightPx = 26,
+  maxZoomMultiplier = 2.5,
 }) {
-  const fallback = Math.max(320, containerWidth || 640);
-  const minW = minWidth ?? Math.max(280, fallback * 0.85);
-  const maxW = maxWidth ?? Math.max(minW, fallback * 4);
+  const fitWidth = computeFitPageWidth({
+    pageWidthPts,
+    pageHeightPts,
+    availableWidth,
+    availableHeight,
+  });
   if (
     !boundingBox
     || boundingBox.length < 4
     || !pageWidthPts
     || pageWidthPts <= 0
   ) {
-    return Math.min(maxW, Math.max(minW, fallback));
+    return fitWidth;
   }
-  const boxWidthPts = Math.max(Math.abs(boundingBox[2] - boundingBox[0]), 8);
-  const target = ((containerWidth || fallback) * fillRatio * pageWidthPts)
-    / boxWidthPts;
-  return Math.min(maxW, Math.max(minW, target));
+  const fitScale = fitWidth / pageWidthPts;
+  const boxHeightPts = Math.max(Math.abs(boundingBox[3] - boundingBox[1]), 1);
+  const renderedAtFit = boxHeightPts * fitScale;
+  if (renderedAtFit >= minLegibleHeightPx) {
+    // Already readable with the whole page visible -- no extra zoom.
+    return fitWidth;
+  }
+  const neededScale = minLegibleHeightPx / boxHeightPts;
+  const zoomedWidth = pageWidthPts * neededScale;
+  return Math.min(zoomedWidth, fitWidth * maxZoomMultiplier);
 }
