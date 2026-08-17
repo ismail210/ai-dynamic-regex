@@ -22,15 +22,18 @@ from services.multimodal.geometry_ai import enrich_geometry_embeddings
 from services.multimodal.graph_ai import enrich_graph_embeddings
 from services.multimodal.label_propagation import propagate_section_labels
 from services.multimodal.review_enrichment import index_predictions
+from services.multimodal.schedule_ingestion import build_schedule_tokens
+from services.multimodal.spatial_association import build_spatial_association_tokens
 from services.multimodal.validation_engine import (
     validate_multimodal_predictions,
 )
+from services.engineering.detail_regions import assign_detail_regions
 from services.prediction.contract import confidence_overall
 from services.takeoff.ground_truth_excel import parse_ground_truth_excel
 
 
 # Bumped whenever prediction behaviour changes, so cached analyses are replaced.
-PIPELINE_VERSION = "4.0-learned-fusion"
+PIPELINE_VERSION = "4.5-document-prior"
 
 
 def _neural_model_status() -> Dict[str, Any]:
@@ -166,6 +169,8 @@ def run_multimodal_pipeline(
     graph = graph_document or build_structural_graph(document, geometry)
     graph = enrich_graph_embeddings(graph)
     document_rules = evaluate_document_rules(graph)
+    if settings.detail_regions_enabled:
+        assign_detail_regions(document, geometry)
     timings["graph_rules_ms"] = round(
         (time.perf_counter() - stage_started) * 1000, 2
     )
@@ -178,6 +183,18 @@ def run_multimodal_pipeline(
     stage_started = time.perf_counter()
     raw_predictions = []
     prediction_tokens = list(document.get("engineering_tokens") or [])
+    if settings.schedule_ingestion_enabled:
+        schedule_tokens = build_schedule_tokens(document, existing_tokens=prediction_tokens)
+        prediction_tokens.extend(schedule_tokens)
+        document["schedule_tokens_added"] = len(schedule_tokens)
+    if settings.spatial_association_enabled:
+        spatial_tokens = build_spatial_association_tokens(
+            document,
+            geometry,
+            existing_tokens=prediction_tokens,
+        )
+        prediction_tokens.extend(spatial_tokens)
+        document["spatial_association_tokens_added"] = len(spatial_tokens)
     prediction_tokens.extend(_missing_label_tokens(geometry, graph))
     for token in prediction_tokens:
         raw_predictions.append(

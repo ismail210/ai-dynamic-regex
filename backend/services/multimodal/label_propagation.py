@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, Iterable, List, Optional, Set
 
+from services.engineering.detail_regions import same_region
+
 _PROPAGATION_RELATIONS = {
     "same_tag",
     "connected_to",
@@ -121,6 +123,11 @@ def propagate_section_labels(
         for neighbor_key in adjacency.get(seed_key) or ():
             neighbor = by_key.get(neighbor_key)
             if neighbor is None:
+                continue
+            if not same_region(
+                prediction.get("region_id"),
+                neighbor.get("region_id"),
+            ):
                 continue
             neighbor_confidence = _overall_confidence(neighbor)
             comparison = (neighbor.get("comparison") or {}).get("match_status")

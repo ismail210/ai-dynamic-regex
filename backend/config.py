@@ -147,6 +147,42 @@ class Settings:
     )
     ml_association_schema_version: str = "2.0"
 
+    # ---- Spatial association (leader-aware geometry linking) ------------
+    # Links text labels to nearby unlabeled linework using the experimental
+    # STRtree candidate generator. Associations always require human review.
+    spatial_association_enabled: bool = field(
+        default_factory=lambda: os.getenv(
+            "SPATIAL_ASSOCIATION_ENABLED", "true"
+        )
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
+    schedule_ingestion_enabled: bool = field(
+        default_factory=lambda: os.getenv(
+            "SCHEDULE_INGESTION_ENABLED", "true"
+        )
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
+    detail_regions_enabled: bool = field(
+        default_factory=lambda: os.getenv(
+            "DETAIL_REGIONS_ENABLED", "true"
+        )
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
+    document_prior_enabled: bool = field(
+        default_factory=lambda: os.getenv(
+            "DOCUMENT_PRIOR_ENABLED", "true"
+        )
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
+
     # ---- Damaged-label reconstruction ranker (shadow mode only) -------
     # Both default false. ML_LABEL_RANKER_SHADOW may be turned on
     # independently of ML_LABEL_RANKER_ENABLED to log the trained

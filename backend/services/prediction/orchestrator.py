@@ -10,6 +10,7 @@ from __future__ import annotations
 import re
 from typing import Any, Dict, List, Optional
 
+from config import settings
 from services.component_tracker import allocate_component_id
 from services.database_loader import (
     catalog_form,
@@ -18,6 +19,7 @@ from services.database_loader import (
     search_similar_shapes,
 )
 from services.engineering.rule_engine import evaluate_engineering_rules
+from services.engineering.document_prior import apply_prior_to_candidates
 from services.entity_taxonomy import resolve_entity
 from services.exact_section_predictor import (
     catalog_valid_exact_section,
@@ -221,6 +223,14 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     normalized = str(
         token_record.get("normalized_text") or extracted_text
     ).strip()
+    # Spatial-association tokens carry the label section inferred from a
+    # nearby text callout — there is no OCR text on the linework itself.
+    if token_record.get("geometry_associated") and token_record.get("inferred_section"):
+        inferred = str(token_record["inferred_section"]).strip()
+        if inferred and not normalized:
+            normalized = inferred
+            extracted_text = inferred
+            original = inferred
     source_file = str(
         context.get("source_file")
         or (context.get("document") or {}).get("source_file")
@@ -335,6 +345,19 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
             engineering_rules=provisional_rules.to_dict(),
         )
 
+    document = context.get("document") or {}
+    document_prior = (
+        document.get("document_prior") or {}
+        if settings.document_prior_enabled
+        else {}
+    )
+    if document_prior.get("enabled") and not protected_exact_section:
+        exact_candidates = apply_prior_to_candidates(
+            exact_candidates,
+            document_prior,
+            token_text=normalized or raw_text,
+        )
+
     expected_family = (
         str(family_label) if _is_structural_family(family_label) else None
     )
@@ -401,6 +424,12 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         )
         is not None
     ]
+    if document_prior.get("enabled") and not protected_exact_section:
+        fusion_candidates = apply_prior_to_candidates(
+            fusion_candidates,
+            document_prior,
+            token_text=normalized or raw_text,
+        )
     corrected_text = (
         corrections[0].corrected if corrections else normalized
     )
@@ -536,6 +565,7 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         graph=graph,
         candidate_scores=unified_fusion.candidate_scores,
         selected_section=section,
+        document_prior=document_prior if document_prior.get("enabled") else None,
     )
     understand = annotation_pack.get("understandability") or {}
     understandability_status = understandability_value(understand.get("status"))
@@ -964,6 +994,10 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         issues.append("annotation_ambiguous")
     if protected_label_conflict:
         issues.append("protected_label_conflict")
+    if token_record.get("schedule_sourced"):
+        issues.append("schedule_sourced_member")
+    if token_record.get("geometry_associated"):
+        issues.append("geometry_spatial_association")
 
     review_status = decide_review_status(
         confidence=float(confidence["overall"]),
@@ -975,6 +1009,8 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         abstain=retrieval_gate_failed or not section,
         protected_label_conflict=protected_label_conflict,
     )
+    if token_record.get("schedule_sourced") or token_record.get("geometry_associated"):
+        review_status = "pending_review"
     abstention_reason = determine_abstention_reason(
         review_status=review_status,
         confidence=float(confidence["overall"]),
@@ -1022,7 +1058,11 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         line_number=line_info.get("number"),
         word_number=None,  # a token may merge several source words; see token_extractor
         extraction_method=(
-            "geometry_inference"
+            "schedule_on_drawing"
+            if token_record.get("schedule_sourced")
+            else "spatial_association"
+            if token_record.get("geometry_associated")
+            else "geometry_inference"
             if token_record.get("missing_label") or not original.strip()
             else "pdf_text"
             if bbox
@@ -1186,6 +1226,11 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         "catalog_version": canonical_dict["catalog_version"],
         "needs_review": canonical_dict["needs_review"],
         "review_reason": canonical_dict["review_reason"],
+        "region_id": token_record.get("region_id"),
+        "schedule_sourced": bool(token_record.get("schedule_sourced")),
+        "geometry_associated": bool(token_record.get("geometry_associated")),
+        "spatial_association": token_record.get("spatial_association"),
+        "document_prior_applied": bool(document_prior.get("enabled")),
         # Internal only — lets predict_token() keep needs_review/review_reason
         # in sync after it recomputes review_status from regex matching.
         # Popped before the response is returned; not part of the contract.

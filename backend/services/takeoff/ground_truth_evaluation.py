@@ -130,7 +130,7 @@ def _aggregate_predictions(predictions: Iterable[dict]) -> Dict[str, dict]:
                 "rows": [],
             },
         )
-        bucket["quantity"] += 1
+        bucket["quantity"] += int(prediction.get("quantity") or 1)
         if fields["length"] is not None:
             bucket["lengths"].append(fields["length"])
         if fields["weight"] is not None:

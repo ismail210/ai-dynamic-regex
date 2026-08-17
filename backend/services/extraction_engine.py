@@ -8,13 +8,14 @@ from typing import Any, Dict
 from services.artifact_store import write_artifact
 from services.document_intelligence import build_extraction_diagnostics
 from services.annotation.fragment_grouper import group_annotation_fragments
+from services.engineering.document_prior import attach_document_prior
 from services.engineering_object_filter import filter_engineering_objects
 from services.pdf_parser import extract_document_structure
 
 
 # Bumped whenever extraction output changes, so cached documents are rebuilt
 # instead of replaying stale artifacts.
-EXTRACTION_VERSION = "3.1-annotation-fragments"
+EXTRACTION_VERSION = "3.2-document-prior"
 
 
 def extract_engineering_document(
@@ -30,6 +31,7 @@ def extract_engineering_document(
     document = extract_document_structure(str(path))
     if document_id:
         document["document_id"] = document_id
+    attach_document_prior(document)
     raw_tokens = document.get("engineering_tokens") or []
     document["raw_engineering_token_count"] = len(raw_tokens)
     # Rotation-aware merge of split shards (6 / x / 4 / x / 5/6) before filter.
@@ -103,6 +105,7 @@ def extraction_response(document: Dict[str, Any]) -> Dict[str, Any]:
             "callouts": document.get("callouts") or [],
             "dimensions": document.get("dimensions") or [],
             "title_blocks": document.get("title_blocks") or [],
+            "document_prior": document.get("document_prior") or {},
         },
         "object_counts": {
             **(document.get("object_counts") or {}),

@@ -41,6 +41,7 @@ def interpret_token_annotation(
     graph: Optional[Dict[str, Any]] = None,
     candidate_scores: Optional[List[Dict[str, Any]]] = None,
     selected_section: str = "",
+    document_prior: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """Interpret one annotation. Never raises; unusable input is unresolved."""
 
@@ -52,6 +53,7 @@ def interpret_token_annotation(
             graph=graph,
             candidate_scores=candidate_scores,
             selected_section=selected_section,
+            document_prior=document_prior,
         )
     except Exception as exc:  # one annotation must not fail the document
         logger.warning(
@@ -128,11 +130,19 @@ def _interpret(
     graph: Optional[Dict[str, Any]] = None,
     candidate_scores: Optional[List[Dict[str, Any]]] = None,
     selected_section: str = "",
+    document_prior: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     context = token.get("context") or {}
     nearby = list(context.get("neighbor_text") or [])
     if token.get("surrounding_text"):
         nearby.append(str(token.get("surrounding_text")))
+    page_context = str(context.get("line_text") or "")
+    if document_prior:
+        from services.engineering.document_prior import prior_context_blob
+
+        prior_blob = prior_context_blob(document_prior)
+        if prior_blob:
+            page_context = f"{page_context} | {prior_blob}".strip(" |")
     parsed = interpret_annotation(
         raw_text=str(token.get("raw_text") or token.get("text") or ""),
         normalized_text=str(
@@ -150,10 +160,11 @@ def _interpret(
         nearby_text=nearby,
         nearby_geometry=geometry,
         leader={"present": bool(context.get("leader"))} if context.get("leader") else None,
-        page_context=str(context.get("line_text") or ""),
+        page_context=page_context,
         graph_context=graph,
         fragments=list(token.get("fragments") or []),
         source=str(token.get("extraction_method") or "pdf_text"),
+        document_prior=document_prior,
     )
     understand = dict(
         classify_understandability(

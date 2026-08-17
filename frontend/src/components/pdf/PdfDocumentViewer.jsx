@@ -95,15 +95,58 @@ export default function PdfDocumentViewer({
     );
   }, [mode, containerSize, currentPageSize?.width, currentPageSize?.height]);
 
-  // Scrolls the page + highlight into view. Only safe to call once
-  // react-pdf's canvas has actually finished (re)rendering at `pageWidth`
-  // -- see the race this fixes, below.
+  // Scrolls the highlight into view. Only safe to call once react-pdf's
+  // canvas has actually finished (re)rendering at `pageWidth` -- see the
+  // race this fixes, below.
+  //
+  // Centers the highlight but CLAMPS to the container's real scroll range,
+  // which is why this computes offsets itself instead of using
+  // scrollIntoView({block:"center"}): a label near a page edge has no scroll
+  // offset that puts it in the middle, so the centered request resolved to
+  // nothing usable and members along the sheet border could never be
+  // located. Scrolling the container directly also keeps the movement inside
+  // the viewer -- scrollIntoView walks every scrollable ancestor, dragging
+  // the surrounding review layout with it.
   const scrollToSelection = useCallback((pageNumber) => {
+    const container = containerRef.current;
     const pageNode = pageRefs.current[pageNumber];
-    if (!pageNode) return;
-    pageNode.scrollIntoView({ behavior: "smooth", block: "center" });
-    const highlight = pageNode.querySelector('[data-bbox-highlight="active"]');
-    highlight?.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+    if (!container || !pageNode) return;
+    const target =
+      pageNode.querySelector('[data-bbox-highlight="active"]') || pageNode;
+    const containerBox = container.getBoundingClientRect();
+    const targetBox = target.getBoundingClientRect();
+
+    const centered = (offset, targetStart, containerStart, viewport, size) =>
+      offset + (targetStart - containerStart) - (viewport - size) / 2;
+    const clamp = (value, max) => Math.max(0, Math.min(value, Math.max(0, max)));
+
+    const left = clamp(
+      centered(
+        container.scrollLeft,
+        targetBox.left,
+        containerBox.left,
+        container.clientWidth,
+        targetBox.width,
+      ),
+      container.scrollWidth - container.clientWidth,
+    );
+    const top = clamp(
+      centered(
+        container.scrollTop,
+        targetBox.top,
+        containerBox.top,
+        container.clientHeight,
+        targetBox.height,
+      ),
+      container.scrollHeight - container.clientHeight,
+    );
+
+    if (typeof container.scrollTo === "function") {
+      container.scrollTo({ left, top, behavior: "smooth" });
+      return;
+    }
+    container.scrollLeft = left;
+    container.scrollTop = top;
   }, []);
 
   // A NEW selection takes over the view: navigate to its page, switch to
@@ -320,7 +363,26 @@ export default function PdfDocumentViewer({
               forwards `alignItems` straight through to a DOM node (same root
               cause as the `loading` prop above) — sx-based flex styling sidesteps
               it entirely. */}
-          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+          {/* width:max-content is what makes zoomed-in pages fully
+              scrollable. A centered flex item that is WIDER than its flex
+              container overflows equally on both sides, and the left overflow
+              sits at a negative offset that scrollLeft can never reach -- so
+              once a sheet was zoomed past the panel width, labels near its
+              left edge were clipped away with no way to scroll back to them.
+              Sizing this wrapper to its widest page means the page never
+              overflows the wrapper (centering stays safe for pages narrower
+              than the panel, via minWidth), and the wrapper itself starts at
+              scroll offset 0, so the entire sheet is reachable. */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 2,
+              width: "max-content",
+              minWidth: "100%",
+            }}
+          >
             {pages.map((pageNumber) => {
               const isSelectedPage =
                 selection?.pageNumber != null
