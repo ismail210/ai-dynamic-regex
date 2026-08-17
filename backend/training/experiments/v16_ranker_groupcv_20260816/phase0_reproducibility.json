@@ -1,0 +1,55 @@
+{
+  "experiment": "v16_ranker_groupcv_20260816",
+  "git_commit": "9efde57444bd85b9eecbd71eb24f8c7569cd0a00",
+  "git_branch": "bassam/estima3d-integration",
+  "note_uncommitted": "working tree has the same uncommitted fixes as the prior audit/Optuna phases (config.py, database_loader.py, candidates.py, corruption.py, features.py, wildcard_matcher.py, structural_parser.py) -- unchanged since those phases, not modified in this task yet",
+  "seed": 20260813,
+  "catalog_path": "database/aisc_v16_label_catalog.csv",
+  "catalog_sha256": "536885b6e503c2bfbe11714a4c4e936f524c242a9083b99f165560d2ef96207a",
+  "catalog_entries": 3842,
+  "dataset_version": "label_reconstruction_v16_20260813",
+  "pointwise_sha256": "0996341d0eff9fcfac009add3c53918d15a77779d68620df0e0bbae8ce7ed567",
+  "pairwise_sha256": "c035c533cc66c12c67b6cb5a40002a325a072b676ebf29993e47769952c1852c",
+  "manifest_sha256": "f2ea00a755c37d2fc41822f72ae922fc82029873163253a09840d7fa6e4feb69",
+  "code_files": {
+    "candidate_generator": "services/label_reconstruction/candidates.py (generate_candidates_v3, limit=25)",
+    "feature_builder": "services/label_reconstruction/features.py (pair_features, features_from_candidate_set, FEATURE_NAMES)",
+    "corruption_generator": "services/label_reconstruction/corruption.py",
+    "dataset_generation_script": "scripts/generate_label_corruption_dataset_v16.py",
+    "ranker_training_eval_script": "scripts/evaluate_v16_baselines.py",
+    "ablation_script": "scripts/ablate_v16_ranker_features.py"
+  },
+  "c1_feature_masking": {
+    "config_name": "C1_without_provenance_ranks_only",
+    "masked_features": ["deterministic_rank", "fuzzy_rank"],
+    "kept": "all other 28 of 30 FEATURE_NAMES, including all 6 reason_* one-hots"
+  },
+  "original_untuned_base_params": {
+    "tree_method": "hist",
+    "max_depth": 5,
+    "learning_rate": 0.1,
+    "n_estimators": 200,
+    "subsample": 0.9,
+    "colsample_bytree": 0.9,
+    "random_state": 20260813,
+    "objective": "rank:pairwise"
+  },
+  "grouping_key_decision": {
+    "candidates_considered": ["source_designation_id", "clean_designation"],
+    "finding": "perfect 1:1 correspondence -- 3842 unique source_designation_id, 3842 unique clean_designation, zero clean_designation maps to more than one source_designation_id",
+    "chosen_key": "source_designation_id",
+    "reason": "matches the catalog row identity the dataset generator already used for the existing designation_holdout mechanism (307 held-out source_designation_id values), so grouped-CV folds are consistent with that prior holdout logic"
+  },
+  "environment": {
+    "python_version": "3.11.9",
+    "xgboost_version": "3.2.0",
+    "optuna_version": "4.9.0"
+  },
+  "prior_experiment_dirs_not_overwritten": [
+    "training/experiments/v16_ranker_optuna_20260816/ (single-split Optuna study, rejected -- kept for record)"
+  ],
+  "legacy_external_test": {
+    "definition": "the existing pointwise.jsonl split=='test' rows (6512 rows, 2171 designation_holdout) -- already inspected multiple times during the prior Optuna phase, so no longer usable for model/feature/hyperparameter selection",
+    "policy": "used ONLY for final, post-hoc reporting in this task (Phase 0 reproduction, and the one-time comparison at the very end) -- never for selecting features, folds, trial count, search ranges, or final hyperparameters"
+  }
+}

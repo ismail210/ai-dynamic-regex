@@ -15,7 +15,9 @@ from __future__ import annotations
 
 import random
 from dataclasses import dataclass, field
-from typing import Callable, List, Optional, Tuple
+from typing import Callable, Iterable, List, Optional, Tuple
+
+from services.family_codes import MODERN_FAMILY_CODES, longest_prefix_first
 
 # ---------------------------------------------------------------------------
 # OCR confusion table (bidirectional, single characters only). Deliberately
@@ -40,11 +42,17 @@ OCR_CONFUSION = {
 
 WILDCARD_TOKENS = ("*", "?")
 
-_FAMILY_PREFIXES = sorted(
-    {"W", "WT", "HSS", "L", "2L", "C", "MC", "PIPE", "MT", "ST", "HP", "M", "S"},
-    key=len,
-    reverse=True,
-)
+_FAMILY_PREFIXES: List[str] = longest_prefix_first(MODERN_FAMILY_CODES)
+
+
+def set_family_codes(codes: Iterable[str]) -> List[str]:
+    """Override the family-code set `family_of` recognizes, e.g. to widen
+    corruption generation to the AISC v16 catalog's 37 families instead of
+    just the 13 modern ones. Returns the resulting longest-first list."""
+
+    global _FAMILY_PREFIXES
+    _FAMILY_PREFIXES = longest_prefix_first(codes)
+    return _FAMILY_PREFIXES
 
 
 @dataclass

@@ -1224,26 +1224,9 @@ def predict_token(
     section = result["section"]
     family = result.get("family")
 
-    learning = process_token(section, token, persist=persist_learning)
-    regex = learning.pattern
-    regex_matches = learning.matched or full_match(regex, token)
-    result["regex"] = regex
-    result["suggested_regex"] = learning.detail.get("candidate_pattern", regex)
-    result["regex_matches_token"] = regex_matches
-    result["learning"] = learning.to_dict()
-    result["regex_variants"] = (
-        (knowledge_base.get(section) or {}).get("variants", []) if section else []
-    )
-
     # Dynamic regex remains an output helper and cannot change AI confidence.
     conf = dict(result.get("confidence") or {})
     result["confidence"] = conf
-    result["validation"] = {
-        "matched": regex_matches,
-        "regex_confidence": round(learning.regex_confidence, 4),
-        "regex_level": learning.regex_level,
-        "database_verified": bool(result.get("database_match")),
-    }
 
     # Carry forward the REAL issues/gate signals predict_from_context already
     # computed (protected_label_conflict, retrieval_gate_failed, ...) rather
@@ -1284,10 +1267,9 @@ def predict_token(
     )
     result["uncertain"] = review_status == "pending_review"
 
-    # review_status above is recomputed from regex matching after the
+    # review_status above is recomputed from fusion/gate signals after the
     # canonical contract was already built inside predict_from_context —
-    # refresh needs_review/review_reason so they reflect this final status
-    # rather than the one computed before regex learning ran.
+    # refresh needs_review/review_reason so they reflect this final status.
     near_tie = bool(result.pop("_ranking_near_tie", False))
     match_status = str((result.get("comparison") or {}).get("match_status") or "unresolved")
     needs_review, review_reason = determine_review_from_status(
@@ -1298,6 +1280,41 @@ def predict_token(
     if isinstance(result.get("canonical"), dict):
         result["canonical"]["needs_review"] = needs_review
         result["canonical"]["review_reason"] = review_reason
+
+    # --- Self-learning persistence gate --------------------------------
+    # Only a trusted, human-verifiable resolution may be learned into the
+    # self-learning regex knowledge base as ground truth: an exact catalog
+    # match read straight from source text, or a safe formatting-only
+    # normalization that resolves to one (canonical_contract.MatchStatus
+    # EXACT_MATCH / NORMALIZED_MATCH -- the same two statuses
+    # canonical_contract accepts as ``final_label`` without nulling it).
+    # ``needs_review`` is checked too, on top of ``match_status``, so a
+    # near-tie or protected-label conflict layered on an otherwise-exact
+    # match still blocks learning. Everything else -- fuzzy correction,
+    # wildcard/mask completion, ranker prediction, geometry-only inference,
+    # ambiguous OCR, anything requiring review -- may still be SHOWN as a
+    # suggestion (via ``learning``/``suggested_regex`` below) but must never
+    # be merged into the knowledge base as an example (``learn=False``).
+    trusted_match = match_status in {"exact_match", "normalized_match"}
+    learn_from_prediction = trusted_match and not needs_review
+    learning = process_token(
+        section, token, persist=persist_learning, learn=learn_from_prediction
+    )
+    regex = learning.pattern
+    regex_matches = learning.matched or full_match(regex, token)
+    result["regex"] = regex
+    result["suggested_regex"] = learning.detail.get("candidate_pattern", regex)
+    result["regex_matches_token"] = regex_matches
+    result["learning"] = learning.to_dict()
+    result["regex_variants"] = (
+        (knowledge_base.get(section) or {}).get("variants", []) if section else []
+    )
+    result["validation"] = {
+        "matched": regex_matches,
+        "regex_confidence": round(learning.regex_confidence, 4),
+        "regex_level": learning.regex_level,
+        "database_verified": bool(result.get("database_match")),
+    }
 
     unknown_id = None
     if queue_unknown and review_status == "pending_review":

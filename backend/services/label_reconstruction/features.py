@@ -142,13 +142,26 @@ _FAMILY_SIZE_CACHE: Optional[Dict[str, int]] = None
 def _family_size(family: str) -> int:
     global _FAMILY_SIZE_CACHE
     if _FAMILY_SIZE_CACHE is None:
-        from services.database_loader import catalog_entries
-
-        counts: Dict[str, int] = {}
-        for label, _type in catalog_entries():
-            counts[family_of(label)] = counts.get(family_of(label), 0) + 1
-        _FAMILY_SIZE_CACHE = counts
+        refresh_family_size_cache()
     return _FAMILY_SIZE_CACHE.get(family, 0)
+
+
+def refresh_family_size_cache() -> Dict[str, int]:
+    """Rebuild the family-size cache from the currently loaded catalog.
+
+    Call after `services.database_loader.reload_from_pairs`/
+    `reload_from_aisc_v16_catalog` in offline training/eval contexts -- this
+    cache is otherwise built once (on first use) and never invalidated.
+    """
+
+    global _FAMILY_SIZE_CACHE
+    from services.database_loader import catalog_entries
+
+    counts: Dict[str, int] = {}
+    for label, _type in catalog_entries():
+        counts[family_of(label)] = counts.get(family_of(label), 0) + 1
+    _FAMILY_SIZE_CACHE = counts
+    return _FAMILY_SIZE_CACHE
 
 
 def _structural_diff_features(query: str, candidate: str) -> Dict[str, float]:
@@ -255,6 +268,35 @@ def pair_features(
     for name in GENERATION_REASONS:
         row[f"reason_{name}"] = 1.0 if name in reason_set else 0.0
     return row
+
+
+def features_from_candidate_set(candidate: str, candidate_set) -> Dict[str, float]:
+    """Build one candidate's feature row from a ``CandidateSet`` (as returned
+    by ``services.label_reconstruction.candidates.generate_candidates_v3``)
+    -- the single source of truth for this candidate's ``rank`` (position in
+    the generator's output), ``reasons`` (which deterministic strategy
+    proposed it), and ``fuzzy_rank``.
+
+    Training and evaluation/inference must both go through this function
+    rather than calling ``pair_features`` directly with ad-hoc
+    rank/reasons/fuzzy_rank -- that split is exactly how training and
+    serving previously diverged: ``train_ranker`` fit on
+    ``reasons=None, fuzzy_rank=None`` for every single row (so those columns
+    were constant/sentinel throughout training and the trees never learned
+    to use them), while evaluation passed the real, varying values from a
+    live ``generate_candidates_v3`` call -- feature values the model had
+    never seen vary. Routing both through one function makes that
+    divergence impossible to reintroduce by omission."""
+
+    candidates = candidate_set.candidates
+    rank = candidates.index(candidate) if candidate in candidates else None
+    return pair_features(
+        candidate_set.normalized,
+        candidate,
+        rank=rank,
+        reasons=candidate_set.generation_reasons.get(candidate),
+        fuzzy_rank=candidate_set.fuzzy_ranks.get(candidate),
+    )
 
 
 def feature_vector(

@@ -56,6 +56,7 @@ _REDIRECTED_SETTINGS = [
     "upload_log_path",
     "approved_dataset_path",
     "engineering_corrections_path",
+    "annotation_edge_cases_path",
     "continuous_learning_state_path",
 ]
 

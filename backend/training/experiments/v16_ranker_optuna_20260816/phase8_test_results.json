@@ -1,0 +1,79 @@
+{
+  "best_trial": 94,
+  "best_params": {
+    "objective": "rank:pairwise",
+    "n_estimators": 60,
+    "learning_rate": 0.043296749079790225,
+    "max_depth": 3,
+    "min_child_weight": 4.430664366578912,
+    "subsample": 0.8314522452775643,
+    "colsample_bytree": 0.9397224892680337,
+    "gamma": 3.488390122571028e-08,
+    "reg_alpha": 6.326355138468609e-05,
+    "reg_lambda": 0.13548997928008938
+  },
+  "overall": {
+    "n": 6512,
+    "top1": 0.7291154791154791,
+    "top3": 0.8037469287469288,
+    "mrr": 0.7690965669109133
+  },
+  "modern": {
+    "n": 5786,
+    "top1": 0.7290010369858279,
+    "top3": 0.8047010024196336,
+    "mrr": 0.7693134902650717
+  },
+  "historical": {
+    "n": 726,
+    "top1": 0.7300275482093664,
+    "top3": 0.7961432506887053,
+    "mrr": 0.7673677535126245
+  },
+  "holdout": {
+    "n": 2171,
+    "top1": 0.740672501151543,
+    "top3": 0.8070013818516812,
+    "mrr": 0.7768441852866889
+  },
+  "seen_designation": {
+    "n": 4341,
+    "top1": 0.7233356369500116,
+    "top3": 0.80211932734393,
+    "mrr": 0.7652218653458807
+  },
+  "candidate_gen_failures": 1036,
+  "ranker_failures": 728,
+  "recall_anywhere": 0.8409090909090909,
+  "ranker_failure_by_corruption": {
+    "multi_corruption_severity_3": 229,
+    "multi_corruption_severity_2": 159,
+    "unknown_char_multi": 106,
+    "char_deletion_trailing": 78,
+    "char_deletion_interior": 52,
+    "unknown_char_single": 47,
+    "multi_corruption_severity_4": 35,
+    "missing_family_prefix": 16,
+    "family_only_partial": 2,
+    "added_suffix_letter": 2,
+    "separator_space": 1,
+    "L_to_1": 1
+  },
+  "ranker_failure_by_family": {
+    "HSS": 204,
+    "W": 129,
+    "2L": 105,
+    "WT": 78,
+    "S": 50,
+    "L": 47,
+    "ST R": 38,
+    "PIPE": 10,
+    "MC": 9,
+    "ST S": 9,
+    "P": 6,
+    "ST": 5,
+    "XXP": 5,
+    "C": 4,
+    "H": 4
+  }
+}

@@ -24,19 +24,46 @@ from dataclasses import dataclass, field
 from typing import List, Optional, Tuple
 
 from services.database_loader import catalog_entries
+from services.family_codes import MODERN_FAMILY_CODES, longest_prefix_first, split_family
 
 WILDCARD_CHARS = "*?"
 
-# Longest-prefix-first so "WT"/"HSS"/"2L" are not swallowed by a shorter
-# "W"/"H"/"L" match when scanning from the start of the label.
-_FAMILY_PREFIXES = sorted(
-    {"W", "WT", "HSS", "L", "2L", "C", "MC", "PIPE", "MT", "ST", "HP", "M", "S"},
-    key=len,
-    reverse=True,
-)
 
-_DEPTH_RE = re.compile(r"^(\d+)")
-_WEIGHT_RE = re.compile(r"X(\d+)")
+def _compute_family_prefixes() -> List[str]:
+    """Family codes recognized for splitting/matching, longest-first.
+
+    Derived from whatever catalog is currently loaded
+    (`services.database_loader.catalog_entries()`) rather than a hardcoded
+    literal list, unioned with the 13-family floor so recognition never
+    regresses below today's behavior even against an unusual catalog swap.
+    """
+
+    families = {shape_type for _label, shape_type in catalog_entries()}
+    return longest_prefix_first(families | set(MODERN_FAMILY_CODES))
+
+
+_FAMILY_PREFIXES: List[str] = _compute_family_prefixes()
+
+
+def refresh_family_prefixes() -> List[str]:
+    """Recompute `_FAMILY_PREFIXES` from the currently loaded catalog.
+
+    Call this after `services.database_loader.reload_from_pairs`/
+    `reload_from_aisc_v16_catalog` in offline training/eval contexts. The
+    live prediction path never reloads the catalog mid-process (it is
+    loaded once at import), so it never needs to call this.
+    """
+
+    global _FAMILY_PREFIXES
+    _FAMILY_PREFIXES = _compute_family_prefixes()
+    return _FAMILY_PREFIXES
+
+
+# Depth/weight may be decimal (e.g. round HSS/PIPE store diameter and wall
+# thickness as "10.750"/"0.188") — matching digits only silently truncated
+# these to "10"/"0", which was wrong for every decimal-dimension label.
+_DEPTH_RE = re.compile(r"^(\d+(?:\.\d+)?)")
+_WEIGHT_RE = re.compile(r"X(\d+(?:\.\d+)?)")
 _NUMBER_WORDS = {1: "One", 2: "Two", 3: "Three", 4: "Four", 5: "Five", 6: "Six"}
 
 
@@ -74,10 +101,7 @@ def _split_family(text: str) -> Tuple[str, str]:
     known family prefix. Returns ``("", text)`` when no family is recognized
     (wildcards inside the family prefix itself are not currently supported)."""
 
-    for family in _FAMILY_PREFIXES:
-        if text.startswith(family):
-            return family, text[len(family):]
-    return "", text
+    return split_family(text, _FAMILY_PREFIXES)
 
 
 def _mask_pattern(remainder: str) -> "re.Pattern[str]":

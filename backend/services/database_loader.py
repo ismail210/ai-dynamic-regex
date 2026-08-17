@@ -11,51 +11,95 @@ from __future__ import annotations
 import re
 from difflib import SequenceMatcher
 from functools import lru_cache
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import pandas as pd
 
 from config import settings
 
-# Load database once.
-df = pd.read_excel(settings.database_file, sheet_name=settings.database_sheet)
-
-# Normalize labels once (upper-case, no spaces) for fast exact matching.
-labels = (
-    df["AISC_Manual_Label"]
-    .astype(str)
-    .str.upper()
-    .str.replace(" ", "", regex=False)
-)
-
-# Row-by-row `df.iloc[...]` costs ~1ms per access, which made a per-token scan
-# of the whole database dominate every upload. The same columns are materialized
-# once as plain lists so the scan below is pure Python indexing.
-_NORMALIZED_LABELS: List[str] = labels.tolist()
-_SHAPES: List[str] = df["AISC_Manual_Label"].astype(str).tolist()
-_TYPES: List[str] = df["Type"].astype(str).tolist()
-_LABEL_PREFIXES: List[str] = [
-    "".join(char for char in label if char.isalpha())[:3]
-    for label in _NORMALIZED_LABELS
-]
-
-# One matcher per database label, each holding the label as the second sequence.
-# `SequenceMatcher` only builds its expensive b-chain when the second sequence
-# changes, so reusing these keeps that work to once per process instead of once
-# per token comparison.
-_MATCHERS: List[SequenceMatcher] = [
-    SequenceMatcher(None, "", label) for label in _NORMALIZED_LABELS
-]
-
-
-# Exact lookup is a dictionary hit rather than a boolean mask over the whole
-# frame, which cost milliseconds on every token of every drawing. The first
-# matching row wins, matching the previous `result.iloc[0]` behaviour.
+# Mutable module state, populated by `_build_indices()` below. The only way
+# any of this changes is a full, atomic rebuild via `_build_indices` — never
+# a partial mutation, so no caller can ever observe a half-swapped catalog.
+df: pd.DataFrame
+_NORMALIZED_LABELS: List[str] = []
+_SHAPES: List[str] = []
+_TYPES: List[str] = []
+_LABEL_PREFIXES: List[str] = []
+_MATCHERS: List[SequenceMatcher] = []
 _LABEL_INDEX: dict[str, dict] = {}
-for _index, _label in enumerate(_NORMALIZED_LABELS):
-    _LABEL_INDEX.setdefault(
-        _label, {"shape": _SHAPES[_index], "type": _TYPES[_index]}
+_ACTIVE_SOURCE: str = ""
+
+
+def _build_indices(pairs: List[Tuple[str, str]], *, source: str) -> None:
+    """(Re)build every module-level lookup structure from ``(label, type)``
+    pairs."""
+
+    global df, _NORMALIZED_LABELS, _SHAPES, _TYPES, _LABEL_PREFIXES
+    global _MATCHERS, _LABEL_INDEX, _ACTIVE_SOURCE
+
+    shapes = [str(label) for label, _type in pairs]
+    types = [str(_type) for _label, _type in pairs]
+    df = pd.DataFrame({"AISC_Manual_Label": shapes, "Type": types})
+
+    normalized_labels = [label.upper().replace(" ", "") for label in shapes]
+
+    _SHAPES = shapes
+    _TYPES = types
+    _NORMALIZED_LABELS = normalized_labels
+    _LABEL_PREFIXES = [
+        "".join(char for char in label if char.isalpha())[:3]
+        for label in normalized_labels
+    ]
+    # One matcher per database label, each holding the label as the second
+    # sequence. `SequenceMatcher` only builds its expensive b-chain when the
+    # second sequence changes, so reusing these keeps that work to once per
+    # process instead of once per token comparison.
+    _MATCHERS = [SequenceMatcher(None, "", label) for label in normalized_labels]
+
+    # Exact lookup is a dictionary hit rather than a boolean mask over the
+    # whole frame, which cost milliseconds on every token of every drawing.
+    # The first matching row wins, matching the previous `result.iloc[0]`
+    # behaviour.
+    label_index: dict[str, dict] = {}
+    for index, label in enumerate(normalized_labels):
+        label_index.setdefault(label, {"shape": shapes[index], "type": types[index]})
+    _LABEL_INDEX = label_index
+    _ACTIVE_SOURCE = source
+
+    _scan_similar_shapes.cache_clear()
+
+
+def _default_pairs() -> Tuple[List[Tuple[str, str]], str]:
+    source_df = pd.read_excel(settings.database_file, sheet_name=settings.database_sheet)
+    pairs = list(
+        zip(
+            source_df["AISC_Manual_Label"].astype(str).tolist(),
+            source_df["Type"].astype(str).tolist(),
+        )
     )
+    return pairs, f"{settings.database_file.name}#{settings.database_sheet}"
+
+
+def reload_from_pairs(pairs: List[Tuple[str, str]], *, source: str) -> None:
+    """Swap the active catalog to arbitrary ``(label, type)`` pairs.
+
+    For offline training/evaluation use only (e.g. pointing candidate
+    generation at the larger AISC v16 all-editions catalog while it is being
+    prepared). The live prediction path never calls this — production always
+    loads ``settings.database_file``/``settings.database_sheet`` at import,
+    via `reset_to_default()`/the module-level load below.
+    """
+
+    if not pairs:
+        raise ValueError("reload_from_pairs requires at least one (label, type) pair")
+    _build_indices(pairs, source=source)
+
+
+def reset_to_default() -> None:
+    """Restore the production catalog (settings.database_file/sheet)."""
+
+    pairs, source = _default_pairs()
+    _build_indices(pairs, source=source)
 
 
 def lookup_shape(token: str) -> Optional[dict]:
@@ -66,9 +110,31 @@ def lookup_shape(token: str) -> Optional[dict]:
 
 
 def catalog_version() -> str:
-    """Identify the loaded AISC catalog file/sheet for response provenance."""
+    """Identify the currently active catalog source for response provenance."""
 
-    return f"{settings.database_file.name}#{settings.database_sheet}"
+    return _ACTIVE_SOURCE
+
+
+def reload_from_aisc_v16_catalog(path=None, *, scope: Optional[str] = None) -> "object":
+    """Swap the active catalog to the derived AISC v16 all-editions catalog.
+
+    Offline/training use only (see `reload_from_pairs`). ``scope`` optionally
+    restricts to ``"modern"`` or ``"historical"`` entries
+    (`services.aisc_v16_catalog.CatalogEntry.catalog_scope`); ``None`` loads
+    every entry. Returns the loaded `AiscV16Catalog` so callers can inspect
+    provenance without re-reading the CSV.
+    """
+
+    from services.aisc_v16_catalog import load_catalog
+
+    catalog = load_catalog(path)
+    entries = catalog.entries() if scope is None else catalog.entries_by_scope(scope)
+    if not entries:
+        raise ValueError(f"no catalog entries found for scope={scope!r}")
+    pairs = [(entry.designation, entry.family) for entry in entries]
+    label = "aisc_v16_label_catalog.csv" if scope is None else f"aisc_v16_label_catalog.csv[{scope}]"
+    reload_from_pairs(pairs, source=label)
+    return catalog
 
 
 def catalog_entries() -> List[tuple[str, str]]:
@@ -177,3 +243,8 @@ def _scan_similar_shapes(
 
     candidates.sort(key=lambda item: (-item["similarity"], item["shape"]))
     return tuple(candidates[:limit])
+
+
+# Load the production database once, at import time. This is the only
+# catalog the live prediction path ever uses.
+reset_to_default()

@@ -34,6 +34,33 @@ class ParseSectionTests(unittest.TestCase):
     def test_unknown_family_returns_none(self):
         self.assertIsNone(parse_section("ZZ4X4"))
 
+    def test_round_hss_decimal_depth_and_weight_not_truncated(self):
+        # Real catalog label (services.database_loader): round HSS store
+        # diameter/wall as decimals. `_DEPTH_RE`/`_WEIGHT_RE` used to match
+        # digits only, so "28.000X1.000" parsed as depth=28.0, weight=0.0 —
+        # truncated at the decimal point instead of reading the real value.
+        parsed = parse_section("HSS28.000X1.000")
+        self.assertIsNotNone(parsed)
+        assert parsed is not None
+        self.assertEqual(parsed.family, "HSS")
+        self.assertEqual(parsed.depth, 28.0)
+        self.assertEqual(parsed.weight, 1.0)
+        self.assertTrue(parsed.catalog_valid)
+
+    def test_round_hss_decimal_with_fractional_wall_not_truncated(self):
+        parsed = parse_section("HSS10.750X0.188")
+        self.assertIsNotNone(parsed)
+        assert parsed is not None
+        self.assertEqual(parsed.depth, 10.75)
+        self.assertEqual(parsed.weight, 0.188)
+
+    def test_pipe_decimal_depth_not_truncated(self):
+        parsed = parse_section("PIPE10.750X0.188")
+        self.assertIsNotNone(parsed)
+        assert parsed is not None
+        self.assertEqual(parsed.family, "PIPE")
+        self.assertEqual(parsed.depth, 10.75)
+
 
 class OcrEditCostTests(unittest.TestCase):
     def test_identical_is_zero(self):

@@ -34,6 +34,14 @@ class Settings:
 
     database_file: Path = BASE_DIR / "database" / "aisc-shapes-database-v160-2.xlsx"
     database_sheet: str = "Database v16.0"
+    # Derived, all-editions canonical label catalog (see
+    # scripts/prepare_aisc_v16_catalog.py). Not wired into the production
+    # prediction pipeline yet — services.database_loader (backed by
+    # database_file/database_sheet above) remains authoritative until a
+    # promoted cutover.
+    aisc_v16_label_catalog_path: Path = (
+        BASE_DIR / "database" / "aisc_v16_label_catalog.csv"
+    )
 
     # ---- ML artifacts --------------------------------------------------
     model_path: Path = BASE_DIR / "training" / "best_model.pkl"
