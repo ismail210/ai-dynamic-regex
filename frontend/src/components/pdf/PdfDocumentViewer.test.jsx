@@ -15,6 +15,15 @@ const loadCallbacks = {};
 const PAGE_WIDTH_PTS = 3024;
 const PAGE_HEIGHT_PTS = 2160;
 
+// @mui/icons-material's barrel is ~11k modules, more than macOS's 10240
+// per-process file descriptor cap allows Vite to transform at once (EMFILE
+// during collection). The zoom buttons are found by their aria-labels, so the
+// glyphs themselves are irrelevant here.
+vi.mock("@mui/icons-material", () => ({
+  ZoomIn: () => <span />,
+  ZoomOut: () => <span />,
+}));
+
 vi.mock("react-pdf", () => ({
   pdfjs: { GlobalWorkerOptions: {} },
   Document: ({ children, onLoadSuccess }) => {
@@ -101,7 +110,10 @@ describe("PdfDocumentViewer zoom-to-selection scroll timing", () => {
 
   beforeEach(() => {
     scrollSpy = vi.fn();
-    Element.prototype.scrollIntoView = scrollSpy;
+    // The viewer scrolls its own container rather than delegating to
+    // scrollIntoView, so that a label near a page edge clamps to the nearest
+    // visible offset instead of asking for an impossible centered one.
+    Element.prototype.scrollTo = scrollSpy;
     // jsdom's requestAnimationFrame is timer-based and not reliably fast in
     // a test environment; fire synchronously so the "already at target
     // width" fallback path is deterministic instead of timing-dependent.
@@ -169,11 +181,97 @@ describe("PdfDocumentViewer zoom-to-selection scroll timing", () => {
   });
 });
 
+// jsdom has no layout engine, so the scroll geometry the viewer reads
+// (getBoundingClientRect / clientWidth / scrollWidth) has to be supplied
+// explicitly. These stand in for a sheet zoomed well past the panel width,
+// which is the only situation where an edge label can fall outside the
+// viewport in the first place.
+function stubScrollGeometry(container, { targetLeft, targetTop, scrollLeft = 0, scrollTop = 0 }) {
+  const scroller = container.querySelector('[data-testid="pdf-scroll-container"]');
+  Object.defineProperty(scroller, "clientWidth", { value: 731, configurable: true });
+  Object.defineProperty(scroller, "clientHeight", { value: 403, configurable: true });
+  Object.defineProperty(scroller, "scrollWidth", { value: 3000, configurable: true });
+  Object.defineProperty(scroller, "scrollHeight", { value: 2000, configurable: true });
+  scroller.scrollLeft = scrollLeft;
+  scroller.scrollTop = scrollTop;
+  scroller.getBoundingClientRect = () => ({
+    left: 0, top: 0, right: 731, bottom: 403, width: 731, height: 403,
+  });
+  const highlight = container.querySelector('[data-bbox-highlight="active"]');
+  highlight.getBoundingClientRect = () => ({
+    left: targetLeft,
+    top: targetTop,
+    right: targetLeft + 40,
+    bottom: targetTop + 12,
+    width: 40,
+    height: 12,
+  });
+  return scroller;
+}
+
+describe("PdfDocumentViewer locating labels at a page edge", () => {
+  let scrollSpy;
+
+  beforeEach(() => {
+    scrollSpy = vi.fn();
+    Element.prototype.scrollTo = scrollSpy;
+    vi.spyOn(window, "requestAnimationFrame").mockImplementation((cb) => {
+      cb();
+      return 1;
+    });
+  });
+
+  afterEach(() => {
+    delete renderCallbacks[1];
+    vi.restoreAllMocks();
+  });
+
+  function selectAndScroll(geometry) {
+    const { container, rerender } = render(
+      <PdfDocumentViewer fileUrl="test.pdf" selection={null} />,
+    );
+    finishRender(1);
+    rerender(
+      <PdfDocumentViewer
+        fileUrl="test.pdf"
+        selection={{ key: "edge", pageNumber: 1, boundingBox: [4, 8, 44, 20] }}
+      />,
+    );
+    stubScrollGeometry(container, geometry);
+    finishRender(1);
+    return scrollSpy.mock.calls.at(-1)?.[0];
+  }
+
+  it("scrolls to a label at the left edge instead of requesting an unreachable centered offset", () => {
+    // Centering a label 4pt from the left border would need a negative
+    // scroll offset, which is why these members previously never came into
+    // view. Clamping to 0 shows the sheet's left edge, label included.
+    const scroll = selectAndScroll({ targetLeft: -1200, targetTop: 150, scrollLeft: 1200 });
+
+    expect(scroll).toBeTruthy();
+    expect(scroll.left).toBe(0);
+    expect(scroll.left).toBeGreaterThanOrEqual(0);
+  });
+
+  it("clamps to the maximum scroll offset for a label at the right edge", () => {
+    const scroll = selectAndScroll({ targetLeft: 4000, targetTop: 150 });
+
+    // scrollWidth - clientWidth, i.e. as far right as the panel can go.
+    expect(scroll.left).toBe(3000 - 731);
+  });
+
+  it("never emits a negative vertical offset for a label at the top edge", () => {
+    const scroll = selectAndScroll({ targetLeft: 300, targetTop: -900, scrollTop: 900 });
+
+    expect(scroll.top).toBe(0);
+  });
+});
+
 describe("PdfDocumentViewer Fit Page / manual zoom / resize", () => {
   let originalResizeObserver;
 
   beforeEach(() => {
-    Element.prototype.scrollIntoView = vi.fn();
+    Element.prototype.scrollTo = vi.fn();
     vi.spyOn(window, "requestAnimationFrame").mockImplementation((cb) => {
       cb();
       return 1;

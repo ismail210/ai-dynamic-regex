@@ -27,6 +27,7 @@ from services.annotation.taxonomy import (
     SECTION_SUBTYPES,
 )
 from services.database_loader import catalog_form
+from services.engineering.document_prior import plate_context_from_prior
 from services.section_parser import parse_section
 from services.wildcard_matcher import has_wildcards
 
@@ -108,6 +109,7 @@ def interpret_annotation(
     graph_context: Optional[Dict[str, Any]] = None,
     fragments: Optional[List[Dict[str, Any]]] = None,
     source: str = "pdf_text",
+    document_prior: Optional[Dict[str, Any]] = None,
 ) -> AnnotationParse:
     """Parse without destroying raw text. Plate semantics need context confirm."""
 
@@ -206,6 +208,15 @@ def interpret_annotation(
         or angle is not None
         or "bent" in geom_role
     )
+    prior_plate = plate_context_from_prior(
+        document_prior,
+        normalized=normalized,
+        compact=compact,
+    )
+    if prior_plate.get("supports_bent_plate") and (
+        compact.upper().startswith("BP") or compact.upper().startswith("BENT")
+    ):
+        bent_hint = True
     compound = _COMPOUND_DIM.match(re.sub(r"\s+", "", re.sub(r"^(?:PL|PLATE|BP)\s*", "", normalized, flags=re.I)))
     parts = split_dimension_parts(normalized)
 
@@ -216,9 +227,11 @@ def interpret_annotation(
         context_supports_plate = bool(
             plate_headed
             or "PLATE" in context_blob.upper()
+            or "LEGEND_CONFIRMS_PLATES" in context_blob.upper()
             or geom_role in {"plate", "connection"}
             or graph_role in {"plate", "connection"}
             or bool(leader)
+            or prior_plate.get("supports_plate")
         )
         if bent_hint and context_supports_plate:
             result.annotation_type = AnnotationType.BENT_PLATE.value
