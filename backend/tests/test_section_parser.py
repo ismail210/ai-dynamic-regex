@@ -88,6 +88,37 @@ class PlausibilityTests(unittest.TestCase):
     def test_empty_ocr_allows_candidate(self):
         self.assertTrue(plausible_against_ocr("W12X26", ""))
 
+    def test_w_shape_weight_mismatch_still_tolerated(self):
+        """Weight-per-foot is the OCR-uncertain digit for W/S/M/C; only depth
+        is a hard constraint there (unlike HSS/angle second dimensions)."""
+
+        self.assertTrue(plausible_against_ocr("W12X26", "W12X22"))
+
+    def test_hss_rejects_wrong_second_dimension(self):
+        """Both HSS outside dimensions are read directly from the text and
+        are equally certain; HSS8X8 must not accept an HSS8X6 candidate."""
+
+        self.assertFalse(plausible_against_ocr("HSS8X6X3/8", "HSS8X8"))
+
+    def test_hss_accepts_matching_second_dimension(self):
+        self.assertTrue(plausible_against_ocr("HSS8X8X3/8", "HSS8X8"))
+
+    def test_hss_missing_thickness_still_unconstrained_on_thickness(self):
+        """Depth and width known from OCR must match; thickness — never
+        present in the OCR text — is not a constraint here at all."""
+
+        self.assertTrue(plausible_against_ocr("HSS10X10X1/2", "HSS10X10"))
+        self.assertTrue(plausible_against_ocr("HSS10X10X5/16", "HSS10X10"))
+
+    def test_angle_rejects_wrong_second_dimension(self):
+        self.assertFalse(plausible_against_ocr("L6X4X5/16", "L6X6"))
+
+    def test_hss_second_dimension_unconstrained_when_ocr_only_gives_one(self):
+        """A bare depth-only OCR read (no second dimension at all) must stay
+        unconstrained on width, same as it already is for thickness."""
+
+        self.assertTrue(plausible_against_ocr("HSS8X6X3/8", "HSS8"))
+
 
 if __name__ == "__main__":
     unittest.main()

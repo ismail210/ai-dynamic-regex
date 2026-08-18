@@ -16,6 +16,14 @@ from services.database_loader import is_catalog_label, lookup_shape
 from services.exact_section_predictor import normalize_section_text
 from services.wildcard_matcher import _DEPTH_RE, _FAMILY_PREFIXES, _WEIGHT_RE
 
+# Families whose parsed ``weight`` field holds a second *geometric* outside
+# dimension (HSS/angle depth x width) rather than a weight-per-foot number.
+# Only for these is a known second dimension as certain as depth and thus a
+# hard constraint; a W/S/M/C "weight" is routinely the OCR-uncertain digit
+# and legitimately gets corrected to a different valid weight at the same
+# depth (see PlausibilityTests.test_same_family_and_depth).
+_DUAL_DIMENSION_FAMILIES = {"HSS", "L", "2L"}
+
 # Near-free OCR confusions; digit↔digit swaps inside dimensions are expensive.
 _OCR_NEAR_FREE = {
     ("0", "O"),
@@ -194,8 +202,11 @@ def plausible_against_ocr(candidate: object, ocr_text: object) -> bool:
     True when ``candidate`` is structurally consistent with OCR text.
 
     Requires the same family. When OCR depth is readable, candidate depth must
-    match. Empty OCR / unparseable OCR is treated as unconstrained (True) so
-    geometry-only rows are not blocked.
+    match. For HSS/angle families, the second parsed dimension is the other
+    known outside dimension (not a weight-per-foot number), so it must match
+    too when both are readable — a read of "8X6" must not be satisfied by an
+    "8X8" candidate. Empty OCR / unparseable OCR is treated as unconstrained
+    (True) so geometry-only rows are not blocked.
     """
 
     ocr = parse_section(ocr_text)
@@ -207,5 +218,12 @@ def plausible_against_ocr(candidate: object, ocr_text: object) -> bool:
     if ocr.family != cand.family:
         return False
     if ocr.depth is not None and cand.depth is not None and ocr.depth != cand.depth:
+        return False
+    if (
+        ocr.family in _DUAL_DIMENSION_FAMILIES
+        and ocr.weight is not None
+        and cand.weight is not None
+        and ocr.weight != cand.weight
+    ):
         return False
     return True

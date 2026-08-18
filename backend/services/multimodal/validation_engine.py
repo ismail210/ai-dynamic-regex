@@ -1,7 +1,9 @@
 """Multimodal takeoff validation — not database-existence checks.
 
 Produces PASS / WARNING / FAIL issues across extraction, prediction,
-geometry, graph, engineering rules, duplicates, quantities, and labels.
+geometry, graph, engineering rules, quantities, and labels. The same
+catalog-valid section repeating across independent members is normal
+structural-drawing data, not an issue, and is never flagged on its own.
 Database agreement is reported as evidence only and never alone decides FAIL.
 """
 
@@ -17,7 +19,6 @@ ISSUE_TYPES = (
     "geometry_consistency",
     "graph_consistency",
     "engineering_rules",
-    "duplicate_members",
     "missing_members",
     "impossible_members",
     "wrong_section_names",
@@ -207,7 +208,7 @@ def _worst(statuses: List[str]) -> str:
     return max(statuses, key=lambda item: SEVERITY_RANK.get(item, 0))
 
 
-def _token_issues(prediction: dict, *, duplicates: Counter) -> List[dict]:
+def _token_issues(prediction: dict) -> List[dict]:
     issues: List[dict] = []
     section = _section(prediction)
     family = _family(prediction)
@@ -488,33 +489,10 @@ def _token_issues(prediction: dict, *, duplicates: Counter) -> List[dict]:
             )
         )
 
-    if section and duplicates[section] > 1:
-        issues.append(
-            _issue(
-                issue_type="duplicate_members",
-                severity="WARNING",
-                why=(
-                    f"Section {section} appears {duplicates[section]} times; "
-                    "verify whether duplicates are intentional members"
-                ),
-                evidence={
-                    "section": section,
-                    "count": duplicates[section],
-                    "merged_from": prediction.get("merged_from") or [],
-                },
-                suggested_correction={
-                    "section": section,
-                    "action": "confirm_or_deduplicate",
-                    "reason": "Review duplicate member detections",
-                    "source": "duplicate_detector",
-                },
-                component_id=component_id,
-                object_id=object_id,
-                original_token=original,
-                predicted_shape=section,
-                approvable=True,
-            )
-        )
+    # The same catalog-valid section legitimately labels many independent
+    # members (e.g. every W16X26 beam on a floor) — occurrence count alone is
+    # not evidence of a problem, so it is exposed only as data
+    # (predicted_quantity, below) and never raised as a review issue here.
 
     # Impossible / wrong section names from multimodal signals — not DB miss.
     impossible = False
@@ -805,7 +783,6 @@ def validate_multimodal_predictions(
         for prediction in predictions
         if _section(prediction)
     )
-    duplicates = Counter(predicted_counts)
 
     all_issues: List[dict] = []
     tokens: List[dict] = []
@@ -852,7 +829,7 @@ def validate_multimodal_predictions(
         )
 
     for prediction in predictions:
-        token_issue_list = _token_issues(prediction, duplicates=duplicates)
+        token_issue_list = _token_issues(prediction)
         all_issues.extend(token_issue_list)
         actionable = [
             item

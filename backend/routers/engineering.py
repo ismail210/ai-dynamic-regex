@@ -27,6 +27,7 @@ from services.engineering.correction_dataset import (
 )
 from services.engineering.excel_loader import load_aisc_catalog, load_engineering_excel
 from services.engineering.geometry_adapters import geometry_capabilities
+from services.human_selections import record_human_selection
 from services.multimodal.encoder_registry import encoder_registry
 from services.stage_runner import run_shared_stage
 from services.staged_pipeline import run_analysis_stage, run_extraction_stage
@@ -336,6 +337,26 @@ def post_correction(body: CorrectionRequest):
     except Exception as exc:
         # Edge-case capture must never fail the reviewer's correction.
         logger.warning("edge-case capture skipped: %s", exc)
+
+    # Missing-thickness (and similar catalog-candidate) resolution: persist
+    # the reviewer's choice so it's served back on future reads (see
+    # services.human_selections / services.staged_pipeline
+    # ._apply_human_selections). Deliberately its own branch, not merged
+    # into the approve/edit/correct branch below -- that one also advances
+    # the continuous-learning approval counter, which this decision path
+    # must never do.
+    if (
+        body.user_decision == "human_review_selection"
+        and body.correct_label
+        and body.document_id
+        and body.object_id
+    ):
+        record_human_selection(
+            document_id=body.document_id,
+            object_id=body.object_id,
+            section=body.correct_label,
+            notes=body.notes or "",
+        )
 
     approved = None
     if body.user_decision in {"approve", "edit", "correct"} and body.correct_label:

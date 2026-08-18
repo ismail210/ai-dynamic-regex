@@ -106,6 +106,14 @@ class MultiModalPrediction:
     evidence_source: List[str] = field(default_factory=list)
     prediction_source: str = "Fusion"
     missing_label_prediction: Optional[dict] = None
+    # Missing-thickness HSS completion (services.hss_completion): "complete"
+    # for an ordinary prediction, "missing_thickness" when known dimensions
+    # were read but thickness wasn't -- see canonical_contract.MatchStatus
+    # .MISSING_DIMENSION_FIELD, which is what actually nulls `final_label`
+    # for this case. These three are additive/informational for the UI.
+    completion_status: str = "complete"
+    known_dimensions: Optional[List[str]] = None
+    candidate_sections: Optional[List[dict]] = None
 
     def to_dict(self) -> dict:
         fusion = self.feature_bundle.fusion or {}
@@ -157,6 +165,9 @@ class MultiModalPrediction:
             "graph_preview": self.graph_preview,
             "ai_first": True,
             "database_decides_prediction": False,
+            "completion_status": self.completion_status,
+            "known_dimensions": self.known_dimensions,
+            "candidate_sections": self.candidate_sections,
         }
         # Canonical contract (see services.prediction.canonical_contract).
         # New consumers should read from here; the fields above remain only

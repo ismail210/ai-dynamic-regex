@@ -184,6 +184,16 @@ class Settings:
     engineering_corrections_path: Path = (
         BASE_DIR / "training" / "engineering_corrections.jsonl"
     )
+    # Reviewer's final choice among catalog-valid completions for a
+    # missing-thickness (or similarly ambiguous) designation. Separate from
+    # engineering_corrections_path: that file is a training-data log, not
+    # something read back at analysis-serve time. This one IS read back
+    # (services.staged_pipeline.load_cached_analysis) so a human decision
+    # survives a refresh instead of the served prediction reverting to
+    # "select a candidate".
+    human_selections_path: Path = (
+        BASE_DIR / "training" / "human_selections.json"
+    )
     engineering_uploads_dir: Path = BASE_DIR / "uploads" / "engineering"
     document_registry_dir: Path = BASE_DIR / "training" / "documents"
 

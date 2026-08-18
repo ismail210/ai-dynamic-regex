@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 import {
   getCanonicalPrediction,
   getDisplayConfidence,
+  getDisplaySection,
   getMatchStatus,
   getPredictionLocation,
   hasCanonicalContract,
+  isHumanReviewed,
   isLegacyPrediction,
   LEGACY_PROVENANCE_MESSAGE,
 } from "./predictionContract";
@@ -105,6 +107,109 @@ describe("predictionContract canonical helpers", () => {
     const display = getDisplayConfidence(calibrated);
     expect(display.isCalibrated).toBe(true);
     expect(display.value).toBe(0.77);
+  });
+});
+
+// A missing-thickness HSS read (services.hss_completion /
+// canonical_contract.MatchStatus.MISSING_DIMENSION_FIELD) must show as
+// "needs a human choice", never as one candidate presented as the answer.
+describe("getDisplaySection — missing-thickness HSS never shows a guess as final", () => {
+  it("reports review-required with no value when candidates remain and final_label is null", () => {
+    const result = {
+      canonical: {
+        prediction: { final_label: null },
+        comparison: { match_status: "missing_dimension_field" },
+        needs_review: true,
+        review_reason:
+          "Wall thickness is not present in the extracted designation; select the correct catalog section.",
+      },
+      section: "HSS10X10X1/2",
+      completion_status: "missing_thickness",
+      known_dimensions: ["10", "10"],
+      candidate_sections: [
+        { designation: "HSS10X10X3/16", thickness: "3/16" },
+        { designation: "HSS10X10X1/2", thickness: "1/2" },
+      ],
+    };
+    const display = getDisplaySection(result);
+    expect(display.reviewRequired).toBe(true);
+    expect(display.value).toBeNull();
+    expect(display.reason).toMatch(/wall thickness/i);
+    expect(display.hasCandidates).toBe(true);
+  });
+
+  it("shows the resolved value for an ordinary complete prediction", () => {
+    const result = {
+      canonical: {
+        prediction: { final_label: "W16X26" },
+        comparison: { match_status: "exact_match" },
+        needs_review: false,
+        review_reason: null,
+      },
+      section: "W16X26",
+      completion_status: "complete",
+    };
+    const display = getDisplaySection(result);
+    expect(display.reviewRequired).toBe(false);
+    expect(display.value).toBe("W16X26");
+  });
+
+  it("is review-required (with no candidate list) when needs_review is true and final_label is null even without a candidate_sections array", () => {
+    // Real failure: OCR read a complete-LOOKING but non-catalog-valid label
+    // (e.g. "W10X24", which isn't a real AISC shape), and fuzzy/fusion
+    // correction landed on an unrelated size ("W10X49") with 0 confidence.
+    // The canonical contract already nulls final_label for this
+    // (match_status "corrected_prediction" is in _REVIEW_REASONS) -- the
+    // display must never fall back to showing that low-confidence guess as
+    // if it were a resolved section just because there's no HSS-style
+    // candidate_sections list to pick from instead.
+    const result = {
+      canonical: {
+        prediction: { final_label: null },
+        comparison: { match_status: "corrected_prediction" },
+        needs_review: true,
+        review_reason: "Source text differs from predicted label.",
+      },
+      section: "W10X49",
+    };
+    const display = getDisplaySection(result);
+    expect(display.reviewRequired).toBe(true);
+    expect(display.value).toBeNull();
+    expect(display.hasCandidates).toBe(false);
+  });
+});
+
+describe("isHumanReviewed — explicit provenance only, never inferred from needs_review", () => {
+  it("is true when decision_source is human_review", () => {
+    expect(isHumanReviewed({ decision_source: "human_review" })).toBe(true);
+  });
+
+  it("is true when only the canonical match_status says human_resolved", () => {
+    expect(
+      isHumanReviewed({
+        canonical: { comparison: { match_status: "human_resolved" } },
+      }),
+    ).toBe(true);
+  });
+
+  it("is false for an ordinary auto-accepted row with no review needed", () => {
+    // needs_review === false must NOT be mistaken for human review -- most
+    // model-resolved rows also have no review requirement.
+    expect(
+      isHumanReviewed({
+        needs_review: false,
+        canonical: { comparison: { match_status: "exact_match" } },
+      }),
+    ).toBe(false);
+  });
+
+  it("is false for a row still pending review", () => {
+    expect(
+      isHumanReviewed({
+        needs_review: true,
+        canonical: { comparison: { match_status: "missing_dimension_field" } },
+      }),
+    ).toBe(false);
   });
 });
 

@@ -20,7 +20,9 @@ from services.extraction_engine import (
     extract_engineering_document,
     extraction_response,
 )
+from services.human_selections import get_human_selections
 from services.multimodal.pipeline import PIPELINE_VERSION, run_multimodal_pipeline
+from services.prediction.canonical_contract import MatchStatus
 
 logger = logging.getLogger("takeoff.stages")
 
@@ -169,6 +171,55 @@ def load_cached_extraction(document_id: str) -> Optional[Dict[str, Any]]:
     }
 
 
+def _apply_human_selections(
+    document_id: str, predictions: list[Dict[str, Any]]
+) -> list[Dict[str, Any]]:
+    """
+    Overlay reviewer-selected sections (services.human_selections) onto
+    served predictions, so a resolved missing-thickness (or similar
+    catalog-candidate) ambiguity stays resolved across a refresh instead of
+    the served prediction reverting to its pre-review "select a candidate"
+    state. The underlying analysis.json/predictions_view.json artifacts are
+    NOT rewritten -- this applies on every read, keeping the raw model
+    output and the human decision in separate, honest places.
+    """
+
+    selections = get_human_selections(document_id)
+    if not selections:
+        return predictions
+
+    updated = []
+    for prediction in predictions:
+        object_id = str(prediction.get("object_id") or "")
+        section = selections.get(object_id)
+        if not section:
+            updated.append(prediction)
+            continue
+        prediction = dict(prediction)
+        prediction["section"] = section
+        prediction["human_selected_section"] = section
+        prediction["decision_source"] = "human_review"
+        prediction["needs_review"] = False
+        prediction["review_reason"] = None
+        canonical = prediction.get("canonical")
+        if isinstance(canonical, dict):
+            canonical = dict(canonical)
+            canonical["prediction"] = {
+                **(canonical.get("prediction") or {}),
+                "final_label": section,
+            }
+            canonical["comparison"] = {
+                **(canonical.get("comparison") or {}),
+                "match_status": MatchStatus.HUMAN_RESOLVED.value,
+            }
+            canonical["needs_review"] = False
+            canonical["review_reason"] = None
+            prediction["canonical"] = canonical
+            prediction["comparison"] = canonical["comparison"]
+        updated.append(prediction)
+    return updated
+
+
 def load_cached_analysis(document_id: str) -> Optional[Dict[str, Any]]:
     """
     Return the persisted analysis without running inference.
@@ -191,7 +242,9 @@ def load_cached_analysis(document_id: str) -> Optional[Dict[str, Any]]:
     return {
         **metadata,
         "extraction": extraction,
-        "predictions": prediction_view.get("predictions") or [],
+        "predictions": _apply_human_selections(
+            document_id, prediction_view.get("predictions") or []
+        ),
         "validation": validation,
         "cached": True,
     }

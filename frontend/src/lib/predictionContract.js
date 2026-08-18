@@ -148,6 +148,49 @@ export function getSection(result = {}) {
 }
 
 /**
+ * What the SECTION cell should actually show. The canonical contract nulls
+ * `prediction.final_label` any time the match status requires review (see
+ * canonical_contract.MatchStatus / `_REVIEW_REASONS`) — that covers not
+ * only the HSS missing-thickness case (several catalog-valid completions,
+ * genuine irreducible ambiguity), but ALSO an ordinary "source text isn't a
+ * catalog-valid designation at all" correction (match_status
+ * "corrected_prediction"), where a fuzzy/fusion guess like W10X24 -> W10X49
+ * must not be presented as a resolved answer just because a `section`
+ * string exists on the record. Trust `final_label == null` generally, not
+ * only when `candidate_sections` (the HSS-specific completion list) happens
+ * to be populated — a low-confidence non-HSS correction has no such list,
+ * but is exactly as unresolved.
+ */
+export function getDisplaySection(result = {}) {
+  const { prediction, needsReview, reviewReason } = getCanonicalPrediction(result);
+  const candidateSections = result.candidate_sections || [];
+  if (needsReview && !prediction.final_label) {
+    return {
+      value: null,
+      reviewRequired: true,
+      reason: reviewReason,
+      hasCandidates: candidateSections.length > 0,
+    };
+  }
+  return { value: getSection(result), reviewRequired: false, reason: null, hasCandidates: false };
+}
+
+/**
+ * True only for an explicit, persisted human-review resolution (see
+ * services.human_selections / services.staged_pipeline
+ * ._apply_human_selections) — never inferred from needs_review being false,
+ * since plenty of ordinary model-resolved rows also have no review
+ * requirement. `decision_source` is the primary signal the backend sets;
+ * `match_status === "human_resolved"` is the same fact surfaced through the
+ * canonical contract, checked as a fallback for any caller that only has
+ * the canonical view.
+ */
+export function isHumanReviewed(result = {}) {
+  if (result.decision_source === "human_review") return true;
+  return getCanonicalPrediction(result).comparison.match_status === "human_resolved";
+}
+
+/**
  * Page + bbox for drawing review. Prefers canonical source_text; falls back
  * to top-level prediction fields used by the multimodal API payload.
  */
