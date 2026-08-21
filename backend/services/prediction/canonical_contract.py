@@ -39,6 +39,12 @@ class MatchStatus(str, Enum):
     NORMALIZED_MATCH = "normalized_match"
     CORRECTED_PREDICTION = "corrected_prediction"
     INCOMPLETE_LABEL = "incomplete_label"
+    MISSING_DIMENSION_FIELD = "missing_dimension_field"
+    # A reviewer resolved a MISSING_DIMENSION_FIELD (or similar) ambiguity by
+    # choosing among the catalog-valid candidates themselves — deliberately
+    # NOT in _REVIEW_REASONS below: the ambiguity that required review is
+    # exactly what this status means is now resolved.
+    HUMAN_RESOLVED = "human_resolved"
     GEOMETRY_ONLY = "geometry_only"
     SOURCE_TEXT_NOT_FOUND = "source_text_not_found"
     UNRESOLVED = "unresolved"
@@ -128,6 +134,7 @@ def determine_comparison(
     final_label: Optional[str],
     source_available: bool,
     used_wildcards: bool,
+    used_missing_dimension: bool = False,
 ) -> Comparison:
     """
     Decide exact / normalized / corrected / incomplete / geometry-only /
@@ -176,6 +183,14 @@ def determine_comparison(
             match_status=MatchStatus.NORMALIZED_MATCH,
         )
 
+    if used_missing_dimension:
+        return Comparison(
+            exact_match=False,
+            normalized_match=False,
+            prediction_required=True,
+            match_status=MatchStatus.MISSING_DIMENSION_FIELD,
+        )
+
     if used_wildcards:
         return Comparison(
             exact_match=False,
@@ -195,6 +210,10 @@ def determine_comparison(
 _REVIEW_REASONS = {
     MatchStatus.CORRECTED_PREDICTION: "Source text differs from predicted label.",
     MatchStatus.INCOMPLETE_LABEL: "Source label had unknown/wildcard characters resolved by mask matching.",
+    MatchStatus.MISSING_DIMENSION_FIELD: (
+        "Wall thickness is not present in the extracted designation; "
+        "select the correct catalog section."
+    ),
     MatchStatus.GEOMETRY_ONLY: "No source text was available; prediction relies on geometry/graph context.",
     MatchStatus.SOURCE_TEXT_NOT_FOUND: "No source text or prediction could be resolved for this object.",
     MatchStatus.UNRESOLVED: "No valid candidate could be resolved.",
@@ -215,12 +234,17 @@ def determine_review_from_status(
     canonical contract was first built) don't need the full ``Comparison``
     model to stay in sync."""
 
-    if near_tie:
-        return True, "Two or more candidates are near-tied; automatic selection is not reliable enough."
-
+    # A specific, diagnostic match-status reason (e.g. "wall thickness is
+    # missing") is always more actionable to a reviewer than the generic
+    # near-tie message, so it takes priority when both are true — a missing-
+    # thickness HSS read is *why* its completions are near-tied, not a
+    # separate, unrelated ambiguity.
     reason = _REVIEW_REASONS.get(match_status)
     if reason:
         return True, reason
+
+    if near_tie:
+        return True, "Two or more candidates are near-tied; automatic selection is not reliable enough."
 
     if review_status and review_status not in {"auto_accepted"}:
         return True, f"Flagged by review policy: {review_status}."
@@ -270,6 +294,7 @@ def build_canonical_prediction(
     review_status: Optional[str],
     near_tie: bool = False,
     used_wildcards: bool = False,
+    used_missing_dimension: bool = False,
 ) -> CanonicalPrediction:
     source_text = SourceText(
         raw=raw_text or None,
@@ -287,6 +312,7 @@ def build_canonical_prediction(
         final_label=final_label,
         source_available=source_available,
         used_wildcards=used_wildcards,
+        used_missing_dimension=used_missing_dimension,
     )
     # ``final_label`` is the canonical, automatically-accepted answer -- it
     # must never carry a fuzzy-retrieved or learned-corrected guess dressed

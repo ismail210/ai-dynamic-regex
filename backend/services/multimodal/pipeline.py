@@ -289,7 +289,8 @@ def run_multimodal_pipeline(
     timings["total_ms"] = round(
         (time.perf_counter() - pipeline_started) * 1000, 2
     )
-    index_predictions(path.name, predictions)
+    if persist:
+        index_predictions(path.name, predictions)
     document_id = document["document_id"]
     artifacts: Dict[str, str] = {}
     if persist:

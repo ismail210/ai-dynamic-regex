@@ -1,0 +1,40 @@
+{
+  "label": "candidate_ranker_cv_tuned",
+  "not_promoted": true,
+  "best_trial_number": 11,
+  "params": {
+    "objective": "rank:pairwise",
+    "n_estimators": 58,
+    "learning_rate": 0.012384167942828843,
+    "max_depth": 4,
+    "min_child_weight": 1.0308629954117035,
+    "subsample": 0.7333691140055711,
+    "colsample_bytree": 0.9876880007611734,
+    "gamma": 1.0666638213532107e-08,
+    "reg_alpha": 0.0013692040558330272,
+    "reg_lambda": 0.17475683446141277
+  },
+  "cv_mean_top1": 0.9841119403369174,
+  "cv_std_top1": 0.003988405497907325,
+  "cv_worst_fold_top1": 0.9766470009832842,
+  "cv_fold_top1": [
+    0.9867256637168141,
+    0.9872173058013766,
+    0.9832800590115565,
+    0.9766470009832842,
+    0.9866896721715553
+  ],
+  "cv_mean_top3": 0.9970486814981762,
+  "cv_mean_mrr": 0.9910107422918113,
+  "train_val_gap": -0.0003584032346906074,
+  "untuned_cv_baseline_mean_top1": 0.9657,
+  "untuned_cv_baseline_fold_top1": [
+    0.9668,
+    0.9685,
+    0.9594,
+    0.9668,
+    0.9667
+  ],
+  "wins_folds": "5/5",
+  "trained_on": "full dev pool (train+validation, 101541 rows, 20328 query-groups), feature config C1"
+}

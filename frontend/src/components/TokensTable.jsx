@@ -32,9 +32,10 @@ import MatchStatusBadge, { matchStatusLabel } from "./ui/MatchStatusBadge";
 import { TipIconButton } from "./ui/ActionButtons";
 import {
   getConfidence,
+  getDisplaySection,
   getFamily,
   getMatchStatus,
-  getSection,
+  isHumanReviewed,
   isLegacyPrediction,
 } from "../lib/predictionContract";
 
@@ -48,7 +49,7 @@ async function copyText(text) {
 
 export default function TokensTable({ results = [] }) {
   const [filter, setFilter] = useState("");
-  const [selected, setSelected] = useState(null);
+  const [selectedId, setSelectedId] = useState(null);
   const [sorting, setSorting] = useState([]);
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(15);
@@ -72,7 +73,7 @@ export default function TokensTable({ results = [] }) {
       },
       {
         id: "corrected",
-        header: "Corrected OCR",
+        header: "Normalized / Corrected",
         accessorFn: (row) =>
           row.corrected_token || row.original_token || row.token || "",
         cell: ({ getValue }) => (
@@ -94,29 +95,60 @@ export default function TokensTable({ results = [] }) {
       {
         id: "section",
         header: "Section",
-        accessorFn: (row) => getSection(row),
-        cell: ({ getValue, row }) => (
-          <Stack direction="row" spacing={0.5} sx={{ alignItems: "center" }}>
-            <Typography fontFamily="monospace" fontSize={13}>
-              {getValue() || "—"}
-            </Typography>
-            <TipIconButton
-              title="Copy section"
-              onClick={(e) => {
-                e.stopPropagation();
-                copyText(getValue());
-              }}
-            >
-              <ContentCopyOutlined sx={{ fontSize: 14 }} />
-            </TipIconButton>
-          </Stack>
-        ),
+        accessorFn: (row) => getDisplaySection(row).value,
+        cell: ({ row }) => {
+          const display = getDisplaySection(row.original);
+          if (display.reviewRequired) {
+            if (display.hasCandidates) {
+              const count = (row.original.candidate_sections || []).length;
+              return (
+                <Chip
+                  size="small"
+                  color="warning"
+                  variant="outlined"
+                  label={`Select section (${count} options)`}
+                />
+              );
+            }
+            // No candidate list to pick from (e.g. source text isn't a
+            // catalog-valid designation at all) — still never show the
+            // low-confidence guess as if it were resolved.
+            return (
+              <Chip size="small" color="warning" variant="outlined" label="Review required" />
+            );
+          }
+          return (
+            <Stack direction="row" spacing={0.5} sx={{ alignItems: "center" }}>
+              <Typography fontFamily="monospace" fontSize={13}>
+                {display.value || "—"}
+              </Typography>
+              <TipIconButton
+                title="Copy section"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  copyText(display.value);
+                }}
+              >
+                <ContentCopyOutlined sx={{ fontSize: 14 }} />
+              </TipIconButton>
+            </Stack>
+          );
+        },
       },
       {
         id: "confidence",
         header: "Confidence",
-        accessorFn: (row) => getConfidence(row).level || "",
+        accessorFn: (row) => (isHumanReviewed(row) ? "" : getConfidence(row).level || ""),
         cell: ({ row }) => {
+          // A model confidence/score describes the ORIGINAL prediction, not
+          // the human decision that replaced it — showing it next to a
+          // human-reviewed section would misrepresent whose judgment the
+          // final answer reflects. The original value is preserved on the
+          // record (and in Prediction details) for audit; only this
+          // presentation is suppressed.
+          if (isHumanReviewed(row.original)) {
+            return <Typography color="text.secondary">—</Typography>;
+          }
           const level = getConfidence(row.original).level || "Unknown";
           return (
             <Chip
@@ -132,37 +164,55 @@ export default function TokensTable({ results = [] }) {
       {
         id: "match_status",
         header: "Match",
-        accessorFn: (row) => matchStatusLabel(getMatchStatus(row), isLegacyPrediction(row)),
-        cell: ({ row }) => (
-          <MatchStatusBadge
-            matchStatus={getMatchStatus(row.original)}
-            isLegacy={isLegacyPrediction(row.original)}
-          />
-        ),
+        accessorFn: (row) =>
+          isHumanReviewed(row)
+            ? ""
+            : matchStatusLabel(getMatchStatus(row), isLegacyPrediction(row)),
+        cell: ({ row }) =>
+          isHumanReviewed(row.original) ? (
+            <Typography color="text.secondary">—</Typography>
+          ) : (
+            <MatchStatusBadge
+              matchStatus={getMatchStatus(row.original)}
+              isLegacy={isLegacyPrediction(row.original)}
+            />
+          ),
       },
       {
         id: "validation",
         header: "Validation",
-        accessorFn: (row) => row.validation?.status || row.review_status || "",
-        cell: ({ getValue }) => (
-          <Chip
-            size="small"
-            label={getValue() || "—"}
-            color={
-              getValue() === "PASS" || getValue() === "auto_accepted"
-                ? "success"
-                : getValue() === "FAIL"
-                  ? "error"
-                  : "warning"
-            }
-          />
-        ),
+        accessorFn: (row) =>
+          isHumanReviewed(row)
+            ? "Human Reviewed"
+            : row.validation?.status || row.review_status || "",
+        cell: ({ row, getValue }) => {
+          if (isHumanReviewed(row.original)) {
+            return <Chip size="small" label="Human Reviewed" color="info" />;
+          }
+          const value = getValue();
+          return (
+            <Chip
+              size="small"
+              label={value || "—"}
+              color={
+                value === "PASS" || value === "auto_accepted"
+                  ? "success"
+                  : value === "FAIL"
+                    ? "error"
+                    : "warning"
+              }
+            />
+          );
+        },
       },
       {
         id: "actions",
         header: "",
         cell: ({ row }) => (
-          <TipIconButton title="View details" onClick={() => setSelected(row.original)}>
+          <TipIconButton
+            title="View details"
+            onClick={() => setSelectedId(row.original.object_id || row.original.component_id)}
+          >
             <VisibilityOutlined fontSize="small" />
           </TipIconButton>
         ),
@@ -170,6 +220,14 @@ export default function TokensTable({ results = [] }) {
     ],
     []
   );
+
+  // Re-derived from `results` (not held as a stale object reference) so a
+  // human-review selection saved while the modal is open — which patches
+  // `results` via AnalysisContext.setData — is reflected immediately, both
+  // in this table's Section cell and in the still-open modal.
+  const selected = selectedId
+    ? results.find((row) => (row.object_id || row.component_id) === selectedId) || null
+    : null;
 
   const table = useReactTable({
     data: results,
@@ -237,7 +295,7 @@ export default function TokensTable({ results = [] }) {
                 <TableRow
                   hover
                   key={row.id}
-                  onClick={() => setSelected(row.original)}
+                  onClick={() => setSelectedId(row.original.object_id || row.original.component_id)}
                   role="button"
                   tabIndex={0}
                   aria-label={`View prediction details for ${
@@ -246,7 +304,7 @@ export default function TokensTable({ results = [] }) {
                   onKeyDown={(event) => {
                     if (event.key === "Enter" || event.key === " ") {
                       event.preventDefault();
-                      setSelected(row.original);
+                      setSelectedId(row.original.object_id || row.original.component_id);
                     }
                   }}
                   sx={{ cursor: "pointer", height: 56 }}
@@ -274,7 +332,7 @@ export default function TokensTable({ results = [] }) {
           rowsPerPageOptions={[10, 15, 25, 50]}
         />
       </Paper>
-      <PredictionDetailModal result={selected} onClose={() => setSelected(null)} />
+      <PredictionDetailModal result={selected} onClose={() => setSelectedId(null)} />
     </>
   );
 }

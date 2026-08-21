@@ -26,6 +26,10 @@ from services.exact_section_predictor import (
     predict_exact_sections,
     predict_exact_sections_for_labels,
 )
+from services.hss_completion import (
+    detect_missing_thickness_hss,
+    hss_completion_candidates,
+)
 from services.section_parser import plausible_against_ocr
 from services.feature_extractor import extract_structural_features
 from services.model_predictor import predict_with_confidence
@@ -245,6 +249,35 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     ) or catalog_valid_exact_section(raw_text)
     extraction_confidence = float(token_record.get("confidence") or 0.5)
 
+    # MISSING-THICKNESS HSS PATH: "HSS10X10" does not uniquely identify a
+    # catalog section -- the two outside dimensions are KNOWN (read cleanly,
+    # no wildcard/corruption marker), only thickness is absent. That known
+    # information must constrain the candidate pool to real
+    # HSS<dim1>X<dim2>X* catalog members before fuzzy/fusion ranking ever
+    # runs, not just gate a later auto-accept decision -- otherwise
+    # character-similarity retrieval can drift onto a different pair
+    # entirely (e.g. HSS8X8 -> HSS8X6X3/8, a real failure found in
+    # production data). ``protected_exact_section`` and this path are
+    # mutually exclusive by construction: a complete, catalog-valid read
+    # never parses as "missing thickness".
+    hss_dimensions = (
+        None
+        if protected_exact_section
+        else (
+            detect_missing_thickness_hss(normalized)
+            or detect_missing_thickness_hss(raw_text)
+        )
+    )
+    hss_completions = (
+        hss_completion_candidates(*hss_dimensions) if hss_dimensions else []
+    )
+    # >1 catalog-valid thickness for the same known dimensions is genuine,
+    # irreducible ambiguity -- no ranker score may manufacture certainty
+    # there (see resolution contract). Exactly 1 catalog match is
+    # deterministic by definition and proceeds through the normal pipeline
+    # like any other single-candidate exact match.
+    missing_thickness_needs_review = len(hss_completions) > 1
+
     family_prediction = predict_with_confidence(normalized)
     family_label = family_prediction.label
     family_probability = float(family_prediction.probability)
@@ -275,7 +308,19 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
 
     # Single exact-section AI call with multimodal rerank (Priority 1).
     exact_candidates = []
-    if wildcard_hits:
+    if hss_completions:
+        # Deterministic candidate set from known dimensions -- same
+        # rerank-without-fuzzy-retrieval path already used for wildcard-mask
+        # matches, so geometry/graph/engineering-rules evidence can still
+        # order the options without a text-similarity search ever running.
+        exact_candidates = predict_exact_sections_for_labels(
+            [item.designation for item in hss_completions],
+            geometry=geometry,
+            graph=graph,
+            engineering_rules=provisional_rules.to_dict(),
+            limit=len(hss_completions),
+        )
+    elif wildcard_hits:
         exact_candidates = predict_exact_sections_for_labels(
             [hit.label for hit in wildcard_hits],
             geometry=geometry,
@@ -330,10 +375,23 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     # distinguish W12X26 from W21X44).
     fusion_candidates: List[Any] = list(exact_candidates)
     existing_shapes = {candidate.shape for candidate in exact_candidates}
+    # The correction engine also mixes in same-family review-history shapes
+    # regardless of dimensions (see MultimodalCorrectionEngine.correct) --
+    # exactly the uncontrolled pool the missing-thickness path exists to
+    # avoid. Once dimensions are known, nothing outside that dimension's own
+    # completions may re-enter fusion through this second door.
+    hss_completion_shapes = (
+        {item.designation for item in hss_completions} if hss_completions else None
+    )
     for correction in corrections:
         if (
             correction.corrected in existing_shapes
             or lookup_shape(correction.corrected) is None
+        ):
+            continue
+        if (
+            hss_completion_shapes is not None
+            and correction.corrected not in hss_completion_shapes
         ):
             continue
         fusion_candidates.append(
@@ -375,6 +433,13 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     corrected_text = (
         corrections[0].corrected if corrections else normalized
     )
+    if missing_thickness_needs_review:
+        # A completion candidate is not an OCR correction: nothing about
+        # the missing thickness was read from the source, so the "what did
+        # extraction actually give us" field must not claim it did. The
+        # ranked completions themselves are still fully available via
+        # exact_candidates / the canonical candidate list below.
+        corrected_text = normalized
 
     encodings = encoder_registry.encode_all(
         {
@@ -535,6 +600,21 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
             f"Kept catalog-valid exact text match ({protected_exact_section}); "
             "fusion/graph/ranker evidence favored a different candidate but "
             "cannot silently override a clean exact label. Flagged for review."
+        )
+
+    if missing_thickness_needs_review:
+        # Last word, same as the protected-label-conflict case above:
+        # ``section`` keeps the ranker's top-ranked completion (still real,
+        # still useful for family/component/explanation and as the
+        # displayed "suggested" candidate), but no amount of fusion/ranker
+        # score may turn "several catalog-valid thicknesses, none read from
+        # source" into an auto-accepted answer -- that is genuine
+        # irreducible ambiguity, not a confidence problem.
+        retrieval_gate_failed = True
+        ai_reasons.append(
+            "Wall thickness is not present in the extracted designation "
+            f"({normalized}); select the correct catalog section from "
+            f"{len(hss_completions)} valid completions."
         )
 
     model_label = section
@@ -1005,6 +1085,7 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         review_status=review_status,
         near_tie=ranking.near_tie,
         used_wildcards=used_wildcards,
+        used_missing_dimension=missing_thickness_needs_review,
     )
 
     alternatives = []
@@ -1109,6 +1190,16 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
             if not raw_text
             else None
         ),
+        # Additive: lets consumers distinguish "known dimensions, missing
+        # thickness, N catalog-valid completions" from an ordinary
+        # correction/prediction without guessing from review_reason text.
+        "completion_status": (
+            "missing_thickness" if hss_completions else "complete"
+        ),
+        "known_dimensions": list(hss_dimensions) if hss_dimensions else None,
+        "candidate_sections": [
+            item.to_dict() for item in hss_completions
+        ] or None,
         "correction": final_correction,
         "annotation_interpretation": annotation_pack,
         "entity_type": entity.category,
@@ -1269,26 +1360,9 @@ def predict_token(
     section = result["section"]
     family = result.get("family")
 
-    learning = process_token(section, token, persist=persist_learning)
-    regex = learning.pattern
-    regex_matches = learning.matched or full_match(regex, token)
-    result["regex"] = regex
-    result["suggested_regex"] = learning.detail.get("candidate_pattern", regex)
-    result["regex_matches_token"] = regex_matches
-    result["learning"] = learning.to_dict()
-    result["regex_variants"] = (
-        (knowledge_base.get(section) or {}).get("variants", []) if section else []
-    )
-
     # Dynamic regex remains an output helper and cannot change AI confidence.
     conf = dict(result.get("confidence") or {})
     result["confidence"] = conf
-    result["validation"] = {
-        "matched": regex_matches,
-        "regex_confidence": round(learning.regex_confidence, 4),
-        "regex_level": learning.regex_level,
-        "database_verified": bool(result.get("database_match")),
-    }
 
     # Carry forward the REAL issues/gate signals predict_from_context already
     # computed (protected_label_conflict, retrieval_gate_failed, ...) rather
@@ -1329,10 +1403,9 @@ def predict_token(
     )
     result["uncertain"] = review_status == "pending_review"
 
-    # review_status above is recomputed from regex matching after the
+    # review_status above is recomputed from fusion/gate signals after the
     # canonical contract was already built inside predict_from_context —
-    # refresh needs_review/review_reason so they reflect this final status
-    # rather than the one computed before regex learning ran.
+    # refresh needs_review/review_reason so they reflect this final status.
     near_tie = bool(result.pop("_ranking_near_tie", False))
     match_status = str((result.get("comparison") or {}).get("match_status") or "unresolved")
     needs_review, review_reason = determine_review_from_status(
@@ -1343,6 +1416,41 @@ def predict_token(
     if isinstance(result.get("canonical"), dict):
         result["canonical"]["needs_review"] = needs_review
         result["canonical"]["review_reason"] = review_reason
+
+    # --- Self-learning persistence gate --------------------------------
+    # Only a trusted, human-verifiable resolution may be learned into the
+    # self-learning regex knowledge base as ground truth: an exact catalog
+    # match read straight from source text, or a safe formatting-only
+    # normalization that resolves to one (canonical_contract.MatchStatus
+    # EXACT_MATCH / NORMALIZED_MATCH -- the same two statuses
+    # canonical_contract accepts as ``final_label`` without nulling it).
+    # ``needs_review`` is checked too, on top of ``match_status``, so a
+    # near-tie or protected-label conflict layered on an otherwise-exact
+    # match still blocks learning. Everything else -- fuzzy correction,
+    # wildcard/mask completion, ranker prediction, geometry-only inference,
+    # ambiguous OCR, anything requiring review -- may still be SHOWN as a
+    # suggestion (via ``learning``/``suggested_regex`` below) but must never
+    # be merged into the knowledge base as an example (``learn=False``).
+    trusted_match = match_status in {"exact_match", "normalized_match"}
+    learn_from_prediction = trusted_match and not needs_review
+    learning = process_token(
+        section, token, persist=persist_learning, learn=learn_from_prediction
+    )
+    regex = learning.pattern
+    regex_matches = learning.matched or full_match(regex, token)
+    result["regex"] = regex
+    result["suggested_regex"] = learning.detail.get("candidate_pattern", regex)
+    result["regex_matches_token"] = regex_matches
+    result["learning"] = learning.to_dict()
+    result["regex_variants"] = (
+        (knowledge_base.get(section) or {}).get("variants", []) if section else []
+    )
+    result["validation"] = {
+        "matched": regex_matches,
+        "regex_confidence": round(learning.regex_confidence, 4),
+        "regex_level": learning.regex_level,
+        "database_verified": bool(result.get("database_match")),
+    }
 
     unknown_id = None
     if queue_unknown and review_status == "pending_review":

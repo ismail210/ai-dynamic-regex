@@ -9,6 +9,7 @@ from pathlib import Path
 
 import fitz
 
+import config
 from services.engineering.correction_dataset import build_training_sample, record_correction
 from services.engineering.excel_loader import load_engineering_excel
 from services.engineering.geometry_extractor import extract_geometry
@@ -72,7 +73,24 @@ class EngineeringPipelineUnitTests(unittest.TestCase):
         self.geometry = extract_geometry(str(self.pdf), document_structure=self.document)
         self.graph = build_graph(self.document, self.geometry)
 
+        # test_correction_sample below calls record_correction(), which
+        # appends to the real training/engineering_corrections.jsonl unless
+        # redirected -- every prior run of this test left another synthetic
+        # "doc_test"/"obj_1" row in that file. Point it at a temp file for
+        # the duration of this test case (restored in tearDown).
+        self._original_corrections_path = config.settings.engineering_corrections_path
+        object.__setattr__(
+            config.settings,
+            "engineering_corrections_path",
+            Path(self.tmp.name) / "engineering_corrections.jsonl",
+        )
+
     def tearDown(self) -> None:
+        object.__setattr__(
+            config.settings,
+            "engineering_corrections_path",
+            self._original_corrections_path,
+        )
         self.tmp.cleanup()
 
     def test_geometry_extraction(self) -> None:

@@ -34,6 +34,14 @@ class Settings:
 
     database_file: Path = BASE_DIR / "database" / "aisc-shapes-database-v160-2.xlsx"
     database_sheet: str = "Database v16.0"
+    # Derived, all-editions canonical label catalog (see
+    # scripts/prepare_aisc_v16_catalog.py). Not wired into the production
+    # prediction pipeline yet — services.database_loader (backed by
+    # database_file/database_sheet above) remains authoritative until a
+    # promoted cutover.
+    aisc_v16_label_catalog_path: Path = (
+        BASE_DIR / "database" / "aisc_v16_label_catalog.csv"
+    )
 
     # ---- ML artifacts --------------------------------------------------
     model_path: Path = BASE_DIR / "training" / "best_model.pkl"
@@ -211,6 +219,16 @@ class Settings:
     engineering_artifacts_dir: Path = BASE_DIR / "training" / "engineering_artifacts"
     engineering_corrections_path: Path = (
         BASE_DIR / "training" / "engineering_corrections.jsonl"
+    )
+    # Reviewer's final choice among catalog-valid completions for a
+    # missing-thickness (or similarly ambiguous) designation. Separate from
+    # engineering_corrections_path: that file is a training-data log, not
+    # something read back at analysis-serve time. This one IS read back
+    # (services.staged_pipeline.load_cached_analysis) so a human decision
+    # survives a refresh instead of the served prediction reverting to
+    # "select a candidate".
+    human_selections_path: Path = (
+        BASE_DIR / "training" / "human_selections.json"
     )
     engineering_uploads_dir: Path = BASE_DIR / "uploads" / "engineering"
     document_registry_dir: Path = BASE_DIR / "training" / "documents"

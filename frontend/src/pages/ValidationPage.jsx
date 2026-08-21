@@ -62,7 +62,6 @@ const ISSUE_LABELS = {
   geometry_consistency: "Geometry consistency",
   graph_consistency: "Graph consistency",
   engineering_rules: "Engineering rules",
-  duplicate_members: "Duplicate members",
   missing_members: "Missing members",
   impossible_members: "Impossible members",
   wrong_section_names: "Wrong section names",

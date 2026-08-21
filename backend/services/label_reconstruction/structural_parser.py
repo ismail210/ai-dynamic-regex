@@ -146,6 +146,19 @@ def _ensure_catalog_index() -> Dict[Tuple[str, str], List[Tuple[List[str], str]]
     global _CATALOG_INDEX
     if _CATALOG_INDEX is not None:
         return _CATALOG_INDEX
+    return refresh_catalog_index()
+
+
+def refresh_catalog_index() -> Dict[Tuple[str, str], List[Tuple[List[str], str]]]:
+    """Rebuild the field-parse index from the currently loaded catalog.
+
+    Call after `services.database_loader.reload_from_pairs`/
+    `reload_from_aisc_v16_catalog` in offline training/eval contexts -- this
+    cache is otherwise built once and never invalidated, so a catalog swap
+    mid-process would silently keep serving the previous catalog's index.
+    """
+
+    global _CATALOG_INDEX
     index: Dict[Tuple[str, str], List[Tuple[List[str], str]]] = {}
     for label, _type in catalog_entries():
         parse = parse_fields(label)

@@ -66,10 +66,25 @@ def _matches_class_patterns(record: Optional[dict], token: str) -> bool:
     return any(full_match(pattern, token) for pattern in patterns if pattern)
 
 
-def process_token(cls: Optional[str], token: str, persist: bool = True) -> LearningOutcome:
+def process_token(
+    cls: Optional[str], token: str, persist: bool = True, *, learn: bool = True
+) -> LearningOutcome:
     """
     Ensure the knowledge base can describe ``token`` for class ``cls``,
     learning or extending a regex when necessary.
+
+    ``learn`` gates whether an unmatched token may be merged into the
+    knowledge base as a new/extending example (Case 2 below). Case 1 (the
+    token already matches ``cls``'s existing, previously-learned pattern) is
+    a read-only lookup and always runs regardless of ``learn`` -- it never
+    mutates the knowledge base. When ``learn`` is False and the token does
+    NOT match an existing pattern, no example is merged and no regex is
+    learned or extended: callers pass ``learn=False`` for predictions that
+    are not confirmed, trustworthy ground truth (see
+    ``services.prediction.orchestrator.predict_token``, which only allows
+    ``learn=True`` for an exact catalog match or a safe formatting-only
+    normalization -- never for a fuzzy correction, wildcard completion, or
+    any prediction requiring human review).
     """
 
     if not cls:
@@ -88,6 +103,8 @@ def process_token(cls: Optional[str], token: str, persist: bool = True) -> Learn
     existing_pattern = record.get("pattern") if record else None
 
     # Case 1: known pattern that already fully matches the token -> reuse it.
+    # Read-only against the knowledge base (usage-count bump only, no new
+    # example merged), so this is safe to run unconditionally.
     if _matches_class_patterns(record, token):
         knowledge_base.record_usage(cls, persist=persist)
         record = knowledge_base.get(cls) or {}
@@ -100,6 +117,18 @@ def process_token(cls: Optional[str], token: str, persist: bool = True) -> Learn
             regex_confidence=record.get("confidence", 0.0),
             regex_level=record.get("confidence_level", "Low"),
             detail={"reason": "existing_pattern_matched"},
+        )
+
+    if not learn:
+        return LearningOutcome(
+            status=STATUS_UNRESOLVED,
+            learned=False,
+            pattern=existing_pattern,
+            previous_pattern=existing_pattern,
+            matched=False,
+            regex_confidence=record.get("confidence", 0.0) if record else 0.0,
+            regex_level=record.get("confidence_level", "Low") if record else "Low",
+            detail={"reason": "learning_suppressed_untrusted_prediction"},
         )
 
     # Case 2: unknown class or the token is not matched -> learn / extend.

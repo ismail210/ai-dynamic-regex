@@ -27,11 +27,28 @@ _BY_FAMILY: Dict[str, List[str]] = {}
 
 
 def _ensure_loaded() -> None:
-    global _CATALOG_ENTRIES
     if _CATALOG_ENTRIES is not None:
         return
+    refresh_catalog_cache()
+
+
+def refresh_catalog_cache() -> None:
+    """Rebuild every module-level candidate-generation cache from the
+    currently loaded catalog.
+
+    Call after `services.database_loader.reload_from_pairs`/
+    `reload_from_aisc_v16_catalog` in offline training/eval contexts -- these
+    caches are otherwise built once (on first use) and never invalidated, so
+    a catalog swap mid-process would silently keep generating candidates
+    from the previous catalog.
+    """
+
+    global _CATALOG_ENTRIES
     entries = catalog_entries()
     _CATALOG_ENTRIES = entries
+    _CATALOG_LABELS.clear()
+    _BY_LENGTH.clear()
+    _BY_FAMILY.clear()
     for label, _type in entries:
         _CATALOG_LABELS.add(label)
         _BY_LENGTH.setdefault(len(label), []).append(label)
@@ -76,14 +93,28 @@ def _ocr_flex_candidates(normalized: str, *, limit: int) -> List[str]:
 
 
 def _fuzzy_candidates(normalized: str, *, limit: int, minimum_score: float = 0.55) -> List[str]:
-    """Broad fallback net: character-similarity nearest neighbors, family
-    biased. Catches deletions, added noise, separator corruption, and
-    missing-prefix cases the positional strategies above don't cover."""
+    """Broad fallback net: character-similarity nearest neighbors across the
+    FULL catalog. Catches deletions, added noise, separator corruption, and
+    missing-prefix cases the positional strategies above don't cover.
+
+    Previously scoped to only ``family_of(normalized)``'s catalog bucket,
+    falling back to the full catalog solely when that bucket was empty.
+    That silently misrouted results whenever ``family_of`` landed on ANY
+    populated bucket key, right or wrong: a corruption that happens to
+    start with a different real family code (e.g. a stray "B" or "W"
+    prepended to a modern designation) searched that wrong family's small
+    bucket instead of the true one; a handful of malformed catalog rows
+    (e.g. "8X8", "8WF,CB82N" -- two designations concatenated by a comma)
+    also seed spurious single-token "family" bucket keys that intercept
+    unrelated queries whose alpha-only fallback heuristic happens to
+    collide. Root-caused against the held-out test set: of 1,036
+    candidate-generation misses, 828 (80%) were exactly this misrouting,
+    not a case where the true label was genuinely unreachable by string
+    similarity -- so this last-resort strategy now searches everything,
+    as its own "broad fallback net" description already promised."""
 
     _ensure_loaded()
-    fam = family_of(normalized)
-    pool = _BY_FAMILY.get(fam) if fam else None
-    pool = pool or [label for label, _ in _CATALOG_ENTRIES]
+    pool = [label for label, _ in _CATALOG_ENTRIES]
     scored = []
     matcher = SequenceMatcher(None, normalized, "")
     for label in pool:

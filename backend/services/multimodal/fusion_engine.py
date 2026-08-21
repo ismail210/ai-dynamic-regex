@@ -165,6 +165,9 @@ class WeightedFusionEngine(FusionModel):
             evidence_source=list(result.get("evidence_source") or []),
             prediction_source=str(result.get("prediction_source") or "Fusion"),
             missing_label_prediction=result.get("missing_label_prediction"),
+            completion_status=str(result.get("completion_status") or "complete"),
+            known_dimensions=result.get("known_dimensions"),
+            candidate_sections=result.get("candidate_sections"),
         )
 
 

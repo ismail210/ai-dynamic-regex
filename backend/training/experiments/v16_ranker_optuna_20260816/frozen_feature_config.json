@@ -1,0 +1,9 @@
+{
+  "config_name": "C1_without_provenance_ranks_only",
+  "decision_basis": "Phase 1 validation-only comparison (aisc_v16_phase1_feature_freeze.md): A=0.9278, B(drop whole generation_provenance group)=0.9636, C1(drop deterministic_rank+fuzzy_rank only)=0.9639, C2(drop reason_* only)=0.9273. C1 isolates the harm to the two rank features -- reason_* one-hots are neutral (C2 sits at baseline A) and unnecessary to remove (C1 matches/slightly beats B).",
+  "masked_features": ["deterministic_rank", "fuzzy_rank"],
+  "val_top1": 0.9639131660558218,
+  "val_top1_modern": 0.9628346456692913,
+  "val_top1_historical": 0.9731182795698925,
+  "kept_features_note": "reason_exact_match, reason_structural_field_match, reason_wildcard_mask, reason_ocr_flex_positional, reason_family_only, reason_fuzzy_nearest_neighbor all retained; all other feature groups (length, edit_distance, char_position, family, structural_dims) retained"
+}
