@@ -1,0 +1,10 @@
+{
+  "sample_count": 816,
+  "feature_schema": [
+    "degree",
+    "graph_consistency",
+    "has_neighborhood",
+    "min_distance",
+    "structural_links"
+  ]
+}

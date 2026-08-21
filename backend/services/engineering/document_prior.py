@@ -376,13 +376,19 @@ def plate_context_from_prior(
         for key, value in (prior.get("abbreviations") or {}).items()
     }
     plate_terms = {str(term).upper() for term in (prior.get("plate_terms") or [])}
+    has_bent_pl_callout = bool(
+        re.search(r"\bBENT\s*PL(?:ATE)?\b", normalized, re.I)
+    )
+    legend_confirms_bent = bool(
+        abbrev.get("BP") == "bent_plate" or "BP" in plate_terms
+    )
     supports_bent = bool(
         prior.get("confirms_plates")
         and (
             upper.startswith("BP")
             or upper.startswith("BENT")
-            or abbrev.get("BP") == "bent_plate"
-            or "BP" in plate_terms
+            or (has_bent_pl_callout and legend_confirms_bent)
+            or legend_confirms_bent
         )
     )
     supports_plate = bool(

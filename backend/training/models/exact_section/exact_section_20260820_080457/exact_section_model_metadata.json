@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "target": "exact_section",
+  "trained_at": "2026-08-20T08:04:56.712675+00:00",
+  "model": "character_tfidf_cosine_retrieval",
+  "exact_label_count": 2299,
+  "training_variant_count": 60557,
+  "database_role": "training_reference_and_post_prediction_verification"
+}

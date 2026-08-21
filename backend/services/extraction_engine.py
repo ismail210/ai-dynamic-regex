@@ -15,7 +15,7 @@ from services.pdf_parser import extract_document_structure
 
 # Bumped whenever extraction output changes, so cached documents are rebuilt
 # instead of replaying stale artifacts.
-EXTRACTION_VERSION = "3.2-document-prior"
+EXTRACTION_VERSION = "3.3-bent-plate-tokens"
 
 
 def extract_engineering_document(

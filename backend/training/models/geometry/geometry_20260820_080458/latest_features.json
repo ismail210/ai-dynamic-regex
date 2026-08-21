@@ -1,0 +1,11 @@
+{
+  "sample_count": 1634,
+  "feature_schema": [
+    "available",
+    "has_bbox",
+    "length",
+    "nearest_distance",
+    "orientation",
+    "similarity"
+  ]
+}

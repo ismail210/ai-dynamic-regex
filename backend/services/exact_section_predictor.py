@@ -330,21 +330,35 @@ def reload_exact_section_artifact() -> None:
         _cached_candidate_scores.cache_clear()
 
 
-def append_exact_section_anchor(token: object, target: object) -> bool:
-    """
-    Immediately fold one human-approved (token → section) pair into the index.
+def refresh_exact_section_artifact() -> None:
+    """Rebuild the exact-section retrieval artifact once after approvals."""
 
-    Rebuilds the artifact so live retrieval reflects the approval without
-    waiting for the continuous-learning batch threshold.
+    train_exact_section_model(persist=True)
+    reload_exact_section_artifact()
+    _artifact()
+
+
+def append_exact_section_anchor(
+    token: object,
+    target: object,
+    *,
+    rebuild: bool = True,
+) -> bool:
+    """
+    Fold one human-approved (token → section) pair into the index.
+
+    When ``rebuild`` is false the approved row is persisted separately and
+    callers should invoke ``refresh_exact_section_artifact()`` once after a
+    bulk approval batch instead of rebuilding on every token.
     """
 
     token_text = str(token or "").strip()
     target_text = normalize_section_text(target)
     if not token_text or not is_exact_section_label(target_text):
         return False
-    train_exact_section_model(persist=True)
-    reload_exact_section_artifact()
-    _artifact()
+    if not rebuild:
+        return True
+    refresh_exact_section_artifact()
     return True
 
 

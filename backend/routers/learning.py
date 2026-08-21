@@ -14,7 +14,10 @@ from config import settings
 from services.dataset_manager import dataset_manager
 from services.entity_diagnostics import build_entity_diagnostics
 from services.entity_taxonomy import list_categories
-from services.engineering.correction_dataset import record_correction
+from services.engineering.correction_dataset import (
+    record_correction,
+    record_corrections_batch,
+)
 from services.model_predictor import list_classes, reload_model
 from services.multimodal.review_enrichment import (
     enrich_review_rows,
@@ -160,47 +163,64 @@ def reject_token(payload: ReviewRequest):
 
 @router.post("/review-batch")
 def review_batch(payload: BatchReviewRequest):
-    results = []
-    errors = []
-    approved = 0
+    pending_by_id = {
+        row["id"]: row for row in dataset_manager.list_unknown("pending")
+    }
+    batch_items = []
     for uid in payload.ids:
-        try:
-            reviewed_class = payload.reviewed_class or ""
-            existing = next(
-                (r for r in dataset_manager.list_unknown("pending") if r["id"] == uid),
-                None,
-            )
-            if payload.action == "approve" and not reviewed_class:
-                reviewed_class = (existing or {}).get("prediction", "")
-            result = dataset_manager.review_token(
-                unknown_id=uid,
-                action=payload.action,
-                reviewed_class=reviewed_class,
-                reviewed_category=payload.reviewed_category or "",
-                notes=payload.notes,
-            )
-            results.append(result)
-            evidence = evidence_for(
-                (existing or {}).get("source_file", ""),
-                (existing or {}).get("token", ""),
-            )
-            if evidence or payload.action == "approve":
-                record_correction(
-                    features=(evidence or {}).get("multimodal_features") or {},
-                    prediction=evidence or {"token": result.get("token")},
-                    correct_label=result.get("reviewed_class")
+        existing = pending_by_id.get(uid)
+        reviewed_class = payload.reviewed_class or ""
+        if payload.action == "approve" and not reviewed_class:
+            reviewed_class = (existing or {}).get("prediction", "")
+        batch_items.append(
+            {
+                "unknown_id": uid,
+                "action": payload.action,
+                "reviewed_class": reviewed_class,
+                "reviewed_category": payload.reviewed_category or "",
+                "notes": payload.notes,
+                "ranking_score": float(
+                    (existing or {}).get("overall_confidence") or 0.0
+                )
+                if existing
+                else None,
+                "predicted_section": str((existing or {}).get("prediction") or ""),
+            }
+        )
+
+    batch = dataset_manager.review_tokens_batch(batch_items)
+    results = batch["results"]
+    errors = [
+        {"id": item["id"], "error": item["error"]} for item in batch["errors"]
+    ]
+
+    correction_entries = []
+    for result in results:
+        existing = pending_by_id.get(result.get("id", ""))
+        evidence = evidence_for(
+            (existing or {}).get("source_file", ""),
+            (existing or {}).get("token", ""),
+        )
+        if evidence or payload.action == "approve":
+            correction_entries.append(
+                {
+                    "features": (evidence or {}).get("multimodal_features") or {},
+                    "prediction": evidence
+                    or {"token": result.get("token")},
+                    "correct_label": result.get("reviewed_class")
                     if payload.action == "approve"
                     else None,
-                    correct_geometry=(evidence or {}).get("geometry_preview"),
-                    user_decision=payload.action,
-                    object_id=result.get("id"),
-                    notes=payload.notes,
-                )
-            if payload.action == "approve":
-                approved += 1
-        except (KeyError, ValueError) as exc:
-            errors.append({"id": uid, "error": str(exc)})
+                    "correct_geometry": (evidence or {}).get("geometry_preview"),
+                    "user_decision": payload.action,
+                    "object_id": result.get("id"),
+                    "notes": payload.notes,
+                }
+            )
+    if correction_entries:
+        record_corrections_batch(correction_entries)
+
     trigger = None
+    approved = int(batch.get("approved") or 0)
     if approved:
         from services.training_pipeline.continuous_learning import record_approval_events
 

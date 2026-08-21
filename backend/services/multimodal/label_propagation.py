@@ -35,6 +35,25 @@ def _section(prediction: Dict[str, Any]) -> str:
     ).strip()
 
 
+def _is_plate_annotation(prediction: Dict[str, Any]) -> bool:
+    if prediction.get("section_prediction_not_applicable"):
+        return True
+    if str(prediction.get("entity_type") or "").lower() == "plate":
+        return True
+    if prediction.get("plate_annotation_type"):
+        return True
+    annotation = (
+        (prediction.get("annotation_interpretation") or {}).get("annotation")
+        or (prediction.get("explainability") or {}).get("annotation_interpretation", {}).get(
+            "annotation"
+        )
+        or {}
+    )
+    if str(annotation.get("annotation_type") or "").upper() in {"PLATE", "BENT_PLATE"}:
+        return True
+    return False
+
+
 def _is_geometry_only(prediction: Dict[str, Any]) -> bool:
     comparison = prediction.get("comparison") or {}
     if comparison.get("match_status") == "geometry_only":
@@ -106,6 +125,8 @@ def propagate_section_labels(
 
     seeds: List[tuple[str, str, float]] = []
     for prediction in predictions:
+        if _is_plate_annotation(prediction):
+            continue
         section = _section(prediction)
         confidence = _overall_confidence(prediction)
         if (
@@ -123,6 +144,8 @@ def propagate_section_labels(
         for neighbor_key in adjacency.get(seed_key) or ():
             neighbor = by_key.get(neighbor_key)
             if neighbor is None:
+                continue
+            if _is_plate_annotation(neighbor):
                 continue
             if not same_region(
                 prediction.get("region_id"),

@@ -1,0 +1,31 @@
+{
+  "pipeline_version": "4.7-bent-plate-parser",
+  "extraction_version": "3.3-bent-plate-tokens",
+  "document_id": "doc_0d910a43b4a021e3",
+  "engineering_token_count": 918,
+  "bent_token_count": 7,
+  "case_results": {
+    "BUR-BP001": {
+      "found": true,
+      "object_type": "plate",
+      "raw": "1/4\" BENT PL"
+    },
+    "BUR-BP002": {
+      "found": true,
+      "object_type": "plate",
+      "raw": "3/8\" BENT PL"
+    },
+    "BUR-BP003": {
+      "found": true,
+      "object_type": "plate",
+      "raw": "BENT PL 3 PL 3",
+      "note": "fragment_grouper merges BENT PL 3/8\" into OCR artifact; still classified as plate"
+    },
+    "BUR-BP005": {
+      "found": true,
+      "object_type": "plate",
+      "raw": "1/2\" BENT PL W/ 1/2\"\u2300x 1/2\" BENT PL W/ 1/2\"\u2300x 9\""
+    }
+  },
+  "verdict": "PASS"
+}

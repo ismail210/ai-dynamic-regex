@@ -36,6 +36,10 @@ const DEFAULT_CANONICAL = {
     ranking_score: 0,
     final_confidence: null,
     confidence_is_calibrated: false,
+    annotation_type: null,
+    annotation_label: null,
+    section_applicable: true,
+    confidence_basis: null,
   },
   comparison: {
     exact_match: false,
@@ -126,6 +130,100 @@ export function getMatchStatus(result = {}) {
   return getCanonicalPrediction(result).comparison.match_status || "unresolved";
 }
 
+function getAnnotationRecord(result = {}) {
+  return (
+    result.annotation_interpretation?.annotation
+    || result.explanation?.annotation_interpretation?.annotation
+    || {}
+  );
+}
+
+/** True when the backend confirmed a plate/bent-plate annotation (no AISC section). */
+export function isConfirmedPlateAnnotation(result = {}) {
+  const canonical = getCanonicalPrediction(result);
+  if (canonical.comparison.match_status === "confirmed_annotation") {
+    return true;
+  }
+  if (result.section_prediction_not_applicable) {
+    const annotation = getAnnotationRecord(result);
+    const annotationType = String(
+      canonical.prediction.annotation_type
+      || result.plate_annotation_type
+      || annotation.annotation_type
+      || "",
+    ).toUpperCase();
+    if (annotationType === "PLATE" || annotationType === "BENT_PLATE") {
+      return Boolean(annotation.structure_confirmed);
+    }
+  }
+  if (
+    canonical.prediction.section_applicable === false
+    && canonical.prediction.annotation_type
+  ) {
+    return true;
+  }
+  return false;
+}
+
+export function getAnnotationLabel(result = {}) {
+  const { prediction } = getCanonicalPrediction(result);
+  if (prediction.annotation_label) {
+    return prediction.annotation_label;
+  }
+  if (result.annotation_label) {
+    return result.annotation_label;
+  }
+  const annotation = getAnnotationRecord(result);
+  const thickness = annotation.thickness;
+  const annotationType = String(
+    prediction.annotation_type
+    || result.plate_annotation_type
+    || annotation.annotation_type
+    || "",
+  ).toUpperCase();
+  if (thickness) {
+    const suffix = annotationType === "BENT_PLATE" ? "BENT PL" : "PL";
+    const thickDisplay = String(thickness).includes('"') ? thickness : `${thickness}"`;
+    return `${thickDisplay} ${suffix}`.trim();
+  }
+  return result.raw_text || result.original_token || "";
+}
+
+export function getDisplayFamily(result = {}) {
+  if (isConfirmedPlateAnnotation(result)) {
+    const annotationType = String(
+      getCanonicalPrediction(result).prediction.annotation_type
+      || result.plate_annotation_type
+      || getAnnotationRecord(result).annotation_type
+      || "",
+    ).toUpperCase();
+    return annotationType === "BENT_PLATE" ? "Bent Plate" : "Plate";
+  }
+  return getFamily(result) || "";
+}
+
+export function getDisplaySection(result = {}) {
+  if (isConfirmedPlateAnnotation(result)) {
+    return {
+      value: getAnnotationLabel(result) || "Not applicable",
+      reviewRequired: false,
+      reason: null,
+      hasCandidates: false,
+    };
+  }
+  const { prediction, needsReview, reviewReason } = getCanonicalPrediction(result);
+  const candidateSections = result.candidate_sections || [];
+  if (needsReview && !prediction.final_label) {
+    return {
+      value: null,
+      reviewRequired: true,
+      reason: reviewReason,
+      hasCandidates: candidateSections.length > 0,
+    };
+  }
+  return { value: getSection(result), reviewRequired: false, reason: null, hasCandidates: false };
+}
+
 /** ``{ value, isCalibrated }`` — value is either a calibrated probability
  * (0-1) or the raw ranking/fusion score; callers must label it accordingly
  * and never present an uncalibrated score as a probability. */
@@ -145,34 +243,6 @@ export function getSection(result = {}) {
     || result.suggested_shape
     || ""
   );
-}
-
-/**
- * What the SECTION cell should actually show. The canonical contract nulls
- * `prediction.final_label` any time the match status requires review (see
- * canonical_contract.MatchStatus / `_REVIEW_REASONS`) — that covers not
- * only the HSS missing-thickness case (several catalog-valid completions,
- * genuine irreducible ambiguity), but ALSO an ordinary "source text isn't a
- * catalog-valid designation at all" correction (match_status
- * "corrected_prediction"), where a fuzzy/fusion guess like W10X24 -> W10X49
- * must not be presented as a resolved answer just because a `section`
- * string exists on the record. Trust `final_label == null` generally, not
- * only when `candidate_sections` (the HSS-specific completion list) happens
- * to be populated — a low-confidence non-HSS correction has no such list,
- * but is exactly as unresolved.
- */
-export function getDisplaySection(result = {}) {
-  const { prediction, needsReview, reviewReason } = getCanonicalPrediction(result);
-  const candidateSections = result.candidate_sections || [];
-  if (needsReview && !prediction.final_label) {
-    return {
-      value: null,
-      reviewRequired: true,
-      reason: reviewReason,
-      hasCandidates: candidateSections.length > 0,
-    };
-  }
-  return { value: getSection(result), reviewRequired: false, reason: null, hasCandidates: false };
 }
 
 /**

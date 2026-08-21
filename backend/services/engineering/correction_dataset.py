@@ -99,6 +99,34 @@ def record_correction(
     return save_correction(sample)
 
 
+def record_corrections_batch(entries: List[Dict[str, Any]]) -> int:
+    """Append many correction samples in one locked write."""
+
+    if not entries:
+        return 0
+    path = _corrections_path()
+    lines = [
+        json.dumps(
+            build_training_sample(
+                features=entry.get("features") or {},
+                prediction=entry.get("prediction"),
+                correct_label=entry.get("correct_label"),
+                correct_geometry=entry.get("correct_geometry"),
+                user_decision=str(entry.get("user_decision") or ""),
+                document_id=entry.get("document_id"),
+                object_id=entry.get("object_id"),
+                notes=str(entry.get("notes") or ""),
+            ),
+            ensure_ascii=False,
+        )
+        for entry in entries
+    ]
+    with _lock:
+        with path.open("a", encoding="utf-8") as handle:
+            handle.write("\n".join(lines) + "\n")
+    return len(lines)
+
+
 def list_corrections(limit: int = 200) -> List[dict]:
     path = _corrections_path()
     rows: List[dict] = []

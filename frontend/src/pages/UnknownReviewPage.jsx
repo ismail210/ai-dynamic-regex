@@ -248,6 +248,7 @@ export default function UnknownReviewPage() {
       await reviewBatch(ids, action);
       setProgress(100);
       notify(`${action === "approve" ? "Approved" : "Rejected"} ${ids.length} token(s)`);
+      setConfirm(null);
       await load();
     } catch (e) {
       setError(e?.response?.data?.detail || "Batch failed");
@@ -276,6 +277,7 @@ export default function UnknownReviewPage() {
         setProgress(Math.round(((i + slice.length) / pendingIds.length) * 100));
       }
       notify(`Approved all ${pendingIds.length} pending tokens`);
+      setConfirm(null);
       await load();
     } catch (e) {
       setError(e?.response?.data?.detail || "Approve all failed");

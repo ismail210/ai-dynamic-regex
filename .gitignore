@@ -46,6 +46,11 @@ build/
 dist/
 
 # =========================
+# Research / spikes (local experiments, not product code)
+# =========================
+research/
+
+# =========================
 # Local-only training data (keep on disk, do not push)
 # =========================
 backend/training/datasets/

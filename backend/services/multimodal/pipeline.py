@@ -33,7 +33,7 @@ from services.takeoff.ground_truth_excel import parse_ground_truth_excel
 
 
 # Bumped whenever prediction behaviour changes, so cached analyses are replaced.
-PIPELINE_VERSION = "4.5-document-prior"
+PIPELINE_VERSION = "4.7-bent-plate-parser"
 
 
 def _neural_model_status() -> Dict[str, Any]:

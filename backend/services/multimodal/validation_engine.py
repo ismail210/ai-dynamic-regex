@@ -73,6 +73,64 @@ def _fusion_issues(prediction: dict) -> set:
     )
 
 
+def _annotation_record(prediction: dict) -> dict:
+    return (
+        (prediction.get("annotation_interpretation") or {}).get("annotation")
+        or (
+            (prediction.get("explanation") or {})
+            .get("annotation_interpretation", {})
+            .get("annotation")
+        )
+        or {}
+    )
+
+
+def _is_confirmed_plate_annotation(prediction: dict) -> bool:
+    comparison = prediction.get("comparison") or {}
+    if comparison.get("match_status") == "confirmed_annotation":
+        return True
+    canonical_prediction = (prediction.get("canonical") or {}).get("prediction") or {}
+    if (
+        canonical_prediction.get("section_applicable") is False
+        and str(canonical_prediction.get("annotation_type") or "").upper()
+        in {"PLATE", "BENT_PLATE"}
+    ):
+        return True
+    if not prediction.get("section_prediction_not_applicable"):
+        return False
+    annotation = _annotation_record(prediction)
+    annotation_type = str(annotation.get("annotation_type") or "").upper()
+    if annotation_type not in {"PLATE", "BENT_PLATE"}:
+        return False
+    return bool(annotation.get("structure_confirmed"))
+
+
+def _confirmed_plate_label(prediction: dict) -> str:
+    canonical_prediction = (prediction.get("canonical") or {}).get("prediction") or {}
+    label = canonical_prediction.get("annotation_label")
+    if label:
+        return str(label)
+    annotation = _annotation_record(prediction)
+    thickness = annotation.get("thickness")
+    annotation_type = str(
+        annotation.get("annotation_type")
+        or prediction.get("plate_annotation_type")
+        or ""
+    ).upper()
+    if thickness:
+        suffix = "BENT PL" if annotation_type == "BENT_PLATE" else "PL"
+        thick_display = (
+            str(thickness) if '"' in str(thickness) else f'{thickness}"'
+        )
+        return f"{thick_display} {suffix}".strip()
+    return (
+        prediction.get("raw_text")
+        or prediction.get("original_token")
+        or annotation_type.replace("_", " ").title()
+        or "Plate"
+    )
+
+
 def _compact_correction(correction: Dict[str, Any]) -> Dict[str, Any]:
     """Keep the decision, not the full candidate search that produced it.
 
@@ -210,6 +268,8 @@ def _worst(statuses: List[str]) -> str:
 
 def _token_issues(prediction: dict) -> List[dict]:
     issues: List[dict] = []
+    confirmed_plate = _is_confirmed_plate_annotation(prediction)
+    plate_label = _confirmed_plate_label(prediction) if confirmed_plate else ""
     section = _section(prediction)
     family = _family(prediction)
     confidence = _confidence_value(prediction)
@@ -289,7 +349,42 @@ def _token_issues(prediction: dict) -> List[dict]:
             )
         )
 
-    if confidence < 0.45:
+    if confirmed_plate:
+        if confidence < 0.45:
+            issues.append(
+                _issue(
+                    issue_type="prediction_confidence",
+                    severity="WARNING",
+                    why=(
+                        f"Extraction confidence is moderate ({confidence:.0%}) "
+                        f"for confirmed plate annotation {plate_label}"
+                    ),
+                    evidence={**evidence, "confidence": confidence},
+                    suggested_correction=suggestion,
+                    component_id=component_id,
+                    object_id=object_id,
+                    original_token=original,
+                    predicted_shape=plate_label,
+                    approvable=True,
+                )
+            )
+        else:
+            issues.append(
+                _issue(
+                    issue_type="prediction_confidence",
+                    severity="PASS",
+                    why=(
+                        f"Confirmed plate annotation {plate_label}; "
+                        "section prediction not applicable"
+                    ),
+                    evidence={"confidence": confidence, "annotation_label": plate_label},
+                    component_id=component_id,
+                    object_id=object_id,
+                    original_token=original,
+                    predicted_shape=plate_label,
+                )
+            )
+    elif confidence < 0.45:
         issues.append(
             _issue(
                 issue_type="prediction_confidence",
@@ -343,14 +438,19 @@ def _token_issues(prediction: dict) -> List[dict]:
     if geometry_available and (
         geometry_score < 0.35 or "geometry_conflict" in fusion_issues
     ):
+        geometry_why = (
+            f"Geometry evidence is weak for plate annotation ({geometry_score:.0%})"
+            if confirmed_plate
+            else (
+                f"Geometry evidence conflicts with the predicted section "
+                f"({geometry_score:.0%})"
+            )
+        )
         issues.append(
             _issue(
                 issue_type="geometry_consistency",
                 severity="FAIL" if geometry_score < 0.2 else "WARNING",
-                why=(
-                    f"Geometry evidence conflicts with the predicted section "
-                    f"({geometry_score:.0%})"
-                ),
+                why=geometry_why,
                 evidence={
                     **evidence,
                     "geometry_score": geometry_score,
@@ -365,11 +465,16 @@ def _token_issues(prediction: dict) -> List[dict]:
             )
         )
     elif geometry_available:
+        geometry_pass_why = (
+            "Geometry is consistent with the plate annotation"
+            if confirmed_plate
+            else "Geometry is consistent with the AI prediction"
+        )
         issues.append(
             _issue(
                 issue_type="geometry_consistency",
                 severity="PASS",
-                why="Geometry is consistent with the AI prediction",
+                why=geometry_pass_why,
                 evidence={"geometry_score": geometry_score},
                 component_id=component_id,
                 object_id=object_id,
@@ -399,14 +504,20 @@ def _token_issues(prediction: dict) -> List[dict]:
         or 0.0
     )
     if degree > 0 and (graph_score < 0.35 or "graph_conflict" in fusion_issues):
+        graph_why = (
+            f"Structural graph neighborhood is weak for plate annotation "
+            f"({graph_score:.0%}, degree {int(degree)})"
+            if confirmed_plate
+            else (
+                f"Structural graph neighborhood is inconsistent "
+                f"({graph_score:.0%}, degree {int(degree)})"
+            )
+        )
         issues.append(
             _issue(
                 issue_type="graph_consistency",
                 severity="FAIL" if graph_score < 0.2 else "WARNING",
-                why=(
-                    f"Structural graph neighborhood is inconsistent "
-                    f"({graph_score:.0%}, degree {int(degree)})"
-                ),
+                why=graph_why,
                 evidence={
                     **evidence,
                     "graph_score": graph_score,
@@ -421,11 +532,16 @@ def _token_issues(prediction: dict) -> List[dict]:
             )
         )
     elif degree > 0:
+        graph_pass_why = (
+            "Graph neighborhood supports the plate annotation"
+            if confirmed_plate
+            else "Graph neighborhood supports the AI prediction"
+        )
         issues.append(
             _issue(
                 issue_type="graph_consistency",
                 severity="PASS",
-                why="Graph neighborhood supports the AI prediction",
+                why=graph_pass_why,
                 evidence={"graph_score": graph_score, "degree": degree},
                 component_id=component_id,
                 object_id=object_id,
@@ -450,14 +566,20 @@ def _token_issues(prediction: dict) -> List[dict]:
     rule_score = float(rules.get("score") or 0.5)
     findings = rules.get("findings") or []
     if rule_score < 0.45 or "engineering_rule_conflict" in fusion_issues:
+        rules_why = (
+            f"Engineering rules score is low for plate annotation "
+            f"{plate_label or '—'} (score {rule_score:.0%})"
+            if confirmed_plate
+            else (
+                f"Engineering rules disagree with section={section or '—'} "
+                f"(score {rule_score:.0%})"
+            )
+        )
         issues.append(
             _issue(
                 issue_type="engineering_rules",
                 severity="FAIL" if rule_score < 0.3 else "WARNING",
-                why=(
-                    f"Engineering rules disagree with section={section or '—'} "
-                    f"(score {rule_score:.0%})"
-                ),
+                why=rules_why,
                 evidence={
                     **evidence,
                     "rule_score": rule_score,
@@ -473,11 +595,16 @@ def _token_issues(prediction: dict) -> List[dict]:
             )
         )
     else:
+        rules_pass_why = (
+            "Engineering rules are consistent with the plate annotation"
+            if confirmed_plate
+            else "Engineering rules are consistent with the prediction"
+        )
         issues.append(
             _issue(
                 issue_type="engineering_rules",
                 severity="PASS",
-                why="Engineering rules are consistent with the prediction",
+                why=rules_pass_why,
                 evidence={
                     "rule_score": rule_score,
                     "member_role": rules.get("member_role"),
@@ -497,7 +624,9 @@ def _token_issues(prediction: dict) -> List[dict]:
     # Impossible / wrong section names from multimodal signals — not DB miss.
     impossible = False
     impossible_why = ""
-    if not section:
+    if confirmed_plate:
+        impossible = False
+    elif not section:
         impossible = True
         impossible_why = "AI produced no section label"
     elif family and section and not section.startswith(family):
@@ -589,7 +718,26 @@ def _token_issues(prediction: dict) -> List[dict]:
         )
 
     # Unknown labels are AI-uncertainty issues — never "not in database".
-    if confidence < 0.55 and not suggestion:
+    if confirmed_plate:
+        issues.append(
+            _issue(
+                issue_type="unknown_labels",
+                severity="PASS",
+                why=(
+                    f"Annotation type confirmed ({plate_label}); "
+                    "no AISC section required"
+                ),
+                evidence={
+                    "annotation_label": plate_label,
+                    "section_applicable": False,
+                },
+                component_id=component_id,
+                object_id=object_id,
+                original_token=original,
+                predicted_shape=plate_label,
+            )
+        )
+    elif confidence < 0.55 and not suggestion:
         issues.append(
             _issue(
                 issue_type="unknown_labels",

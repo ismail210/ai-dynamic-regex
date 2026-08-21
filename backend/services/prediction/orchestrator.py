@@ -20,7 +20,12 @@ from services.database_loader import (
 )
 from services.engineering.rule_engine import evaluate_engineering_rules
 from services.engineering.document_prior import apply_prior_to_candidates
-from services.entity_taxonomy import resolve_entity
+from services.entity_taxonomy import (
+    CATEGORY_LABELS,
+    CATEGORY_PLATE,
+    EntityClassification,
+    resolve_entity,
+)
 from services.exact_section_predictor import (
     catalog_valid_exact_section,
     predict_exact_sections,
@@ -44,11 +49,19 @@ from services.multimodal.feature_providers import (
 from services.multimodal.encoder_registry import encoder_registry
 from services.multimodal.modular_fusion import unified_multimodal_fusion
 from services.annotation.normalize import compact_normalize
+from services.annotation.parser import interpret_annotation
 from services.annotation.service import interpret_token_annotation
 from services.annotation.taxonomy import (
+    AnnotationType,
     Understandability,
+    annotation_type_value,
     requires_review,
     understandability_value,
+)
+from services.multimodal.encoder_contracts import (
+    AttentionResult,
+    FusedFeatures,
+    UnifiedFusionResult,
 )
 from services.annotation.model_governance import model_may_influence
 from services.prediction.calibration import calibrate_score
@@ -100,6 +113,107 @@ LEARNED_DISAGREEMENT_GRAPH_MIN = 0.7
 
 def _is_structural_family(label: Optional[str]) -> bool:
     return str(label or "").strip().upper() in STRUCTURAL_FAMILIES
+
+
+def _early_confirmed_plate_type(
+    token_record: Dict[str, Any],
+    *,
+    geometry: Dict[str, Any],
+    graph: Dict[str, Any],
+    document_prior: Dict[str, Any],
+) -> Optional[str]:
+    """Detect parser-confirmed plate annotations before AISC section fusion."""
+
+    ctx = token_record.get("context") or {}
+    nearby = list(ctx.get("neighbor_text") or [])
+    page_context = str(ctx.get("line_text") or "")
+    if document_prior.get("enabled"):
+        from services.engineering.document_prior import prior_context_blob
+
+        prior_blob = prior_context_blob(document_prior)
+        if prior_blob:
+            page_context = f"{page_context} | {prior_blob}".strip(" |")
+    parsed = interpret_annotation(
+        raw_text=str(token_record.get("raw_text") or token_record.get("text") or ""),
+        normalized_text=str(
+            token_record.get("normalized_text") or token_record.get("text") or ""
+        ),
+        page=token_record.get("page"),
+        bbox=token_record.get("bbox"),
+        text_rotation=token_record.get("rotation"),
+        geometry_orientation=(
+            ((geometry or {}).get("object") or {}).get("orientation")
+            if ((geometry or {}).get("object") or {}).get("orientation") is not None
+            else (geometry or {}).get("geometry_orientation")
+        ),
+        nearby_text=nearby,
+        nearby_geometry=geometry,
+        leader=(
+            {"present": bool(ctx.get("leader"))} if ctx.get("leader") else None
+        ),
+        page_context=page_context,
+        graph_context=graph,
+        fragments=list(token_record.get("fragments") or []),
+        source=str(token_record.get("extraction_method") or "pdf_text"),
+        document_prior=document_prior if document_prior.get("enabled") else None,
+    )
+    annotation_type = annotation_type_value(parsed.annotation_type)
+    if annotation_type not in {
+        AnnotationType.PLATE.value,
+        AnnotationType.BENT_PLATE.value,
+    }:
+        return None
+    if not parsed.structure_confirmed:
+        return None
+    return annotation_type
+
+
+def _plate_annotation_display_label(
+    annotation_pack: Dict[str, Any],
+    confirmed_plate_type: str,
+    raw_text: str,
+) -> str:
+    """Human-readable label for a confirmed plate/bent-plate annotation."""
+
+    annotation = annotation_pack.get("annotation") or {}
+    thickness = annotation.get("thickness")
+    if thickness:
+        suffix = "BENT PL" if confirmed_plate_type == "BENT_PLATE" else "PL"
+        thick_display = (
+            str(thickness) if '"' in str(thickness) else f'{thickness}"'
+        )
+        return f"{thick_display} {suffix}".strip()
+    dimensions = annotation.get("dimensions") or []
+    if dimensions:
+        body = " x ".join(str(item) for item in dimensions)
+        suffix = "BENT PL" if confirmed_plate_type == "BENT_PLATE" else "PL"
+        return f"{body} {suffix}".strip()
+    cleaned = str(raw_text or "").strip()
+    if cleaned:
+        return cleaned
+    return confirmed_plate_type.replace("_", " ").title()
+
+
+def _skipped_section_fusion_result(reason: str) -> UnifiedFusionResult:
+    """Placeholder fusion output when rolled-section prediction is not applicable."""
+
+    return UnifiedFusionResult(
+        section="",
+        confidence=0.0,
+        contributions={"annotation": 1.0},
+        attention=AttentionResult(
+            weights={"annotation": 1.0},
+            logits={"annotation": 1.0},
+        ),
+        fused_features=FusedFeatures(
+            vector=[],
+            modality_slices={},
+            availability={},
+            encoders={},
+        ),
+        candidate_scores=[],
+        reasons=[reason],
+    )
 
 
 def _candidate_confidence(candidate: Any) -> float:
@@ -249,101 +363,8 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     ) or catalog_valid_exact_section(raw_text)
     extraction_confidence = float(token_record.get("confidence") or 0.5)
 
-    # MISSING-THICKNESS HSS PATH: "HSS10X10" does not uniquely identify a
-    # catalog section -- the two outside dimensions are KNOWN (read cleanly,
-    # no wildcard/corruption marker), only thickness is absent. That known
-    # information must constrain the candidate pool to real
-    # HSS<dim1>X<dim2>X* catalog members before fuzzy/fusion ranking ever
-    # runs, not just gate a later auto-accept decision -- otherwise
-    # character-similarity retrieval can drift onto a different pair
-    # entirely (e.g. HSS8X8 -> HSS8X6X3/8, a real failure found in
-    # production data). ``protected_exact_section`` and this path are
-    # mutually exclusive by construction: a complete, catalog-valid read
-    # never parses as "missing thickness".
-    hss_dimensions = (
-        None
-        if protected_exact_section
-        else (
-            detect_missing_thickness_hss(normalized)
-            or detect_missing_thickness_hss(raw_text)
-        )
-    )
-    hss_completions = (
-        hss_completion_candidates(*hss_dimensions) if hss_dimensions else []
-    )
-    # >1 catalog-valid thickness for the same known dimensions is genuine,
-    # irreducible ambiguity -- no ranker score may manufacture certainty
-    # there (see resolution contract). Exactly 1 catalog match is
-    # deterministic by definition and proceeds through the normal pipeline
-    # like any other single-candidate exact match.
-    missing_thickness_needs_review = len(hss_completions) > 1
-
-    family_prediction = predict_with_confidence(normalized)
-    family_label = family_prediction.label
-    family_probability = float(family_prediction.probability)
-
     geometry = context.get("geometry_features") or _geometry_provider.extract(context)
     graph = context.get("graph_features") or _graph_provider.extract(context)
-
-    provisional_rules = evaluate_engineering_rules(
-        token=normalized,
-        predicted_shape=str(family_label or normalized),
-        geometry=geometry,
-        graph=context.get("graph"),
-        graph_preview={
-            "degree": graph.get("degree"),
-            "structural_links": graph.get("structural_links"),
-        },
-    )
-
-    # Deterministic wildcard/mask matching runs before fuzzy retrieval: a
-    # label with explicit unknown-character markers (e.g. "W44X3**") is
-    # resolved against the real AISC catalog by position, not by string
-    # similarity. Fuzzy retrieval only takes over when there are no wildcard
-    # characters, or the mask matched nothing in the catalog.
-    used_wildcards = has_wildcards(original) or has_wildcards(normalized)
-    wildcard_hits = (
-        match_wildcard_mask(original or normalized, limit=8) if used_wildcards else []
-    )
-
-    # Single exact-section AI call with multimodal rerank (Priority 1).
-    exact_candidates = []
-    if hss_completions:
-        # Deterministic candidate set from known dimensions -- same
-        # rerank-without-fuzzy-retrieval path already used for wildcard-mask
-        # matches, so geometry/graph/engineering-rules evidence can still
-        # order the options without a text-similarity search ever running.
-        exact_candidates = predict_exact_sections_for_labels(
-            [item.designation for item in hss_completions],
-            geometry=geometry,
-            graph=graph,
-            engineering_rules=provisional_rules.to_dict(),
-            limit=len(hss_completions),
-        )
-    elif wildcard_hits:
-        exact_candidates = predict_exact_sections_for_labels(
-            [hit.label for hit in wildcard_hits],
-            geometry=geometry,
-            graph=graph,
-            engineering_rules=provisional_rules.to_dict(),
-            limit=8,
-        )
-    elif _is_structural_family(family_label) or not family_label:
-        exact_candidates = predict_exact_sections(
-            normalized,
-            limit=10,
-            geometry=geometry,
-            graph=graph,
-            engineering_rules=provisional_rules.to_dict(),
-        )
-    if not exact_candidates and _is_structural_family(family_label):
-        exact_candidates = predict_exact_sections(
-            str(family_label),
-            limit=10,
-            geometry=geometry,
-            graph=graph,
-            engineering_rules=provisional_rules.to_dict(),
-        )
 
     document = context.get("document") or {}
     document_prior = (
@@ -351,204 +372,322 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         if settings.document_prior_enabled
         else {}
     )
-    if document_prior.get("enabled") and not protected_exact_section:
-        exact_candidates = apply_prior_to_candidates(
-            exact_candidates,
-            document_prior,
-            token_text=normalized or raw_text,
-        )
-
-    expected_family = (
-        str(family_label) if _is_structural_family(family_label) else None
-    )
-    corrections = suggest_token_corrections(
-        extracted_text or normalized,
-        expected_family=expected_family,
+    confirmed_plate_type = _early_confirmed_plate_type(
+        token_record,
         geometry=geometry,
         graph=graph,
-        engineering_context=provisional_rules.to_dict(),
-        similarity_candidates=exact_candidates,
-        limit=8,
+        document_prior=document_prior,
     )
-    # Geometry vector hits contribute role/consistency evidence only — they
-    # must not inject section strings into fusion (plan-view lines cannot
-    # distinguish W12X26 from W21X44).
-    fusion_candidates: List[Any] = list(exact_candidates)
-    existing_shapes = {candidate.shape for candidate in exact_candidates}
-    # The correction engine also mixes in same-family review-history shapes
-    # regardless of dimensions (see MultimodalCorrectionEngine.correct) --
-    # exactly the uncontrolled pool the missing-thickness path exists to
-    # avoid. Once dimensions are known, nothing outside that dimension's own
-    # completions may re-enter fusion through this second door.
-    hss_completion_shapes = (
-        {item.designation for item in hss_completions} if hss_completions else None
-    )
-    for correction in corrections:
-        if (
-            correction.corrected in existing_shapes
-            or lookup_shape(correction.corrected) is None
-        ):
-            continue
-        if (
-            hss_completion_shapes is not None
-            and correction.corrected not in hss_completion_shapes
-        ):
-            continue
-        fusion_candidates.append(
+
+    family_label = ""
+    family_probability = 0.0
+    family_prediction = None
+    used_wildcards = False
+    wildcard_hits: List[Any] = []
+    exact_candidates: List[Any] = []
+    corrections: List[Any] = []
+    corrected_text = normalized
+    encodings: Dict[str, Any]
+    unified_fusion: UnifiedFusionResult
+    section = ""
+    retrieval_gate_failed = True
+    label_ranker_meta: Dict[str, Any] = {}
+    protected_label_conflict = False
+    ranker_applied_effective = False
+    hss_completions: List[Any] = []
+    missing_thickness_needs_review = False
+
+    if confirmed_plate_type:
+        provisional_rules = evaluate_engineering_rules(
+            token=normalized,
+            predicted_shape="",
+            geometry=geometry,
+            graph=context.get("graph"),
+            graph_preview={
+                "degree": graph.get("degree"),
+                "structural_links": graph.get("structural_links"),
+            },
+        )
+        unified_fusion = _skipped_section_fusion_result(
+            f"Confirmed {confirmed_plate_type}; rolled-section fusion skipped."
+        )
+        encodings = encoder_registry.encode_all(
             {
-                "shape": correction.corrected,
-                "evidence": {
-                    "text": float(correction.confidence),
-                    "geometry": float(geometry.get("similarity") or 0.0),
-                    "graph": float(
-                        graph.get("graph_confidence")
-                        or graph.get("graph_consistency")
-                        or 0.0
-                    ),
-                    "engineering_rules": float(provisional_rules.score),
+                "text": {
+                    "token": normalized,
+                    "model_probability": 0.0,
+                    "extraction_confidence": extraction_confidence,
+                    "regex_confidence": 0.0,
+                    "candidates": [],
                 },
+                "ocr": {
+                    "original": raw_text,
+                    "corrected": corrected_text,
+                    "confidence": extraction_confidence,
+                    "repairs": (
+                        (token_record.get("diagnostics") or {}).get("ocr_repairs")
+                        or []
+                    ),
+                },
+                "layout": {
+                    "bbox": token_record.get("bbox"),
+                    "page": token_record.get("page"),
+                    "reading_order": token_record.get("reading_order"),
+                    "font_size": token_record.get("font_size"),
+                    "rotation": token_record.get("rotation"),
+                    "member_role": token_record.get("engineering_object_type"),
+                    "neighbors": (
+                        (token_record.get("context") or {}).get("neighbor_text") or []
+                    ),
+                },
+                "geometry": {"geometry": geometry},
+                "graph": {"graph": graph},
+                "engineering_rules": {"rules": provisional_rules.to_dict()},
             }
         )
-    fusion_candidates = [
-        candidate
-        for candidate in fusion_candidates
-        if lookup_shape(
-            str(
-                getattr(candidate, "shape", None)
-                or (
-                    candidate.get("shape")
-                    if isinstance(candidate, dict)
-                    else ""
-                )
+    else:
+        # MISSING-THICKNESS HSS PATH: "HSS10X10" does not uniquely identify a
+        # catalog section -- the two outside dimensions are KNOWN (read cleanly,
+        # no wildcard/corruption marker), only thickness is absent.
+        hss_dimensions = (
+            None
+            if protected_exact_section
+            else (
+                detect_missing_thickness_hss(normalized)
+                or detect_missing_thickness_hss(raw_text)
             )
         )
-        is not None
-    ]
-    if document_prior.get("enabled") and not protected_exact_section:
-        fusion_candidates = apply_prior_to_candidates(
-            fusion_candidates,
-            document_prior,
-            token_text=normalized or raw_text,
+        hss_completions = (
+            hss_completion_candidates(*hss_dimensions) if hss_dimensions else []
         )
-    corrected_text = (
-        corrections[0].corrected if corrections else normalized
-    )
-    if missing_thickness_needs_review:
-        # A completion candidate is not an OCR correction: nothing about
-        # the missing thickness was read from the source, so the "what did
-        # extraction actually give us" field must not claim it did. The
-        # ranked completions themselves are still fully available via
-        # exact_candidates / the canonical candidate list below.
-        corrected_text = normalized
+        missing_thickness_needs_review = len(hss_completions) > 1
 
-    encodings = encoder_registry.encode_all(
-        {
-            "text": {
-                "token": normalized,
-                "model_probability": (
-                    float(exact_candidates[0].confidence)
-                    if exact_candidates
-                    else family_probability
-                ),
-                "extraction_confidence": float(
-                    token_record.get("confidence") or 0.5
-                ),
-                "regex_confidence": 0.0,
-                "candidates": exact_candidates,
+        family_prediction = predict_with_confidence(normalized)
+        family_label = family_prediction.label
+        family_probability = float(family_prediction.probability)
+
+        provisional_rules = evaluate_engineering_rules(
+            token=normalized,
+            predicted_shape=str(family_label or normalized),
+            geometry=geometry,
+            graph=context.get("graph"),
+            graph_preview={
+                "degree": graph.get("degree"),
+                "structural_links": graph.get("structural_links"),
             },
-            "ocr": {
-                "original": raw_text,
-                "corrected": corrected_text,
-                "confidence": float(token_record.get("confidence") or 0.5),
-                "repairs": (
-                    (token_record.get("diagnostics") or {}).get(
-                        "ocr_repairs"
+        )
+
+        # Deterministic wildcard/mask matching runs before fuzzy retrieval: a
+        # label with explicit unknown-character markers (e.g. "W44X3**") is
+        # resolved against the real AISC catalog by position, not by string
+        # similarity. Fuzzy retrieval only takes over when there are no wildcard
+        # characters, or the mask matched nothing in the catalog.
+        used_wildcards = has_wildcards(original) or has_wildcards(normalized)
+        wildcard_hits = (
+            match_wildcard_mask(original or normalized, limit=8)
+            if used_wildcards
+            else []
+        )
+
+        # Single exact-section AI call with multimodal rerank (Priority 1).
+        exact_candidates = []
+        if hss_completions:
+            exact_candidates = predict_exact_sections_for_labels(
+                [item.designation for item in hss_completions],
+                geometry=geometry,
+                graph=graph,
+                engineering_rules=provisional_rules.to_dict(),
+                limit=len(hss_completions),
+            )
+        elif wildcard_hits:
+            exact_candidates = predict_exact_sections_for_labels(
+                [hit.label for hit in wildcard_hits],
+                geometry=geometry,
+                graph=graph,
+                engineering_rules=provisional_rules.to_dict(),
+                limit=8,
+            )
+        elif _is_structural_family(family_label) or not family_label:
+            exact_candidates = predict_exact_sections(
+                normalized,
+                limit=10,
+                geometry=geometry,
+                graph=graph,
+                engineering_rules=provisional_rules.to_dict(),
+            )
+        if not exact_candidates and _is_structural_family(family_label):
+            exact_candidates = predict_exact_sections(
+                str(family_label),
+                limit=10,
+                geometry=geometry,
+                graph=graph,
+                engineering_rules=provisional_rules.to_dict(),
+            )
+
+        if document_prior.get("enabled") and not protected_exact_section:
+            exact_candidates = apply_prior_to_candidates(
+                exact_candidates,
+                document_prior,
+                token_text=normalized or raw_text,
+            )
+
+        expected_family = (
+            str(family_label) if _is_structural_family(family_label) else None
+        )
+        corrections = suggest_token_corrections(
+            extracted_text or normalized,
+            expected_family=expected_family,
+            geometry=geometry,
+            graph=graph,
+            engineering_context=provisional_rules.to_dict(),
+            similarity_candidates=exact_candidates,
+            limit=8,
+        )
+        # Geometry vector hits contribute role/consistency evidence only — they
+        # must not inject section strings into fusion (plan-view lines cannot
+        # distinguish W12X26 from W21X44).
+        fusion_candidates: List[Any] = list(exact_candidates)
+        existing_shapes = {candidate.shape for candidate in exact_candidates}
+        hss_completion_shapes = (
+            {item.designation for item in hss_completions} if hss_completions else None
+        )
+        for correction in corrections:
+            if (
+                correction.corrected in existing_shapes
+                or lookup_shape(correction.corrected) is None
+            ):
+                continue
+            if (
+                hss_completion_shapes is not None
+                and correction.corrected not in hss_completion_shapes
+            ):
+                continue
+            fusion_candidates.append(
+                {
+                    "shape": correction.corrected,
+                    "evidence": {
+                        "text": float(correction.confidence),
+                        "geometry": float(geometry.get("similarity") or 0.0),
+                        "graph": float(
+                            graph.get("graph_confidence")
+                            or graph.get("graph_consistency")
+                            or 0.0
+                        ),
+                        "engineering_rules": float(provisional_rules.score),
+                    },
+                }
+            )
+        fusion_candidates = [
+            candidate
+            for candidate in fusion_candidates
+            if lookup_shape(
+                str(
+                    getattr(candidate, "shape", None)
+                    or (
+                        candidate.get("shape")
+                        if isinstance(candidate, dict)
+                        else ""
                     )
-                    or []
-                ),
-            },
-            "layout": {
-                "bbox": token_record.get("bbox"),
-                "page": token_record.get("page"),
-                "reading_order": token_record.get("reading_order"),
-                "font_size": token_record.get("font_size"),
-                "rotation": token_record.get("rotation"),
-                "member_role": token_record.get(
-                    "engineering_object_type"
-                ),
-                "neighbors": (
-                    (token_record.get("context") or {}).get("neighbor_text")
-                    or []
-                ),
-            },
-            "geometry": {"geometry": geometry},
-            "graph": {"graph": graph},
-            "engineering_rules": {"rules": provisional_rules.to_dict()},
-        }
-    )
-    unified_fusion = unified_multimodal_fusion.predict(
-        encodings=encodings,
-        candidates=fusion_candidates,
-        fallback_section=corrected_text,
-    )
-    section, retrieval_gate_failed = _gated_exact_override(
-        str(unified_fusion.section or ""),
-        exact_candidates,
-        normalized or raw_text,
-    )
-    # Shadow / enable path via indirection (never imports the ranker package
-    # here). Shadow-only never changes ``section``; ENABLED may replace it.
-    label_ranker_meta = apply_label_ranker_for_analyze(
-        raw_text=original or normalized,
-        live_section=section,
-    )
-    if label_ranker_meta.get("applied") and label_ranker_meta.get(
-        "selected_prediction"
-    ):
-        ranker_label = str(label_ranker_meta["selected_prediction"])
-        section = ranker_label
-        # A learned reconstruction is exactly the kind of candidate the
-        # resolution contract requires review for (Case C/D) -- it is a
-        # damaged/ambiguous-label RECONSTRUCTION, not a reading of what the
-        # extracted characters themselves say. It only clears the gate when
-        # it happens to equal the text's own safe-normalized catalog form
-        # (i.e. it degenerates to a Case A match), never on the strength of
-        # the ranker's own score.
-        retrieval_gate_failed = ranker_label != catalog_valid_exact_section(
-            original or normalized
+                )
+            )
+            is not None
+        ]
+        if document_prior.get("enabled") and not protected_exact_section:
+            fusion_candidates = apply_prior_to_candidates(
+                fusion_candidates,
+                document_prior,
+                token_text=normalized or raw_text,
+            )
+        corrected_text = corrections[0].corrected if corrections else normalized
+        if missing_thickness_needs_review:
+            corrected_text = normalized
+
+        encodings = encoder_registry.encode_all(
+            {
+                "text": {
+                    "token": normalized,
+                    "model_probability": (
+                        float(exact_candidates[0].confidence)
+                        if exact_candidates
+                        else family_probability
+                    ),
+                    "extraction_confidence": extraction_confidence,
+                    "regex_confidence": 0.0,
+                    "candidates": exact_candidates,
+                },
+                "ocr": {
+                    "original": raw_text,
+                    "corrected": corrected_text,
+                    "confidence": extraction_confidence,
+                    "repairs": (
+                        (token_record.get("diagnostics") or {}).get("ocr_repairs")
+                        or []
+                    ),
+                },
+                "layout": {
+                    "bbox": token_record.get("bbox"),
+                    "page": token_record.get("page"),
+                    "reading_order": token_record.get("reading_order"),
+                    "font_size": token_record.get("font_size"),
+                    "rotation": token_record.get("rotation"),
+                    "member_role": token_record.get("engineering_object_type"),
+                    "neighbors": (
+                        (token_record.get("context") or {}).get("neighbor_text")
+                        or []
+                    ),
+                },
+                "geometry": {"geometry": geometry},
+                "graph": {"graph": graph},
+                "engineering_rules": {"rules": provisional_rules.to_dict()},
+            }
         )
+        unified_fusion = unified_multimodal_fusion.predict(
+            encodings=encodings,
+            candidates=fusion_candidates,
+            fallback_section=corrected_text,
+        )
+        section, retrieval_gate_failed = _gated_exact_override(
+            str(unified_fusion.section or ""),
+            exact_candidates,
+            normalized or raw_text,
+        )
+        label_ranker_meta = apply_label_ranker_for_analyze(
+            raw_text=original or normalized,
+            live_section=section,
+        )
+        if label_ranker_meta.get("applied") and label_ranker_meta.get(
+            "selected_prediction"
+        ):
+            ranker_label = str(label_ranker_meta["selected_prediction"])
+            section = ranker_label
+            retrieval_gate_failed = ranker_label != catalog_valid_exact_section(
+                original or normalized
+            )
 
-    # Enforce the protected exact label path. This is the last word: neither
-    # fusion, the exact-candidate gate, nor the label ranker may silently
-    # replace a clean catalog-valid exact text match. If they picked
-    # something else, that disagreement is surfaced for review below, but the
-    # final section stays the protected one.
-    protected_label_conflict = False
-    if protected_exact_section:
-        if section and section != protected_exact_section:
-            protected_label_conflict = True
-        section = protected_exact_section
-        retrieval_gate_failed = False
+        if protected_exact_section:
+            if section and section != protected_exact_section:
+                protected_label_conflict = True
+            section = protected_exact_section
+            retrieval_gate_failed = False
 
-    # Whether the RETURNED section is actually the ranker's pick (as opposed
-    # to the ranker applying but then being overridden by the protected exact
-    # label above). Only this case needs its downstream evidence recomputed —
-    # everything computed from ``unified_fusion``/``encodings`` below
-    # describes the PRE-swap candidate, not the ranker's replacement.
-    ranker_applied_effective = bool(
-        label_ranker_meta.get("applied")
-    ) and not protected_label_conflict
+        ranker_applied_effective = bool(
+            label_ranker_meta.get("applied")
+        ) and not protected_label_conflict
 
     ai_reasons = list(unified_fusion.reasons)
-    if retrieval_gate_failed:
+    if confirmed_plate_type:
+        ai_reasons.append(
+            f"Confirmed {confirmed_plate_type}; AISC section prediction not applicable."
+        )
+    elif retrieval_gate_failed:
         ai_reasons.append(
             "Exact-section retrieval gate failed; abstaining for human review."
         )
-    if label_ranker_meta.get("applied"):
+    if not confirmed_plate_type and label_ranker_meta.get("applied"):
         ai_reasons.append(
             "Damaged-label ranker enabled; replaced section with learned pick."
         )
-    if not label_ranker_meta.get("applied"):
+    if not confirmed_plate_type and not label_ranker_meta.get("applied"):
         text_locked = _text_locked_section(normalized or raw_text, section)
         if text_locked:
             ai_reasons.append(
@@ -567,6 +706,31 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         selected_section=section,
         document_prior=document_prior if document_prior.get("enabled") else None,
     )
+    annotation = annotation_pack.get("annotation") or {}
+    if not confirmed_plate_type:
+        late_plate_type = annotation_type_value(annotation.get("annotation_type"))
+        if (
+            late_plate_type
+            in {AnnotationType.PLATE.value, AnnotationType.BENT_PLATE.value}
+            and annotation.get("structure_confirmed")
+        ):
+            confirmed_plate_type = late_plate_type
+            section = ""
+            retrieval_gate_failed = False
+            ai_reasons = [
+                reason
+                for reason in ai_reasons
+                if "Exact-section retrieval gate failed" not in reason
+                and "Damaged-label ranker" not in reason
+            ]
+            if not any(
+                "AISC section prediction not applicable" in reason
+                for reason in ai_reasons
+            ):
+                ai_reasons.append(
+                    f"Confirmed {confirmed_plate_type}; "
+                    "AISC section prediction not applicable."
+                )
     understand = annotation_pack.get("understandability") or {}
     understandability_status = understandability_value(understand.get("status"))
     if requires_review(understandability_status):
@@ -586,9 +750,10 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         else:
             # Unreadable/unsupported text with no protected exact label must
             # not be answered from candidates.
-            section = ""
-            retrieval_gate_failed = True
-    elif annotation_pack.get("abstain_for_review"):
+            if not confirmed_plate_type:
+                section = ""
+                retrieval_gate_failed = True
+    elif annotation_pack.get("abstain_for_review") and not confirmed_plate_type:
         ai_reasons.append(
             "Top-K candidates remain ambiguous; abstaining for human review."
         )
@@ -603,13 +768,6 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         )
 
     if missing_thickness_needs_review:
-        # Last word, same as the protected-label-conflict case above:
-        # ``section`` keeps the ranker's top-ranked completion (still real,
-        # still useful for family/component/explanation and as the
-        # displayed "suggested" candidate), but no amount of fusion/ranker
-        # score may turn "several catalog-valid thicknesses, none read from
-        # source" into an auto-accepted answer -- that is genuine
-        # irreducible ambiguity, not a confidence problem.
         retrieval_gate_failed = True
         ai_reasons.append(
             "Wall thickness is not present in the extracted designation "
@@ -617,9 +775,14 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
             f"{len(hss_completions)} valid completions."
         )
 
+    if confirmed_plate_type:
+        retrieval_gate_failed = False
+
     model_label = section
     model_probability = (
-        0.0 if retrieval_gate_failed else float(unified_fusion.confidence)
+        extraction_confidence
+        if confirmed_plate_type
+        else (0.0 if retrieval_gate_failed else float(unified_fusion.confidence))
     )
     if protected_exact_section and not retrieval_gate_failed:
         # A clean catalog-valid exact text match is itself strong evidence;
@@ -637,10 +800,14 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         item["shape"]: float(item["score"])
         for item in unified_fusion.candidate_scores
     }
-    family = derive_family_from_section(section, fallback=family_label)
+    family = (
+        "Plate"
+        if confirmed_plate_type
+        else derive_family_from_section(section, fallback=family_label)
+    )
 
     # Post-prediction AISC plausibility check; it never generates candidates.
-    db_exact = lookup_shape(section)
+    db_exact = None if confirmed_plate_type else lookup_shape(section)
     similar = search_similar_shapes(normalized, limit=8, minimum_score=0.35)
     best_similarity = (
         1.0 if db_exact else float(similar[0]["similarity"]) if similar else 0.0
@@ -718,7 +885,9 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     }
 
     confidence_value = (
-        0.0 if retrieval_gate_failed else float(unified_fusion.confidence)
+        extraction_confidence
+        if confirmed_plate_type
+        else (0.0 if retrieval_gate_failed else float(unified_fusion.confidence))
     )
     if protected_exact_section and not retrieval_gate_failed:
         confidence_value = max(confidence_value, extraction_confidence)
@@ -769,6 +938,9 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         )
     )
     final_correction = (
+        None
+        if confirmed_plate_type
+        else (
         {
             "original": raw_text or normalized,
             "corrected": section,
@@ -811,9 +983,14 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
             if corrections
             else None
         )
+        )
     )
     output_corrected_text = (
-        section if (learned_disagreement or ranker_applied_effective) else corrected_text
+        (raw_text or normalized)
+        if confirmed_plate_type
+        else (
+            section if (learned_disagreement or ranker_applied_effective) else corrected_text
+        )
     )
     # Contribution scores are normalized attention shares, not raw
     # similarities — and (see above) not valid at all for the ranker-applied
@@ -957,32 +1134,46 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         "bullets": bullets,
         "summary": existing_eng.get("summary")
         or (
-            f"Selected {section} with understandability={understandability_status}."
-            if section
-            else f"No automatic section — {understandability_status}."
+            f"Confirmed {confirmed_plate_type}; no AISC section applied ({understandability_status})."
+            if confirmed_plate_type
+            else (
+                f"Selected {section} with understandability={understandability_status}."
+                if section
+                else f"No automatic section — {understandability_status}."
+            )
         ),
     }
 
     # Entity metadata — AI family/section first; AISC only for category enrichment.
-    entity = resolve_entity(
-        section,
-        aisc_type=None,  # do not let AISC override class_name
-        model_class=family or family_label,
-        database_type=(db_exact or {}).get("type"),
+    entity = (
+        EntityClassification(
+            CATEGORY_PLATE,
+            CATEGORY_LABELS[CATEGORY_PLATE],
+            confirmed_plate_type,
+            "annotation_parser",
+            1.0,
+        )
+        if confirmed_plate_type
+        else resolve_entity(
+            section,
+            aisc_type=None,  # do not let AISC override class_name
+            model_class=family or family_label,
+            database_type=(db_exact or {}).get("type"),
+        )
     )
 
     issues = detect_extraction_issues(token_record)
     if corrected_text != normalized:
         issues.append("automatic_correction_suggested")
-    if not database_verified:
+    if not database_verified and not confirmed_plate_type:
         issues.append("database_unverified")
-    if rule_score < 0.55:
+    if rule_score < 0.55 and not confirmed_plate_type:
         issues.append("engineering_rule_conflict")
     if geometry.get("available") and geometry_similarity < 0.45:
         issues.append("geometry_conflict")
     if float(graph.get("degree") or 0) > 0 and graph_consistency < 0.45:
         issues.append("graph_conflict")
-    if retrieval_gate_failed or not section:
+    if retrieval_gate_failed or (not section and not confirmed_plate_type):
         issues.append("retrieval_gate_failed")
     if annotation_pack.get("abstain_for_review"):
         issues.append("annotation_requires_review")
@@ -990,7 +1181,10 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         issues.append("annotation_unreadable")
     if understandability_status == Understandability.UNSUPPORTED.value:
         issues.append("annotation_unsupported")
-    if understandability_status == Understandability.AMBIGUOUS.value:
+    if (
+        understandability_status == Understandability.AMBIGUOUS.value
+        and not confirmed_plate_type
+    ):
         issues.append("annotation_ambiguous")
     if protected_label_conflict:
         issues.append("protected_label_conflict")
@@ -998,17 +1192,21 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         issues.append("schedule_sourced_member")
     if token_record.get("geometry_associated"):
         issues.append("geometry_spatial_association")
+    if confirmed_plate_type:
+        issues.append("plate_annotation_not_structural_section")
 
     review_status = decide_review_status(
         confidence=float(confidence["overall"]),
         issues=issues,
         corrected=corrected_text != normalized,
-        regex_matches=False,
+        regex_matches=bool(confirmed_plate_type),
         model_probability=model_probability,
         database_verified=database_verified,
-        abstain=retrieval_gate_failed or not section,
+        abstain=(retrieval_gate_failed or (not section and not confirmed_plate_type)),
         protected_label_conflict=protected_label_conflict,
     )
+    if confirmed_plate_type and review_status != "pending_review":
+        review_status = "auto_accepted"
     if token_record.get("schedule_sourced") or token_record.get("geometry_associated"):
         review_status = "pending_review"
     abstention_reason = determine_abstention_reason(
@@ -1017,9 +1215,10 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         issues=issues,
         model_probability=model_probability,
         database_verified=database_verified,
-        regex_matches=False,
+        regex_matches=bool(confirmed_plate_type),
         protected_label_conflict=protected_label_conflict,
-        retrieval_gate_failed=retrieval_gate_failed or not section,
+        retrieval_gate_failed=retrieval_gate_failed
+        or (not section and not confirmed_plate_type),
         pipeline_error=label_ranker_meta.get("ranker_status") == "error",
     )
 
@@ -1027,7 +1226,7 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         role=rules.member_role or entity.category,
         page=token_record.get("page"),
         bbox=token_record.get("bbox"),
-        text=section,
+        text=section or raw_text or normalized,
         source_file=source_file,
     )
 
@@ -1047,6 +1246,11 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     bbox = token_record.get("bbox")
     line_info = token_record.get("line") or {}
     block_info = token_record.get("block") or {}
+    plate_annotation_label = (
+        _plate_annotation_display_label(annotation_pack, confirmed_plate_type, raw_text)
+        if confirmed_plate_type
+        else None
+    )
     canonical = build_canonical_prediction(
         object_id=str(token_record.get("token_id") or component_id),
         document_id=document_id,
@@ -1086,6 +1290,13 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         near_tie=ranking.near_tie,
         used_wildcards=used_wildcards,
         used_missing_dimension=missing_thickness_needs_review,
+        confirmed_annotation=bool(confirmed_plate_type),
+        annotation_type=confirmed_plate_type,
+        annotation_label=plate_annotation_label,
+        section_applicable=not bool(confirmed_plate_type),
+        confidence_basis=(
+            "extraction_confidence" if confirmed_plate_type else None
+        ),
     )
 
     alternatives = []
@@ -1124,7 +1335,11 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
             candidate.to_dict() for candidate in exact_candidates
         ],
         "wildcard_candidates": [hit.to_dict() for hit in wildcard_hits],
-        "family_fallback": family_prediction.to_dict(),
+        "family_fallback": (
+            family_prediction.to_dict()
+            if family_prediction is not None
+            else {"label": "", "probability": 0.0}
+        ),
         "distribution": distribution,
         "extraction_confidence": extraction_confidence,
         "extraction_status": token_record.get("extraction_status")
@@ -1165,19 +1380,29 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         "corrected_token": output_corrected_text,
         "page_number": token_record.get("page"),
         "bounding_box": token_record.get("bbox"),
-        "evidence_source": [
-            name
-            for name, is_available in available.items()
-            if is_available and name != "database"
-        ]
-        + ["fusion"],
-        "prediction_source": (
-            "Correction"
-            if final_correction and output_corrected_text != normalized
-            else "Geometry"
-            if not raw_text and geometry.get("geometry_embedding")
-            else "Fusion"
+        "evidence_source": (
+            ["annotation"]
+            if confirmed_plate_type
+            else [
+                name
+                for name, is_available in available.items()
+                if is_available and name != "database"
+            ]
+            + ["fusion"]
         ),
+        "prediction_source": (
+            "Annotation"
+            if confirmed_plate_type
+            else (
+                "Correction"
+                if final_correction and output_corrected_text != normalized
+                else "Geometry"
+                if not raw_text and geometry.get("geometry_embedding")
+                else "Fusion"
+            )
+        ),
+        "section_prediction_not_applicable": bool(confirmed_plate_type),
+        "plate_annotation_type": confirmed_plate_type,
         "missing_label_prediction": (
             {
                 "predicted_missing_label": section,
@@ -1314,7 +1539,11 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
                 {"class": a["shape"], "probability": a["confidence"]}
                 for a in alternatives[:5]
             ],
-            "family_fallback": family_prediction.to_dict(),
+            "family_fallback": (
+            family_prediction.to_dict()
+            if family_prediction is not None
+            else {"label": "", "probability": 0.0}
+        ),
         },
     }
 
@@ -1375,7 +1604,10 @@ def predict_token(
         (result.get("features") or {}).get("fusion", {}).get("detected_issues") or []
     )
     protected_label_conflict = "protected_label_conflict" in inner_issues
-    abstain = "retrieval_gate_failed" in inner_issues or not section
+    confirmed_plate = bool(result.get("section_prediction_not_applicable"))
+    abstain = "retrieval_gate_failed" in inner_issues or (
+        not section and not confirmed_plate
+    )
 
     review_status = decide_review_status(
         confidence=float(conf.get("overall") or 0.0),

@@ -41,6 +41,26 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def _refresh_exact_section_artifact_safe() -> None:
+    try:
+        from services.exact_section_predictor import refresh_exact_section_artifact
+
+        refresh_exact_section_artifact()
+    except Exception:
+        # Approval persistence must succeed even if retrieval refresh fails.
+        pass
+
+
+def _schedule_exact_section_refresh(*, background: bool) -> None:
+    if background:
+        threading.Thread(
+            target=_refresh_exact_section_artifact_safe,
+            daemon=True,
+        ).start()
+        return
+    _refresh_exact_section_artifact_safe()
+
+
 class DatasetManager:
     """Owns mutable review datasets; the AISC training CSV is read-only."""
 
@@ -121,75 +141,193 @@ class DatasetManager:
         *,
         ranking_score: float | None = None,
         predicted_section: str = "",
+        rebuild_exact_section: bool = True,
     ) -> dict[str, str]:
-        action = action.lower().strip()
-        if action not in {"approve", "reject"}:
-            raise ValueError("action must be 'approve' or 'reject'")
+        batch = self.review_tokens_batch(
+            [
+                {
+                    "unknown_id": unknown_id,
+                    "action": action,
+                    "reviewed_class": reviewed_class,
+                    "reviewed_category": reviewed_category,
+                    "notes": notes,
+                    "ranking_score": ranking_score,
+                    "predicted_section": predicted_section,
+                }
+            ],
+            actor=actor,
+            rebuild_exact_section=rebuild_exact_section,
+        )
+        if batch["errors"]:
+            error = batch["errors"][0]
+            if error["error_type"] == "KeyError":
+                raise KeyError(error["error"])
+            raise ValueError(error["error"])
+        return batch["results"][0]
+
+    def review_tokens_batch(
+        self,
+        items: list[dict[str, Any]],
+        actor: str = "user",
+        *,
+        rebuild_exact_section: bool = True,
+    ) -> dict[str, Any]:
+        """Review many tokens with one CSV read/write pass per dataset."""
+
+        results: list[dict[str, str]] = []
+        errors: list[dict[str, str]] = []
+        approved_count = 0
+
         with self._lock:
-            rows = self._read_rows(settings.unknown_tokens_path, UNKNOWN_COLUMNS)
-            record = next((row for row in rows if row["id"] == unknown_id), None)
-            if record is None:
-                raise KeyError(f"Unknown token '{unknown_id}' was not found")
-            if record["status"] != "pending":
-                raise ValueError(f"Unknown token has already been {record['status']}")
-            now = _now()
-            record.update({
-                "status": "approved" if action == "approve" else "rejected",
-                "reviewed_class": reviewed_class.strip(),
-                "reviewed_category": reviewed_category.strip(),
-                "notes": notes.strip(), "updated_at": now,
-            })
-            if action == "approve":
-                from services.training_pipeline.preprocessing import assign_split
-
-                final_class = reviewed_class.strip() or record.get("prediction", "").strip()
-                if not final_class:
-                    raise ValueError("reviewed_class is required when approving a token")
-                record["reviewed_class"] = final_class
-                predicted = (
-                    predicted_section.strip()
-                    or str(record.get("prediction") or "").strip()
-                )
-                score = (
-                    ranking_score
-                    if ranking_score is not None
-                    else float(record.get("overall_confidence") or 0.0)
-                )
-                correct_flag = (
-                    "1"
-                    if predicted.upper().replace(" ", "")
-                    == final_class.upper().replace(" ", "")
-                    else "0"
-                )
-                approved = self._read_rows(settings.approved_dataset_path, APPROVED_COLUMNS)
-                approved.append({
-                    "token": record["token"],
-                    "class": final_class.upper(),
-                    "category": reviewed_category.strip() or record["category"],
-                    "source": "human_review",
-                    "approved_at": now,
-                    "unknown_id": record["id"],
-                    "ranking_score": f"{float(score):.6f}",
-                    "correct": correct_flag,
-                    "eval_split": assign_split(record["id"] or record["token"]),
-                })
-                self._write_rows(settings.approved_dataset_path, APPROVED_COLUMNS, approved)
-                try:
-                    from services.exact_section_predictor import (
-                        append_exact_section_anchor,
-                    )
-
-                    append_exact_section_anchor(record["token"], final_class.upper())
-                except Exception:
-                    # Approval must succeed even if the retrieval index is unavailable.
-                    pass
-            self._write_rows(settings.unknown_tokens_path, UNKNOWN_COLUMNS, rows)
-            self.log_event(
-                f"token_{record['status']}", record["token"],
-                f"class={reviewed_class or record['prediction']}; {notes}".strip("; "),
-                actor,
+            unknown_rows = self._read_rows(
+                settings.unknown_tokens_path, UNKNOWN_COLUMNS
             )
-            return record
+            unknown_by_id = {row["id"]: row for row in unknown_rows}
+            approved_rows = self._read_rows(
+                settings.approved_dataset_path, APPROVED_COLUMNS
+            )
+            history_rows = self._read_rows(settings.history_path, HISTORY_COLUMNS)
+
+            from services.training_pipeline.preprocessing import assign_split
+
+            for item in items:
+                unknown_id = str(item.get("unknown_id") or "").strip()
+                action = str(item.get("action") or "").lower().strip()
+                reviewed_class = str(item.get("reviewed_class") or "")
+                reviewed_category = str(item.get("reviewed_category") or "")
+                notes = str(item.get("notes") or "")
+                ranking_score = item.get("ranking_score")
+                predicted_section = str(item.get("predicted_section") or "")
+
+                if action not in {"approve", "reject"}:
+                    errors.append(
+                        {
+                            "id": unknown_id,
+                            "error": "action must be 'approve' or 'reject'",
+                            "error_type": "ValueError",
+                        }
+                    )
+                    continue
+
+                record = unknown_by_id.get(unknown_id)
+                if record is None:
+                    errors.append(
+                        {
+                            "id": unknown_id,
+                            "error": f"Unknown token '{unknown_id}' was not found",
+                            "error_type": "KeyError",
+                        }
+                    )
+                    continue
+                if record["status"] != "pending":
+                    errors.append(
+                        {
+                            "id": unknown_id,
+                            "error": f"Unknown token has already been {record['status']}",
+                            "error_type": "ValueError",
+                        }
+                    )
+                    continue
+
+                final_class = ""
+                if action == "approve":
+                    final_class = (
+                        reviewed_class.strip()
+                        or str(record.get("prediction") or "").strip()
+                    )
+                    if not final_class:
+                        errors.append(
+                            {
+                                "id": unknown_id,
+                                "error": "reviewed_class is required when approving a token",
+                                "error_type": "ValueError",
+                            }
+                        )
+                        continue
+
+                now = _now()
+                record.update(
+                    {
+                        "status": "approved" if action == "approve" else "rejected",
+                        "reviewed_class": final_class.strip()
+                        if action == "approve"
+                        else reviewed_class.strip(),
+                        "reviewed_category": reviewed_category.strip(),
+                        "notes": notes.strip(),
+                        "updated_at": now,
+                    }
+                )
+                if action == "approve":
+                    predicted = (
+                        predicted_section.strip()
+                        or str(record.get("prediction") or "").strip()
+                    )
+                    score = (
+                        float(ranking_score)
+                        if ranking_score is not None
+                        else float(record.get("overall_confidence") or 0.0)
+                    )
+                    correct_flag = (
+                        "1"
+                        if predicted.upper().replace(" ", "")
+                        == final_class.upper().replace(" ", "")
+                        else "0"
+                    )
+                    approved_rows.append(
+                        {
+                            "token": record["token"],
+                            "class": final_class.upper(),
+                            "category": reviewed_category.strip()
+                            or record["category"],
+                            "source": "human_review",
+                            "approved_at": now,
+                            "unknown_id": record["id"],
+                            "ranking_score": f"{float(score):.6f}",
+                            "correct": correct_flag,
+                            "eval_split": assign_split(
+                                record["id"] or record["token"]
+                            ),
+                        }
+                    )
+                    approved_count += 1
+
+                history_rows.append(
+                    {
+                        "id": str(uuid.uuid4()),
+                        "event": f"token_{record['status']}",
+                        "token": record["token"],
+                        "detail": f"class={reviewed_class or record['prediction']}; {notes}".strip(
+                            "; "
+                        ),
+                        "actor": actor,
+                        "created_at": now,
+                    }
+                )
+                results.append(record)
+
+            if results:
+                self._write_rows(
+                    settings.unknown_tokens_path, UNKNOWN_COLUMNS, unknown_rows
+                )
+            if approved_count:
+                self._write_rows(
+                    settings.approved_dataset_path,
+                    APPROVED_COLUMNS,
+                    approved_rows,
+                )
+            if results:
+                self._write_rows(
+                    settings.history_path, HISTORY_COLUMNS, history_rows
+                )
+
+        if approved_count and rebuild_exact_section:
+            _schedule_exact_section_refresh(background=len(items) > 1)
+
+        return {
+            "results": results,
+            "errors": errors,
+            "approved": approved_count,
+        }
 
     def log_event(self, event: str, token: str = "", detail: str = "", actor: str = "system") -> dict[str, str]:
         with self._lock:

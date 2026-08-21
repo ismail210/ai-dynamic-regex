@@ -8,6 +8,9 @@ from typing import Dict, Iterable, List, Optional
 
 
 TOKEN_PATTERNS = (
+    r"\b(?:\d+(?:\.\d+)?|\d+/\d+)\"?\s*BENT\s*PL(?:ATE)?\b[^|\n]{0,40}",
+    r"\b(?:\d+(?:\.\d+)?|\d+/\d+)\"?\s*BENT\s*PL(?:ATE)?\b",
+    r"\bBENT\s*PL(?:ATE)?\s*(?:\d+(?:\.\d+)?|\d+/\d+)\"?\b",
     r"\b(?:W|WT|S|M|HP|C|MC)\s*\d+(?:\.\d+)?\s*[X×]\s*\d+(?:\.\d+)?\b",
     r"\bHSS\s*\d+(?:\.\d+)?\s*[X×]\s*\d+(?:\.\d+)?"
     r"(?:\s*[X×]\s*(?:\d+/\d+|\d+(?:\.\d+)?))?\b",
@@ -27,13 +30,16 @@ _COMBINED = re.compile(
     "|".join(
         f"(?:{pattern})"
         for pattern in (
-            TOKEN_PATTERNS[1],  # HSS
-            TOKEN_PATTERNS[2],  # L / 2L
-            TOKEN_PATTERNS[3],  # PIPE
-            TOKEN_PATTERNS[4],  # PL / PLATE
-            TOKEN_PATTERNS[0],  # W / WT / S / M / HP / C / MC
-            TOKEN_PATTERNS[5],  # sheet reference
-            TOKEN_PATTERNS[6],  # material grade
+            TOKEN_PATTERNS[0],  # bent plate extended callout
+            TOKEN_PATTERNS[1],  # bent plate thickness-first
+            TOKEN_PATTERNS[2],  # bent plate head-first
+            TOKEN_PATTERNS[4],  # HSS
+            TOKEN_PATTERNS[5],  # L / 2L
+            TOKEN_PATTERNS[6],  # PIPE
+            TOKEN_PATTERNS[7],  # PL / PLATE
+            TOKEN_PATTERNS[3],  # W / WT / S / M / HP / C / MC
+            TOKEN_PATTERNS[8],  # sheet reference
+            TOKEN_PATTERNS[9],  # material grade
         )
     ),
     re.IGNORECASE,

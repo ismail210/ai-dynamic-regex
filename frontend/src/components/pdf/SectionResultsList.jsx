@@ -14,10 +14,10 @@ import { PlaceOutlined, SearchOutlined } from "@mui/icons-material";
 import MatchStatusBadge from "../ui/MatchStatusBadge";
 import {
   getConfidence,
-  getFamily,
+  getDisplayFamily,
+  getDisplaySection,
   getMatchStatus,
   getPredictionLocation,
-  getSection,
   isInferredLocation,
   isLegacyPrediction,
 } from "../../lib/predictionContract";
@@ -26,7 +26,7 @@ function rowKey(result, index) {
   return String(
     result.object_id
       || result.component_id
-      || `${getSection(result)}-${result.page_number ?? "p"}-${index}`,
+      || `${getDisplaySection(result)}-${result.page_number ?? "p"}-${index}`,
   );
 }
 
@@ -42,8 +42,8 @@ export default function SectionResultsList({
     return (results || []).map((result, index) => {
       const key = rowKey(result, index);
       const location = getPredictionLocation(result);
-      const section = getSection(result);
-      const family = getFamily(result);
+      const section = getDisplaySection(result);
+      const family = getDisplayFamily(result);
       const confidence = getConfidence(result);
       const haystack = [
         section,
