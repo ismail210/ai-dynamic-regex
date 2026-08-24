@@ -218,7 +218,13 @@ describe("DrawingReviewPage deep link from a result elsewhere in the app", () =>
 
     // obj_a is unresolved; the model's own top pick ("HSS8X8X3/16") is
     // pre-selected in the candidate picker rather than an arbitrary option.
-    expect(screen.getByDisplayValue("HSS8X8X3/16").checked).toBe(true);
+    // (The restored "Correct label" field also carries this value as plain
+    // text, so scope to the radio input specifically.)
+    const radios = screen
+      .getAllByDisplayValue("HSS8X8X3/16")
+      .filter((el) => el.type === "radio");
+    expect(radios).toHaveLength(1);
+    expect(radios[0].checked).toBe(true);
     await waitFor(() =>
       expect(screen.getByTestId("location-search").textContent).toBe(""),
     );
@@ -245,5 +251,93 @@ describe("DrawingReviewPage deep link from a result elsewhere in the app", () =>
     // page's own local copy).
     await waitFor(() => expect(screen.getByText("Selected section")).toBeInTheDocument());
     expect(setData).toHaveBeenCalled();
+  });
+});
+
+describe("DrawingReviewPage restores the original general review actions alongside the new section picker", () => {
+  beforeEach(() => {
+    approveValidationCorrection.mockClear();
+    saveHumanSelection.mockClear();
+  });
+
+  it("Test A: a normal result still shows Accept/Correct/Unreadable/Unsupported and no missing-dimension picker", () => {
+    renderPage();
+    fireEvent.click(screen.getByText("select-0"));
+
+    expect(screen.getByRole("button", { name: "Accept" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Correct" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Mark Unreadable" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Mark Unsupported" })).toBeInTheDocument();
+    expect(screen.queryByText("Resolve section")).not.toBeInTheDocument();
+    expect(screen.queryByText("Possible catalog sections")).not.toBeInTheDocument();
+  });
+
+  it("Test B: an incomplete HSS result shows BOTH the candidate picker and the general review actions at once", () => {
+    renderPage({ data: { results: [hssResult("obj_a")] } });
+    fireEvent.click(screen.getByText("select-0"));
+
+    // Section-resolution workflow.
+    expect(screen.getByText("Resolve section")).toBeInTheDocument();
+    expect(screen.getByText("HSS8X8X1/4")).toBeInTheDocument();
+    expect(screen.getByText("HSS8X8X3/16")).toBeInTheDocument();
+    expect(screen.getByText("Other / Enter corrected section")).toBeInTheDocument();
+    expect(screen.getByText("Use this section")).toBeInTheDocument();
+
+    // General review workflow -- present at the same time, not instead of it.
+    expect(screen.getByText("Review action")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Accept" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Correct" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Mark Unreadable" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Mark Unsupported" })).toBeInTheDocument();
+  });
+
+  it("Test D: Accept on an incomplete HSS result uses the original approve path, not human_review_selection", async () => {
+    renderPage({ data: { results: [hssResult("obj_a")] } });
+    fireEvent.click(screen.getByText("select-0"));
+
+    fireEvent.click(screen.getByRole("button", { name: "Accept" }));
+
+    await waitFor(() => expect(approveValidationCorrection).toHaveBeenCalledTimes(1));
+    expect(saveHumanSelection).not.toHaveBeenCalled();
+    const call = approveValidationCorrection.mock.calls[0][0];
+    expect(call.userDecision).toBe("approve");
+    expect(call.objectId).toBe("obj_a");
+  });
+
+  it("Test E: Correct on an incomplete HSS result still uses the original manual-correction path", async () => {
+    renderPage({ data: { results: [hssResult("obj_a")] } });
+    fireEvent.click(screen.getByText("select-0"));
+
+    const labelField = screen.getByLabelText("Correct label");
+    fireEvent.change(labelField, { target: { value: "HSS8X8X5/8" } });
+    fireEvent.click(screen.getByRole("button", { name: "Correct" }));
+
+    await waitFor(() => expect(approveValidationCorrection).toHaveBeenCalledTimes(1));
+    expect(saveHumanSelection).not.toHaveBeenCalled();
+    const call = approveValidationCorrection.mock.calls[0][0];
+    expect(call.userDecision).toBe("correct");
+    expect(call.correctLabel).toBe("HSS8X8X5/8");
+  });
+
+  it("Test F: Mark Unreadable uses the original unreadable decision path, never human_review_selection", async () => {
+    renderPage({ data: { results: [hssResult("obj_a")] } });
+    fireEvent.click(screen.getByText("select-0"));
+
+    fireEvent.click(screen.getByRole("button", { name: "Mark Unreadable" }));
+
+    await waitFor(() => expect(approveValidationCorrection).toHaveBeenCalledTimes(1));
+    expect(saveHumanSelection).not.toHaveBeenCalled();
+    expect(approveValidationCorrection.mock.calls[0][0].userDecision).toBe("mark_unreadable");
+  });
+
+  it("Test G: Mark Unsupported uses the original unsupported decision path, never human_review_selection", async () => {
+    renderPage({ data: { results: [hssResult("obj_a")] } });
+    fireEvent.click(screen.getByText("select-0"));
+
+    fireEvent.click(screen.getByRole("button", { name: "Mark Unsupported" }));
+
+    await waitFor(() => expect(approveValidationCorrection).toHaveBeenCalledTimes(1));
+    expect(saveHumanSelection).not.toHaveBeenCalled();
+    expect(approveValidationCorrection.mock.calls[0][0].userDecision).toBe("mark_unsupported");
   });
 });
