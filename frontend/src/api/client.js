@@ -302,6 +302,34 @@ export async function approveValidationCorrection({
   return data;
 }
 
+/**
+ * The one persistence path for a reviewer's section decision — a candidate
+ * pick or a manual "Other" correction, from Results or Drawing Review alike.
+ * Always the "human_review_selection" decision (services.human_selections /
+ * routers.engineering.post_correction): never advances the continuous-
+ * learning approval counter, and the backend validates `correctLabel`
+ * against the live AISC catalog before persisting it. Returns
+ * `resolved_prediction` — the same record's canonical fields already
+ * overlaid with the decision — so callers patch shared state directly
+ * instead of reconstructing canonical fields in JS.
+ */
+export async function saveHumanSelection({
+  documentId,
+  objectId,
+  correctLabel,
+  prediction,
+  notes = "",
+}) {
+  return approveValidationCorrection({
+    documentId,
+    objectId,
+    correctLabel,
+    prediction,
+    userDecision: "human_review_selection",
+    notes,
+  });
+}
+
 export async function getDataQuality() {
   const { data } = await client.get("/api/data-quality");
   return data;

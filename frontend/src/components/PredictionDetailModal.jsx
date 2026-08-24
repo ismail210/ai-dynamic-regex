@@ -1,7 +1,5 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Alert,
   Box,
   Button,
   Chip,
@@ -9,26 +7,22 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
-  FormControl,
-  FormControlLabel,
   Grid,
-  Radio,
-  RadioGroup,
   Stack,
   Typography,
 } from "@mui/material";
 import { PlaceOutlined } from "@mui/icons-material";
-import { approveValidationCorrection } from "../api/client";
-import { useAnalysis } from "../context/AnalysisContext";
 import {
   getConfidence,
   getDisplaySection,
   getFamily,
   getPredictionLocation,
   isHumanReviewed,
+  isSectionReviewEligible,
   reviewOnDrawingPath,
 } from "../lib/predictionContract";
 import PredictionExplainability from "./PredictionExplainability";
+import SectionReviewSelector from "./SectionReviewSelector";
 
 
 function Field({ label, children }) {
@@ -40,161 +34,15 @@ function Field({ label, children }) {
   );
 }
 
-// Not part of {"approve", "edit", "correct"} in the backend's corrections
-// endpoint (routers/engineering.py) -- a reviewer's completion choice is
-// persisted (services.human_selections, served back by
-// services.staged_pipeline._apply_human_selections) exactly like the
-// existing Approve flow's training-data log, but deliberately does NOT
-// advance the continuous-learning approval counter or trigger a retrain.
-const HUMAN_SELECTION_DECISION = "human_review_selection";
-
-/** Patches the one matching result in-place in the shared analysis data so
- * the table/section cell reflects a saved selection immediately, without a
- * refetch. Mirrors exactly what the backend overlay
- * (staged_pipeline._apply_human_selections) will also produce on the next
- * load, so an immediate refresh shows the same thing. */
-function applyLocalSelection(data, objectId, section) {
-  if (!data?.results) return data;
-  return {
-    ...data,
-    results: data.results.map((row) => {
-      if ((row.object_id || row.component_id) !== objectId) return row;
-      const canonical = row.canonical
-        ? {
-            ...row.canonical,
-            prediction: { ...row.canonical.prediction, final_label: section },
-            comparison: { ...row.canonical.comparison, match_status: "human_resolved" },
-            needs_review: false,
-            review_reason: null,
-          }
-        : row.canonical;
-      return {
-        ...row,
-        section,
-        human_selected_section: section,
-        decision_source: "human_review",
-        needs_review: false,
-        review_reason: null,
-        canonical,
-        comparison: canonical?.comparison || row.comparison,
-      };
-    }),
-  };
-}
-
-function CandidateSectionPicker({ result, alreadyResolved }) {
-  const { data, setData } = useAnalysis();
-  const candidates = result.candidate_sections || [];
-  const [selected, setSelected] = useState(
-    result.human_selected_section || result.section || candidates[0]?.designation || ""
-  );
-  const [status, setStatus] = useState("idle"); // idle | saving | saved | error
-  const [error, setError] = useState("");
-  const [editing, setEditing] = useState(!alreadyResolved);
-
-  if (!candidates.length) return null;
-
-  async function handleSave() {
-    setStatus("saving");
-    setError("");
-    const objectId = result.object_id || result.component_id;
-    try {
-      await approveValidationCorrection({
-        documentId: result.document_id,
-        objectId,
-        correctLabel: selected,
-        prediction: result,
-        userDecision: HUMAN_SELECTION_DECISION,
-        notes: `Reviewer selected ${selected} for missing-thickness ${result.corrected_token || result.normalized_text}`,
-      });
-      setData((current) => applyLocalSelection(current, objectId, selected));
-      setStatus("saved");
-      setEditing(false);
-    } catch (err) {
-      setStatus("error");
-      setError(err.friendlyMessage || err?.response?.data?.detail || err.message || "Failed to save selection");
-    }
-  }
-
-  if (alreadyResolved && !editing) {
-    return (
-      <Box>
-        <Typography variant="subtitle2" fontWeight={700} gutterBottom>
-          Selected section
-        </Typography>
-        <Stack direction="row" spacing={1.5} alignItems="center">
-          <Typography fontFamily="monospace" fontSize={15} fontWeight={700}>
-            {result.human_selected_section || result.section}
-          </Typography>
-          <Chip size="small" color="success" variant="outlined" label="Human review" />
-          <Button size="small" onClick={() => setEditing(true)}>
-            Change selection
-          </Button>
-        </Stack>
-      </Box>
-    );
-  }
-
-  return (
-    <Box>
-      <Typography variant="subtitle2" fontWeight={700} gutterBottom>
-        Possible catalog sections
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-        Wall thickness is not present in the extracted designation
-        {result.known_dimensions
-          ? ` (dimensions ${result.known_dimensions.join(" x ")} confirmed)`
-          : ""}
-        . Every option below is a real catalog section for those dimensions —
-        select the correct one.
-      </Typography>
-      <FormControl>
-        <RadioGroup value={selected} onChange={(e) => setSelected(e.target.value)}>
-          {candidates.map((candidate) => (
-            <FormControlLabel
-              key={candidate.designation}
-              value={candidate.designation}
-              control={<Radio size="small" />}
-              label={
-                <Typography fontFamily="monospace" fontSize={13}>
-                  {candidate.designation}
-                </Typography>
-              }
-            />
-          ))}
-        </RadioGroup>
-      </FormControl>
-      <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mt: 1.5 }}>
-        <Button
-          size="small"
-          variant="contained"
-          disabled={status === "saving"}
-          onClick={handleSave}
-        >
-          Use this section
-        </Button>
-        <Typography variant="caption" color="text.secondary">
-          The reviewer makes the final call — this does not overwrite the
-          original OCR reading.
-        </Typography>
-      </Stack>
-      {status === "error" && (
-        <Alert severity="error" sx={{ mt: 1 }}>{error}</Alert>
-      )}
-    </Box>
-  );
-}
-
 export default function PredictionDetailModal({ result, onClose }) {
   const navigate = useNavigate();
   if (!result) return null;
   const display = getDisplaySection(result);
   const family = getFamily(result);
   const confidence = getConfidence(result);
-  const hasCandidates = (result.candidate_sections || []).length > 0;
-  const alreadyResolved = Boolean(result.human_selected_section);
   const humanReviewed = isHumanReviewed(result);
   const hasLocation = getPredictionLocation(result).hasLocation;
+  const showSectionReview = isSectionReviewEligible(result);
   return (
     <Dialog open onClose={onClose} fullWidth maxWidth="md">
       <DialogTitle>Prediction details</DialogTitle>
@@ -278,10 +126,10 @@ export default function PredictionDetailModal({ result, onClose }) {
               prediction and evidence are preserved below for audit.
             </Typography>
           )}
-          {hasCandidates && (
+          {showSectionReview && (
             <>
               <Divider />
-              <CandidateSectionPicker result={result} alreadyResolved={alreadyResolved} />
+              <SectionReviewSelector result={result} />
             </>
           )}
           <Divider />

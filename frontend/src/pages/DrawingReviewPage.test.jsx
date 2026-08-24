@@ -14,8 +14,10 @@ vi.mock("../context/AnalysisContext", () => ({
 }));
 
 const approveValidationCorrection = vi.fn().mockResolvedValue({});
+const saveHumanSelection = vi.fn().mockResolvedValue({});
 vi.mock("../api/client", () => ({
   approveValidationCorrection: (...args) => approveValidationCorrection(...args),
+  saveHumanSelection: (...args) => saveHumanSelection(...args),
   documentPdfUrl: (id) => `/api/documents/${id}/pdf`,
 }));
 
@@ -70,6 +72,7 @@ function renderPage(overrides = {}, { initialEntries } = {}) {
     document: { document_id: "doc_1" },
     data: { results: [damagedLabelResult()] },
     restoreNotice: null,
+    setData: vi.fn(),
     ...overrides,
   });
   return render(
@@ -181,15 +184,21 @@ describe("DrawingReviewPage deep link from a result elsewhere in the app", () =>
     );
 
     expect(screen.getByText(/Locating HSS8X8X1\/4 on page 7\./)).toBeInTheDocument();
-    expect(screen.getByLabelText("Correct label").value).toBe("HSS8X8X1/4");
+    // obj_b is already human-resolved -- the shared SectionReviewSelector
+    // must show the collapsed "already answered" state, not the picker.
+    expect(screen.getByText("Selected section")).toBeInTheDocument();
+    expect(screen.getByText("Human review")).toBeInTheDocument();
   });
 
-  it("locates a normal low-confidence (non-HSS) result the same way", () => {
+  it("locates a normal low-confidence (non-HSS) result the same way, without offering a section picker it has no candidates for", () => {
     renderPage(
       { data: { results: [lowConfidenceResult()] } },
       { initialEntries: ["/review-drawing?object=obj_low_conf"] },
     );
 
+    // No candidate_sections and no recognized structural family on this
+    // fixture -- falls back to the plain generic correction field, exactly
+    // as it did before the section-review picker existed for other cases.
     expect(screen.getByLabelText("Correct label").value).toBe("W10X49");
   });
 
@@ -198,6 +207,7 @@ describe("DrawingReviewPage deep link from a result elsewhere in the app", () =>
       document: { document_id: "doc_1" },
       data: { results: [hssResult("obj_a")] },
       restoreNotice: null,
+      setData: vi.fn(),
     });
     render(
       <MemoryRouter initialEntries={["/review-drawing?object=obj_a"]}>
@@ -206,9 +216,34 @@ describe("DrawingReviewPage deep link from a result elsewhere in the app", () =>
       </MemoryRouter>,
     );
 
-    expect(screen.getByLabelText("Correct label").value).toBe("HSS8X8X3/16");
+    // obj_a is unresolved; the model's own top pick ("HSS8X8X3/16") is
+    // pre-selected in the candidate picker rather than an arbitrary option.
+    expect(screen.getByDisplayValue("HSS8X8X3/16").checked).toBe(true);
     await waitFor(() =>
       expect(screen.getByTestId("location-search").textContent).toBe(""),
     );
+  });
+
+  it("selecting a candidate directly from Drawing Review persists through the shared human_review_selection path", async () => {
+    const setData = vi.fn();
+    renderPage(
+      { data: { results: [hssResult("obj_a")] }, setData },
+      { initialEntries: ["/review-drawing?object=obj_a"] },
+    );
+
+    fireEvent.click(screen.getByDisplayValue("HSS8X8X1/4"));
+    fireEvent.click(screen.getByText("Use this section"));
+
+    await waitFor(() => expect(saveHumanSelection).toHaveBeenCalledTimes(1));
+    const call = saveHumanSelection.mock.calls[0][0];
+    expect(call.documentId).toBe("doc_1");
+    expect(call.objectId).toBe("obj_a");
+    expect(call.correctLabel).toBe("HSS8X8X1/4");
+
+    // The panel itself must flip to "Human Reviewed" immediately (Direction
+    // B: Drawing Review -> Results updates shared state, not just this
+    // page's own local copy).
+    await waitFor(() => expect(screen.getByText("Selected section")).toBeInTheDocument());
+    expect(setData).toHaveBeenCalled();
   });
 });

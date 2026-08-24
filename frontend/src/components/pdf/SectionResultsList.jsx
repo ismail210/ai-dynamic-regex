@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Box,
   Chip,
@@ -33,6 +33,7 @@ export default function SectionResultsList({
   onSelect,
 }) {
   const [filter, setFilter] = useState("");
+  const rowRefs = useRef(new Map());
 
   const rows = useMemo(() => {
     const query = filter.trim().toLowerCase();
@@ -67,6 +68,30 @@ export default function SectionResultsList({
   }, [results, filter]);
 
   const visible = rows.filter((row) => row.visible);
+
+  // A deep link (Results -> Review on Drawing, or any other caller that
+  // sets selectedKey) must never silently fail to locate the row because a
+  // stale filter from an earlier search happens to hide it. Only reacts to
+  // selectedKey changing -- never to the user's own filter keystrokes,
+  // which would otherwise fight them re-narrowing the same selected item.
+  useEffect(() => {
+    if (!selectedKey) return;
+    const target = rows.find((row) => row.key === selectedKey);
+    if (target && !target.visible) {
+      setFilter("");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedKey]);
+
+  // Scroll the active row into view inside this panel's own scroll
+  // container -- never the whole page. Re-runs once `visible` changes size
+  // (e.g. right after the filter-clear above reveals the row), so it finds
+  // the row's DOM node on the render where it actually exists.
+  useEffect(() => {
+    if (!selectedKey) return;
+    const node = rowRefs.current.get(selectedKey);
+    node?.scrollIntoView({ block: "center", behavior: "smooth" });
+  }, [selectedKey, visible.length]);
 
   return (
     <Stack spacing={1.25} sx={{ height: "100%", minHeight: 0 }}>
@@ -108,6 +133,10 @@ export default function SectionResultsList({
           return (
             <ListItemButton
               key={key}
+              ref={(node) => {
+                if (node) rowRefs.current.set(key, node);
+                else rowRefs.current.delete(key);
+              }}
               selected={selected}
               alignItems="flex-start"
               onClick={() => onSelect?.({ key, result, location })}

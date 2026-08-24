@@ -217,6 +217,98 @@ export function reviewOnDrawingPath(result = {}) {
 }
 
 /**
+ * Catalog-backed structural families — mirrors the structural set in
+ * services.prediction.contract.derive_family_from_section, the backend's
+ * own definition of "this is an AISC catalog section family". Kept as a
+ * literal mirror (not fetched) because it is a small, effectively-closed
+ * taxonomy; if the backend set changes, update both.
+ *
+ * Used only to decide whether the section-review picker (candidates +
+ * "Other") applies to a result — never to gate candidate GENERATION, which
+ * stays whatever services.hss_completion (or, for other families, nothing
+ * yet) actually supports. A family with no generated candidates still gets
+ * the picker, just with an empty candidate list and manual "Other" entry
+ * only (see SectionReviewSelector).
+ */
+export const STRUCTURAL_SECTION_FAMILIES = new Set([
+  "W", "WT", "S", "M", "HP", "C", "MC", "HSS", "L", "2L", "PIPE", "MT", "ST",
+]);
+
+/**
+ * True when a result is a catalog-backed structural section review case —
+ * eligible for the shared SectionReviewSelector (candidate picker + manual
+ * "Other" correction) on both Results and Drawing Review — rather than a
+ * non-section annotation (BENT_PLATE, PLATE, DIMENSION, ...) that uses a
+ * different, free-text correction path and must never be forced into an
+ * AISC section contract.
+ *
+ * Eligible when the result still needs review (so the reviewer can resolve
+ * it) OR was already human-resolved (so the reviewer can revisit/change the
+ * decision) — never for an ordinary already-correct exact/normalized match
+ * that was never flagged for review.
+ *
+ * A generated candidate list is itself sufficient evidence (whatever family
+ * produced it), independent of whether `family` happens to be populated on
+ * this particular record — `family` is the fallback signal for the case
+ * that actually needs generalizing: a review-required section with NO
+ * candidate list yet (so only manual "Other" entry applies).
+ */
+export function isSectionReviewEligible(result = {}) {
+  if ((result.candidate_sections || []).length > 0) return true;
+  const family = String(getFamily(result) || "").toUpperCase();
+  if (!STRUCTURAL_SECTION_FAMILIES.has(family)) return false;
+  return Boolean(getCanonicalPrediction(result).needsReview) || isHumanReviewed(result);
+}
+
+/**
+ * Local fallback for the same overlay the backend applies (see
+ * services.human_selections.apply_human_selection_overlay) — used only when
+ * a save response has no `resolved_prediction` (e.g. the caller didn't have
+ * the full prediction object to send). Prefer the server's record when
+ * available; this exists so the UI never regresses to "unresolved" while
+ * still reflecting the save immediately.
+ */
+export function buildLocalSelectionOverlay(result = {}, section) {
+  const canonical = result.canonical
+    ? {
+        ...result.canonical,
+        prediction: { ...result.canonical.prediction, final_label: section },
+        comparison: { ...result.canonical.comparison, match_status: "human_resolved" },
+        needs_review: false,
+        review_reason: null,
+      }
+    : result.canonical;
+  return {
+    ...result,
+    section,
+    human_selected_section: section,
+    decision_source: "human_review",
+    needs_review: false,
+    review_reason: null,
+    canonical,
+    comparison: canonical?.comparison || result.comparison,
+  };
+}
+
+/**
+ * Patch the one matching row in shared analysis state (AnalysisContext
+ * `data.results`) with a save's resolved record — the single merge used by
+ * both Results and Drawing Review after `saveHumanSelection`, so neither
+ * page keeps its own copy of "what the human decided". `resolved` should be
+ * the API response's `resolved_prediction` when present, else the output of
+ * `buildLocalSelectionOverlay`.
+ */
+export function mergeResolvedPrediction(data, objectId, resolved) {
+  if (!data?.results || !resolved) return data;
+  return {
+    ...data,
+    results: data.results.map((row) =>
+      getResultKey(row) === objectId ? resolved : row
+    ),
+  };
+}
+
+/**
  * Page + bbox for drawing review. Prefers canonical source_text; falls back
  * to top-level prediction fields used by the multimodal API payload.
  */

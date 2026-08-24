@@ -24,6 +24,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 from config import settings
+from services.prediction.canonical_contract import MatchStatus
 
 _LOCK = threading.Lock()
 
@@ -84,3 +85,44 @@ def get_human_selections(document_id: str) -> Dict[str, str]:
 
 def get_human_selection(document_id: str, object_id: str) -> Optional[str]:
     return get_human_selections(document_id).get(str(object_id or ""))
+
+
+def apply_human_selection_overlay(
+    prediction: Dict[str, Any], section: str
+) -> Dict[str, Any]:
+    """
+    Apply one reviewer-selected section onto a single prediction record --
+    the same resolved shape ``services.staged_pipeline._apply_human_selections``
+    produces for every persisted selection on each read. Shared here so a
+    single mutation (services.human_selections + this overlay) is the one
+    place that defines "what a human-resolved prediction looks like": the
+    corrections router hands the caller this record back immediately
+    (instead of the frontend reconstructing canonical fields itself), and
+    the bulk per-document overlay applied on every GET uses the same logic.
+
+    Never touches raw/original/normalized OCR text -- only the fields that
+    represent the reviewer's decision.
+    """
+
+    resolved = dict(prediction)
+    resolved["section"] = section
+    resolved["human_selected_section"] = section
+    resolved["decision_source"] = "human_review"
+    resolved["needs_review"] = False
+    resolved["review_reason"] = None
+    canonical = resolved.get("canonical")
+    if isinstance(canonical, dict):
+        canonical = dict(canonical)
+        canonical["prediction"] = {
+            **(canonical.get("prediction") or {}),
+            "final_label": section,
+        }
+        canonical["comparison"] = {
+            **(canonical.get("comparison") or {}),
+            "match_status": MatchStatus.HUMAN_RESOLVED.value,
+        }
+        canonical["needs_review"] = False
+        canonical["review_reason"] = None
+        resolved["canonical"] = canonical
+        resolved["comparison"] = canonical["comparison"]
+    return resolved

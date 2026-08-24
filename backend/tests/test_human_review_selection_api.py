@@ -158,3 +158,139 @@ class HumanReviewSelectionApiTests(IsolatedApiTestCase):
         self.assertEqual(by_id[first["object_id"]]["decision_source"], "human_review")
         self.assertNotEqual(by_id[second["object_id"]].get("decision_source"), "human_review")
         self.assertTrue(by_id[second["object_id"]]["needs_review"])
+
+    def test_response_returns_the_resolved_prediction_immediately(self):
+        # The frontend must not have to reconstruct canonical fields from
+        # "success: true" -- the response carries the already-overlaid
+        # record for the object just resolved.
+        analyzed = self._analyze_hss_document()
+        document_id = analyzed["document_id"]
+        pending = self._missing_dimension_predictions(analyzed["body"])
+        if not pending:
+            self.skipTest("No HSS8X8 completions available in this environment.")
+        target = pending[0]
+        chosen = target["candidate_sections"][0]["designation"]
+
+        response = self.client.post(
+            "/api/engineering/corrections",
+            json={
+                "document_id": document_id,
+                "object_id": target["object_id"],
+                "correct_label": chosen,
+                "user_decision": "human_review_selection",
+                "prediction": target,
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        resolved = response.json()["resolved_prediction"]
+        self.assertIsNotNone(resolved)
+        self.assertEqual(resolved["section"], chosen)
+        self.assertEqual(resolved["human_selected_section"], chosen)
+        self.assertEqual(resolved["decision_source"], "human_review")
+        self.assertEqual(
+            resolved["canonical"]["comparison"]["match_status"], "human_resolved"
+        )
+        # Raw text on the immediate response, same guarantee as the refetch.
+        self.assertEqual(resolved["source_text"]["raw"], target["source_text"]["raw"])
+
+    def test_manual_other_correction_with_a_valid_catalog_section_is_canonicalized(self):
+        # Test: "Other" -> valid catalog designation -> canonical spelling
+        # saved, even when the reviewer typed it in a different case.
+        analyzed = self._analyze_hss_document()
+        document_id = analyzed["document_id"]
+        pending = self._missing_dimension_predictions(analyzed["body"])
+        if not pending:
+            self.skipTest("No HSS8X8 completions available in this environment.")
+        target = pending[0]
+        # A real catalog section for this dimension pair that is NOT one of
+        # the generated candidates, typed lowercase -- proves this goes
+        # through catalog validation/canonicalization, not a pass-through
+        # of whatever the candidate list already offered.
+        manual_value = "hss8x8x5/8"
+
+        response = self.client.post(
+            "/api/engineering/corrections",
+            json={
+                "document_id": document_id,
+                "object_id": target["object_id"],
+                "correct_label": manual_value,
+                "user_decision": "human_review_selection",
+                "prediction": target,
+                "notes": "test: reviewer entered a manual correction",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        resolved = response.json()["resolved_prediction"]
+        self.assertEqual(resolved["section"], "HSS8X8X5/8")
+        self.assertEqual(resolved["human_selected_section"], "HSS8X8X5/8")
+
+        refetched = self.client.get(f"/api/documents/{document_id}/analysis").json()
+        stored = next(
+            p for p in refetched["predictions"] if p["object_id"] == target["object_id"]
+        )
+        self.assertEqual(stored["section"], "HSS8X8X5/8")
+
+    def test_invalid_manual_correction_is_rejected_and_never_persisted(self):
+        # Test: invalid catalog designation -> rejected, not silently
+        # accepted as if it were a real AISC section.
+        analyzed = self._analyze_hss_document()
+        document_id = analyzed["document_id"]
+        pending = self._missing_dimension_predictions(analyzed["body"])
+        if not pending:
+            self.skipTest("No HSS8X8 completions available in this environment.")
+        target = pending[0]
+
+        response = self.client.post(
+            "/api/engineering/corrections",
+            json={
+                "document_id": document_id,
+                "object_id": target["object_id"],
+                "correct_label": "HSS8X8XBANANA",
+                "user_decision": "human_review_selection",
+                "prediction": target,
+            },
+        )
+        self.assertEqual(response.status_code, 422)
+
+        # Nothing was persisted -- the object is still exactly as unresolved
+        # as before the rejected attempt.
+        refetched = self.client.get(f"/api/documents/{document_id}/analysis").json()
+        stored = next(
+            p for p in refetched["predictions"] if p["object_id"] == target["object_id"]
+        )
+        self.assertTrue(stored["needs_review"])
+        self.assertNotEqual(stored.get("decision_source"), "human_review")
+
+    def test_a_prior_selection_can_be_changed(self):
+        # Test: choice A -> choice B -> B persisted (not locked after the
+        # first human decision).
+        analyzed = self._analyze_hss_document()
+        document_id = analyzed["document_id"]
+        pending = self._missing_dimension_predictions(analyzed["body"])
+        if not pending:
+            self.skipTest("No HSS8X8 completions available in this environment.")
+        target = pending[0]
+        candidates = [c["designation"] for c in target["candidate_sections"]]
+        if len(candidates) < 2:
+            self.skipTest("Need at least two candidates to exercise changing a decision.")
+        first_choice, second_choice = candidates[0], candidates[1]
+
+        for choice in (first_choice, second_choice):
+            response = self.client.post(
+                "/api/engineering/corrections",
+                json={
+                    "document_id": document_id,
+                    "object_id": target["object_id"],
+                    "correct_label": choice,
+                    "user_decision": "human_review_selection",
+                    "prediction": target,
+                },
+            )
+            self.assertEqual(response.status_code, 200)
+
+        refetched = self.client.get(f"/api/documents/{document_id}/analysis").json()
+        stored = next(
+            p for p in refetched["predictions"] if p["object_id"] == target["object_id"]
+        )
+        self.assertEqual(stored["section"], second_choice)
+        self.assertEqual(stored["human_selected_section"], second_choice)

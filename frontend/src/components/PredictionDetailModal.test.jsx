@@ -16,9 +16,9 @@ vi.mock("../context/AnalysisContext", () => ({
   useAnalysis: () => mockUseAnalysis(),
 }));
 
-const approveValidationCorrection = vi.fn().mockResolvedValue({});
+const saveHumanSelection = vi.fn().mockResolvedValue({});
 vi.mock("../api/client", () => ({
-  approveValidationCorrection: (...args) => approveValidationCorrection(...args),
+  saveHumanSelection: (...args) => saveHumanSelection(...args),
 }));
 
 // Explainability's own rendering is exercised elsewhere; only the
@@ -58,7 +58,8 @@ describe("PredictionDetailModal — missing-thickness HSS candidate selection", 
   let setData;
 
   beforeEach(() => {
-    approveValidationCorrection.mockClear();
+    saveHumanSelection.mockClear();
+    saveHumanSelection.mockResolvedValue({});
     setData = vi.fn();
     mockUseAnalysis.mockReturnValue({ data: { results: [] }, setData });
   });
@@ -83,10 +84,13 @@ describe("PredictionDetailModal — missing-thickness HSS candidate selection", 
     fireEvent.click(screen.getByDisplayValue("HSS10X10X1/2"));
     fireEvent.click(screen.getByText("Use this section"));
 
-    await waitFor(() => expect(approveValidationCorrection).toHaveBeenCalledTimes(1));
-    const call = approveValidationCorrection.mock.calls[0][0];
+    await waitFor(() => expect(saveHumanSelection).toHaveBeenCalledTimes(1));
+    // saveHumanSelection (api/client.js) is the one function that always
+    // sends the safe "human_review_selection" decision -- calling it at all
+    // (rather than approveValidationCorrection with some other decision) is
+    // what proves this path, not a userDecision string on the call site.
+    const call = saveHumanSelection.mock.calls[0][0];
     expect(call.correctLabel).toBe("HSS10X10X1/2");
-    expect(call.userDecision).toBe("human_review_selection");
     expect(call.documentId).toBe("doc_1");
     expect(call.objectId).toBe("obj_1");
 

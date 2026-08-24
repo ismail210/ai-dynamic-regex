@@ -4,6 +4,7 @@ import {
   Alert,
   Box,
   Button,
+  Divider,
   Paper,
   Stack,
   TextField,
@@ -13,6 +14,7 @@ import { PictureAsPdfOutlined, TableRowsOutlined } from "@mui/icons-material";
 import { approveValidationCorrection, documentPdfUrl } from "../api/client";
 import PdfDocumentViewer from "../components/pdf/PdfDocumentViewer";
 import SectionResultsList from "../components/pdf/SectionResultsList";
+import SectionReviewSelector from "../components/SectionReviewSelector";
 import EmptyState from "../components/ui/EmptyState";
 import PageHeader from "../components/ui/PageHeader";
 import { TipButton } from "../components/ui/ActionButtons";
@@ -22,6 +24,7 @@ import {
   getResultKey,
   getSection,
   isInferredLocation,
+  isSectionReviewEligible,
 } from "../lib/predictionContract";
 
 export default function DrawingReviewPage() {
@@ -157,6 +160,9 @@ export default function DrawingReviewPage() {
     : Array.isArray(selection?.result?.canonical_candidates)
       ? selection.result.canonical_candidates
       : [];
+  const sectionReviewEligible = selection?.result
+    ? isSectionReviewEligible(selection.result)
+    : false;
 
   return (
     <Stack
@@ -257,7 +263,7 @@ export default function DrawingReviewPage() {
           <Typography variant="subtitle2" fontWeight={750} sx={{ mb: 1 }}>
             Steel sections in this drawing
           </Typography>
-          <Box sx={{ flex: 1, minHeight: 0 }}>
+          <Box sx={{ flex: "1 1 auto", minHeight: 0 }}>
             <SectionResultsList
               results={results}
               selectedKey={selection?.key ?? null}
@@ -277,66 +283,118 @@ export default function DrawingReviewPage() {
           {selection?.result ? (
             <Stack
               spacing={1}
-              sx={{ pt: 1.25, borderTop: 1, borderColor: "divider" }}
+              sx={{
+                pt: 1.25,
+                borderTop: 1,
+                borderColor: "divider",
+                flex: "0 1 auto",
+                minHeight: 0,
+                maxHeight: "55%",
+                overflowY: "auto",
+              }}
             >
-              <Typography variant="caption" color="text.secondary">
-                {annotationState || selection.result.review_status || "review"}
-                {annotationType ? ` · ${annotationType}` : ""}
-              </Typography>
-              {topK.length > 0 ? (
-                <Typography variant="caption">
-                  Top-K:{" "}
-                  {topK
-                    .slice(0, 5)
-                    .map((item) =>
-                      typeof item === "string"
-                        ? item
-                        : item?.shape || item?.label || "",
-                    )
-                    .filter(Boolean)
-                    .join(", ")}
-                </Typography>
-              ) : null}
-              <TextField
-                size="small"
-                label="Correct label"
-                value={correctLabel}
-                onChange={(event) => setCorrectLabel(event.target.value)}
-              />
-              <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap>
-                <Button
-                  size="small"
-                  variant="contained"
-                  disabled={busy}
-                  onClick={() => submitReview("approve")}
-                >
-                  Accept
-                </Button>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  disabled={busy || !correctLabel}
-                  onClick={() => submitReview("correct")}
-                >
-                  Correct
-                </Button>
-                <Button
-                  size="small"
-                  color="warning"
-                  disabled={busy}
-                  onClick={() => submitReview("mark_unreadable")}
-                >
-                  Mark Unreadable
-                </Button>
-                <Button
-                  size="small"
-                  color="inherit"
-                  disabled={busy}
-                  onClick={() => submitReview("mark_unsupported")}
-                >
-                  Mark Unsupported
-                </Button>
-              </Stack>
+              {sectionReviewEligible ? (
+                <>
+                  <Typography variant="caption" color="text.secondary">
+                    Detected text: {selection.result.raw_text
+                      || selection.result.original_token
+                      || "—"}
+                  </Typography>
+                  <SectionReviewSelector
+                    result={selection.result}
+                    documentId={document.document_id}
+                    dense
+                    onResolved={(resolved) => {
+                      setSelection((prev) =>
+                        prev && prev.key === selection.key
+                          ? { ...prev, result: resolved }
+                          : prev,
+                      );
+                      setCorrectLabel(getSection(resolved) || "");
+                    }}
+                  />
+                  <Divider />
+                  <Stack direction="row" spacing={0.75} sx={{ flexWrap: "wrap" }} useFlexGap>
+                    <Button
+                      size="small"
+                      color="warning"
+                      disabled={busy}
+                      onClick={() => submitReview("mark_unreadable")}
+                    >
+                      Mark Unreadable
+                    </Button>
+                    <Button
+                      size="small"
+                      color="inherit"
+                      disabled={busy}
+                      onClick={() => submitReview("mark_unsupported")}
+                    >
+                      Mark Unsupported
+                    </Button>
+                  </Stack>
+                </>
+              ) : (
+                <>
+                  <Typography variant="caption" color="text.secondary">
+                    {annotationState || selection.result.review_status || "review"}
+                    {annotationType ? ` · ${annotationType}` : ""}
+                  </Typography>
+                  {topK.length > 0 ? (
+                    <Typography variant="caption">
+                      Top-K:{" "}
+                      {topK
+                        .slice(0, 5)
+                        .map((item) =>
+                          typeof item === "string"
+                            ? item
+                            : item?.shape || item?.label || "",
+                        )
+                        .filter(Boolean)
+                        .join(", ")}
+                    </Typography>
+                  ) : null}
+                  <TextField
+                    size="small"
+                    label="Correct label"
+                    value={correctLabel}
+                    onChange={(event) => setCorrectLabel(event.target.value)}
+                  />
+                  <Stack direction="row" spacing={0.75} sx={{ flexWrap: "wrap" }} useFlexGap>
+                    <Button
+                      size="small"
+                      variant="contained"
+                      disabled={busy}
+                      onClick={() => submitReview("approve")}
+                    >
+                      Accept
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      disabled={busy || !correctLabel}
+                      onClick={() => submitReview("correct")}
+                    >
+                      Correct
+                    </Button>
+                    <Button
+                      size="small"
+                      color="warning"
+                      disabled={busy}
+                      onClick={() => submitReview("mark_unreadable")}
+                    >
+                      Mark Unreadable
+                    </Button>
+                    <Button
+                      size="small"
+                      color="inherit"
+                      disabled={busy}
+                      onClick={() => submitReview("mark_unsupported")}
+                    >
+                      Mark Unsupported
+                    </Button>
+                  </Stack>
+                </>
+              )}
               {reviewMessage ? (
                 <Typography variant="caption" color="text.secondary">
                   {reviewMessage}

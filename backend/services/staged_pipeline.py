@@ -20,9 +20,8 @@ from services.extraction_engine import (
     extract_engineering_document,
     extraction_response,
 )
-from services.human_selections import get_human_selections
+from services.human_selections import apply_human_selection_overlay, get_human_selections
 from services.multimodal.pipeline import PIPELINE_VERSION, run_multimodal_pipeline
-from services.prediction.canonical_contract import MatchStatus
 
 logger = logging.getLogger("takeoff.stages")
 
@@ -195,28 +194,7 @@ def _apply_human_selections(
         if not section:
             updated.append(prediction)
             continue
-        prediction = dict(prediction)
-        prediction["section"] = section
-        prediction["human_selected_section"] = section
-        prediction["decision_source"] = "human_review"
-        prediction["needs_review"] = False
-        prediction["review_reason"] = None
-        canonical = prediction.get("canonical")
-        if isinstance(canonical, dict):
-            canonical = dict(canonical)
-            canonical["prediction"] = {
-                **(canonical.get("prediction") or {}),
-                "final_label": section,
-            }
-            canonical["comparison"] = {
-                **(canonical.get("comparison") or {}),
-                "match_status": MatchStatus.HUMAN_RESOLVED.value,
-            }
-            canonical["needs_review"] = False
-            canonical["review_reason"] = None
-            prediction["canonical"] = canonical
-            prediction["comparison"] = canonical["comparison"]
-        updated.append(prediction)
+        updated.append(apply_human_selection_overlay(prediction, section))
     return updated
 
 

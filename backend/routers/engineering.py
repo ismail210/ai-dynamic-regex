@@ -27,7 +27,8 @@ from services.engineering.correction_dataset import (
 )
 from services.engineering.excel_loader import load_aisc_catalog, load_engineering_excel
 from services.engineering.geometry_adapters import geometry_capabilities
-from services.human_selections import record_human_selection
+from services.exact_section_predictor import catalog_valid_exact_section
+from services.human_selections import apply_human_selection_overlay, record_human_selection
 from services.multimodal.encoder_registry import encoder_registry
 from services.stage_runner import run_shared_stage
 from services.staged_pipeline import run_analysis_stage, run_extraction_stage
@@ -345,18 +346,37 @@ def post_correction(body: CorrectionRequest):
     # into the approve/edit/correct branch below -- that one also advances
     # the continuous-learning approval counter, which this decision path
     # must never do.
+    resolved_prediction = None
     if (
         body.user_decision == "human_review_selection"
         and body.correct_label
         and body.document_id
         and body.object_id
     ):
+        # Whether the reviewer picked from the generated candidate list or
+        # typed a manual "Other" correction, the persisted value must be a
+        # real catalog section -- never a free-form guess silently treated
+        # as valid. catalog_valid_exact_section conservatively normalizes
+        # (case/whitespace/separators only) and returns the catalog's own
+        # canonical spelling, the same check the live prediction pipeline
+        # uses for "is this text a real AISC section" (see
+        # services.prediction.orchestrator's protected-exact-label path).
+        canonical_label = catalog_valid_exact_section(body.correct_label)
+        if canonical_label is None:
+            raise HTTPException(
+                status_code=422,
+                detail=f"'{body.correct_label}' is not a valid catalog section.",
+            )
         record_human_selection(
             document_id=body.document_id,
             object_id=body.object_id,
-            section=body.correct_label,
+            section=canonical_label,
             notes=body.notes or "",
         )
+        if body.prediction:
+            resolved_prediction = apply_human_selection_overlay(
+                body.prediction, canonical_label
+            )
 
     approved = None
     if body.user_decision in {"approve", "edit", "correct"} and body.correct_label:
@@ -399,6 +419,7 @@ def post_correction(body: CorrectionRequest):
         "approved": approved,
         "continuous_learning": trigger,
         "summary": corrections_summary(),
+        "resolved_prediction": resolved_prediction,
     }
 
 
