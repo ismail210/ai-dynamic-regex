@@ -18,6 +18,25 @@ describe("MatchStatusBadge", () => {
     expect(screen.getByText("Incomplete Label Resolved")).toBeInTheDocument();
   });
 
+  it("renders a distinct Human Reviewed label for human_resolved, never the red Unresolved badge", () => {
+    // Regression: STATUS_META previously had no entry for "human_resolved"
+    // (added alongside services.human_selections), so a reviewer-resolved
+    // missing-thickness HSS candidate fell through to the generic red
+    // "Unresolved — Review Required" badge everywhere MatchStatusBadge is
+    // used without extra isHumanReviewed gating (Drawing Review's
+    // SectionResultsList, PredictionExplainability) -- falsely telling the
+    // reviewer a resolved result still needed review.
+    render(<MatchStatusBadge matchStatus="human_resolved" />);
+    expect(screen.getByText("Human Reviewed")).toBeInTheDocument();
+    expect(screen.queryByText("Unresolved — Review Required")).not.toBeInTheDocument();
+  });
+
+  it("renders a distinct label for missing_dimension_field, not the generic unresolved fallback", () => {
+    render(<MatchStatusBadge matchStatus="missing_dimension_field" />);
+    expect(screen.getByText("Missing Dimension — Select Section")).toBeInTheDocument();
+    expect(screen.queryByText("Unresolved — Review Required")).not.toBeInTheDocument();
+  });
+
   it("falls back to unresolved for an unknown status", () => {
     render(<MatchStatusBadge matchStatus="something_new" />);
     expect(screen.getByText("Unresolved — Review Required")).toBeInTheDocument();

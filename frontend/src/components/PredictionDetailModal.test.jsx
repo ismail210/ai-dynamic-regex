@@ -1,6 +1,15 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import PredictionDetailModal from "./PredictionDetailModal";
+
+function renderModal(props) {
+  return render(
+    <MemoryRouter>
+      <PredictionDetailModal {...props} />
+    </MemoryRouter>,
+  );
+}
 
 const mockUseAnalysis = vi.fn();
 vi.mock("../context/AnalysisContext", () => ({
@@ -55,7 +64,7 @@ describe("PredictionDetailModal — missing-thickness HSS candidate selection", 
   });
 
   it("never shows a recommendation badge for candidate options", () => {
-    render(<PredictionDetailModal result={missingThicknessResult()} onClose={() => {}} />);
+    renderModal({ result: missingThicknessResult(), onClose: () => {} });
     expect(screen.queryByText(/suggested by model/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/recommended/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/best match/i)).not.toBeInTheDocument();
@@ -63,15 +72,13 @@ describe("PredictionDetailModal — missing-thickness HSS candidate selection", 
   });
 
   it("shows Review required and the candidate picker before a human decision", () => {
-    render(<PredictionDetailModal result={missingThicknessResult()} onClose={() => {}} />);
+    renderModal({ result: missingThicknessResult(), onClose: () => {} });
     expect(screen.getByText("Review required")).toBeInTheDocument();
     expect(screen.getByText("Possible catalog sections")).toBeInTheDocument();
   });
 
   it("saves the reviewer's choice via the safe human_review_selection decision and patches shared state without touching source text", async () => {
-    const { rerender } = render(
-      <PredictionDetailModal result={missingThicknessResult()} onClose={() => {}} />
-    );
+    const { rerender } = renderModal({ result: missingThicknessResult(), onClose: () => {} });
 
     fireEvent.click(screen.getByDisplayValue("HSS10X10X1/2"));
     fireEvent.click(screen.getByText("Use this section"));
@@ -103,7 +110,11 @@ describe("PredictionDetailModal — missing-thickness HSS candidate selection", 
     // Simulate TokensTable re-deriving `selected` from the patched
     // `results` array and passing the fresh object back in as `result` --
     // the still-open modal must reflect the save immediately.
-    rerender(<PredictionDetailModal result={after} onClose={() => {}} />);
+    rerender(
+      <MemoryRouter>
+        <PredictionDetailModal result={after} onClose={() => {}} />
+      </MemoryRouter>,
+    );
     expect(screen.getByText("Selected section")).toBeInTheDocument();
     expect(screen.queryByText("Review required")).not.toBeInTheDocument();
   });
@@ -121,7 +132,7 @@ describe("PredictionDetailModal — missing-thickness HSS candidate selection", 
         review_reason: null,
       },
     });
-    render(<PredictionDetailModal result={resolved} onClose={() => {}} />);
+    renderModal({ result: resolved, onClose: () => {} });
 
     expect(screen.queryByText("Review required")).not.toBeInTheDocument();
     expect(screen.getByText("Selected section")).toBeInTheDocument();
@@ -146,7 +157,7 @@ describe("PredictionDetailModal — missing-thickness HSS candidate selection", 
         review_reason: null,
       },
     });
-    render(<PredictionDetailModal result={resolved} onClose={() => {}} />);
+    renderModal({ result: resolved, onClose: () => {} });
 
     expect(screen.getByText("Human Reviewed")).toBeInTheDocument();
     expect(screen.queryByText("41%")).not.toBeInTheDocument();

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   getCoreRowModel,
   getFilteredRowModel,
@@ -24,6 +25,7 @@ import {
 } from "@mui/material";
 import {
   ContentCopyOutlined,
+  PlaceOutlined,
   VisibilityOutlined,
 } from "@mui/icons-material";
 import PredictionDetailModal from "./PredictionDetailModal";
@@ -35,8 +37,10 @@ import {
   getDisplaySection,
   getFamily,
   getMatchStatus,
+  getPredictionLocation,
   isHumanReviewed,
   isLegacyPrediction,
+  reviewOnDrawingPath,
 } from "../lib/predictionContract";
 
 async function copyText(text) {
@@ -48,6 +52,7 @@ async function copyText(text) {
 }
 
 export default function TokensTable({ results = [] }) {
+  const navigate = useNavigate();
   const [filter, setFilter] = useState("");
   const [selectedId, setSelectedId] = useState(null);
   const [sorting, setSorting] = useState([]);
@@ -209,16 +214,29 @@ export default function TokensTable({ results = [] }) {
         id: "actions",
         header: "",
         cell: ({ row }) => (
-          <TipIconButton
-            title="View details"
-            onClick={() => setSelectedId(row.original.object_id || row.original.component_id)}
-          >
-            <VisibilityOutlined fontSize="small" />
-          </TipIconButton>
+          <Stack direction="row" spacing={0.25} sx={{ justifyContent: "flex-end" }}>
+            {getPredictionLocation(row.original).hasLocation && (
+              <TipIconButton
+                title="Review on drawing"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(reviewOnDrawingPath(row.original));
+                }}
+              >
+                <PlaceOutlined fontSize="small" />
+              </TipIconButton>
+            )}
+            <TipIconButton
+              title="View details"
+              onClick={() => setSelectedId(row.original.object_id || row.original.component_id)}
+            >
+              <VisibilityOutlined fontSize="small" />
+            </TipIconButton>
+          </Stack>
         ),
       },
     ],
-    []
+    [navigate]
   );
 
   // Re-derived from `results` (not held as a stale object reference) so a

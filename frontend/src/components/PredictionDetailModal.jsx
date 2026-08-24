@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Alert,
   Box,
@@ -16,13 +17,16 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import { PlaceOutlined } from "@mui/icons-material";
 import { approveValidationCorrection } from "../api/client";
 import { useAnalysis } from "../context/AnalysisContext";
 import {
   getConfidence,
   getDisplaySection,
   getFamily,
+  getPredictionLocation,
   isHumanReviewed,
+  reviewOnDrawingPath,
 } from "../lib/predictionContract";
 import PredictionExplainability from "./PredictionExplainability";
 
@@ -182,6 +186,7 @@ function CandidateSectionPicker({ result, alreadyResolved }) {
 }
 
 export default function PredictionDetailModal({ result, onClose }) {
+  const navigate = useNavigate();
   if (!result) return null;
   const display = getDisplaySection(result);
   const family = getFamily(result);
@@ -189,11 +194,27 @@ export default function PredictionDetailModal({ result, onClose }) {
   const hasCandidates = (result.candidate_sections || []).length > 0;
   const alreadyResolved = Boolean(result.human_selected_section);
   const humanReviewed = isHumanReviewed(result);
+  const hasLocation = getPredictionLocation(result).hasLocation;
   return (
     <Dialog open onClose={onClose} fullWidth maxWidth="md">
       <DialogTitle>Prediction details</DialogTitle>
       <DialogContent>
         <Stack spacing={2}>
+          {hasLocation && (
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<PlaceOutlined />}
+              sx={{ alignSelf: "flex-start" }}
+              onClick={() => {
+                const path = reviewOnDrawingPath(result);
+                onClose?.();
+                navigate(path);
+              }}
+            >
+              Review on drawing
+            </Button>
+          )}
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, sm: 6 }}>
               <Field label="ORIGINAL OCR">

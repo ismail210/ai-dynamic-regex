@@ -12,6 +12,8 @@ const STATUS_META = {
   normalized_match: { label: "Formatting-Normalized Match", color: "success" },
   corrected_prediction: { label: "Corrected Prediction", color: "warning" },
   incomplete_label: { label: "Incomplete Label Resolved", color: "warning" },
+  missing_dimension_field: { label: "Missing Dimension — Select Section", color: "warning" },
+  human_resolved: { label: "Human Reviewed", color: "info" },
   geometry_only: { label: "Geometry/Context Prediction", color: "info" },
   source_text_not_found: { label: "Source Text Not Found", color: "default" },
   unresolved: { label: "Unresolved — Review Required", color: "error" },

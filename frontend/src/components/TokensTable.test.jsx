@@ -1,6 +1,31 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
+import { MemoryRouter, Routes, Route, useLocation } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import TokensTable from "./TokensTable";
+
+function renderTable(results) {
+  return render(
+    <MemoryRouter>
+      <TokensTable results={results} />
+    </MemoryRouter>,
+  );
+}
+
+function LocationProbe() {
+  const location = useLocation();
+  return <div data-testid="navigated-to">{location.pathname + location.search}</div>;
+}
+
+function renderTableAndTrackNavigation(results) {
+  return render(
+    <MemoryRouter initialEntries={["/results"]}>
+      <LocationProbe />
+      <Routes>
+        <Route path="/results" element={<TokensTable results={results} />} />
+      </Routes>
+    </MemoryRouter>,
+  );
+}
 
 vi.mock("../context/AnalysisContext", () => ({
   useAnalysis: () => ({ data: { results: [] }, setData: vi.fn() }),
@@ -79,7 +104,7 @@ function rowByToken(token) {
 
 describe("TokensTable — a non-catalog-valid correction never displays as a resolved section", () => {
   it("shows Review required (no candidate count) instead of the low-confidence guess", () => {
-    render(<TokensTable results={[nonCatalogCorrectionRow()]} />);
+    renderTable([nonCatalogCorrectionRow()]);
     const row = rowByToken("W10X24");
     expect(within(row).getByText("Review required")).toBeInTheDocument();
     expect(within(row).queryByText("W10X49")).not.toBeInTheDocument();
@@ -89,7 +114,7 @@ describe("TokensTable — a non-catalog-valid correction never displays as a res
 
 describe("TokensTable — human-reviewed rows suppress stale model metrics", () => {
   it("shows the selected section with Confidence/Match as — and Validation as Human Reviewed", () => {
-    render(<TokensTable results={[humanReviewedRow()]} />);
+    renderTable([humanReviewedRow()]);
     const row = rowByToken("HSS10x10");
     expect(within(row).getByText("HSS10X10X1/2")).toBeInTheDocument();
     // Two dash cells: Confidence and Match.
@@ -100,10 +125,72 @@ describe("TokensTable — human-reviewed rows suppress stale model metrics", () 
   });
 
   it("leaves an ordinary model-resolved row's Confidence/Match/Validation unchanged", () => {
-    render(<TokensTable results={[normalRow()]} />);
+    renderTable([normalRow()]);
     const row = rowByToken("W8x40");
     expect(within(row).getByText("High")).toBeInTheDocument();
     expect(within(row).queryByText("Human Reviewed")).not.toBeInTheDocument();
     expect(within(row).queryAllByText("—")).toHaveLength(0);
+  });
+});
+
+function locatedRow(overrides = {}) {
+  return {
+    object_id: "obj_located",
+    original_token: "HSS8X8",
+    corrected_token: "HSS8X8",
+    family: "HSS",
+    section: "HSS8X8X1/4",
+    needs_review: true,
+    review_reason: "Wall thickness is not present in the extracted designation; select the correct catalog section.",
+    candidate_sections: [{ designation: "HSS8X8X1/4" }],
+    page_number: 7,
+    bounding_box: [10, 20, 30, 40],
+    canonical: {
+      source_text: { raw: "HSS8X8", page_number: 7, bounding_box: [10, 20, 30, 40], available: true },
+      prediction: { final_label: null },
+      comparison: { match_status: "missing_dimension_field" },
+      needs_review: true,
+    },
+    ...overrides,
+  };
+}
+
+describe("TokensTable — direct Review on drawing link", () => {
+  it("navigates to the drawing review page keyed by object id when a result has a location", () => {
+    renderTableAndTrackNavigation([locatedRow()]);
+    const row = rowByToken("HSS8X8");
+    fireEvent.click(within(row).getByLabelText("Review on drawing").querySelector("button"));
+    expect(screen.getByTestId("navigated-to").textContent).toBe(
+      "/review-drawing?object=obj_located",
+    );
+  });
+
+  it("does not offer the link for a result with no captured page/bbox", () => {
+    renderTable([normalRow()]);
+    const row = rowByToken("W8x40");
+    expect(within(row).queryByLabelText("Review on drawing")).not.toBeInTheDocument();
+  });
+
+  it("offers the link for an ordinary low-confidence result too, not only HSS candidates", () => {
+    renderTableAndTrackNavigation([
+      locatedRow({
+        object_id: "obj_low_conf",
+        original_token: "W10X24",
+        section: "W10X49",
+        candidate_sections: [],
+        review_reason: "Source text differs from predicted label.",
+        canonical: {
+          source_text: { raw: "W10X24", page_number: 7, bounding_box: [10, 20, 30, 40], available: true },
+          prediction: { final_label: null },
+          comparison: { match_status: "corrected_prediction" },
+          needs_review: true,
+        },
+      }),
+    ]);
+    const row = rowByToken("W10X24");
+    fireEvent.click(within(row).getByLabelText("Review on drawing").querySelector("button"));
+    expect(screen.getByTestId("navigated-to").textContent).toBe(
+      "/review-drawing?object=obj_low_conf",
+    );
   });
 });

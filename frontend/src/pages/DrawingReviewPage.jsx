@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   Alert,
   Box,
@@ -19,12 +19,14 @@ import { TipButton } from "../components/ui/ActionButtons";
 import { useAnalysis } from "../context/AnalysisContext";
 import {
   getPredictionLocation,
+  getResultKey,
   getSection,
   isInferredLocation,
 } from "../lib/predictionContract";
 
 export default function DrawingReviewPage() {
   const { document, data, restoreNotice } = useAnalysis();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selection, setSelection] = useState(null);
   const [correctLabel, setCorrectLabel] = useState("");
   const [reviewMessage, setReviewMessage] = useState("");
@@ -34,6 +36,36 @@ export default function DrawingReviewPage() {
   const pdfUrl = document?.document_id
     ? documentPdfUrl(document.document_id)
     : null;
+
+  // Deep link from a result elsewhere in the app (Results table, Corrections
+  // queue, prediction detail) — resolves the exact object by id, the same
+  // key services.human_selections and this page's own list already use, and
+  // reuses the identical selection state the list's onSelect sets. Never a
+  // second locate implementation, never a text search.
+  useEffect(() => {
+    const objectParam = searchParams.get("object");
+    if (!objectParam || !results.length) return;
+    const match = results.find((result) => getResultKey(result) === objectParam);
+    if (!match) return;
+    setSelection({
+      key: objectParam,
+      result: match,
+      location: getPredictionLocation(match),
+    });
+    setCorrectLabel(getSection(match) || "");
+    setReviewMessage("");
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete("object");
+        return next;
+      },
+      { replace: true },
+    );
+    // Only re-run when the incoming link or the loaded results actually
+    // change — setSearchParams/setSelection identity churn every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, results]);
 
   const locateHint = useMemo(() => {
     if (!selection) {

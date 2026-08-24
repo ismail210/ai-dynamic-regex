@@ -17,17 +17,14 @@ import {
   getFamily,
   getMatchStatus,
   getPredictionLocation,
+  getResultKey,
   getSection,
   isInferredLocation,
   isLegacyPrediction,
 } from "../../lib/predictionContract";
 
 function rowKey(result, index) {
-  return String(
-    result.object_id
-      || result.component_id
-      || `${getSection(result)}-${result.page_number ?? "p"}-${index}`,
-  );
+  return getResultKey(result) || `${getSection(result)}-${result.page_number ?? "p"}-${index}`;
 }
 
 export default function SectionResultsList({

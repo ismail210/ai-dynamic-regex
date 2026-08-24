@@ -5,10 +5,12 @@ import {
   getDisplaySection,
   getMatchStatus,
   getPredictionLocation,
+  getResultKey,
   hasCanonicalContract,
   isHumanReviewed,
   isLegacyPrediction,
   LEGACY_PROVENANCE_MESSAGE,
+  reviewOnDrawingPath,
 } from "./predictionContract";
 
 describe("predictionContract canonical helpers", () => {
@@ -355,5 +357,31 @@ describe("getPredictionLocation — locates source text, never the prediction", 
     expect(getPredictionLocation(first).boundingBox).not.toEqual(
       getPredictionLocation(second).boundingBox,
     );
+  });
+});
+
+describe("getResultKey / reviewOnDrawingPath", () => {
+  it("keys by object_id first, the same id services.human_selections and the drawing review list use", () => {
+    expect(getResultKey({ object_id: "obj_1", component_id: "comp_1" })).toBe("obj_1");
+  });
+
+  it("falls back to component_id only when object_id is absent", () => {
+    expect(getResultKey({ component_id: "comp_1" })).toBe("comp_1");
+  });
+
+  it("never derives the key from label text, so duplicate designations stay distinguishable", () => {
+    const a = { object_id: "obj_a", section: "HSS8X8X1/4" };
+    const b = { object_id: "obj_b", section: "HSS8X8X1/4" };
+    expect(getResultKey(a)).not.toBe(getResultKey(b));
+  });
+
+  it("builds a Drawing Review deep link keyed by the same object id", () => {
+    expect(reviewOnDrawingPath({ object_id: "obj_1" })).toBe(
+      "/review-drawing?object=obj_1",
+    );
+  });
+
+  it("falls back to a bare Drawing Review link when no id is available", () => {
+    expect(reviewOnDrawingPath({})).toBe("/review-drawing");
   });
 });

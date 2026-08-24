@@ -191,6 +191,32 @@ export function isHumanReviewed(result = {}) {
 }
 
 /**
+ * The one identity a result is keyed by everywhere reviewer state is
+ * matched back to a prediction (services.human_selections, the drawing
+ * review list, the direct-to-drawing link below) — object_id first, since
+ * that is what the backend keys human selections and canonical predictions
+ * by; component_id as the only fallback for older/legacy records that
+ * predate object_id. Never derived from label text, so it stays correct
+ * even when the same designation appears many times on a sheet.
+ */
+export function getResultKey(result = {}) {
+  return String(result.object_id || result.component_id || "");
+}
+
+/**
+ * URL for jumping straight from a result (Results table, Corrections queue,
+ * prediction detail) to its exact source location on Drawing Review —
+ * resolved by entity id, never by searching the PDF for label text. This is
+ * the one canonical way to link into a located review; Drawing Review reads
+ * the same `object` param back out and reuses its existing selection/locate
+ * logic (see DrawingReviewPage), so there is a single locate implementation.
+ */
+export function reviewOnDrawingPath(result = {}) {
+  const key = getResultKey(result);
+  return key ? `/review-drawing?object=${encodeURIComponent(key)}` : "/review-drawing";
+}
+
+/**
  * Page + bbox for drawing review. Prefers canonical source_text; falls back
  * to top-level prediction fields used by the multimodal API payload.
  */
