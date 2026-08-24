@@ -102,7 +102,8 @@ def classify_understandability(
         AnnotationType.PLATE.value,
         AnnotationType.BENT_PLATE.value,
     }:
-        if parsed.structure_confirmed and parsed.dimensions:
+        has_size = bool(parsed.dimensions or parsed.thickness)
+        if parsed.structure_confirmed and has_size:
             return {
                 "status": Understandability.UNDERSTOOD.value,
                 "reasons": [

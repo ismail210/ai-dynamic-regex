@@ -150,6 +150,52 @@ class TrainingArtifactTests(unittest.TestCase):
             self.assertTrue((root / "preprocessing_pipeline.pkl").exists())
             self.assertGreaterEqual(progress[-1][1], 94)
 
+    def test_train_xgboost_handles_non_contiguous_global_labels(self):
+        """Row capping can drop a globally-encoded class id from the train split."""
+        rows = []
+        for index in range(20):
+            rows.extend(
+                [
+                    {"token": f"W{index}X{index + 10}", "class": "W"},
+                    {"token": f"HSS{index}X{index}X1/2", "class": "HSS"},
+                    {"token": f"L{index}X{index}X3/8", "class": "L"},
+                ]
+            )
+        # Rare class that will disappear from the capped train split.
+        rows.extend(
+            {"token": f"MC{index}X{index + 1}", "class": "MC"}
+            for index in range(2)
+        )
+        # New class that only appears in the bulk of the dataset.
+        rows.extend(
+            {"token": f"WT{index}X{index + 1}", "class": "WT"}
+            for index in range(40)
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            fake_settings = SimpleNamespace(
+                training_dir=root,
+                model_path=root / "best_model.pkl",
+                preprocessing_pipeline_path=root / "preprocessing_pipeline.pkl",
+                label_encoder_path=root / "label_encoder.pkl",
+                feature_names_path=root / "feature_names.json",
+                model_metadata_path=root / "model_metadata.json",
+                legacy_model_meta_path=root / "model_meta.json",
+            )
+            with (
+                patch.object(training_service, "settings", fake_settings),
+                patch.object(training_service, "FINAL_TRAIN_CAP", 60),
+            ):
+                metadata = training_service.train_xgboost(
+                    pd.DataFrame(rows),
+                    actor="test",
+                )
+
+            self.assertIn("MC", metadata["excluded_training_classes"])
+            self.assertNotIn("W", metadata["excluded_training_classes"])
+            self.assertTrue((root / "label_encoder.pkl").exists())
+
 
 if __name__ == "__main__":
     unittest.main()

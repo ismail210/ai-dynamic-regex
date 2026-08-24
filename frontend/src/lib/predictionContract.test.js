@@ -3,12 +3,14 @@ import {
   getCanonicalPrediction,
   getDisplayConfidence,
   getDisplaySection,
+  getEvidenceSummary,
   getMatchStatus,
   getPredictionLocation,
   getResultKey,
   hasCanonicalContract,
   isHumanReviewed,
   isLegacyPrediction,
+  isSteelTakeoffToken,
   LEGACY_PROVENANCE_MESSAGE,
   reviewOnDrawingPath,
 } from "./predictionContract";
@@ -138,6 +140,27 @@ describe("getDisplaySection — missing-thickness HSS never shows a guess as fin
     expect(display.value).toBeNull();
     expect(display.reason).toMatch(/wall thickness/i);
     expect(display.hasCandidates).toBe(true);
+  });
+
+  it("does not backfill final_label from section when canonical.prediction is missing", () => {
+    const result = {
+      section: "HSS10X10X1/2",
+      completion_status: "missing_thickness",
+      known_dimensions: ["10", "10"],
+      candidate_sections: [
+        { designation: "HSS10X10X1/4", thickness: "1/4" },
+        { designation: "HSS10X10X1/2", thickness: "1/2" },
+      ],
+      canonical: {
+        comparison: { match_status: "missing_dimension_field" },
+        needs_review: true,
+      },
+    };
+    const display = getDisplaySection(result);
+    expect(display.reviewRequired).toBe(true);
+    expect(display.hasCandidates).toBe(true);
+    expect(display.value).toBeNull();
+    expect(getCanonicalPrediction(result).prediction.final_label).toBeNull();
   });
 
   it("shows the resolved value for an ordinary complete prediction", () => {
@@ -383,5 +406,54 @@ describe("getResultKey / reviewOnDrawingPath", () => {
 
   it("falls back to a bare Drawing Review link when no id is available", () => {
     expect(reviewOnDrawingPath({})).toBe("/review-drawing");
+  });
+});
+
+describe("getDisplaySection — anonymous dimension needs_context", () => {
+  it("shows semantic candidate picker state without fabricating a section", () => {
+    const result = {
+      canonical: {
+        prediction: { final_label: null },
+        comparison: { match_status: "needs_context" },
+        needs_review: true,
+      },
+      semantic_candidates: [
+        { type: "BENT_PLATE", label: '3/8" BENT PLATE', score: 0.62 },
+        { type: "PLATE", label: '3/8" PLATE', score: 0.55 },
+      ],
+    };
+    const display = getDisplaySection(result);
+    expect(display.reviewRequired).toBe(true);
+    expect(display.value).toBeNull();
+    expect(display.semanticCandidates).toBe(true);
+  });
+});
+
+describe("getEvidenceSummary", () => {
+  it("prefers top-level evidence summary", () => {
+    expect(
+      getEvidenceSummary({
+        evidence_summary: "leader path detected",
+        context_evidence: { evidence_summary: "fallback" },
+      }),
+    ).toBe("leader path detected");
+  });
+});
+
+describe("isSteelTakeoffToken", () => {
+  it("keeps sections and drops anonymous dims without structural neighbors", () => {
+    expect(isSteelTakeoffToken({ engineering_object_type: "steel_section" })).toBe(true);
+    expect(
+      isSteelTakeoffToken({
+        engineering_object_type: "anonymous_dimension",
+        context: { line_text: "GENERAL NOTES" },
+      }),
+    ).toBe(false);
+    expect(
+      isSteelTakeoffToken({
+        engineering_object_type: "anonymous_dimension",
+        context: { neighbor_text: ["HSS8X8", "CONN"] },
+      }),
+    ).toBe(true);
   });
 });

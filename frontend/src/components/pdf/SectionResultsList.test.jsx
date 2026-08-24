@@ -3,17 +3,25 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import SectionResultsList from "./SectionResultsList";
 
 function hssResult(objectId, overrides = {}) {
+  const section = overrides.section ?? "HSS8X8X1/2";
+  const family = overrides.family ?? "HSS";
+  const rawText = overrides.raw_text ?? "HSS8X8";
   return {
     object_id: objectId,
-    raw_text: "HSS8X8",
-    original_token: "HSS8X8",
-    section: "HSS8X8X1/2",
-    family: "HSS",
+    raw_text: rawText,
+    original_token: rawText,
+    section,
+    family,
     page_number: 7,
     bounding_box: [10, 20, 30, 40],
     canonical: {
-      source_text: { raw: "HSS8X8", page_number: 7, bounding_box: [10, 20, 30, 40], available: true },
-      prediction: { final_label: "HSS8X8X1/2" },
+      source_text: { raw: rawText, page_number: 7, bounding_box: [10, 20, 30, 40], available: true },
+      // getDisplaySection prefers canonical.prediction.final_label over the
+      // top-level `section` field, so this must track any section override
+      // -- otherwise a fixture with an overridden section but a stale
+      // canonical label would display the wrong value, same as real data
+      // never diverges between the two.
+      prediction: { final_label: section },
       comparison: { match_status: "exact_match" },
       needs_review: false,
     },

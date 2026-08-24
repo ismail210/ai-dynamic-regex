@@ -16,8 +16,10 @@ import { saveHumanSelection } from "../api/client";
 import { useAnalysis } from "../context/AnalysisContext";
 import {
   buildLocalSelectionOverlay,
+  getEvidenceSummary,
   getResultKey,
   getSection,
+  getSemanticCandidates,
   mergeResolvedPrediction,
 } from "../lib/predictionContract";
 
@@ -32,13 +34,22 @@ const OTHER_VALUE = "__other__";
  * persistence path (api/client.saveHumanSelection -> human_review_selection
  * -> services.human_selections).
  *
- * Candidates always come from `result.candidate_sections` (whatever the
- * backend actually generated — HSS completion today, potentially other
- * families later) — this component never invents its own candidate list.
+ * Candidates come from `result.candidate_sections` (dimension/thickness
+ * completion, e.g. missing-thickness HSS) when present; otherwise, from
+ * `result.semantic_candidates` (context-evidence interpretations, e.g.
+ * plate vs. bent-plate) via `getSemanticCandidates`. Never a third,
+ * component-invented candidate list -- both sources are exactly what the
+ * backend generated for this object.
  */
 export default function SectionReviewSelector({ result, documentId, onResolved, dense = false }) {
   const { setData } = useAnalysis();
-  const candidates = result.candidate_sections || [];
+  const dimensionCandidates = result.candidate_sections || [];
+  const semanticCandidates = getSemanticCandidates(result);
+  const usingSemanticCandidates = dimensionCandidates.length === 0 && semanticCandidates.length > 0;
+  const candidates = usingSemanticCandidates
+    ? semanticCandidates.map((c) => ({ ...c, designation: c.label }))
+    : dimensionCandidates;
+  const evidenceSummary = usingSemanticCandidates ? getEvidenceSummary(result) : "";
   const resolvedValue = result.human_selected_section || null;
   const objectId = result.object_id || result.component_id;
   const docId = documentId || result.document_id;
@@ -89,6 +100,10 @@ export default function SectionReviewSelector({ result, documentId, onResolved, 
 
   const pendingSection =
     choice.selected === OTHER_VALUE ? choice.custom.trim().toUpperCase() : choice.selected;
+  const pendingSemanticType =
+    usingSemanticCandidates && choice.selected !== OTHER_VALUE
+      ? candidates.find((c) => c.designation === choice.selected)?.type || ""
+      : "";
 
   async function handleSave() {
     if (!pendingSection) {
@@ -104,13 +119,15 @@ export default function SectionReviewSelector({ result, documentId, onResolved, 
         objectId,
         correctLabel: pendingSection,
         prediction: result,
+        semanticType: pendingSemanticType,
         notes:
           choice.selected === OTHER_VALUE
             ? `Reviewer entered a corrected section for ${result.corrected_token || result.normalized_text || getSection(result)}`
             : `Reviewer selected ${pendingSection} for ${result.corrected_token || result.normalized_text || getSection(result)}`,
       });
       const resolved =
-        response?.resolved_prediction || buildLocalSelectionOverlay(result, pendingSection);
+        response?.resolved_prediction
+        || buildLocalSelectionOverlay(result, pendingSection, pendingSemanticType);
       lastSyncedResolvedValue.current = resolved.human_selected_section || pendingSection;
       setData((current) => mergeResolvedPrediction(current, getResultKey(result), resolved));
       setStatus("idle");
@@ -149,9 +166,17 @@ export default function SectionReviewSelector({ result, documentId, onResolved, 
   return (
     <Box>
       <Typography variant="subtitle2" fontWeight={700} gutterBottom>
-        {candidates.length ? "Possible catalog sections" : "Enter the correct section"}
+        {usingSemanticCandidates
+          ? "Possible interpretations"
+          : candidates.length
+            ? "Possible catalog sections"
+            : "Enter the correct section"}
       </Typography>
-      {candidates.length > 0 ? (
+      {usingSemanticCandidates && evidenceSummary ? (
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+          Context: {evidenceSummary}
+        </Typography>
+      ) : candidates.length > 0 ? (
         <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
           {result.review_reason ||
             "Every option below is a real catalog section — select the correct one, or enter a different one below."}
@@ -173,9 +198,22 @@ export default function SectionReviewSelector({ result, documentId, onResolved, 
               value={candidate.designation}
               control={<Radio size="small" />}
               label={
-                <Typography fontFamily="monospace" fontSize={13}>
-                  {candidate.designation}
-                </Typography>
+                usingSemanticCandidates ? (
+                  <Stack spacing={0.25}>
+                    <Typography fontFamily="monospace" fontSize={13}>
+                      {candidate.designation}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {candidate.type}
+                      {candidate.score != null ? ` · score ${(candidate.score * 100).toFixed(0)}%` : ""}
+                      {candidate.evidence?.length ? ` · ${candidate.evidence.join(", ")}` : ""}
+                    </Typography>
+                  </Stack>
+                ) : (
+                  <Typography fontFamily="monospace" fontSize={13}>
+                    {candidate.designation}
+                  </Typography>
+                )
               }
             />
           ))}

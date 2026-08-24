@@ -36,6 +36,10 @@ const DEFAULT_CANONICAL = {
     ranking_score: 0,
     final_confidence: null,
     confidence_is_calibrated: false,
+    annotation_type: null,
+    annotation_label: null,
+    section_applicable: true,
+    confidence_basis: null,
   },
   comparison: {
     exact_match: false,
@@ -84,10 +88,103 @@ export function isLegacyPrediction(result = {}) {
   return !hasCanonicalContract(result);
 }
 
+/** Missing-thickness HSS rows carry catalog options but must not show the
+ * fusion top pick as a resolved section. Uses raw payload fields only so
+ * getCanonicalPrediction can call this without circular fallback logic. */
+export function isMissingThicknessReview(result = {}) {
+  if (result.decision_source === "human_review" || result.human_selected_section) {
+    return false;
+  }
+  const canonical = result.canonical || {};
+  const status =
+    canonical.comparison?.match_status || result.comparison?.match_status || "";
+  if (status === "missing_dimension_field" || status === "human_resolved") {
+    return status === "missing_dimension_field";
+  }
+  if (result.completion_status === "missing_thickness") {
+    return true;
+  }
+  return (result.candidate_sections || []).length > 1;
+}
+
+export function getCandidateSections(result = {}) {
+  return result.candidate_sections || [];
+}
+
+export function getSemanticCandidates(result = {}) {
+  return (result.semantic_candidates || []).filter(
+    (item) => item?.type && item.type !== "DIMENSION",
+  );
+}
+
+export function getEvidenceSummary(result = {}) {
+  return (
+    result.evidence_summary
+    || result.context_evidence?.evidence_summary
+    || ""
+  );
+}
+
+export function isSteelTakeoffToken(token = {}) {
+  if (token.engineering_object_type !== "anonymous_dimension") {
+    return true;
+  }
+  const context = token.context || {};
+  const blob = [
+    token.surrounding_text,
+    context.line_text,
+    context.block_text,
+    ...(context.neighbor_text || []),
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toUpperCase();
+  return /\b(?:BEAM|COLUMN|COL|BRACE|PLATE|PL\b|BENT|BOLT|WELD|CONN|GUSSET|HSS|W\d|DETAIL|POST|MEMBER)\b/.test(
+    blob,
+  );
+}
+
+export function isNeedsContextReview(result = {}) {
+  if (result.decision_source === "human_review" || result.human_selected_section) {
+    return false;
+  }
+  const status =
+    result.canonical?.comparison?.match_status
+    || result.comparison?.match_status
+    || "";
+  if (status === "needs_context") {
+    return true;
+  }
+  return getSemanticCandidates(result).length > 0
+    && !result.canonical?.prediction?.final_label;
+}
+
+export function isAnonymousDimensionReview(result = {}) {
+  return isNeedsContextReview(result) || isMissingThicknessReview(result);
+}
+
 /** Read the canonical prediction contract, defaulting missing pieces rather
  * than fabricating them — an absent field stays absent/unavailable. */
 export function getCanonicalPrediction(result = {}) {
   const canonical = result.canonical || {};
+  const missingThickness = isMissingThicknessReview(result);
+  const needsContext = isNeedsContextReview(result);
+  const awaitingSemantic = missingThickness || needsContext;
+  const legacyPredictionFallback = awaitingSemantic
+    ? {
+        final_label: null,
+        family: getFamily(result) || null,
+        ranking_score: result.ranking_score ?? getConfidence(result).overall,
+        final_confidence: result.final_confidence ?? null,
+        confidence_is_calibrated: result.confidence_is_calibrated ?? false,
+      }
+    : {
+        final_label: getSection(result) || null,
+        family: getFamily(result) || null,
+        ranking_score: result.ranking_score ?? getConfidence(result).overall,
+        final_confidence: result.final_confidence ?? null,
+        confidence_is_calibrated: result.confidence_is_calibrated ?? false,
+      };
   return {
     objectId: canonical.object_id ?? result.object_id ?? DEFAULT_CANONICAL.object_id,
     documentId:
@@ -98,13 +195,8 @@ export function getCanonicalPrediction(result = {}) {
     },
     prediction: {
       ...DEFAULT_CANONICAL.prediction,
-      ...(canonical.prediction || {
-        final_label: getSection(result) || null,
-        family: getFamily(result) || null,
-        ranking_score: result.ranking_score ?? getConfidence(result).overall,
-        final_confidence: result.final_confidence ?? null,
-        confidence_is_calibrated: result.confidence_is_calibrated ?? false,
-      }),
+      ...(canonical.prediction || legacyPredictionFallback),
+      ...(awaitingSemantic ? { final_label: null } : {}),
     },
     comparison: {
       ...DEFAULT_CANONICAL.comparison,
@@ -117,13 +209,137 @@ export function getCanonicalPrediction(result = {}) {
     candidates: canonical.candidates || result.canonical_candidates || [],
     evidence: canonical.evidence || result.evidence || {},
     catalogVersion: canonical.catalog_version ?? result.catalog_version ?? null,
-    needsReview: canonical.needs_review ?? result.needs_review ?? false,
-    reviewReason: canonical.review_reason ?? result.review_reason ?? null,
+    needsReview:
+      canonical.needs_review
+      ?? result.needs_review
+      ?? awaitingSemantic,
+    reviewReason:
+      canonical.review_reason
+      ?? result.review_reason
+      ?? (missingThickness
+        ? "Wall thickness is not present in the extracted designation; select the correct catalog section."
+        : needsContext
+          ? "Anonymous dimension; select the correct semantic interpretation."
+          : null),
   };
 }
 
 export function getMatchStatus(result = {}) {
   return getCanonicalPrediction(result).comparison.match_status || "unresolved";
+}
+
+function getAnnotationRecord(result = {}) {
+  return (
+    result.annotation_interpretation?.annotation
+    || result.explanation?.annotation_interpretation?.annotation
+    || {}
+  );
+}
+
+/** True when the backend confirmed a plate/bent-plate annotation (no AISC section). */
+export function isConfirmedPlateAnnotation(result = {}) {
+  const canonical = getCanonicalPrediction(result);
+  if (canonical.comparison.match_status === "confirmed_annotation") {
+    return true;
+  }
+  if (result.section_prediction_not_applicable) {
+    const annotation = getAnnotationRecord(result);
+    const annotationType = String(
+      canonical.prediction.annotation_type
+      || result.plate_annotation_type
+      || annotation.annotation_type
+      || "",
+    ).toUpperCase();
+    if (annotationType === "PLATE" || annotationType === "BENT_PLATE") {
+      return Boolean(annotation.structure_confirmed);
+    }
+  }
+  if (
+    canonical.prediction.section_applicable === false
+    && canonical.prediction.annotation_type
+  ) {
+    return true;
+  }
+  return false;
+}
+
+export function getAnnotationLabel(result = {}) {
+  const { prediction } = getCanonicalPrediction(result);
+  if (prediction.annotation_label) {
+    return prediction.annotation_label;
+  }
+  if (result.annotation_label) {
+    return result.annotation_label;
+  }
+  const annotation = getAnnotationRecord(result);
+  const thickness = annotation.thickness;
+  const annotationType = String(
+    prediction.annotation_type
+    || result.plate_annotation_type
+    || annotation.annotation_type
+    || "",
+  ).toUpperCase();
+  if (thickness) {
+    const suffix = annotationType === "BENT_PLATE" ? "BENT PL" : "PL";
+    const thickDisplay = String(thickness).includes('"') ? thickness : `${thickness}"`;
+    return `${thickDisplay} ${suffix}`.trim();
+  }
+  return result.raw_text || result.original_token || "";
+}
+
+export function getDisplayFamily(result = {}) {
+  if (isConfirmedPlateAnnotation(result)) {
+    const annotationType = String(
+      getCanonicalPrediction(result).prediction.annotation_type
+      || result.plate_annotation_type
+      || getAnnotationRecord(result).annotation_type
+      || "",
+    ).toUpperCase();
+    return annotationType === "BENT_PLATE" ? "Bent Plate" : "Plate";
+  }
+  return getFamily(result) || "";
+}
+
+export function getDisplaySection(result = {}) {
+  if (isConfirmedPlateAnnotation(result)) {
+    return {
+      value: getAnnotationLabel(result) || "Not applicable",
+      reviewRequired: false,
+      reason: null,
+      hasCandidates: false,
+    };
+  }
+  if (isHumanReviewed(result)) {
+    const { prediction } = getCanonicalPrediction(result);
+    return {
+      value: prediction.final_label || getSection(result) || null,
+      reviewRequired: false,
+      reason: null,
+      hasCandidates: false,
+    };
+  }
+  const { prediction, needsReview, reviewReason } = getCanonicalPrediction(result);
+  const candidateSections = getCandidateSections(result);
+  const semanticCandidates = getSemanticCandidates(result);
+  const missingThickness = isMissingThicknessReview(result);
+  const needsContext = isNeedsContextReview(result);
+  const awaitingChoice =
+    missingThickness || needsContext || (needsReview && !prediction.final_label);
+  if (awaitingChoice) {
+    return {
+      value: null,
+      reviewRequired: true,
+      reason: reviewReason,
+      hasCandidates: candidateSections.length > 0 || semanticCandidates.length > 0,
+      semanticCandidates: semanticCandidates.length > 0,
+    };
+  }
+  return {
+    value: prediction.final_label || getSection(result) || null,
+    reviewRequired: false,
+    reason: null,
+    hasCandidates: false,
+  };
 }
 
 /** ``{ value, isCalibrated }`` — value is either a calibrated probability
@@ -145,34 +361,6 @@ export function getSection(result = {}) {
     || result.suggested_shape
     || ""
   );
-}
-
-/**
- * What the SECTION cell should actually show. The canonical contract nulls
- * `prediction.final_label` any time the match status requires review (see
- * canonical_contract.MatchStatus / `_REVIEW_REASONS`) — that covers not
- * only the HSS missing-thickness case (several catalog-valid completions,
- * genuine irreducible ambiguity), but ALSO an ordinary "source text isn't a
- * catalog-valid designation at all" correction (match_status
- * "corrected_prediction"), where a fuzzy/fusion guess like W10X24 -> W10X49
- * must not be presented as a resolved answer just because a `section`
- * string exists on the record. Trust `final_label == null` generally, not
- * only when `candidate_sections` (the HSS-specific completion list) happens
- * to be populated — a low-confidence non-HSS correction has no such list,
- * but is exactly as unresolved.
- */
-export function getDisplaySection(result = {}) {
-  const { prediction, needsReview, reviewReason } = getCanonicalPrediction(result);
-  const candidateSections = result.candidate_sections || [];
-  if (needsReview && !prediction.final_label) {
-    return {
-      value: null,
-      reviewRequired: true,
-      reason: reviewReason,
-      hasCandidates: candidateSections.length > 0,
-    };
-  }
-  return { value: getSection(result), reviewRequired: false, reason: null, hasCandidates: false };
 }
 
 /**
@@ -255,6 +443,7 @@ export const STRUCTURAL_SECTION_FAMILIES = new Set([
  */
 export function isSectionReviewEligible(result = {}) {
   if ((result.candidate_sections || []).length > 0) return true;
+  if (getSemanticCandidates(result).length > 0) return true;
   const family = String(getFamily(result) || "").toUpperCase();
   if (!STRUCTURAL_SECTION_FAMILIES.has(family)) return false;
   return Boolean(getCanonicalPrediction(result).needsReview) || isHumanReviewed(result);
@@ -268,11 +457,15 @@ export function isSectionReviewEligible(result = {}) {
  * available; this exists so the UI never regresses to "unresolved" while
  * still reflecting the save immediately.
  */
-export function buildLocalSelectionOverlay(result = {}, section) {
+export function buildLocalSelectionOverlay(result = {}, section, semanticType = "") {
   const canonical = result.canonical
     ? {
         ...result.canonical,
-        prediction: { ...result.canonical.prediction, final_label: section },
+        prediction: {
+          ...result.canonical.prediction,
+          final_label: section,
+          ...(semanticType ? { annotation_type: semanticType } : {}),
+        },
         comparison: { ...result.canonical.comparison, match_status: "human_resolved" },
         needs_review: false,
         review_reason: null,
@@ -282,9 +475,11 @@ export function buildLocalSelectionOverlay(result = {}, section) {
     ...result,
     section,
     human_selected_section: section,
+    ...(semanticType ? { human_selected_semantic_type: semanticType } : {}),
     decision_source: "human_review",
     needs_review: false,
     review_reason: null,
+    semantic_candidates: null,
     canonical,
     comparison: canonical?.comparison || result.comparison,
   };

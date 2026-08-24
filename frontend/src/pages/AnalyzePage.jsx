@@ -30,7 +30,7 @@ export default function AnalyzePage() {
     setLoading(true);
     setError("");
     try {
-      setData(await analyzeDocument(document.document_id, excel));
+      setData(await analyzeDocument(document.document_id, excel, undefined, true));
     } catch (err) {
       setError(
         err.friendlyMessage ||

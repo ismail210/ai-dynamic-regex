@@ -17,6 +17,8 @@ const STATUS_META = {
   geometry_only: { label: "Geometry/Context Prediction", color: "info" },
   source_text_not_found: { label: "Source Text Not Found", color: "default" },
   unresolved: { label: "Unresolved — Review Required", color: "error" },
+  confirmed_annotation: { label: "Confirmed Annotation", color: "success" },
+  needs_context: { label: "Needs Context", color: "warning" },
 };
 
 /**

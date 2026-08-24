@@ -6,8 +6,16 @@ import re
 from collections import Counter
 from typing import Dict, Iterable, List, Optional
 
+from services.engineering.feet_inch_filter import (
+    is_non_steel_layout_dimension,
+    match_overlaps_feet_inch,
+)
+
 
 TOKEN_PATTERNS = (
+    r"\b(?:\d+(?:\.\d+)?|\d+/\d+)\"?\s*BENT\s*PL(?:ATE)?\b[^|\n]{0,40}",
+    r"\b(?:\d+(?:\.\d+)?|\d+/\d+)\"?\s*BENT\s*PL(?:ATE)?\b",
+    r"\bBENT\s*PL(?:ATE)?\s*(?:\d+(?:\.\d+)?|\d+/\d+)\"?\b",
     r"\b(?:W|WT|S|M|HP|C|MC)\s*\d+(?:\.\d+)?\s*[X×]\s*\d+(?:\.\d+)?\b",
     r"\bHSS\s*\d+(?:\.\d+)?\s*[X×]\s*\d+(?:\.\d+)?"
     r"(?:\s*[X×]\s*(?:\d+/\d+|\d+(?:\.\d+)?))?\b",
@@ -19,6 +27,14 @@ TOKEN_PATTERNS = (
     r"\bS-\d+\b",
     r"\b(?:A|F)\d{3,4}M?\b",
 )
+# Anonymous dimension patterns (no PL/L/BP prefix) — evaluated after explicit callouts.
+ANONYMOUS_DIM_PATTERNS = (
+    r"(?<![A-Za-z])(?:\d+(?:\.\d+)?|\d+/\d+)\s*[\"″](?!\s*BENT\s*PL)",
+    r"(?<![A-Za-z])(?:\d+(?:\.\d+)?|\d+/\d+)\s*(?:IN|IN\.)\b",
+    r"\b(?:\d+/\d+|\d+(?:\.\d+)?)\s*[X×]\s*(?:\d+/\d+|\d+(?:\.\d+)?)"
+    r"(?:\s*[X×]\s*(?:\d+/\d+|\d+(?:\.\d+)?))?\b",
+)
+_ANONYMOUS_COMPILED = [re.compile(p, re.IGNORECASE) for p in ANONYMOUS_DIM_PATTERNS]
 _COMPILED = [re.compile(pattern, re.IGNORECASE) for pattern in TOKEN_PATTERNS]
 # One alternation replaces seven separate scans of every candidate window. The
 # longest, most specific families come first so a shorter family prefix cannot
@@ -27,13 +43,16 @@ _COMBINED = re.compile(
     "|".join(
         f"(?:{pattern})"
         for pattern in (
-            TOKEN_PATTERNS[1],  # HSS
-            TOKEN_PATTERNS[2],  # L / 2L
-            TOKEN_PATTERNS[3],  # PIPE
-            TOKEN_PATTERNS[4],  # PL / PLATE
-            TOKEN_PATTERNS[0],  # W / WT / S / M / HP / C / MC
-            TOKEN_PATTERNS[5],  # sheet reference
-            TOKEN_PATTERNS[6],  # material grade
+            TOKEN_PATTERNS[0],  # bent plate extended callout
+            TOKEN_PATTERNS[1],  # bent plate thickness-first
+            TOKEN_PATTERNS[2],  # bent plate head-first
+            TOKEN_PATTERNS[4],  # HSS
+            TOKEN_PATTERNS[5],  # L / 2L
+            TOKEN_PATTERNS[6],  # PIPE
+            TOKEN_PATTERNS[7],  # PL / PLATE
+            TOKEN_PATTERNS[3],  # W / WT / S / M / HP / C / MC
+            TOKEN_PATTERNS[8],  # sheet reference
+            TOKEN_PATTERNS[9],  # material grade
         )
     ),
     re.IGNORECASE,
@@ -58,12 +77,45 @@ def normalize_engineering_token(text: str) -> str:
     return normalized
 
 
+def _is_explicit_engineering_callout(text: str) -> bool:
+    """True when text already matches an explicit family callout pattern."""
+
+    normalized = normalize_engineering_token(text)
+    if _COMBINED.search(text or ""):
+        return True
+    return any(
+        pattern.fullmatch(normalized)
+        for pattern in _COMPILED
+        if pattern.pattern.startswith(r"\b")
+    )
+
+
+def _anonymous_dim_matches(text: str) -> Iterable[re.Match[str]]:
+    value = str(text or "")
+    if not _DIGIT_RE.search(value):
+        return ()
+    if _is_explicit_engineering_callout(value):
+        return ()
+    matches: List[re.Match[str]] = []
+    for pattern in _ANONYMOUS_COMPILED:
+        for match in pattern.finditer(value):
+            if match_overlaps_feet_inch(value, match.start(), match.end()):
+                continue
+            if is_non_steel_layout_dimension(normalize_engineering_token(match.group(0))):
+                continue
+            matches.append(match)
+    return matches
+
+
 def _matches(text: str) -> Iterable[re.Match[str]]:
     value = str(text or "")
     if not _DIGIT_RE.search(value):
         # Every engineering token carries at least one digit.
         return ()
-    return _COMBINED.finditer(value)
+    explicit = list(_COMBINED.finditer(value))
+    if explicit:
+        return explicit
+    return _anonymous_dim_matches(value)
 
 
 def _token_status(
@@ -155,6 +207,23 @@ def _window_has_large_gap(
     return False
 
 
+_STANDALONE_GRADE_RE = re.compile(r"^A(?:36|572|992|500|913|325|490)$", re.I)
+_STANDALONE_SHEET_RE = re.compile(r"^S-\d+$", re.I)
+
+
+def _is_low_value_candidate(text: str) -> bool:
+    """Skip layout inch ticks before regex work (major perf win on large PDFs)."""
+
+    compact = normalize_engineering_token(text)
+    if not compact or not _DIGIT_RE.search(compact):
+        return False
+    if is_non_steel_layout_dimension(compact):
+        return True
+    if _STANDALONE_GRADE_RE.fullmatch(compact) or _STANDALONE_SHEET_RE.fullmatch(compact):
+        return True
+    return False
+
+
 def _candidate_windows(ordered: List[dict]) -> Iterable[tuple[str, List[dict]]]:
     """Yield bounded adjacent-word windows to repair split labels safely.
 
@@ -184,6 +253,8 @@ def _candidate_windows(ordered: List[dict]) -> Iterable[tuple[str, List[dict]]]:
             variants = (spaced,) if size == 1 else (spaced, "".join(texts))
             source_ids = tuple(str(word.get("object_id") or "") for word in window)
             for variant in variants:
+                if _is_low_value_candidate(variant):
+                    continue
                 key = (variant, source_ids)
                 if variant and key not in seen:
                     seen.add(key)

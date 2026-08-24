@@ -287,6 +287,7 @@ export async function approveValidationCorrection({
   features = {},
   notes = "",
   correctGeometry = null,
+  semanticType = "",
   userDecision = "approve",
 }) {
   const { data } = await client.post("/api/engineering/corrections", {
@@ -298,6 +299,7 @@ export async function approveValidationCorrection({
     correct_geometry: correctGeometry,
     user_decision: userDecision,
     notes,
+    semantic_type: semanticType || null,
   });
   return data;
 }
@@ -319,6 +321,7 @@ export async function saveHumanSelection({
   correctLabel,
   prediction,
   notes = "",
+  semanticType = "",
 }) {
   return approveValidationCorrection({
     documentId,
@@ -327,6 +330,7 @@ export async function saveHumanSelection({
     prediction,
     userDecision: "human_review_selection",
     notes,
+    semanticType,
   });
 }
 

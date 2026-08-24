@@ -114,6 +114,8 @@ class MultiModalPrediction:
     completion_status: str = "complete"
     known_dimensions: Optional[List[str]] = None
     candidate_sections: Optional[List[dict]] = None
+    plate_annotation_type: Optional[str] = None
+    section_prediction_not_applicable: bool = False
 
     def to_dict(self) -> dict:
         fusion = self.feature_bundle.fusion or {}
@@ -144,6 +146,8 @@ class MultiModalPrediction:
             "evidence_source": self.evidence_source,
             "prediction_source": self.prediction_source,
             "missing_label_prediction": self.missing_label_prediction,
+            "plate_annotation_type": self.plate_annotation_type,
+            "section_prediction_not_applicable": self.section_prediction_not_applicable,
             "entity_type": self.entity_type,
             "family": family,
             "section": section,
@@ -188,6 +192,11 @@ class MultiModalPrediction:
             payload["catalog_version"] = self.canonical["catalog_version"]
             payload["needs_review"] = self.canonical["needs_review"]
             payload["review_reason"] = self.canonical["review_reason"]
+            canonical_prediction = self.canonical.get("prediction") or {}
+            payload["annotation_type"] = canonical_prediction.get("annotation_type")
+            payload["annotation_label"] = canonical_prediction.get("annotation_label")
+            payload["section_applicable"] = canonical_prediction.get("section_applicable")
+            payload["confidence_basis"] = canonical_prediction.get("confidence_basis")
         return payload
 
 

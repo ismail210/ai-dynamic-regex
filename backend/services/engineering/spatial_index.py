@@ -1,14 +1,8 @@
-"""Experimental, non-production spatially-complete candidate generator.
+"""Spatially-complete candidate generator used by production graph_builder.
 
-Status: EXPERIMENTAL / NOT WIRED INTO PRODUCTION. Nothing in
-``services/multimodal/pipeline.py`` or ``services/prediction/orchestrator.py``
-imports this module. It exists to (a) measure how much spatial coverage
-``graph_builder.build_graph``'s list-order-windowed pairwise loop actually
-loses on real documents, and (b) provide a spatially-complete alternative
-candidate generator for future phases to adopt once reviewed. See
-docs/geometry_graph_audit/08_prioritized_roadmap.md P1.2,
-docs/geometry_graph_audit/04_graph_audit.md §5, and
-docs/ml_association_phase/repository_evidence.md.
+``graph_builder.build_graph`` uses this module for leader-aware label→geometry
+association (P1.2/P1.7) and spatially-complete pairwise geometry relations.
+See docs/geometry_graph_audit/08_prioritized_roadmap.md.
 
 ``graph_builder.py``'s pairwise relationship loop takes only
 ``page_geom[:60]`` and compares each item to the next 11 in *PDF

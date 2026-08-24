@@ -52,7 +52,8 @@ def _save_all(data: Dict[str, Dict[str, Any]]) -> None:
 
 
 def record_human_selection(
-    *, document_id: str, object_id: str, section: str, notes: str = ""
+    *, document_id: str, object_id: str, section: str, notes: str = "",
+    semantic_type: str = "",
 ) -> None:
     """Persist (or overwrite) the reviewer's chosen section for one object."""
 
@@ -64,12 +65,24 @@ def record_human_selection(
     with _LOCK:
         data = _load_all()
         document_selections = data.setdefault(document_id, {})
-        document_selections[object_id] = {
+        entry = {
             "section": section,
             "selected_at": datetime.now(timezone.utc).isoformat(),
             "notes": notes,
         }
+        if semantic_type:
+            entry["semantic_type"] = str(semantic_type)
+        document_selections[object_id] = entry
         _save_all(data)
+
+
+def get_human_selection_entries(document_id: str) -> Dict[str, Dict[str, Any]]:
+    data = _load_all().get(str(document_id or ""), {})
+    return {
+        object_id: dict(entry)
+        for object_id, entry in data.items()
+        if isinstance(entry, dict) and entry.get("section")
+    }
 
 
 def get_human_selections(document_id: str) -> Dict[str, str]:
@@ -88,7 +101,7 @@ def get_human_selection(document_id: str, object_id: str) -> Optional[str]:
 
 
 def apply_human_selection_overlay(
-    prediction: Dict[str, Any], section: str
+    prediction: Dict[str, Any], section: str, *, semantic_type: str = ""
 ) -> Dict[str, Any]:
     """
     Apply one reviewer-selected section onto a single prediction record --
@@ -100,6 +113,12 @@ def apply_human_selection_overlay(
     (instead of the frontend reconstructing canonical fields itself), and
     the bulk per-document overlay applied on every GET uses the same logic.
 
+    ``semantic_type`` carries the reviewer's confirmed annotation type (e.g.
+    a plate/bent-plate classification chosen alongside the section) onto
+    ``human_selected_semantic_type`` and the canonical prediction's
+    ``annotation_type`` -- omitted entirely when the reviewer only resolved
+    a section, so it never overwrites a real annotation_type with "".
+
     Never touches raw/original/normalized OCR text -- only the fields that
     represent the reviewer's decision.
     """
@@ -107,15 +126,19 @@ def apply_human_selection_overlay(
     resolved = dict(prediction)
     resolved["section"] = section
     resolved["human_selected_section"] = section
+    if semantic_type:
+        resolved["human_selected_semantic_type"] = semantic_type
     resolved["decision_source"] = "human_review"
     resolved["needs_review"] = False
     resolved["review_reason"] = None
+    resolved["semantic_candidates"] = None
     canonical = resolved.get("canonical")
     if isinstance(canonical, dict):
         canonical = dict(canonical)
         canonical["prediction"] = {
             **(canonical.get("prediction") or {}),
             "final_label": section,
+            **({"annotation_type": semantic_type} if semantic_type else {}),
         }
         canonical["comparison"] = {
             **(canonical.get("comparison") or {}),

@@ -168,6 +168,10 @@ class WeightedFusionEngine(FusionModel):
             completion_status=str(result.get("completion_status") or "complete"),
             known_dimensions=result.get("known_dimensions"),
             candidate_sections=result.get("candidate_sections"),
+            plate_annotation_type=result.get("plate_annotation_type"),
+            section_prediction_not_applicable=bool(
+                result.get("section_prediction_not_applicable")
+            ),
         )
 
 

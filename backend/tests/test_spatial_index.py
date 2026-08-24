@@ -335,26 +335,14 @@ class GenerateSpatialCandidatesIntegrationTests(unittest.TestCase):
 
 
 class NotWiredIntoProductionTests(unittest.TestCase):
-    def test_multimodal_pipeline_does_not_import_spatial_index(self) -> None:
-        from services.multimodal import pipeline
+    def test_graph_builder_uses_spatial_index(self) -> None:
+        from services.engineering import graph_builder
 
-        source = inspect.getsource(pipeline)
-        self.assertNotIn(
-            "spatial_index",
+        source = inspect.getsource(graph_builder)
+        self.assertIn(
+            "nearest_geometry_candidates",
             source,
-            "spatial_index.py is experimental (P1.2) and must not be wired "
-            "into the production multimodal pipeline in this phase",
-        )
-
-    def test_prediction_orchestrator_does_not_import_spatial_index(self) -> None:
-        from services.prediction import orchestrator
-
-        source = inspect.getsource(orchestrator)
-        self.assertNotIn(
-            "spatial_index",
-            source,
-            "spatial_index.py is experimental (P1.2) and must not be wired "
-            "into the production prediction orchestrator in this phase",
+            "graph_builder should use leader-aware spatial index association",
         )
 
 

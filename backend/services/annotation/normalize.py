@@ -85,6 +85,12 @@ def split_dimension_parts(text: str) -> list[str]:
     """Split ``6x4x5/6`` / ``6 X 4 X 5/6`` into dimension tokens."""
 
     value = soft_normalize(text)
+    value = re.sub(
+        r"^(?:\d+/\d+|\d+(?:\.\d+)?)\"?\s*BENT\s*PL(?:ATE)?\s*",
+        "",
+        value,
+        flags=re.I,
+    )
     value = re.sub(r"^(?:PL|PLATE|BP|BENT\s*PL(?:ATE)?)\s*", "", value, flags=re.I)
     value = re.sub(r"@\s*.*$", "", value).strip()
     if not value:

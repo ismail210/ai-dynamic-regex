@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Alert,
   Box,
   Chip,
+  FormControlLabel,
   LinearProgress,
   Paper,
   Stack,
+  Switch,
   Typography,
 } from "@mui/material";
 import { ArrowForwardRounded, ManageSearchOutlined } from "@mui/icons-material";
@@ -16,12 +18,23 @@ import useElapsedSeconds from "../hooks/useElapsedSeconds";
 import PageHeader from "../components/ui/PageHeader";
 import EmptyState from "../components/ui/EmptyState";
 import { TipButton } from "../components/ui/ActionButtons";
+import { isSteelTakeoffToken } from "../lib/predictionContract";
+
+
+const DISCARD_LABELS = {
+  layout_dims: "layout dimensions",
+  title_block: "title block",
+  weak_anonymous: "weak anonymous dims",
+  standalone_refs: "standalone grades/refs",
+  duplicates: "duplicates",
+};
 
 
 export default function ExtractPage() {
   const { document, extraction, setExtraction, setData } = useAnalysis();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [steelOnly, setSteelOnly] = useState(true);
   const elapsed = useElapsedSeconds(loading);
 
   async function runExtraction() {
@@ -42,6 +55,12 @@ export default function ExtractPage() {
     }
   }
 
+  const visibleTokens = useMemo(() => {
+    const tokens = extraction?.tokens || [];
+    if (!steelOnly) return tokens;
+    return tokens.filter(isSteelTakeoffToken);
+  }, [extraction, steelOnly]);
+
   if (!document) {
     return (
       <EmptyState
@@ -57,6 +76,7 @@ export default function ExtractPage() {
   }
 
   const counts = extraction?.object_counts || {};
+  const discardBreakdown = counts.discard_breakdown || {};
   return (
     <Stack spacing={2.5}>
       <PageHeader
@@ -102,9 +122,37 @@ export default function ExtractPage() {
               <Chip label={`${extraction.layout?.callouts?.length || 0} callouts`} />
               {extraction.cached && <Chip color="info" label="Cached extraction" />}
             </Stack>
-            <Typography variant="subtitle2" mb={1}>Detected structural labels</Typography>
+            {Object.keys(discardBreakdown).length > 0 && (
+              <Stack direction="row" gap={0.75} mb={2} sx={{ flexWrap: "wrap" }}>
+                {Object.entries(discardBreakdown).map(([key, value]) => (
+                  <Chip
+                    key={key}
+                    size="small"
+                    variant="outlined"
+                    color="default"
+                    label={`${value} ${DISCARD_LABELS[key] || key}`}
+                  />
+                ))}
+              </Stack>
+            )}
+            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
+              <Typography variant="subtitle2">
+                Detected structural labels
+                {steelOnly ? ` (${visibleTokens.length} steel-focused)` : ""}
+              </Typography>
+              <FormControlLabel
+                control={
+                  <Switch
+                    size="small"
+                    checked={steelOnly}
+                    onChange={(event) => setSteelOnly(event.target.checked)}
+                  />
+                }
+                label="Steel objects only"
+              />
+            </Stack>
             <Stack direction="row" gap={0.75} sx={{ flexWrap: "wrap" }}>
-              {(extraction.tokens || []).slice(0, 80).map((token) => (
+              {visibleTokens.slice(0, 80).map((token) => (
                 <Chip
                   key={token.token_id}
                   variant="outlined"

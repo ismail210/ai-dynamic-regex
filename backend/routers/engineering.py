@@ -55,6 +55,7 @@ class CorrectionRequest(BaseModel):
         description="approve | reject | edit | correct | mark_unreadable | mark_unsupported",
     )
     notes: str = ""
+    semantic_type: Optional[str] = None
 
 
 @router.get("/multimodal/capabilities")
@@ -372,10 +373,13 @@ def post_correction(body: CorrectionRequest):
             object_id=body.object_id,
             section=canonical_label,
             notes=body.notes or "",
+            semantic_type=body.semantic_type or "",
         )
         if body.prediction:
             resolved_prediction = apply_human_selection_overlay(
-                body.prediction, canonical_label
+                body.prediction,
+                canonical_label,
+                semantic_type=body.semantic_type or "",
             )
 
     approved = None

@@ -48,6 +48,8 @@ class MatchStatus(str, Enum):
     GEOMETRY_ONLY = "geometry_only"
     SOURCE_TEXT_NOT_FOUND = "source_text_not_found"
     UNRESOLVED = "unresolved"
+    CONFIRMED_ANNOTATION = "confirmed_annotation"
+    NEEDS_CONTEXT = "needs_context"
 
 
 class SourceText(BaseModel):
@@ -70,6 +72,10 @@ class PredictionSummary(BaseModel):
     ranking_score: float = 0.0
     final_confidence: Optional[float] = None
     confidence_is_calibrated: bool = False
+    annotation_type: Optional[str] = None
+    annotation_label: Optional[str] = None
+    section_applicable: bool = True
+    confidence_basis: Optional[str] = None
 
 
 class Comparison(BaseModel):
@@ -135,12 +141,37 @@ def determine_comparison(
     source_available: bool,
     used_wildcards: bool,
     used_missing_dimension: bool = False,
+    confirmed_annotation: bool = False,
+    annotation_type: Optional[str] = None,
+    used_needs_context: bool = False,
 ) -> Comparison:
     """
     Decide exact / normalized / corrected / incomplete / geometry-only /
-    source-text-not-found / unresolved, using ONLY the conservative
-    (formatting-safe) normalizer — never an OCR-correction guess.
+    source-text-not-found / unresolved / confirmed-annotation, using ONLY
+    the conservative (formatting-safe) normalizer — never an OCR-correction
+    guess.
     """
+
+    if confirmed_annotation and str(annotation_type or "").upper() in {
+        "PLATE",
+        "BENT_PLATE",
+        "ANGLE",
+        "CONNECTION_THICKNESS",
+    }:
+        return Comparison(
+            exact_match=False,
+            normalized_match=False,
+            prediction_required=False,
+            match_status=MatchStatus.CONFIRMED_ANNOTATION,
+        )
+
+    if used_needs_context:
+        return Comparison(
+            exact_match=False,
+            normalized_match=False,
+            prediction_required=True,
+            match_status=MatchStatus.NEEDS_CONTEXT,
+        )
 
     has_prediction = bool(final_label)
 
@@ -217,6 +248,9 @@ _REVIEW_REASONS = {
     MatchStatus.GEOMETRY_ONLY: "No source text was available; prediction relies on geometry/graph context.",
     MatchStatus.SOURCE_TEXT_NOT_FOUND: "No source text or prediction could be resolved for this object.",
     MatchStatus.UNRESOLVED: "No valid candidate could be resolved.",
+    MatchStatus.NEEDS_CONTEXT: (
+        "Anonymous dimension; select the correct semantic interpretation or leave unresolved."
+    ),
 }
 
 
@@ -295,6 +329,12 @@ def build_canonical_prediction(
     near_tie: bool = False,
     used_wildcards: bool = False,
     used_missing_dimension: bool = False,
+    confirmed_annotation: bool = False,
+    annotation_type: Optional[str] = None,
+    annotation_label: Optional[str] = None,
+    section_applicable: bool = True,
+    confidence_basis: Optional[str] = None,
+    used_needs_context: bool = False,
 ) -> CanonicalPrediction:
     source_text = SourceText(
         raw=raw_text or None,
@@ -313,6 +353,9 @@ def build_canonical_prediction(
         source_available=source_available,
         used_wildcards=used_wildcards,
         used_missing_dimension=used_missing_dimension,
+        confirmed_annotation=confirmed_annotation,
+        annotation_type=annotation_type,
+        used_needs_context=used_needs_context,
     )
     # ``final_label`` is the canonical, automatically-accepted answer -- it
     # must never carry a fuzzy-retrieved or learned-corrected guess dressed
@@ -331,6 +374,10 @@ def build_canonical_prediction(
         ranking_score=round(float(ranking_score or 0.0), 4),
         final_confidence=final_confidence,
         confidence_is_calibrated=bool(confidence_is_calibrated),
+        annotation_type=annotation_type or None,
+        annotation_label=annotation_label or None,
+        section_applicable=bool(section_applicable),
+        confidence_basis=confidence_basis or None,
     )
     decision = Decision(
         used_text=bool(used_text),

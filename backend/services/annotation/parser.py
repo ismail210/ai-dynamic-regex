@@ -36,7 +36,15 @@ _SECTION_HEAD = re.compile(
     r"^(?:2L|HSS|PIPE|WT|MT|ST|MC|HP|W|S|M|C|L)(?=\d)",
     re.I,
 )
-_PLATE_HEAD = re.compile(r"^(?:PL|PLATE|BP|BENTPLATE|BENT\s*PLATE)\b", re.I)
+_PLATE_HEAD = re.compile(
+    r"^(?:PL|PLATE|BP|BENTPLATE|BENT\s*PL(?:ATE)?)\b",
+    re.I,
+)
+_BENT_PL_CALL = re.compile(r"\bBENT\s*PL(?:ATE)?\b", re.I)
+_BENT_PL_THICKNESS_FIRST = re.compile(
+    r"^(?:\d+/\d+|\d+(?:\.\d+)?)\"?\s*BENT\s*PL(?:ATE)?\b",
+    re.I,
+)
 _COMPOUND_DIM = re.compile(
     r"^(?:\d+(?:\.\d+)?|\d+/\d+)(?:\s*[xX×✕✖]\s*(?:\d+(?:\.\d+)?|\d+/\d+)){1,3}$"
 )
@@ -81,6 +89,35 @@ class AnnotationParse:
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
+
+
+def _extract_bent_plate_thickness(text: str) -> Optional[str]:
+    """Pull thickness from bent-plate shorthand callouts."""
+
+    normalized = soft_normalize(text)
+    if _BENT_PL_THICKNESS_FIRST.match(normalized):
+        match = re.match(r"^(?:\d+/\d+|\d+(?:\.\d+)?)\"?", normalized)
+        if match:
+            return match.group(0).rstrip('"')
+    compact = compact_normalize(normalized)
+    if _BENT_PL_THICKNESS_FIRST.match(compact):
+        match = re.match(r"^(?:\d+/\d+|\d+(?:\.\d+)?)\"?", compact)
+        if match:
+            return match.group(0).rstrip('"')
+    after_head = re.search(
+        r"^BENT\s*PL(?:ATE)?\s+((?:\d+/\d+|\d+(?:\.\d+)?)\"?)",
+        normalized,
+        re.I,
+    )
+    if not after_head:
+        after_head = re.search(
+            r"^BENT\s*PL(?:ATE)?\s*((?:\d+/\d+|\d+(?:\.\d+)?)\"?)",
+            compact,
+            re.I,
+        )
+    if after_head:
+        return after_head.group(1).rstrip('"')
+    return None
 
 
 def _unit_from_text(text: str) -> Optional[str]:
@@ -202,9 +239,18 @@ def interpret_annotation(
         return result
 
     # --- PLATE / BENT PLATE / compound dimensions ------------------------
-    plate_headed = bool(_PLATE_HEAD.match(normalized) or _PLATE_HEAD.match(compact))
+    plate_headed = bool(
+        _PLATE_HEAD.match(normalized)
+        or _PLATE_HEAD.match(compact)
+        or _BENT_PL_THICKNESS_FIRST.match(normalized)
+        or _BENT_PL_THICKNESS_FIRST.match(compact)
+    )
+    bent_pl_callout = bool(
+        _BENT_PL_CALL.search(normalized) or _BENT_PL_CALL.search(compact)
+    )
     bent_hint = bool(
-        re.search(r"\bBENT\b|\bBP\b", normalized, re.I)
+        bent_pl_callout
+        or re.search(r"\bBP\b", normalized, re.I)
         or angle is not None
         or "bent" in geom_role
     )
@@ -214,18 +260,32 @@ def interpret_annotation(
         compact=compact,
     )
     if prior_plate.get("supports_bent_plate") and (
-        compact.upper().startswith("BP") or compact.upper().startswith("BENT")
+        compact.upper().startswith("BP")
+        or compact.upper().startswith("BENT")
+        or bent_pl_callout
     ):
         bent_hint = True
-    compound = _COMPOUND_DIM.match(re.sub(r"\s+", "", re.sub(r"^(?:PL|PLATE|BP)\s*", "", normalized, flags=re.I)))
+    compound = _COMPOUND_DIM.match(
+        re.sub(
+            r"\s+",
+            "",
+            re.sub(r"^(?:PL|PLATE|BP|BENT\s*PL(?:ATE)?)\s*", "", normalized, flags=re.I),
+        )
+    )
     parts = split_dimension_parts(normalized)
 
-    if plate_headed or compound or (len(parts) >= 2 and not section_match):
+    if plate_headed or bent_pl_callout or compound or (len(parts) >= 2 and not section_match):
+        bent_thickness = _extract_bent_plate_thickness(normalized) if bent_pl_callout else None
         result.dimensions = parts[:-1] if len(parts) >= 3 else parts[:2]
-        result.thickness = parts[-1] if len(parts) >= 3 else (parts[1] if len(parts) == 2 and plate_headed else None)
+        result.thickness = (
+            bent_thickness
+            or (parts[-1] if len(parts) >= 3 else None)
+            or (parts[1] if len(parts) == 2 and plate_headed else None)
+        )
         # Semantic confirmation: text alone is not enough for bare 6x4x5/6.
         context_supports_plate = bool(
             plate_headed
+            or bent_pl_callout
             or "PLATE" in context_blob.upper()
             or "LEGEND_CONFIRMS_PLATES" in context_blob.upper()
             or geom_role in {"plate", "connection"}

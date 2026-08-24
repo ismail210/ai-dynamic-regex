@@ -34,8 +34,11 @@ import MatchStatusBadge, { matchStatusLabel } from "./ui/MatchStatusBadge";
 import { TipIconButton } from "./ui/ActionButtons";
 import {
   getConfidence,
+  getDisplayFamily,
   getDisplaySection,
   getFamily,
+  getCandidateSections,
+  getSemanticCandidates,
   getMatchStatus,
   getPredictionLocation,
   isHumanReviewed,
@@ -90,7 +93,7 @@ export default function TokensTable({ results = [] }) {
       {
         id: "family",
         header: "Family",
-        accessorFn: (row) => getFamily(row),
+        accessorFn: (row) => getDisplayFamily(row),
         cell: ({ getValue }) => (
           <Typography fontFamily="monospace" fontSize={13}>
             {getValue() || "—"}
@@ -104,8 +107,19 @@ export default function TokensTable({ results = [] }) {
         cell: ({ row }) => {
           const display = getDisplaySection(row.original);
           if (display.reviewRequired) {
+            if (display.semanticCandidates) {
+              const count = getSemanticCandidates(row.original).length;
+              return (
+                <Chip
+                  size="small"
+                  color="warning"
+                  variant="outlined"
+                  label={`Select type (${count} options)`}
+                />
+              );
+            }
             if (display.hasCandidates) {
-              const count = (row.original.candidate_sections || []).length;
+              const count = getCandidateSections(row.original).length;
               return (
                 <Chip
                   size="small"
@@ -115,9 +129,6 @@ export default function TokensTable({ results = [] }) {
                 />
               );
             }
-            // No candidate list to pick from (e.g. source text isn't a
-            // catalog-valid designation at all) — still never show the
-            // low-confidence guess as if it were resolved.
             return (
               <Chip size="small" color="warning" variant="outlined" label="Review required" />
             );
