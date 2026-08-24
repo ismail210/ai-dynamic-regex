@@ -28,12 +28,13 @@ from services.multimodal.validation_engine import (
     validate_multimodal_predictions,
 )
 from services.engineering.detail_regions import assign_detail_regions
+from services.annotation.context_evidence import attach_context_evidence
 from services.prediction.contract import confidence_overall
 from services.takeoff.ground_truth_excel import parse_ground_truth_excel
 
 
 # Bumped whenever prediction behaviour changes, so cached analyses are replaced.
-PIPELINE_VERSION = "4.7-bent-plate-parser"
+PIPELINE_VERSION = "4.10-context-quality"
 
 
 def _neural_model_status() -> Dict[str, Any]:
@@ -171,6 +172,7 @@ def run_multimodal_pipeline(
     document_rules = evaluate_document_rules(graph)
     if settings.detail_regions_enabled:
         assign_detail_regions(document, geometry)
+    attach_context_evidence(document, geometry, graph)
     timings["graph_rules_ms"] = round(
         (time.perf_counter() - stage_started) * 1000, 2
     )
@@ -220,6 +222,8 @@ def run_multimodal_pipeline(
     # database miss alone.
     for prediction in predictions:
         if prediction.get("review_status") != "pending_review":
+            continue
+        if prediction.get("_skip_unknown_queue"):
             continue
         text_features = (prediction.get("features") or {}).get("text") or {}
         confidence_value = confidence_overall(prediction.get("confidence"))

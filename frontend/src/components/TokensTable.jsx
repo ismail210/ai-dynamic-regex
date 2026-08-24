@@ -35,6 +35,8 @@ import {
   getDisplayFamily,
   getDisplaySection,
   getFamily,
+  getCandidateSections,
+  getSemanticCandidates,
   getMatchStatus,
   isHumanReviewed,
   isLegacyPrediction,
@@ -100,8 +102,19 @@ export default function TokensTable({ results = [] }) {
         cell: ({ row }) => {
           const display = getDisplaySection(row.original);
           if (display.reviewRequired) {
+            if (display.semanticCandidates) {
+              const count = getSemanticCandidates(row.original).length;
+              return (
+                <Chip
+                  size="small"
+                  color="warning"
+                  variant="outlined"
+                  label={`Select type (${count} options)`}
+                />
+              );
+            }
             if (display.hasCandidates) {
-              const count = (row.original.candidate_sections || []).length;
+              const count = getCandidateSections(row.original).length;
               return (
                 <Chip
                   size="small"

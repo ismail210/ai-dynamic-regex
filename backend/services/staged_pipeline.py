@@ -23,6 +23,9 @@ from services.extraction_engine import (
 from services.human_selections import get_human_selections
 from services.multimodal.pipeline import PIPELINE_VERSION, run_multimodal_pipeline
 from services.prediction.canonical_contract import MatchStatus
+from services.prediction.hss_review_enrichment import (
+    enrich_missing_thickness_hss_predictions,
+)
 
 logger = logging.getLogger("takeoff.stages")
 
@@ -114,7 +117,9 @@ def analysis_response(result: Dict[str, Any]) -> Dict[str, Any]:
 
     predictions = [
         {key: value for key, value in prediction.items() if key != "features"}
-        for prediction in result.get("predictions") or []
+        for prediction in enrich_missing_thickness_hss_predictions(
+            result.get("predictions") or []
+        )
     ]
     return {
         **result,
@@ -184,29 +189,39 @@ def _apply_human_selections(
     output and the human decision in separate, honest places.
     """
 
-    selections = get_human_selections(document_id)
+    selections = get_human_selection_entries(document_id)
     if not selections:
         return predictions
 
     updated = []
     for prediction in predictions:
         object_id = str(prediction.get("object_id") or "")
-        section = selections.get(object_id)
-        if not section:
+        entry = selections.get(object_id)
+        if not entry:
             updated.append(prediction)
             continue
+        section = str(entry.get("section") or "")
+        semantic_type = str(entry.get("semantic_type") or "")
         prediction = dict(prediction)
         prediction["section"] = section
         prediction["human_selected_section"] = section
+        if semantic_type:
+            prediction["human_selected_semantic_type"] = semantic_type
         prediction["decision_source"] = "human_review"
         prediction["needs_review"] = False
         prediction["review_reason"] = None
+        prediction["semantic_candidates"] = None
         canonical = prediction.get("canonical")
         if isinstance(canonical, dict):
             canonical = dict(canonical)
             canonical["prediction"] = {
                 **(canonical.get("prediction") or {}),
                 "final_label": section,
+                **(
+                    {"annotation_type": semantic_type}
+                    if semantic_type
+                    else {}
+                ),
             }
             canonical["comparison"] = {
                 **(canonical.get("comparison") or {}),
@@ -243,7 +258,10 @@ def load_cached_analysis(document_id: str) -> Optional[Dict[str, Any]]:
         **metadata,
         "extraction": extraction,
         "predictions": _apply_human_selections(
-            document_id, prediction_view.get("predictions") or []
+            document_id,
+            enrich_missing_thickness_hss_predictions(
+                prediction_view.get("predictions") or []
+            ),
         ),
         "validation": validation,
         "cached": True,

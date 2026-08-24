@@ -5414,6 +5414,83 @@ L Shape-L3X2X3/16,L,structural_section,augmented
 "L Shape L3X3X3/8X0'-6""",L,structural_section,augmented
 "L Shape-L3X3X3/8X0'-6""",L,structural_section,augmented
 "L3X3X3/8X0'-6"" L Shape",L,structural_section,augmented
+"3/8"" BENT PL",3/8BENTPL,plate,original
+"ASTM 3/8"" BENT PL",3/8BENTPL,plate,augmented
+"3/8"" BENT PL Steel",3/8BENTPL,plate,augmented
+"Grade 3/8"" BENT PL",3/8BENTPL,plate,augmented
+"Mat'l 3/8"" BENT PL",3/8BENTPL,plate,augmented
+"Steel 3/8"" BENT PL",3/8BENTPL,plate,augmented
+"MATERIAL 3/8"" BENT PL",3/8BENTPL,plate,augmented
+"3/8BENTPL 3/8"" BENT PL",3/8BENTPL,plate,augmented
+"3/8"" BENT PL (3/8BENTPL)",3/8BENTPL,plate,augmented
+"1/4"" BENT PL",1/4BENTPL,plate,original
+"ASTM 1/4"" BENT PL",1/4BENTPL,plate,augmented
+"1/4"" BENT PL Steel",1/4BENTPL,plate,augmented
+"Grade 1/4"" BENT PL",1/4BENTPL,plate,augmented
+"Mat'l 1/4"" BENT PL",1/4BENTPL,plate,augmented
+"Steel 1/4"" BENT PL",1/4BENTPL,plate,augmented
+"MATERIAL 1/4"" BENT PL",1/4BENTPL,plate,augmented
+"1/4BENTPL 1/4"" BENT PL",1/4BENTPL,plate,augmented
+"1/4"" BENT PL (1/4BENTPL)",1/4BENTPL,plate,augmented
+W21X48,W,structural_section,original
+W 21X48,W,structural_section,original
+W-21X48,W,structural_section,augmented
+W_21X48,W,structural_section,augmented
+WF21X48,W,structural_section,augmented
+W21 X 48,W,structural_section,original
+WF 21X48,W,structural_section,augmented
+WF-21X48,W,structural_section,augmented
+W 21 X 48,W,structural_section,original
+W21X48 WF,W,structural_section,augmented
+WF W21X48,W,structural_section,augmented
+WF-W21X48,W,structural_section,augmented
+TS5X2-1/2X1/4,HSS,structural_section,augmented
+HSS5X2-1/2X1/4,HSS,structural_section,original
+TS 5X2-1/2X1/4,HSS,structural_section,augmented
+HSS 5X2-1/2X1/4,HSS,structural_section,original
+HSS-5X2-1/2X1/4,HSS,structural_section,augmented
+HSS_5X2-1/2X1/4,HSS,structural_section,augmented
+HSS5 X 2-1/2X1/4,HSS,structural_section,original
+HSS HSS5X2-1/2X1/4,HSS,structural_section,augmented
+HSS-HSS5X2-1/2X1/4,HSS,structural_section,augmented
+HSS5X2-1/2X1/4 HSS,HSS,structural_section,augmented
+HSS 5 X 2-1/2 X 1/4,HSS,structural_section,original
+"L4X3X1/4X1'-6""",L,structural_section,original
+"L 4X3X1/4X1'-6""",L,structural_section,original
+"L-4X3X1/4X1'-6""",L,structural_section,augmented
+"L_4X3X1/4X1'-6""",L,structural_section,augmented
+"L4 X 3X1/4X1'-6""",L,structural_section,original
+"L4X3X1/4X1'-6"" A36",L,structural_section,augmented
+"Angle L4X3X1/4X1'-6""",L,structural_section,augmented
+"Angle-L4X3X1/4X1'-6""",L,structural_section,augmented
+"L4X3X1/4X1'-6"" Angle",L,structural_section,augmented
+"L 4 X 3 X 1/4 X 1'-6""",L,structural_section,original
+"L Shape L4X3X1/4X1'-6""",L,structural_section,augmented
+"L Shape-L4X3X1/4X1'-6""",L,structural_section,augmented
+"L6X4X3/8X0'-4""",L,structural_section,original
+"L 6X4X3/8X0'-4""",L,structural_section,original
+"L-6X4X3/8X0'-4""",L,structural_section,augmented
+"L_6X4X3/8X0'-4""",L,structural_section,augmented
+"L6 X 4X3/8X0'-4""",L,structural_section,original
+"L6X4X3/8X0'-4"" A36",L,structural_section,augmented
+"Angle L6X4X3/8X0'-4""",L,structural_section,augmented
+"Angle-L6X4X3/8X0'-4""",L,structural_section,augmented
+"L6X4X3/8X0'-4"" Angle",L,structural_section,augmented
+"L 6 X 4 X 3/8 X 0'-4""",L,structural_section,original
+"L Shape L6X4X3/8X0'-4""",L,structural_section,augmented
+"L Shape-L6X4X3/8X0'-4""",L,structural_section,augmented
+"L7X4X3/8X0'-4""",L,structural_section,original
+"L 7X4X3/8X0'-4""",L,structural_section,original
+"L-7X4X3/8X0'-4""",L,structural_section,augmented
+"L_7X4X3/8X0'-4""",L,structural_section,augmented
+"L7 X 4X3/8X0'-4""",L,structural_section,original
+"L7X4X3/8X0'-4"" A36",L,structural_section,augmented
+"Angle L7X4X3/8X0'-4""",L,structural_section,augmented
+"Angle-L7X4X3/8X0'-4""",L,structural_section,augmented
+"L7X4X3/8X0'-4"" Angle",L,structural_section,augmented
+"L 7 X 4 X 3/8 X 0'-4""",L,structural_section,original
+"L Shape L7X4X3/8X0'-4""",L,structural_section,augmented
+"L Shape-L7X4X3/8X0'-4""",L,structural_section,augmented
 HSS8X8X3 Tube,HSS,,augmented
 L3 X 3 X,L,,original
 HSS6X3X3/8 Tube,HSS,,augmented
@@ -6983,18 +7060,6 @@ W 21 X 83,W,,original
 W21X83 WF,W,,augmented
 WF W21X83,W,,augmented
 WF-W21X83,W,,augmented
-W21X48,W,,original
-W 21X48,W,,original
-W-21X48,W,,augmented
-W_21X48,W,,augmented
-WF21X48,W,,augmented
-W21 X 48,W,,original
-WF 21X48,W,,augmented
-WF-21X48,W,,augmented
-W 21 X 48,W,,original
-W21X48 WF,W,,augmented
-WF W21X48,W,,augmented
-WF-W21X48,W,,augmented
 W21X57,W,,original
 W 21X57,W,,original
 W-21X57,W,,augmented
@@ -28376,17 +28441,6 @@ HSS5X3X1/8 HSS,HSS,,augmented
 HSS 5 X 3 X 1/8,HSS,,original
 HSS5X3X1/8 A500,HSS,,augmented
 HSS5X3X1/8 Tube,HSS,,augmented
-TS5X2-1/2X1/4,HSS,,augmented
-HSS5X2-1/2X1/4,HSS,,original
-TS 5X2-1/2X1/4,HSS,,augmented
-HSS 5X2-1/2X1/4,HSS,,original
-HSS-5X2-1/2X1/4,HSS,,augmented
-HSS_5X2-1/2X1/4,HSS,,augmented
-HSS5 X 2-1/2X1/4,HSS,,original
-HSS HSS5X2-1/2X1/4,HSS,,augmented
-HSS-HSS5X2-1/2X1/4,HSS,,augmented
-HSS5X2-1/2X1/4 HSS,HSS,,augmented
-HSS 5 X 2-1/2 X 1/4,HSS,,original
 HSS5X2-1/2X1/4 A500,HSS,,augmented
 HSS5X2-1/2X1/4 Tube,HSS,,augmented
 TS5X2-1/2X3/16,HSS,,augmented
@@ -32607,6 +32661,45 @@ Pipe PIPE2XXS,PIPE,,augmented
 Pipe-PIPE2XXS,PIPE,,augmented
 PIPE2XXS Pipe,PIPE,,augmented
 Pipe PIPE2XXS A53,PIPE,,augmented
+W10×22.,W,,original
+W 10×22.,W,,original
+W-10×22.,W,,augmented
+W_10×22.,W,,augmented
+WF10×22.,W,,augmented
+WF 10×22.,W,,augmented
+WF-10×22.,W,,augmented
+W10×22. WF,W,,augmented
+WF W10×22.,W,,augmented
+WF-W10×22.,W,,augmented
+W10×22. A992,W,,augmented
+Beam W10×22. A992,W,,augmented
+PL 1X9X1'-9,PL1X9X19,,original
+ASTM PL 1X9X1'-9,PL1X9X19,,augmented
+Grade PL 1X9X1'-9,PL1X9X19,,augmented
+Mat'l PL 1X9X1'-9,PL1X9X19,,augmented
+PL 1X9X1'-9 Steel,PL1X9X19,,augmented
+Steel PL 1X9X1'-9,PL1X9X19,,augmented
+MATERIAL PL 1X9X1'-9,PL1X9X19,,augmented
+PL1X9X19 PL 1X9X1'-9,PL1X9X19,,augmented
+PL 1X9X1'-9 (PL1X9X19),PL1X9X19,,augmented
+"1/2"" BENT PL W/ 1/2""⌀X 1/2"" BENT PL W/ 1/2""⌀X 9""",1/2BENTPLW/1/2X1/2BENTPLW/1/2X9,,original
+"ASTM 1/2"" BENT PL W/ 1/2""⌀X 1/2"" BENT PL W/ 1/2""⌀X 9""",1/2BENTPLW/1/2X1/2BENTPLW/1/2X9,,augmented
+"1/2"" BENT PL W/ 1/2""⌀X 1/2"" BENT PL W/ 1/2""⌀X 9"" Steel",1/2BENTPLW/1/2X1/2BENTPLW/1/2X9,,augmented
+"Grade 1/2"" BENT PL W/ 1/2""⌀X 1/2"" BENT PL W/ 1/2""⌀X 9""",1/2BENTPLW/1/2X1/2BENTPLW/1/2X9,,augmented
+"Mat'l 1/2"" BENT PL W/ 1/2""⌀X 1/2"" BENT PL W/ 1/2""⌀X 9""",1/2BENTPLW/1/2X1/2BENTPLW/1/2X9,,augmented
+"Steel 1/2"" BENT PL W/ 1/2""⌀X 1/2"" BENT PL W/ 1/2""⌀X 9""",1/2BENTPLW/1/2X1/2BENTPLW/1/2X9,,augmented
+"MATERIAL 1/2"" BENT PL W/ 1/2""⌀X 1/2"" BENT PL W/ 1/2""⌀X 9""",1/2BENTPLW/1/2X1/2BENTPLW/1/2X9,,augmented
+"1/2BENTPLW/1/2X1/2BENTPLW/1/2X9 1/2"" BENT PL W/ 1/2""⌀X 1/2"" BENT PL W/ 1/2""⌀X 9""",1/2BENTPLW/1/2X1/2BENTPLW/1/2X9,,augmented
+"1/2"" BENT PL W/ 1/2""⌀X 1/2"" BENT PL W/ 1/2""⌀X 9"" (1/2BENTPLW/1/2X1/2BENTPLW/1/2X9)",1/2BENTPLW/1/2X1/2BENTPLW/1/2X9,,augmented
+"1/2"" BENT PL 1/2"" BENT PL W/",1/2BENTPL1/2BENTPLW/,,original
+"ASTM 1/2"" BENT PL 1/2"" BENT PL W/",1/2BENTPL1/2BENTPLW/,,augmented
+"1/2"" BENT PL 1/2"" BENT PL W/ Steel",1/2BENTPL1/2BENTPLW/,,augmented
+"Grade 1/2"" BENT PL 1/2"" BENT PL W/",1/2BENTPL1/2BENTPLW/,,augmented
+"Mat'l 1/2"" BENT PL 1/2"" BENT PL W/",1/2BENTPL1/2BENTPLW/,,augmented
+"Steel 1/2"" BENT PL 1/2"" BENT PL W/",1/2BENTPL1/2BENTPLW/,,augmented
+"MATERIAL 1/2"" BENT PL 1/2"" BENT PL W/",1/2BENTPL1/2BENTPLW/,,augmented
+"1/2BENTPL1/2BENTPLW/ 1/2"" BENT PL 1/2"" BENT PL W/",1/2BENTPL1/2BENTPLW/,,augmented
+"1/2"" BENT PL 1/2"" BENT PL W/ (1/2BENTPL1/2BENTPLW/)",1/2BENTPL1/2BENTPLW/,,augmented
 C8X11.5.,C,,original
 C 8X11.5.,C,,original
 C-8X11.5.,C,,augmented
@@ -32619,17 +32712,15 @@ C Shape-C8X11.5.,C,,augmented
 C8X11.5. C Shape,C,,augmented
 C8X11.5. Channel,C,,augmented
 Channel C8X11.5.,C,,augmented
-W8X24(E),W,,original
-W 8X24(E),W,,original
-W-8X24(E),W,,augmented
-W_8X24(E),W,,augmented
-WF8X24(E),W,,augmented
-W8 X 24(E),W,,original
-WF 8X24(E),W,,augmented
-WF-8X24(E),W,,augmented
-W 8 X 24(E),W,,original
-W8X24(E) WF,W,,augmented
-WF W8X24(E),W,,augmented
+BENT PL 3 PL 3,BENTPL3PL3,,original
+ASTM BENT PL 3 PL 3,BENTPL3PL3,,augmented
+BENT PL 3 PL 3 Steel,BENTPL3PL3,,augmented
+Grade BENT PL 3 PL 3,BENTPL3PL3,,augmented
+Mat'l BENT PL 3 PL 3,BENTPL3PL3,,augmented
+Steel BENT PL 3 PL 3,BENTPL3PL3,,augmented
+MATERIAL BENT PL 3 PL 3,BENTPL3PL3,,augmented
+BENTPL3PL3 BENT PL 3 PL 3,BENTPL3PL3,,augmented
+BENT PL 3 PL 3 (BENTPL3PL3),BENTPL3PL3,,augmented
 WT3X4.5.,WT,,original
 WT 3X4.5.,WT,,original
 WT-3X4.5.,WT,,augmented
@@ -32643,6 +32734,15 @@ WT3X4.5. A992,WT,,augmented
 WT Shape WT3X4.5.,WT,,augmented
 WT Shape-WT3X4.5.,WT,,augmented
 WT3X4.5. WT Shape,WT,,augmented
+"1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,original
+"ASTM 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB Steel",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"Grade 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"Mat'l 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"Steel 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"MATERIAL 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB (1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB)",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
 "C6X8.2,",C,,original
 "C 6X8.2,",C,,original
 "C-6X8.2,",C,,augmented
@@ -74716,6 +74816,456 @@ L Shape L6X4X5/16A36,L,structural_section,augmented
 "L3X3X3/8X0'-6""A36 Angle",L,structural_section,augmented
 "L 3 X 3 X 3/8 X 0'-6""A36",L,structural_section,original
 "L Shape L3X3X3/8X0'-6""A36",L,structural_section,augmented
+"ASTM 1/4"" BENT PL (1/4BENTPL)",1/4BENTPL,plate,augmented
+"1/4"" BENT PL (1/4BENTPL) Steel",1/4BENTPL,plate,augmented
+"Grade 1/4"" BENT PL (1/4BENTPL)",1/4BENTPL,plate,augmented
+"Mat'l 1/4"" BENT PL (1/4BENTPL)",1/4BENTPL,plate,augmented
+"Steel 1/4"" BENT PL (1/4BENTPL)",1/4BENTPL,plate,augmented
+"MATERIAL 1/4"" BENT PL (1/4BENTPL)",1/4BENTPL,plate,augmented
+"1/4BENTPL 1/4"" BENT PL (1/4BENTPL)",1/4BENTPL,plate,augmented
+"1/4"" BENT PL (1/4BENTPL) (1/4BENTPL)",1/4BENTPL,plate,augmented
+"ASTM 1/4"" BENT PL STEEL",1/4BENTPL,plate,augmented
+"1/4"" BENT PL STEEL Steel",1/4BENTPL,plate,augmented
+"Grade 1/4"" BENT PL STEEL",1/4BENTPL,plate,augmented
+"Mat'l 1/4"" BENT PL STEEL",1/4BENTPL,plate,augmented
+"Steel 1/4"" BENT PL STEEL",1/4BENTPL,plate,augmented
+"MATERIAL 1/4"" BENT PL STEEL",1/4BENTPL,plate,augmented
+"1/4BENTPL 1/4"" BENT PL STEEL",1/4BENTPL,plate,augmented
+"1/4"" BENT PL STEEL (1/4BENTPL)",1/4BENTPL,plate,augmented
+"ASTM 1/4BENTPL 1/4"" BENT PL",1/4BENTPL,plate,augmented
+"Grade 1/4BENTPL 1/4"" BENT PL",1/4BENTPL,plate,augmented
+"Mat'l 1/4BENTPL 1/4"" BENT PL",1/4BENTPL,plate,augmented
+"Steel 1/4BENTPL 1/4"" BENT PL",1/4BENTPL,plate,augmented
+"MATERIAL 1/4BENTPL 1/4"" BENT PL",1/4BENTPL,plate,augmented
+"1/4BENTPL 1/4BENTPL 1/4"" BENT PL",1/4BENTPL,plate,augmented
+"ASTM ASTM 1/4"" BENT PL",1/4BENTPL,plate,augmented
+"Grade ASTM 1/4"" BENT PL",1/4BENTPL,plate,augmented
+"Mat'l ASTM 1/4"" BENT PL",1/4BENTPL,plate,augmented
+"Steel ASTM 1/4"" BENT PL",1/4BENTPL,plate,augmented
+"MATERIAL ASTM 1/4"" BENT PL",1/4BENTPL,plate,augmented
+"1/4BENTPL ASTM 1/4"" BENT PL",1/4BENTPL,plate,augmented
+"ASTM GRADE 1/4"" BENT PL",1/4BENTPL,plate,augmented
+"Grade GRADE 1/4"" BENT PL",1/4BENTPL,plate,augmented
+"Mat'l GRADE 1/4"" BENT PL",1/4BENTPL,plate,augmented
+"Steel GRADE 1/4"" BENT PL",1/4BENTPL,plate,augmented
+"MATERIAL GRADE 1/4"" BENT PL",1/4BENTPL,plate,augmented
+"1/4BENTPL GRADE 1/4"" BENT PL",1/4BENTPL,plate,augmented
+"MATERIAL1/4""BENTPL",1/4BENTPL,plate,original
+"M ATERIAL1/4""BENTPL",1/4BENTPL,plate,original
+"M-ATERIAL1/4""BENTPL",1/4BENTPL,plate,augmented
+"M_ATERIAL1/4""BENTPL",1/4BENTPL,plate,augmented
+"MATERIAL1/4""BENTPL A36",1/4BENTPL,plate,augmented
+"Beam MATERIAL1/4""BENTPL",1/4BENTPL,plate,augmented
+"Beam-MATERIAL1/4""BENTPL",1/4BENTPL,plate,augmented
+"MATERIAL1/4""BENTPL Beam",1/4BENTPL,plate,augmented
+"M Shape MATERIAL1/4""BENTPL",1/4BENTPL,plate,augmented
+"M Shape-MATERIAL1/4""BENTPL",1/4BENTPL,plate,augmented
+"MATERIAL1/4""BENTPL M Shape",1/4BENTPL,plate,augmented
+"MAT'L1/4""BENTPL",1/4BENTPL,plate,original
+"M AT'L1/4""BENTPL",1/4BENTPL,plate,original
+"M-AT'L1/4""BENTPL",1/4BENTPL,plate,augmented
+"M_AT'L1/4""BENTPL",1/4BENTPL,plate,augmented
+"MAT'L1/4""BENTPL A36",1/4BENTPL,plate,augmented
+"Beam MAT'L1/4""BENTPL",1/4BENTPL,plate,augmented
+"Beam-MAT'L1/4""BENTPL",1/4BENTPL,plate,augmented
+"MAT'L1/4""BENTPL Beam",1/4BENTPL,plate,augmented
+"M Shape MAT'L1/4""BENTPL",1/4BENTPL,plate,augmented
+"M Shape-MAT'L1/4""BENTPL",1/4BENTPL,plate,augmented
+"STEEL1/4""BENTPL",1/4BENTPL,plate,original
+"ST EEL1/4""BENTPL",1/4BENTPL,plate,original
+"ST-EEL1/4""BENTPL",1/4BENTPL,plate,augmented
+"ST_EEL1/4""BENTPL",1/4BENTPL,plate,augmented
+"ST Tee STEEL1/4""BENTPL",1/4BENTPL,plate,augmented
+"ST Tee-STEEL1/4""BENTPL",1/4BENTPL,plate,augmented
+"STEEL1/4""BENTPL ST Tee",1/4BENTPL,plate,augmented
+"STEEL1/4""BENTPL Structural Tee",1/4BENTPL,plate,augmented
+"Structural Tee STEEL1/4""BENTPL",1/4BENTPL,plate,augmented
+"Structural Tee-STEEL1/4""BENTPL",1/4BENTPL,plate,augmented
+BEAM W21X48 A992,W,structural_section,original
+W BEAM W21X48 A992,W,structural_section,augmented
+BEAM W21X48 A992 (W),W,structural_section,augmented
+ASTM BEAM W21X48 A992,W,structural_section,augmented
+BEAM W21X48 A992 Steel,W,structural_section,augmented
+Grade BEAM W21X48 A992,W,structural_section,augmented
+Mat'l BEAM W21X48 A992,W,structural_section,augmented
+Steel BEAM W21X48 A992,W,structural_section,augmented
+MATERIAL BEAM W21X48 A992,W,structural_section,augmented
+BEAM W21X48 ASTM A992,W,structural_section,original
+W BEAM W21X48 ASTM A992,W,structural_section,augmented
+BEAM W21X48 ASTM A992 (W),W,structural_section,augmented
+ASTM BEAM W21X48 ASTM A992,W,structural_section,augmented
+BEAM W21X48 ASTM A992 Steel,W,structural_section,augmented
+Grade BEAM W21X48 ASTM A992,W,structural_section,augmented
+Mat'l BEAM W21X48 ASTM A992,W,structural_section,augmented
+Steel BEAM W21X48 ASTM A992,W,structural_section,augmented
+MATERIAL BEAM W21X48 ASTM A992,W,structural_section,augmented
+WEELBEAMW21X48,W,structural_section,augmented
+W EELBEAMW21X48,W,structural_section,augmented
+W-EELBEAMW21X48,W,structural_section,augmented
+W_EELBEAMW21X48,W,structural_section,augmented
+WFEELBEAMW21X48,W,structural_section,augmented
+WEELBEAMW21 X 48,W,structural_section,augmented
+WF EELBEAMW21X48,W,structural_section,augmented
+WF-EELBEAMW21X48,W,structural_section,augmented
+STEEL BEAM W21X48,W,structural_section,original
+W EELBEAMW21 X 48,W,structural_section,augmented
+WEELBEAM-W21X48,W,structural_section,augmented
+W EELBEAM-W21X48,W,structural_section,augmented
+W-EELBEAM-W21X48,W,structural_section,augmented
+W_EELBEAM-W21X48,W,structural_section,augmented
+WFEELBEAM-W21X48,W,structural_section,augmented
+STEEL BEAM-W21X48,W,structural_section,original
+WEELBEAM-W21 X 48,W,structural_section,augmented
+WF EELBEAM-W21X48,W,structural_section,augmented
+WF-EELBEAM-W21X48,W,structural_section,augmented
+W EELBEAM-W21 X 48,W,structural_section,augmented
+W -21X48,W,structural_section,original
+W--21X48,W,structural_section,augmented
+W_-21X48,W,structural_section,augmented
+W-21 X 48,W,structural_section,original
+WF -21X48,W,structural_section,augmented
+WF--21X48,W,structural_section,augmented
+W -21 X 48,W,structural_section,original
+W-21X48 WF,W,structural_section,augmented
+WF W-21X48,W,structural_section,augmented
+WF-W-21X48,W,structural_section,augmented
+W21X48A992,W,structural_section,original
+W 21X48A992,W,structural_section,original
+W-21X48A992,W,structural_section,augmented
+W21X48 A992,W,structural_section,original
+W_21X48A992,W,structural_section,augmented
+WF21X48A992,W,structural_section,augmented
+W21 X 48A992,W,structural_section,original
+WF 21X48A992,W,structural_section,augmented
+WF-21X48A992,W,structural_section,augmented
+W 21 X 48A992,W,structural_section,original
+W21X48A992 WF,W,structural_section,augmented
+W21X48ASTMA992,W,structural_section,original
+W 21X48ASTMA992,W,structural_section,original
+W-21X48ASTMA992,W,structural_section,augmented
+W_21X48ASTMA992,W,structural_section,augmented
+WF21X48ASTMA992,W,structural_section,augmented
+W21 X 48ASTMA992,W,structural_section,original
+W21X48 ASTM A992,W,structural_section,original
+WF 21X48ASTMA992,W,structural_section,augmented
+WF-21X48ASTMA992,W,structural_section,augmented
+W 21 X 48ASTMA992,W,structural_section,original
+W21X48ASTMA992 WF,W,structural_section,augmented
+W21X48STEELBEAM,W,structural_section,original
+W 21X48STEELBEAM,W,structural_section,original
+W-21X48STEELBEAM,W,structural_section,augmented
+W_21X48STEELBEAM,W,structural_section,augmented
+WF21X48STEELBEAM,W,structural_section,augmented
+W21 X 48STEELBEAM,W,structural_section,original
+W21X48 STEEL BEAM,W,structural_section,original
+WF 21X48STEELBEAM,W,structural_section,augmented
+WF-21X48STEELBEAM,W,structural_section,augmented
+W 21 X 48STEELBEAM,W,structural_section,original
+W21X48WF,W,structural_section,original
+W 21X48WF,W,structural_section,original
+W-21X48WF,W,structural_section,augmented
+W_21X48WF,W,structural_section,augmented
+WF21X48WF,W,structural_section,augmented
+W21 X 48WF,W,structural_section,original
+WF 21X48WF,W,structural_section,augmented
+WF-21X48WF,W,structural_section,augmented
+W 21 X 48WF,W,structural_section,original
+W21X48WF WF,W,structural_section,augmented
+W21X48WIDEFLANGE,W,structural_section,original
+W 21X48WIDEFLANGE,W,structural_section,original
+W-21X48WIDEFLANGE,W,structural_section,augmented
+W_21X48WIDEFLANGE,W,structural_section,augmented
+WF21X48WIDEFLANGE,W,structural_section,augmented
+W21 X 48WIDEFLANGE,W,structural_section,original
+W21X48 WIDE FLANGE,W,structural_section,original
+WF 21X48WIDEFLANGE,W,structural_section,augmented
+WF-21X48WIDEFLANGE,W,structural_section,augmented
+W 21 X 48WIDEFLANGE,W,structural_section,original
+"ANGLE IRON L4X3X1/4X1'-6""",L,structural_section,original
+"L ANGLE IRON L4X3X1/4X1'-6""",L,structural_section,augmented
+"ANGLE IRON L4X3X1/4X1'-6"" (L)",L,structural_section,augmented
+"ASTM ANGLE IRON L4X3X1/4X1'-6""",L,structural_section,augmented
+"ANGLE IRON L4X3X1/4X1'-6"" Steel",L,structural_section,augmented
+"Grade ANGLE IRON L4X3X1/4X1'-6""",L,structural_section,augmented
+"Mat'l ANGLE IRON L4X3X1/4X1'-6""",L,structural_section,augmented
+"Steel ANGLE IRON L4X3X1/4X1'-6""",L,structural_section,augmented
+"MATERIAL ANGLE IRON L4X3X1/4X1'-6""",L,structural_section,augmented
+"ANGLE IRON-L4X3X1/4X1'-6""",L,structural_section,original
+"L ANGLE IRON-L4X3X1/4X1'-6""",L,structural_section,augmented
+"ANGLE IRON-L4X3X1/4X1'-6"" (L)",L,structural_section,augmented
+"ASTM ANGLE IRON-L4X3X1/4X1'-6""",L,structural_section,augmented
+"ANGLE IRON-L4X3X1/4X1'-6"" Steel",L,structural_section,augmented
+"Grade ANGLE IRON-L4X3X1/4X1'-6""",L,structural_section,augmented
+"Mat'l ANGLE IRON-L4X3X1/4X1'-6""",L,structural_section,augmented
+"Steel ANGLE IRON-L4X3X1/4X1'-6""",L,structural_section,augmented
+"MATERIAL ANGLE IRON-L4X3X1/4X1'-6""",L,structural_section,augmented
+"L ANGLE L4X3X1/4X1'-6""",L,structural_section,augmented
+"ANGLE L4X3X1/4X1'-6"" (L)",L,structural_section,augmented
+"ASTM ANGLE L4X3X1/4X1'-6""",L,structural_section,augmented
+"ANGLE L4X3X1/4X1'-6"" Steel",L,structural_section,augmented
+"Grade ANGLE L4X3X1/4X1'-6""",L,structural_section,augmented
+"Mat'l ANGLE L4X3X1/4X1'-6""",L,structural_section,augmented
+"Steel ANGLE L4X3X1/4X1'-6""",L,structural_section,augmented
+"MATERIAL ANGLE L4X3X1/4X1'-6""",L,structural_section,augmented
+"ANGLE L4X3X1/4X1'-6"" A36",L,structural_section,original
+"L ANGLE L4X3X1/4X1'-6"" A36",L,structural_section,augmented
+"ANGLE L4X3X1/4X1'-6"" A36 (L)",L,structural_section,augmented
+"ASTM ANGLE L4X3X1/4X1'-6"" A36",L,structural_section,augmented
+"ANGLE L4X3X1/4X1'-6"" A36 Steel",L,structural_section,augmented
+"Grade ANGLE L4X3X1/4X1'-6"" A36",L,structural_section,augmented
+"Mat'l ANGLE L4X3X1/4X1'-6"" A36",L,structural_section,augmented
+"Steel ANGLE L4X3X1/4X1'-6"" A36",L,structural_section,augmented
+"MATERIAL ANGLE L4X3X1/4X1'-6"" A36",L,structural_section,augmented
+"ANGLE L4X3X1/4X1'-6"" ASTM A36",L,structural_section,original
+"L ANGLE L4X3X1/4X1'-6"" ASTM A36",L,structural_section,augmented
+"ANGLE L4X3X1/4X1'-6"" ASTM A36 (L)",L,structural_section,augmented
+"ASTM ANGLE L4X3X1/4X1'-6"" ASTM A36",L,structural_section,augmented
+"ANGLE L4X3X1/4X1'-6"" ASTM A36 Steel",L,structural_section,augmented
+"Grade ANGLE L4X3X1/4X1'-6"" ASTM A36",L,structural_section,augmented
+"Mat'l ANGLE L4X3X1/4X1'-6"" ASTM A36",L,structural_section,augmented
+"Steel ANGLE L4X3X1/4X1'-6"" ASTM A36",L,structural_section,augmented
+"MATERIAL ANGLE L4X3X1/4X1'-6"" ASTM A36",L,structural_section,augmented
+"L ANGLE-L4X3X1/4X1'-6""",L,structural_section,augmented
+"ANGLE-L4X3X1/4X1'-6"" (L)",L,structural_section,augmented
+"ASTM ANGLE-L4X3X1/4X1'-6""",L,structural_section,augmented
+"ANGLE-L4X3X1/4X1'-6"" Steel",L,structural_section,augmented
+"Grade ANGLE-L4X3X1/4X1'-6""",L,structural_section,augmented
+"Mat'l ANGLE-L4X3X1/4X1'-6""",L,structural_section,augmented
+"Steel ANGLE-L4X3X1/4X1'-6""",L,structural_section,augmented
+"MATERIAL ANGLE-L4X3X1/4X1'-6""",L,structural_section,augmented
+"LSHAPEL4X3X1/4X1'-6""",L,structural_section,original
+"L SHAPEL4X3X1/4X1'-6""",L,structural_section,original
+"L-SHAPEL4X3X1/4X1'-6""",L,structural_section,augmented
+"L_SHAPEL4X3X1/4X1'-6""",L,structural_section,augmented
+"LSHAPEL4 X 3X1/4X1'-6""",L,structural_section,original
+"LSHAPEL4X3X1/4X1'-6"" A36",L,structural_section,augmented
+"Angle LSHAPEL4X3X1/4X1'-6""",L,structural_section,augmented
+"Angle-LSHAPEL4X3X1/4X1'-6""",L,structural_section,augmented
+"LSHAPEL4X3X1/4X1'-6"" Angle",L,structural_section,augmented
+"L SHAPEL4 X 3 X 1/4 X 1'-6""",L,structural_section,original
+"LSHAPE-L4X3X1/4X1'-6""",L,structural_section,original
+"L-SHAPE-L4X3X1/4X1'-6""",L,structural_section,augmented
+"L_SHAPE-L4X3X1/4X1'-6""",L,structural_section,augmented
+"LSHAPE-L4 X 3X1/4X1'-6""",L,structural_section,original
+"LSHAPE-L4X3X1/4X1'-6"" A36",L,structural_section,augmented
+"Angle LSHAPE-L4X3X1/4X1'-6""",L,structural_section,augmented
+"Angle-LSHAPE-L4X3X1/4X1'-6""",L,structural_section,augmented
+"LSHAPE-L4X3X1/4X1'-6"" Angle",L,structural_section,augmented
+"L SHAPE-L4 X 3 X 1/4 X 1'-6""",L,structural_section,original
+"L Shape LSHAPE-L4X3X1/4X1'-6""",L,structural_section,augmented
+"L -4X3X1/4X1'-6""",L,structural_section,original
+"L--4X3X1/4X1'-6""",L,structural_section,augmented
+"L_-4X3X1/4X1'-6""",L,structural_section,augmented
+"L-4 X 3X1/4X1'-6""",L,structural_section,original
+"L-4X3X1/4X1'-6"" A36",L,structural_section,augmented
+"Angle L-4X3X1/4X1'-6""",L,structural_section,augmented
+"Angle-L-4X3X1/4X1'-6""",L,structural_section,augmented
+"L-4X3X1/4X1'-6"" Angle",L,structural_section,augmented
+"L -4 X 3 X 1/4 X 1'-6""",L,structural_section,original
+"L Shape L-4X3X1/4X1'-6""",L,structural_section,augmented
+"L Shape-L-4X3X1/4X1'-6""",L,structural_section,augmented
+"L-4X3X1/4X1'-6"" L Shape",L,structural_section,augmented
+"L4X3X1/4X1'-6""A36",L,structural_section,original
+"L 4X3X1/4X1'-6""A36",L,structural_section,original
+"L-4X3X1/4X1'-6""A36",L,structural_section,augmented
+"L_4X3X1/4X1'-6""A36",L,structural_section,augmented
+"L4 X 3X1/4X1'-6""A36",L,structural_section,original
+"L4X3X1/4X1'-6""A36 A36",L,structural_section,augmented
+"Angle L4X3X1/4X1'-6""A36",L,structural_section,augmented
+"Angle-L4X3X1/4X1'-6""A36",L,structural_section,augmented
+"L4X3X1/4X1'-6""A36 Angle",L,structural_section,augmented
+"L 4 X 3 X 1/4 X 1'-6""A36",L,structural_section,original
+"L Shape L4X3X1/4X1'-6""A36",L,structural_section,augmented
+"ANGLE IRON L6X4X3/8X0'-4""",L,structural_section,original
+"L ANGLE IRON L6X4X3/8X0'-4""",L,structural_section,augmented
+"ANGLE IRON L6X4X3/8X0'-4"" (L)",L,structural_section,augmented
+"ASTM ANGLE IRON L6X4X3/8X0'-4""",L,structural_section,augmented
+"ANGLE IRON L6X4X3/8X0'-4"" Steel",L,structural_section,augmented
+"Grade ANGLE IRON L6X4X3/8X0'-4""",L,structural_section,augmented
+"Mat'l ANGLE IRON L6X4X3/8X0'-4""",L,structural_section,augmented
+"Steel ANGLE IRON L6X4X3/8X0'-4""",L,structural_section,augmented
+"MATERIAL ANGLE IRON L6X4X3/8X0'-4""",L,structural_section,augmented
+"ANGLE IRON-L6X4X3/8X0'-4""",L,structural_section,original
+"L ANGLE IRON-L6X4X3/8X0'-4""",L,structural_section,augmented
+"ANGLE IRON-L6X4X3/8X0'-4"" (L)",L,structural_section,augmented
+"ASTM ANGLE IRON-L6X4X3/8X0'-4""",L,structural_section,augmented
+"ANGLE IRON-L6X4X3/8X0'-4"" Steel",L,structural_section,augmented
+"Grade ANGLE IRON-L6X4X3/8X0'-4""",L,structural_section,augmented
+"Mat'l ANGLE IRON-L6X4X3/8X0'-4""",L,structural_section,augmented
+"Steel ANGLE IRON-L6X4X3/8X0'-4""",L,structural_section,augmented
+"MATERIAL ANGLE IRON-L6X4X3/8X0'-4""",L,structural_section,augmented
+"L ANGLE L6X4X3/8X0'-4""",L,structural_section,augmented
+"ANGLE L6X4X3/8X0'-4"" (L)",L,structural_section,augmented
+"ASTM ANGLE L6X4X3/8X0'-4""",L,structural_section,augmented
+"ANGLE L6X4X3/8X0'-4"" Steel",L,structural_section,augmented
+"Grade ANGLE L6X4X3/8X0'-4""",L,structural_section,augmented
+"Mat'l ANGLE L6X4X3/8X0'-4""",L,structural_section,augmented
+"Steel ANGLE L6X4X3/8X0'-4""",L,structural_section,augmented
+"MATERIAL ANGLE L6X4X3/8X0'-4""",L,structural_section,augmented
+"ANGLE L6X4X3/8X0'-4"" A36",L,structural_section,original
+"L ANGLE L6X4X3/8X0'-4"" A36",L,structural_section,augmented
+"ANGLE L6X4X3/8X0'-4"" A36 (L)",L,structural_section,augmented
+"ASTM ANGLE L6X4X3/8X0'-4"" A36",L,structural_section,augmented
+"ANGLE L6X4X3/8X0'-4"" A36 Steel",L,structural_section,augmented
+"Grade ANGLE L6X4X3/8X0'-4"" A36",L,structural_section,augmented
+"Mat'l ANGLE L6X4X3/8X0'-4"" A36",L,structural_section,augmented
+"Steel ANGLE L6X4X3/8X0'-4"" A36",L,structural_section,augmented
+"MATERIAL ANGLE L6X4X3/8X0'-4"" A36",L,structural_section,augmented
+"ANGLE L6X4X3/8X0'-4"" ASTM A36",L,structural_section,original
+"L ANGLE L6X4X3/8X0'-4"" ASTM A36",L,structural_section,augmented
+"ANGLE L6X4X3/8X0'-4"" ASTM A36 (L)",L,structural_section,augmented
+"ASTM ANGLE L6X4X3/8X0'-4"" ASTM A36",L,structural_section,augmented
+"ANGLE L6X4X3/8X0'-4"" ASTM A36 Steel",L,structural_section,augmented
+"Grade ANGLE L6X4X3/8X0'-4"" ASTM A36",L,structural_section,augmented
+"Mat'l ANGLE L6X4X3/8X0'-4"" ASTM A36",L,structural_section,augmented
+"Steel ANGLE L6X4X3/8X0'-4"" ASTM A36",L,structural_section,augmented
+"MATERIAL ANGLE L6X4X3/8X0'-4"" ASTM A36",L,structural_section,augmented
+"L ANGLE-L6X4X3/8X0'-4""",L,structural_section,augmented
+"ANGLE-L6X4X3/8X0'-4"" (L)",L,structural_section,augmented
+"ASTM ANGLE-L6X4X3/8X0'-4""",L,structural_section,augmented
+"ANGLE-L6X4X3/8X0'-4"" Steel",L,structural_section,augmented
+"Grade ANGLE-L6X4X3/8X0'-4""",L,structural_section,augmented
+"Mat'l ANGLE-L6X4X3/8X0'-4""",L,structural_section,augmented
+"Steel ANGLE-L6X4X3/8X0'-4""",L,structural_section,augmented
+"MATERIAL ANGLE-L6X4X3/8X0'-4""",L,structural_section,augmented
+"LSHAPEL6X4X3/8X0'-4""",L,structural_section,original
+"L SHAPEL6X4X3/8X0'-4""",L,structural_section,original
+"L-SHAPEL6X4X3/8X0'-4""",L,structural_section,augmented
+"L_SHAPEL6X4X3/8X0'-4""",L,structural_section,augmented
+"LSHAPEL6 X 4X3/8X0'-4""",L,structural_section,original
+"LSHAPEL6X4X3/8X0'-4"" A36",L,structural_section,augmented
+"Angle LSHAPEL6X4X3/8X0'-4""",L,structural_section,augmented
+"Angle-LSHAPEL6X4X3/8X0'-4""",L,structural_section,augmented
+"LSHAPEL6X4X3/8X0'-4"" Angle",L,structural_section,augmented
+"L SHAPEL6 X 4 X 3/8 X 0'-4""",L,structural_section,original
+"LSHAPE-L6X4X3/8X0'-4""",L,structural_section,original
+"L-SHAPE-L6X4X3/8X0'-4""",L,structural_section,augmented
+"L_SHAPE-L6X4X3/8X0'-4""",L,structural_section,augmented
+"LSHAPE-L6 X 4X3/8X0'-4""",L,structural_section,original
+"LSHAPE-L6X4X3/8X0'-4"" A36",L,structural_section,augmented
+"Angle LSHAPE-L6X4X3/8X0'-4""",L,structural_section,augmented
+"Angle-LSHAPE-L6X4X3/8X0'-4""",L,structural_section,augmented
+"LSHAPE-L6X4X3/8X0'-4"" Angle",L,structural_section,augmented
+"L SHAPE-L6 X 4 X 3/8 X 0'-4""",L,structural_section,original
+"L Shape LSHAPE-L6X4X3/8X0'-4""",L,structural_section,augmented
+"L -6X4X3/8X0'-4""",L,structural_section,original
+"L--6X4X3/8X0'-4""",L,structural_section,augmented
+"L_-6X4X3/8X0'-4""",L,structural_section,augmented
+"L-6 X 4X3/8X0'-4""",L,structural_section,original
+"L-6X4X3/8X0'-4"" A36",L,structural_section,augmented
+"Angle L-6X4X3/8X0'-4""",L,structural_section,augmented
+"Angle-L-6X4X3/8X0'-4""",L,structural_section,augmented
+"L-6X4X3/8X0'-4"" Angle",L,structural_section,augmented
+"L -6 X 4 X 3/8 X 0'-4""",L,structural_section,original
+"L Shape L-6X4X3/8X0'-4""",L,structural_section,augmented
+"L Shape-L-6X4X3/8X0'-4""",L,structural_section,augmented
+"L-6X4X3/8X0'-4"" L Shape",L,structural_section,augmented
+"L6X4X3/8X0'-4""A36",L,structural_section,original
+"L 6X4X3/8X0'-4""A36",L,structural_section,original
+"L-6X4X3/8X0'-4""A36",L,structural_section,augmented
+"L_6X4X3/8X0'-4""A36",L,structural_section,augmented
+"L6 X 4X3/8X0'-4""A36",L,structural_section,original
+"L6X4X3/8X0'-4""A36 A36",L,structural_section,augmented
+"Angle L6X4X3/8X0'-4""A36",L,structural_section,augmented
+"Angle-L6X4X3/8X0'-4""A36",L,structural_section,augmented
+"L6X4X3/8X0'-4""A36 Angle",L,structural_section,augmented
+"L 6 X 4 X 3/8 X 0'-4""A36",L,structural_section,original
+"L Shape L6X4X3/8X0'-4""A36",L,structural_section,augmented
+"ANGLE IRON L7X4X3/8X0'-4""",L,structural_section,original
+"L ANGLE IRON L7X4X3/8X0'-4""",L,structural_section,augmented
+"ANGLE IRON L7X4X3/8X0'-4"" (L)",L,structural_section,augmented
+"ASTM ANGLE IRON L7X4X3/8X0'-4""",L,structural_section,augmented
+"ANGLE IRON L7X4X3/8X0'-4"" Steel",L,structural_section,augmented
+"Grade ANGLE IRON L7X4X3/8X0'-4""",L,structural_section,augmented
+"Mat'l ANGLE IRON L7X4X3/8X0'-4""",L,structural_section,augmented
+"Steel ANGLE IRON L7X4X3/8X0'-4""",L,structural_section,augmented
+"MATERIAL ANGLE IRON L7X4X3/8X0'-4""",L,structural_section,augmented
+"ANGLE IRON-L7X4X3/8X0'-4""",L,structural_section,original
+"L ANGLE IRON-L7X4X3/8X0'-4""",L,structural_section,augmented
+"ANGLE IRON-L7X4X3/8X0'-4"" (L)",L,structural_section,augmented
+"ASTM ANGLE IRON-L7X4X3/8X0'-4""",L,structural_section,augmented
+"ANGLE IRON-L7X4X3/8X0'-4"" Steel",L,structural_section,augmented
+"Grade ANGLE IRON-L7X4X3/8X0'-4""",L,structural_section,augmented
+"Mat'l ANGLE IRON-L7X4X3/8X0'-4""",L,structural_section,augmented
+"Steel ANGLE IRON-L7X4X3/8X0'-4""",L,structural_section,augmented
+"MATERIAL ANGLE IRON-L7X4X3/8X0'-4""",L,structural_section,augmented
+"L ANGLE L7X4X3/8X0'-4""",L,structural_section,augmented
+"ANGLE L7X4X3/8X0'-4"" (L)",L,structural_section,augmented
+"ASTM ANGLE L7X4X3/8X0'-4""",L,structural_section,augmented
+"ANGLE L7X4X3/8X0'-4"" Steel",L,structural_section,augmented
+"Grade ANGLE L7X4X3/8X0'-4""",L,structural_section,augmented
+"Mat'l ANGLE L7X4X3/8X0'-4""",L,structural_section,augmented
+"Steel ANGLE L7X4X3/8X0'-4""",L,structural_section,augmented
+"MATERIAL ANGLE L7X4X3/8X0'-4""",L,structural_section,augmented
+"ANGLE L7X4X3/8X0'-4"" A36",L,structural_section,original
+"L ANGLE L7X4X3/8X0'-4"" A36",L,structural_section,augmented
+"ANGLE L7X4X3/8X0'-4"" A36 (L)",L,structural_section,augmented
+"ASTM ANGLE L7X4X3/8X0'-4"" A36",L,structural_section,augmented
+"ANGLE L7X4X3/8X0'-4"" A36 Steel",L,structural_section,augmented
+"Grade ANGLE L7X4X3/8X0'-4"" A36",L,structural_section,augmented
+"Mat'l ANGLE L7X4X3/8X0'-4"" A36",L,structural_section,augmented
+"Steel ANGLE L7X4X3/8X0'-4"" A36",L,structural_section,augmented
+"MATERIAL ANGLE L7X4X3/8X0'-4"" A36",L,structural_section,augmented
+"ANGLE L7X4X3/8X0'-4"" ASTM A36",L,structural_section,original
+"L ANGLE L7X4X3/8X0'-4"" ASTM A36",L,structural_section,augmented
+"ANGLE L7X4X3/8X0'-4"" ASTM A36 (L)",L,structural_section,augmented
+"ASTM ANGLE L7X4X3/8X0'-4"" ASTM A36",L,structural_section,augmented
+"ANGLE L7X4X3/8X0'-4"" ASTM A36 Steel",L,structural_section,augmented
+"Grade ANGLE L7X4X3/8X0'-4"" ASTM A36",L,structural_section,augmented
+"Mat'l ANGLE L7X4X3/8X0'-4"" ASTM A36",L,structural_section,augmented
+"Steel ANGLE L7X4X3/8X0'-4"" ASTM A36",L,structural_section,augmented
+"MATERIAL ANGLE L7X4X3/8X0'-4"" ASTM A36",L,structural_section,augmented
+"L ANGLE-L7X4X3/8X0'-4""",L,structural_section,augmented
+"ANGLE-L7X4X3/8X0'-4"" (L)",L,structural_section,augmented
+"ASTM ANGLE-L7X4X3/8X0'-4""",L,structural_section,augmented
+"ANGLE-L7X4X3/8X0'-4"" Steel",L,structural_section,augmented
+"Grade ANGLE-L7X4X3/8X0'-4""",L,structural_section,augmented
+"Mat'l ANGLE-L7X4X3/8X0'-4""",L,structural_section,augmented
+"Steel ANGLE-L7X4X3/8X0'-4""",L,structural_section,augmented
+"MATERIAL ANGLE-L7X4X3/8X0'-4""",L,structural_section,augmented
+"LSHAPEL7X4X3/8X0'-4""",L,structural_section,original
+"L SHAPEL7X4X3/8X0'-4""",L,structural_section,original
+"L-SHAPEL7X4X3/8X0'-4""",L,structural_section,augmented
+"L_SHAPEL7X4X3/8X0'-4""",L,structural_section,augmented
+"LSHAPEL7 X 4X3/8X0'-4""",L,structural_section,original
+"LSHAPEL7X4X3/8X0'-4"" A36",L,structural_section,augmented
+"Angle LSHAPEL7X4X3/8X0'-4""",L,structural_section,augmented
+"Angle-LSHAPEL7X4X3/8X0'-4""",L,structural_section,augmented
+"LSHAPEL7X4X3/8X0'-4"" Angle",L,structural_section,augmented
+"L SHAPEL7 X 4 X 3/8 X 0'-4""",L,structural_section,original
+"LSHAPE-L7X4X3/8X0'-4""",L,structural_section,original
+"L-SHAPE-L7X4X3/8X0'-4""",L,structural_section,augmented
+"L_SHAPE-L7X4X3/8X0'-4""",L,structural_section,augmented
+"LSHAPE-L7 X 4X3/8X0'-4""",L,structural_section,original
+"LSHAPE-L7X4X3/8X0'-4"" A36",L,structural_section,augmented
+"Angle LSHAPE-L7X4X3/8X0'-4""",L,structural_section,augmented
+"Angle-LSHAPE-L7X4X3/8X0'-4""",L,structural_section,augmented
+"LSHAPE-L7X4X3/8X0'-4"" Angle",L,structural_section,augmented
+"L SHAPE-L7 X 4 X 3/8 X 0'-4""",L,structural_section,original
+"L Shape LSHAPE-L7X4X3/8X0'-4""",L,structural_section,augmented
+"L -7X4X3/8X0'-4""",L,structural_section,original
+"L--7X4X3/8X0'-4""",L,structural_section,augmented
+"L_-7X4X3/8X0'-4""",L,structural_section,augmented
+"L-7 X 4X3/8X0'-4""",L,structural_section,original
+"L-7X4X3/8X0'-4"" A36",L,structural_section,augmented
+"Angle L-7X4X3/8X0'-4""",L,structural_section,augmented
+"Angle-L-7X4X3/8X0'-4""",L,structural_section,augmented
+"L-7X4X3/8X0'-4"" Angle",L,structural_section,augmented
+"L -7 X 4 X 3/8 X 0'-4""",L,structural_section,original
+"L Shape L-7X4X3/8X0'-4""",L,structural_section,augmented
+"L Shape-L-7X4X3/8X0'-4""",L,structural_section,augmented
+"L-7X4X3/8X0'-4"" L Shape",L,structural_section,augmented
+"L7X4X3/8X0'-4""A36",L,structural_section,original
+"L 7X4X3/8X0'-4""A36",L,structural_section,original
+"L-7X4X3/8X0'-4""A36",L,structural_section,augmented
+"L_7X4X3/8X0'-4""A36",L,structural_section,augmented
+"L7 X 4X3/8X0'-4""A36",L,structural_section,original
+"L7X4X3/8X0'-4""A36 A36",L,structural_section,augmented
+"Angle L7X4X3/8X0'-4""A36",L,structural_section,augmented
+"Angle-L7X4X3/8X0'-4""A36",L,structural_section,augmented
+"L7X4X3/8X0'-4""A36 Angle",L,structural_section,augmented
+"L 7 X 4 X 3/8 X 0'-4""A36",L,structural_section,original
+"L Shape L7X4X3/8X0'-4""A36",L,structural_section,augmented
 ANGLE IRON L5X3X1,L,,original
 L ANGLE IRON L5X3X1,L,,augmented
 ANGLE IRON L5X3X1 (L),L,,augmented
@@ -76267,401 +76817,105 @@ HSS8X4X1/4 STRUCTURAL TUBE,HSS,,original
 HSS HSS8X4X1/4STRUCTURALTUBE,HSS,,augmented
 HSS-HSS8X4X1/4STRUCTURALTUBE,HSS,,augmented
 HSS8X4X1/4STRUCTURALTUBE HSS,HSS,,augmented
-"ANGLE IRON L3X3X5/16,",L,,original
-"L ANGLE IRON L3X3X5/16,",L,,augmented
-"ANGLE IRON L3X3X5/16, (L)",L,,augmented
-"ASTM ANGLE IRON L3X3X5/16,",L,,augmented
-"ANGLE IRON L3X3X5/16, Steel",L,,augmented
-"Grade ANGLE IRON L3X3X5/16,",L,,augmented
-"Mat'l ANGLE IRON L3X3X5/16,",L,,augmented
-"Steel ANGLE IRON L3X3X5/16,",L,,augmented
-"MATERIAL ANGLE IRON L3X3X5/16,",L,,augmented
-"ANGLE IRON-L3X3X5/16,",L,,original
-"L ANGLE IRON-L3X3X5/16,",L,,augmented
-"ANGLE IRON-L3X3X5/16, (L)",L,,augmented
-"ASTM ANGLE IRON-L3X3X5/16,",L,,augmented
-"ANGLE IRON-L3X3X5/16, Steel",L,,augmented
-"Grade ANGLE IRON-L3X3X5/16,",L,,augmented
-"Mat'l ANGLE IRON-L3X3X5/16,",L,,augmented
-"Steel ANGLE IRON-L3X3X5/16,",L,,augmented
-"MATERIAL ANGLE IRON-L3X3X5/16,",L,,augmented
-"L ANGLE L3X3X5/16,",L,,augmented
-"ANGLE L3X3X5/16, (L)",L,,augmented
-"ASTM ANGLE L3X3X5/16,",L,,augmented
-"ANGLE L3X3X5/16, Steel",L,,augmented
-"Grade ANGLE L3X3X5/16,",L,,augmented
-"Mat'l ANGLE L3X3X5/16,",L,,augmented
-"Steel ANGLE L3X3X5/16,",L,,augmented
-"MATERIAL ANGLE L3X3X5/16,",L,,augmented
-"ANGLE L3X3X5/16, A36",L,,original
-"L ANGLE L3X3X5/16, A36",L,,augmented
-"ANGLE L3X3X5/16, A36 (L)",L,,augmented
-"ASTM ANGLE L3X3X5/16, A36",L,,augmented
-"ANGLE L3X3X5/16, A36 Steel",L,,augmented
-"Grade ANGLE L3X3X5/16, A36",L,,augmented
-"Mat'l ANGLE L3X3X5/16, A36",L,,augmented
-"Steel ANGLE L3X3X5/16, A36",L,,augmented
-"MATERIAL ANGLE L3X3X5/16, A36",L,,augmented
-"ANGLE L3X3X5/16, ASTM A36",L,,original
-"L ANGLE L3X3X5/16, ASTM A36",L,,augmented
-"ANGLE L3X3X5/16, ASTM A36 (L)",L,,augmented
-"ASTM ANGLE L3X3X5/16, ASTM A36",L,,augmented
-"ANGLE L3X3X5/16, ASTM A36 Steel",L,,augmented
-"Grade ANGLE L3X3X5/16, ASTM A36",L,,augmented
-"Mat'l ANGLE L3X3X5/16, ASTM A36",L,,augmented
-"Steel ANGLE L3X3X5/16, ASTM A36",L,,augmented
-"MATERIAL ANGLE L3X3X5/16, ASTM A36",L,,augmented
-"L ANGLE-L3X3X5/16,",L,,augmented
-"ANGLE-L3X3X5/16, (L)",L,,augmented
-"ASTM ANGLE-L3X3X5/16,",L,,augmented
-"ANGLE-L3X3X5/16, Steel",L,,augmented
-"Grade ANGLE-L3X3X5/16,",L,,augmented
-"Mat'l ANGLE-L3X3X5/16,",L,,augmented
-"Steel ANGLE-L3X3X5/16,",L,,augmented
-"MATERIAL ANGLE-L3X3X5/16,",L,,augmented
-"LSHAPEL3X3X5/16,",L,,original
-"L SHAPEL3X3X5/16,",L,,original
-"L-SHAPEL3X3X5/16,",L,,augmented
-"L_SHAPEL3X3X5/16,",L,,augmented
-"LSHAPEL3 X 3X5/16,",L,,original
-"LSHAPEL3X3X5/16, A36",L,,augmented
-"L SHAPEL3 X 3 X 5/16,",L,,original
-"Angle LSHAPEL3X3X5/16,",L,,augmented
-"Angle-LSHAPEL3X3X5/16,",L,,augmented
-"LSHAPEL3X3X5/16, Angle",L,,augmented
-"LSHAPE-L3X3X5/16,",L,,original
-"L-SHAPE-L3X3X5/16,",L,,augmented
-"L_SHAPE-L3X3X5/16,",L,,augmented
-"LSHAPE-L3 X 3X5/16,",L,,original
-"LSHAPE-L3X3X5/16, A36",L,,augmented
-"L SHAPE-L3 X 3 X 5/16,",L,,original
-"Angle LSHAPE-L3X3X5/16,",L,,augmented
-"Angle-LSHAPE-L3X3X5/16,",L,,augmented
-"LSHAPE-L3X3X5/16, Angle",L,,augmented
-"L Shape LSHAPE-L3X3X5/16,",L,,augmented
-"L -3X3X5/16,",L,,original
-"L--3X3X5/16,",L,,augmented
-"L_-3X3X5/16,",L,,augmented
-"L-3 X 3X5/16,",L,,original
-"L-3X3X5/16, A36",L,,augmented
-"L -3 X 3 X 5/16,",L,,original
-"Angle L-3X3X5/16,",L,,augmented
-"Angle-L-3X3X5/16,",L,,augmented
-"L-3X3X5/16, Angle",L,,augmented
-"L Shape L-3X3X5/16,",L,,augmented
-"L Shape-L-3X3X5/16,",L,,augmented
-"L-3X3X5/16, L Shape",L,,augmented
-"L3X3X5/16,A36",L,,original
-"L 3X3X5/16,A36",L,,original
-"L-3X3X5/16,A36",L,,augmented
-"L_3X3X5/16,A36",L,,augmented
-"L3 X 3X5/16,A36",L,,original
-"L3X3X5/16,A36 A36",L,,augmented
-"L 3 X 3 X 5/16,A36",L,,original
-"Angle L3X3X5/16,A36",L,,augmented
-"Angle-L3X3X5/16,A36",L,,augmented
-"L3X3X5/16,A36 Angle",L,,augmented
-"L Shape L3X3X5/16,A36",L,,augmented
-ANGLE IRON L4X4X5/16.,L,,original
-L ANGLE IRON L4X4X5/16.,L,,augmented
-ANGLE IRON L4X4X5/16. (L),L,,augmented
-ASTM ANGLE IRON L4X4X5/16.,L,,augmented
-ANGLE IRON L4X4X5/16. Steel,L,,augmented
-Grade ANGLE IRON L4X4X5/16.,L,,augmented
-Mat'l ANGLE IRON L4X4X5/16.,L,,augmented
-Steel ANGLE IRON L4X4X5/16.,L,,augmented
-MATERIAL ANGLE IRON L4X4X5/16.,L,,augmented
-ANGLE IRON-L4X4X5/16.,L,,original
-L ANGLE IRON-L4X4X5/16.,L,,augmented
-ANGLE IRON-L4X4X5/16. (L),L,,augmented
-ASTM ANGLE IRON-L4X4X5/16.,L,,augmented
-ANGLE IRON-L4X4X5/16. Steel,L,,augmented
-Grade ANGLE IRON-L4X4X5/16.,L,,augmented
-Mat'l ANGLE IRON-L4X4X5/16.,L,,augmented
-Steel ANGLE IRON-L4X4X5/16.,L,,augmented
-MATERIAL ANGLE IRON-L4X4X5/16.,L,,augmented
-L ANGLE L4X4X5/16.,L,,augmented
-ANGLE L4X4X5/16. (L),L,,augmented
-ASTM ANGLE L4X4X5/16.,L,,augmented
-ANGLE L4X4X5/16. Steel,L,,augmented
-Grade ANGLE L4X4X5/16.,L,,augmented
-Mat'l ANGLE L4X4X5/16.,L,,augmented
-Steel ANGLE L4X4X5/16.,L,,augmented
-MATERIAL ANGLE L4X4X5/16.,L,,augmented
-ANGLE L4X4X5/16. A36,L,,original
-L ANGLE L4X4X5/16. A36,L,,augmented
-ANGLE L4X4X5/16. A36 (L),L,,augmented
-ASTM ANGLE L4X4X5/16. A36,L,,augmented
-ANGLE L4X4X5/16. A36 Steel,L,,augmented
-Grade ANGLE L4X4X5/16. A36,L,,augmented
-Mat'l ANGLE L4X4X5/16. A36,L,,augmented
-Steel ANGLE L4X4X5/16. A36,L,,augmented
-MATERIAL ANGLE L4X4X5/16. A36,L,,augmented
-ANGLE L4X4X5/16. ASTM A36,L,,original
-L ANGLE L4X4X5/16. ASTM A36,L,,augmented
-ANGLE L4X4X5/16. ASTM A36 (L),L,,augmented
-ASTM ANGLE L4X4X5/16. ASTM A36,L,,augmented
-ANGLE L4X4X5/16. ASTM A36 Steel,L,,augmented
-Grade ANGLE L4X4X5/16. ASTM A36,L,,augmented
-Mat'l ANGLE L4X4X5/16. ASTM A36,L,,augmented
-Steel ANGLE L4X4X5/16. ASTM A36,L,,augmented
-MATERIAL ANGLE L4X4X5/16. ASTM A36,L,,augmented
-L ANGLE-L4X4X5/16.,L,,augmented
-ANGLE-L4X4X5/16. (L),L,,augmented
-ASTM ANGLE-L4X4X5/16.,L,,augmented
-ANGLE-L4X4X5/16. Steel,L,,augmented
-Grade ANGLE-L4X4X5/16.,L,,augmented
-Mat'l ANGLE-L4X4X5/16.,L,,augmented
-Steel ANGLE-L4X4X5/16.,L,,augmented
-MATERIAL ANGLE-L4X4X5/16.,L,,augmented
-LSHAPEL4X4X5/16.,L,,original
-L SHAPEL4X4X5/16.,L,,original
-L-SHAPEL4X4X5/16.,L,,augmented
-L_SHAPEL4X4X5/16.,L,,augmented
-LSHAPEL4 X 4X5/16.,L,,original
-LSHAPEL4X4X5/16. A36,L,,augmented
-L SHAPEL4 X 4 X 5/16.,L,,original
-Angle LSHAPEL4X4X5/16.,L,,augmented
-Angle-LSHAPEL4X4X5/16.,L,,augmented
-LSHAPEL4X4X5/16. Angle,L,,augmented
-LSHAPE-L4X4X5/16.,L,,original
-L-SHAPE-L4X4X5/16.,L,,augmented
-L_SHAPE-L4X4X5/16.,L,,augmented
-LSHAPE-L4 X 4X5/16.,L,,original
-LSHAPE-L4X4X5/16. A36,L,,augmented
-L SHAPE-L4 X 4 X 5/16.,L,,original
-Angle LSHAPE-L4X4X5/16.,L,,augmented
-Angle-LSHAPE-L4X4X5/16.,L,,augmented
-LSHAPE-L4X4X5/16. Angle,L,,augmented
-L Shape LSHAPE-L4X4X5/16.,L,,augmented
-L -4X4X5/16.,L,,original
-L--4X4X5/16.,L,,augmented
-L_-4X4X5/16.,L,,augmented
-L-4 X 4X5/16.,L,,original
-L-4X4X5/16. A36,L,,augmented
-L -4 X 4 X 5/16.,L,,original
-Angle L-4X4X5/16.,L,,augmented
-Angle-L-4X4X5/16.,L,,augmented
-L-4X4X5/16. Angle,L,,augmented
-L Shape L-4X4X5/16.,L,,augmented
-L Shape-L-4X4X5/16.,L,,augmented
-L-4X4X5/16. L Shape,L,,augmented
-L4X4X5/16.A36,L,,original
-L 4X4X5/16.A36,L,,original
-L-4X4X5/16.A36,L,,augmented
-L_4X4X5/16.A36,L,,augmented
-L4 X 4X5/16.A36,L,,original
-L4X4X5/16.A36 A36,L,,augmented
-L 4 X 4 X 5/16.A36,L,,original
-Angle L4X4X5/16.A36,L,,augmented
-Angle-L4X4X5/16.A36,L,,augmented
-L4X4X5/16.A36 Angle,L,,augmented
-L Shape L4X4X5/16.A36,L,,augmented
-"TSHSS6X4X3/8,",HSS,,augmented
-"HSSHSS6X4X3/8,",HSS,,original
-"TS HSS6X4X3/8,",HSS,,augmented
-"HSS_HSS6X4X3/8,",HSS,,augmented
-"HSSHSS6 X 4X3/8,",HSS,,original
-"HSS HSSHSS6X4X3/8,",HSS,,augmented
-"HSS-HSSHSS6X4X3/8,",HSS,,augmented
-"HSSHSS6X4X3/8, HSS",HSS,,augmented
-"HSS HSS6 X 4 X 3/8,",HSS,,original
-"HSSHSS6X4X3/8, A500",HSS,,augmented
-"TSHSS6X4X3/8,A500",HSS,,augmented
-"HSSHSS6X4X3/8,A500",HSS,,original
-"TS HSS6X4X3/8,A500",HSS,,augmented
-"HSS HSS6X4X3/8,A500",HSS,,original
-"HSS-HSS6X4X3/8,A500",HSS,,augmented
-"HSS_HSS6X4X3/8,A500",HSS,,augmented
-"HSS HSS6X4X3/8, A500",HSS,,original
-"HSSHSS6 X 4X3/8,A500",HSS,,original
-"HSS HSSHSS6X4X3/8,A500",HSS,,augmented
-"HSS-HSSHSS6X4X3/8,A500",HSS,,augmented
-"HSSHSS6X4X3/8,A500 HSS",HSS,,augmented
-"HSS HSS6 X 4 X 3/8,A500",HSS,,original
-"TSHSS6X4X3/8,ASTMA500",HSS,,augmented
-"HSSHSS6X4X3/8,ASTMA500",HSS,,original
-"TS HSS6X4X3/8,ASTMA500",HSS,,augmented
-"HSS HSS6X4X3/8,ASTMA500",HSS,,original
-"HSS-HSS6X4X3/8,ASTMA500",HSS,,augmented
-"HSS_HSS6X4X3/8,ASTMA500",HSS,,augmented
-"HSSHSS6 X 4X3/8,ASTMA500",HSS,,original
-"HSS HSS6X4X3/8, ASTM A500",HSS,,original
-"HSS HSSHSS6X4X3/8,ASTMA500",HSS,,augmented
-"HSS-HSSHSS6X4X3/8,ASTMA500",HSS,,augmented
-"HSSHSS6X4X3/8,ASTMA500 HSS",HSS,,augmented
-"HSS HSS6 X 4 X 3/8,ASTMA500",HSS,,original
-"TS-6X4X3/8,",HSS,,augmented
-"TS -6X4X3/8,",HSS,,augmented
-"HSS -6X4X3/8,",HSS,,original
-"HSS--6X4X3/8,",HSS,,augmented
-"HSS_-6X4X3/8,",HSS,,augmented
-"HSS-6 X 4X3/8,",HSS,,original
-"HSS HSS-6X4X3/8,",HSS,,augmented
-"HSS-6X4X3/8, HSS",HSS,,augmented
-"HSS-HSS-6X4X3/8,",HSS,,augmented
-"HSS -6 X 4 X 3/8,",HSS,,original
-"HSS-6X4X3/8, A500",HSS,,augmented
-"HSS-6X4X3/8, Tube",HSS,,augmented
-"TS-HSS6X4X3/8,",HSS,,augmented
-"TS -HSS6X4X3/8,",HSS,,augmented
-"HSS -HSS6X4X3/8,",HSS,,original
-"HSS--HSS6X4X3/8,",HSS,,augmented
-"HSS_-HSS6X4X3/8,",HSS,,augmented
-"HSS-HSS6 X 4X3/8,",HSS,,original
-"HSS HSS-HSS6X4X3/8,",HSS,,augmented
-"HSS-HSS-HSS6X4X3/8,",HSS,,augmented
-"HSS-HSS6X4X3/8, HSS",HSS,,augmented
-"HSS -HSS6 X 4 X 3/8,",HSS,,original
-"HSS-HSS6X4X3/8, A500",HSS,,augmented
-"HSS-HSS6X4X3/8, Tube",HSS,,augmented
-"TS6X4X3/8,A500",HSS,,augmented
-"HSS6X4X3/8,A500",HSS,,original
-"TS 6X4X3/8,A500",HSS,,augmented
-"HSS 6X4X3/8,A500",HSS,,original
-"HSS-6X4X3/8,A500",HSS,,augmented
-"HSS_6X4X3/8,A500",HSS,,augmented
-"HSS6 X 4X3/8,A500",HSS,,original
-"HSS6X4X3/8,A500 HSS",HSS,,augmented
-"HSS 6 X 4 X 3/8,A500",HSS,,original
-"TS6X4X3/8,ASTMA500",HSS,,augmented
-"HSS6X4X3/8,ASTMA500",HSS,,original
-"TS 6X4X3/8,ASTMA500",HSS,,augmented
-"HSS 6X4X3/8,ASTMA500",HSS,,original
-"HSS-6X4X3/8,ASTMA500",HSS,,augmented
-"HSS_6X4X3/8,ASTMA500",HSS,,augmented
-"HSS6 X 4X3/8,ASTMA500",HSS,,original
-"HSS6X4X3/8, ASTM A500",HSS,,original
-"HSS6X4X3/8,ASTMA500 HSS",HSS,,augmented
-"HSS 6 X 4 X 3/8,ASTMA500",HSS,,original
-"TS6X4X3/8,HSS",HSS,,augmented
-"HSS6X4X3/8,HSS",HSS,,original
-"TS 6X4X3/8,HSS",HSS,,augmented
-"HSS 6X4X3/8,HSS",HSS,,original
-"HSS-6X4X3/8,HSS",HSS,,augmented
-"HSS_6X4X3/8,HSS",HSS,,augmented
-"HSS6 X 4X3/8,HSS",HSS,,original
-"HSS HSS6X4X3/8,HSS",HSS,,augmented
-"HSS-HSS6X4X3/8,HSS",HSS,,augmented
-"HSS6X4X3/8,HSS HSS",HSS,,augmented
-"HSS 6 X 4 X 3/8,HSS",HSS,,original
-"TS6X4X3/8,HOLLOWSTRUCTURALSECTION",HSS,,augmented
-"HSS6X4X3/8,HOLLOWSTRUCTURALSECTION",HSS,,original
-"TS 6X4X3/8,HOLLOWSTRUCTURALSECTION",HSS,,augmented
-"HSS 6X4X3/8,HOLLOWSTRUCTURALSECTION",HSS,,original
-"HSS-6X4X3/8,HOLLOWSTRUCTURALSECTION",HSS,,augmented
-"HSS_6X4X3/8,HOLLOWSTRUCTURALSECTION",HSS,,augmented
-"HSS6 X 4X3/8,HOLLOWSTRUCTURALSECTION",HSS,,original
-"HSS6X4X3/8, HOLLOW STRUCTURAL SECTION",HSS,,original
-"HSS HSS6X4X3/8,HOLLOWSTRUCTURALSECTION",HSS,,augmented
-"HSS-HSS6X4X3/8,HOLLOWSTRUCTURALSECTION",HSS,,augmented
-"HSS6X4X3/8,HOLLOWSTRUCTURALSECTION HSS",HSS,,augmented
-"TS6X4X3/8,STRUCTURALTUBE",HSS,,augmented
-"HSS6X4X3/8,STRUCTURALTUBE",HSS,,original
-"TS 6X4X3/8,STRUCTURALTUBE",HSS,,augmented
-"HSS 6X4X3/8,STRUCTURALTUBE",HSS,,original
-"HSS-6X4X3/8,STRUCTURALTUBE",HSS,,augmented
-"HSS_6X4X3/8,STRUCTURALTUBE",HSS,,augmented
-"HSS6 X 4X3/8,STRUCTURALTUBE",HSS,,original
-"HSS6X4X3/8, STRUCTURAL TUBE",HSS,,original
-"HSS HSS6X4X3/8,STRUCTURALTUBE",HSS,,augmented
-"HSS-HSS6X4X3/8,STRUCTURALTUBE",HSS,,augmented
-"HSS6X4X3/8,STRUCTURALTUBE HSS",HSS,,augmented
-"ANGLE IRON L4X4X3/8X0'-5""",L,,original
-"L ANGLE IRON L4X4X3/8X0'-5""",L,,augmented
-"ANGLE IRON L4X4X3/8X0'-5"" (L)",L,,augmented
-"ASTM ANGLE IRON L4X4X3/8X0'-5""",L,,augmented
-"ANGLE IRON L4X4X3/8X0'-5"" Steel",L,,augmented
-"Grade ANGLE IRON L4X4X3/8X0'-5""",L,,augmented
-"Mat'l ANGLE IRON L4X4X3/8X0'-5""",L,,augmented
-"Steel ANGLE IRON L4X4X3/8X0'-5""",L,,augmented
-"MATERIAL ANGLE IRON L4X4X3/8X0'-5""",L,,augmented
-"ANGLE IRON-L4X4X3/8X0'-5""",L,,original
-"L ANGLE IRON-L4X4X3/8X0'-5""",L,,augmented
-"ANGLE IRON-L4X4X3/8X0'-5"" (L)",L,,augmented
-"ASTM ANGLE IRON-L4X4X3/8X0'-5""",L,,augmented
-"ANGLE IRON-L4X4X3/8X0'-5"" Steel",L,,augmented
-"Grade ANGLE IRON-L4X4X3/8X0'-5""",L,,augmented
-"Mat'l ANGLE IRON-L4X4X3/8X0'-5""",L,,augmented
-"Steel ANGLE IRON-L4X4X3/8X0'-5""",L,,augmented
-"MATERIAL ANGLE IRON-L4X4X3/8X0'-5""",L,,augmented
-"L ANGLE L4X4X3/8X0'-5""",L,,augmented
-"ANGLE L4X4X3/8X0'-5"" (L)",L,,augmented
-"ASTM ANGLE L4X4X3/8X0'-5""",L,,augmented
-"ANGLE L4X4X3/8X0'-5"" Steel",L,,augmented
-"Grade ANGLE L4X4X3/8X0'-5""",L,,augmented
-"Mat'l ANGLE L4X4X3/8X0'-5""",L,,augmented
-"Steel ANGLE L4X4X3/8X0'-5""",L,,augmented
-"MATERIAL ANGLE L4X4X3/8X0'-5""",L,,augmented
-"ANGLE L4X4X3/8X0'-5"" A36",L,,original
-"L ANGLE L4X4X3/8X0'-5"" A36",L,,augmented
-"ANGLE L4X4X3/8X0'-5"" A36 (L)",L,,augmented
-"ASTM ANGLE L4X4X3/8X0'-5"" A36",L,,augmented
-"ANGLE L4X4X3/8X0'-5"" A36 Steel",L,,augmented
-"Grade ANGLE L4X4X3/8X0'-5"" A36",L,,augmented
-"Mat'l ANGLE L4X4X3/8X0'-5"" A36",L,,augmented
-"Steel ANGLE L4X4X3/8X0'-5"" A36",L,,augmented
-"MATERIAL ANGLE L4X4X3/8X0'-5"" A36",L,,augmented
-"ANGLE L4X4X3/8X0'-5"" ASTM A36",L,,original
-"L ANGLE L4X4X3/8X0'-5"" ASTM A36",L,,augmented
-"ANGLE L4X4X3/8X0'-5"" ASTM A36 (L)",L,,augmented
-"ASTM ANGLE L4X4X3/8X0'-5"" ASTM A36",L,,augmented
-"ANGLE L4X4X3/8X0'-5"" ASTM A36 Steel",L,,augmented
-"Grade ANGLE L4X4X3/8X0'-5"" ASTM A36",L,,augmented
-"Mat'l ANGLE L4X4X3/8X0'-5"" ASTM A36",L,,augmented
-"Steel ANGLE L4X4X3/8X0'-5"" ASTM A36",L,,augmented
-"MATERIAL ANGLE L4X4X3/8X0'-5"" ASTM A36",L,,augmented
-"L ANGLE-L4X4X3/8X0'-5""",L,,augmented
-"ANGLE-L4X4X3/8X0'-5"" (L)",L,,augmented
-"ASTM ANGLE-L4X4X3/8X0'-5""",L,,augmented
-"ANGLE-L4X4X3/8X0'-5"" Steel",L,,augmented
-"Grade ANGLE-L4X4X3/8X0'-5""",L,,augmented
-"Mat'l ANGLE-L4X4X3/8X0'-5""",L,,augmented
-"Steel ANGLE-L4X4X3/8X0'-5""",L,,augmented
-"MATERIAL ANGLE-L4X4X3/8X0'-5""",L,,augmented
-"LSHAPEL4X4X3/8X0'-5""",L,,original
-"L SHAPEL4X4X3/8X0'-5""",L,,original
-"L-SHAPEL4X4X3/8X0'-5""",L,,augmented
-"L_SHAPEL4X4X3/8X0'-5""",L,,augmented
-"LSHAPEL4 X 4X3/8X0'-5""",L,,original
-"LSHAPEL4X4X3/8X0'-5"" A36",L,,augmented
-"Angle LSHAPEL4X4X3/8X0'-5""",L,,augmented
-"Angle-LSHAPEL4X4X3/8X0'-5""",L,,augmented
-"LSHAPEL4X4X3/8X0'-5"" Angle",L,,augmented
-"L SHAPEL4 X 4 X 3/8 X 0'-5""",L,,original
-"LSHAPE-L4X4X3/8X0'-5""",L,,original
-"L-SHAPE-L4X4X3/8X0'-5""",L,,augmented
-"L_SHAPE-L4X4X3/8X0'-5""",L,,augmented
-"LSHAPE-L4 X 4X3/8X0'-5""",L,,original
-"LSHAPE-L4X4X3/8X0'-5"" A36",L,,augmented
-"Angle LSHAPE-L4X4X3/8X0'-5""",L,,augmented
-"Angle-LSHAPE-L4X4X3/8X0'-5""",L,,augmented
-"LSHAPE-L4X4X3/8X0'-5"" Angle",L,,augmented
-"L SHAPE-L4 X 4 X 3/8 X 0'-5""",L,,original
-"L Shape LSHAPE-L4X4X3/8X0'-5""",L,,augmented
-"L -4X4X3/8X0'-5""",L,,original
-"L--4X4X3/8X0'-5""",L,,augmented
-"L_-4X4X3/8X0'-5""",L,,augmented
-"L-4 X 4X3/8X0'-5""",L,,original
-"L-4X4X3/8X0'-5"" A36",L,,augmented
-"Angle L-4X4X3/8X0'-5""",L,,augmented
-"Angle-L-4X4X3/8X0'-5""",L,,augmented
-"L-4X4X3/8X0'-5"" Angle",L,,augmented
-"L -4 X 4 X 3/8 X 0'-5""",L,,original
-"L Shape L-4X4X3/8X0'-5""",L,,augmented
-"L Shape-L-4X4X3/8X0'-5""",L,,augmented
-"L-4X4X3/8X0'-5"" L Shape",L,,augmented
-"L4X4X3/8X0'-5""A36",L,,original
-"L 4X4X3/8X0'-5""A36",L,,original
-"L-4X4X3/8X0'-5""A36",L,,augmented
-"L_4X4X3/8X0'-5""A36",L,,augmented
-"L4 X 4X3/8X0'-5""A36",L,,original
-"L4X4X3/8X0'-5""A36 A36",L,,augmented
-"Angle L4X4X3/8X0'-5""A36",L,,augmented
-"Angle-L4X4X3/8X0'-5""A36",L,,augmented
-"L4X4X3/8X0'-5""A36 Angle",L,,augmented
-"L 4 X 4 X 3/8 X 0'-5""A36",L,,original
-"L Shape L4X4X3/8X0'-5""A36",L,,augmented
+TSHSS5X2-1/2X1/4,HSS,,augmented
+HSSHSS5X2-1/2X1/4,HSS,,original
+TS HSS5X2-1/2X1/4,HSS,,augmented
+HSS_HSS5X2-1/2X1/4,HSS,,augmented
+HSSHSS5 X 2-1/2X1/4,HSS,,original
+HSS HSSHSS5X2-1/2X1/4,HSS,,augmented
+HSS-HSSHSS5X2-1/2X1/4,HSS,,augmented
+HSSHSS5X2-1/2X1/4 HSS,HSS,,augmented
+HSS HSS5 X 2-1/2 X 1/4,HSS,,original
+HSSHSS5X2-1/2X1/4 A500,HSS,,augmented
+TSHSS5X2-1/2X1/4A500,HSS,,augmented
+HSSHSS5X2-1/2X1/4A500,HSS,,original
+TS HSS5X2-1/2X1/4A500,HSS,,augmented
+HSS HSS5X2-1/2X1/4A500,HSS,,original
+HSS-HSS5X2-1/2X1/4A500,HSS,,augmented
+HSS_HSS5X2-1/2X1/4A500,HSS,,augmented
+HSS HSS5X2-1/2X1/4 A500,HSS,,original
+HSSHSS5 X 2-1/2X1/4A500,HSS,,original
+HSS HSSHSS5X2-1/2X1/4A500,HSS,,augmented
+HSS-HSSHSS5X2-1/2X1/4A500,HSS,,augmented
+HSSHSS5X2-1/2X1/4A500 HSS,HSS,,augmented
+HSS HSS5 X 2-1/2 X 1/4A500,HSS,,original
+TSHSS5X2-1/2X1/4ASTMA500,HSS,,augmented
+HSSHSS5X2-1/2X1/4ASTMA500,HSS,,original
+TS HSS5X2-1/2X1/4ASTMA500,HSS,,augmented
+HSS HSS5X2-1/2X1/4ASTMA500,HSS,,original
+HSS-HSS5X2-1/2X1/4ASTMA500,HSS,,augmented
+HSS_HSS5X2-1/2X1/4ASTMA500,HSS,,augmented
+HSSHSS5 X 2-1/2X1/4ASTMA500,HSS,,original
+HSS HSS5X2-1/2X1/4 ASTM A500,HSS,,original
+HSS HSSHSS5X2-1/2X1/4ASTMA500,HSS,,augmented
+HSS-HSSHSS5X2-1/2X1/4ASTMA500,HSS,,augmented
+HSSHSS5X2-1/2X1/4ASTMA500 HSS,HSS,,augmented
+HSS HSS5 X 2-1/2 X 1/4ASTMA500,HSS,,original
+TS-5X2-1/2X1/4,HSS,,augmented
+TS -5X2-1/2X1/4,HSS,,augmented
+HSS -5X2-1/2X1/4,HSS,,original
+HSS--5X2-1/2X1/4,HSS,,augmented
+HSS_-5X2-1/2X1/4,HSS,,augmented
+HSS-5 X 2-1/2X1/4,HSS,,original
+HSS HSS-5X2-1/2X1/4,HSS,,augmented
+HSS-5X2-1/2X1/4 HSS,HSS,,augmented
+HSS-HSS-5X2-1/2X1/4,HSS,,augmented
+HSS -5 X 2-1/2 X 1/4,HSS,,original
+HSS-5X2-1/2X1/4 A500,HSS,,augmented
+HSS-5X2-1/2X1/4 Tube,HSS,,augmented
+TS-HSS5X2-1/2X1/4,HSS,,augmented
+TS -HSS5X2-1/2X1/4,HSS,,augmented
+HSS -HSS5X2-1/2X1/4,HSS,,original
+HSS--HSS5X2-1/2X1/4,HSS,,augmented
+HSS_-HSS5X2-1/2X1/4,HSS,,augmented
+HSS-HSS5 X 2-1/2X1/4,HSS,,original
+HSS HSS-HSS5X2-1/2X1/4,HSS,,augmented
+HSS-HSS-HSS5X2-1/2X1/4,HSS,,augmented
+HSS-HSS5X2-1/2X1/4 HSS,HSS,,augmented
+HSS -HSS5 X 2-1/2 X 1/4,HSS,,original
+HSS-HSS5X2-1/2X1/4 A500,HSS,,augmented
+HSS-HSS5X2-1/2X1/4 Tube,HSS,,augmented
+TS5X2-1/2X1/4A500,HSS,,augmented
+HSS5X2-1/2X1/4A500,HSS,,original
+TS 5X2-1/2X1/4A500,HSS,,augmented
+HSS 5X2-1/2X1/4A500,HSS,,original
+HSS-5X2-1/2X1/4A500,HSS,,augmented
+HSS_5X2-1/2X1/4A500,HSS,,augmented
+HSS5 X 2-1/2X1/4A500,HSS,,original
+HSS5X2-1/2X1/4A500 HSS,HSS,,augmented
+HSS 5 X 2-1/2 X 1/4A500,HSS,,original
+TS5X2-1/2X1/4ASTMA500,HSS,,augmented
+HSS5X2-1/2X1/4ASTMA500,HSS,,original
+TS 5X2-1/2X1/4ASTMA500,HSS,,augmented
+HSS 5X2-1/2X1/4ASTMA500,HSS,,original
+HSS-5X2-1/2X1/4ASTMA500,HSS,,augmented
+HSS_5X2-1/2X1/4ASTMA500,HSS,,augmented
+HSS5 X 2-1/2X1/4ASTMA500,HSS,,original
+HSS5X2-1/2X1/4 ASTM A500,HSS,,original
+HSS5X2-1/2X1/4ASTMA500 HSS,HSS,,augmented
+HSS 5 X 2-1/2 X 1/4ASTMA500,HSS,,original
+TS5X2-1/2X1/4HSS,HSS,,augmented
+HSS5X2-1/2X1/4HSS,HSS,,original
+TS 5X2-1/2X1/4HSS,HSS,,augmented
+HSS 5X2-1/2X1/4HSS,HSS,,original
+HSS-5X2-1/2X1/4HSS,HSS,,augmented
+HSS_5X2-1/2X1/4HSS,HSS,,augmented
+HSS5 X 2-1/2X1/4HSS,HSS,,original
+HSS HSS5X2-1/2X1/4HSS,HSS,,augmented
+HSS-HSS5X2-1/2X1/4HSS,HSS,,augmented
+HSS5X2-1/2X1/4HSS HSS,HSS,,augmented
+HSS 5 X 2-1/2 X 1/4HSS,HSS,,original
+TS5X2-1/2X1/4HOLLOWSTRUCTURALSECTION,HSS,,augmented
+HSS5X2-1/2X1/4HOLLOWSTRUCTURALSECTION,HSS,,original
+TS 5X2-1/2X1/4HOLLOWSTRUCTURALSECTION,HSS,,augmented
+HSS 5X2-1/2X1/4HOLLOWSTRUCTURALSECTION,HSS,,original
+HSS-5X2-1/2X1/4HOLLOWSTRUCTURALSECTION,HSS,,augmented
+HSS_5X2-1/2X1/4HOLLOWSTRUCTURALSECTION,HSS,,augmented
+HSS5 X 2-1/2X1/4HOLLOWSTRUCTURALSECTION,HSS,,original
+HSS5X2-1/2X1/4 HOLLOW STRUCTURAL SECTION,HSS,,original
+HSS HSS5X2-1/2X1/4HOLLOWSTRUCTURALSECTION,HSS,,augmented
+HSS-HSS5X2-1/2X1/4HOLLOWSTRUCTURALSECTION,HSS,,augmented
+HSS5X2-1/2X1/4HOLLOWSTRUCTURALSECTION HSS,HSS,,augmented
 ANGLE IRON L3X2X3/16,L,,original
 L ANGLE IRON L3X2X3/16,L,,augmented
 ANGLE IRON L3X2X3/16 (L),L,,augmented
@@ -86857,106 +87111,6 @@ W21X83 WIDE FLANGE,W,,original
 WF 21X83WIDEFLANGE,W,,augmented
 WF-21X83WIDEFLANGE,W,,augmented
 W 21 X 83WIDEFLANGE,W,,original
-BEAM W21X48 A992,W,,original
-W BEAM W21X48 A992,W,,augmented
-BEAM W21X48 A992 (W),W,,augmented
-ASTM BEAM W21X48 A992,W,,augmented
-BEAM W21X48 A992 Steel,W,,augmented
-Grade BEAM W21X48 A992,W,,augmented
-Mat'l BEAM W21X48 A992,W,,augmented
-Steel BEAM W21X48 A992,W,,augmented
-MATERIAL BEAM W21X48 A992,W,,augmented
-BEAM W21X48 ASTM A992,W,,original
-W BEAM W21X48 ASTM A992,W,,augmented
-BEAM W21X48 ASTM A992 (W),W,,augmented
-ASTM BEAM W21X48 ASTM A992,W,,augmented
-BEAM W21X48 ASTM A992 Steel,W,,augmented
-Grade BEAM W21X48 ASTM A992,W,,augmented
-Mat'l BEAM W21X48 ASTM A992,W,,augmented
-Steel BEAM W21X48 ASTM A992,W,,augmented
-MATERIAL BEAM W21X48 ASTM A992,W,,augmented
-WEELBEAMW21X48,W,,augmented
-W EELBEAMW21X48,W,,augmented
-W-EELBEAMW21X48,W,,augmented
-W_EELBEAMW21X48,W,,augmented
-WFEELBEAMW21X48,W,,augmented
-WEELBEAMW21 X 48,W,,augmented
-WF EELBEAMW21X48,W,,augmented
-WF-EELBEAMW21X48,W,,augmented
-STEEL BEAM W21X48,W,,original
-W EELBEAMW21 X 48,W,,augmented
-WEELBEAM-W21X48,W,,augmented
-W EELBEAM-W21X48,W,,augmented
-W-EELBEAM-W21X48,W,,augmented
-W_EELBEAM-W21X48,W,,augmented
-WFEELBEAM-W21X48,W,,augmented
-STEEL BEAM-W21X48,W,,original
-WEELBEAM-W21 X 48,W,,augmented
-WF EELBEAM-W21X48,W,,augmented
-WF-EELBEAM-W21X48,W,,augmented
-W EELBEAM-W21 X 48,W,,augmented
-W -21X48,W,,original
-W--21X48,W,,augmented
-W_-21X48,W,,augmented
-W-21 X 48,W,,original
-WF -21X48,W,,augmented
-WF--21X48,W,,augmented
-W -21 X 48,W,,original
-W-21X48 WF,W,,augmented
-WF W-21X48,W,,augmented
-WF-W-21X48,W,,augmented
-W21X48A992,W,,original
-W 21X48A992,W,,original
-W-21X48A992,W,,augmented
-W21X48 A992,W,,original
-W_21X48A992,W,,augmented
-WF21X48A992,W,,augmented
-W21 X 48A992,W,,original
-WF 21X48A992,W,,augmented
-WF-21X48A992,W,,augmented
-W 21 X 48A992,W,,original
-W21X48A992 WF,W,,augmented
-W21X48ASTMA992,W,,original
-W 21X48ASTMA992,W,,original
-W-21X48ASTMA992,W,,augmented
-W_21X48ASTMA992,W,,augmented
-WF21X48ASTMA992,W,,augmented
-W21 X 48ASTMA992,W,,original
-W21X48 ASTM A992,W,,original
-WF 21X48ASTMA992,W,,augmented
-WF-21X48ASTMA992,W,,augmented
-W 21 X 48ASTMA992,W,,original
-W21X48ASTMA992 WF,W,,augmented
-W21X48STEELBEAM,W,,original
-W 21X48STEELBEAM,W,,original
-W-21X48STEELBEAM,W,,augmented
-W_21X48STEELBEAM,W,,augmented
-WF21X48STEELBEAM,W,,augmented
-W21 X 48STEELBEAM,W,,original
-W21X48 STEEL BEAM,W,,original
-WF 21X48STEELBEAM,W,,augmented
-WF-21X48STEELBEAM,W,,augmented
-W 21 X 48STEELBEAM,W,,original
-W21X48WF,W,,original
-W 21X48WF,W,,original
-W-21X48WF,W,,augmented
-W_21X48WF,W,,augmented
-WF21X48WF,W,,augmented
-W21 X 48WF,W,,original
-WF 21X48WF,W,,augmented
-WF-21X48WF,W,,augmented
-W 21 X 48WF,W,,original
-W21X48WF WF,W,,augmented
-W21X48WIDEFLANGE,W,,original
-W 21X48WIDEFLANGE,W,,original
-W-21X48WIDEFLANGE,W,,augmented
-W_21X48WIDEFLANGE,W,,augmented
-WF21X48WIDEFLANGE,W,,augmented
-W21 X 48WIDEFLANGE,W,,original
-W21X48 WIDE FLANGE,W,,original
-WF 21X48WIDEFLANGE,W,,augmented
-WF-21X48WIDEFLANGE,W,,augmented
-W 21 X 48WIDEFLANGE,W,,original
 BEAM W18X283 A992,W,,original
 W BEAM W18X283 A992,W,,augmented
 BEAM W18X283 A992 (W),W,,augmented
@@ -219427,105 +219581,6 @@ HSS5X3X1/8 STRUCTURAL TUBE,HSS,,original
 HSS HSS5X3X1/8STRUCTURALTUBE,HSS,,augmented
 HSS-HSS5X3X1/8STRUCTURALTUBE,HSS,,augmented
 HSS5X3X1/8STRUCTURALTUBE HSS,HSS,,augmented
-TSHSS5X2-1/2X1/4,HSS,,augmented
-HSSHSS5X2-1/2X1/4,HSS,,original
-TS HSS5X2-1/2X1/4,HSS,,augmented
-HSS_HSS5X2-1/2X1/4,HSS,,augmented
-HSSHSS5 X 2-1/2X1/4,HSS,,original
-HSS HSSHSS5X2-1/2X1/4,HSS,,augmented
-HSS-HSSHSS5X2-1/2X1/4,HSS,,augmented
-HSSHSS5X2-1/2X1/4 HSS,HSS,,augmented
-HSS HSS5 X 2-1/2 X 1/4,HSS,,original
-HSSHSS5X2-1/2X1/4 A500,HSS,,augmented
-TSHSS5X2-1/2X1/4A500,HSS,,augmented
-HSSHSS5X2-1/2X1/4A500,HSS,,original
-TS HSS5X2-1/2X1/4A500,HSS,,augmented
-HSS HSS5X2-1/2X1/4A500,HSS,,original
-HSS-HSS5X2-1/2X1/4A500,HSS,,augmented
-HSS_HSS5X2-1/2X1/4A500,HSS,,augmented
-HSS HSS5X2-1/2X1/4 A500,HSS,,original
-HSSHSS5 X 2-1/2X1/4A500,HSS,,original
-HSS HSSHSS5X2-1/2X1/4A500,HSS,,augmented
-HSS-HSSHSS5X2-1/2X1/4A500,HSS,,augmented
-HSSHSS5X2-1/2X1/4A500 HSS,HSS,,augmented
-HSS HSS5 X 2-1/2 X 1/4A500,HSS,,original
-TSHSS5X2-1/2X1/4ASTMA500,HSS,,augmented
-HSSHSS5X2-1/2X1/4ASTMA500,HSS,,original
-TS HSS5X2-1/2X1/4ASTMA500,HSS,,augmented
-HSS HSS5X2-1/2X1/4ASTMA500,HSS,,original
-HSS-HSS5X2-1/2X1/4ASTMA500,HSS,,augmented
-HSS_HSS5X2-1/2X1/4ASTMA500,HSS,,augmented
-HSSHSS5 X 2-1/2X1/4ASTMA500,HSS,,original
-HSS HSS5X2-1/2X1/4 ASTM A500,HSS,,original
-HSS HSSHSS5X2-1/2X1/4ASTMA500,HSS,,augmented
-HSS-HSSHSS5X2-1/2X1/4ASTMA500,HSS,,augmented
-HSSHSS5X2-1/2X1/4ASTMA500 HSS,HSS,,augmented
-HSS HSS5 X 2-1/2 X 1/4ASTMA500,HSS,,original
-TS-5X2-1/2X1/4,HSS,,augmented
-TS -5X2-1/2X1/4,HSS,,augmented
-HSS -5X2-1/2X1/4,HSS,,original
-HSS--5X2-1/2X1/4,HSS,,augmented
-HSS_-5X2-1/2X1/4,HSS,,augmented
-HSS-5 X 2-1/2X1/4,HSS,,original
-HSS HSS-5X2-1/2X1/4,HSS,,augmented
-HSS-5X2-1/2X1/4 HSS,HSS,,augmented
-HSS-HSS-5X2-1/2X1/4,HSS,,augmented
-HSS -5 X 2-1/2 X 1/4,HSS,,original
-HSS-5X2-1/2X1/4 A500,HSS,,augmented
-HSS-5X2-1/2X1/4 Tube,HSS,,augmented
-TS-HSS5X2-1/2X1/4,HSS,,augmented
-TS -HSS5X2-1/2X1/4,HSS,,augmented
-HSS -HSS5X2-1/2X1/4,HSS,,original
-HSS--HSS5X2-1/2X1/4,HSS,,augmented
-HSS_-HSS5X2-1/2X1/4,HSS,,augmented
-HSS-HSS5 X 2-1/2X1/4,HSS,,original
-HSS HSS-HSS5X2-1/2X1/4,HSS,,augmented
-HSS-HSS-HSS5X2-1/2X1/4,HSS,,augmented
-HSS-HSS5X2-1/2X1/4 HSS,HSS,,augmented
-HSS -HSS5 X 2-1/2 X 1/4,HSS,,original
-HSS-HSS5X2-1/2X1/4 A500,HSS,,augmented
-HSS-HSS5X2-1/2X1/4 Tube,HSS,,augmented
-TS5X2-1/2X1/4A500,HSS,,augmented
-HSS5X2-1/2X1/4A500,HSS,,original
-TS 5X2-1/2X1/4A500,HSS,,augmented
-HSS 5X2-1/2X1/4A500,HSS,,original
-HSS-5X2-1/2X1/4A500,HSS,,augmented
-HSS_5X2-1/2X1/4A500,HSS,,augmented
-HSS5 X 2-1/2X1/4A500,HSS,,original
-HSS5X2-1/2X1/4A500 HSS,HSS,,augmented
-HSS 5 X 2-1/2 X 1/4A500,HSS,,original
-TS5X2-1/2X1/4ASTMA500,HSS,,augmented
-HSS5X2-1/2X1/4ASTMA500,HSS,,original
-TS 5X2-1/2X1/4ASTMA500,HSS,,augmented
-HSS 5X2-1/2X1/4ASTMA500,HSS,,original
-HSS-5X2-1/2X1/4ASTMA500,HSS,,augmented
-HSS_5X2-1/2X1/4ASTMA500,HSS,,augmented
-HSS5 X 2-1/2X1/4ASTMA500,HSS,,original
-HSS5X2-1/2X1/4 ASTM A500,HSS,,original
-HSS5X2-1/2X1/4ASTMA500 HSS,HSS,,augmented
-HSS 5 X 2-1/2 X 1/4ASTMA500,HSS,,original
-TS5X2-1/2X1/4HSS,HSS,,augmented
-HSS5X2-1/2X1/4HSS,HSS,,original
-TS 5X2-1/2X1/4HSS,HSS,,augmented
-HSS 5X2-1/2X1/4HSS,HSS,,original
-HSS-5X2-1/2X1/4HSS,HSS,,augmented
-HSS_5X2-1/2X1/4HSS,HSS,,augmented
-HSS5 X 2-1/2X1/4HSS,HSS,,original
-HSS HSS5X2-1/2X1/4HSS,HSS,,augmented
-HSS-HSS5X2-1/2X1/4HSS,HSS,,augmented
-HSS5X2-1/2X1/4HSS HSS,HSS,,augmented
-HSS 5 X 2-1/2 X 1/4HSS,HSS,,original
-TS5X2-1/2X1/4HOLLOWSTRUCTURALSECTION,HSS,,augmented
-HSS5X2-1/2X1/4HOLLOWSTRUCTURALSECTION,HSS,,original
-TS 5X2-1/2X1/4HOLLOWSTRUCTURALSECTION,HSS,,augmented
-HSS 5X2-1/2X1/4HOLLOWSTRUCTURALSECTION,HSS,,original
-HSS-5X2-1/2X1/4HOLLOWSTRUCTURALSECTION,HSS,,augmented
-HSS_5X2-1/2X1/4HOLLOWSTRUCTURALSECTION,HSS,,augmented
-HSS5 X 2-1/2X1/4HOLLOWSTRUCTURALSECTION,HSS,,original
-HSS5X2-1/2X1/4 HOLLOW STRUCTURAL SECTION,HSS,,original
-HSS HSS5X2-1/2X1/4HOLLOWSTRUCTURALSECTION,HSS,,augmented
-HSS-HSS5X2-1/2X1/4HOLLOWSTRUCTURALSECTION,HSS,,augmented
-HSS5X2-1/2X1/4HOLLOWSTRUCTURALSECTION HSS,HSS,,augmented
 TS5X2-1/2X1/4STRUCTURALTUBE,HSS,,augmented
 HSS5X2-1/2X1/4STRUCTURALTUBE,HSS,,original
 TS 5X2-1/2X1/4STRUCTURALTUBE,HSS,,augmented
@@ -249701,106 +249756,236 @@ PIPEPIPE3 X XSA53,PIPE,,original
 PIPEPIPE3XXSA53 A53,PIPE,,augmented
 PIPE PIPE3 X  X SA53,PIPE,,original
 Pipe PIPEPIPE3XXSA53,PIPE,,augmented
-BEAM W8X24(E) A992,W,,original
-W BEAM W8X24(E) A992,W,,augmented
-BEAM W8X24(E) A992 (W),W,,augmented
-ASTM BEAM W8X24(E) A992,W,,augmented
-BEAM W8X24(E) A992 Steel,W,,augmented
-Grade BEAM W8X24(E) A992,W,,augmented
-Mat'l BEAM W8X24(E) A992,W,,augmented
-Steel BEAM W8X24(E) A992,W,,augmented
-MATERIAL BEAM W8X24(E) A992,W,,augmented
-BEAM W8X24(E) ASTM A992,W,,original
-W BEAM W8X24(E) ASTM A992,W,,augmented
-BEAM W8X24(E) ASTM A992 (W),W,,augmented
-ASTM BEAM W8X24(E) ASTM A992,W,,augmented
-BEAM W8X24(E) ASTM A992 Steel,W,,augmented
-Grade BEAM W8X24(E) ASTM A992,W,,augmented
-Mat'l BEAM W8X24(E) ASTM A992,W,,augmented
-Steel BEAM W8X24(E) ASTM A992,W,,augmented
-MATERIAL BEAM W8X24(E) ASTM A992,W,,augmented
-WEELBEAMW8X24(E),W,,augmented
-W EELBEAMW8X24(E),W,,augmented
-W-EELBEAMW8X24(E),W,,augmented
-W_EELBEAMW8X24(E),W,,augmented
-WFEELBEAMW8X24(E),W,,augmented
-WEELBEAMW8 X 24(E),W,,augmented
-WF EELBEAMW8X24(E),W,,augmented
-WF-EELBEAMW8X24(E),W,,augmented
-STEEL BEAM W8X24(E),W,,original
-W EELBEAMW8 X 24(E),W,,augmented
-WEELBEAM-W8X24(E),W,,augmented
-W EELBEAM-W8X24(E),W,,augmented
-W-EELBEAM-W8X24(E),W,,augmented
-W_EELBEAM-W8X24(E),W,,augmented
-WFEELBEAM-W8X24(E),W,,augmented
-STEEL BEAM-W8X24(E),W,,original
-WEELBEAM-W8 X 24(E),W,,augmented
-WF EELBEAM-W8X24(E),W,,augmented
-WF-EELBEAM-W8X24(E),W,,augmented
-W EELBEAM-W8 X 24(E),W,,augmented
-W -8X24(E),W,,original
-W--8X24(E),W,,augmented
-W_-8X24(E),W,,augmented
-W-8 X 24(E),W,,original
-WF -8X24(E),W,,augmented
-WF--8X24(E),W,,augmented
-W -8 X 24(E),W,,original
-W-8X24(E) WF,W,,augmented
-WF W-8X24(E),W,,augmented
-WF-W-8X24(E),W,,augmented
-W8X24(E)A992,W,,original
-W 8X24(E)A992,W,,original
-W-8X24(E)A992,W,,augmented
-W8X24(E) A992,W,,original
-W_8X24(E)A992,W,,augmented
-WF8X24(E)A992,W,,augmented
-W8 X 24(E)A992,W,,original
-WF 8X24(E)A992,W,,augmented
-WF-8X24(E)A992,W,,augmented
-W 8 X 24(E)A992,W,,original
-W8X24(E)A992 WF,W,,augmented
-W8X24(E)ASTMA992,W,,original
-W 8X24(E)ASTMA992,W,,original
-W-8X24(E)ASTMA992,W,,augmented
-W_8X24(E)ASTMA992,W,,augmented
-WF8X24(E)ASTMA992,W,,augmented
-W8 X 24(E)ASTMA992,W,,original
-W8X24(E) ASTM A992,W,,original
-WF 8X24(E)ASTMA992,W,,augmented
-WF-8X24(E)ASTMA992,W,,augmented
-W 8 X 24(E)ASTMA992,W,,original
-W8X24(E)ASTMA992 WF,W,,augmented
-W8X24(E)STEELBEAM,W,,original
-W 8X24(E)STEELBEAM,W,,original
-W-8X24(E)STEELBEAM,W,,augmented
-W_8X24(E)STEELBEAM,W,,augmented
-WF8X24(E)STEELBEAM,W,,augmented
-W8 X 24(E)STEELBEAM,W,,original
-W8X24(E) STEEL BEAM,W,,original
-WF 8X24(E)STEELBEAM,W,,augmented
-WF-8X24(E)STEELBEAM,W,,augmented
-W 8 X 24(E)STEELBEAM,W,,original
-W8X24(E)WF,W,,original
-W 8X24(E)WF,W,,original
-W-8X24(E)WF,W,,augmented
-W_8X24(E)WF,W,,augmented
-WF8X24(E)WF,W,,augmented
-W8 X 24(E)WF,W,,original
-WF 8X24(E)WF,W,,augmented
-WF-8X24(E)WF,W,,augmented
-W 8 X 24(E)WF,W,,original
-W8X24(E)WF WF,W,,augmented
-W8X24(E)WIDEFLANGE,W,,original
-W 8X24(E)WIDEFLANGE,W,,original
-W-8X24(E)WIDEFLANGE,W,,augmented
-W_8X24(E)WIDEFLANGE,W,,augmented
-WF8X24(E)WIDEFLANGE,W,,augmented
-W8 X 24(E)WIDEFLANGE,W,,original
-W8X24(E) WIDE FLANGE,W,,original
-WF 8X24(E)WIDEFLANGE,W,,augmented
-WF-8X24(E)WIDEFLANGE,W,,augmented
-W 8 X 24(E)WIDEFLANGE,W,,original
+BEAM W33X130 A992,W,,original
+W BEAM W33X130 A992,W,,augmented
+BEAM W33X130 A992 (W),W,,augmented
+ASTM BEAM W33X130 A992,W,,augmented
+BEAM W33X130 A992 Steel,W,,augmented
+Grade BEAM W33X130 A992,W,,augmented
+Mat'l BEAM W33X130 A992,W,,augmented
+Steel BEAM W33X130 A992,W,,augmented
+MATERIAL BEAM W33X130 A992,W,,augmented
+BEAM W33X130 ASTM A992,W,,original
+W BEAM W33X130 ASTM A992,W,,augmented
+BEAM W33X130 ASTM A992 (W),W,,augmented
+ASTM BEAM W33X130 ASTM A992,W,,augmented
+BEAM W33X130 ASTM A992 Steel,W,,augmented
+Grade BEAM W33X130 ASTM A992,W,,augmented
+Mat'l BEAM W33X130 ASTM A992,W,,augmented
+Steel BEAM W33X130 ASTM A992,W,,augmented
+MATERIAL BEAM W33X130 ASTM A992,W,,augmented
+WEELBEAMW33X130,W,,augmented
+W EELBEAMW33X130,W,,augmented
+W-EELBEAMW33X130,W,,augmented
+W_EELBEAMW33X130,W,,augmented
+WFEELBEAMW33X130,W,,augmented
+WEELBEAMW33 X 130,W,,augmented
+WF EELBEAMW33X130,W,,augmented
+WF-EELBEAMW33X130,W,,augmented
+STEEL BEAM W33X130,W,,original
+W EELBEAMW33 X 130,W,,augmented
+WEELBEAM-W33X130,W,,augmented
+W EELBEAM-W33X130,W,,augmented
+W-EELBEAM-W33X130,W,,augmented
+W_EELBEAM-W33X130,W,,augmented
+WFEELBEAM-W33X130,W,,augmented
+STEEL BEAM-W33X130,W,,original
+WEELBEAM-W33 X 130,W,,augmented
+WF EELBEAM-W33X130,W,,augmented
+WF-EELBEAM-W33X130,W,,augmented
+W EELBEAM-W33 X 130,W,,augmented
+W -33X130,W,,original
+W--33X130,W,,augmented
+W_-33X130,W,,augmented
+W-33 X 130,W,,original
+WF -33X130,W,,augmented
+WF--33X130,W,,augmented
+W -33 X 130,W,,original
+W-33X130 WF,W,,augmented
+WF W-33X130,W,,augmented
+WF-W-33X130,W,,augmented
+W33X130A992,W,,original
+W 33X130A992,W,,original
+W-33X130A992,W,,augmented
+W33X130 A992,W,,original
+W_33X130A992,W,,augmented
+WF33X130A992,W,,augmented
+W33 X 130A992,W,,original
+WF 33X130A992,W,,augmented
+WF-33X130A992,W,,augmented
+W 33 X 130A992,W,,original
+W33X130A992 WF,W,,augmented
+W33X130ASTMA992,W,,original
+W 33X130ASTMA992,W,,original
+W-33X130ASTMA992,W,,augmented
+W_33X130ASTMA992,W,,augmented
+WF33X130ASTMA992,W,,augmented
+W33 X 130ASTMA992,W,,original
+W33X130 ASTM A992,W,,original
+WF 33X130ASTMA992,W,,augmented
+WF-33X130ASTMA992,W,,augmented
+W 33 X 130ASTMA992,W,,original
+W33X130ASTMA992 WF,W,,augmented
+W33X130STEELBEAM,W,,original
+W 33X130STEELBEAM,W,,original
+W-33X130STEELBEAM,W,,augmented
+W_33X130STEELBEAM,W,,augmented
+WF33X130STEELBEAM,W,,augmented
+W33 X 130STEELBEAM,W,,original
+W33X130 STEEL BEAM,W,,original
+WF 33X130STEELBEAM,W,,augmented
+WF-33X130STEELBEAM,W,,augmented
+W 33 X 130STEELBEAM,W,,original
+W33X130WF,W,,original
+W 33X130WF,W,,original
+W-33X130WF,W,,augmented
+W_33X130WF,W,,augmented
+WF33X130WF,W,,augmented
+W33 X 130WF,W,,original
+WF 33X130WF,W,,augmented
+WF-33X130WF,W,,augmented
+W 33 X 130WF,W,,original
+W33X130WF WF,W,,augmented
+W33X130WIDEFLANGE,W,,original
+W 33X130WIDEFLANGE,W,,original
+W-33X130WIDEFLANGE,W,,augmented
+W_33X130WIDEFLANGE,W,,augmented
+WF33X130WIDEFLANGE,W,,augmented
+W33 X 130WIDEFLANGE,W,,original
+W33X130 WIDE FLANGE,W,,original
+WF 33X130WIDEFLANGE,W,,augmented
+WF-33X130WIDEFLANGE,W,,augmented
+W 33 X 130WIDEFLANGE,W,,original
+ASTM ASTM PL 1X9X1'-9,PL1X9X19,,augmented
+ASTM PL 1X9X1'-9 Steel,PL1X9X19,,augmented
+Grade ASTM PL 1X9X1'-9,PL1X9X19,,augmented
+Mat'l ASTM PL 1X9X1'-9,PL1X9X19,,augmented
+Steel ASTM PL 1X9X1'-9,PL1X9X19,,augmented
+MATERIAL ASTM PL 1X9X1'-9,PL1X9X19,,augmented
+PL1X9X19 ASTM PL 1X9X1'-9,PL1X9X19,,augmented
+ASTM PL 1X9X1'-9 (PL1X9X19),PL1X9X19,,augmented
+ASTM GRADE PL 1X9X1'-9,PL1X9X19,,augmented
+Grade GRADE PL 1X9X1'-9,PL1X9X19,,augmented
+GRADE PL 1X9X1'-9 Steel,PL1X9X19,,augmented
+Mat'l GRADE PL 1X9X1'-9,PL1X9X19,,augmented
+Steel GRADE PL 1X9X1'-9,PL1X9X19,,augmented
+MATERIAL GRADE PL 1X9X1'-9,PL1X9X19,,augmented
+PL1X9X19 GRADE PL 1X9X1'-9,PL1X9X19,,augmented
+GRADE PL 1X9X1'-9 (PL1X9X19),PL1X9X19,,augmented
+MATERIALPL1X9X1'-9,PL1X9X19,,original
+M ATERIALPL1X9X1'-9,PL1X9X19,,original
+M-ATERIALPL1X9X1'-9,PL1X9X19,,augmented
+M_ATERIALPL1X9X1'-9,PL1X9X19,,augmented
+MATERIALPL1 X 9X1'-9,PL1X9X19,,original
+MATERIALPL1X9X1'-9 A36,PL1X9X19,,augmented
+Beam MATERIALPL1X9X1'-9,PL1X9X19,,augmented
+Beam-MATERIALPL1X9X1'-9,PL1X9X19,,augmented
+M ATERIALPL1 X 9 X 1'-9,PL1X9X19,,original
+MATERIALPL1X9X1'-9 Beam,PL1X9X19,,augmented
+M Shape MATERIALPL1X9X1'-9,PL1X9X19,,augmented
+MAT'LPL1X9X1'-9,PL1X9X19,,original
+M AT'LPL1X9X1'-9,PL1X9X19,,original
+M-AT'LPL1X9X1'-9,PL1X9X19,,augmented
+M_AT'LPL1X9X1'-9,PL1X9X19,,augmented
+MAT'LPL1 X 9X1'-9,PL1X9X19,,original
+MAT'LPL1X9X1'-9 A36,PL1X9X19,,augmented
+Beam MAT'LPL1X9X1'-9,PL1X9X19,,augmented
+Beam-MAT'LPL1X9X1'-9,PL1X9X19,,augmented
+M AT'LPL1 X 9 X 1'-9,PL1X9X19,,original
+MAT'LPL1X9X1'-9 Beam,PL1X9X19,,augmented
+Mat'l PL 1X9X1'-9 (PL1X9X19),PL1X9X19,,augmented
+PL 1X9X1'-9 (PL1X9X19) Steel,PL1X9X19,,augmented
+Steel PL 1X9X1'-9 (PL1X9X19),PL1X9X19,,augmented
+MATERIAL PL 1X9X1'-9 (PL1X9X19),PL1X9X19,,augmented
+PL1X9X19 PL 1X9X1'-9 (PL1X9X19),PL1X9X19,,augmented
+PL 1X9X1'-9 (PL1X9X19) (PL1X9X19),PL1X9X19,,augmented
+Mat'l PL 1X9X1'-9 STEEL,PL1X9X19,,augmented
+PL 1X9X1'-9 STEEL Steel,PL1X9X19,,augmented
+Steel PL 1X9X1'-9 STEEL,PL1X9X19,,augmented
+MATERIAL PL 1X9X1'-9 STEEL,PL1X9X19,,augmented
+PL1X9X19 PL 1X9X1'-9 STEEL,PL1X9X19,,augmented
+PL 1X9X1'-9 STEEL (PL1X9X19),PL1X9X19,,augmented
+ASTM PL1X9X19 PL 1X9X1'-9,PL1X9X19,,augmented
+Grade PL1X9X19 PL 1X9X1'-9,PL1X9X19,,augmented
+Mat'l PL1X9X19 PL 1X9X1'-9,PL1X9X19,,augmented
+Steel PL1X9X19 PL 1X9X1'-9,PL1X9X19,,augmented
+MATERIAL PL1X9X19 PL 1X9X1'-9,PL1X9X19,,augmented
+PL1X9X19 PL1X9X19 PL 1X9X1'-9,PL1X9X19,,augmented
+STEELPL1X9X1'-9,PL1X9X19,,original
+ST EELPL1X9X1'-9,PL1X9X19,,original
+ST-EELPL1X9X1'-9,PL1X9X19,,augmented
+ST_EELPL1X9X1'-9,PL1X9X19,,augmented
+STEELPL1 X 9X1'-9,PL1X9X19,,original
+ST EELPL1 X 9 X 1'-9,PL1X9X19,,original
+ST Tee STEELPL1X9X1'-9,PL1X9X19,,augmented
+ST Tee-STEELPL1X9X1'-9,PL1X9X19,,augmented
+STEELPL1X9X1'-9 ST Tee,PL1X9X19,,augmented
+STEELPL1X9X1'-9 Structural Tee,PL1X9X19,,augmented
+"ASTM 1/2"" BENT PL 1/2"" BENT PL W/ (1/2BENTPL1/2BENTPLW/)",1/2BENTPL1/2BENTPLW/,,augmented
+"1/2"" BENT PL 1/2"" BENT PL W/ (1/2BENTPL1/2BENTPLW/) Steel",1/2BENTPL1/2BENTPLW/,,augmented
+"Grade 1/2"" BENT PL 1/2"" BENT PL W/ (1/2BENTPL1/2BENTPLW/)",1/2BENTPL1/2BENTPLW/,,augmented
+"Mat'l 1/2"" BENT PL 1/2"" BENT PL W/ (1/2BENTPL1/2BENTPLW/)",1/2BENTPL1/2BENTPLW/,,augmented
+"Steel 1/2"" BENT PL 1/2"" BENT PL W/ (1/2BENTPL1/2BENTPLW/)",1/2BENTPL1/2BENTPLW/,,augmented
+"MATERIAL 1/2"" BENT PL 1/2"" BENT PL W/ (1/2BENTPL1/2BENTPLW/)",1/2BENTPL1/2BENTPLW/,,augmented
+"1/2BENTPL1/2BENTPLW/ 1/2"" BENT PL 1/2"" BENT PL W/ (1/2BENTPL1/2BENTPLW/)",1/2BENTPL1/2BENTPLW/,,augmented
+"1/2"" BENT PL 1/2"" BENT PL W/ (1/2BENTPL1/2BENTPLW/) (1/2BENTPL1/2BENTPLW/)",1/2BENTPL1/2BENTPLW/,,augmented
+"ASTM 1/2"" BENT PL 1/2"" BENT PL W/ STEEL",1/2BENTPL1/2BENTPLW/,,augmented
+"1/2"" BENT PL 1/2"" BENT PL W/ STEEL Steel",1/2BENTPL1/2BENTPLW/,,augmented
+"Grade 1/2"" BENT PL 1/2"" BENT PL W/ STEEL",1/2BENTPL1/2BENTPLW/,,augmented
+"Mat'l 1/2"" BENT PL 1/2"" BENT PL W/ STEEL",1/2BENTPL1/2BENTPLW/,,augmented
+"Steel 1/2"" BENT PL 1/2"" BENT PL W/ STEEL",1/2BENTPL1/2BENTPLW/,,augmented
+"MATERIAL 1/2"" BENT PL 1/2"" BENT PL W/ STEEL",1/2BENTPL1/2BENTPLW/,,augmented
+"1/2BENTPL1/2BENTPLW/ 1/2"" BENT PL 1/2"" BENT PL W/ STEEL",1/2BENTPL1/2BENTPLW/,,augmented
+"1/2"" BENT PL 1/2"" BENT PL W/ STEEL (1/2BENTPL1/2BENTPLW/)",1/2BENTPL1/2BENTPLW/,,augmented
+"ASTM 1/2BENTPL1/2BENTPLW/ 1/2"" BENT PL 1/2"" BENT PL W/",1/2BENTPL1/2BENTPLW/,,augmented
+"Grade 1/2BENTPL1/2BENTPLW/ 1/2"" BENT PL 1/2"" BENT PL W/",1/2BENTPL1/2BENTPLW/,,augmented
+"Mat'l 1/2BENTPL1/2BENTPLW/ 1/2"" BENT PL 1/2"" BENT PL W/",1/2BENTPL1/2BENTPLW/,,augmented
+"Steel 1/2BENTPL1/2BENTPLW/ 1/2"" BENT PL 1/2"" BENT PL W/",1/2BENTPL1/2BENTPLW/,,augmented
+"MATERIAL 1/2BENTPL1/2BENTPLW/ 1/2"" BENT PL 1/2"" BENT PL W/",1/2BENTPL1/2BENTPLW/,,augmented
+"1/2BENTPL1/2BENTPLW/ 1/2BENTPL1/2BENTPLW/ 1/2"" BENT PL 1/2"" BENT PL W/",1/2BENTPL1/2BENTPLW/,,augmented
+"ASTM ASTM 1/2"" BENT PL 1/2"" BENT PL W/",1/2BENTPL1/2BENTPLW/,,augmented
+"Grade ASTM 1/2"" BENT PL 1/2"" BENT PL W/",1/2BENTPL1/2BENTPLW/,,augmented
+"Mat'l ASTM 1/2"" BENT PL 1/2"" BENT PL W/",1/2BENTPL1/2BENTPLW/,,augmented
+"Steel ASTM 1/2"" BENT PL 1/2"" BENT PL W/",1/2BENTPL1/2BENTPLW/,,augmented
+"MATERIAL ASTM 1/2"" BENT PL 1/2"" BENT PL W/",1/2BENTPL1/2BENTPLW/,,augmented
+"1/2BENTPL1/2BENTPLW/ ASTM 1/2"" BENT PL 1/2"" BENT PL W/",1/2BENTPL1/2BENTPLW/,,augmented
+"ASTM GRADE 1/2"" BENT PL 1/2"" BENT PL W/",1/2BENTPL1/2BENTPLW/,,augmented
+"Grade GRADE 1/2"" BENT PL 1/2"" BENT PL W/",1/2BENTPL1/2BENTPLW/,,augmented
+"Mat'l GRADE 1/2"" BENT PL 1/2"" BENT PL W/",1/2BENTPL1/2BENTPLW/,,augmented
+"Steel GRADE 1/2"" BENT PL 1/2"" BENT PL W/",1/2BENTPL1/2BENTPLW/,,augmented
+"MATERIAL GRADE 1/2"" BENT PL 1/2"" BENT PL W/",1/2BENTPL1/2BENTPLW/,,augmented
+"1/2BENTPL1/2BENTPLW/ GRADE 1/2"" BENT PL 1/2"" BENT PL W/",1/2BENTPL1/2BENTPLW/,,augmented
+"MATERIAL1/2""BENTPL1/2""BENTPLW/",1/2BENTPL1/2BENTPLW/,,original
+"M ATERIAL1/2""BENTPL1/2""BENTPLW/",1/2BENTPL1/2BENTPLW/,,original
+"M-ATERIAL1/2""BENTPL1/2""BENTPLW/",1/2BENTPL1/2BENTPLW/,,augmented
+"M_ATERIAL1/2""BENTPL1/2""BENTPLW/",1/2BENTPL1/2BENTPLW/,,augmented
+"MATERIAL1/2""BENTPL1/2""BENTPLW/ A36",1/2BENTPL1/2BENTPLW/,,augmented
+"Beam MATERIAL1/2""BENTPL1/2""BENTPLW/",1/2BENTPL1/2BENTPLW/,,augmented
+"Beam-MATERIAL1/2""BENTPL1/2""BENTPLW/",1/2BENTPL1/2BENTPLW/,,augmented
+"MATERIAL1/2""BENTPL1/2""BENTPLW/ Beam",1/2BENTPL1/2BENTPLW/,,augmented
+"M Shape MATERIAL1/2""BENTPL1/2""BENTPLW/",1/2BENTPL1/2BENTPLW/,,augmented
+"M Shape-MATERIAL1/2""BENTPL1/2""BENTPLW/",1/2BENTPL1/2BENTPLW/,,augmented
+"MATERIAL1/2""BENTPL1/2""BENTPLW/ M Shape",1/2BENTPL1/2BENTPLW/,,augmented
+"MAT'L1/2""BENTPL1/2""BENTPLW/",1/2BENTPL1/2BENTPLW/,,original
+"M AT'L1/2""BENTPL1/2""BENTPLW/",1/2BENTPL1/2BENTPLW/,,original
+"M-AT'L1/2""BENTPL1/2""BENTPLW/",1/2BENTPL1/2BENTPLW/,,augmented
+"M_AT'L1/2""BENTPL1/2""BENTPLW/",1/2BENTPL1/2BENTPLW/,,augmented
+"MAT'L1/2""BENTPL1/2""BENTPLW/ A36",1/2BENTPL1/2BENTPLW/,,augmented
+"Beam MAT'L1/2""BENTPL1/2""BENTPLW/",1/2BENTPL1/2BENTPLW/,,augmented
+"Beam-MAT'L1/2""BENTPL1/2""BENTPLW/",1/2BENTPL1/2BENTPLW/,,augmented
+"MAT'L1/2""BENTPL1/2""BENTPLW/ Beam",1/2BENTPL1/2BENTPLW/,,augmented
+"M Shape MAT'L1/2""BENTPL1/2""BENTPLW/",1/2BENTPL1/2BENTPLW/,,augmented
+"M Shape-MAT'L1/2""BENTPL1/2""BENTPLW/",1/2BENTPL1/2BENTPLW/,,augmented
+"STEEL1/2""BENTPL1/2""BENTPLW/",1/2BENTPL1/2BENTPLW/,,original
+"ST EEL1/2""BENTPL1/2""BENTPLW/",1/2BENTPL1/2BENTPLW/,,original
+"ST-EEL1/2""BENTPL1/2""BENTPLW/",1/2BENTPL1/2BENTPLW/,,augmented
+"ST_EEL1/2""BENTPL1/2""BENTPLW/",1/2BENTPL1/2BENTPLW/,,augmented
+"ST Tee STEEL1/2""BENTPL1/2""BENTPLW/",1/2BENTPL1/2BENTPLW/,,augmented
+"ST Tee-STEEL1/2""BENTPL1/2""BENTPLW/",1/2BENTPL1/2BENTPLW/,,augmented
+"STEEL1/2""BENTPL1/2""BENTPLW/ ST Tee",1/2BENTPL1/2BENTPLW/,,augmented
+"STEEL1/2""BENTPL1/2""BENTPLW/ Structural Tee",1/2BENTPL1/2BENTPLW/,,augmented
+"Structural Tee STEEL1/2""BENTPL1/2""BENTPLW/",1/2BENTPL1/2BENTPLW/,,augmented
+"Structural Tee-STEEL1/2""BENTPL1/2""BENTPLW/",1/2BENTPL1/2BENTPLW/,,augmented
 AMERICAN STANDARD CHANNEL C8X11.5.,C,,original
 C AMERICAN STANDARD CHANNEL C8X11.5.,C,,augmented
 AMERICAN STANDARD CHANNEL C8X11.5. (C),C,,augmented
@@ -249905,6 +250090,231 @@ C8X11.5.CHANNEL A36,C,,augmented
 C Shape C8X11.5.CHANNEL,C,,augmented
 C Shape-C8X11.5.CHANNEL,C,,augmented
 C8X11.5.CHANNEL C Shape,C,,augmented
+"ASTM 3/8"" BENT PL (3/8BENTPL)",3/8BENTPL,,augmented
+"3/8"" BENT PL (3/8BENTPL) Steel",3/8BENTPL,,augmented
+"Grade 3/8"" BENT PL (3/8BENTPL)",3/8BENTPL,,augmented
+"Mat'l 3/8"" BENT PL (3/8BENTPL)",3/8BENTPL,,augmented
+"Steel 3/8"" BENT PL (3/8BENTPL)",3/8BENTPL,,augmented
+"MATERIAL 3/8"" BENT PL (3/8BENTPL)",3/8BENTPL,,augmented
+"3/8BENTPL 3/8"" BENT PL (3/8BENTPL)",3/8BENTPL,,augmented
+"3/8"" BENT PL (3/8BENTPL) (3/8BENTPL)",3/8BENTPL,,augmented
+"ASTM 3/8"" BENT PL STEEL",3/8BENTPL,,augmented
+"3/8"" BENT PL STEEL Steel",3/8BENTPL,,augmented
+"Grade 3/8"" BENT PL STEEL",3/8BENTPL,,augmented
+"Mat'l 3/8"" BENT PL STEEL",3/8BENTPL,,augmented
+"Steel 3/8"" BENT PL STEEL",3/8BENTPL,,augmented
+"MATERIAL 3/8"" BENT PL STEEL",3/8BENTPL,,augmented
+"3/8BENTPL 3/8"" BENT PL STEEL",3/8BENTPL,,augmented
+"3/8"" BENT PL STEEL (3/8BENTPL)",3/8BENTPL,,augmented
+"ASTM 3/8BENTPL 3/8"" BENT PL",3/8BENTPL,,augmented
+"Grade 3/8BENTPL 3/8"" BENT PL",3/8BENTPL,,augmented
+"Mat'l 3/8BENTPL 3/8"" BENT PL",3/8BENTPL,,augmented
+"Steel 3/8BENTPL 3/8"" BENT PL",3/8BENTPL,,augmented
+"MATERIAL 3/8BENTPL 3/8"" BENT PL",3/8BENTPL,,augmented
+"3/8BENTPL 3/8BENTPL 3/8"" BENT PL",3/8BENTPL,,augmented
+"ASTM ASTM 3/8"" BENT PL",3/8BENTPL,,augmented
+"Grade ASTM 3/8"" BENT PL",3/8BENTPL,,augmented
+"Mat'l ASTM 3/8"" BENT PL",3/8BENTPL,,augmented
+"Steel ASTM 3/8"" BENT PL",3/8BENTPL,,augmented
+"MATERIAL ASTM 3/8"" BENT PL",3/8BENTPL,,augmented
+"3/8BENTPL ASTM 3/8"" BENT PL",3/8BENTPL,,augmented
+"ASTM GRADE 3/8"" BENT PL",3/8BENTPL,,augmented
+"Grade GRADE 3/8"" BENT PL",3/8BENTPL,,augmented
+"Mat'l GRADE 3/8"" BENT PL",3/8BENTPL,,augmented
+"Steel GRADE 3/8"" BENT PL",3/8BENTPL,,augmented
+"MATERIAL GRADE 3/8"" BENT PL",3/8BENTPL,,augmented
+"3/8BENTPL GRADE 3/8"" BENT PL",3/8BENTPL,,augmented
+"MATERIAL3/8""BENTPL",3/8BENTPL,,original
+"M ATERIAL3/8""BENTPL",3/8BENTPL,,original
+"M-ATERIAL3/8""BENTPL",3/8BENTPL,,augmented
+"M_ATERIAL3/8""BENTPL",3/8BENTPL,,augmented
+"MATERIAL3/8""BENTPL A36",3/8BENTPL,,augmented
+"Beam MATERIAL3/8""BENTPL",3/8BENTPL,,augmented
+"Beam-MATERIAL3/8""BENTPL",3/8BENTPL,,augmented
+"MATERIAL3/8""BENTPL Beam",3/8BENTPL,,augmented
+"M Shape MATERIAL3/8""BENTPL",3/8BENTPL,,augmented
+"M Shape-MATERIAL3/8""BENTPL",3/8BENTPL,,augmented
+"MATERIAL3/8""BENTPL M Shape",3/8BENTPL,,augmented
+"MAT'L3/8""BENTPL",3/8BENTPL,,original
+"M AT'L3/8""BENTPL",3/8BENTPL,,original
+"M-AT'L3/8""BENTPL",3/8BENTPL,,augmented
+"M_AT'L3/8""BENTPL",3/8BENTPL,,augmented
+"MAT'L3/8""BENTPL A36",3/8BENTPL,,augmented
+"Beam MAT'L3/8""BENTPL",3/8BENTPL,,augmented
+"Beam-MAT'L3/8""BENTPL",3/8BENTPL,,augmented
+"MAT'L3/8""BENTPL Beam",3/8BENTPL,,augmented
+"M Shape MAT'L3/8""BENTPL",3/8BENTPL,,augmented
+"M Shape-MAT'L3/8""BENTPL",3/8BENTPL,,augmented
+"STEEL3/8""BENTPL",3/8BENTPL,,original
+"ST EEL3/8""BENTPL",3/8BENTPL,,original
+"ST-EEL3/8""BENTPL",3/8BENTPL,,augmented
+"ST_EEL3/8""BENTPL",3/8BENTPL,,augmented
+"ST Tee STEEL3/8""BENTPL",3/8BENTPL,,augmented
+"ST Tee-STEEL3/8""BENTPL",3/8BENTPL,,augmented
+"STEEL3/8""BENTPL ST Tee",3/8BENTPL,,augmented
+"STEEL3/8""BENTPL Structural Tee",3/8BENTPL,,augmented
+"Structural Tee STEEL3/8""BENTPL",3/8BENTPL,,augmented
+"Structural Tee-STEEL3/8""BENTPL",3/8BENTPL,,augmented
+"ANGLE IRON L3X3X5/16,",L,,original
+"L ANGLE IRON L3X3X5/16,",L,,augmented
+"ANGLE IRON L3X3X5/16, (L)",L,,augmented
+"ASTM ANGLE IRON L3X3X5/16,",L,,augmented
+"ANGLE IRON L3X3X5/16, Steel",L,,augmented
+"Grade ANGLE IRON L3X3X5/16,",L,,augmented
+"Mat'l ANGLE IRON L3X3X5/16,",L,,augmented
+"Steel ANGLE IRON L3X3X5/16,",L,,augmented
+"MATERIAL ANGLE IRON L3X3X5/16,",L,,augmented
+"ANGLE IRON-L3X3X5/16,",L,,original
+"L ANGLE IRON-L3X3X5/16,",L,,augmented
+"ANGLE IRON-L3X3X5/16, (L)",L,,augmented
+"ASTM ANGLE IRON-L3X3X5/16,",L,,augmented
+"ANGLE IRON-L3X3X5/16, Steel",L,,augmented
+"Grade ANGLE IRON-L3X3X5/16,",L,,augmented
+"Mat'l ANGLE IRON-L3X3X5/16,",L,,augmented
+"Steel ANGLE IRON-L3X3X5/16,",L,,augmented
+"MATERIAL ANGLE IRON-L3X3X5/16,",L,,augmented
+"L ANGLE L3X3X5/16,",L,,augmented
+"ANGLE L3X3X5/16, (L)",L,,augmented
+"ASTM ANGLE L3X3X5/16,",L,,augmented
+"ANGLE L3X3X5/16, Steel",L,,augmented
+"Grade ANGLE L3X3X5/16,",L,,augmented
+"Mat'l ANGLE L3X3X5/16,",L,,augmented
+"Steel ANGLE L3X3X5/16,",L,,augmented
+"MATERIAL ANGLE L3X3X5/16,",L,,augmented
+"ANGLE L3X3X5/16, A36",L,,original
+"L ANGLE L3X3X5/16, A36",L,,augmented
+"ANGLE L3X3X5/16, A36 (L)",L,,augmented
+"ASTM ANGLE L3X3X5/16, A36",L,,augmented
+"ANGLE L3X3X5/16, A36 Steel",L,,augmented
+"Grade ANGLE L3X3X5/16, A36",L,,augmented
+"Mat'l ANGLE L3X3X5/16, A36",L,,augmented
+"Steel ANGLE L3X3X5/16, A36",L,,augmented
+"MATERIAL ANGLE L3X3X5/16, A36",L,,augmented
+"ANGLE L3X3X5/16, ASTM A36",L,,original
+"L ANGLE L3X3X5/16, ASTM A36",L,,augmented
+"ANGLE L3X3X5/16, ASTM A36 (L)",L,,augmented
+"ASTM ANGLE L3X3X5/16, ASTM A36",L,,augmented
+"ANGLE L3X3X5/16, ASTM A36 Steel",L,,augmented
+"Grade ANGLE L3X3X5/16, ASTM A36",L,,augmented
+"Mat'l ANGLE L3X3X5/16, ASTM A36",L,,augmented
+"Steel ANGLE L3X3X5/16, ASTM A36",L,,augmented
+"MATERIAL ANGLE L3X3X5/16, ASTM A36",L,,augmented
+"L ANGLE-L3X3X5/16,",L,,augmented
+"ANGLE-L3X3X5/16, (L)",L,,augmented
+"ASTM ANGLE-L3X3X5/16,",L,,augmented
+"ANGLE-L3X3X5/16, Steel",L,,augmented
+"Grade ANGLE-L3X3X5/16,",L,,augmented
+"Mat'l ANGLE-L3X3X5/16,",L,,augmented
+"Steel ANGLE-L3X3X5/16,",L,,augmented
+"MATERIAL ANGLE-L3X3X5/16,",L,,augmented
+"LSHAPEL3X3X5/16,",L,,original
+"L SHAPEL3X3X5/16,",L,,original
+"L-SHAPEL3X3X5/16,",L,,augmented
+"L_SHAPEL3X3X5/16,",L,,augmented
+"LSHAPEL3 X 3X5/16,",L,,original
+"LSHAPEL3X3X5/16, A36",L,,augmented
+"L SHAPEL3 X 3 X 5/16,",L,,original
+"Angle LSHAPEL3X3X5/16,",L,,augmented
+"Angle-LSHAPEL3X3X5/16,",L,,augmented
+"LSHAPEL3X3X5/16, Angle",L,,augmented
+"LSHAPE-L3X3X5/16,",L,,original
+"L-SHAPE-L3X3X5/16,",L,,augmented
+"L_SHAPE-L3X3X5/16,",L,,augmented
+"LSHAPE-L3 X 3X5/16,",L,,original
+"LSHAPE-L3X3X5/16, A36",L,,augmented
+"L SHAPE-L3 X 3 X 5/16,",L,,original
+"Angle LSHAPE-L3X3X5/16,",L,,augmented
+"Angle-LSHAPE-L3X3X5/16,",L,,augmented
+"LSHAPE-L3X3X5/16, Angle",L,,augmented
+"L Shape LSHAPE-L3X3X5/16,",L,,augmented
+"L -3X3X5/16,",L,,original
+"L--3X3X5/16,",L,,augmented
+"L_-3X3X5/16,",L,,augmented
+"L-3 X 3X5/16,",L,,original
+"L-3X3X5/16, A36",L,,augmented
+"L -3 X 3 X 5/16,",L,,original
+"Angle L-3X3X5/16,",L,,augmented
+"Angle-L-3X3X5/16,",L,,augmented
+"L-3X3X5/16, Angle",L,,augmented
+"L Shape L-3X3X5/16,",L,,augmented
+"L Shape-L-3X3X5/16,",L,,augmented
+"L-3X3X5/16, L Shape",L,,augmented
+"L3X3X5/16,A36",L,,original
+"L 3X3X5/16,A36",L,,original
+"L-3X3X5/16,A36",L,,augmented
+"L_3X3X5/16,A36",L,,augmented
+"L3 X 3X5/16,A36",L,,original
+"L3X3X5/16,A36 A36",L,,augmented
+"L 3 X 3 X 5/16,A36",L,,original
+"Angle L3X3X5/16,A36",L,,augmented
+"Angle-L3X3X5/16,A36",L,,augmented
+"L3X3X5/16,A36 Angle",L,,augmented
+"L Shape L3X3X5/16,A36",L,,augmented
+ASTM ASTM BENT PL 3 PL 3,BENTPL3PL3,,augmented
+ASTM BENT PL 3 PL 3 Steel,BENTPL3PL3,,augmented
+Grade ASTM BENT PL 3 PL 3,BENTPL3PL3,,augmented
+Mat'l ASTM BENT PL 3 PL 3,BENTPL3PL3,,augmented
+Steel ASTM BENT PL 3 PL 3,BENTPL3PL3,,augmented
+MATERIAL ASTM BENT PL 3 PL 3,BENTPL3PL3,,augmented
+BENTPL3PL3 ASTM BENT PL 3 PL 3,BENTPL3PL3,,augmented
+ASTM BENT PL 3 PL 3 (BENTPL3PL3),BENTPL3PL3,,augmented
+BENT PL 3 PL 3 (BENTPL3PL3) Steel,BENTPL3PL3,,augmented
+Grade BENT PL 3 PL 3 (BENTPL3PL3),BENTPL3PL3,,augmented
+Mat'l BENT PL 3 PL 3 (BENTPL3PL3),BENTPL3PL3,,augmented
+Steel BENT PL 3 PL 3 (BENTPL3PL3),BENTPL3PL3,,augmented
+MATERIAL BENT PL 3 PL 3 (BENTPL3PL3),BENTPL3PL3,,augmented
+BENTPL3PL3 BENT PL 3 PL 3 (BENTPL3PL3),BENTPL3PL3,,augmented
+BENT PL 3 PL 3 (BENTPL3PL3) (BENTPL3PL3),BENTPL3PL3,,augmented
+BENT PL 3 PL 3 STEEL Steel,BENTPL3PL3,,augmented
+Grade BENT PL 3 PL 3 STEEL,BENTPL3PL3,,augmented
+Mat'l BENT PL 3 PL 3 STEEL,BENTPL3PL3,,augmented
+Steel BENT PL 3 PL 3 STEEL,BENTPL3PL3,,augmented
+MATERIAL BENT PL 3 PL 3 STEEL,BENTPL3PL3,,augmented
+BENTPL3PL3 BENT PL 3 PL 3 STEEL,BENTPL3PL3,,augmented
+BENT PL 3 PL 3 STEEL (BENTPL3PL3),BENTPL3PL3,,augmented
+ASTM BENTPL3PL3 BENT PL 3 PL 3,BENTPL3PL3,,augmented
+Grade BENTPL3PL3 BENT PL 3 PL 3,BENTPL3PL3,,augmented
+Mat'l BENTPL3PL3 BENT PL 3 PL 3,BENTPL3PL3,,augmented
+Steel BENTPL3PL3 BENT PL 3 PL 3,BENTPL3PL3,,augmented
+MATERIAL BENTPL3PL3 BENT PL 3 PL 3,BENTPL3PL3,,augmented
+BENTPL3PL3 BENTPL3PL3 BENT PL 3 PL 3,BENTPL3PL3,,augmented
+ASTM GRADE BENT PL 3 PL 3,BENTPL3PL3,,augmented
+Grade GRADE BENT PL 3 PL 3,BENTPL3PL3,,augmented
+Mat'l GRADE BENT PL 3 PL 3,BENTPL3PL3,,augmented
+Steel GRADE BENT PL 3 PL 3,BENTPL3PL3,,augmented
+MATERIAL GRADE BENT PL 3 PL 3,BENTPL3PL3,,augmented
+BENTPL3PL3 GRADE BENT PL 3 PL 3,BENTPL3PL3,,augmented
+MATERIALBENTPL3PL3,BENTPL3PL3,,original
+M ATERIALBENTPL3PL3,BENTPL3PL3,,original
+M-ATERIALBENTPL3PL3,BENTPL3PL3,,augmented
+M_ATERIALBENTPL3PL3,BENTPL3PL3,,augmented
+MATERIALBENTPL3PL3 A36,BENTPL3PL3,,augmented
+Beam MATERIALBENTPL3PL3,BENTPL3PL3,,augmented
+Beam-MATERIALBENTPL3PL3,BENTPL3PL3,,augmented
+MATERIALBENTPL3PL3 Beam,BENTPL3PL3,,augmented
+M Shape MATERIALBENTPL3PL3,BENTPL3PL3,,augmented
+M Shape-MATERIALBENTPL3PL3,BENTPL3PL3,,augmented
+MATERIALBENTPL3PL3 M Shape,BENTPL3PL3,,augmented
+MAT'LBENTPL3PL3,BENTPL3PL3,,original
+M AT'LBENTPL3PL3,BENTPL3PL3,,original
+M-AT'LBENTPL3PL3,BENTPL3PL3,,augmented
+M_AT'LBENTPL3PL3,BENTPL3PL3,,augmented
+MAT'LBENTPL3PL3 A36,BENTPL3PL3,,augmented
+Beam MAT'LBENTPL3PL3,BENTPL3PL3,,augmented
+Beam-MAT'LBENTPL3PL3,BENTPL3PL3,,augmented
+MAT'LBENTPL3PL3 Beam,BENTPL3PL3,,augmented
+M Shape MAT'LBENTPL3PL3,BENTPL3PL3,,augmented
+M Shape-MAT'LBENTPL3PL3,BENTPL3PL3,,augmented
+STEELBENTPL3PL3,BENTPL3PL3,,original
+ST EELBENTPL3PL3,BENTPL3PL3,,original
+ST-EELBENTPL3PL3,BENTPL3PL3,,augmented
+ST_EELBENTPL3PL3,BENTPL3PL3,,augmented
+ST Tee STEELBENTPL3PL3,BENTPL3PL3,,augmented
+ST Tee-STEELBENTPL3PL3,BENTPL3PL3,,augmented
+STEELBENTPL3PL3 ST Tee,BENTPL3PL3,,augmented
+STEELBENTPL3PL3 Structural Tee,BENTPL3PL3,,augmented
+Structural Tee STEELBENTPL3PL3,BENTPL3PL3,,augmented
+Structural Tee-STEELBENTPL3PL3,BENTPL3PL3,,augmented
 WTRUCTURALTEEWT3X4.5.,WT,,augmented
 WT RUCTURALTEEWT3X4.5.,WT,,augmented
 WT-RUCTURALTEEWT3X4.5.,WT,,augmented
@@ -250008,6 +250418,76 @@ Tee-WT3X4.5.A992,WT,,augmented
 WT3X4.5.A992 Tee,WT,,augmented
 WT3X4.5.A992 A992,WT,,augmented
 WT Shape WT3X4.5.A992,WT,,augmented
+"ASTM 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB (1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB)",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB (1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB) Steel",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"Grade 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB (1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB)",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"Mat'l 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB (1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB)",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"Steel 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB (1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB)",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"MATERIAL 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB (1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB)",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB (1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB)",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB (1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB) (1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB)",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"ASTM 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB STEEL",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB STEEL Steel",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"Grade 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB STEEL",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"Mat'l 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB STEEL",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"Steel 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB STEEL",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"MATERIAL 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB STEEL",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB STEEL",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB STEEL (1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB)",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"ASTM 1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"Grade 1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"Mat'l 1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"Steel 1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"MATERIAL 1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB 1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"ASTM ASTM 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"Grade ASTM 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"Mat'l ASTM 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"Steel ASTM 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"MATERIAL ASTM 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB ASTM 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"ASTM GRADE 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"Grade GRADE 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"Mat'l GRADE 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"Steel GRADE 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"MATERIAL GRADE 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB GRADE 1/2"" BENT PLATE 2""BENTPLATE 1/2"" BENT PLATE ATTACHED 1/2"" BENT PLATE ATTACHED TO 1/2"" BENT PLATE ATTACHED TO SLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"MATERIAL1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,original
+"M ATERIAL1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,original
+"M-ATERIAL1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"M_ATERIAL1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"MATERIAL1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB A36",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"Beam MATERIAL1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"Beam-MATERIAL1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"MATERIAL1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB Beam",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"M Shape MATERIAL1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"M Shape-MATERIAL1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"MATERIAL1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB M Shape",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"Beam MATERIAL1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB A36",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"MATERIAL1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB ASTM A36",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"MAT'L1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,original
+"M AT'L1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,original
+"M-AT'L1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"M_AT'L1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"MAT'L1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB A36",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"Beam MAT'L1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"Beam-MAT'L1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"MAT'L1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB Beam",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"M Shape MAT'L1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"M Shape-MAT'L1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"MAT'L1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB M Shape",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"Beam MAT'L1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB A36",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"MAT'L1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB ASTM A36",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"STEEL1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,original
+"ST EEL1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,original
+"ST-EEL1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"ST_EEL1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"ST Tee STEEL1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"ST Tee-STEEL1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"STEEL1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB ST Tee",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"STEEL1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB Structural Tee",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"Structural Tee STEEL1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
+"Structural Tee-STEEL1/2""BENTPLATE2""BENTPLATE1/2""BENTPLATEATTACHED1/2""BENTPLATEATTACHEDTO1/2""BENTPLATEATTACHEDTOSLAB",1/2BENTPLATE2BENTPLATE1/2BENTPLATEATTACHED1/2BENTPLATEATTACHEDTO1/2BENTPLATEATTACHEDTOSLAB,,augmented
 "AMERICAN STANDARD CHANNEL C6X8.2,",C,,original
 "C AMERICAN STANDARD CHANNEL C6X8.2,",C,,augmented
 "AMERICAN STANDARD CHANNEL C6X8.2, (C)",C,,augmented

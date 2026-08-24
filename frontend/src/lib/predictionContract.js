@@ -88,10 +88,103 @@ export function isLegacyPrediction(result = {}) {
   return !hasCanonicalContract(result);
 }
 
+/** Missing-thickness HSS rows carry catalog options but must not show the
+ * fusion top pick as a resolved section. Uses raw payload fields only so
+ * getCanonicalPrediction can call this without circular fallback logic. */
+export function isMissingThicknessReview(result = {}) {
+  if (result.decision_source === "human_review" || result.human_selected_section) {
+    return false;
+  }
+  const canonical = result.canonical || {};
+  const status =
+    canonical.comparison?.match_status || result.comparison?.match_status || "";
+  if (status === "missing_dimension_field" || status === "human_resolved") {
+    return status === "missing_dimension_field";
+  }
+  if (result.completion_status === "missing_thickness") {
+    return true;
+  }
+  return (result.candidate_sections || []).length > 1;
+}
+
+export function getCandidateSections(result = {}) {
+  return result.candidate_sections || [];
+}
+
+export function getSemanticCandidates(result = {}) {
+  return (result.semantic_candidates || []).filter(
+    (item) => item?.type && item.type !== "DIMENSION",
+  );
+}
+
+export function getEvidenceSummary(result = {}) {
+  return (
+    result.evidence_summary
+    || result.context_evidence?.evidence_summary
+    || ""
+  );
+}
+
+export function isSteelTakeoffToken(token = {}) {
+  if (token.engineering_object_type !== "anonymous_dimension") {
+    return true;
+  }
+  const context = token.context || {};
+  const blob = [
+    token.surrounding_text,
+    context.line_text,
+    context.block_text,
+    ...(context.neighbor_text || []),
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toUpperCase();
+  return /\b(?:BEAM|COLUMN|COL|BRACE|PLATE|PL\b|BENT|BOLT|WELD|CONN|GUSSET|HSS|W\d|DETAIL|POST|MEMBER)\b/.test(
+    blob,
+  );
+}
+
+export function isNeedsContextReview(result = {}) {
+  if (result.decision_source === "human_review" || result.human_selected_section) {
+    return false;
+  }
+  const status =
+    result.canonical?.comparison?.match_status
+    || result.comparison?.match_status
+    || "";
+  if (status === "needs_context") {
+    return true;
+  }
+  return getSemanticCandidates(result).length > 0
+    && !result.canonical?.prediction?.final_label;
+}
+
+export function isAnonymousDimensionReview(result = {}) {
+  return isNeedsContextReview(result) || isMissingThicknessReview(result);
+}
+
 /** Read the canonical prediction contract, defaulting missing pieces rather
  * than fabricating them — an absent field stays absent/unavailable. */
 export function getCanonicalPrediction(result = {}) {
   const canonical = result.canonical || {};
+  const missingThickness = isMissingThicknessReview(result);
+  const needsContext = isNeedsContextReview(result);
+  const awaitingSemantic = missingThickness || needsContext;
+  const legacyPredictionFallback = awaitingSemantic
+    ? {
+        final_label: null,
+        family: getFamily(result) || null,
+        ranking_score: result.ranking_score ?? getConfidence(result).overall,
+        final_confidence: result.final_confidence ?? null,
+        confidence_is_calibrated: result.confidence_is_calibrated ?? false,
+      }
+    : {
+        final_label: getSection(result) || null,
+        family: getFamily(result) || null,
+        ranking_score: result.ranking_score ?? getConfidence(result).overall,
+        final_confidence: result.final_confidence ?? null,
+        confidence_is_calibrated: result.confidence_is_calibrated ?? false,
+      };
   return {
     objectId: canonical.object_id ?? result.object_id ?? DEFAULT_CANONICAL.object_id,
     documentId:
@@ -102,13 +195,8 @@ export function getCanonicalPrediction(result = {}) {
     },
     prediction: {
       ...DEFAULT_CANONICAL.prediction,
-      ...(canonical.prediction || {
-        final_label: getSection(result) || null,
-        family: getFamily(result) || null,
-        ranking_score: result.ranking_score ?? getConfidence(result).overall,
-        final_confidence: result.final_confidence ?? null,
-        confidence_is_calibrated: result.confidence_is_calibrated ?? false,
-      }),
+      ...(canonical.prediction || legacyPredictionFallback),
+      ...(awaitingSemantic ? { final_label: null } : {}),
     },
     comparison: {
       ...DEFAULT_CANONICAL.comparison,
@@ -121,8 +209,18 @@ export function getCanonicalPrediction(result = {}) {
     candidates: canonical.candidates || result.canonical_candidates || [],
     evidence: canonical.evidence || result.evidence || {},
     catalogVersion: canonical.catalog_version ?? result.catalog_version ?? null,
-    needsReview: canonical.needs_review ?? result.needs_review ?? false,
-    reviewReason: canonical.review_reason ?? result.review_reason ?? null,
+    needsReview:
+      canonical.needs_review
+      ?? result.needs_review
+      ?? awaitingSemantic,
+    reviewReason:
+      canonical.review_reason
+      ?? result.review_reason
+      ?? (missingThickness
+        ? "Wall thickness is not present in the extracted designation; select the correct catalog section."
+        : needsContext
+          ? "Anonymous dimension; select the correct semantic interpretation."
+          : null),
   };
 }
 
@@ -211,17 +309,37 @@ export function getDisplaySection(result = {}) {
       hasCandidates: false,
     };
   }
+  if (isHumanReviewed(result)) {
+    const { prediction } = getCanonicalPrediction(result);
+    return {
+      value: prediction.final_label || getSection(result) || null,
+      reviewRequired: false,
+      reason: null,
+      hasCandidates: false,
+    };
+  }
   const { prediction, needsReview, reviewReason } = getCanonicalPrediction(result);
-  const candidateSections = result.candidate_sections || [];
-  if (needsReview && !prediction.final_label) {
+  const candidateSections = getCandidateSections(result);
+  const semanticCandidates = getSemanticCandidates(result);
+  const missingThickness = isMissingThicknessReview(result);
+  const needsContext = isNeedsContextReview(result);
+  const awaitingChoice =
+    missingThickness || needsContext || (needsReview && !prediction.final_label);
+  if (awaitingChoice) {
     return {
       value: null,
       reviewRequired: true,
       reason: reviewReason,
-      hasCandidates: candidateSections.length > 0,
+      hasCandidates: candidateSections.length > 0 || semanticCandidates.length > 0,
+      semanticCandidates: semanticCandidates.length > 0,
     };
   }
-  return { value: getSection(result), reviewRequired: false, reason: null, hasCandidates: false };
+  return {
+    value: prediction.final_label || getSection(result) || null,
+    reviewRequired: false,
+    reason: null,
+    hasCandidates: false,
+  };
 }
 
 /** ``{ value, isCalibrated }`` — value is either a calibrated probability

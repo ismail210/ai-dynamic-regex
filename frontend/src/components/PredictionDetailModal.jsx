@@ -22,6 +22,9 @@ import {
   getConfidence,
   getDisplaySection,
   getFamily,
+  getCandidateSections,
+  getEvidenceSummary,
+  getSemanticCandidates,
   isHumanReviewed,
 } from "../lib/predictionContract";
 import PredictionExplainability from "./PredictionExplainability";
@@ -49,7 +52,7 @@ const HUMAN_SELECTION_DECISION = "human_review_selection";
  * refetch. Mirrors exactly what the backend overlay
  * (staged_pipeline._apply_human_selections) will also produce on the next
  * load, so an immediate refresh shows the same thing. */
-function applyLocalSelection(data, objectId, section) {
+function applyLocalSelection(data, objectId, section, semanticType = "") {
   if (!data?.results) return data;
   return {
     ...data,
@@ -58,7 +61,11 @@ function applyLocalSelection(data, objectId, section) {
       const canonical = row.canonical
         ? {
             ...row.canonical,
-            prediction: { ...row.canonical.prediction, final_label: section },
+            prediction: {
+              ...row.canonical.prediction,
+              final_label: section,
+              ...(semanticType ? { annotation_type: semanticType } : {}),
+            },
             comparison: { ...row.canonical.comparison, match_status: "human_resolved" },
             needs_review: false,
             review_reason: null,
@@ -68,9 +75,11 @@ function applyLocalSelection(data, objectId, section) {
         ...row,
         section,
         human_selected_section: section,
+        ...(semanticType ? { human_selected_semantic_type: semanticType } : {}),
         decision_source: "human_review",
         needs_review: false,
         review_reason: null,
+        semantic_candidates: null,
         canonical,
         comparison: canonical?.comparison || row.comparison,
       };
@@ -80,7 +89,7 @@ function applyLocalSelection(data, objectId, section) {
 
 function CandidateSectionPicker({ result, alreadyResolved }) {
   const { data, setData } = useAnalysis();
-  const candidates = result.candidate_sections || [];
+  const candidates = getCandidateSections(result);
   const [selected, setSelected] = useState(
     result.human_selected_section || result.section || candidates[0]?.designation || ""
   );
@@ -181,12 +190,115 @@ function CandidateSectionPicker({ result, alreadyResolved }) {
   );
 }
 
+function SemanticCandidatePicker({ result, alreadyResolved }) {
+  const { data, setData } = useAnalysis();
+  const candidates = getSemanticCandidates(result);
+  const [selected, setSelected] = useState(
+    result.human_selected_section || candidates[0]?.label || "",
+  );
+  const [status, setStatus] = useState("idle");
+  const [error, setError] = useState("");
+  const [editing, setEditing] = useState(!alreadyResolved);
+
+  if (!candidates.length) return null;
+
+  const selectedCandidate = candidates.find((c) => c.label === selected) || candidates[0];
+
+  async function handleSave() {
+    setStatus("saving");
+    setError("");
+    const objectId = result.object_id || result.component_id;
+    try {
+      await approveValidationCorrection({
+        documentId: result.document_id,
+        objectId,
+        correctLabel: selected,
+        prediction: result,
+        userDecision: HUMAN_SELECTION_DECISION,
+        semanticType: selectedCandidate?.type || "",
+        notes: `Reviewer selected ${selectedCandidate?.type || "semantic"} interpretation for ${result.raw_text || result.original_token}`,
+      });
+      setData((current) =>
+        applyLocalSelection(current, objectId, selected, selectedCandidate?.type || ""),
+      );
+      setStatus("saved");
+      setEditing(false);
+    } catch (err) {
+      setStatus("error");
+      setError(err.friendlyMessage || err?.response?.data?.detail || err.message || "Failed to save selection");
+    }
+  }
+
+  if (alreadyResolved && !editing) {
+    return (
+      <Box>
+        <Typography variant="subtitle2" fontWeight={700} gutterBottom>
+          Selected interpretation
+        </Typography>
+        <Stack direction="row" spacing={1.5} alignItems="center">
+          <Typography fontFamily="monospace" fontSize={15} fontWeight={700}>
+            {result.human_selected_section || result.section}
+          </Typography>
+          <Chip size="small" color="success" variant="outlined" label="Human review" />
+          <Button size="small" onClick={() => setEditing(true)}>
+            Change selection
+          </Button>
+        </Stack>
+      </Box>
+    );
+  }
+
+  return (
+    <Box>
+      <Typography variant="subtitle2" fontWeight={700} gutterBottom>
+        Possible semantic interpretations
+      </Typography>
+      {getEvidenceSummary(result) && (
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+          Context: {getEvidenceSummary(result)}
+        </Typography>
+      )}
+      <FormControl>
+        <RadioGroup value={selected} onChange={(e) => setSelected(e.target.value)}>
+          {candidates.map((candidate) => (
+            <FormControlLabel
+              key={`${candidate.type}-${candidate.label}`}
+              value={candidate.label}
+              control={<Radio size="small" />}
+              label={
+                <Stack spacing={0.25}>
+                  <Typography fontFamily="monospace" fontSize={13}>
+                    {candidate.label}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {candidate.type} · score {(candidate.score * 100).toFixed(0)}%
+                    {candidate.evidence?.length ? ` · ${candidate.evidence.join(", ")}` : ""}
+                  </Typography>
+                </Stack>
+              }
+            />
+          ))}
+        </RadioGroup>
+      </FormControl>
+      <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mt: 1.5 }}>
+        <Button size="small" variant="contained" disabled={status === "saving"} onClick={handleSave}>
+          Use this interpretation
+        </Button>
+      </Stack>
+      {status === "error" && <Alert severity="error" sx={{ mt: 1 }}>{error}</Alert>}
+    </Box>
+  );
+}
+
 export default function PredictionDetailModal({ result, onClose }) {
   if (!result) return null;
   const display = getDisplaySection(result);
   const family = getFamily(result);
   const confidence = getConfidence(result);
-  const hasCandidates = (result.candidate_sections || []).length > 0;
+  const candidateSections = getCandidateSections(result);
+  const semanticCandidates = getSemanticCandidates(result);
+  const showThicknessPicker = candidateSections.length > 0;
+  const showSemanticPicker = semanticCandidates.length > 0;
   const alreadyResolved = Boolean(result.human_selected_section);
   const humanReviewed = isHumanReviewed(result);
   return (
@@ -257,7 +369,13 @@ export default function PredictionDetailModal({ result, onClose }) {
               prediction and evidence are preserved below for audit.
             </Typography>
           )}
-          {hasCandidates && (
+          {showSemanticPicker && (
+            <>
+              <Divider />
+              <SemanticCandidatePicker result={result} alreadyResolved={alreadyResolved} />
+            </>
+          )}
+          {showThicknessPicker && (
             <>
               <Divider />
               <CandidateSectionPicker result={result} alreadyResolved={alreadyResolved} />

@@ -51,7 +51,8 @@ def _save_all(data: Dict[str, Dict[str, Any]]) -> None:
 
 
 def record_human_selection(
-    *, document_id: str, object_id: str, section: str, notes: str = ""
+    *, document_id: str, object_id: str, section: str, notes: str = "",
+    semantic_type: str = "",
 ) -> None:
     """Persist (or overwrite) the reviewer's chosen section for one object."""
 
@@ -63,12 +64,24 @@ def record_human_selection(
     with _LOCK:
         data = _load_all()
         document_selections = data.setdefault(document_id, {})
-        document_selections[object_id] = {
+        entry = {
             "section": section,
             "selected_at": datetime.now(timezone.utc).isoformat(),
             "notes": notes,
         }
+        if semantic_type:
+            entry["semantic_type"] = str(semantic_type)
+        document_selections[object_id] = entry
         _save_all(data)
+
+
+def get_human_selection_entries(document_id: str) -> Dict[str, Dict[str, Any]]:
+    data = _load_all().get(str(document_id or ""), {})
+    return {
+        object_id: dict(entry)
+        for object_id, entry in data.items()
+        if isinstance(entry, dict) and entry.get("section")
+    }
 
 
 def get_human_selections(document_id: str) -> Dict[str, str]:

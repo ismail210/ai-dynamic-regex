@@ -18,6 +18,7 @@ from services.document_registry import (
 )
 from services.stage_runner import run_shared_stage
 from services.staged_pipeline import (
+    analysis_response,
     load_cached_analysis,
     load_cached_extraction,
     run_analysis_stage,
@@ -137,7 +138,7 @@ def document_analysis(document_id: str):
     result = load_cached_analysis(document_id)
     if result is None:
         raise HTTPException(status_code=404, detail="Analysis not found")
-    return result
+    return analysis_response(result)
 
 
 @router.get("/documents/{document_id}/pdf")

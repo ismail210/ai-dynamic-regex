@@ -379,6 +379,45 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         document_prior=document_prior,
     )
 
+    is_anonymous_dim = (
+        str(token_record.get("engineering_object_type") or "") == "anonymous_dimension"
+    )
+    anonymous_resolution: Optional[Dict[str, Any]] = None
+    resolved_semantic_annotation: Optional[Dict[str, Any]] = None
+    if is_anonymous_dim and not confirmed_plate_type:
+        from services.annotation.anonymous_dimension_resolver import (
+            resolve_anonymous_dimension,
+        )
+        from services.annotation.context_evidence import build_context_evidence
+
+        evidence = token_record.get("context_evidence") or build_context_evidence(
+            token_record,
+            document=document,
+            geometry=context.get("geometry") or {},
+            graph=context.get("graph"),
+        )
+        token_record["context_evidence"] = evidence
+        anonymous_resolution = resolve_anonymous_dimension(evidence, raw_text=raw_text)
+        if evidence.get("in_title_block") or evidence.get("layout_dimension_is_non_steel"):
+            anonymous_resolution = {
+                **anonymous_resolution,
+                "abstain": True,
+                "recommended": None,
+                "review_reason": (
+                    "Layout or title-block dimension; not a steel takeoff item."
+                ),
+            }
+            token_record["_skip_unknown_queue"] = True
+        recommended = anonymous_resolution.get("recommended")
+        if recommended and not anonymous_resolution.get("abstain"):
+            rec_type = str(recommended.get("type") or "")
+            if rec_type in {"PLATE", "BENT_PLATE"}:
+                confirmed_plate_type = rec_type
+            elif rec_type in {"ANGLE", "CONNECTION_THICKNESS"}:
+                resolved_semantic_annotation = recommended
+
+    skip_section_fusion = bool(confirmed_plate_type) or is_anonymous_dim
+
     family_label = ""
     family_probability = 0.0
     family_prediction = None
@@ -394,10 +433,11 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     label_ranker_meta: Dict[str, Any] = {}
     protected_label_conflict = False
     ranker_applied_effective = False
+    hss_dimensions: Optional[tuple] = None
     hss_completions: List[Any] = []
     missing_thickness_needs_review = False
 
-    if confirmed_plate_type:
+    if skip_section_fusion:
         provisional_rules = evaluate_engineering_rules(
             token=normalized,
             predicted_shape="",
@@ -408,9 +448,12 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
                 "structural_links": graph.get("structural_links"),
             },
         )
-        unified_fusion = _skipped_section_fusion_result(
+        skip_reason = (
             f"Confirmed {confirmed_plate_type}; rolled-section fusion skipped."
+            if confirmed_plate_type
+            else "Anonymous dimension; rolled-section fusion skipped."
         )
+        unified_fusion = _skipped_section_fusion_result(skip_reason)
         encodings = encoder_registry.encode_all(
             {
                 "text": {
@@ -675,10 +718,15 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         ) and not protected_label_conflict
 
     ai_reasons = list(unified_fusion.reasons)
-    if confirmed_plate_type:
-        ai_reasons.append(
-            f"Confirmed {confirmed_plate_type}; AISC section prediction not applicable."
-        )
+    if skip_section_fusion:
+        if confirmed_plate_type:
+            ai_reasons.append(
+                f"Confirmed {confirmed_plate_type}; AISC section prediction not applicable."
+            )
+        elif is_anonymous_dim:
+            ai_reasons.append(
+                "Anonymous dimension; AISC section fusion skipped pending semantic resolution."
+            )
     elif retrieval_gate_failed:
         ai_reasons.append(
             "Exact-section retrieval gate failed; abstaining for human review."
@@ -775,7 +823,7 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
             f"{len(hss_completions)} valid completions."
         )
 
-    if confirmed_plate_type:
+    if skip_section_fusion:
         retrieval_gate_failed = False
 
     model_label = section
@@ -1192,7 +1240,7 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         issues.append("schedule_sourced_member")
     if token_record.get("geometry_associated"):
         issues.append("geometry_spatial_association")
-    if confirmed_plate_type:
+    if skip_section_fusion:
         issues.append("plate_annotation_not_structural_section")
 
     review_status = decide_review_status(
@@ -1251,6 +1299,27 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         if confirmed_plate_type
         else None
     )
+    semantic_annotation_type = confirmed_plate_type
+    semantic_annotation_label = plate_annotation_label
+    if resolved_semantic_annotation:
+        section = str(resolved_semantic_annotation.get("label") or section or "")
+        semantic_annotation_type = resolved_semantic_annotation.get("type")
+        semantic_annotation_label = resolved_semantic_annotation.get("label")
+    elif (
+        is_anonymous_dim
+        and anonymous_resolution
+        and anonymous_resolution.get("abstain")
+        and not confirmed_plate_type
+    ):
+        section = ""
+        retrieval_gate_failed = True
+    needs_context_review = bool(
+        is_anonymous_dim
+        and anonymous_resolution
+        and anonymous_resolution.get("abstain")
+        and not confirmed_plate_type
+        and not resolved_semantic_annotation
+    )
     canonical = build_canonical_prediction(
         object_id=str(token_record.get("token_id") or component_id),
         document_id=document_id,
@@ -1290,13 +1359,16 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         near_tie=ranking.near_tie,
         used_wildcards=used_wildcards,
         used_missing_dimension=missing_thickness_needs_review,
-        confirmed_annotation=bool(confirmed_plate_type),
-        annotation_type=confirmed_plate_type,
-        annotation_label=plate_annotation_label,
-        section_applicable=not bool(confirmed_plate_type),
+        confirmed_annotation=bool(confirmed_plate_type or resolved_semantic_annotation),
+        annotation_type=semantic_annotation_type,
+        annotation_label=semantic_annotation_label,
+        section_applicable=not bool(confirmed_plate_type or resolved_semantic_annotation),
         confidence_basis=(
-            "extraction_confidence" if confirmed_plate_type else None
+            "extraction_confidence"
+            if confirmed_plate_type or resolved_semantic_annotation
+            else None
         ),
+        used_needs_context=needs_context_review,
     )
 
     alternatives = []
@@ -1425,6 +1497,17 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         "candidate_sections": [
             item.to_dict() for item in hss_completions
         ] or None,
+        "semantic_candidates": (
+            anonymous_resolution.get("semantic_candidates")
+            if anonymous_resolution
+            else None
+        ),
+        "context_evidence": token_record.get("context_evidence"),
+        "evidence_summary": (
+            (anonymous_resolution or {}).get("evidence_summary")
+            or (token_record.get("context_evidence") or {}).get("evidence_summary")
+        ),
+        "_skip_unknown_queue": bool(token_record.get("_skip_unknown_queue")),
         "correction": final_correction,
         "annotation_interpretation": annotation_pack,
         "entity_type": entity.category,

@@ -220,9 +220,17 @@ def _evaluate(
     X_test: pd.Series,
     y_test: np.ndarray,
     encoder: LabelEncoder,
+    *,
+    fit_encoder: LabelEncoder | None = None,
 ) -> dict[str, Any]:
+    eval_encoder = fit_encoder or encoder
+    if fit_encoder is not None:
+        X_test, y_test = _filter_eval_split(
+            X_test, y_test, encoder, fit_encoder
+        )
+
     predicted = np.asarray(model.predict(X_test)).reshape(-1).astype(int)
-    labels = np.arange(len(encoder.classes_))
+    labels = np.arange(len(eval_encoder.classes_))
     metrics: dict[str, Any] = {
         "accuracy": round(float(accuracy_score(y_test, predicted)), 4),
         "precision_weighted": round(
@@ -244,11 +252,11 @@ def _evaluate(
         "confusion_matrix": confusion_matrix(
             y_test, predicted, labels=labels
         ).tolist(),
-        "classification_report": classification_report(
+        "classification_report":         classification_report(
             y_test,
             predicted,
             labels=labels,
-            target_names=[str(value) for value in encoder.classes_],
+            target_names=[str(value) for value in eval_encoder.classes_],
             output_dict=True,
             zero_division=0,
         ),
@@ -340,6 +348,46 @@ def _maybe_cap_training(
     return capped, capped_y
 
 
+def _encoder_for_training_subset(
+    y_train: np.ndarray,
+    encoder: LabelEncoder,
+) -> tuple[np.ndarray, LabelEncoder, list[str]]:
+    """
+    Remap the post-split training labels to contiguous 0..k-1.
+
+    XGBoost (via sklearn) requires training ``y`` to contain every class id
+    from 0..n-1. After stratified split + row capping, a globally-encoded
+    label column can have gaps (e.g. class id 2 absent while id 52 present).
+    """
+
+    present_names = encoder.inverse_transform(np.unique(y_train))
+    fit_encoder = LabelEncoder()
+    fit_encoder.fit(present_names)
+    train_names = encoder.inverse_transform(y_train)
+    y_fit = fit_encoder.transform(train_names)
+    excluded = [
+        str(label)
+        for label in encoder.classes_
+        if str(label) not in {str(value) for value in fit_encoder.classes_}
+    ]
+    return y_fit, fit_encoder, excluded
+
+
+def _filter_eval_split(
+    X_test: pd.Series,
+    y_test: np.ndarray,
+    global_encoder: LabelEncoder,
+    fit_encoder: LabelEncoder,
+) -> tuple[pd.Series, np.ndarray]:
+    test_names = global_encoder.inverse_transform(y_test)
+    mask = np.isin(test_names, fit_encoder.classes_)
+    if not mask.any():
+        raise ValueError("No held-out rows remain for trained classes")
+    X_eval = X_test.iloc[mask] if hasattr(X_test, "iloc") else X_test[mask]
+    y_eval = fit_encoder.transform(test_names[mask])
+    return X_eval, y_eval
+
+
 def train_xgboost(
     training_frame: pd.DataFrame,
     *,
@@ -382,6 +430,10 @@ def train_xgboost(
     X_train, y_train = _maybe_cap_training(
         X_train, y_train, max_rows=FINAL_TRAIN_CAP
     )
+    global_encoder = encoder
+    y_train, fit_encoder, excluded_classes = _encoder_for_training_subset(
+        y_train, global_encoder
+    )
 
     progress("Building preprocessing pipeline", 25)
     estimator = XGBClassifier(
@@ -408,7 +460,13 @@ def train_xgboost(
     training_time = round(time.perf_counter() - started, 3)
 
     progress("Evaluating model", 78)
-    metrics = _evaluate(pipeline, X_test, y_test, encoder)
+    metrics = _evaluate(
+        pipeline,
+        X_test,
+        y_test,
+        global_encoder,
+        fit_encoder=fit_encoder,
+    )
     preprocessing = pipeline.named_steps["preprocessing"]
     best_model = pipeline.named_steps["model"]
     feature_names = transformed_feature_names(preprocessing)
@@ -426,8 +484,10 @@ def train_xgboost(
         "rows": int(len(clean)),
         "trained_rows": int(len(X_train)),
         "canonical_rows": int(canonical_rows or len(clean)),
-        "classes": int(len(encoder.classes_)),
-        "class_labels": [str(value) for value in encoder.classes_],
+        "classes": int(len(fit_encoder.classes_)),
+        "class_labels": [str(value) for value in fit_encoder.classes_],
+        "excluded_training_classes": excluded_classes,
+        "dataset_classes": int(len(global_encoder.classes_)),
         "approved_examples": int(approved_examples),
         "augmentation": augmentation or {},
         "model_comparison": [],
@@ -458,7 +518,7 @@ def train_xgboost(
     settings.training_dir.mkdir(parents=True, exist_ok=True)
     _atomic_joblib_dump(best_model, settings.model_path)
     _atomic_joblib_dump(preprocessing, settings.preprocessing_pipeline_path)
-    _atomic_joblib_dump(encoder, settings.label_encoder_path)
+    _atomic_joblib_dump(fit_encoder, settings.label_encoder_path)
     _atomic_json_dump(feature_manifest, settings.feature_names_path)
     _atomic_json_dump(metadata, settings.model_metadata_path)
     _atomic_json_dump(metadata, settings.legacy_model_meta_path)
@@ -511,6 +571,10 @@ def train_models(
     X_train, y_train = _maybe_cap_training(
         X_train, y_train, max_rows=FINAL_TRAIN_CAP
     )
+    global_encoder = encoder
+    y_train, fit_encoder, excluded_classes = _encoder_for_training_subset(
+        y_train, global_encoder
+    )
     X_compare, y_compare = _comparison_sample(X_train, y_train)
     compare_min_class_count = int(np.bincount(y_compare).min())
     candidates, unavailable = _candidate_estimators(compare_min_class_count)
@@ -530,7 +594,13 @@ def train_models(
         started = time.perf_counter()
         try:
             candidate.fit(X_compare, y_compare)
-            metrics = _evaluate(candidate, X_test, y_test, encoder)
+            metrics = _evaluate(
+                candidate,
+                X_test,
+                y_test,
+                global_encoder,
+                fit_encoder=fit_encoder,
+            )
             elapsed = round(time.perf_counter() - started, 3)
             print(
                 f"[train] {name} acc={metrics['accuracy']} "
@@ -622,8 +692,10 @@ def train_models(
         ),
         "rows": int(len(clean)),
         "canonical_rows": int(canonical_rows or len(clean)),
-        "classes": int(len(encoder.classes_)),
-        "class_labels": [str(value) for value in encoder.classes_],
+        "classes": int(len(fit_encoder.classes_)),
+        "class_labels": [str(value) for value in fit_encoder.classes_],
+        "excluded_training_classes": excluded_classes,
+        "dataset_classes": int(len(global_encoder.classes_)),
         "approved_examples": int(approved_examples),
         "augmentation": augmentation or {},
         "model_comparison": comparison_rows,
@@ -665,7 +737,7 @@ def train_models(
     )
     _atomic_joblib_dump(best_model, settings.model_path)
     _atomic_joblib_dump(preprocessing, settings.preprocessing_pipeline_path)
-    _atomic_joblib_dump(encoder, settings.label_encoder_path)
+    _atomic_joblib_dump(fit_encoder, settings.label_encoder_path)
     _atomic_json_dump(feature_manifest, settings.feature_names_path)
     _atomic_json_dump(metadata, settings.model_metadata_path)
     # Preserve current statistics/history readers during rolling deployments.

@@ -77,6 +77,37 @@ function rowByToken(token) {
   return screen.getAllByText(token)[0].closest("tr");
 }
 
+function hssMissingThicknessRow() {
+  return {
+    object_id: "obj_hss",
+    original_token: "HSS10x10",
+    corrected_token: "HSS10X10",
+    family: "HSS",
+    section: "HSS10X10X1/2",
+    completion_status: "missing_thickness",
+    candidate_sections: [
+      { designation: "HSS10X10X1/4", thickness: "1/4" },
+      { designation: "HSS10X10X1/2", thickness: "1/2" },
+    ],
+    canonical: {
+      prediction: { final_label: null },
+      comparison: { match_status: "missing_dimension_field" },
+      needs_review: true,
+      review_reason:
+        "Wall thickness is not present in the extracted designation; select the correct catalog section.",
+    },
+  };
+}
+
+describe("TokensTable — missing-thickness HSS shows catalog picker affordance", () => {
+  it("shows Select section (N options) instead of the fusion top pick", () => {
+    render(<TokensTable results={[hssMissingThicknessRow()]} />);
+    const row = rowByToken("HSS10x10");
+    expect(within(row).getByText("Select section (2 options)")).toBeInTheDocument();
+    expect(within(row).queryByText("HSS10X10X1/2")).not.toBeInTheDocument();
+  });
+});
+
 describe("TokensTable — a non-catalog-valid correction never displays as a resolved section", () => {
   it("shows Review required (no candidate count) instead of the low-confidence guess", () => {
     render(<TokensTable results={[nonCatalogCorrectionRow()]} />);

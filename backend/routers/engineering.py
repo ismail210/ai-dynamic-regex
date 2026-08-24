@@ -54,6 +54,7 @@ class CorrectionRequest(BaseModel):
         description="approve | reject | edit | correct | mark_unreadable | mark_unsupported",
     )
     notes: str = ""
+    semantic_type: Optional[str] = None
 
 
 @router.get("/multimodal/capabilities")
@@ -356,6 +357,7 @@ def post_correction(body: CorrectionRequest):
             object_id=body.object_id,
             section=body.correct_label,
             notes=body.notes or "",
+            semantic_type=body.semantic_type or "",
         )
 
     approved = None

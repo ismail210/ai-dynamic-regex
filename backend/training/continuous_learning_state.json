@@ -1,7 +1,7 @@
 {
-  "pending_approved_count": 25,
+  "pending_approved_count": 222,
   "last_trigger_at": "2026-08-20T09:15:48.020095+00:00",
-  "last_completed_at": "2026-08-20T08:05:02.681629+00:00",
+  "last_completed_at": "2026-08-21T08:54:48.043080+00:00",
   "last_dataset_versions": {
     "text": "text_20260820_075751",
     "ocr": "ocr_20260820_075758",

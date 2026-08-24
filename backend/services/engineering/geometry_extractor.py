@@ -502,6 +502,24 @@ def extract_geometry(
                 elif _looks_like_dimension(kind, length, nearby):
                     kind = GeometryKind.DIMENSION
 
+                leader_endpoints: Optional[Dict[str, List[float]]] = None
+                if kind == GeometryKind.LEADER and len(points) >= 2:
+                    near_pt = points[0]
+                    far_pt = points[-1]
+                    leader_endpoints = {
+                        "near_endpoint": [round(near_pt[0], 2), round(near_pt[1], 2)],
+                        "far_endpoint": [round(far_pt[0], 2), round(far_pt[1], 2)],
+                    }
+                elif kind == GeometryKind.LEADER:
+                    x0, y0, x1, y1 = bbox
+                    corners = [(x0, y0), (x0, y1), (x1, y0), (x1, y1)]
+                    far = max(corners, key=lambda c: math.hypot(c[0] - center[0], c[1] - center[1]))
+                    near = min(corners, key=lambda c: math.hypot(c[0] - center[0], c[1] - center[1]))
+                    leader_endpoints = {
+                        "near_endpoint": [round(near[0], 2), round(near[1], 2)],
+                        "far_endpoint": [round(far[0], 2), round(far[1], 2)],
+                    }
+
                 # Blocks / symbols: small closed shapes
                 if kind in {GeometryKind.RECTANGLE, GeometryKind.CIRCLE} and area < 400:
                     kind = GeometryKind.SYMBOL
@@ -534,6 +552,8 @@ def extract_geometry(
                     "drawing_layer": None,
                     "block_name": None,
                 }
+                if leader_endpoints:
+                    obj["leader_endpoints"] = leader_endpoints
                 objects.append(obj)
                 counts[kind.value] = counts.get(kind.value, 0) + 1
 

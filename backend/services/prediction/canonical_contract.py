@@ -49,6 +49,7 @@ class MatchStatus(str, Enum):
     SOURCE_TEXT_NOT_FOUND = "source_text_not_found"
     UNRESOLVED = "unresolved"
     CONFIRMED_ANNOTATION = "confirmed_annotation"
+    NEEDS_CONTEXT = "needs_context"
 
 
 class SourceText(BaseModel):
@@ -142,6 +143,7 @@ def determine_comparison(
     used_missing_dimension: bool = False,
     confirmed_annotation: bool = False,
     annotation_type: Optional[str] = None,
+    used_needs_context: bool = False,
 ) -> Comparison:
     """
     Decide exact / normalized / corrected / incomplete / geometry-only /
@@ -153,12 +155,22 @@ def determine_comparison(
     if confirmed_annotation and str(annotation_type or "").upper() in {
         "PLATE",
         "BENT_PLATE",
+        "ANGLE",
+        "CONNECTION_THICKNESS",
     }:
         return Comparison(
             exact_match=False,
             normalized_match=False,
             prediction_required=False,
             match_status=MatchStatus.CONFIRMED_ANNOTATION,
+        )
+
+    if used_needs_context:
+        return Comparison(
+            exact_match=False,
+            normalized_match=False,
+            prediction_required=True,
+            match_status=MatchStatus.NEEDS_CONTEXT,
         )
 
     has_prediction = bool(final_label)
@@ -236,6 +248,9 @@ _REVIEW_REASONS = {
     MatchStatus.GEOMETRY_ONLY: "No source text was available; prediction relies on geometry/graph context.",
     MatchStatus.SOURCE_TEXT_NOT_FOUND: "No source text or prediction could be resolved for this object.",
     MatchStatus.UNRESOLVED: "No valid candidate could be resolved.",
+    MatchStatus.NEEDS_CONTEXT: (
+        "Anonymous dimension; select the correct semantic interpretation or leave unresolved."
+    ),
 }
 
 
@@ -319,6 +334,7 @@ def build_canonical_prediction(
     annotation_label: Optional[str] = None,
     section_applicable: bool = True,
     confidence_basis: Optional[str] = None,
+    used_needs_context: bool = False,
 ) -> CanonicalPrediction:
     source_text = SourceText(
         raw=raw_text or None,
@@ -339,6 +355,7 @@ def build_canonical_prediction(
         used_missing_dimension=used_missing_dimension,
         confirmed_annotation=confirmed_annotation,
         annotation_type=annotation_type,
+        used_needs_context=used_needs_context,
     )
     # ``final_label`` is the canonical, automatically-accepted answer -- it
     # must never carry a fuzzy-retrieved or learned-corrected guess dressed

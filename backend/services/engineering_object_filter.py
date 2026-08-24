@@ -5,6 +5,13 @@ from __future__ import annotations
 import re
 from typing import Any, Dict, Iterable, List
 
+from services.engineering.extraction_noise_filter import (
+    classify_extraction_noise_reason,
+    dedupe_engineering_tokens,
+    is_extraction_noise_token,
+)
+from services.engineering.feet_inch_filter import is_non_steel_layout_token
+
 
 _SECTION = re.compile(
     r"^(?:W|S|M|HP|C|MC|WT|MT|ST|HSS|PIPE|L|2L)"
@@ -33,6 +40,13 @@ _NON_OBJECT_CONTEXT = re.compile(
     r"MATERIAL\s+NOTES?|ASTM|DESIGN\s+CRITERIA|SHEET\s+INDEX|LEGEND)\b",
     re.IGNORECASE,
 )
+_ANONYMOUS_DIM = re.compile(
+    r'^(?:\d+(?:\.\d+)?|\d+/\d+)"?$'
+    r"|^(?:\d+(?:\.\d+)?|\d+/\d+)(?:IN|IN\.)?$"
+    r"|^(?:\d+(?:\.\d+)?|\d+/\d+)X(?:\d+(?:\.\d+)?|\d+/\d+)"
+    r"(?:X(?:\d+(?:\.\d+)?|\d+/\d+))?$",
+    re.IGNORECASE,
+)
 
 
 def _normalized(value: Any) -> str:
@@ -50,15 +64,58 @@ def _context(token: Dict[str, Any]) -> str:
     return " | ".join(str(part or "") for part in parts)
 
 
-def classify_engineering_object(token: Dict[str, Any]) -> str | None:
+def _section_object_type(text: str, context: str) -> str:
+    if re.search(r"\b(?:COL|COLUMN)\b", context, re.IGNORECASE):
+        return "column"
+    if re.search(r"\b(?:BRACE|BRACING)\b", context, re.IGNORECASE):
+        return "brace"
+    if text.startswith("HSS") or text.startswith("PIPE"):
+        return "column_or_brace"
+    return "steel_section"
+
+
+def _member_mark_object_type(text: str) -> str:
+    upper = text.upper()
+    if upper.startswith(("COL", "COLUMN")):
+        return "column"
+    if upper.startswith(("BR", "BRACE")):
+        return "brace"
+    return "beam"
+
+
+def classify_engineering_object(
+    token: Dict[str, Any],
+    *,
+    document: Dict[str, Any] | None = None,
+) -> str | None:
     """Return a structural object type or ``None`` for non-object text."""
+
+    if is_non_steel_layout_token(token):
+        return None
 
     text = _normalized(token.get("normalized_text") or token.get("text"))
     context = _context(token)
     if not text or _NON_OBJECT_CONTEXT.search(context):
         return None
 
-    # Annotation layer: plates / bent plates / compound dims with context.
+    if _ANONYMOUS_DIM.fullmatch(text):
+        return "anonymous_dimension"
+
+    # Fast path: catalog sections / plates / marks — skip heavy annotation parser.
+    if _SECTION.fullmatch(text):
+        return _section_object_type(text, context)
+    if _PLATE.fullmatch(text):
+        return "plate"
+    if _MEMBER_MARK.fullmatch(text):
+        return _member_mark_object_type(text)
+    if _CONNECTION.fullmatch(text):
+        if text.startswith("BOLT"):
+            return "bolt"
+        if text.startswith("WELD"):
+            return "weld"
+        return "connection"
+
+    # Annotation layer: bent plates / ambiguous compound dims with context.
     try:
         from services.annotation.parser import interpret_annotation
         from services.annotation.taxonomy import AnnotationType
@@ -77,29 +134,25 @@ def classify_engineering_object(token: Dict[str, Any]) -> str | None:
             return "plate"
         if parsed.annotation_type == AnnotationType.PLATE.value and parsed.structure_confirmed:
             return "plate"
+        if (
+            parsed.annotation_type == AnnotationType.DIMENSION.value
+            and not parsed.structure_confirmed
+            and _ANONYMOUS_DIM.fullmatch(_normalized(parsed.normalized_text or text))
+        ):
+            return "anonymous_dimension"
         if parsed.annotation_type == AnnotationType.STANDARD_SECTION.value:
-            # Fall through to existing section role logic below using compact text.
             text = _normalized(parsed.normalized_text or text)
+            if _SECTION.fullmatch(text):
+                return _section_object_type(text, context)
     except Exception:
         pass
 
     if _SECTION.fullmatch(text):
-        if re.search(r"\b(?:COL|COLUMN)\b", context, re.IGNORECASE):
-            return "column"
-        if re.search(r"\b(?:BRACE|BRACING)\b", context, re.IGNORECASE):
-            return "brace"
-        if text.startswith("HSS") or text.startswith("PIPE"):
-            return "column_or_brace"
-        return "steel_section"
+        return _section_object_type(text, context)
     if _PLATE.fullmatch(text):
         return "plate"
     if _MEMBER_MARK.fullmatch(text):
-        upper = text.upper()
-        if upper.startswith(("COL", "COLUMN")):
-            return "column"
-        if upper.startswith(("BR", "BRACE")):
-            return "brace"
-        return "beam"
+        return _member_mark_object_type(text)
     if _CONNECTION.fullmatch(text):
         if text.startswith("BOLT"):
             return "bolt"
@@ -107,8 +160,6 @@ def classify_engineering_object(token: Dict[str, Any]) -> str | None:
             return "weld"
         return "connection"
 
-    # Material grades and short drawing references are retained only when the
-    # local callout explicitly identifies a structural object.
     if _STRUCTURAL_CONTEXT.search(context):
         if re.fullmatch(r"A(?:325|490)", text) and re.search(
             r"\bBOLTS?\b", context, re.IGNORECASE
@@ -121,13 +172,30 @@ def classify_engineering_object(token: Dict[str, Any]) -> str | None:
     return None
 
 
-def filter_engineering_objects(tokens: Iterable[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def filter_engineering_objects(
+    tokens: Iterable[Dict[str, Any]],
+    *,
+    document: Dict[str, Any] | None = None,
+    discard_counts: Dict[str, int] | None = None,
+) -> List[Dict[str, Any]]:
     """Return prediction-ready structural labels with extraction metadata."""
 
     selected: List[Dict[str, Any]] = []
+    counts = discard_counts if discard_counts is not None else {}
     for token in tokens:
-        object_type = classify_engineering_object(token)
+        object_type = classify_engineering_object(token, document=document)
         if object_type is None:
             continue
+        reason = classify_extraction_noise_reason(
+            token, document=document, object_type=object_type
+        )
+        if reason:
+            counts[reason] = int(counts.get(reason) or 0) + 1
+            continue
         selected.append({**token, "engineering_object_type": object_type})
-    return selected
+    before = len(selected)
+    deduped = dedupe_engineering_tokens(selected)
+    duplicates = before - len(deduped)
+    if duplicates:
+        counts["duplicates"] = int(counts.get("duplicates") or 0) + duplicates
+    return deduped

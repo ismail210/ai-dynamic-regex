@@ -226,6 +226,12 @@ def build_graph(
 ) -> Dict[str, Any]:
     """Construct node/edge graph from document text + geometry extraction."""
 
+    from services.engineering.spatial_index import (
+        build_page_index,
+        nearest_geometry_candidates,
+        spatially_complete_geometry_pairs,
+    )
+
     edges: List[dict] = []
     id_index: Dict[str, dict] = {}
     nodes: List[dict] = build_text_nodes(document_structure) + build_geometry_nodes(geometry)
@@ -354,84 +360,114 @@ def build_graph(
             if nearest:
                 add_edge(g, nearest[1], RelationKind.NEAREST_LABEL, distance=nearest[0], weight=1.0 / (1.0 + nearest[0]))
 
-        # Nearest geometry for each label
+        # Nearest geometry for each label — leader-aware spatial index (P1.2/P1.7).
+        geom_by_id = {g["node_id"]: g for g in page_geom}
+        tree, ordered_geom = build_page_index(page_geom)
+        leader_resolved_count = 0
         for lab in page_labels:
-            nearest = None
-            for g in nearby(geometry_grid, lab["center"]):
-                d = _dist(lab["center"], g["center"])
-                if d > max_edge_distance:
-                    continue
-                if nearest is None or d < nearest[0]:
-                    nearest = (d, g)
-            if nearest:
-                add_edge(lab, nearest[1], RelationKind.NEAREST_GEOMETRY, distance=nearest[0], weight=1.0 / (1.0 + nearest[0]))
+            if tree is None or not ordered_geom:
+                continue
+            candidates = nearest_geometry_candidates(
+                lab,
+                tree,
+                ordered_geom,
+                max_distance=max_edge_distance,
+                top_k=3,
+            )
+            if not candidates:
+                continue
+            best = candidates[0]
+            target = geom_by_id.get(best.node_id)
+            if target is None:
+                continue
+            leader_resolved = "leader_endpoint_resolved" in best.sources
+            if leader_resolved:
+                leader_resolved_count += 1
+            add_edge(
+                lab,
+                target,
+                RelationKind.NEAREST_GEOMETRY,
+                distance=best.distance,
+                weight=1.0 / (1.0 + best.distance),
+                meta={
+                    "association_sources": list(best.sources),
+                    "leader_resolved": leader_resolved,
+                    "candidate_count": len(candidates),
+                },
+            )
 
-        # Pairwise geometric relations (sampled for large pages)
-        candidates = page_geom[:geometry_pairwise_window_cap]
-        for i, a in enumerate(candidates):
-            for b in candidates[i + 1 : i + 1 + geometry_pairwise_window_size]:
-                pairwise_considered += 1
-                if a["node_id"] == b["node_id"]:
-                    continue
-                d = _dist(a["center"], b["center"])
-                if d <= max_edge_distance:
-                    add_edge(a, b, RelationKind.DISTANCE, distance=d, weight=1.0 / (1.0 + d))
-                    add_edge(a, b, RelationKind.ADJACENT, distance=d)
-                    dx = float(b["center"][0]) - float(a["center"][0])
-                    dy = float(b["center"][1]) - float(a["center"][1])
-                    if abs(dx) >= abs(dy):
-                        add_edge(
-                            a,
-                            b,
-                            RelationKind.LEFT_OF
-                            if dx >= 0
-                            else RelationKind.RIGHT_OF,
-                            distance=d,
-                        )
-                    else:
-                        add_edge(
-                            a,
-                            b,
-                            RelationKind.ABOVE
-                            if dy >= 0
-                            else RelationKind.BELOW,
-                            distance=d,
-                        )
-                    angle_delta = abs(
-                        float(a.get("orientation") or 0.0)
-                        - float(b.get("orientation") or 0.0)
-                    ) % 180.0
-                    angle_delta = min(angle_delta, 180.0 - angle_delta)
-                    if angle_delta <= 8.0:
-                        add_edge(a, b, RelationKind.PARALLEL, distance=d)
-                    elif abs(angle_delta - 90.0) <= 8.0:
-                        add_edge(a, b, RelationKind.PERPENDICULAR, distance=d)
-                if _intersects(a["bbox"], b["bbox"]):
-                    add_edge(a, b, RelationKind.INTERSECTION, distance=d)
-                    add_edge(a, b, RelationKind.INTERSECTS, distance=d)
-                if _contains(a["bbox"], b["bbox"]):
-                    add_edge(a, b, RelationKind.CONTAINMENT, distance=d)
-                    add_edge(b, a, RelationKind.INSIDE, distance=d)
-                elif _contains(b["bbox"], a["bbox"]):
-                    add_edge(b, a, RelationKind.CONTAINMENT, distance=d)
-                    add_edge(a, b, RelationKind.INSIDE, distance=d)
-                if _touches(a["bbox"], b["bbox"]):
-                    add_edge(a, b, RelationKind.TOUCHING, distance=d)
-                # Connected: touching or intersecting with similar orientation
-                if _intersects(a["bbox"], b["bbox"], pad=3.0):
-                    add_edge(a, b, RelationKind.CONNECTED, distance=d)
-                    add_edge(a, b, RelationKind.CONNECTED_TO, distance=d)
-                    horizontal_overlap = not (
-                        float(a["bbox"][2]) < float(b["bbox"][0])
-                        or float(b["bbox"][2]) < float(a["bbox"][0])
+        # Pairwise geometric relations — spatially complete via STRtree (P1.2).
+        pairwise_pairs = spatially_complete_geometry_pairs(
+            page_geom, max_distance=max_edge_distance
+        )
+        pairwise_considered = len(pairwise_pairs)
+        seen_pair_keys: set = set()
+        for node_a_id, node_b_id, d in pairwise_pairs:
+            pair_key = tuple(sorted((node_a_id, node_b_id)))
+            if pair_key in seen_pair_keys:
+                continue
+            seen_pair_keys.add(pair_key)
+            a = geom_by_id.get(node_a_id)
+            b = geom_by_id.get(node_b_id)
+            if a is None or b is None or a["node_id"] == b["node_id"]:
+                continue
+            add_edge(a, b, RelationKind.DISTANCE, distance=d, weight=1.0 / (1.0 + d))
+            add_edge(a, b, RelationKind.ADJACENT, distance=d)
+            dx = float(b["center"][0]) - float(a["center"][0])
+            dy = float(b["center"][1]) - float(a["center"][1])
+            if abs(dx) >= abs(dy):
+                add_edge(
+                    a,
+                    b,
+                    RelationKind.LEFT_OF
+                    if dx >= 0
+                    else RelationKind.RIGHT_OF,
+                    distance=d,
+                )
+            else:
+                add_edge(
+                    a,
+                    b,
+                    RelationKind.ABOVE
+                    if dy >= 0
+                    else RelationKind.BELOW,
+                    distance=d,
+                )
+            angle_delta = abs(
+                float(a.get("orientation") or 0.0)
+                - float(b.get("orientation") or 0.0)
+            ) % 180.0
+            angle_delta = min(angle_delta, 180.0 - angle_delta)
+            if angle_delta <= 8.0:
+                add_edge(a, b, RelationKind.PARALLEL, distance=d)
+            elif abs(angle_delta - 90.0) <= 8.0:
+                add_edge(a, b, RelationKind.PERPENDICULAR, distance=d)
+            if _intersects(a["bbox"], b["bbox"]):
+                add_edge(a, b, RelationKind.INTERSECTION, distance=d)
+                add_edge(a, b, RelationKind.INTERSECTS, distance=d)
+            if _contains(a["bbox"], b["bbox"]):
+                add_edge(a, b, RelationKind.CONTAINMENT, distance=d)
+                add_edge(b, a, RelationKind.INSIDE, distance=d)
+            elif _contains(b["bbox"], a["bbox"]):
+                add_edge(b, a, RelationKind.CONTAINMENT, distance=d)
+                add_edge(a, b, RelationKind.INSIDE, distance=d)
+            if _touches(a["bbox"], b["bbox"]):
+                add_edge(a, b, RelationKind.TOUCHING, distance=d)
+            # Connected: touching or intersecting with similar orientation
+            if _intersects(a["bbox"], b["bbox"], pad=3.0):
+                add_edge(a, b, RelationKind.CONNECTED, distance=d)
+                add_edge(a, b, RelationKind.CONNECTED_TO, distance=d)
+                horizontal_overlap = not (
+                    float(a["bbox"][2]) < float(b["bbox"][0])
+                    or float(b["bbox"][2]) < float(a["bbox"][0])
+                )
+                if horizontal_overlap:
+                    lower, upper = (
+                        (a, b)
+                        if float(a["center"][1]) >= float(b["center"][1])
+                        else (b, a)
                     )
-                    if horizontal_overlap:
-                        lower, upper = (
-                            (a, b)
-                            if float(a["center"][1]) >= float(b["center"][1])
-                            else (b, a)
-                        )
-                        add_edge(lower, upper, RelationKind.SUPPORTS, distance=d)
+                    add_edge(lower, upper, RelationKind.SUPPORTS, distance=d)
 
         # Drawing references from text
         for tnode in page_text:
@@ -480,8 +516,9 @@ def build_graph(
                 "geometry_node_count": len(page_geom),
                 "geometry_pairwise_window_cap": geometry_pairwise_window_cap,
                 "geometry_pairwise_window_size": geometry_pairwise_window_size,
-                "geometry_pairwise_window_triggered": len(page_geom)
-                > geometry_pairwise_window_cap,
+                "geometry_pairwise_window_triggered": False,
+                "spatial_index_enabled": True,
+                "leader_resolved_associations": leader_resolved_count,
                 "candidate_pairs_considered": pairwise_considered,
                 "candidate_pairs_possible": candidate_pairs_possible,
                 "candidate_pairs_pruned": max(
