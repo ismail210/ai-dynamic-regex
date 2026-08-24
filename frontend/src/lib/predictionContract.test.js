@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  formatCandidateLabel,
   getCanonicalPrediction,
   getDisplayConfidence,
   getDisplaySection,
@@ -409,6 +410,14 @@ describe("getEvidenceSummary", () => {
         context_evidence: { evidence_summary: "fallback" },
       }),
     ).toBe("leader path detected");
+  });
+});
+
+describe("formatCandidateLabel", () => {
+  it("prefers section and handles strings", () => {
+    expect(formatCandidateLabel("HSS8X8")).toBe("HSS8X8");
+    expect(formatCandidateLabel({ section: "W8X40" })).toBe("W8X40");
+    expect(formatCandidateLabel({ label: "PL 1/2" })).toBe("PL 1/2");
   });
 });
 

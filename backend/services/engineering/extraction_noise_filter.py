@@ -19,6 +19,14 @@ _STRUCTURAL_NEARBY_RE = re.compile(
     r"GUSSET|STIFFENER|HSS|W\d|DETAIL|FRAMING|MEMBER|POST)\b",
     re.I,
 )
+_DETAIL_CONTEXT_RE = re.compile(
+    r"\b(?:DETAIL|SECTION|SHEAR|MOMENT|CONN(?:ECTION)?|GUSSET|STIFFENER|CLIP|SEAT)\b",
+    re.I,
+)
+_FRACTIONAL_THICKNESS_RE = re.compile(r'^\d+/\d+"?$', re.I)
+_SEMANTIC_DEDUP_TYPES = frozenset(
+    {"steel_section", "column", "column_or_brace", "brace", "beam"}
+)
 
 
 def _bbox_overlap(a: list, b: list, *, min_ratio: float = 0.25) -> bool:
@@ -79,16 +87,31 @@ def linked_layout_is_non_steel(token: Dict[str, Any]) -> bool:
     return is_non_steel_layout_dimension(str(layout_text))
 
 
-def is_weak_anonymous_dimension(token: Dict[str, Any]) -> bool:
-    """Drop anonymous dims with no structural neighborhood signal."""
-
+def _anonymous_context_blob(token: Dict[str, Any]) -> str:
     context_parts = [
         token.get("surrounding_text") or "",
         (token.get("context") or {}).get("line_text") or "",
         (token.get("context") or {}).get("block_text") or "",
         " ".join((token.get("context") or {}).get("neighbor_text") or []),
     ]
-    blob = " | ".join(part for part in context_parts if part)
+    return " | ".join(part for part in context_parts if part)
+
+
+def _has_detail_callout_context(token: Dict[str, Any], blob: str) -> bool:
+    if _DETAIL_CONTEXT_RE.search(blob):
+        return True
+    block_role = str((token.get("context") or {}).get("block_role") or "").lower()
+    if block_role in {"detail", "callout", "connection_detail"}:
+        return True
+    if token.get("layout_dimension_id"):
+        return True
+    return False
+
+
+def is_weak_anonymous_dimension(token: Dict[str, Any]) -> bool:
+    """Drop anonymous dims unless structural or detail-context signals exist."""
+
+    blob = _anonymous_context_blob(token)
     if _STRUCTURAL_NEARBY_RE.search(blob):
         return False
     if re.search(
@@ -99,7 +122,16 @@ def is_weak_anonymous_dimension(token: Dict[str, Any]) -> bool:
         return True
     if linked_layout_is_non_steel(token):
         return True
-    return False
+    normalized = re.sub(
+        r"\s+",
+        "",
+        str(token.get("normalized_text") or token.get("text") or "").upper(),
+    )
+    if _FRACTIONAL_THICKNESS_RE.match(normalized) and _has_detail_callout_context(
+        token, blob
+    ):
+        return False
+    return True
 
 
 def is_extraction_noise_token(
@@ -181,3 +213,48 @@ def dedupe_engineering_tokens(tokens: List[Dict[str, Any]]) -> List[Dict[str, An
         seen.add(key)
         deduped.append(token)
     return deduped
+
+
+def dedupe_semantic_members(tokens: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Collapse repeated member labels on one page into one representative token."""
+
+    passthrough: List[Dict[str, Any]] = []
+    groups: Dict[tuple, List[Dict[str, Any]]] = {}
+    for token in tokens:
+        object_type = str(token.get("engineering_object_type") or "")
+        if object_type not in _SEMANTIC_DEDUP_TYPES:
+            passthrough.append(token)
+            continue
+        page = int(token.get("page") or 0)
+        normalized = re.sub(
+            r"\s+",
+            "",
+            str(token.get("normalized_text") or token.get("text") or "").upper(),
+        )
+        key = (page, normalized, object_type)
+        groups.setdefault(key, []).append(token)
+
+    collapsed: List[Dict[str, Any]] = []
+    for members in groups.values():
+        ranked = sorted(
+            members,
+            key=lambda item: (
+                -float(item.get("confidence") or 0.0),
+                float((item.get("bbox") or [0, 0, 0, 0])[0]),
+            ),
+        )
+        representative = dict(ranked[0])
+        duplicate_bboxes = [
+            list(item.get("bbox") or [])
+            for item in ranked[1:]
+            if item.get("bbox")
+        ]
+        representative["repeat_count"] = len(members)
+        if duplicate_bboxes:
+            representative["duplicate_bboxes"] = duplicate_bboxes
+            representative.setdefault("diagnostics", {})[
+                "semantic_member_duplicates"
+            ] = len(duplicate_bboxes)
+        collapsed.append(representative)
+
+    return passthrough + collapsed

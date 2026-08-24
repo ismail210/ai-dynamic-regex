@@ -34,6 +34,76 @@ def edge_case_path() -> Path:
     return path
 
 
+def compound_dimension_seed_path() -> Path:
+    path = settings.training_dir / "compound_dimensions_seed.jsonl"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def record_compound_dimension_seed(
+    *,
+    raw_text: str,
+    normalized_text: str = "",
+    page: Optional[int] = None,
+    bbox: Optional[list] = None,
+    ground_truth: str = "",
+    correction: str = "",
+    reviewer_decision: str = "",
+    reason: str = "",
+    context_evidence: Optional[Dict[str, Any]] = None,
+    document_id: str = "",
+    object_id: str = "",
+    semantic_type: str = "",
+) -> Dict[str, Any]:
+    """Append one compound-dimension review row to the seed corpus."""
+
+    evidence = context_evidence or {}
+    entry = {
+        "recorded_at": datetime.now(timezone.utc).isoformat(),
+        "category": "compound_dimensions",
+        "raw_text": raw_text,
+        "normalized_text": normalized_text or raw_text,
+        "annotation_type": "DIMENSION",
+        "parsed_structure": {
+            "annotation_type": "DIMENSION",
+            "structure_confirmed": bool(semantic_type),
+        },
+        "page": page,
+        "bbox": bbox,
+        "geometry_reference": {
+            "leader": evidence.get("leader") or {},
+            "region_kind": evidence.get("region_kind"),
+            "in_notes_region": evidence.get("in_notes_region"),
+            "nearby_structural_count": evidence.get("nearby_structural_count"),
+            "linked_layout_dimension_text": evidence.get(
+                "linked_layout_dimension_text"
+            ),
+            "layout_dimension_is_non_steel": evidence.get(
+                "layout_dimension_is_non_steel"
+            ),
+            "in_title_block": evidence.get("in_title_block"),
+        },
+        "graph_reference": {},
+        "ground_truth": ground_truth,
+        "correction": correction,
+        "reviewer_decision": reviewer_decision,
+        "reason": reason,
+        "provenance": {
+            "semantic_type": semantic_type,
+            "context_evidence": evidence,
+            "source": "human_review_selection",
+        },
+        "document_id": document_id,
+        "object_id": object_id,
+        "training_eligible": True,
+        "auto_retrain": False,
+    }
+    path = compound_dimension_seed_path()
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(entry, default=str) + "\n")
+    return entry
+
+
 def record_edge_case(
     *,
     category: str,

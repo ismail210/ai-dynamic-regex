@@ -359,6 +359,38 @@ def post_correction(body: CorrectionRequest):
             notes=body.notes or "",
             semantic_type=body.semantic_type or "",
         )
+        try:
+            from services.annotation.edge_cases import record_compound_dimension_seed
+
+            pred = body.prediction or {}
+            feats = body.features or {}
+            raw = str(
+                pred.get("original_token")
+                or pred.get("raw_text")
+                or feats.get("original_token")
+                or ""
+            )
+            context_evidence = (
+                pred.get("context_evidence")
+                or feats.get("context_evidence")
+                or {}
+            )
+            record_compound_dimension_seed(
+                raw_text=raw,
+                normalized_text=str(pred.get("normalized_text") or raw),
+                page=pred.get("page_number") or pred.get("page"),
+                bbox=pred.get("bounding_box") or pred.get("bbox"),
+                ground_truth=body.semantic_type or body.correct_label,
+                correction=body.correct_label,
+                reviewer_decision=body.user_decision,
+                reason=body.notes or "human_review_selection",
+                context_evidence=context_evidence,
+                document_id=body.document_id,
+                object_id=body.object_id,
+                semantic_type=body.semantic_type or "",
+            )
+        except Exception as exc:
+            logger.warning("compound dimension seed capture skipped: %s", exc)
 
     approved = None
     if body.user_decision in {"approve", "edit", "correct"} and body.correct_label:

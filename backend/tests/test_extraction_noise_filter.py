@@ -6,6 +6,7 @@ import unittest
 
 from services.engineering.extraction_noise_filter import (
     dedupe_engineering_tokens,
+    dedupe_semantic_members,
     is_extraction_noise_token,
     is_standalone_reference_label,
     is_weak_anonymous_dimension,
@@ -95,6 +96,52 @@ class ExtractionNoiseFilterTests(unittest.TestCase):
             "context": {"line_text": "BEAM SCHEDULE"},
         }
         self.assertEqual(classify_engineering_object(token), "steel_section")
+
+    def test_anonymous_orphan_without_context_dropped(self):
+        token = {
+            "text": '3/8"',
+            "normalized_text": '3/8"',
+            "engineering_object_type": "anonymous_dimension",
+            "context": {"line_text": "TYP", "neighbor_text": []},
+        }
+        self.assertTrue(is_weak_anonymous_dimension(token))
+        self.assertTrue(
+            is_extraction_noise_token(token, object_type="anonymous_dimension")
+        )
+
+    def test_anonymous_fraction_in_detail_kept(self):
+        token = {
+            "text": '3/8"',
+            "normalized_text": '3/8"',
+            "engineering_object_type": "anonymous_dimension",
+            "layout_dimension_id": "dim_p3_1",
+            "context": {"line_text": "DETAIL 3"},
+        }
+        self.assertFalse(is_weak_anonymous_dimension(token))
+
+    def test_semantic_dedup_collapses_repeated_hss(self):
+        tokens = [
+            {
+                "page": 2,
+                "text": "HSS8X8",
+                "normalized_text": "HSS8X8",
+                "engineering_object_type": "column_or_brace",
+                "confidence": 0.9,
+                "bbox": [10, 10, 50, 20],
+            },
+            {
+                "page": 2,
+                "text": "HSS8X8",
+                "normalized_text": "HSS8X8",
+                "engineering_object_type": "column_or_brace",
+                "confidence": 0.7,
+                "bbox": [100, 100, 140, 110],
+            },
+        ]
+        result = dedupe_semantic_members(tokens)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]["repeat_count"], 2)
+        self.assertEqual(len(result[0]["duplicate_bboxes"]), 1)
 
     def test_filter_pipeline_drops_noise(self):
         tokens = [

@@ -18,6 +18,7 @@ import PageHeader from "../components/ui/PageHeader";
 import { TipButton } from "../components/ui/ActionButtons";
 import { useAnalysis } from "../context/AnalysisContext";
 import {
+  formatCandidateLabel,
   getPredictionLocation,
   getSection,
   isInferredLocation,
@@ -256,11 +257,7 @@ export default function DrawingReviewPage() {
                   Top-K:{" "}
                   {topK
                     .slice(0, 5)
-                    .map((item) =>
-                      typeof item === "string"
-                        ? item
-                        : item?.shape || item?.label || "",
-                    )
+                    .map((item) => formatCandidateLabel(item))
                     .filter(Boolean)
                     .join(", ")}
                 </Typography>
