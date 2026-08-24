@@ -27,24 +27,35 @@ vi.mock("../components/pdf/PdfDocumentViewer", () => ({
   default: () => <div data-testid="pdf-viewer" />,
 }));
 
+// Mirrors the real SectionResultsList's row-then-inline-expansion structure
+// (a row button immediately followed by renderExpanded's output when that
+// row is the selectedKey) closely enough to exercise DrawingReviewPage's own
+// logic -- the list's own rendering/scroll/filter mechanics are covered by
+// SectionResultsList.test.jsx and the real-component integration in
+// HumanReviewSync.test.jsx.
 vi.mock("../components/pdf/SectionResultsList", () => ({
-  default: ({ results, onSelect }) => (
+  default: ({ results, selectedKey, onSelect, renderExpanded }) => (
     <div>
-      {results.map((result, index) => (
-        <button
-          key={result.object_id}
-          type="button"
-          onClick={() =>
-            onSelect({
-              key: result.object_id,
-              result,
-              location: { pageNumber: result.page_number, boundingBox: result.bounding_box, hasLocation: true },
-            })
-          }
-        >
-          select-{index}
-        </button>
-      ))}
+      {results.map((result, index) => {
+        const key = result.object_id;
+        const location = {
+          pageNumber: result.page_number,
+          boundingBox: result.bounding_box,
+          hasLocation: true,
+        };
+        return (
+          <div key={key}>
+            <button type="button" onClick={() => onSelect({ key, result, location })}>
+              select-{index}
+            </button>
+            {key === selectedKey && renderExpanded ? (
+              <div data-testid={`expanded-${key}`}>
+                {renderExpanded({ key, result, location })}
+              </div>
+            ) : null}
+          </div>
+        );
+      })}
     </div>
   ),
 }));

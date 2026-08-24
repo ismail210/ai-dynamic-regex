@@ -51,7 +51,7 @@ describe("SectionResultsList row selection, filtering, and scroll-into-view", ()
     );
 
     expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith(
-      expect.objectContaining({ block: "center" }),
+      expect.objectContaining({ block: "nearest" }),
     );
   });
 
@@ -100,5 +100,106 @@ describe("SectionResultsList row selection, filtering, and scroll-into-view", ()
       .filter((b) => b.textContent.includes("HSS8X8X1/2"));
     expect(buttonsAfter[0].className).not.toMatch(/Mui-selected/);
     expect(buttonsAfter[1].className).toMatch(/Mui-selected/);
+  });
+});
+
+describe("SectionResultsList inline row expansion (renderExpanded)", () => {
+  beforeEach(() => {
+    Element.prototype.scrollIntoView = vi.fn();
+  });
+
+  function orderedTestIds(container) {
+    return [...container.querySelectorAll("[data-testid]")]
+      .map((el) => el.dataset.testid)
+      .filter((id) => id.startsWith("row-") || id.startsWith("expanded-row-"));
+  }
+
+  it("Test A: the expanded panel sits directly under the selected row, not after the whole list", () => {
+    const results = [hssResult("A"), hssResult("B"), hssResult("C")];
+    const { container } = render(
+      <SectionResultsList
+        results={results}
+        selectedKey="B"
+        onSelect={() => {}}
+        renderExpanded={({ key }) => <div>panel for {key}</div>}
+      />,
+    );
+
+    expect(orderedTestIds(container)).toEqual([
+      "row-A",
+      "row-B",
+      "expanded-row-B",
+      "row-C",
+    ]);
+  });
+
+  it("Test B: only one row is expanded at a time -- selecting a different row moves the panel", () => {
+    const results = [hssResult("A"), hssResult("B"), hssResult("C")];
+    const { container, rerender } = render(
+      <SectionResultsList
+        results={results}
+        selectedKey="A"
+        onSelect={() => {}}
+        renderExpanded={({ key }) => <div>panel for {key}</div>}
+      />,
+    );
+    expect(screen.getByTestId("expanded-row-A")).toBeInTheDocument();
+    expect(screen.queryByTestId("expanded-row-C")).not.toBeInTheDocument();
+
+    rerender(
+      <SectionResultsList
+        results={results}
+        selectedKey="C"
+        onSelect={() => {}}
+        renderExpanded={({ key }) => <div>panel for {key}</div>}
+      />,
+    );
+    expect(screen.queryByTestId("expanded-row-A")).not.toBeInTheDocument();
+    expect(screen.getByTestId("expanded-row-C")).toBeInTheDocument();
+    expect(orderedTestIds(container)).toEqual([
+      "row-A",
+      "row-B",
+      "row-C",
+      "expanded-row-C",
+    ]);
+  });
+
+  it("Test F: duplicate display text, different ids -- expanding the second occurrence never expands the first", () => {
+    const results = [hssResult("A"), hssResult("B")]; // identical section/family/raw_text
+    const { container } = render(
+      <SectionResultsList
+        results={results}
+        selectedKey="B"
+        onSelect={() => {}}
+        renderExpanded={({ key }) => <div>panel for {key}</div>}
+      />,
+    );
+    expect(screen.queryByTestId("expanded-row-A")).not.toBeInTheDocument();
+    expect(screen.getByTestId("expanded-row-B")).toBeInTheDocument();
+    expect(orderedTestIds(container)).toEqual(["row-A", "row-B", "expanded-row-B"]);
+  });
+
+  it("removes the expanded panel entirely when nothing is selected -- no detached panel left over", () => {
+    const results = [hssResult("A"), hssResult("B")];
+    const { rerender } = render(
+      <SectionResultsList
+        results={results}
+        selectedKey="A"
+        onSelect={() => {}}
+        renderExpanded={({ key }) => <div>panel for {key}</div>}
+      />,
+    );
+    expect(screen.getByTestId("expanded-row-A")).toBeInTheDocument();
+
+    rerender(
+      <SectionResultsList
+        results={results}
+        selectedKey={null}
+        onSelect={() => {}}
+        renderExpanded={({ key }) => <div>panel for {key}</div>}
+      />,
+    );
+    expect(screen.queryByTestId("expanded-row-A")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("expanded-row-B")).not.toBeInTheDocument();
   });
 });
