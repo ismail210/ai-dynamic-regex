@@ -102,5 +102,7 @@ def requires_review(status: Any) -> bool:
 SECTION_SUBTYPES = frozenset(
     {"W", "S", "M", "HP", "C", "MC", "WT", "MT", "ST", "HSS", "PIPE", "L", "2L"}
 )
-PLATE_SUBTYPES = frozenset({"flat_plate", "gusset_plate", "bent_plate"})
+PLATE_SUBTYPES = frozenset(
+    {"flat_plate", "gusset_plate", "bent_plate", "cap_plate", "connection_plate"}
+)
 DIMENSION_SUBTYPES = frozenset({"linear", "thickness", "compound", "range"})
