@@ -8,7 +8,6 @@ from typing import Any, Dict, Iterable, List
 from services.engineering.extraction_noise_filter import (
     classify_extraction_noise_reason,
     dedupe_engineering_tokens,
-    dedupe_semantic_members,
     is_extraction_noise_token,
 )
 from services.engineering.feet_inch_filter import is_non_steel_layout_token
@@ -199,9 +198,7 @@ def filter_engineering_objects(
     duplicates = before - len(deduped)
     if duplicates:
         counts["duplicates"] = int(counts.get("duplicates") or 0) + duplicates
-    before_semantic = len(deduped)
-    deduped = dedupe_semantic_members(deduped)
-    semantic_collapsed = before_semantic - len(deduped)
-    if semantic_collapsed:
-        counts["semantic_dedup"] = int(counts.get("semantic_dedup") or 0) + semantic_collapsed
+    # Keep every label instance on the drawing. Semantic collapse (same section
+    # repeated at many coordinates on one page) belongs in takeoff aggregation,
+    # not extraction — collapsing here hid hundreds of real labels from review.
     return deduped

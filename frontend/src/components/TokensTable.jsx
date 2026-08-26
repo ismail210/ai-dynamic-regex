@@ -10,10 +10,8 @@ import {
 import {
   Box,
   Chip,
-  FormControlLabel,
   Paper,
   Stack,
-  Switch,
   Table,
   TableBody,
   TableCell,
@@ -42,7 +40,6 @@ import {
   getMatchStatus,
   isHumanReviewed,
   isLegacyPrediction,
-  isSteelTakeoffToken,
 } from "../lib/predictionContract";
 
 async function copyText(text) {
@@ -55,27 +52,10 @@ async function copyText(text) {
 
 export default function TokensTable({ results = [] }) {
   const [filter, setFilter] = useState("");
-  const [steelOnly, setSteelOnly] = useState(true);
   const [selectedId, setSelectedId] = useState(null);
   const [sorting, setSorting] = useState([]);
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(15);
-
-  const visibleResults = useMemo(() => {
-    if (!steelOnly) return results;
-    return results.filter((row) =>
-      isSteelTakeoffToken({
-        engineering_object_type: row.engineering_object_type,
-        text: row.original_token || row.token,
-        normalized_text: row.normalized_text || row.corrected_token,
-        context: {
-          line_text: row.review_reason || "",
-          neighbor_text: row.features?.layout?.neighbors || [],
-        },
-        surrounding_text: row.raw_text || "",
-      }),
-    );
-  }, [results, steelOnly]);
 
   const columns = useMemo(
     () => [
@@ -261,7 +241,7 @@ export default function TokensTable({ results = [] }) {
     : null;
 
   const table = useReactTable({
-    data: visibleResults,
+    data: results,
     columns,
     state: {
       globalFilter: filter,
@@ -291,31 +271,16 @@ export default function TokensTable({ results = [] }) {
     <>
       <Paper variant="outlined" sx={{ overflow: "hidden" }}>
         <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
-          <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5} alignItems={{ sm: "center" }}>
-            <TextField
-              size="small"
-              placeholder="Search tokens…"
-              value={filter}
-              onChange={(e) => {
-                setFilter(e.target.value);
-                setPageIndex(0);
-              }}
-              fullWidth
-            />
-            <FormControlLabel
-              control={
-                <Switch
-                  size="small"
-                  checked={steelOnly}
-                  onChange={(event) => {
-                    setSteelOnly(event.target.checked);
-                    setPageIndex(0);
-                  }}
-                />
-              }
-              label="Steel objects only"
-            />
-          </Stack>
+          <TextField
+            size="small"
+            placeholder="Search tokens…"
+            value={filter}
+            onChange={(e) => {
+              setFilter(e.target.value);
+              setPageIndex(0);
+            }}
+            fullWidth
+          />
         </Box>
         <TableContainer sx={{ maxHeight: "60vh", overflowX: "auto" }}>
           <Table size="medium" stickyHeader>
