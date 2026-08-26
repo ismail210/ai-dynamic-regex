@@ -45,6 +45,20 @@ from services.wildcard_matcher import WILDCARD_CHARS
 
 _DEPTH_WEIGHT_FAMILIES = {"W", "M", "S", "HP", "C", "MC", "WT", "MT", "ST"}
 _PIPE_RE = re.compile(r"^PIPE([\d\-/.]*[?*]?[\d\-/.]*)(STD|XXS|XS|[?*]+)?$")
+# Empty string marks a known-missing HSS thickness (rect/square HSS8X8).
+MISSING_FIELD = ""
+
+
+def _looks_like_round_hss(parts: List[str]) -> bool:
+    """Round HSS in the catalog uses decimal OD/wall (``HSS28.000X1.000``).
+
+    Integer-integer pairs such as ``HSS8X8`` are square/rect callouts with
+    missing thickness, not round designations with wall=8.
+    """
+
+    if len(parts) != 2 or not all(parts):
+        return False
+    return any("." in part for part in parts)
 
 
 @dataclass
@@ -103,12 +117,23 @@ def parse_fields(text: str) -> FieldParse:
         if len(parts) == 3 and all(parts):
             return FieldParse(family=fam, grammar="hss_rect", fields=parts, ok=True)
         if len(parts) == 2 and all(parts):
-            return FieldParse(family=fam, grammar="hss_round", fields=parts, ok=True)
+            if _looks_like_round_hss(parts):
+                return FieldParse(family=fam, grammar="hss_round", fields=parts, ok=True)
+            return FieldParse(
+                family=fam,
+                grammar="hss_rect",
+                fields=[parts[0], parts[1], MISSING_FIELD],
+                ok=True,
+            )
         return FieldParse(family=fam, grammar="hss_rect", fields=parts, ok=False)
 
     # Family recognized by corruption.family_of but not in this module's
     # known grammar table -- treat as unparseable rather than guess.
     return FieldParse(family=fam, grammar="unknown", fields=[], ok=False)
+
+
+def is_missing_field(field: str) -> bool:
+    return field == MISSING_FIELD
 
 
 def field_compatible(known_field: str, catalog_field: str) -> bool:
@@ -251,7 +276,7 @@ def field_generation_compatible(query_field: str, catalog_field: str) -> bool:
     match any thickness. Partially-known fields (e.g. "3?") still require
     exact length -- only an ALL-wildcard field gets this relaxation."""
 
-    if _is_all_wildcards(query_field):
+    if _is_all_wildcards(query_field) or is_missing_field(query_field):
         return True
     return field_compatible(query_field, catalog_field)
 

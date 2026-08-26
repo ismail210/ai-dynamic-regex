@@ -34,7 +34,13 @@ from typing import Dict, List, Optional
 
 from config import settings
 from services.database_loader import is_catalog_label
-from services.label_reconstruction.candidates import CandidateSet, conservative_normalize, generate_candidates
+from services.label_reconstruction.candidates import (
+    CandidateSet,
+    conservative_normalize,
+    generate_candidates,
+    ineligible_for_section_reconstruction,
+    is_missing_thickness_hss,
+)
 
 
 @dataclass
@@ -88,6 +94,18 @@ def reconstruct(
 
     normalized = conservative_normalize(raw_text)
 
+    if ineligible_for_section_reconstruction(raw_text, normalized):
+        return LabelReconstructionResult(
+            raw_text=raw_text,
+            normalized_text=normalized,
+            parsed_family="",
+            candidate_labels=[],
+            ranking_scores=None,
+            selected_prediction=None,
+            reason="no_candidates",
+            model_version=None,
+        )
+
     if is_catalog_label(normalized):
         return LabelReconstructionResult(
             raw_text=raw_text,
@@ -102,6 +120,18 @@ def reconstruct(
 
     candidate_set: CandidateSet = generate_candidates(raw_text)
     deterministic_pick = candidate_set.candidates[0] if candidate_set.candidates else None
+    # Missing-thickness square/rect HSS is a review set, never a unique pick.
+    if is_missing_thickness_hss(normalized):
+        return LabelReconstructionResult(
+            raw_text=raw_text,
+            normalized_text=normalized,
+            parsed_family=candidate_set.family,
+            candidate_labels=candidate_set.candidates,
+            ranking_scores=None,
+            selected_prediction=None,
+            reason="no_candidates",
+            model_version=None,
+        )
     selected = deterministic_pick
     reason = "deterministic_top_candidate" if deterministic_pick else "no_candidates"
     model_version = None

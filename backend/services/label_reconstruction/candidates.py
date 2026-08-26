@@ -11,14 +11,19 @@ candidate generation. See ``services.label_reconstruction`` docstring.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from difflib import SequenceMatcher
 from typing import Dict, List, Optional, Set
 
 from services.database_loader import catalog_entries, is_catalog_label
 from services.label_reconstruction.corruption import OCR_CONFUSION, family_of
-from services.label_reconstruction.structural_parser import generation_compatible_catalog_labels
-from services.wildcard_matcher import has_wildcards, match_wildcard_mask
+from services.label_reconstruction.structural_parser import (
+    generation_compatible_catalog_labels,
+    is_missing_field,
+    parse_fields,
+)
+from services.wildcard_matcher import WILDCARD_CHARS, has_wildcards, match_wildcard_mask
 
 _CATALOG_ENTRIES = None  # lazy cache: List[(normalized_label, type)]
 _CATALOG_LABELS: Set[str] = set()
@@ -55,6 +60,27 @@ def refresh_catalog_cache() -> None:
         _BY_FAMILY.setdefault(family_of(label), []).append(label)
 
 
+_REPEATED_HSS_GROUP = re.compile(
+    r"^(HSS)\s*(\d+(?:\.\d+)?(?:X\d+(?:\.\d+)?(?:X[\d./]+)?))(?:\s+\2)+\s*$",
+    re.I,
+)
+_CLEAN_NUMERIC_FIELD = re.compile(r"^\d+(?:\.\d+)?(?:/\d+)?$")
+_PLATE_ELIGIBILITY = re.compile(
+    r"^(?:BENTPL(?:ATE)?|CAPPL(?:ATE)?|CONN(?:ECTION)?PL(?:ATE)?|PLATE|PL|BP)",
+    re.I,
+)
+_ANON_DIMENSION = re.compile(r"^[\d./\"]+\.?$")
+
+
+def _collapse_repeated_hss_groups(text: str) -> str:
+    """Keep the first HSS dimension group when OCR repeats it (``HSS 8X8 8X8``)."""
+
+    match = _REPEATED_HSS_GROUP.match(text)
+    if not match:
+        return text
+    return f"{match.group(1)} {match.group(2)}"
+
+
 def conservative_normalize(raw: str) -> str:
     """Whitespace/case/multiply-sign normalization only -- never guesses
     digits. Mirrors the normalization already applied by the production
@@ -62,12 +88,61 @@ def conservative_normalize(raw: str) -> str:
 
     text = str(raw or "").strip().upper()
     text = text.replace("×", "X").replace("-X", "X")
+    text = _collapse_repeated_hss_groups(text)
     text = "".join(text.split())
     # Strip a single layer of parenthesis/noise wrapping, but keep interior
     # wildcard/unknown markers untouched.
     if text.startswith("(") and text.endswith(")"):
         text = text[1:-1]
     return text
+
+
+def ineligible_for_section_reconstruction(raw_text: str, normalized: str = "") -> bool:
+    """True when reconstruct must not emit rolled-section candidates."""
+
+    normalized = normalized or conservative_normalize(raw_text)
+    if not normalized:
+        return True
+    if normalized.startswith("PIPE"):
+        return False
+    if _PLATE_ELIGIBILITY.match(normalized):
+        return True
+    fam = family_of(normalized)
+    if fam in {"", "OTHER"} and _ANON_DIMENSION.match(normalized):
+        return True
+    return False
+
+
+def _is_clean_numeric_field(field: str) -> bool:
+    if not field or any(ch in WILDCARD_CHARS for ch in field) or is_missing_field(field):
+        return True
+    return bool(_CLEAN_NUMERIC_FIELD.match(field))
+
+
+def has_reliable_numeric_constraints(normalized: str) -> bool:
+    """Known, undamaged numeric fields must not be relaxed by full-catalog fuzzy."""
+
+    parsed = parse_fields(normalized)
+    if not parsed.ok or not parsed.fields:
+        return False
+    constrained = [
+        field
+        for field in parsed.fields
+        if field and not is_missing_field(field) and not all(ch in WILDCARD_CHARS for ch in field)
+    ]
+    if not constrained:
+        return False
+    return all(_is_clean_numeric_field(field) for field in parsed.fields)
+
+
+def is_missing_thickness_hss(normalized: str) -> bool:
+    parsed = parse_fields(normalized)
+    return (
+        parsed.ok
+        and parsed.grammar == "hss_rect"
+        and len(parsed.fields) == 3
+        and is_missing_field(parsed.fields[2])
+    )
 
 
 def _ocr_flex_candidates(normalized: str, *, limit: int) -> List[str]:
@@ -165,14 +240,28 @@ def generate_candidates(raw_text: str, *, limit: int = 25) -> CandidateSet:
         ordered.append(label)
         reasons.setdefault(label, []).append(reason)
 
+    if ineligible_for_section_reconstruction(raw_text, normalized):
+        return CandidateSet(
+            normalized=normalized,
+            family=fam,
+            candidates=[],
+            generation_reasons={},
+        )
+
     if is_catalog_label(normalized):
         _add(normalized, "exact_match")
 
-    if has_wildcards(normalized):
-        for candidate in match_wildcard_mask(normalized, limit=limit):
+    if normalized and len(ordered) < limit:
+        for label in generation_compatible_catalog_labels(normalized)[
+            : limit - len(ordered)
+        ]:
+            _add(label, "structural_field_match")
+
+    if has_wildcards(normalized) and len(ordered) < limit:
+        for candidate in match_wildcard_mask(normalized, limit=limit - len(ordered)):
             _add(candidate.label, "wildcard_mask")
 
-    if not has_wildcards(normalized) and normalized:
+    if not has_wildcards(normalized) and normalized and len(ordered) < limit:
         for label in _ocr_flex_candidates(normalized, limit=limit):
             _add(label, "ocr_flex_positional")
 
@@ -180,7 +269,8 @@ def generate_candidates(raw_text: str, *, limit: int = 25) -> CandidateSet:
         for label in _family_only_candidates(normalized, limit=limit - len(ordered)):
             _add(label, "family_only")
 
-    if normalized and len(ordered) < limit:
+    allow_fuzzy = not has_reliable_numeric_constraints(normalized)
+    if allow_fuzzy and normalized and len(ordered) < limit:
         for label in _fuzzy_candidates(normalized, limit=limit - len(ordered)):
             _add(label, "fuzzy_nearest_neighbor")
 
@@ -220,6 +310,15 @@ def generate_candidates_v3(raw_text: str, *, limit: int = 25) -> CandidateSet:
         ordered.append(label)
         reasons.setdefault(label, []).append(reason)
 
+    if ineligible_for_section_reconstruction(raw_text, normalized):
+        return CandidateSet(
+            normalized=normalized,
+            family=fam,
+            candidates=[],
+            generation_reasons={},
+            fuzzy_ranks={},
+        )
+
     if is_catalog_label(normalized):
         _add(normalized, "exact_match")
 
@@ -239,7 +338,8 @@ def generate_candidates_v3(raw_text: str, *, limit: int = 25) -> CandidateSet:
         for label in _family_only_candidates(normalized, limit=limit - len(ordered)):
             _add(label, "family_only")
 
-    if normalized and len(ordered) < limit:
+    allow_fuzzy = not has_reliable_numeric_constraints(normalized)
+    if allow_fuzzy and normalized and len(ordered) < limit:
         # Fetch generously past `limit` so fuzzy_ranks reflects each
         # candidate's TRUE position within the fuzzy-only ordering, not a
         # position truncated by how much room was left in the overall list.
