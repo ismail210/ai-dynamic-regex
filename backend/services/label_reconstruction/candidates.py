@@ -16,10 +16,13 @@ from dataclasses import dataclass, field
 from difflib import SequenceMatcher
 from typing import Dict, List, Optional, Set
 
+from services.family_codes import MODERN_FAMILY_CODES
 from services.database_loader import catalog_entries, is_catalog_label
 from services.label_reconstruction.corruption import OCR_CONFUSION, family_of
 from services.label_reconstruction.structural_parser import (
+    FieldParse,
     generation_compatible_catalog_labels,
+    generation_fields_compatible,
     is_missing_field,
     parse_fields,
 )
@@ -70,6 +73,10 @@ _PLATE_ELIGIBILITY = re.compile(
     re.I,
 )
 _ANON_DIMENSION = re.compile(r"^[\d./\"]+\.?$")
+_DIMENSION_ONLY_SYNTAX = re.compile(
+    r'^[\d\s./"\-X×✕✖Ø⌀]+$',
+    re.I,
+)
 
 
 def _collapse_repeated_hss_groups(text: str) -> str:
@@ -98,7 +105,20 @@ def conservative_normalize(raw: str) -> str:
 
 
 def ineligible_for_section_reconstruction(raw_text: str, normalized: str = "") -> bool:
-    """True when reconstruct must not emit rolled-section candidates."""
+    """True when reconstruct must not emit rolled-section candidates.
+
+    Familyless compound dimensions are semantically ambiguous: they may be
+    plate dimensions, layout dimensions, or an incomplete section callout
+    whose family can only be recovered from drawing context.  The production
+    annotation layer already classifies these as unconfirmed ``DIMENSION``
+    records and routes them through its context resolver instead of rolled
+    section fusion.  Apply that same boundary here so direct deterministic and
+    shadow callers cannot turn dimensions into catalog sections by fuzzy text
+    similarity alone.
+
+    Explicit supported section-family prefixes remain eligible, including
+    damaged/wildcarded labels such as ``W??X?7`` and ``HSS8X8X?``.
+    """
 
     normalized = normalized or conservative_normalize(raw_text)
     if not normalized:
@@ -110,12 +130,40 @@ def ineligible_for_section_reconstruction(raw_text: str, normalized: str = "") -
     fam = family_of(normalized)
     if fam in {"", "OTHER"} and _ANON_DIMENSION.match(normalized):
         return True
+    if fam not in MODERN_FAMILY_CODES and _DIMENSION_ONLY_SYNTAX.fullmatch(
+        str(raw_text or normalized).strip()
+    ):
+        # Lazy imports avoid pulling the full annotation/parser stack into the
+        # common path for explicit W/HSS/L/etc. section labels.
+        from services.annotation.parser import interpret_annotation
+        from services.annotation.taxonomy import AnnotationType
+
+        parsed = interpret_annotation(
+            raw_text=raw_text,
+            normalized_text=normalized,
+        )
+        if (
+            parsed.annotation_type == AnnotationType.DIMENSION.value
+            and not parsed.structure_confirmed
+        ):
+            return True
     return False
 
 
 def _is_clean_numeric_field(field: str) -> bool:
-    if not field or any(ch in WILDCARD_CHARS for ch in field) or is_missing_field(field):
+    """True when a parsed field is empty, missing, all-wildcard, or clean numeric.
+
+    Mixed wildcard/glue such as ``10?3/4`` or ``10*3/8`` is not a reliable
+    numeric field: the wildcard destroyed an ``X`` boundary or digit slot,
+    so positional field constraints must not be treated as trustworthy.
+    """
+
+    if not field or is_missing_field(field):
         return True
+    if all(ch in WILDCARD_CHARS for ch in field):
+        return True
+    if any(ch in WILDCARD_CHARS for ch in field):
+        return False
     return bool(_CLEAN_NUMERIC_FIELD.match(field))
 
 
@@ -125,14 +173,85 @@ def has_reliable_numeric_constraints(normalized: str) -> bool:
     parsed = parse_fields(normalized)
     if not parsed.ok or not parsed.fields:
         return False
+    return _prefix_fields_are_reliable(parsed.fields)
+
+
+_GRAMMAR_FIELD_ARITY = {
+    "leg_leg_thickness": 3,
+    "depth_weight": 2,
+    "hss_rect": 3,
+    "hss_round": 2,
+    "pipe": 2,
+}
+
+
+def _prefix_fields_are_reliable(fields: List[str]) -> bool:
     constrained = [
         field
-        for field in parsed.fields
+        for field in fields
         if field and not is_missing_field(field) and not all(ch in WILDCARD_CHARS for ch in field)
     ]
     if not constrained:
         return False
-    return all(_is_clean_numeric_field(field) for field in parsed.fields)
+    return all(_is_clean_numeric_field(field) for field in fields)
+
+
+def _grammar_arity(parsed: FieldParse) -> Optional[int]:
+    if parsed.grammar == "leg_leg_thickness_sep":
+        return 4 if len(parsed.fields) >= 4 else 3
+    return _GRAMMAR_FIELD_ARITY.get(parsed.grammar)
+
+
+def reliable_acceptance_parse(normalized: str) -> Optional[FieldParse]:
+    """Engineering fields the ranker must not override, or None if unconstrained.
+
+    Clean parses reuse ``has_reliable_numeric_constraints``. Queries that fail
+    ``parse_fields`` only because of a trailing extra field (cut length,
+    quantity) still expose a reliable designation prefix -- e.g.
+    ``L3X3X3/8X0'-6"`` keeps legs ``3``/``3`` and thickness ``3/8``.
+    Mixed wildcard/glue remains unconstrained so the ranker may reorder.
+    """
+
+    parsed = parse_fields(normalized)
+    if parsed.ok and has_reliable_numeric_constraints(normalized):
+        return parsed
+    arity = _grammar_arity(parsed)
+    if arity is None or not parsed.family or parsed.grammar == "unknown":
+        return None
+    if len(parsed.fields) <= arity:
+        return None
+    prefix = parsed.fields[:arity]
+    if not all(prefix) or not _prefix_fields_are_reliable(prefix):
+        return None
+    return FieldParse(
+        family=parsed.family,
+        grammar=parsed.grammar,
+        fields=prefix,
+        ok=True,
+    )
+
+
+def candidate_respects_reliable_query_fields(normalized: str, label: str) -> bool:
+    """True when ``label`` does not contradict recoverable query fields.
+
+    When no reliable constraints exist, every catalog-valid candidate is
+    allowed (the ranker may reorder). Family, grammar, and
+    ``generation_fields_compatible`` are the same checks generation already
+    uses for mask/structural match.
+    """
+
+    constraints = reliable_acceptance_parse(normalized)
+    if constraints is None:
+        return True
+    candidate = parse_fields(label)
+    if not candidate.ok:
+        return False
+    if (
+        candidate.family != constraints.family
+        or candidate.grammar != constraints.grammar
+    ):
+        return False
+    return generation_fields_compatible(constraints.fields, candidate.fields)
 
 
 def is_missing_thickness_hss(normalized: str) -> bool:
@@ -214,6 +333,37 @@ def _family_only_candidates(normalized: str, *, limit: int) -> List[str]:
     return pool[:limit]
 
 
+def _mask_label_structurally_compatible(normalized: str, label: str) -> bool:
+    query_parse = parse_fields(normalized)
+    candidate_parse = parse_fields(label)
+    return (
+        query_parse.ok
+        and candidate_parse.ok
+        and query_parse.family == candidate_parse.family
+        and query_parse.grammar == candidate_parse.grammar
+        and generation_fields_compatible(query_parse.fields, candidate_parse.fields)
+    )
+
+
+def _add_wildcard_mask_candidates(normalized, add, *, limit, ordered) -> None:
+    """Add mask hits, but never let them bypass reliable numeric constraints."""
+
+    remaining = limit - len(ordered)
+    if remaining <= 0:
+        return
+    reliable = has_reliable_numeric_constraints(normalized)
+    # Fetch past ``remaining`` so filtering incompatible mask hits cannot
+    # starve the allowed set down to whatever happened to sort first.
+    for candidate in match_wildcard_mask(normalized, limit=max(remaining, 25)):
+        if len(ordered) >= limit:
+            return
+        if reliable and not _mask_label_structurally_compatible(
+            normalized, candidate.label
+        ):
+            continue
+        add(candidate.label, "wildcard_mask")
+
+
 @dataclass
 class CandidateSet:
     normalized: str
@@ -235,6 +385,8 @@ def generate_candidates(raw_text: str, *, limit: int = 25) -> CandidateSet:
 
     def _add(label: str, reason: str) -> None:
         if label not in _CATALOG_LABELS or label in seen:
+            return
+        if fam in MODERN_FAMILY_CODES and family_of(label) != fam:
             return
         seen.add(label)
         ordered.append(label)
@@ -258,8 +410,7 @@ def generate_candidates(raw_text: str, *, limit: int = 25) -> CandidateSet:
             _add(label, "structural_field_match")
 
     if has_wildcards(normalized) and len(ordered) < limit:
-        for candidate in match_wildcard_mask(normalized, limit=limit - len(ordered)):
-            _add(candidate.label, "wildcard_mask")
+        _add_wildcard_mask_candidates(normalized, _add, limit=limit, ordered=ordered)
 
     if not has_wildcards(normalized) and normalized and len(ordered) < limit:
         for label in _ocr_flex_candidates(normalized, limit=limit):
@@ -306,6 +457,8 @@ def generate_candidates_v3(raw_text: str, *, limit: int = 25) -> CandidateSet:
     def _add(label: str, reason: str) -> None:
         if label not in _CATALOG_LABELS or label in seen:
             return
+        if fam in MODERN_FAMILY_CODES and family_of(label) != fam:
+            return
         seen.add(label)
         ordered.append(label)
         reasons.setdefault(label, []).append(reason)
@@ -327,8 +480,7 @@ def generate_candidates_v3(raw_text: str, *, limit: int = 25) -> CandidateSet:
             _add(label, "structural_field_match")
 
     if has_wildcards(normalized) and len(ordered) < limit:
-        for candidate in match_wildcard_mask(normalized, limit=limit - len(ordered)):
-            _add(candidate.label, "wildcard_mask")
+        _add_wildcard_mask_candidates(normalized, _add, limit=limit, ordered=ordered)
 
     if not has_wildcards(normalized) and normalized and len(ordered) < limit:
         for label in _ocr_flex_candidates(normalized, limit=limit - len(ordered)):

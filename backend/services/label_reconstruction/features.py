@@ -267,7 +267,10 @@ def pair_features(
     row.update(_structural_diff_features(q, c))
     for name in GENERATION_REASONS:
         row[f"reason_{name}"] = 1.0 if name in reason_set else 0.0
-    return row
+    # FEATURE_NAMES is the canonical schema order for train, serve, and the
+    # production-aligned validator. Insertion order of the dict above must
+    # not drift from that list.
+    return {name: row[name] for name in FEATURE_NAMES}
 
 
 def features_from_candidate_set(candidate: str, candidate_set) -> Dict[str, float]:
