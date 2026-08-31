@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 from typing import Any, Dict, Iterable, List, Optional
 
+from services.annotation.anonymous_dimension_resolver import ANGLE_VOCABULARY
 from services.engineering.feet_inch_filter import (
     is_non_steel_layout_dimension,
     is_non_steel_layout_token,
@@ -14,9 +15,17 @@ _TITLE_BLOCK_ROLES = frozenset({"title", "title_block", "border", "sheet_index"}
 _STANDALONE_GRADE_RE = re.compile(r"^A(?:36|572|992|500|913|325|490)$", re.I)
 _STANDALONE_SHEET_RE = re.compile(r"^S-\d+$", re.I)
 _STANDALONE_SPEC_RE = re.compile(r"^(?:ASTM|AISC)\b", re.I)
+# Vocabulary of nearby-text words meaning "this ambiguous dimension sits
+# next to a real structural callout, do not discard it as anonymous". Was
+# missing the L-family/angle vocabulary -- a damaged/OCR-fragmented angle
+# label right next to the word "ANGLE" was silently dropped as a bare
+# anonymous dimension because "ANGLE" itself was not recognized here.
+# ANGLE_VOCABULARY is the single shared definition (see
+# services.annotation.anonymous_dimension_resolver) -- not a second,
+# independently-maintained copy of the same word list.
 _STRUCTURAL_NEARBY_RE = re.compile(
-    r"\b(?:BEAM|COLUMN|COL\.?|BRACE|PLATE|PL\b|BENT|BOLTS?|WELDS?|CONN(?:ECTION)?|"
-    r"GUSSET|STIFFENER|HSS|W\d|DETAIL|FRAMING|MEMBER|POST)\b",
+    rf"\b(?:BEAM|COLUMN|COL\.?|BRACE|PLATE|PL\b|BENT|BOLTS?|WELDS?|CONN(?:ECTION)?|"
+    rf"GUSSET|STIFFENER|HSS|W\d|DETAIL|FRAMING|MEMBER|POST|{ANGLE_VOCABULARY})\b",
     re.I,
 )
 _DETAIL_CONTEXT_RE = re.compile(

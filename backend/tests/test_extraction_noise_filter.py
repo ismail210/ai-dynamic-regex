@@ -72,6 +72,54 @@ class ExtractionNoiseFilterTests(unittest.TestCase):
             is_extraction_noise_token(token, object_type="anonymous_dimension")
         )
 
+    def test_anonymous_near_angle_word_kept(self):
+        """Regression: a damaged/OCR-fragmented angle label (missing its 'L'
+        prefix) sitting right next to the word ANGLE was previously
+        discarded as a bare anonymous dimension because ANGLE/L vocabulary
+        was missing from the structural-context whitelist."""
+
+        token = {
+            "text": "2X4X1/4",
+            "normalized_text": "2X4X1/4",
+            "engineering_object_type": "anonymous_dimension",
+            "context": {"line_text": '2"X4"X1/4" ANGLE'},
+        }
+        self.assertFalse(is_weak_anonymous_dimension(token))
+        self.assertFalse(
+            is_extraction_noise_token(token, object_type="anonymous_dimension")
+        )
+
+    def test_anonymous_near_angle_word_prefix_kept(self):
+        token = {
+            "text": "4X3X1/4",
+            "normalized_text": "4X3X1/4",
+            "engineering_object_type": "anonymous_dimension",
+            "context": {"line_text": "ANGLE 3X3X1/4"},
+        }
+        self.assertFalse(is_weak_anonymous_dimension(token))
+
+    def test_anonymous_near_bare_l_kept(self):
+        token = {
+            "text": "3X3X3/8",
+            "normalized_text": "3X3X3/8",
+            "engineering_object_type": "anonymous_dimension",
+            "context": {"line_text": "L 3X3X3/8 TYP"},
+        }
+        self.assertFalse(is_weak_anonymous_dimension(token))
+
+    def test_ordinary_anonymous_dimension_without_structural_context_still_dropped(self):
+        """Precision check: the angle-vocabulary fix must not over-rescue --
+        an anonymous dimension with no nearby structural context at all
+        (no ANGLE, no other family word) must still be discarded."""
+
+        token = {
+            "text": "4X4",
+            "normalized_text": "4X4",
+            "engineering_object_type": "anonymous_dimension",
+            "context": {},
+        }
+        self.assertTrue(is_weak_anonymous_dimension(token))
+
     def test_dedupe_removes_duplicate_hss(self):
         tokens = [
             {

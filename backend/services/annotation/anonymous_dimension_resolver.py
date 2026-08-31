@@ -10,7 +10,12 @@ MARGIN_THRESHOLD = 0.15
 
 _BENT_RE = re.compile(r"\b(?:BENT\s*PL(?:ATE)?|BP)\b", re.I)
 _PLATE_RE = re.compile(r"\b(?:PL(?:ATE)?|GUSSET|STIFFENER)\b", re.I)
-_ANGLE_RE = re.compile(r"\b(?:L|2L|ANGLE|ANGLE\s+SEAT)\b", re.I)
+# Canonical L-family/angle context vocabulary. Shared (not duplicated) with
+# services.engineering.extraction_noise_filter, which uses the same words to
+# decide whether an ambiguous dimension near an angle callout is rescued
+# from discard rather than silently dropped as an anonymous dimension.
+ANGLE_VOCABULARY = r"L|2L|ANGLE|ANGLE\s+SEAT"
+_ANGLE_RE = re.compile(rf"\b(?:{ANGLE_VOCABULARY})\b", re.I)
 _CONN_RE = re.compile(
     r"\b(?:CONN(?:ECTION)?|SHEAR|MOMENT|CLIP|SEAT)\b",
     re.I,
