@@ -21,6 +21,7 @@ from unittest.mock import patch
 
 from services.exact_section_predictor import catalog_valid_exact_section
 from services.multimodal.encoder_contracts import AttentionResult, FusedFeatures, UnifiedFusionResult
+from services.prediction.label_ranker_hook import resolve_reliable_exact_catalog_label
 from services.prediction.orchestrator import _gated_exact_override, predict_token
 
 
@@ -75,6 +76,53 @@ class CatalogValidExactSectionTests(unittest.TestCase):
         ]:
             with self.subTest(raw=raw):
                 self.assertEqual(catalog_valid_exact_section(raw), expected)
+
+
+class ReliableExactCatalogLabelCutLengthTests(unittest.TestCase):
+    """The cut-length bug: printed text like L3X3X3/8X0'-6" carries an
+    unambiguous catalog section (L3X3X3/8) plus a trailing fabrication/cut
+    length (0'-6") that is not itself part of the section designation. The
+    two must never be conflated -- the resolved label must be the clean
+    section only, never the section plus the cut length."""
+
+    def test_l_with_cut_length_resolves_to_clean_section(self):
+        self.assertEqual(
+            resolve_reliable_exact_catalog_label("L3X3X3/8X0'-6\""), "L3X3X3/8"
+        )
+
+    def test_l_with_different_cut_length_resolves_to_clean_section(self):
+        self.assertEqual(
+            resolve_reliable_exact_catalog_label("L4X3X1/4X1'-0\""), "L4X3X1/4"
+        )
+
+    def test_hss_with_cut_length_resolves_to_clean_section(self):
+        self.assertEqual(
+            resolve_reliable_exact_catalog_label("HSS6X6X3/8X0'-8\""), "HSS6X6X3/8"
+        )
+
+    def test_depth_weight_family_with_cut_length_resolves_to_clean_section(self):
+        self.assertEqual(
+            resolve_reliable_exact_catalog_label("W12X26X10'-0\""), "W12X26"
+        )
+
+    def test_resolved_label_is_never_the_raw_text_with_cut_length_attached(self):
+        resolved = resolve_reliable_exact_catalog_label("L3X3X3/8X0'-6\"")
+        self.assertNotIn("0'-6", resolved or "")
+        self.assertNotEqual(resolved, "L3X3X3/8X0'-6\"")
+
+    def test_clean_label_without_cut_length_still_resolves(self):
+        self.assertEqual(resolve_reliable_exact_catalog_label("L3X3X3/8"), "L3X3X3/8")
+
+    def test_anonymous_dimension_does_not_resolve(self):
+        self.assertIsNone(resolve_reliable_exact_catalog_label("4X4"))
+        self.assertIsNone(resolve_reliable_exact_catalog_label("3/4X4X6"))
+
+    def test_ambiguous_wildcard_prefix_does_not_resolve(self):
+        self.assertIsNone(resolve_reliable_exact_catalog_label("L3X3X?"))
+
+    def test_empty_text_does_not_resolve(self):
+        self.assertIsNone(resolve_reliable_exact_catalog_label(""))
+        self.assertIsNone(resolve_reliable_exact_catalog_label(None))
 
 
 class GatedExactOverrideCatalogBypassTests(unittest.TestCase):
@@ -153,6 +201,50 @@ class ProtectedExactLabelIntegrationTests(unittest.TestCase):
                     )
                 self.assertEqual(result["section"], expected)
                 self.assertNotEqual(result["section"], decoy)
+
+
+class CutLengthLiveFusionIntegrationTests(unittest.TestCase):
+    """End-to-end reproduction of the confirmed live bug: a cut-length
+    suffix on otherwise-clean printed text let weighted fusion evidence
+    override the explicit printed section. Direct analogue of
+    ProtectedExactLabelIntegrationTests above, with cut-length-suffixed raw
+    text instead of a bare exact label."""
+
+    def test_l_with_cut_length_does_not_regress_to_fusion_decoy(self):
+        with patch(
+            "services.prediction.orchestrator.unified_multimodal_fusion.predict",
+            return_value=_fake_fusion_result("L3X3X1/2", confidence=0.20),
+        ):
+            result = predict_token(
+                "L3X3X3/8X0'-6\"", queue_unknown=False, persist_learning=False
+            )
+
+        self.assertEqual(result["section"], "L3X3X3/8")
+        self.assertNotEqual(result["section"], "L3X3X1/2")
+
+    def test_l_with_different_cut_length_does_not_regress_to_fusion_decoy(self):
+        with patch(
+            "services.prediction.orchestrator.unified_multimodal_fusion.predict",
+            return_value=_fake_fusion_result("L3X3X1/2", confidence=0.20),
+        ):
+            result = predict_token(
+                "L4X3X1/4X1'-0\"", queue_unknown=False, persist_learning=False
+            )
+
+        self.assertEqual(result["section"], "L4X3X1/4")
+        self.assertNotEqual(result["section"], "L3X3X1/2")
+
+    def test_hss_with_cut_length_does_not_regress_to_fusion_decoy(self):
+        with patch(
+            "services.prediction.orchestrator.unified_multimodal_fusion.predict",
+            return_value=_fake_fusion_result("HSS8X8X1/2", confidence=0.20),
+        ):
+            result = predict_token(
+                "HSS6X6X3/8X0'-8\"", queue_unknown=False, persist_learning=False
+            )
+
+        self.assertEqual(result["section"], "HSS6X6X3/8")
+        self.assertNotEqual(result["section"], "HSS8X8X1/2")
 
 
 if __name__ == "__main__":

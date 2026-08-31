@@ -21,6 +21,7 @@ from services.database_loader import catalog_entries, is_catalog_label
 from services.label_reconstruction.corruption import OCR_CONFUSION, family_of
 from services.label_reconstruction.structural_parser import (
     FieldParse,
+    exact_catalog_labels_for_fields,
     generation_compatible_catalog_labels,
     generation_fields_compatible,
     is_missing_field,
@@ -229,6 +230,36 @@ def reliable_acceptance_parse(normalized: str) -> Optional[FieldParse]:
         fields=prefix,
         ok=True,
     )
+
+
+def reliable_exact_catalog_label(normalized: str) -> Optional[str]:
+    """The single real catalog label ``normalized`` unambiguously names, even
+    when a trailing non-designation field (cut length, quantity) keeps it
+    from matching the catalog as a whole string -- e.g. ``L3X3X3/8X0'-6"``
+    unambiguously names catalog label ``L3X3X3/8``.
+
+    This is the canonical exact-label check for text with a reliable
+    designation prefix. ``services.prediction.orchestrator``'s protected-
+    exact-label fast path calls this (as a fallback after a direct
+    ``catalog_valid_exact_section`` lookup on the untrimmed string) instead
+    of maintaining its own, weaker copy of this logic -- see the cut-length
+    bug this closes: printed text like ``L3X3X3/8X0'-6"`` was previously
+    falling through to weighted fusion, which could let geometry/graph
+    evidence silently override an explicit, unambiguous printed section.
+
+    Returns ``None`` whenever the reliable prefix does not identify exactly
+    one catalog row -- callers must never guess between multiple matches.
+    """
+
+    constraints = reliable_acceptance_parse(normalized)
+    if constraints is None:
+        return None
+    matches = exact_catalog_labels_for_fields(
+        constraints.family, constraints.grammar, constraints.fields
+    )
+    if len(matches) == 1:
+        return matches[0]
+    return None
 
 
 def candidate_respects_reliable_query_fields(normalized: str, label: str) -> bool:

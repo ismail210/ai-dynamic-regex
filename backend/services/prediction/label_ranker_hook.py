@@ -1,17 +1,21 @@
-"""Analyze-path hook for damaged-label ranker shadow / enable flags.
+"""Analyze-path hook into ``services.label_reconstruction``.
 
 Production modules (orchestrator, pipeline, routers) must not import
 ``services.label_reconstruction`` directly — isolation tests scan their
-source. This thin adapter is the only allowed bridge: it lazy-imports the
-shadow entry point and applies flag semantics.
+source. This thin adapter is the only allowed bridge.
 
-Semantics
----------
-* Both flags off (default): no-op, zero cost beyond two bool checks.
-* ``ML_LABEL_RANKER_SHADOW`` only: run reconstruct for logging; **never**
-  change the live analyze section.
-* ``ML_LABEL_RANKER_ENABLED``: may replace the live section with the
-  ranker's ``selected_prediction`` (catalog-valid candidates only).
+Two independent things live here, and they must not be confused:
+
+* ``apply_label_ranker_for_analyze`` — the LEARNED ranker path, gated by
+  ``ML_LABEL_RANKER_SHADOW`` / ``ML_LABEL_RANKER_ENABLED`` (both default
+  off). See its docstring for flag semantics.
+* ``resolve_reliable_exact_catalog_label`` — a purely DETERMINISTIC,
+  always-on lookup with no model involved and no flag gate. It extends
+  ``catalog_valid_exact_section``-style exact-label protection to text
+  that carries a reliable designation plus a trailing non-designation
+  field (cut length, quantity) that keeps it from matching the catalog as
+  a whole string. It must remain safe to call unconditionally, with the
+  ranker fully disabled.
 """
 
 from __future__ import annotations
@@ -103,3 +107,43 @@ def apply_label_ranker_for_analyze(
     ):
         meta["applied"] = True
     return meta
+
+
+def resolve_reliable_exact_catalog_label(
+    normalized_text: str,
+    *,
+    resolver_fn: Optional[Callable[[str], Optional[str]]] = None,
+) -> Optional[str]:
+    """The single real catalog label ``normalized_text`` unambiguously names,
+    even when a trailing cut-length/quantity field keeps it from matching
+    the catalog as a whole string (e.g. ``L3X3X3/8X0'-6"`` -> ``L3X3X3/8``).
+
+    Deterministic and unconditional — NOT gated by
+    ``ML_LABEL_RANKER_ENABLED``/``ML_LABEL_RANKER_SHADOW``, which govern the
+    learned ranker only. Callers use this to extend catalog-exact
+    protection so the weighted fusion/correction path never gets a chance
+    to override an explicit, unambiguous printed section just because a
+    fabrication/cut-length suffix was attached to it.
+
+    ``resolver_fn`` is for tests; production leaves it None and lazy-imports
+    ``services.label_reconstruction.candidates.reliable_exact_catalog_label``.
+    Fail-safe: any exception here is logged and treated as "no reliable
+    exact label" (returns None) rather than raised — this must never break
+    Analyze even if the (experimental-adjacent) label_reconstruction package
+    changes underneath it.
+    """
+
+    text = (normalized_text or "").strip()
+    if not text:
+        return None
+    if resolver_fn is None:
+        from services.label_reconstruction.candidates import (
+            reliable_exact_catalog_label as resolver_fn,
+        )
+    try:
+        return resolver_fn(text)
+    except Exception:  # noqa: BLE001 - must not crash Analyze
+        logger.exception(
+            "label_ranker_hook: reliable_exact_catalog_label failed for %r", text
+        )
+        return None

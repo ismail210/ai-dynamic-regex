@@ -208,6 +208,23 @@ def compatible_catalog_labels(text: str) -> List[str]:
     return [label for fields, label in bucket if fields_compatible(query_parse.fields, fields)]
 
 
+def exact_catalog_labels_for_fields(family: str, grammar: str, fields: List[str]) -> List[str]:
+    """Catalog labels whose parsed fields are IDENTICAL to ``fields`` -- not
+    merely wildcard-compatible -- for the given family/grammar.
+
+    Lets a caller that already recovered a reliable field prefix (e.g.
+    ``reliable_acceptance_parse`` trimming the trailing cut-length field off
+    ``L3X3X3/8X0'-6"`` down to ``["3", "3", "3/8"]``) resolve the single real
+    catalog label that prefix names, via the same catalog index every other
+    lookup in this module uses, instead of re-deriving a label string by
+    hand.
+    """
+
+    index = _ensure_catalog_index()
+    bucket = index.get((family, grammar), [])
+    return [label for cand_fields, label in bucket if cand_fields == fields]
+
+
 def _parse_numeric_field(text: str) -> Optional[float]:
     text = (text or "").strip()
     if not text or any(ch in WILDCARD_CHARS for ch in text):

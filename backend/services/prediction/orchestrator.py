@@ -65,7 +65,10 @@ from services.multimodal.encoder_contracts import (
 )
 from services.annotation.model_governance import model_may_influence
 from services.prediction.calibration import calibrate_score
-from services.prediction.label_ranker_hook import apply_label_ranker_for_analyze
+from services.prediction.label_ranker_hook import (
+    apply_label_ranker_for_analyze,
+    resolve_reliable_exact_catalog_label,
+)
 from services.prediction.canonical_contract import (
     build_canonical_prediction,
     determine_review_from_status,
@@ -358,9 +361,21 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     # but nothing downstream may silently substitute a different section for
     # a clean catalog-valid exact label (see the applied check after the
     # label-ranker hook, further down this function).
-    protected_exact_section = catalog_valid_exact_section(
-        normalized
-    ) or catalog_valid_exact_section(raw_text)
+    #
+    # A trailing cut-length/quantity field (e.g. "L3X3X3/8X0'-6\"") keeps the
+    # untrimmed text from matching the catalog as a whole string even though
+    # the printed section itself is unambiguous -- without the fallback
+    # below, that case fell through to weighted fusion, which could let
+    # geometry/graph evidence silently override the explicit printed
+    # section. resolve_reliable_exact_catalog_label is deterministic and
+    # unconditional (not gated by the ranker flags); it only returns a
+    # label when the reliable prefix names exactly one catalog row.
+    protected_exact_section = (
+        catalog_valid_exact_section(normalized)
+        or catalog_valid_exact_section(raw_text)
+        or resolve_reliable_exact_catalog_label(normalized)
+        or resolve_reliable_exact_catalog_label(raw_text)
+    )
     extraction_confidence = float(token_record.get("confidence") or 0.5)
 
     geometry = context.get("geometry_features") or _geometry_provider.extract(context)
