@@ -83,6 +83,12 @@ class DocumentsApiRedirectListTests(unittest.TestCase):
     def test_engineering_corrections_path_is_redirected(self):
         self.assertIn("engineering_corrections_path", _REDIRECTED_SETTINGS)
 
+    def test_compound_dimension_seed_path_is_redirected(self):
+        self.assertIn("compound_dimension_seed_path", _REDIRECTED_SETTINGS)
+
+    def test_human_selections_path_is_redirected(self):
+        self.assertIn("human_selections_path", _REDIRECTED_SETTINGS)
+
 
 class EngineeringPipelineCorrectionIsolationTests(unittest.TestCase):
     """Functional proof: running test_engineering_pipeline.py's correction

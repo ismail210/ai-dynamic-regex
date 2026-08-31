@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+import tempfile
 import unittest
+from pathlib import Path
+from unittest.mock import patch
 
 from services.annotation.parser import interpret_annotation
 from services.annotation.taxonomy import AnnotationType
@@ -136,17 +139,24 @@ class BentPlateEdgeCaseTests(unittest.TestCase):
     def test_record_edge_case_uses_bent_plates_category(self) -> None:
         from services.annotation.edge_cases import record_edge_case
 
-        entry = record_edge_case(
-            category="bent_plates",
-            raw_text='1/4" BENT PL',
-            normalized_text='1/4"BENTPL',
-            annotation_type="BENT_PLATE",
-            parsed_structure={"annotation_type": "BENT_PLATE", "plate_type": "bent_plate"},
-            reviewer_decision="approve",
-            reason="test:approve",
-            document_id="doc_test",
-            object_id="test_bent_plate_edge",
-        )
+        with tempfile.TemporaryDirectory() as temp, patch(
+            "services.annotation.edge_cases.edge_case_path",
+            return_value=Path(temp) / "annotation_edge_cases.jsonl",
+        ):
+            entry = record_edge_case(
+                category="bent_plates",
+                raw_text='1/4" BENT PL',
+                normalized_text='1/4"BENTPL',
+                annotation_type="BENT_PLATE",
+                parsed_structure={
+                    "annotation_type": "BENT_PLATE",
+                    "plate_type": "bent_plate",
+                },
+                reviewer_decision="approve",
+                reason="test:approve",
+                document_id="doc_test",
+                object_id="test_bent_plate_edge",
+            )
         self.assertEqual(entry["category"], "bent_plates")
         self.assertTrue(entry["training_eligible"])
 

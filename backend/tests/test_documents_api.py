@@ -57,6 +57,8 @@ _REDIRECTED_SETTINGS = [
     "approved_dataset_path",
     "engineering_corrections_path",
     "annotation_edge_cases_path",
+    "compound_dimension_seed_path",
+    "human_selections_path",
     "continuous_learning_state_path",
 ]
 

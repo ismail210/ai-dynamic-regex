@@ -214,6 +214,9 @@ class Settings:
     annotation_edge_cases_path: Path = (
         BASE_DIR / "training" / "annotation_edge_cases.jsonl"
     )
+    compound_dimension_seed_path: Path = (
+        BASE_DIR / "training" / "compound_dimensions_seed.jsonl"
+    )
 
     # ---- Engineering validation / takeoff (additive) ------------------
     engineering_artifacts_dir: Path = BASE_DIR / "training" / "engineering_artifacts"

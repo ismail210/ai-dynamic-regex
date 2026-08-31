@@ -35,7 +35,7 @@ def edge_case_path() -> Path:
 
 
 def compound_dimension_seed_path() -> Path:
-    path = settings.training_dir / "compound_dimensions_seed.jsonl"
+    path = settings.compound_dimension_seed_path
     path.parent.mkdir(parents=True, exist_ok=True)
     return path
 
