@@ -62,30 +62,6 @@ class AnonymousDimensionEligibilityTests(unittest.TestCase):
                 self.assertEqual(generate_candidates(query).candidates, [])
                 self.assertEqual(generate_candidates_v3(query).candidates, [])
 
-    def test_reliable_w_family_evidence_recovers_lost_prefix(self) -> None:
-        for generator in (generate_candidates, generate_candidates_v3):
-            with self.subTest(generator=generator.__name__):
-                candidates = generator(
-                    "12X26",
-                    reliable_family="W",
-                ).candidates
-                self.assertIn("W12X26", candidates)
-                self.assertTrue(all(label.startswith("W") for label in candidates))
-
-    def test_reliable_l_family_evidence_recovers_lost_prefix(self) -> None:
-        for generator in (generate_candidates, generate_candidates_v3):
-            with self.subTest(generator=generator.__name__):
-                candidates = generator(
-                    "3X3X3/8",
-                    reliable_family="L",
-                ).candidates
-                self.assertIn("L3X3X3/8", candidates)
-                self.assertTrue(all(label.startswith("L") for label in candidates))
-
-    def test_reliable_family_cannot_override_an_explicit_family(self) -> None:
-        with self.assertRaises(ValueError):
-            generate_candidates("L3X3X3/8", reliable_family="W")
-
     def test_shadow_never_loads_ranker_for_ineligible_dimensions(self) -> None:
         original_enabled = settings.ml_label_ranker_enabled
         original_shadow = settings.ml_label_ranker_shadow

@@ -165,17 +165,13 @@ class CandidateGenerationCorrectnessTests(unittest.TestCase):
         cs = generate_candidates_v3("BW12X26", limit=25)
         self.assertIn("W12X26", cs.candidates)
 
-    def test_familyless_recall_case_requires_reliable_family_evidence(self):
-        """The old recall fixture predated anonymous-dimension safety."""
+    def test_familyless_dimension_abstains_without_a_supported_family(self):
+        """The old recall fixture predated anonymous-dimension safety: a
+        naked numeric dimension with no supported family prefix must
+        abstain, never be reconstructed by inferring a family from
+        elsewhere."""
         naked = generate_candidates_v3("12X26", limit=25)
-        with_context = generate_candidates_v3(
-            "12X26",
-            limit=25,
-            reliable_family="W",
-        )
-
         self.assertEqual(naked.candidates, [])
-        self.assertIn("W12X26", with_context.candidates)
 
 
 class RecallOracleBucketMathTests(unittest.TestCase):

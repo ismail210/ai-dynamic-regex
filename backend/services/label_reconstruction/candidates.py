@@ -102,42 +102,6 @@ def conservative_normalize(raw: str) -> str:
     return text
 
 
-def _normalize_with_reliable_family(
-    raw_text: str,
-    reliable_family: Optional[str],
-) -> str:
-    """Attach explicit upstream family evidence to a familyless dimension.
-
-    A naked dimension remains ineligible for section reconstruction. This
-    helper is intentionally narrow: callers must supply a canonical modern
-    family, and the prefix is attached only to numeric dimension syntax. It
-    does not infer a family from the text and cannot override a conflicting
-    explicit family.
-    """
-
-    normalized = conservative_normalize(raw_text)
-    if reliable_family is None:
-        return normalized
-
-    family = str(reliable_family).strip().upper()
-    if family not in MODERN_FAMILY_CODES:
-        raise ValueError(
-            f"Unsupported reliable section family: {reliable_family!r}"
-        )
-
-    detected_family = family_of(normalized)
-    if detected_family in MODERN_FAMILY_CODES:
-        if detected_family != family:
-            raise ValueError(
-                "Reliable family evidence conflicts with the explicit section family"
-            )
-        return normalized
-
-    if _DIMENSION_ONLY_SYNTAX.fullmatch(normalized):
-        return f"{family}{normalized}"
-    return normalized
-
-
 def ineligible_for_section_reconstruction(raw_text: str, normalized: str = "") -> bool:
     """True when reconstruct must not emit rolled-section candidates.
 
@@ -437,21 +401,11 @@ class CandidateSet:
     fuzzy_ranks: Dict[str, int] = field(default_factory=dict)
 
 
-def generate_candidates(
-    raw_text: str,
-    *,
-    limit: int = 25,
-    reliable_family: Optional[str] = None,
-) -> CandidateSet:
-    """Union of deterministic, catalog-valid strategies.
-
-    ``reliable_family`` is an explicit upstream evidence channel for damaged
-    labels whose literal family prefix was lost. Omitting it preserves the
-    anonymous-dimension abstention boundary.
-    """
+def generate_candidates(raw_text: str, *, limit: int = 25) -> CandidateSet:
+    """Union of every deterministic strategy, deduplicated, catalog-valid."""
 
     _ensure_loaded()
-    normalized = _normalize_with_reliable_family(raw_text, reliable_family)
+    normalized = conservative_normalize(raw_text)
     fam = family_of(normalized)
     reasons: Dict[str, List[str]] = {}
     ordered: List[str] = []
@@ -507,12 +461,7 @@ def generate_candidates(
     )
 
 
-def generate_candidates_v3(
-    raw_text: str,
-    *,
-    limit: int = 25,
-    reliable_family: Optional[str] = None,
-) -> CandidateSet:
+def generate_candidates_v3(raw_text: str, *, limit: int = 25) -> CandidateSet:
     """v3 generator (Part 3/4): adds a family/field-aware structural-match
     strategy ahead of whole-string fuzzy similarity. This is what fixes the
     ``HSS8X8X?`` -> ``HSS18X18X1`` bug -- ``structural_field_match`` requires
@@ -526,7 +475,7 @@ def generate_candidates_v3(
     (now a last resort, not the tiebreaker it was in v2)."""
 
     _ensure_loaded()
-    normalized = _normalize_with_reliable_family(raw_text, reliable_family)
+    normalized = conservative_normalize(raw_text)
     fam = family_of(normalized)
     reasons: Dict[str, List[str]] = {}
     ordered: List[str] = []
