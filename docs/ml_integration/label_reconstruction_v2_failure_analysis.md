@@ -116,7 +116,7 @@ family.
 
 `compatible_catalog_count` = number of catalog labels whose fields match
 every literal, non-wildcard character of the query exactly (see
-`services.label_reconstruction.structural_parser`). This is intentionally
+`services.structural_parser`). This is intentionally
 STRICT: an OCR-substituted digit is a literal character mismatch, not a
 wildcard, so most non-wildcard corruptions correctly fall into
 `NO_EXACT_STRUCTURAL_MATCH` -- that category means "needs OCR/fuzzy
