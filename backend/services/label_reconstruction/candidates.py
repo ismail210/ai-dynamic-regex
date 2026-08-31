@@ -16,10 +16,11 @@ from dataclasses import dataclass, field
 from difflib import SequenceMatcher
 from typing import Dict, List, Optional, Set
 
+from services.annotation.plate_grammar import starts_with_plate_head
 from services.family_codes import MODERN_FAMILY_CODES
 from services.database_loader import catalog_entries, is_catalog_label
 from services.label_reconstruction.corruption import OCR_CONFUSION, family_of
-from services.label_reconstruction.structural_parser import (
+from services.structural_parser import (
     FieldParse,
     exact_catalog_labels_for_fields,
     generation_compatible_catalog_labels,
@@ -69,10 +70,6 @@ _REPEATED_HSS_GROUP = re.compile(
     re.I,
 )
 _CLEAN_NUMERIC_FIELD = re.compile(r"^\d+(?:\.\d+)?(?:/\d+)?$")
-_PLATE_ELIGIBILITY = re.compile(
-    r"^(?:BENTPL(?:ATE)?|CAPPL(?:ATE)?|CONN(?:ECTION)?PL(?:ATE)?|PLATE|PL|BP)",
-    re.I,
-)
 _ANON_DIMENSION = re.compile(r"^[\d./\"]+\.?$")
 _DIMENSION_ONLY_SYNTAX = re.compile(
     r'^[\d\s./"\-X×✕✖Ø⌀]+$',
@@ -126,7 +123,7 @@ def ineligible_for_section_reconstruction(raw_text: str, normalized: str = "") -
         return True
     if normalized.startswith("PIPE"):
         return False
-    if _PLATE_ELIGIBILITY.match(normalized):
+    if starts_with_plate_head(normalized):
         return True
     fam = family_of(normalized)
     if fam in {"", "OTHER"} and _ANON_DIMENSION.match(normalized):

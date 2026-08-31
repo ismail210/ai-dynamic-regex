@@ -37,6 +37,7 @@ from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
 from config import settings
+from services.prediction.confidence_engine import level_from_score
 from services.regex_learning_engine import learn_regex_with_report
 from services.regex_validator import validate_regex
 
@@ -250,11 +251,7 @@ class RegexKnowledgeBase:
             record["example_count"] = len(merged)
             record["coverage"] = round(accepted_validation.coverage, 4)
             record["confidence"] = round(min(0.97, weighted_confidence), 4)
-            record["confidence_level"] = (
-                "High" if record["confidence"] >= settings.confidence_high_threshold
-                else "Medium" if record["confidence"] >= settings.confidence_medium_threshold
-                else "Low"
-            )
+            record["confidence_level"] = level_from_score(record["confidence"])
             record["distinct_structures"] = report["distinct_structures"]
             record["updated_at"] = now
             if existing is None:

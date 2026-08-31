@@ -20,6 +20,14 @@ from services.annotation.normalize import (
     soft_normalize,
     split_dimension_parts,
 )
+from services.annotation.plate_grammar import (
+    BENT_PL_CALL,
+    BENT_PL_THICKNESS_FIRST,
+    PLATE_HEAD,
+    PLATE_HEAD_COMPACT,
+    THICKNESS_TOKEN,
+    is_thickness_first_plate,
+)
 from services.annotation.taxonomy import (
     AnnotationType,
     DIMENSION_SUBTYPES,
@@ -28,34 +36,13 @@ from services.annotation.taxonomy import (
 )
 from services.database_loader import catalog_form
 from services.engineering.document_prior import plate_context_from_prior
-from services.section_parser import parse_section
+from services.family_codes import MODERN_FAMILY_ALTERNATION
+from services.structural_parser import parse_section
 from services.wildcard_matcher import has_wildcards
 
 
 _SECTION_HEAD = re.compile(
-    r"^(?:2L|HSS|PIPE|WT|MT|ST|MC|HP|W|S|M|C|L)(?=\d)",
-    re.I,
-)
-_THICKNESS_TOKEN = r"(?:\d+/\d+|\d+(?:\.\d+)?)"
-_PLATE_HEAD = re.compile(
-    r"^(?:(?:CAP|CONN(?:ECTION)?)\s+PL(?:ATE)?|PL|PLATE|BP|BENTPLATE|BENT\s*PL(?:ATE)?)\b",
-    re.I,
-)
-_PLATE_HEAD_COMPACT = re.compile(
-    r"^(?:CAPPL(?:ATE)?|CONN(?:ECTION)?PL(?:ATE)?|PL|PLATE|BP|BENTPLATE|BENTPL(?:ATE)?)",
-    re.I,
-)
-_BENT_PL_CALL = re.compile(r"\bBENT\s*PL(?:ATE)?\b", re.I)
-_BENT_PL_THICKNESS_FIRST = re.compile(
-    rf"^{_THICKNESS_TOKEN}\"?\s*BENT\s*PL(?:ATE)?\b",
-    re.I,
-)
-_THICKNESS_FIRST_PLATE = re.compile(
-    rf"^{_THICKNESS_TOKEN}\"?\s*(?:(?:CAP|CONN(?:ECTION)?)\s+)?PL(?:ATE)?\b",
-    re.I,
-)
-_THICKNESS_FIRST_PLATE_COMPACT = re.compile(
-    rf"^{_THICKNESS_TOKEN}\"?(?:CAP|CONN(?:ECTION)?)?PL(?:ATE)?",
+    rf"^(?:{MODERN_FAMILY_ALTERNATION})(?=\d)",
     re.I,
 )
 _COMPOUND_DIM = re.compile(
@@ -104,17 +91,6 @@ class AnnotationParse:
         return asdict(self)
 
 
-def _is_thickness_first_plate(normalized: str, compact: str) -> bool:
-    if _BENT_PL_THICKNESS_FIRST.match(normalized) or _BENT_PL_THICKNESS_FIRST.match(
-        compact
-    ):
-        return False
-    return bool(
-        _THICKNESS_FIRST_PLATE.match(normalized)
-        or _THICKNESS_FIRST_PLATE_COMPACT.match(compact)
-    )
-
-
 def _extract_leading_plate_thickness(text: str) -> Optional[str]:
     """Thickness prefix on ``3/8" PL`` / ``3/8" BENT PL`` / ``BENT PL 3/8"``."""
 
@@ -123,12 +99,12 @@ def _extract_leading_plate_thickness(text: str) -> Optional[str]:
         return bent
     normalized = soft_normalize(text)
     compact = compact_normalize(normalized)
-    if not _is_thickness_first_plate(normalized, compact):
+    if not is_thickness_first_plate(normalized, compact):
         return None
-    match = re.match(rf'^{_THICKNESS_TOKEN}"?', normalized)
+    match = re.match(rf'^{THICKNESS_TOKEN}"?', normalized)
     if match:
         return match.group(0).rstrip('"')
-    match = re.match(rf'^{_THICKNESS_TOKEN}"?', compact)
+    match = re.match(rf'^{THICKNESS_TOKEN}"?', compact)
     if match:
         return match.group(0).rstrip('"')
     return None
@@ -151,13 +127,13 @@ def _extract_bent_plate_thickness(text: str) -> Optional[str]:
     """Pull thickness from bent-plate shorthand callouts."""
 
     normalized = soft_normalize(text)
-    if _BENT_PL_THICKNESS_FIRST.match(normalized):
-        match = re.match(rf"^{_THICKNESS_TOKEN}\"?", normalized)
+    if BENT_PL_THICKNESS_FIRST.match(normalized):
+        match = re.match(rf"^{THICKNESS_TOKEN}\"?", normalized)
         if match:
             return match.group(0).rstrip('"')
     compact = compact_normalize(normalized)
-    if _BENT_PL_THICKNESS_FIRST.match(compact):
-        match = re.match(rf"^{_THICKNESS_TOKEN}\"?", compact)
+    if BENT_PL_THICKNESS_FIRST.match(compact):
+        match = re.match(rf"^{THICKNESS_TOKEN}\"?", compact)
         if match:
             return match.group(0).rstrip('"')
     after_head = re.search(
@@ -295,17 +271,17 @@ def interpret_annotation(
         return result
 
     # --- PLATE / BENT PLATE / compound dimensions ------------------------
-    thickness_first_plate = _is_thickness_first_plate(normalized, compact)
+    thickness_first_plate = is_thickness_first_plate(normalized, compact)
     plate_headed = bool(
-        _PLATE_HEAD.match(normalized)
-        or _PLATE_HEAD.match(compact)
-        or _PLATE_HEAD_COMPACT.match(compact)
-        or _BENT_PL_THICKNESS_FIRST.match(normalized)
-        or _BENT_PL_THICKNESS_FIRST.match(compact)
+        PLATE_HEAD.match(normalized)
+        or PLATE_HEAD.match(compact)
+        or PLATE_HEAD_COMPACT.match(compact)
+        or BENT_PL_THICKNESS_FIRST.match(normalized)
+        or BENT_PL_THICKNESS_FIRST.match(compact)
         or thickness_first_plate
     )
     bent_pl_callout = bool(
-        _BENT_PL_CALL.search(normalized) or _BENT_PL_CALL.search(compact)
+        BENT_PL_CALL.search(normalized) or BENT_PL_CALL.search(compact)
     )
     bent_hint = bool(
         bent_pl_callout

@@ -14,6 +14,8 @@ import re
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Set
 
+from services.family_codes import MODERN_FAMILY_CODES
+
 CATEGORY_STRUCTURAL = "structural_section"
 CATEGORY_MATERIAL = "material"
 CATEGORY_BOLT = "bolt"
@@ -254,7 +256,7 @@ MODEL_PAGE_TAB_LABELS: Dict[str, str] = {
     CATEGORY_MISC: "Other",
 }
 MODEL_PAGE_TABS: List[dict] = [{"id": "all", "label": "All"}, *[{"id": t, "label": MODEL_PAGE_TAB_LABELS[t]} for t in MODEL_PAGE_TAB_ORDER]]
-_STRUCTURAL_MODEL_CLASSES: Set[str] = {"W", "WT", "M", "S", "HP", "C", "MC", "L", "2L", "HSS", "MT", "ST", "PIPE"}
+_STRUCTURAL_MODEL_CLASSES: Set[str] = MODERN_FAMILY_CODES
 _BOLT_PREFIXES = {"A307", "A325", "A490", "A449", "A228", "F185", "F228", "F436"}
 
 

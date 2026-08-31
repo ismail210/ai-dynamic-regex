@@ -17,7 +17,7 @@ from services.engineering.spatial_index import (
     build_page_index,
     nearest_geometry_candidates,
 )
-from services.section_parser import parse_section
+from services.structural_parser import parse_section
 from services.token_extractor import normalize_engineering_token
 
 _STEEL_LABEL_KINDS = {

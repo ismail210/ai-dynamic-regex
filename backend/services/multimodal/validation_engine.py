@@ -12,6 +12,8 @@ from __future__ import annotations
 from collections import Counter
 from typing import Any, Dict, List, Optional
 
+from services.family_codes import MODERN_FAMILY_PREFIXES
+
 
 ISSUE_TYPES = (
     "extraction_quality",
@@ -57,7 +59,7 @@ def _family(prediction: dict) -> str:
     if family:
         return str(family).strip().upper()
     section = _section(prediction)
-    for prefix in ("PIPE", "HSS", "MC", "WT", "HP", "MT", "ST", "2L", "W", "S", "M", "C", "L"):
+    for prefix in MODERN_FAMILY_PREFIXES:
         if section.startswith(prefix):
             return prefix
     return ""

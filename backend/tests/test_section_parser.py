@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import unittest
 
-from services.section_parser import (
+from services.structural_parser import (
     ocr_edit_cost,
     parse_section,
     plausible_against_ocr,

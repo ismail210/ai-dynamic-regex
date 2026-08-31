@@ -9,6 +9,9 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
+from services.family_codes import MODERN_FAMILY_CODES
+from services.prediction.confidence_engine import level_from_score
+
 
 def confidence_overall(confidence: Any) -> float:
     """Normalize confidence objects or scalars to an overall float score."""
@@ -72,14 +75,7 @@ def to_token_prediction(
     conf = {
         **confidence,
         "overall": round(overall, 4),
-        "level": confidence.get("level")
-        or (
-            "High"
-            if overall >= 0.80
-            else "Medium"
-            if overall >= 0.55
-            else "Low"
-        ),
+        "level": confidence.get("level") or level_from_score(overall),
     }
     payload: Dict[str, Any] = {
         "schema_version": "2.0",
@@ -106,18 +102,15 @@ def derive_family_from_section(section: str, fallback: Optional[str] = None) -> 
 
     from services.feature_extractor import extract_structural_features
 
-    structural = {
-        "W", "HSS", "L", "C", "MC", "PIPE", "WT", "M", "S", "HP", "2L", "MT", "ST",
-    }
     text = str(section or "").strip().upper()
     if not text:
         return str(fallback).strip().upper() if fallback else None
-    if text in structural:
+    if text in MODERN_FAMILY_CODES:
         return text
     features = extract_structural_features(text)
     family = str(features.get("shape_family") or "").upper()
     if family and family not in {"OTHER", "NONE", "UNK"}:
         return family
-    if fallback and str(fallback).strip().upper() in structural:
+    if fallback and str(fallback).strip().upper() in MODERN_FAMILY_CODES:
         return str(fallback).strip().upper()
     return fallback

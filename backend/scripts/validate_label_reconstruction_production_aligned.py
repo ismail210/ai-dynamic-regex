@@ -33,7 +33,7 @@ from services.label_reconstruction.catalog_reload import (  # noqa: E402
     refresh_all_dependent_caches,
 )
 from services.label_reconstruction.features import FEATURE_NAMES, pair_features  # noqa: E402
-from services.label_reconstruction.structural_parser import (  # noqa: E402
+from services.structural_parser import (  # noqa: E402
     generation_fields_compatible,
     parse_fields,
 )

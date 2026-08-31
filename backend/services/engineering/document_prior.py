@@ -13,7 +13,7 @@ import re
 from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 
 from services.database_loader import catalog_form, lookup_shape
-from services.section_parser import parse_section
+from services.structural_parser import parse_section
 from services.token_extractor import normalize_engineering_token
 
 PRIOR_VERSION = "document_prior_v2"

@@ -12,7 +12,7 @@ from services.label_reconstruction.candidates import (
     has_reliable_numeric_constraints,
 )
 from services.label_reconstruction.shadow import reconstruct
-from services.label_reconstruction.structural_parser import (
+from services.structural_parser import (
     MISSING_FIELD,
     parse_fields,
 )

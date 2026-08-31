@@ -11,6 +11,8 @@ from __future__ import annotations
 from enum import Enum
 from typing import Any
 
+from services.family_codes import MODERN_FAMILY_CODES
+
 
 class Understandability(str, Enum):
     """Can the annotation be interpreted at all?
@@ -99,9 +101,7 @@ def requires_review(status: Any) -> bool:
     return understandability_value(status) in REVIEW_STATES
 
 
-SECTION_SUBTYPES = frozenset(
-    {"W", "S", "M", "HP", "C", "MC", "WT", "MT", "ST", "HSS", "PIPE", "L", "2L"}
-)
+SECTION_SUBTYPES = MODERN_FAMILY_CODES
 PLATE_SUBTYPES = frozenset(
     {"flat_plate", "gusset_plate", "bent_plate", "cap_plate", "connection_plate"}
 )

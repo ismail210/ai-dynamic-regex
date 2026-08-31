@@ -27,12 +27,13 @@ from sklearn.preprocessing import normalize
 from config import settings
 from services.data_augmentation import generate_variants_for_token
 from services.database_loader import df, lookup_shape
+from services.family_codes import MODERN_FAMILY_ALTERNATION
 
 
 _LOCK = threading.RLock()
 _ARTIFACT: Optional[dict] = None
 _EXACT_SHAPE_RE = re.compile(
-    r"^(?:W|WT|S|M|HP|C|MC|HSS|L|2L|PIPE|MT|ST)"
+    rf"^(?:{MODERN_FAMILY_ALTERNATION})"
     r"\d[\dX./A-Z-]*$",
     re.IGNORECASE,
 )

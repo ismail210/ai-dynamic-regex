@@ -15,6 +15,8 @@ from typing import Iterable, Sequence
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
+from services.family_codes import MODERN_FAMILY_PREFIXES
+
 
 FEATURE_COLUMNS = [
     "token",
@@ -82,21 +84,7 @@ _MATERIAL_RE = re.compile(
     re.IGNORECASE,
 )
 
-_SHAPE_FAMILIES = [
-    "PIPE",
-    "HSS",
-    "2L",
-    "WT",
-    "MC",
-    "HP",
-    "MT",
-    "ST",
-    "W",
-    "M",
-    "S",
-    "C",
-    "L",
-]
+_SHAPE_FAMILIES = MODERN_FAMILY_PREFIXES
 
 _FAMILY_PATTERNS = {
     "HSS": re.compile(r"\b(?:HSS|TS|TUBE|SQUARE\s+HSS|RECTANGULAR\s+HSS)\s*[-_]?\s*\d", re.I),

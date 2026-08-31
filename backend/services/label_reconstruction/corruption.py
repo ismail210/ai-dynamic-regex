@@ -17,7 +17,7 @@ import random
 from dataclasses import dataclass, field
 from typing import Callable, Iterable, List, Optional, Tuple
 
-from services.family_codes import MODERN_FAMILY_CODES, longest_prefix_first
+from services.family_codes import MODERN_FAMILY_PREFIXES, longest_prefix_first
 
 # ---------------------------------------------------------------------------
 # OCR confusion table (bidirectional, single characters only). Deliberately
@@ -42,7 +42,7 @@ OCR_CONFUSION = {
 
 WILDCARD_TOKENS = ("*", "?")
 
-_FAMILY_PREFIXES: List[str] = longest_prefix_first(MODERN_FAMILY_CODES)
+_FAMILY_PREFIXES: List[str] = list(MODERN_FAMILY_PREFIXES)
 
 
 def set_family_codes(codes: Iterable[str]) -> List[str]:

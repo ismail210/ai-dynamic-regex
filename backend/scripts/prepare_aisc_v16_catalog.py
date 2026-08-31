@@ -55,7 +55,7 @@ from services.aisc_v16_catalog import (  # noqa: E402
     lookup_key,
     normalize_designation_text,
 )
-from services.section_parser import parse_section  # noqa: E402
+from services.structural_parser import parse_section  # noqa: E402
 from services.wildcard_matcher import _FAMILY_PREFIXES  # noqa: E402
 
 DATABASE_DIR = BACKEND_DIR / "database"
@@ -421,7 +421,7 @@ def main() -> None:
         f"slash: {dq_stats['contains_slash']}, decimal: {dq_stats['contains_decimal']}, "
         f"hyphen: {dq_stats['contains_hyphen']}, parenthesis: {dq_stats['contains_paren']}, "
         f"comma: {dq_stats['contains_comma']}, unusual chars: {dq_stats['unusual_chars']}\n"
-        f"- Parser (`services.section_parser.parse_section`) family+dims fully "
+        f"- Parser (`services.structural_parser.parse_section`) family+dims fully "
         f"extracted: {parser_full}\n"
         f"- Parser family recognized, partial dims (e.g. decimal depth truncated by "
         f"`_DEPTH_RE`): {parser_partial}\n"

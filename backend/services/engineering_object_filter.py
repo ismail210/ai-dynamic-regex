@@ -11,10 +11,11 @@ from services.engineering.extraction_noise_filter import (
     is_extraction_noise_token,
 )
 from services.engineering.feet_inch_filter import is_non_steel_layout_token
+from services.family_codes import MODERN_FAMILY_ALTERNATION
 
 
 _SECTION = re.compile(
-    r"^(?:W|S|M|HP|C|MC|WT|MT|ST|HSS|PIPE|L|2L)"
+    rf"^(?:{MODERN_FAMILY_ALTERNATION})"
     r"\d+(?:[./]\d+)?(?:X\d+(?:[./]\d+)?){1,3}$",
     re.IGNORECASE,
 )

@@ -13,7 +13,7 @@ investing in hard-negative mining/training against the larger catalog.
 
 Temporarily reloads services.database_loader to the new catalog and
 refreshes every dependent module-level cache (wildcard_matcher,
-label_reconstruction.candidates, label_reconstruction.structural_parser,
+label_reconstruction.candidates, services.structural_parser,
 label_reconstruction.corruption's family-code set) -- then restores the
 production catalog (old XLSX) before exiting, since those caches are
 process-global and every other script/test assumes the production catalog.

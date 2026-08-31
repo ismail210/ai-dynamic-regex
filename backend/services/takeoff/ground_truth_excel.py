@@ -17,6 +17,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import pandas as pd
 
 from services.entity_taxonomy import classify_category
+from services.family_codes import MODERN_FAMILY_ALTERNATION
 
 
 SCHEDULE_SHEETS = (
@@ -48,7 +49,7 @@ SUMMARY_ROW_RE = re.compile(
 MAX_SCHEDULE_ROW_COUNT = 200
 
 SHAPE_RE = re.compile(
-    r"^(W|WT|M|S|HP|C|MC|L|2L|HSS|PIPE|MT|ST)\d",
+    rf"^(?:{MODERN_FAMILY_ALTERNATION})\d",
     re.I,
 )
 PLATE_HINT_RE = re.compile(r"plate|pl\d|baseplate|stiffener|connection", re.I)

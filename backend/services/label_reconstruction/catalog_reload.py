@@ -13,10 +13,10 @@ serving cached results built from the previous catalog.
 from __future__ import annotations
 
 from services import wildcard_matcher
+from services import structural_parser
 from services.label_reconstruction import candidates as candidates_module
 from services.label_reconstruction import corruption
 from services.label_reconstruction import features
-from services.label_reconstruction import structural_parser
 
 
 def refresh_all_dependent_caches() -> None:

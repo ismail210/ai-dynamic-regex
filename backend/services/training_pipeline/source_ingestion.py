@@ -12,13 +12,11 @@ import pandas as pd
 from config import settings
 from services.dataset_manager import dataset_manager
 from services.engineering.correction_dataset import list_corrections
+from services.family_codes import MODERN_FAMILY_PREFIXES
 from services.training_pipeline.hashing import content_hash, sample_id
 
 
-FAMILY_PREFIXES = (
-    "PIPE", "HSS", "MC", "WT", "HP", "MT", "ST", "2L",
-    "W", "S", "M", "C", "L",
-)
+FAMILY_PREFIXES = MODERN_FAMILY_PREFIXES
 
 
 def _fold(value: Any) -> str:

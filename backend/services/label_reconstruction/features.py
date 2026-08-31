@@ -20,7 +20,7 @@ from __future__ import annotations
 from typing import Dict, List, Optional, Sequence
 
 from services.label_reconstruction.corruption import OCR_CONFUSION, family_of
-from services.label_reconstruction.structural_parser import (
+from services.structural_parser import (
     fields_compatible,
     parse_fields,
 )

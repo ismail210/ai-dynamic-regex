@@ -13,7 +13,7 @@ import hashlib
 import re
 from typing import Any, Dict, Iterable, List, Optional, Set
 
-from services.section_parser import parse_section
+from services.structural_parser import parse_section
 from services.token_extractor import normalize_engineering_token
 
 _SHAPE_TOKEN_RE = re.compile(

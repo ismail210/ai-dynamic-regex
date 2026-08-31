@@ -14,6 +14,7 @@ import pandas as pd
 from config import settings
 from services.dataset_manager import dataset_manager
 from services.entity_taxonomy import category_for_aisc_type
+from services.prediction.confidence_engine import level_from_score
 from services.regex_learning_engine import learn_regex_with_report
 from services.regex_knowledge_base import knowledge_base
 from services.regex_validator import validate_regex
@@ -85,13 +86,7 @@ def _rebuild_regex_kb(canonical: pd.DataFrame, now: str) -> dict:
             "example_count": len(examples),
             "coverage": round(validation.coverage, 4),
             "confidence": round(confidence, 4),
-            "confidence_level": (
-                "High"
-                if confidence >= settings.confidence_high_threshold
-                else "Medium"
-                if confidence >= settings.confidence_medium_threshold
-                else "Low"
-            ),
+            "confidence_level": level_from_score(confidence),
             "category": category,
             "distinct_structures": report.get("distinct_structures", len(variants)),
             "usage_count": 0,

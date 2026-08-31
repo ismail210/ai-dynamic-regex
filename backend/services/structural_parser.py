@@ -1,4 +1,12 @@
-"""Family-aware structural field parsing against the actual AISC v16 catalog.
+"""Authoritative structural-section parsing against the AISC catalog.
+
+This module owns both views callers need without maintaining competing
+grammars in separate modules:
+
+* ``parse_fields`` is the strict field-preserving grammar used for damaged
+  label reconstruction, compatibility gates, and catalog indexing.
+* ``parse_section`` is the permissive numeric view used by annotation,
+  retrieval plausibility, schedule ingestion, and document priors.
 
 Part 3/4 of the v3 architecture: fuzzy string similarity alone let
 ``HSS8X8X?`` rank ``HSS18X18X1`` above every real HSS8X8Xn entry, because
@@ -39,9 +47,15 @@ import re
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
 
-from services.database_loader import catalog_entries
-from services.label_reconstruction.corruption import family_of
-from services.wildcard_matcher import WILDCARD_CHARS
+from services import wildcard_matcher
+from services.database_loader import catalog_entries, is_catalog_label, lookup_shape
+from services.exact_section_predictor import normalize_section_text
+from services.family_codes import split_family
+from services.wildcard_matcher import (
+    WILDCARD_CHARS,
+    _DEPTH_RE,
+    _WEIGHT_RE,
+)
 
 _DEPTH_WEIGHT_FAMILIES = {"W", "M", "S", "HP", "C", "MC", "WT", "MT", "ST"}
 _PIPE_RE = re.compile(r"^PIPE([\d\-/.]*[?*]?[\d\-/.]*)(STD|XXS|XS|[?*]+)?$")
@@ -80,7 +94,7 @@ def parse_fields(text: str) -> FieldParse:
     an error."""
 
     cleaned = str(text or "").strip().upper()
-    fam = family_of(cleaned)
+    fam, _remainder = split_family(cleaned, wildcard_matcher._FAMILY_PREFIXES)
     if not fam or not cleaned.startswith(fam):
         return FieldParse(family=fam, grammar="unknown", fields=[], ok=False)
     remainder = cleaned[len(fam):]
@@ -127,8 +141,8 @@ def parse_fields(text: str) -> FieldParse:
             )
         return FieldParse(family=fam, grammar="hss_rect", fields=parts, ok=False)
 
-    # Family recognized by corruption.family_of but not in this module's
-    # known grammar table -- treat as unparseable rather than guess.
+    # Family recognized by the active catalog prefix set but not in this
+    # module's known grammar table -- treat as unparseable rather than guess.
     return FieldParse(family=fam, grammar="unknown", fields=[], ok=False)
 
 
@@ -340,3 +354,206 @@ def ambiguity_category(compatible_count: int) -> str:
     if compatible_count <= 5:
         return AMBIGUITY_SMALL
     return AMBIGUITY_LARGE
+
+
+# ---------------------------------------------------------------------------
+# Permissive numeric view for prediction/annotation callers
+# ---------------------------------------------------------------------------
+
+# Families whose second numeric field is an outside dimension rather than a
+# weight-per-foot.  A known second dimension is therefore a hard plausibility
+# constraint even when thickness is missing.
+_DUAL_DIMENSION_FAMILIES = {"HSS", "L", "2L"}
+
+_OCR_NEAR_FREE = {
+    ("0", "O"),
+    ("O", "0"),
+    ("1", "I"),
+    ("I", "1"),
+    ("1", "L"),
+    ("L", "1"),
+    ("5", "S"),
+    ("S", "5"),
+    ("8", "B"),
+    ("B", "8"),
+    ("X", "Ãƒâ€”"),
+    ("Ãƒâ€”", "X"),
+    ("X", "Ã¢Å“â€¢"),
+    ("Ã¢Å“â€¢", "X"),
+}
+
+_HSS_THICKNESS_RE = re.compile(
+    r"^(\d+(?:\.\d+)?)X(\d+(?:\.\d+)?)X(\d+(?:\.\d+)?|\d+/\d+)$",
+    re.IGNORECASE,
+)
+_ANGLE_THICKNESS_RE = re.compile(
+    r"^(\d+(?:\.\d+)?)X(\d+(?:\.\d+)?)X(\d+(?:\.\d+)?|\d+/\d+)$",
+    re.IGNORECASE,
+)
+
+
+@dataclass(frozen=True)
+class ParsedSection:
+    """Permissive numeric view of a steel designation."""
+
+    family: str
+    depth: Optional[float]
+    weight: Optional[float]
+    thickness: Optional[str]
+    normalized: str
+    catalog_valid: bool
+    raw_remainder: str = ""
+
+    def to_dict(self) -> dict:
+        return {
+            "family": self.family,
+            "depth": self.depth,
+            "weight": self.weight,
+            "thickness": self.thickness,
+            "normalized": self.normalized,
+            "catalog_valid": self.catalog_valid,
+            "raw_remainder": self.raw_remainder,
+        }
+
+
+def _to_float(value: Optional[str]) -> Optional[float]:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text:
+        return None
+    if "/" in text:
+        try:
+            numerator, denominator = text.split("/", 1)
+            return float(numerator) / float(denominator)
+        except (ValueError, ZeroDivisionError):
+            return None
+    try:
+        return float(text)
+    except ValueError:
+        return None
+
+
+def parse_section(text: object) -> Optional[ParsedSection]:
+    """Parse a designation into family/depth/weight/thickness when possible.
+
+    Unlike ``parse_fields``, this view intentionally accepts incomplete OCR
+    text so fusion can apply same-family/depth plausibility constraints.
+    """
+
+    normalized = normalize_section_text(text)
+    if not normalized:
+        return None
+
+    family = ""
+    remainder = normalized
+    for prefix in wildcard_matcher._FAMILY_PREFIXES:
+        if normalized.startswith(prefix):
+            family = prefix
+            remainder = normalized[len(prefix) :]
+            break
+    if not family:
+        return None
+
+    depth: Optional[float] = None
+    weight: Optional[float] = None
+    thickness: Optional[str] = None
+
+    if family in {"HSS", "L", "2L"}:
+        thick_match = (
+            _HSS_THICKNESS_RE.match(remainder)
+            if family == "HSS"
+            else _ANGLE_THICKNESS_RE.match(remainder)
+        )
+        if thick_match:
+            depth = _to_float(thick_match.group(1))
+            weight = _to_float(thick_match.group(2))
+            thickness = thick_match.group(3)
+        else:
+            depth_match = _DEPTH_RE.match(remainder)
+            if depth_match:
+                depth = _to_float(depth_match.group(1))
+            weight_match = _WEIGHT_RE.search(remainder)
+            if weight_match:
+                weight = _to_float(weight_match.group(1))
+    elif family == "PIPE":
+        depth_match = _DEPTH_RE.match(remainder)
+        if depth_match:
+            depth = _to_float(depth_match.group(1))
+    else:
+        depth_match = _DEPTH_RE.match(remainder)
+        if depth_match:
+            depth = _to_float(depth_match.group(1))
+        weight_match = _WEIGHT_RE.search(remainder)
+        if weight_match:
+            weight = _to_float(weight_match.group(1))
+
+    catalog_valid = is_catalog_label(normalized) or lookup_shape(normalized) is not None
+    return ParsedSection(
+        family=family,
+        depth=depth,
+        weight=weight,
+        thickness=thickness,
+        normalized=normalized,
+        catalog_valid=catalog_valid,
+        raw_remainder=remainder,
+    )
+
+
+def ocr_edit_cost(a: object, b: object) -> float:
+    """OCR-aware edit distance with conservative glyph-confusion costs."""
+
+    left = normalize_section_text(a)
+    right = normalize_section_text(b)
+    if left == right:
+        return 0.0
+
+    rows = len(left) + 1
+    cols = len(right) + 1
+    dp = [[0.0] * cols for _ in range(rows)]
+    for i in range(1, rows):
+        dp[i][0] = float(i)
+    for j in range(1, cols):
+        dp[0][j] = float(j)
+
+    for i in range(1, rows):
+        for j in range(1, cols):
+            ca = left[i - 1]
+            cb = right[j - 1]
+            if ca == cb:
+                sub_cost = 0.0
+            elif (ca, cb) in _OCR_NEAR_FREE:
+                sub_cost = 0.15
+            elif ca.isdigit() and cb.isdigit():
+                sub_cost = 1.5
+            else:
+                sub_cost = 1.0
+            dp[i][j] = min(
+                dp[i - 1][j] + 1.0,
+                dp[i][j - 1] + 1.0,
+                dp[i - 1][j - 1] + sub_cost,
+            )
+    return float(dp[-1][-1])
+
+
+def plausible_against_ocr(candidate: object, ocr_text: object) -> bool:
+    """Whether a candidate preserves the reliable family/outside dimensions."""
+
+    ocr = parse_section(ocr_text)
+    cand = parse_section(candidate)
+    if cand is None:
+        return False
+    if ocr is None or not str(ocr_text or "").strip():
+        return True
+    if ocr.family != cand.family:
+        return False
+    if ocr.depth is not None and cand.depth is not None and ocr.depth != cand.depth:
+        return False
+    if (
+        ocr.family in _DUAL_DIMENSION_FAMILIES
+        and ocr.weight is not None
+        and cand.weight is not None
+        and ocr.weight != cand.weight
+    ):
+        return False
+    return True

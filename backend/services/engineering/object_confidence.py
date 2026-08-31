@@ -16,16 +16,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
-from config import settings
 from services.engineering.models import ObjectConfidence
-
-
-def _level_from_score(score: float) -> str:
-    if score >= settings.confidence_high_threshold:
-        return "High"
-    if score >= settings.confidence_medium_threshold:
-        return "Medium"
-    return "Low"
+from services.prediction.confidence_engine import level_from_score
 
 
 def score_text_object(text_obj: dict) -> float:
@@ -108,7 +100,7 @@ def build_object_confidences(
             geometry_confidence=0.5,
             matching_confidence=mc,
             overall=max(0.0, min(1.0, overall)),
-            level=_level_from_score(overall),
+            level=level_from_score(overall),
             reasons=["text_layout", "match_signal"],
         )
         payload = conf.to_dict()
@@ -133,7 +125,7 @@ def build_object_confidences(
             geometry_confidence=gc,
             matching_confidence=mc,
             overall=max(0.0, min(1.0, overall)),
-            level=_level_from_score(overall),
+            level=level_from_score(overall),
             reasons=["geometry_metrics", "match_signal"],
         )
         payload = conf.to_dict()
@@ -168,6 +160,6 @@ def score_object_bundle(
         geometry_confidence=float(geometry_confidence),
         matching_confidence=float(matching_confidence),
         overall=overall,
-        level=_level_from_score(overall),
+        level=level_from_score(overall),
         reasons=["weighted_fusion"],
     )

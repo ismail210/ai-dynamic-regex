@@ -34,7 +34,7 @@ from services.label_reconstruction.candidates import (  # noqa: E402
     is_missing_thickness_hss,
     reliable_acceptance_parse,
 )
-from services.label_reconstruction.structural_parser import (  # noqa: E402
+from services.structural_parser import (  # noqa: E402
     field_generation_compatible,
     parse_fields,
 )

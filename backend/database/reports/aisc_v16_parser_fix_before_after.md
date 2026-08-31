@@ -1,7 +1,7 @@
 # Parser fix: before vs after
 
 Two concrete gaps were fixed in `services/wildcard_matcher.py` (consumed by
-`services/section_parser.py`, which imports `_DEPTH_RE`/`_WEIGHT_RE`/
+`services/structural_parser.py`, which imports `_DEPTH_RE`/`_WEIGHT_RE`/
 `_FAMILY_PREFIXES` from it directly):
 
 ## 1. Decimal HSS/PIPE depth/weight truncation

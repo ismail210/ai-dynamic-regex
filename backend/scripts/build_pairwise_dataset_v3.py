@@ -51,7 +51,7 @@ from services.label_reconstruction.candidates import (  # noqa: E402
     generate_candidates_v3,
 )
 from services.label_reconstruction.ranker import load_ranker_version  # noqa: E402
-from services.label_reconstruction.structural_parser import nearest_by_fields  # noqa: E402
+from services.structural_parser import nearest_by_fields  # noqa: E402
 from services.training_pipeline import dataset_registry  # noqa: E402
 
 DATASET_VERSION = "label_reconstruction_20260807_125937"

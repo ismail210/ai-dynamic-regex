@@ -28,7 +28,17 @@ def longest_prefix_first(codes: Iterable[str]) -> List[str]:
     ``WT``/``HSS``/``2L``) is never swallowed by a shorter one (``W``/``H``/``L``)
     when scanning from the start of a label."""
 
-    return sorted({str(code) for code in codes if str(code)}, key=len, reverse=True)
+    return sorted(
+        {str(code) for code in codes if str(code)},
+        key=lambda code: (-len(code), code),
+    )
+
+
+# Reusable ordered/regex forms of the same authoritative family set.  Callers
+# that scan a designation must use longest-prefix order so WT cannot be
+# swallowed by W, MC by M, or 2L by L.
+MODERN_FAMILY_PREFIXES = tuple(longest_prefix_first(MODERN_FAMILY_CODES))
+MODERN_FAMILY_ALTERNATION = "|".join(MODERN_FAMILY_PREFIXES)
 
 
 def split_family(text: str, codes: Iterable[str]) -> Tuple[str, str]:

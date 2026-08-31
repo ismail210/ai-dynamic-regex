@@ -131,7 +131,7 @@ Sample mismatches (declared, designation, inferred): B/12BL,B12L→BL; J/JR10→
 - Unique catalog designations: 3842
 - Length: min 1, max 26, mean 10.6
 - Contains space: 0, slash: 1056, decimal: 1914, hyphen: 403, parenthesis: 0, comma: 16, unusual chars: 16
-- Parser (`services.section_parser.parse_section`) family+dims fully extracted: 3403
+- Parser (`services.structural_parser.parse_section`) family+dims fully extracted: 3403
 - Parser family recognized, partial dims (e.g. decimal depth truncated by `_DEPTH_RE`): 291
 - `valid_source_but_parser_unsupported` (family code not in the current 13-family parser prefix list): 148
 

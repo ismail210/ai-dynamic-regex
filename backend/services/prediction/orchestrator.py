@@ -31,11 +31,12 @@ from services.exact_section_predictor import (
     predict_exact_sections,
     predict_exact_sections_for_labels,
 )
+from services.family_codes import MODERN_FAMILY_CODES
 from services.hss_completion import (
     detect_missing_thickness_hss,
     hss_completion_candidates,
 )
-from services.section_parser import plausible_against_ocr
+from services.structural_parser import plausible_against_ocr
 from services.feature_extractor import extract_structural_features
 from services.model_predictor import predict_with_confidence
 from services.multimodal.correction_engine import (
@@ -88,21 +89,7 @@ from services.regex_validator import full_match
 from services.wildcard_matcher import has_wildcards, match_wildcard_mask
 
 
-STRUCTURAL_FAMILIES = {
-    "W",
-    "HSS",
-    "L",
-    "C",
-    "MC",
-    "PIPE",
-    "WT",
-    "M",
-    "S",
-    "HP",
-    "2L",
-    "MT",
-    "ST",
-}
+STRUCTURAL_FAMILIES = MODERN_FAMILY_CODES
 
 _geometry_provider = GeometryFeatureProvider()
 _graph_provider = GraphFeatureProvider()

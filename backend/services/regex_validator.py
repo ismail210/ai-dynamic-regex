@@ -17,7 +17,7 @@ import re
 from dataclasses import dataclass, field
 from typing import List, Optional
 
-from config import settings
+from services.prediction.confidence_engine import level_from_score
 from services.regex_optimizer import readability_score, simplify_regex
 
 
@@ -92,14 +92,6 @@ def _estimate_specificity(pattern: str) -> float:
     return max(0.0, min(1.0, score))
 
 
-def _level_from_score(score: float) -> str:
-    if score >= settings.confidence_high_threshold:
-        return "High"
-    if score >= settings.confidence_medium_threshold:
-        return "Medium"
-    return "Low"
-
-
 def validate_regex(pattern: Optional[str], examples: List[str]) -> ValidationResult:
     """
     Validate ``pattern`` against ``examples`` and compute a confidence score.
@@ -158,6 +150,6 @@ def validate_regex(pattern: Optional[str], examples: List[str]) -> ValidationRes
         total=total,
         specificity=specificity,
         confidence=confidence,
-        level=_level_from_score(confidence),
+        level=level_from_score(confidence),
         unmatched_examples=unmatched,
     )

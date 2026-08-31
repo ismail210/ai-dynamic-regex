@@ -11,12 +11,10 @@ from typing import Any, Dict, Iterable, List, Optional
 from config import settings
 from services.dataset_manager import dataset_manager
 from services.exact_section_predictor import predict_exact_sections
+from services.family_codes import MODERN_FAMILY_PREFIXES
 
 
-FAMILY_PREFIXES = (
-    "PIPE", "HSS", "MC", "WT", "HP", "MT", "ST", "2L",
-    "W", "S", "M", "C", "L",
-)
+FAMILY_PREFIXES = MODERN_FAMILY_PREFIXES
 CORRECTION_WEIGHTS = {
     "text": 0.38,
     "similarity_search": 0.22,

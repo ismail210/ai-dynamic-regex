@@ -23,7 +23,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Set
 
 from config import settings
-from services.wildcard_matcher import _FAMILY_PREFIXES
+from services.family_codes import MODERN_FAMILY_CODES
 
 REQUIRED_COLUMNS = ("family", "designation")
 
@@ -33,7 +33,7 @@ REQUIRED_COLUMNS = ("family", "designation")
 # not a guess: any Type code that is not literally one of these strings
 # (e.g. "ST R", "ST S", "ST JR" are distinct declared Type codes, never
 # collapsed into modern "ST") is historical/legacy scope.
-MODERN_FAMILIES = frozenset(_FAMILY_PREFIXES)
+MODERN_FAMILIES = MODERN_FAMILY_CODES
 
 
 def classify_catalog_scope(family: str) -> str:
