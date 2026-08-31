@@ -7,8 +7,9 @@ drawing). Each wildcard character stands for exactly one unknown character —
 this is a positional mask match, not a brute-force "generate every possible
 string" search and not fuzzy string similarity.
 
-The known family is parsed and held fixed (a ``W`` label can never resolve to
-an ``HSS`` candidate), the remaining known characters must match literally,
+The known family is parsed and held fixed with longest-prefix exact equality
+(a ``W`` label can never resolve to ``WT`` or ``HSS``). Remaining known
+characters must match literally,
 and every returned candidate is checked against the loaded AISC catalog
 (``services.database_loader``) so only real, existing AISC designations are
 ever produced. This intentionally runs *before* fuzzy text-similarity
@@ -139,7 +140,9 @@ def match_wildcard_mask(text: object, *, limit: int = 8) -> List[WildcardCandida
 
     Returns an empty list when ``text`` has no wildcard characters, when the
     family cannot be recognized, or when no catalog label satisfies the mask.
-    Every returned candidate exists in the AISC catalog by construction.
+    Catalog labels must share the query's exact family code after longest-prefix
+    split (``W`` does not match ``WT``). Every returned candidate exists in
+    the AISC catalog by construction.
     """
 
     cleaned = str(text or "").strip().upper().replace(" ", "")
@@ -155,9 +158,11 @@ def match_wildcard_mask(text: object, *, limit: int = 8) -> List[WildcardCandida
 
     matches: List[WildcardCandidate] = []
     for label, shape_type in catalog_entries():
-        if not label.startswith(family):
+        # Longest-prefix family on the catalog label, not startswith(family).
+        # Otherwise W matches WT (and C matches MC/C if a shorter code won).
+        candidate_family, candidate_remainder = _split_family(label)
+        if candidate_family != family:
             continue
-        candidate_remainder = label[len(family):]
         if len(candidate_remainder) != len(remainder):
             continue
         if pattern.match(candidate_remainder):

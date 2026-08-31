@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import sys
 import time
+from collections import Counter
 from pathlib import Path
 
 BACKEND = Path(__file__).resolve().parents[1]
@@ -33,6 +34,12 @@ def main() -> int:
         if str(t.get("normalized_text") or t.get("text") or "")
         in ('4"', "6\"", '8"', '3/64"')
     ]
+    repeat_labels = Counter(
+        str(t.get("normalized_text") or t.get("text") or "").upper()
+        for t in tokens
+        if t.get("engineering_object_type")
+        in {"steel_section", "column", "column_or_brace", "brace", "beam"}
+    )
 
     print(f"extraction_version={EXTRACTION_VERSION}")
     print(f"elapsed_s={elapsed:.2f}")
@@ -40,6 +47,7 @@ def main() -> int:
     print(f"anonymous_dimension={len(anonymous)}")
     print(f"layout_noise_left={len(noise)}")
     print(f"discard_breakdown={document.get('extraction_discard_counts')}")
+    print(f"top_repeated_labels={repeat_labels.most_common(10)}")
     return 0
 
 

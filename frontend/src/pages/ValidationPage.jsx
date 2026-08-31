@@ -450,6 +450,38 @@ function GroundTruthEvaluationPanel({ report }) {
   );
 }
 
+function AnonymousDimensionMetricsPanel({ metrics }) {
+  if (!metrics) return null;
+  return (
+    <Paper variant="outlined" sx={{ p: 2.25, mb: 2.5 }}>
+      <Stack spacing={1.5}>
+        <Box>
+          <Typography variant="h6" fontWeight={750}>
+            Anonymous dimension inference
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Contextual resolver outcomes for extracted anonymous dimensions.
+          </Typography>
+        </Box>
+        <Grid container spacing={1.25}>
+          {[
+            ["Anonymous dims", metrics.anonymous_dimension_count ?? 0],
+            ["Needs context", metrics.needs_context_count ?? 0],
+            ["Promoted", metrics.promoted_count ?? 0],
+            ["With candidates", metrics.with_semantic_candidates_count ?? 0],
+            ["Abstention rate", pct(metrics.abstention_rate)],
+            ["Promotion rate", pct(metrics.promotion_rate)],
+          ].map(([label, value]) => (
+            <Grid size={{ xs: 6, sm: 4, md: 2 }} key={label}>
+              <Metric label={label} value={value} />
+            </Grid>
+          ))}
+        </Grid>
+      </Stack>
+    </Paper>
+  );
+}
+
 function MultiModalReport({ report, onApprove, approvingId }) {
   const summary = report?.summary || {};
   const validation = report?.validation || {};
@@ -473,6 +505,12 @@ function MultiModalReport({ report, onApprove, approvingId }) {
 
   return (
     <Stack spacing={2.25}>
+      <AnonymousDimensionMetricsPanel
+        metrics={
+          report?.anonymous_dimension_metrics
+          || report?.summary?.anonymous_dimension_metrics
+        }
+      />
       <GroundTruthEvaluationPanel report={report} />
 
       <Alert severity="info">

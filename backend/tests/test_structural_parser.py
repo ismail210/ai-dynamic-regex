@@ -129,19 +129,16 @@ class GenerationCompatibleFixesHssBugTests(unittest.TestCase):
 
 
 class V3CandidateOrderingFixesHssBugTests(unittest.TestCase):
-    def test_v2_ranks_wrong_hss_size_first(self) -> None:
-        # Documents the bug this whole module exists to fix -- v2 is
-        # UNCHANGED and still exhibits it.
+    def test_v2_no_longer_ranks_wrong_hss_size_first(self) -> None:
         v2 = generate_candidates("HSS8X8X?", limit=8)
-        self.assertEqual(v2.candidates[0], "HSS18X18X1")
+        self.assertTrue(v2.candidates)
+        self.assertTrue(v2.candidates[0].startswith("HSS8X8X"))
+        self.assertNotIn("HSS18X18X1", v2.candidates)
 
     def test_v3_ranks_correct_hss8x8_family_first(self) -> None:
         v3 = generate_candidates_v3("HSS8X8X?", limit=8)
         self.assertTrue(v3.candidates[0].startswith("HSS8X8X"))
-        # The wrong-size candidate is still present (recall backstop) but
-        # demoted to the very end via the fuzzy fallback, not ranked first.
-        self.assertIn("HSS18X18X1", v3.candidates)
-        self.assertEqual(v3.candidates[-1], "HSS18X18X1")
+        self.assertNotIn("HSS18X18X1", v3.candidates)
         self.assertEqual(
             v3.generation_reasons["HSS8X8X1/2"], ["structural_field_match"]
         )

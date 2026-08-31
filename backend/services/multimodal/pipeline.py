@@ -29,6 +29,9 @@ from services.multimodal.validation_engine import (
 )
 from services.engineering.detail_regions import assign_detail_regions
 from services.annotation.context_evidence import attach_context_evidence
+from services.annotation.anonymous_dimension_metrics import (
+    summarize_anonymous_dimension_predictions,
+)
 from services.prediction.contract import confidence_overall
 from services.takeoff.ground_truth_excel import parse_ground_truth_excel
 
@@ -290,6 +293,9 @@ def run_multimodal_pipeline(
         "merged": deduped["duplicate_count"],
         "merges": deduped["merges"],
     }
+    anonymous_dimension_metrics = summarize_anonymous_dimension_predictions(
+        predictions
+    )
     timings["total_ms"] = round(
         (time.perf_counter() - pipeline_started) * 1000, 2
     )
@@ -402,6 +408,7 @@ def run_multimodal_pipeline(
             ),
             **validation["summary"],
         },
+        "anonymous_dimension_metrics": anonymous_dimension_metrics,
         "extraction": {
             "quality": document.get("extraction_quality"),
             "diagnostics": document.get("extraction_diagnostics"),
@@ -418,6 +425,7 @@ def run_multimodal_pipeline(
         "document_rules": document_rules,
         "predictions": predictions,
         "validation": validation,
+        "anonymous_dimension_metrics": anonymous_dimension_metrics,
         "excel_evaluation": excel_evaluation,
         "performance": timings,
         "expected_excel": expected,

@@ -20,6 +20,7 @@ import PageHeader from "../components/ui/PageHeader";
 import { TipButton } from "../components/ui/ActionButtons";
 import { useAnalysis } from "../context/AnalysisContext";
 import {
+  formatCandidateLabel,
   getPredictionLocation,
   getResultKey,
   getSection,

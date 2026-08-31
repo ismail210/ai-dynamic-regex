@@ -363,6 +363,21 @@ export function getSection(result = {}) {
   );
 }
 
+/** Readable label for ranking / Top-K candidate objects. */
+export function formatCandidateLabel(item) {
+  if (typeof item === "string") return item;
+  if (!item || typeof item !== "object") return "";
+  return (
+    item.section
+    || item.label
+    || item.shape
+    || item.final_label
+    || item.designation
+    || item.type
+    || ""
+  );
+}
+
 /**
  * True only for an explicit, persisted human-review resolution (see
  * services.human_selections / services.staged_pipeline

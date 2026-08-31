@@ -86,12 +86,18 @@ def split_dimension_parts(text: str) -> list[str]:
 
     value = soft_normalize(text)
     value = re.sub(
-        r"^(?:\d+/\d+|\d+(?:\.\d+)?)\"?\s*BENT\s*PL(?:ATE)?\s*",
+        r"^(?:\d+/\d+|\d+(?:\.\d+)?)\"?\s*"
+        r"(?:BENT\s*PL(?:ATE)?|(?:CAP|CONN(?:ECTION)?)\s+PL(?:ATE)?|PL(?:ATE)?)\s*",
         "",
         value,
         flags=re.I,
     )
-    value = re.sub(r"^(?:PL|PLATE|BP|BENT\s*PL(?:ATE)?)\s*", "", value, flags=re.I)
+    value = re.sub(
+        r"^(?:(?:CAP|CONN(?:ECTION)?)\s+PL(?:ATE)?|PL|PLATE|BP|BENT\s*PL(?:ATE)?)\s*",
+        "",
+        value,
+        flags=re.I,
+    )
     value = re.sub(r"@\s*.*$", "", value).strip()
     if not value:
         return []

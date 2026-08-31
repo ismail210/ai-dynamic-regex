@@ -198,4 +198,7 @@ def filter_engineering_objects(
     duplicates = before - len(deduped)
     if duplicates:
         counts["duplicates"] = int(counts.get("duplicates") or 0) + duplicates
+    # Keep every label instance on the drawing. Semantic collapse (same section
+    # repeated at many coordinates on one page) belongs in takeoff aggregation,
+    # not extraction — collapsing here hid hundreds of real labels from review.
     return deduped

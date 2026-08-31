@@ -108,6 +108,45 @@ class FeatureFlagsDisabledByDefaultTests(unittest.TestCase):
         finally:
             object.__setattr__(settings, "ml_label_ranker_enabled", original_enabled)
 
+    def test_shadow_true_enabled_false_does_not_mutate_selected_prediction(self) -> None:
+        """ENABLED=false SHADOW=true: observe ranker pick without mutating selected."""
+        import tempfile
+        from pathlib import Path
+
+        from config import settings
+        from services.label_reconstruction import shadow
+        from services.label_reconstruction.candidates import generate_candidates
+
+        original_enabled = settings.ml_label_ranker_enabled
+        original_shadow = settings.ml_label_ranker_shadow
+        original_log_path = settings.ml_label_ranker_shadow_log_path
+        try:
+            object.__setattr__(settings, "ml_label_ranker_enabled", False)
+            object.__setattr__(settings, "ml_label_ranker_shadow", True)
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                object.__setattr__(
+                    settings,
+                    "ml_label_ranker_shadow_log_path",
+                    Path(tmp_dir) / "shadow_log.jsonl",
+                )
+                result = shadow.reconstruct("W18X3?")
+            deterministic = generate_candidates("W18X3?")
+            expected = deterministic.candidates[0] if deterministic.candidates else None
+            self.assertEqual(result.selected_prediction, expected)
+            self.assertNotEqual(result.reason, "learned_ranker_top_candidate")
+            self.assertEqual(
+                result.reason,
+                "deterministic_top_candidate" if expected else "no_candidates",
+            )
+            if result.shadow:
+                self.assertIn("ml_prediction", result.shadow)
+                # Observation may match or differ from the deterministic pick;
+                # the invariant is that selected_prediction stays deterministic.
+        finally:
+            object.__setattr__(settings, "ml_label_ranker_enabled", original_enabled)
+            object.__setattr__(settings, "ml_label_ranker_shadow", original_shadow)
+            object.__setattr__(settings, "ml_label_ranker_shadow_log_path", original_log_path)
+
 
 class ShadowScoresWithRawQueryTests(unittest.TestCase):
     """Regression test for a real bug found during v3 evaluation: shadow.py

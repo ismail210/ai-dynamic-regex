@@ -34,7 +34,14 @@ from typing import Dict, List, Optional
 
 from config import settings
 from services.database_loader import is_catalog_label
-from services.label_reconstruction.candidates import CandidateSet, conservative_normalize, generate_candidates
+from services.label_reconstruction.candidates import (
+    CandidateSet,
+    candidate_respects_reliable_query_fields,
+    conservative_normalize,
+    generate_candidates,
+    ineligible_for_section_reconstruction,
+    is_missing_thickness_hss,
+)
 
 
 @dataclass
@@ -63,6 +70,15 @@ class LabelReconstructionResult:
         }
 
 
+def _first_compatible_candidate(
+    ordered_labels: List[str], normalized: str
+) -> Optional[str]:
+    for label in ordered_labels:
+        if candidate_respects_reliable_query_fields(normalized, label):
+            return label
+    return None
+
+
 def _append_shadow_log(entry: dict) -> None:
     path = settings.ml_label_ranker_shadow_log_path
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -79,7 +95,10 @@ def reconstruct(
     """Never invents a label -- ``selected_prediction`` is always either an
     exact catalog match or the deterministic generator's top pick, UNLESS
     ``ML_LABEL_RANKER_ENABLED`` is explicitly true, in which case it is the
-    ranker's top pick from that SAME catalog-valid candidate set.
+    ranker's highest-scoring candidate that still respects reliable query
+    fields (same catalog-valid set). An incompatible XGB top is never
+    applied; the first compatible ranked candidate or the deterministic
+    pick is used instead.
 
     ``live_prediction`` is optional analyze-path context (the multimodal
     section already chosen). When shadow logging is on it is recorded for
@@ -87,6 +106,18 @@ def reconstruct(
     """
 
     normalized = conservative_normalize(raw_text)
+
+    if ineligible_for_section_reconstruction(raw_text, normalized):
+        return LabelReconstructionResult(
+            raw_text=raw_text,
+            normalized_text=normalized,
+            parsed_family="",
+            candidate_labels=[],
+            ranking_scores=None,
+            selected_prediction=None,
+            reason="no_candidates",
+            model_version=None,
+        )
 
     if is_catalog_label(normalized):
         return LabelReconstructionResult(
@@ -102,6 +133,18 @@ def reconstruct(
 
     candidate_set: CandidateSet = generate_candidates(raw_text)
     deterministic_pick = candidate_set.candidates[0] if candidate_set.candidates else None
+    # Missing-thickness square/rect HSS is a review set, never a unique pick.
+    if is_missing_thickness_hss(normalized):
+        return LabelReconstructionResult(
+            raw_text=raw_text,
+            normalized_text=normalized,
+            parsed_family=candidate_set.family,
+            candidate_labels=candidate_set.candidates,
+            ranking_scores=None,
+            selected_prediction=None,
+            reason="no_candidates",
+            model_version=None,
+        )
     selected = deterministic_pick
     reason = "deterministic_top_candidate" if deterministic_pick else "no_candidates"
     model_version = None
@@ -128,7 +171,11 @@ def reconstruct(
             ranked_pairs = sorted(
                 zip(candidate_set.candidates, scores), key=lambda pair: -pair[1]
             )
-            ranker_pick = ranked_pairs[0][0] if ranked_pairs else None
+            ungated_ranker_pick = ranked_pairs[0][0] if ranked_pairs else None
+            ranker_pick = _first_compatible_candidate(
+                [label for label, _score in ranked_pairs],
+                normalized,
+            ) or deterministic_pick
             margin = (
                 ranked_pairs[0][1] - ranked_pairs[1][1]
                 if len(ranked_pairs) > 1
@@ -141,6 +188,11 @@ def reconstruct(
                 shadow_payload = {
                     "current_prediction": deterministic_pick,
                     "ml_prediction": ranker_pick,
+                    "ranker_ungated_top": ungated_ranker_pick,
+                    "field_gate_rejected": (
+                        ungated_ranker_pick is not None
+                        and ranker_pick != ungated_ranker_pick
+                    ),
                     "disagreement": ranker_pick != deterministic_pick,
                     "top_k_candidates": [label for label, _score in ranked_pairs],
                     "ranking_scores": [round(score, 4) for _label, score in ranked_pairs],
