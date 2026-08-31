@@ -358,6 +358,11 @@ def _encoder_for_training_subset(
     XGBoost (via sklearn) requires training ``y`` to contain every class id
     from 0..n-1. After stratified split + row capping, a globally-encoded
     label column can have gaps (e.g. class id 2 absent while id 52 present).
+
+    ``excluded`` is descriptive metadata for the rows that were actually
+    selected: it contains only global dataset classes absent from
+    ``y_train``. A rare class retained by the cap is therefore trained and
+    must not be reported as excluded.
     """
 
     present_names = encoder.inverse_transform(np.unique(y_train))

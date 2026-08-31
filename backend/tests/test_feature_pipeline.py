@@ -9,6 +9,7 @@ from unittest.mock import patch
 import joblib
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import LabelEncoder
 
 from services.dataset_builder import enrich_dataset
 from services.feature_extractor import FEATURE_COLUMNS, extract_structural_features
@@ -150,8 +151,24 @@ class TrainingArtifactTests(unittest.TestCase):
             self.assertTrue((root / "preprocessing_pipeline.pkl").exists())
             self.assertGreaterEqual(progress[-1][1], 94)
 
-    def test_train_xgboost_handles_non_contiguous_global_labels(self):
-        """Row capping can drop a globally-encoded class id from the train split."""
+    def test_training_subset_encoder_reports_only_classes_absent_from_fit(self):
+        global_encoder = LabelEncoder().fit(["HSS", "L", "MC", "W", "WT"])
+        selected_names = ["HSS", "L", "W", "WT", "W"]
+        selected_ids = global_encoder.transform(selected_names)
+
+        remapped, fit_encoder, excluded = (
+            training_service._encoder_for_training_subset(
+                selected_ids,
+                global_encoder,
+            )
+        )
+
+        self.assertEqual(list(fit_encoder.classes_), ["HSS", "L", "W", "WT"])
+        self.assertEqual(excluded, ["MC"])
+        self.assertEqual(set(remapped), set(range(len(fit_encoder.classes_))))
+
+    def test_train_xgboost_cap_metadata_matches_actual_fitted_classes(self):
+        """Capping metadata reflects selected rows, not assumed rare-class loss."""
         rows = []
         for index in range(20):
             rows.extend(
@@ -161,7 +178,8 @@ class TrainingArtifactTests(unittest.TestCase):
                     {"token": f"L{index}X{index}X3/8", "class": "L"},
                 ]
             )
-        # Rare class that will disappear from the capped train split.
+        # Rare class: whether it is excluded is determined by the actual cap,
+        # not its frequency in the global dataset.
         rows.extend(
             {"token": f"MC{index}X{index + 1}", "class": "MC"}
             for index in range(2)
@@ -192,8 +210,19 @@ class TrainingArtifactTests(unittest.TestCase):
                     actor="test",
                 )
 
-            self.assertIn("MC", metadata["excluded_training_classes"])
-            self.assertNotIn("W", metadata["excluded_training_classes"])
+            fitted = set(metadata["class_labels"])
+            excluded = set(metadata["excluded_training_classes"])
+            global_classes = {"HSS", "L", "MC", "W", "WT"}
+
+            self.assertEqual(fitted | excluded, global_classes)
+            self.assertEqual(fitted & excluded, set())
+            self.assertEqual(metadata["dataset_classes"], 5)
+            self.assertEqual(metadata["classes"], len(fitted))
+            saved_encoder = joblib.load(root / "label_encoder.pkl")
+            self.assertEqual(
+                list(saved_encoder.classes_),
+                metadata["class_labels"],
+            )
             self.assertTrue((root / "label_encoder.pkl").exists())
 
 

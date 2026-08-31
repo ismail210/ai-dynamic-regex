@@ -10,6 +10,7 @@ from services.annotation.parser import interpret_annotation
 from services.label_reconstruction.candidates import (
     conservative_normalize,
     generate_candidates,
+    generate_candidates_v3,
     ineligible_for_section_reconstruction,
 )
 from services.label_reconstruction.shadow import reconstruct
@@ -49,7 +50,7 @@ class AnonymousDimensionEligibilityTests(unittest.TestCase):
         # These are intentionally not guessed into L/HSS/etc. without drawing
         # context.  The context resolver may assign plate/angle semantics
         # elsewhere, but generic rolled-section reconstruction must abstain.
-        for query in ("4x4", "3/4X4X6"):
+        for query in ("12X26", "4x4", "3/4X4X6", "2X4X1/4"):
             with self.subTest(query=query):
                 parsed = interpret_annotation(
                     raw_text=query,
@@ -59,6 +60,31 @@ class AnonymousDimensionEligibilityTests(unittest.TestCase):
                 self.assertFalse(parsed.structure_confirmed)
                 self.assertTrue(ineligible_for_section_reconstruction(query))
                 self.assertEqual(generate_candidates(query).candidates, [])
+                self.assertEqual(generate_candidates_v3(query).candidates, [])
+
+    def test_reliable_w_family_evidence_recovers_lost_prefix(self) -> None:
+        for generator in (generate_candidates, generate_candidates_v3):
+            with self.subTest(generator=generator.__name__):
+                candidates = generator(
+                    "12X26",
+                    reliable_family="W",
+                ).candidates
+                self.assertIn("W12X26", candidates)
+                self.assertTrue(all(label.startswith("W") for label in candidates))
+
+    def test_reliable_l_family_evidence_recovers_lost_prefix(self) -> None:
+        for generator in (generate_candidates, generate_candidates_v3):
+            with self.subTest(generator=generator.__name__):
+                candidates = generator(
+                    "3X3X3/8",
+                    reliable_family="L",
+                ).candidates
+                self.assertIn("L3X3X3/8", candidates)
+                self.assertTrue(all(label.startswith("L") for label in candidates))
+
+    def test_reliable_family_cannot_override_an_explicit_family(self) -> None:
+        with self.assertRaises(ValueError):
+            generate_candidates("L3X3X3/8", reliable_family="W")
 
     def test_shadow_never_loads_ranker_for_ineligible_dimensions(self) -> None:
         original_enabled = settings.ml_label_ranker_enabled
@@ -126,6 +152,13 @@ class DamagedSectionPreservationTests(unittest.TestCase):
         wildcard_candidates = generate_candidates("W??X?7").candidates
         self.assertTrue(wildcard_candidates)
         self.assertTrue(all(not label.startswith("WT") for label in wildcard_candidates))
+
+    def test_exact_labels_remain_first_class_candidates(self) -> None:
+        for label in ("W12X26", "L3X3X3/8", "HSS6X6X3/8"):
+            with self.subTest(label=label):
+                candidates = generate_candidates(label).candidates
+                self.assertTrue(candidates)
+                self.assertEqual(candidates[0], label)
 
 
 if __name__ == "__main__":

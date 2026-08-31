@@ -158,14 +158,24 @@ class CandidateGenerationCorrectnessTests(unittest.TestCase):
         for candidate in cs.candidates:
             self.assertTrue(is_catalog_label(candidate))
 
-    def test_family_misroute_fix_recovers_known_regression_cases(self):
+    def test_family_misroute_fix_recovers_real_prefix_collision(self):
         """The evidence-backed fix: a stray real-family-colliding prefix
         (e.g. "B" or "W" prepended) must no longer lock _fuzzy_candidates
         into the wrong family bucket."""
         cs = generate_candidates_v3("BW12X26", limit=25)
         self.assertIn("W12X26", cs.candidates)
-        cs2 = generate_candidates_v3("12X26", limit=25)
-        self.assertIn("W12X26", cs2.candidates)
+
+    def test_familyless_recall_case_requires_reliable_family_evidence(self):
+        """The old recall fixture predated anonymous-dimension safety."""
+        naked = generate_candidates_v3("12X26", limit=25)
+        with_context = generate_candidates_v3(
+            "12X26",
+            limit=25,
+            reliable_family="W",
+        )
+
+        self.assertEqual(naked.candidates, [])
+        self.assertIn("W12X26", with_context.candidates)
 
 
 class RecallOracleBucketMathTests(unittest.TestCase):
