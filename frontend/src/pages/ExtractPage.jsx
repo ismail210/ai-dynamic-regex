@@ -9,6 +9,7 @@ import {
   Paper,
   Stack,
   Switch,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { ArrowForwardRounded, ManageSearchOutlined } from "@mui/icons-material";
@@ -29,6 +30,115 @@ const DISCARD_LABELS = {
   duplicates: "duplicates",
 };
 
+
+function EvidenceChip({ label, page, quote, color = "default", variant = "outlined" }) {
+  const evidence = quote
+    ? `Page ${page ?? "?"}: "${quote}"`
+    : `Page ${page ?? "?"}`;
+  return (
+    <Tooltip title={evidence} placement="top" arrow>
+      <Chip size="small" variant={variant} color={color} label={label} />
+    </Tooltip>
+  );
+}
+
+/**
+ * Informational only: the legend/general-notes project-summary profile
+ * (services/engineering/legend_profile*.py) never touches predicted
+ * sections, candidates, or takeoff quantities -- this panel is read-only
+ * display of what Estima3D found on the non-drawing context pages.
+ */
+function LegendProfilePanel({ profile }) {
+  if (!profile) return null;
+  const summary = profile.project_summary || "";
+  const conventions = profile.important_conventions || [];
+  const abbreviations = profile.abbreviation_rules || [];
+  const warnings = profile.warnings_or_conflicts || [];
+  const hasContent =
+    summary || conventions.length > 0 || abbreviations.length > 0 || warnings.length > 0;
+  if (!hasContent) return null;
+
+  return (
+    <Paper variant="outlined" sx={{ p: 2.5 }}>
+      <Typography variant="subtitle2" fontWeight={700} mb={1}>
+        Important Project Notes
+      </Typography>
+      <Typography variant="caption" color="text.secondary" display="block" mb={1.5}>
+        Extracted from this document's legend/general-notes/specification pages.
+        Informational only -- does not change any predicted section.
+      </Typography>
+
+      {summary && (
+        <Typography variant="body2" sx={{ mb: 1.5 }}>
+          {summary}
+        </Typography>
+      )}
+
+      {abbreviations.length > 0 && (
+        <Box sx={{ mb: 1.5 }}>
+          <Typography variant="caption" fontWeight={600} display="block" mb={0.5}>
+            Project-specific shorthand
+          </Typography>
+          <Stack direction="row" gap={0.75} sx={{ flexWrap: "wrap" }}>
+            {abbreviations.map((rule, index) => (
+              <EvidenceChip
+                key={`${rule.lhs}-${index}`}
+                label={`${rule.lhs} → ${rule.rhs}`}
+                page={rule.source_page}
+                quote={rule.source_quote}
+                color="info"
+              />
+            ))}
+          </Stack>
+        </Box>
+      )}
+
+      {conventions.length > 0 && (
+        <Box sx={{ mb: 1.5 }}>
+          <Typography variant="caption" fontWeight={600} display="block" mb={0.5}>
+            Conventions
+          </Typography>
+          <Stack spacing={0.5}>
+            {conventions.map((item, index) => (
+              <Stack key={index} direction="row" spacing={1} alignItems="flex-start">
+                <Chip size="small" label={item.category} sx={{ mt: 0.25 }} />
+                <Typography variant="body2">
+                  {item.summary}{" "}
+                  <Tooltip
+                    title={`Page ${item.source_page ?? "?"}: "${item.source_quote || ""}"`}
+                    arrow
+                  >
+                    <Typography
+                      component="span"
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ cursor: "help" }}
+                    >
+                      (page {item.source_page ?? "?"})
+                    </Typography>
+                  </Tooltip>
+                </Typography>
+              </Stack>
+            ))}
+          </Stack>
+        </Box>
+      )}
+
+      {warnings.length > 0 && (
+        <Stack spacing={0.75}>
+          {warnings.map((item, index) => (
+            <Alert key={index} severity="warning" variant="outlined" sx={{ py: 0.25 }}>
+              {item.summary}{" "}
+              <Typography component="span" variant="caption" color="text.secondary">
+                (page {item.source_page ?? "?"})
+              </Typography>
+            </Alert>
+          ))}
+        </Stack>
+      )}
+    </Paper>
+  );
+}
 
 export default function ExtractPage() {
   const { document, extraction, setExtraction, setData } = useAnalysis();
@@ -113,6 +223,7 @@ export default function ExtractPage() {
 
       {extraction && (
         <>
+          <LegendProfilePanel profile={extraction.legend_profile} />
           <Paper variant="outlined" sx={{ p: 2.5 }}>
             <Stack direction="row" gap={1} mb={2} sx={{ flexWrap: "wrap" }}>
               <Chip label={`${counts.engineering_objects || 0} engineering objects`} />

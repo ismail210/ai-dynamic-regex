@@ -60,6 +60,7 @@ backend/training/pdf/
 backend/training/pdfs/
 backend/training/excel/
 backend/training/excels/
+backend/training/legend_profiles/
 
 # Torch / system binaries never belong in git
 *.dylib

@@ -9,6 +9,7 @@ from services.artifact_store import write_artifact
 from services.document_intelligence import build_extraction_diagnostics
 from services.annotation.fragment_grouper import group_annotation_fragments
 from services.engineering.document_prior import attach_document_prior
+from services.engineering.legend_profile_hook import attach_legend_profile
 from services.engineering_object_filter import filter_engineering_objects
 from services.pdf_parser import extract_document_structure
 
@@ -32,6 +33,13 @@ def extract_engineering_document(
     if document_id:
         document["document_id"] = document_id
     attach_document_prior(document)
+    # Read-only, informational, document-scoped legend/notes summary --
+    # attached alongside document_prior but never consumed by anything
+    # below this line (group_annotation_fragments/filter_engineering_objects
+    # only ever see raw_tokens/engineering_tokens, not legend_profile).
+    # Disabling LEGEND_PROFILE_ENABLED, or any internal failure here, is a
+    # no-op for every line that follows -- see legend_profile_hook.py.
+    attach_legend_profile(document)
     raw_tokens = document.get("engineering_tokens") or []
     document["raw_engineering_token_count"] = len(raw_tokens)
     # Rotation-aware merge of split shards (6 / x / 4 / x / 5/6) before filter.
@@ -141,6 +149,7 @@ def extraction_response(document: Dict[str, Any]) -> Dict[str, Any]:
         "quality": diagnostics,
         "diagnostics": diagnostics,
         "tokens": tokens,
+        "legend_profile": document.get("legend_profile") or {},
         "layout": {
             "tables": document.get("tables") or [],
             "schedules": document.get("schedules") or [],

@@ -183,6 +183,51 @@ class Settings:
         in ("1", "true", "yes", "on")
     )
 
+    # ---- Legend / general-notes project-summary profile ---------------
+    # Deterministic-only by default: LEGEND_PROFILE_ENABLED gates the whole
+    # feature (page selection + regex abbreviation-rule extraction +
+    # caching), and is safe to leave on -- it never touches
+    # engineering_tokens/candidates/predictions, only attaches
+    # document["legend_profile"] as read-only, informational output.
+    # LEGEND_PROFILE_LLM_ENABLED additionally gates the optional one-shot
+    # LLM call that proposes the prose project_summary/important_conventions/
+    # warnings_or_conflicts; it costs an API call per document, so it
+    # defaults off like the ranker flags below, and every LLM-derived item
+    # still goes through deterministic quote-grounding validation before
+    # being kept (see services/engineering/legend_llm_provider.py).
+    legend_profile_enabled: bool = field(
+        default_factory=lambda: os.getenv(
+            "LEGEND_PROFILE_ENABLED", "true"
+        )
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
+    legend_profile_llm_enabled: bool = field(
+        default_factory=lambda: os.getenv(
+            "LEGEND_PROFILE_LLM_ENABLED", "false"
+        )
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
+    legend_profile_llm_provider: str = field(
+        default_factory=lambda: os.getenv(
+            "LEGEND_PROFILE_LLM_PROVIDER", "anthropic"
+        ).strip().lower()
+    )
+    legend_profile_llm_api_key_env: str = field(
+        default_factory=lambda: os.getenv(
+            "LEGEND_PROFILE_LLM_API_KEY_ENV", "ANTHROPIC_API_KEY"
+        )
+    )
+    legend_profile_llm_model: str = field(
+        default_factory=lambda: os.getenv(
+            "LEGEND_PROFILE_LLM_MODEL", "claude-sonnet-5"
+        )
+    )
+    legend_profile_cache_dir: Path = BASE_DIR / "training" / "legend_profiles"
+
     # ---- Damaged-label reconstruction ranker (shadow mode only) -------
     # Both default false. ML_LABEL_RANKER_SHADOW may be turned on
     # independently of ML_LABEL_RANKER_ENABLED to log the trained
