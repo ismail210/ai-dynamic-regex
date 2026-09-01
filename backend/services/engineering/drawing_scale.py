@@ -18,6 +18,11 @@ DEFAULT_ASSOCIATION_PDF_POINTS = 160.0
 TARGET_ASSOCIATION_REAL_INCHES = 96.0
 MIN_ASSOCIATION_PDF_POINTS = 48.0
 MAX_ASSOCIATION_PDF_POINTS = 280.0
+# CAD→PDF members often split with a small paper gap (~1/4" real).
+TARGET_FRAGMENT_GAP_REAL_INCHES = 0.25
+MIN_FRAGMENT_GAP_PDF_POINTS = 4.0
+MAX_FRAGMENT_GAP_PDF_POINTS = 18.0
+DEFAULT_FRAGMENT_GAP_PDF_POINTS = 8.0
 
 _FRACTION = r"(?:\d+\s+\d+/\d+|\d+/\d+|\d+(?:\.\d+)?)"
 _ARCH_SCALE = re.compile(
@@ -197,3 +202,18 @@ def real_inches_from_pdf_points(length_pdf: float, scale: Optional[DrawingScale]
     if scale is None or scale.pdf_points_per_real_inch <= 0:
         return None
     return float(length_pdf) / scale.pdf_points_per_real_inch
+
+
+def fragment_gap_pdf_points(
+    scale: Optional[DrawingScale],
+    *,
+    default: float = DEFAULT_FRAGMENT_GAP_PDF_POINTS,
+) -> float:
+    """Max paper gap between collinear CAD fragments of one member."""
+
+    if scale is None or scale.pdf_points_per_real_inch <= 0:
+        return float(default)
+    raw = TARGET_FRAGMENT_GAP_REAL_INCHES * scale.pdf_points_per_real_inch
+    return float(
+        min(MAX_FRAGMENT_GAP_PDF_POINTS, max(MIN_FRAGMENT_GAP_PDF_POINTS, raw))
+    )

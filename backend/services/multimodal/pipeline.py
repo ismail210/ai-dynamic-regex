@@ -37,7 +37,7 @@ from services.takeoff.ground_truth_excel import parse_ground_truth_excel
 
 
 # Bumped whenever prediction behaviour changes, so cached analyses are replaced.
-PIPELINE_VERSION = "4.11-scale-region-association"
+PIPELINE_VERSION = "4.12-collinear-merge"
 
 
 def _neural_model_status() -> Dict[str, Any]:

@@ -40,6 +40,7 @@ from services.engineering.drawing_scale import (
     detect_drawing_scale,
     real_inches_from_pdf_points,
 )
+from services.engineering.geometry_normalizer import merge_collinear_fragments
 from services.engineering.models import GeometryKind
 
 
@@ -604,6 +605,11 @@ def extract_geometry(
             )
         page_summaries.sort(key=lambda item: int(item.get("page_number") or 0))
 
+    objects, fragment_stats = merge_collinear_fragments(objects, scale=drawing_scale)
+    counts = {}
+    for obj in objects:
+        kind = str(obj.get("kind") or "unknown")
+        counts[kind] = counts.get(kind, 0) + 1
     _attach_nearest_objects(objects)
     scale_payload = drawing_scale.to_dict() if drawing_scale else None
     return {
@@ -621,4 +627,5 @@ def extract_geometry(
         "association_radius_pdf_points": association_radius_pdf_points(
             drawing_scale
         ),
+        "fragment_merge": fragment_stats,
     }
