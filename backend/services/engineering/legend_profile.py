@@ -1,38 +1,54 @@
-"""Legend / general-notes project-summary profile.
+"""Project Context Profile -- deep analysis of a document's legend/notes
+pages (formerly "legend profile"; kept this module name/internal function
+names for compatibility rather than renaming dozens of call sites for no
+architectural benefit -- see module docstring in legend_profile_hook.py for
+the external-facing rationale).
 
 Reads ONLY the text-dense, non-drawing pages of a document (legend,
-general/structural notes, abbreviations, specifications) and produces a
-small, document-scoped, cached summary of project-specific conventions --
-e.g. a general-notes line that says::
+general/structural/steel notes, abbreviations, specifications, design
+criteria, connection notes, special/typical notes) and produces a
+document-scoped, cached analysis of project-specific conventions, material/
+connection/fabrication notes, and cross-note deductions -- for display to
+the estimator.
 
-    "W8" = W8x10
+Checkpoint 2 changes (see docs accompanying this commit for the full
+diagnosis): a real customer PDF (ST__0bfc2d61245d.pdf) produced an empty
+panel. Root-caused to two independent problems, both fixed here:
 
-This module is informational by design for this checkpoint. It:
+1. Page-role classification relied on ``document_prior.detect_legend_pages``
+   as an unconditional fallback whenever no heading matched. That scorer
+   was built for a *soft* reranking-confidence consumer (tolerant of being
+   occasionally wrong) and was never precise enough to gate "should the LLM
+   read this entire page" -- on the real PDF it flagged three genuine
+   framing/foundation PLAN pages (dense with real "(E) W14x22"-style member
+   schedules) as legend-like, purely because they contained many distinct
+   AISC-shape strings (the scorer's "many sections = legend-like" signal,
+   which backfires on an actual framing plan). ``_looks_like_drawing_page``
+   below is a new, independent negative filter for exactly this failure
+   mode: a page dense with Existing/New-tagged member callouts is a plan
+   page regardless of what the soft scorer says.
+2. Heading matching was restricted to the first 200 characters of a page
+   (a precision fix for a *different*, earlier false positive -- see git
+   history) but the real PDF's actual "GENERAL NOTES" heading sits ~650
+   characters into the page, after a full title-block/sheet-index preamble
+   on the same page. Fixed by searching the WHOLE page text and taking
+   whichever heading pattern matches EARLIEST in the text, rather than
+   only searching a fixed prefix -- this satisfies both documents at once
+   (GCDC's false "ABBREVIATIONS" mid-sentence match no longer wins because
+   its own real "GENERAL NOTES" heading is earlier in the text; the real
+   PDF's late-but-real heading is still found because there's no window).
+
+This module is still informational only. It:
 
 * never mutates ``engineering_tokens``, candidate generation, ranking, or
   any prediction;
 * never inserts a family into a token that did not already carry one in
-  its own extracted text (this is the exact behavior the ``reliable_family``
-  mechanism, added in 9731651 and removed in 8b3d065, was ruled out for --
-  see the module-level note in ``extract_abbreviation_rules`` below);
-* marks every extracted item ``STATUS_PROPOSED_INFERENCE`` -- nothing here
-  is authoritative, and nothing here is applied to a prediction. A later,
-  separate feature may one day let a human-reviewed, same-family,
-  catalog-valid abbreviation rule assist an unresolved token; this module
-  only prepares evidence for that decision, it does not make it.
-
-Adapted from the orphaned ``bassam/drawing-language-profile`` prototype
-(``services/engineering/drawing_language_profile.py`` in that worktree,
-never committed/merged) rather than rewritten from scratch -- the page-role
-classification, quote-anchored provenance, and same-family/catalog-valid
-extraction gates are carried over near-verbatim because they were already
-correct. What's new here: the ``project_summary``/``important_conventions``/
-``warnings_or_conflicts`` shape (the prototype only produced typed rules,
-not a human-facing summary), and the explicit ``STATUS_PROPOSED_INFERENCE``
-status on every item regardless of extraction method (the prototype
-promoted explicit deterministic matches straight to ``SOURCE_VERIFIED``;
-this checkpoint deliberately does not draw that distinction anywhere
-consumption happens, since nothing here is applied to a token either way).
+  its own extracted text (the exact behavior the ``reliable_family``
+  mechanism, added in 9731651 and removed in 8b3d065, was ruled out for);
+* keeps every extracted item's ``status`` as ``PROPOSED_INFERENCE`` --
+  nothing here is authoritative, and nothing here is applied to a
+  prediction, regardless of whether it's a directly-quoted source fact or
+  a cross-note derived insight.
 """
 
 from __future__ import annotations
@@ -49,30 +65,45 @@ from services.engineering.document_prior import detect_legend_pages
 from services.structural_parser import parse_section
 from services.token_extractor import normalize_engineering_token
 
-PROFILE_VERSION = "legend_profile_v1"
-EXTRACTOR_VERSION = "legend_extractor_v1"
-SCHEMA_VERSION = "legend_schema_v1"
+PROFILE_VERSION = "legend_profile_v2"
+EXTRACTOR_VERSION = "legend_extractor_v2"
+SCHEMA_VERSION = "legend_schema_v2"
 
 STATUS_PROPOSED_INFERENCE = "PROPOSED_INFERENCE"
 
 METHOD_DETERMINISTIC = "deterministic"
 METHOD_LLM_PROPOSED = "llm_proposed"
 
-CATEGORY_SECTION_SHORTHAND = "SECTION_SHORTHAND"
+# Overall per-document analysis outcome -- always set, so the UI/API never
+# has to guess *why* a panel is empty (see legend_profile_hook.py).
+ANALYSIS_SUCCESS = "SUCCESS"
+ANALYSIS_NO_CONTEXT_PAGES = "NO_CONTEXT_PAGES"
+ANALYSIS_NO_RELEVANT_INFORMATION = "NO_RELEVANT_INFORMATION"
+ANALYSIS_MODEL_UNAVAILABLE = "MODEL_UNAVAILABLE"
+ANALYSIS_MODEL_ERROR = "MODEL_ERROR"
+ANALYSIS_VISION_REQUIRED = "VISION_REQUIRED"
+ANALYSIS_DISABLED = "DISABLED"
+
+# Structural-steel-estimating categories a source fact may belong to (see
+# section 9 of the request this implements: notation, materials,
+# connections, fabrication, structural interpretation, estimator scope).
+CATEGORY_SECTION_NOTATION = "SECTION_NOTATION"
 CATEGORY_MATERIAL = "MATERIAL"
 CATEGORY_CONNECTION = "CONNECTION"
-CATEGORY_CAMBER = "CAMBER"
+CATEGORY_FABRICATION = "FABRICATION"
+CATEGORY_INTERPRETATION = "INTERPRETATION"
 CATEGORY_RESPONSIBILITY = "RESPONSIBILITY"
-CATEGORY_GENERAL_STRUCTURAL = "GENERAL_STRUCTURAL"
+CATEGORY_SCOPE = "SCOPE"
 CATEGORY_OTHER = "OTHER"
 
 _ALLOWED_CATEGORIES = {
-    CATEGORY_SECTION_SHORTHAND,
+    CATEGORY_SECTION_NOTATION,
     CATEGORY_MATERIAL,
     CATEGORY_CONNECTION,
-    CATEGORY_CAMBER,
+    CATEGORY_FABRICATION,
+    CATEGORY_INTERPRETATION,
     CATEGORY_RESPONSIBILITY,
-    CATEGORY_GENERAL_STRUCTURAL,
+    CATEGORY_SCOPE,
     CATEGORY_OTHER,
 }
 
@@ -82,6 +113,7 @@ PAGE_ROLE_STRUCTURAL_NOTES = "STRUCTURAL_NOTES"
 PAGE_ROLE_ABBREVIATIONS = "ABBREVIATIONS"
 PAGE_ROLE_SPECIFICATIONS = "SPECIFICATIONS"
 PAGE_ROLE_VISION_REQUIRED = "VISION_REQUIRED"
+PAGE_ROLE_EXCLUDED_DRAWING_PAGE = "EXCLUDED_DRAWING_PAGE"
 
 _CONTEXT_PAGE_ROLES = {
     PAGE_ROLE_LEGEND,
@@ -93,11 +125,8 @@ _CONTEXT_PAGE_ROLES = {
 
 # Minimum extracted-text length for a page that scored as a legend/notes
 # page to be treated as usable text (rather than a scan Estima3D cannot
-# read yet). This is a conservative, deterministic heuristic -- no OCR/VLM
-# call is made here; a page below this threshold is only ever flagged, its
-# text (if any) is still passed through unchanged, and it is excluded from
-# LLM input so a near-empty page can't silently become "no useful context
-# found" filler.
+# read yet). No OCR/VLM call is made here; a page below this threshold is
+# only ever flagged, never silently treated as "no useful notes found".
 _VISION_REQUIRED_MIN_CHARS = 40
 
 _DIM_TEXT_RE = r"\d+(?:-\d+/\d+|/\d+|\.\d+)?"
@@ -111,10 +140,33 @@ _ABBREV_TRIGGER_RE = re.compile(
     r"(?![A-Za-z0-9/])"
 )
 
-_ABBREVIATIONS_HEADING_RE = re.compile(r"\bABBREVIATIONS?\b", re.I)
-_GENERAL_NOTES_HEADING_RE = re.compile(r"\bGENERAL\s+NOTES?\b", re.I)
-_STRUCTURAL_NOTES_HEADING_RE = re.compile(r"\bSTRUCTURAL\s+NOTES?\b", re.I)
-_SPECIFICATION_HEADING_RE = re.compile(r"\bSPECIFICATIONS?\b", re.I)
+# (role, pattern) in priority order used ONLY as a tie-break when two
+# patterns match at the exact same position (never happens in practice,
+# kept for determinism). The real decision below is "earliest match wins",
+# not list order -- see _classify_page_role.
+_HEADING_PATTERNS = (
+    (PAGE_ROLE_LEGEND, re.compile(r"\bLEGEND\b|\bSYMBOLS\s+AND\s+NOTATIONS?\b|\bSTRUCTURAL\s+SYMBOLS\b", re.I)),
+    (PAGE_ROLE_ABBREVIATIONS, re.compile(r"\bABBREVIATIONS?\b", re.I)),
+    (PAGE_ROLE_SPECIFICATIONS, re.compile(r"\bSPECIFICATIONS?\b", re.I)),
+    (
+        PAGE_ROLE_STRUCTURAL_NOTES,
+        re.compile(
+            r"\bSTRUCTURAL\s+NOTES?\b|\bSTEEL\s+NOTES?\b|\bDESIGN\s+CRITERIA\b"
+            r"|\bCONNECTION\s+NOTES?\b|\bSPECIAL\s+NOTES?\b|\bTYPICAL\s+NOTES?\b",
+            re.I,
+        ),
+    ),
+    (PAGE_ROLE_GENERAL_NOTES, re.compile(r"\bGENERAL\s+NOTES?\b", re.I)),
+)
+
+# A page dense with Existing/New-tagged real member callouts (the
+# unmistakable signature of an actual framing/foundation plan sheet) is
+# excluded even if document_prior's soft scorer flagged it as legend-like.
+# See module docstring, failure mode 1.
+_MEMBER_CALLOUT_RE = re.compile(
+    r"\((?:E|N)\)\s*(?:W|WT|HSS|L|2L|C|MC|PIPE|M|S|HP)\d", re.I
+)
+_DRAWING_PAGE_MIN_CALLOUTS = 2
 
 
 def _page_text(document: Dict[str, Any], page_number: int) -> str:
@@ -135,8 +187,9 @@ def _page_text(document: Dict[str, Any], page_number: int) -> str:
 
 
 def compute_document_hash(document: Dict[str, Any]) -> str:
-    """Content hash used as the profile cache key -- never a filename-only
-    key, so a changed/re-uploaded PDF never serves a stale cached profile."""
+    """Content hash used as (part of) the profile cache key -- never a
+    filename-only key, so a changed/re-uploaded PDF never serves a stale
+    cached profile."""
 
     text = str(document.get("text") or "")
     if text.strip():
@@ -160,28 +213,40 @@ def compute_document_hash(document: Dict[str, Any]) -> str:
     return hashlib.sha256(basis.encode("utf-8", errors="ignore")).hexdigest()[:32]
 
 
-#: Headings are only recognized near the top of the page. Without this
-#: bound, a GENERAL NOTES page whose body text happens to mention e.g.
-#: "...MEMBER SIZE ABBREVIATIONS ARE USED ON THE FRAMING PLANS..." (a real
-#: GCDC sentence) would be mislabeled ABBREVIATIONS just because that word
-#: appears somewhere in the prose. This only affects the informational
-#: page-role label -- GENERAL_NOTES/ABBREVIATIONS/STRUCTURAL_NOTES/
-#: SPECIFICATIONS are all equally "readable context" for extraction
-#: purposes (see _CONTEXT_PAGE_ROLES), so this is a precision refinement,
-#: not a safety gate.
-_HEADING_SEARCH_WINDOW = 200
+def _looks_like_drawing_page(text: str) -> bool:
+    """True when a page is dense with real, tagged member-schedule
+    callouts -- i.e. an actual framing/foundation plan, not a notes page.
+    See module docstring, failure mode 1, for the real document that
+    exposed this."""
+
+    return len(_MEMBER_CALLOUT_RE.findall(text)) >= _DRAWING_PAGE_MIN_CALLOUTS
 
 
 def _classify_page_role(text: str, *, is_legend_page: bool) -> Optional[str]:
-    upper = text[:_HEADING_SEARCH_WINDOW].upper()
-    if _ABBREVIATIONS_HEADING_RE.search(upper):
-        return PAGE_ROLE_ABBREVIATIONS
-    if _SPECIFICATION_HEADING_RE.search(upper):
-        return PAGE_ROLE_SPECIFICATIONS
-    if _STRUCTURAL_NOTES_HEADING_RE.search(upper):
-        return PAGE_ROLE_STRUCTURAL_NOTES
-    if _GENERAL_NOTES_HEADING_RE.search(upper):
-        return PAGE_ROLE_GENERAL_NOTES
+    """Whichever heading pattern matches EARLIEST in the page text wins --
+    not a fixed priority order, and not limited to a text prefix. This is
+    what lets a real "GENERAL NOTES" heading win over a later, incidental
+    mention of the word "abbreviations" in body prose (GCDC), while still
+    finding a real heading that sits after a long title-block/sheet-index
+    preamble on the same page (the ST.pdf failure this checkpoint fixes)."""
+
+    # Checked FIRST, unconditionally -- a real framing/foundation plan page
+    # can still carry a small on-sheet note ("SEE GENERAL NOTES...") that
+    # would otherwise win the heading-match race below even though the
+    # page as a whole is dense with real member-schedule callouts, not
+    # project-level notes. See module docstring, failure mode 1.
+    if _looks_like_drawing_page(text):
+        return None
+
+    best_role: Optional[str] = None
+    best_index: Optional[int] = None
+    for role, pattern in _HEADING_PATTERNS:
+        match = pattern.search(text)
+        if match and (best_index is None or match.start() < best_index):
+            best_index = match.start()
+            best_role = role
+    if best_role is not None:
+        return best_role
     if is_legend_page:
         return PAGE_ROLE_LEGEND
     return None
@@ -190,12 +255,10 @@ def _classify_page_role(text: str, *, is_legend_page: bool) -> Optional[str]:
 def detect_context_pages(document: Dict[str, Any]) -> Dict[int, str]:
     """Deterministic page-role classification, context pages only.
 
-    Reuses ``document_prior.detect_legend_pages`` for the underlying
-    legend-likelihood scoring so this module never disagrees with the
-    already-tested legend-page signal document_prior itself relies on --
-    it only refines *which* context role a legend-scoring page gets, and
-    additionally recognizes STRUCTURAL_NOTES/ABBREVIATIONS/SPECIFICATIONS
-    headings document_prior's binary in/out signal doesn't distinguish.
+    Reuses ``document_prior.detect_legend_pages`` as one candidate signal
+    (never the sole gate -- see ``_looks_like_drawing_page``) so this
+    module still benefits from that already-tested scoring without
+    inheriting its false-positive rate on real framing/foundation plans.
 
     Ordinary drawing/framing/detail pages are never included here, even
     if they contain some text -- this function is the sole gate for which
@@ -242,8 +305,7 @@ def extract_abbreviation_rules(
     Deliberately regex-only, never LLM-proposed: an explicit table/legend
     pair is exactly the case a fixed pattern already handles precisely, and
     keeping it deterministic means every field is reparsed directly from
-    the source text rather than trusted from a model response (this is the
-    "independent parse gate" -- see module docstring).
+    the source text rather than trusted from a model response.
 
     Every candidate rule must pass, in order:
 
@@ -260,11 +322,6 @@ def extract_abbreviation_rules(
     *context* when the token's own text has none. This extractor never
     looks at token text at all -- it only accepts a rule when the source
     document's own LHS and RHS already agree on family with each other.
-    Whether any given *token* is itself eligible to be completed by such a
-    rule is future work (see docs update accompanying this checkpoint) and
-    is explicitly NOT implemented anywhere in this module: nothing here
-    reads ``engineering_tokens``, and nothing here returns a value used by
-    candidate generation.
     """
 
     rules: List[Dict[str, Any]] = []
@@ -318,10 +375,7 @@ def _count_non_context_occurrences(
     document: Dict[str, Any], lhs: str, context_pages: Dict[int, str]
 ) -> int:
     """Informational only (never gates whether a rule is extracted/shown):
-    how many times does the shorthand appear outside context pages? This is
-    what answers "is this rule actually used on this project, or unused
-    boilerplate" without ever suppressing an explicitly-stated project rule
-    just because it happens to be rare or unused so far."""
+    how many times does the shorthand appear outside context pages?"""
 
     full_text = str(document.get("text") or "")
     if not full_text or not lhs:
@@ -336,9 +390,7 @@ def _count_non_context_occurrences(
 
 def _normalize_for_quote_match(text: str) -> str:
     normalized = text.replace("×", "x").replace("÷", "/")
-    normalized = normalized.replace("’", "'").replace("“", '"').replace(
-        "”", '"'
-    )
+    normalized = normalized.replace("’", "'").replace("“", '"').replace("”", '"')
     return " ".join(normalized.split()).lower()
 
 
@@ -346,70 +398,116 @@ def verify_quote(source_text: str, quote: str) -> bool:
     """Deterministic quote-grounding check: the exact evidence text must be
     findable in the real extracted page text, allowing only non-semantic
     normalization (whitespace collapse, case, common Unicode look-alikes).
-    Never a second LLM call, and never a semantic/paraphrase match -- if the
-    normalized quote is not a substring of the normalized source, the item
-    is rejected outright, per the checkpoint's "precision over recall"
-    instruction."""
+    Never a second LLM call, never a semantic/paraphrase match."""
 
     if not quote or not source_text:
         return False
     return _normalize_for_quote_match(quote) in _normalize_for_quote_match(source_text)
 
 
+#: ~60k chars (~15k tokens) comfortably covers most real note/spec page
+#: sets seen so far (GCDC: ~9 context pages; a real customer set: ~10
+#: pages, ~92k chars uncapped) while staying within a sensible local-model
+#: context window (see OllamaLegendProvider's num_ctx). Documents whose
+#: context pages exceed this ARE truncated in this checkpoint -- chunking
+#: is explicitly out of scope per the request ("chunk ONLY when
+#: necessary... do not turn this into an agentic loop yet"); this is a
+#: disclosed limitation (see diagnostics.context_chars_available vs.
+#: diagnostics.context_chars_sent in legend_profile_hook.py), not a silent
+#: one, and it is applied FAIRLY per page (see module docstring below), not
+#: as a first-come-first-served cut of the concatenated blob.
+_DEFAULT_MAX_CONTEXT_CHARS = 60000
+
+
 def build_context_text(
-    document: Dict[str, Any], context_pages: Dict[int, str], *, max_chars: int = 20000
+    document: Dict[str, Any],
+    context_pages: Dict[int, str],
+    *,
+    max_chars: int = _DEFAULT_MAX_CONTEXT_CHARS,
 ) -> str:
     """Bounded, page-tagged text blob for the single LLM call -- only
-    readable context pages (never VISION_REQUIRED, never drawing pages)."""
+    readable context pages (never VISION_REQUIRED, never drawing pages).
+
+    Truncates PER PAGE with a fair, equal character budget, rather than
+    concatenating every page in page-number order and hard-cutting the
+    result at ``max_chars``. Confirmed real-document bug this fixes: on
+    GCDC Building 4 - ST1.pdf, pages 1+3+4 alone total ~61k characters --
+    a naive concatenate-then-cut approach silently dropped page 5 (the
+    page with the actual "W8"=W8x10-style abbreviation table) ENTIRELY,
+    because it happened to sort after three large pages. A fair per-page
+    budget instead guarantees every selected context page contributes at
+    least something to the model's input, regardless of page order or
+    other pages' sizes.
+    """
 
     pages = _readable_context_pages(context_pages)
+    if not pages:
+        return ""
+    per_page_budget = max(max_chars // len(pages), 500)
     combined = "\n\n".join(
-        f"[PAGE {page}]\n{_page_text(document, page)}" for page in pages
+        f"[PAGE {page}]\n{_page_text(document, page)[:per_page_budget]}" for page in pages
     )
     return combined[:max_chars]
 
 
-def _cache_path(cache_dir: Path, document_hash: str) -> Path:
-    return cache_dir / f"{document_hash}.json"
+def _cache_path(cache_dir: Path, cache_key: str) -> Path:
+    return cache_dir / f"{cache_key}.json"
 
 
-def load_cached_profile(
-    cache_dir: Path,
+def compute_cache_key(
     document_hash: str,
     *,
     llm_requested: bool,
-) -> Optional[Dict[str, Any]]:
-    path = _cache_path(cache_dir, document_hash)
+    provider_name: str = "",
+    model: str = "",
+) -> str:
+    """Cache key versioned on everything that changes the analysis: content,
+    extractor/schema code version, and -- when the LLM ran -- which
+    provider/model produced the prose fields. Changing the prompt (which
+    bumps EXTRACTOR_VERSION/SCHEMA_VERSION), switching provider, or
+    switching model all invalidate old cache entries automatically instead
+    of silently replaying a stale (possibly empty) analysis."""
+
+    parts = [document_hash, PROFILE_VERSION, EXTRACTOR_VERSION, SCHEMA_VERSION]
+    if llm_requested:
+        parts.extend([provider_name or "", model or ""])
+    else:
+        parts.append("no_llm")
+    raw = "|".join(parts)
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:40]
+
+
+def load_cached_profile(cache_dir: Path, cache_key: str) -> Optional[Dict[str, Any]]:
+    path = _cache_path(cache_dir, cache_key)
     if not path.exists():
         return None
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return None
-    if (
-        data.get("profile_version") != PROFILE_VERSION
-        or data.get("extractor_version") != EXTRACTOR_VERSION
-        or data.get("schema_version") != SCHEMA_VERSION
-        or data.get("source_document_hash") != document_hash
-        or bool(data.get("llm_requested")) != bool(llm_requested)
-    ):
+    if data.get("cache_key") != cache_key:
         return None
     return data
 
 
-def save_profile(cache_dir: Path, profile: Dict[str, Any]) -> None:
+def save_profile(cache_dir: Path, cache_key: str, profile: Dict[str, Any]) -> None:
     cache_dir.mkdir(parents=True, exist_ok=True)
-    path = _cache_path(cache_dir, profile["source_document_hash"])
+    profile["cache_key"] = cache_key
+    path = _cache_path(cache_dir, cache_key)
     path.write_text(json.dumps(profile, indent=2), encoding="utf-8")
 
 
 def empty_profile(
-    document: Dict[str, Any], *, llm_requested: bool, catalog_version: Optional[str] = None
+    document: Dict[str, Any],
+    *,
+    status: str,
+    llm_requested: bool,
+    catalog_version: Optional[str] = None,
 ) -> Dict[str, Any]:
-    """The all-fields-present, nothing-found shape. Returned whenever the
-    feature is disabled, the document has no context pages, or extraction
-    otherwise finds nothing -- callers should never need to special-case
-    "no profile" vs. "empty profile"."""
+    """The all-fields-present shape. ``status`` must always be one of the
+    ANALYSIS_* constants -- callers must never need to guess *why* a panel
+    would be empty (see legend_profile_hook.py, which is the only place
+    that decides which status applies)."""
 
     return {
         "profile_version": PROFILE_VERSION,
@@ -418,14 +516,20 @@ def empty_profile(
         "source_document_hash": compute_document_hash(document),
         "catalog_version": catalog_version,
         "built_at": time.time(),
+        "status": status,
         "llm_requested": llm_requested,
         "llm_used": False,
         "llm_error": None,
+        "llm_provider": None,
         "llm_model": None,
         "prompt_version": None,
+        "llm_latency_ms": None,
         "context_pages": {},
-        "project_summary": "",
-        "important_conventions": [],
+        "executive_summary": "",
+        "source_facts": [],
         "abbreviation_rules": [],
-        "warnings_or_conflicts": [],
+        "derived_insights": [],
+        "warnings_and_conflicts": [],
+        "estimator_attention_items": [],
+        "diagnostics": {},
     }

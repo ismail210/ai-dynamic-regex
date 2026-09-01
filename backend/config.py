@@ -183,18 +183,26 @@ class Settings:
         in ("1", "true", "yes", "on")
     )
 
-    # ---- Legend / general-notes project-summary profile ---------------
+    # ---- Project context profile (legend/notes deep analysis) ---------
     # Deterministic-only by default: LEGEND_PROFILE_ENABLED gates the whole
     # feature (page selection + regex abbreviation-rule extraction +
     # caching), and is safe to leave on -- it never touches
     # engineering_tokens/candidates/predictions, only attaches
     # document["legend_profile"] as read-only, informational output.
     # LEGEND_PROFILE_LLM_ENABLED additionally gates the optional one-shot
-    # LLM call that proposes the prose project_summary/important_conventions/
-    # warnings_or_conflicts; it costs an API call per document, so it
-    # defaults off like the ranker flags below, and every LLM-derived item
-    # still goes through deterministic quote-grounding validation before
-    # being kept (see services/engineering/legend_llm_provider.py).
+    # LLM call that proposes executive_summary/source_facts/
+    # derived_insights/warnings_and_conflicts/estimator_attention_items; it
+    # costs a model call per document, so it defaults off like the ranker
+    # flags below, and every LLM-derived item still goes through
+    # deterministic quote-grounding (facts) or grounded-evidence-refs
+    # (insights) validation before being kept (see
+    # services/engineering/legend_llm_provider.py).
+    #
+    # Default provider is Ollama (free, local, no API key, no data leaves
+    # the machine) -- see docs accompanying this commit for the
+    # recommended model and why. LEGEND_LLM_PROVIDER/LEGEND_LLM_MODEL/
+    # OLLAMA_BASE_URL are the primary knobs; LEGEND_PROFILE_LLM_API_KEY_ENV
+    # only matters for the "anthropic" provider.
     legend_profile_enabled: bool = field(
         default_factory=lambda: os.getenv(
             "LEGEND_PROFILE_ENABLED", "true"
@@ -211,19 +219,24 @@ class Settings:
         .lower()
         in ("1", "true", "yes", "on")
     )
-    legend_profile_llm_provider: str = field(
+    legend_llm_provider: str = field(
         default_factory=lambda: os.getenv(
-            "LEGEND_PROFILE_LLM_PROVIDER", "anthropic"
+            "LEGEND_LLM_PROVIDER", "ollama"
         ).strip().lower()
+    )
+    legend_llm_model: str = field(
+        default_factory=lambda: os.getenv(
+            "LEGEND_LLM_MODEL", "llama3.1:8b"
+        )
+    )
+    ollama_base_url: str = field(
+        default_factory=lambda: os.getenv(
+            "OLLAMA_BASE_URL", "http://localhost:11434"
+        )
     )
     legend_profile_llm_api_key_env: str = field(
         default_factory=lambda: os.getenv(
             "LEGEND_PROFILE_LLM_API_KEY_ENV", "ANTHROPIC_API_KEY"
-        )
-    )
-    legend_profile_llm_model: str = field(
-        default_factory=lambda: os.getenv(
-            "LEGEND_PROFILE_LLM_MODEL", "claude-sonnet-5"
         )
     )
     legend_profile_cache_dir: Path = BASE_DIR / "training" / "legend_profiles"

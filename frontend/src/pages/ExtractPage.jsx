@@ -42,21 +42,116 @@ function EvidenceChip({ label, page, quote, color = "default", variant = "outlin
   );
 }
 
+const CATEGORY_LABELS = {
+  SECTION_NOTATION: "Section notation",
+  MATERIAL: "Materials",
+  CONNECTION: "Connections",
+  FABRICATION: "Fabrication",
+  INTERPRETATION: "Interpretation",
+  RESPONSIBILITY: "Responsibility",
+  SCOPE: "Estimator scope",
+  OTHER: "Other",
+};
+
+// User-facing message only for statuses worth actively telling the user
+// about -- DISABLED/NO_CONTEXT_PAGES/SUCCESS render nothing extra when
+// there's genuinely nothing to show, matching "don't dump a blank panel
+// with an error for a normal non-applicable case".
+const STATUS_MESSAGES = {
+  MODEL_UNAVAILABLE: "Project notes analysis unavailable (the configured model could not be reached).",
+  MODEL_ERROR: "Project notes analysis failed (the model returned an unusable response).",
+  VISION_REQUIRED: "This document's notes/legend pages appear to be scanned images -- text analysis was not possible yet.",
+  NO_RELEVANT_INFORMATION: "No notable project-specific notes found beyond standard boilerplate.",
+};
+
+function SourceFactItem({ fact }) {
+  return (
+    <Stack direction="row" spacing={1} alignItems="flex-start">
+      <Chip size="small" label={CATEGORY_LABELS[fact.category] || fact.category} sx={{ mt: 0.25 }} />
+      <Typography variant="body2">
+        {fact.statement}{" "}
+        <Tooltip title={`Page ${fact.source_page ?? "?"}: "${fact.source_quote || ""}"`} arrow>
+          <Typography component="span" variant="caption" color="text.secondary" sx={{ cursor: "help" }}>
+            (page {fact.source_page ?? "?"})
+          </Typography>
+        </Tooltip>
+      </Typography>
+    </Stack>
+  );
+}
+
+function DerivedInsightItem({ insight }) {
+  const basedOn = (insight.evidence_refs || []).join(" · ");
+  return (
+    <Alert
+      severity="info"
+      variant="outlined"
+      icon={false}
+      sx={{ "& .MuiAlert-message": { width: "100%" } }}
+    >
+      <Stack spacing={0.5}>
+        <Stack direction="row" spacing={1} alignItems="center">
+          <Chip size="small" color="info" label="Project inference" />
+          {insight.human_review_recommended && (
+            <Chip size="small" color="warning" variant="outlined" label="Review recommended" />
+          )}
+          <Typography variant="caption" color="text.secondary">
+            confidence {Math.round((insight.confidence ?? 0) * 100)}%
+          </Typography>
+        </Stack>
+        <Typography variant="body2">{insight.inference}</Typography>
+        {insight.impact && (
+          <Typography variant="caption" color="text.secondary">
+            Impact: {insight.impact}
+          </Typography>
+        )}
+        {basedOn && (
+          <Tooltip title={insight.reasoning_summary || ""} arrow>
+            <Typography variant="caption" color="text.secondary" sx={{ cursor: "help" }}>
+              Based on: {basedOn}
+            </Typography>
+          </Tooltip>
+        )}
+      </Stack>
+    </Alert>
+  );
+}
+
 /**
- * Informational only: the legend/general-notes project-summary profile
+ * Informational only: the project context profile
  * (services/engineering/legend_profile*.py) never touches predicted
  * sections, candidates, or takeoff quantities -- this panel is read-only
  * display of what Estima3D found on the non-drawing context pages.
+ *
+ * SOURCE FACTS are directly quoted from the document (evidence-grounded).
+ * DERIVED INSIGHTS are the model's reasoning ACROSS multiple facts -- shown
+ * with distinct styling (blue "Project inference" chip) so a reader never
+ * mistakes a deduction for something the document states outright.
  */
 function LegendProfilePanel({ profile }) {
   if (!profile) return null;
-  const summary = profile.project_summary || "";
-  const conventions = profile.important_conventions || [];
+  const summary = profile.executive_summary || "";
+  const facts = profile.source_facts || [];
+  const insights = profile.derived_insights || [];
   const abbreviations = profile.abbreviation_rules || [];
-  const warnings = profile.warnings_or_conflicts || [];
+  const warnings = profile.warnings_and_conflicts || [];
+  const attentionItems = profile.estimator_attention_items || [];
   const hasContent =
-    summary || conventions.length > 0 || abbreviations.length > 0 || warnings.length > 0;
-  if (!hasContent) return null;
+    summary ||
+    facts.length > 0 ||
+    insights.length > 0 ||
+    abbreviations.length > 0 ||
+    warnings.length > 0 ||
+    attentionItems.length > 0;
+
+  const statusMessage = STATUS_MESSAGES[profile.status];
+  if (!hasContent && !statusMessage) return null;
+
+  const factsByCategory = facts.reduce((acc, fact) => {
+    const key = fact.category || "OTHER";
+    (acc[key] = acc[key] || []).push(fact);
+    return acc;
+  }, {});
 
   return (
     <Paper variant="outlined" sx={{ p: 2.5 }}>
@@ -67,6 +162,12 @@ function LegendProfilePanel({ profile }) {
         Extracted from this document's legend/general-notes/specification pages.
         Informational only -- does not change any predicted section.
       </Typography>
+
+      {!hasContent && statusMessage && (
+        <Alert severity={profile.status === "MODEL_ERROR" ? "error" : "info"} variant="outlined">
+          {statusMessage}
+        </Alert>
+      )}
 
       {summary && (
         <Typography variant="body2" sx={{ mb: 1.5 }}>
@@ -93,32 +194,44 @@ function LegendProfilePanel({ profile }) {
         </Box>
       )}
 
-      {conventions.length > 0 && (
+      {Object.keys(factsByCategory).length > 0 && (
         <Box sx={{ mb: 1.5 }}>
           <Typography variant="caption" fontWeight={600} display="block" mb={0.5}>
-            Conventions
+            Explicit project facts
           </Typography>
           <Stack spacing={0.5}>
-            {conventions.map((item, index) => (
-              <Stack key={index} direction="row" spacing={1} alignItems="flex-start">
-                <Chip size="small" label={item.category} sx={{ mt: 0.25 }} />
-                <Typography variant="body2">
-                  {item.summary}{" "}
-                  <Tooltip
-                    title={`Page ${item.source_page ?? "?"}: "${item.source_quote || ""}"`}
-                    arrow
-                  >
-                    <Typography
-                      component="span"
-                      variant="caption"
-                      color="text.secondary"
-                      sx={{ cursor: "help" }}
-                    >
-                      (page {item.source_page ?? "?"})
-                    </Typography>
-                  </Tooltip>
-                </Typography>
-              </Stack>
+            {Object.entries(factsByCategory).map(([category, items]) =>
+              items.map((fact, index) => (
+                <SourceFactItem key={`${category}-${index}`} fact={fact} />
+              )),
+            )}
+          </Stack>
+        </Box>
+      )}
+
+      {insights.length > 0 && (
+        <Box sx={{ mb: 1.5 }}>
+          <Typography variant="caption" fontWeight={600} display="block" mb={0.5}>
+            Potential interpretation (derived, not stated directly)
+          </Typography>
+          <Stack spacing={0.75}>
+            {insights.map((insight, index) => (
+              <DerivedInsightItem key={index} insight={insight} />
+            ))}
+          </Stack>
+        </Box>
+      )}
+
+      {attentionItems.length > 0 && (
+        <Box sx={{ mb: 1.5 }}>
+          <Typography variant="caption" fontWeight={600} display="block" mb={0.5}>
+            Estimator attention
+          </Typography>
+          <Stack component="ul" sx={{ m: 0, pl: 2.5 }} spacing={0.25}>
+            {attentionItems.map((item, index) => (
+              <Typography key={index} component="li" variant="body2">
+                {item}
+              </Typography>
             ))}
           </Stack>
         </Box>
