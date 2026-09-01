@@ -104,6 +104,41 @@ class RankerCannotOverrideReliableFieldsTests(unittest.TestCase):
         self.assertEqual(gated.selected_prediction, "L4X3X3/8")
         self.assertNotEqual(gated.selected_prediction, "L3X3X3/8")
 
+    def test_l6x4x1_4_cannot_become_l4x4x1_4(self) -> None:
+        query = 'L6x4x1/4x4"'
+        self.assertFalse(
+            candidate_respects_reliable_query_fields("L6X4X1/4X4\"", "L4X4X1/4")
+        )
+        self.assertTrue(
+            candidate_respects_reliable_query_fields("L6X4X1/4X4\"", "L6X4X1/4")
+        )
+        for label in generate_candidates(query).candidates:
+            if candidate_respects_reliable_query_fields("L6X4X1/4X4\"", label):
+                self.assertTrue(label.startswith("L6X4X1/4"))
+
+        original_enabled = settings.ml_label_ranker_enabled
+        original_shadow = settings.ml_label_ranker_shadow
+        try:
+            object.__setattr__(settings, "ml_label_ranker_enabled", True)
+            object.__setattr__(settings, "ml_label_ranker_shadow", False)
+            with patch(
+                "services.label_reconstruction.ranker.get_active_ranker",
+                return_value=_ranker_preferring("L4X4X1/4"),
+            ):
+                gated = reconstruct(query)
+        finally:
+            object.__setattr__(settings, "ml_label_ranker_enabled", original_enabled)
+            object.__setattr__(settings, "ml_label_ranker_shadow", original_shadow)
+
+        self.assertNotEqual(gated.selected_prediction, "L4X4X1/4")
+        if gated.selected_prediction:
+            self.assertTrue(gated.selected_prediction.startswith("L6X4X1/4"))
+            self.assertTrue(
+                candidate_respects_reliable_query_fields(
+                    "L6X4X1/4X4\"", gated.selected_prediction
+                )
+            )
+
     def test_compatible_xgb_candidate_is_still_allowed(self) -> None:
         candidates = generate_candidates("HSS8X8X?").candidates
         self.assertGreater(len(candidates), 1)
@@ -185,6 +220,18 @@ class ExistingSafetyInvariantsTests(unittest.TestCase):
             "4x4",
             "3/4X4X6",
             '1/4"',
+            '1-1/2"',
+            '14-2".',
+            '1/2"x5/16"ANGLE',
+            '1-1/2",',
+            '1-1/4"Ø',
+            'x12"',
+            '(14"x52")',
+            '(20"x52")',
+            '(24"x30")',
+            '(L52"x52"x14"T)',
+            "6x6-W1.4xW1.4",
+            "[6 x 6",
         )
         original_shadow = settings.ml_label_ranker_shadow
         try:
@@ -256,6 +303,92 @@ class ExistingSafetyInvariantsTests(unittest.TestCase):
     def test_enabled_remains_false_in_persistent_settings(self) -> None:
         self.assertFalse(settings.ml_label_ranker_enabled)
         self.assertFalse(settings.ml_label_ranker_shadow)
+
+
+class IncompleteAngleAndSpacingSafetyTests(unittest.TestCase):
+    def test_l6x3_does_not_become_l6x6x1(self) -> None:
+        self.assertFalse(
+            candidate_respects_reliable_query_fields("L6X3", "L6X6X1")
+        )
+        for label in generate_candidates("L6x3").candidates:
+            self.assertTrue(label.startswith("L6X3X"), label)
+            self.assertFalse(label.startswith("L6X6"))
+        result = reconstruct("L6x3")
+        self.assertIsNone(result.selected_prediction)
+        self.assertNotEqual(result.selected_prediction, "L6X6X1")
+        self.assertEqual(result.reason, "no_candidates")
+
+        original_enabled = settings.ml_label_ranker_enabled
+        original_shadow = settings.ml_label_ranker_shadow
+        try:
+            object.__setattr__(settings, "ml_label_ranker_enabled", True)
+            object.__setattr__(settings, "ml_label_ranker_shadow", False)
+            with patch(
+                "services.label_reconstruction.ranker.get_active_ranker",
+                return_value=_ranker_preferring("L6X6X1"),
+            ):
+                gated = reconstruct("L6x3")
+        finally:
+            object.__setattr__(settings, "ml_label_ranker_enabled", original_enabled)
+            object.__setattr__(settings, "ml_label_ranker_shadow", original_shadow)
+        self.assertIsNone(gated.selected_prediction)
+        self.assertNotEqual(gated.selected_prediction, "L6X6X1")
+
+    def test_l5x3_preserves_printed_legs(self) -> None:
+        for label in generate_candidates("L5x3").candidates:
+            self.assertTrue(label.startswith("L5X3X"), label)
+        result = reconstruct("L5x3")
+        self.assertIsNone(result.selected_prediction)
+        if result.selected_prediction:
+            self.assertNotIn("C15", result.selected_prediction)
+
+    def test_l4x4_does_not_invent_thickness(self) -> None:
+        for label in generate_candidates("L4x4").candidates:
+            self.assertTrue(label.startswith("L4X4X"), label)
+        result = reconstruct("L4x4")
+        self.assertIsNone(result.selected_prediction)
+
+    def test_2l4x4_preserves_double_angle_and_does_not_invent_thickness(self) -> None:
+        candidates = generate_candidates("2L4x4").candidates
+        self.assertTrue(candidates)
+        self.assertTrue(all(label.startswith("2L4X4") for label in candidates))
+        result = reconstruct("2L4x4")
+        self.assertIsNone(result.selected_prediction)
+        self.assertFalse(str(result.selected_prediction or "").startswith("L4X4"))
+
+    def test_complete_angle_with_cut_length_still_reconstructs(self) -> None:
+        result = reconstruct('L4x4x1/4x4\'-3"')
+        self.assertEqual(result.selected_prediction, "L4X4X1/4")
+        result = reconstruct('L5x3x3/8x6"')
+        self.assertEqual(result.selected_prediction, "L5X3X3/8")
+        result = reconstruct('L6x4x5/16x4"')
+        self.assertEqual(result.selected_prediction, "L6X4X5/16")
+
+    def test_w12x19_at_spacing_does_not_become_w12x152(self) -> None:
+        from services.label_reconstruction.candidates import conservative_normalize
+
+        for query in ("W12x19@5'", "W12x19 @ 5'", "W12X19@5'-0\"", "W16X26@8'"):
+            with self.subTest(query=query):
+                normalized = conservative_normalize(query)
+                self.assertNotIn("@", normalized)
+                self.assertNotEqual(reconstruct(query).selected_prediction, "W12X152")
+        self.assertEqual(conservative_normalize("W12x19@5'"), "W12X19")
+        self.assertEqual(reconstruct("W12x19@5'").selected_prediction, "W12X19")
+        self.assertEqual(reconstruct("W12x19 @ 5'").selected_prediction, "W12X19")
+        self.assertEqual(reconstruct("W12x19@5'").reason, "exact_match")
+
+        original_enabled = settings.ml_label_ranker_enabled
+        try:
+            object.__setattr__(settings, "ml_label_ranker_enabled", True)
+            with patch(
+                "services.label_reconstruction.ranker.get_active_ranker",
+                return_value=_ranker_preferring("W12X152"),
+            ):
+                gated = reconstruct("W12x19@5'")
+        finally:
+            object.__setattr__(settings, "ml_label_ranker_enabled", original_enabled)
+        self.assertEqual(gated.selected_prediction, "W12X19")
+        self.assertNotEqual(gated.selected_prediction, "W12X152")
 
 
 if __name__ == "__main__":

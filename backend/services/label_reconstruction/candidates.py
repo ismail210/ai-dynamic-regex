@@ -21,6 +21,7 @@ from services.family_codes import MODERN_FAMILY_CODES
 from services.database_loader import catalog_entries, is_catalog_label
 from services.label_reconstruction.corruption import OCR_CONFUSION, family_of
 from services.structural_parser import (
+    MISSING_FIELD,
     FieldParse,
     exact_catalog_labels_for_fields,
     generation_compatible_catalog_labels,
@@ -69,12 +70,36 @@ _REPEATED_HSS_GROUP = re.compile(
     r"^(HSS)\s*(\d+(?:\.\d+)?(?:X\d+(?:\.\d+)?(?:X[\d./]+)?))(?:\s+\2)+\s*$",
     re.I,
 )
+# OCR sometimes repeats a W/C/S depth-weight group: ``W 4X4 4X4``.
+_REPEATED_DEPTH_WEIGHT_GROUP = re.compile(
+    r"^(W|WT|M|S|HP|C|MC|MT|ST)\s*"
+    r"(\d+(?:\.\d+)?X\d+(?:\.\d+)?)"
+    r"(?:\s+\2)+\s*$",
+    re.I,
+)
 _CLEAN_NUMERIC_FIELD = re.compile(r"^\d+(?:\.\d+)?(?:/\d+)?$")
 _ANON_DIMENSION = re.compile(r"^[\d./\"]+\.?$")
 _DIMENSION_ONLY_SYNTAX = re.compile(
     r'^[\d\s./"\-X×✕✖Ø⌀]+$',
     re.I,
 )
+# OCR often splits lintel notes into "1/2\"x5/16\"ANGLE" with no L-family prefix.
+_FAMILYLESS_ANGLE_CALLOUT = re.compile(
+    r'^[\d./"\-X×✕✖Ø⌀]+ANGLE$',
+    re.I,
+)
+# Stray multiply-sign fragments such as ``x12"``.
+_LEADING_X_FRAGMENT = re.compile(
+    r'^X[\d./"\-Ø⌀]+$',
+    re.I,
+)
+# Welded-wire reinforcement, not a W-section: ``6x6-W1.4xW1.4``.
+_WWR_MESH = re.compile(
+    r"^\d+X\d+-W\d+(?:\.\d+)?XW\d+(?:\.\d+)?$",
+    re.I,
+)
+# Spacing / on-center / similar context after a section: ``W12x19@5'``.
+_AT_CONTEXT_START = re.compile(r"^(?:\d|['\"″′]|O\.?C)", re.I)
 
 
 def _collapse_repeated_hss_groups(text: str) -> str:
@@ -86,6 +111,36 @@ def _collapse_repeated_hss_groups(text: str) -> str:
     return f"{match.group(1)} {match.group(2)}"
 
 
+def _collapse_repeated_depth_weight_groups(text: str) -> str:
+    """Keep the first depth-weight group when OCR repeats it (``W 4X4 4X4``)."""
+
+    match = _REPEATED_DEPTH_WEIGHT_GROUP.match(text)
+    if not match:
+        return text
+    return f"{match.group(1)} {match.group(2)}"
+
+
+def _strip_at_context_suffix(text: str) -> str:
+    """Drop ``@...`` spacing/on-center context from a rolled-section token.
+
+    ``W12x19@5'`` is a W12X19 plus spacing metadata; the ``5`` must not
+    become the section weight. Only strips when the left side is a known
+    section family and the right side looks like spacing/context, not when
+    ``@`` is interior OCR noise such as ``W12@X19``.
+    """
+
+    if "@" not in text:
+        return text
+    left, right = text.split("@", 1)
+    if not left or not right:
+        return text
+    if family_of(left) not in MODERN_FAMILY_CODES:
+        return text
+    if not _AT_CONTEXT_START.match(right):
+        return text
+    return left
+
+
 def conservative_normalize(raw: str) -> str:
     """Whitespace/case/multiply-sign normalization only -- never guesses
     digits. Mirrors the normalization already applied by the production
@@ -94,12 +149,106 @@ def conservative_normalize(raw: str) -> str:
     text = str(raw or "").strip().upper()
     text = text.replace("×", "X").replace("-X", "X")
     text = _collapse_repeated_hss_groups(text)
+    text = _collapse_repeated_depth_weight_groups(text)
     text = "".join(text.split())
     # Strip a single layer of parenthesis/noise wrapping, but keep interior
     # wildcard/unknown markers untouched.
     if text.startswith("(") and text.endswith(")"):
         text = text[1:-1]
-    return text
+    return _strip_at_context_suffix(text)
+
+
+def _unwrap_eligibility_text(text: str) -> str:
+    """Strip wrapping brackets and trailing list punctuation for eligibility.
+
+    Does not rewrite interior structural characters. ``HSS12\"x4\"x1/2\"``
+    and cut-length L labels are unchanged.
+    """
+
+    value = str(text or "").strip()
+    for _ in range(4):
+        if not value:
+            break
+        changed = False
+        if value[0] in "([{" and value[-1] in ")]}":
+            value = value[1:-1].strip()
+            changed = True
+        elif value[0] in "([{":
+            value = value[1:].strip()
+            changed = True
+        elif value[-1] in ")]},;:":
+            value = value[:-1].strip()
+            changed = True
+        if not changed:
+            break
+    return value
+
+
+def _eligibility_surfaces(raw_text: str, normalized: str) -> List[str]:
+    surfaces: List[str] = []
+    for candidate in (
+        normalized,
+        str(raw_text or "").strip(),
+        _unwrap_eligibility_text(raw_text),
+        _unwrap_eligibility_text(normalized),
+    ):
+        if candidate and candidate not in surfaces:
+            surfaces.append(candidate)
+        unwrapped = _unwrap_eligibility_text(candidate)
+        if unwrapped and unwrapped not in surfaces:
+            surfaces.append(unwrapped)
+        collapsed = conservative_normalize(unwrapped) if unwrapped else ""
+        if collapsed and collapsed not in surfaces:
+            surfaces.append(collapsed)
+    return surfaces
+
+
+def _quoted_l_leg_fields(normalized: str) -> bool:
+    """True when an L/2L token puts inch marks on the designation legs.
+
+    Cut-length suffixes such as ``L3X3X3/8X0'-6\"`` keep quotes off the
+    first three fields and stay eligible. Opening callouts such as
+    ``(L52\"x52\"x14\"T)`` do not.
+    """
+
+    fam = family_of(normalized)
+    if fam not in {"L", "2L"}:
+        return False
+    remainder = normalized[len(fam) :]
+    parts = remainder.split("X")
+    designation = parts[:3]
+    return any('"' in part or "”" in part for part in designation)
+
+
+def _familyless_dimension_surface(surface: str) -> bool:
+    fam = family_of(conservative_normalize(surface) if surface else "")
+    if fam in MODERN_FAMILY_CODES:
+        return False
+    collapsed = conservative_normalize(surface)
+    if _ANON_DIMENSION.match(surface) or _ANON_DIMENSION.match(collapsed):
+        return True
+    if _FAMILYLESS_ANGLE_CALLOUT.match(collapsed):
+        return True
+    if _LEADING_X_FRAGMENT.match(collapsed):
+        return True
+    if _DIMENSION_ONLY_SYNTAX.fullmatch(surface) or _DIMENSION_ONLY_SYNTAX.fullmatch(
+        collapsed
+    ):
+        from services.annotation.parser import interpret_annotation
+        from services.annotation.taxonomy import AnnotationType
+
+        parsed = interpret_annotation(
+            raw_text=surface,
+            normalized_text=collapsed,
+        )
+        if (
+            parsed.annotation_type == AnnotationType.DIMENSION.value
+            and not parsed.structure_confirmed
+        ):
+            return True
+        if _DIMENSION_ONLY_SYNTAX.fullmatch(collapsed) and fam not in MODERN_FAMILY_CODES:
+            return True
+    return False
 
 
 def ineligible_for_section_reconstruction(raw_text: str, normalized: str = "") -> bool:
@@ -116,6 +265,8 @@ def ineligible_for_section_reconstruction(raw_text: str, normalized: str = "") -
 
     Explicit supported section-family prefixes remain eligible, including
     damaged/wildcarded labels such as ``W??X?7`` and ``HSS8X8X?``.
+    Mixed numbers (``1-1/2"``) and familyless ``…ANGLE`` fragments use the
+    same boundary: they are not rolled-section reconstruction queries.
     """
 
     normalized = normalized or conservative_normalize(raw_text)
@@ -125,25 +276,15 @@ def ineligible_for_section_reconstruction(raw_text: str, normalized: str = "") -
         return False
     if starts_with_plate_head(normalized):
         return True
-    fam = family_of(normalized)
-    if fam in {"", "OTHER"} and _ANON_DIMENSION.match(normalized):
+    if _WWR_MESH.match(normalized):
         return True
-    if fam not in MODERN_FAMILY_CODES and _DIMENSION_ONLY_SYNTAX.fullmatch(
-        str(raw_text or normalized).strip()
-    ):
-        # Lazy imports avoid pulling the full annotation/parser stack into the
-        # common path for explicit W/HSS/L/etc. section labels.
-        from services.annotation.parser import interpret_annotation
-        from services.annotation.taxonomy import AnnotationType
-
-        parsed = interpret_annotation(
-            raw_text=raw_text,
-            normalized_text=normalized,
-        )
-        if (
-            parsed.annotation_type == AnnotationType.DIMENSION.value
-            and not parsed.structure_confirmed
-        ):
+    if _quoted_l_leg_fields(normalized):
+        return True
+    fam = family_of(normalized)
+    if fam in MODERN_FAMILY_CODES:
+        return False
+    for surface in _eligibility_surfaces(raw_text, normalized):
+        if _familyless_dimension_surface(surface):
             return True
     return False
 
@@ -168,6 +309,8 @@ def _is_clean_numeric_field(field: str) -> bool:
 def has_reliable_numeric_constraints(normalized: str) -> bool:
     """Known, undamaged numeric fields must not be relaxed by full-catalog fuzzy."""
 
+    if is_missing_thickness_angle(normalized):
+        return True
     parsed = parse_fields(normalized)
     if not parsed.ok or not parsed.fields:
         return False
@@ -183,6 +326,12 @@ _GRAMMAR_FIELD_ARITY = {
 }
 
 
+def _is_printed_numeric_field(field: str) -> bool:
+    """True for a fully printed numeric field (not missing, not wildcarded)."""
+
+    return bool(field) and bool(_CLEAN_NUMERIC_FIELD.match(field))
+
+
 def _prefix_fields_are_reliable(fields: List[str]) -> bool:
     constrained = [
         field
@@ -194,10 +343,48 @@ def _prefix_fields_are_reliable(fields: List[str]) -> bool:
     return all(_is_clean_numeric_field(field) for field in fields)
 
 
+def incomplete_angle_missing_thickness_parse(normalized: str) -> Optional[FieldParse]:
+    """L/2L with two printed legs and no thickness: keep legs, do not invent wall.
+
+    ``L6x3`` is not unconstrained fuzzy text. The printed 6x3 legs are
+    reliable; thickness is unknown, same review class as ``HSS8X8``.
+    """
+
+    fam = family_of(normalized)
+    if fam not in {"L", "2L"}:
+        return None
+    remainder = normalized[len(fam) :]
+    parts = remainder.split("X")
+    if len(parts) != 2:
+        return None
+    if not all(_is_printed_numeric_field(part) for part in parts):
+        return None
+    grammar = "leg_leg_thickness" if fam == "L" else "leg_leg_thickness_sep"
+    return FieldParse(
+        family=fam,
+        grammar=grammar,
+        fields=[parts[0], parts[1], MISSING_FIELD],
+        ok=True,
+    )
+
+
+def is_missing_thickness_angle(normalized: str) -> bool:
+    return incomplete_angle_missing_thickness_parse(normalized) is not None
+
+
 def _grammar_arity(parsed: FieldParse) -> Optional[int]:
     if parsed.grammar == "leg_leg_thickness_sep":
         return 4 if len(parsed.fields) >= 4 else 3
     return _GRAMMAR_FIELD_ARITY.get(parsed.grammar)
+
+
+def _structural_prefix_query(parsed: FieldParse) -> str:
+    fields = list(parsed.fields)
+    if fields and is_missing_field(fields[-1]):
+        fields[-1] = "?"
+    if parsed.family == "PIPE":
+        return "PIPE" + "".join(fields)
+    return parsed.family + "X".join(fields)
 
 
 def reliable_acceptance_parse(normalized: str) -> Optional[FieldParse]:
@@ -207,9 +394,14 @@ def reliable_acceptance_parse(normalized: str) -> Optional[FieldParse]:
     ``parse_fields`` only because of a trailing extra field (cut length,
     quantity) still expose a reliable designation prefix -- e.g.
     ``L3X3X3/8X0'-6"`` keeps legs ``3``/``3`` and thickness ``3/8``.
+    Incomplete L/2L callouts with two printed legs keep those legs; thickness
+    stays missing so reconstruct can abstain instead of inventing a wall.
     Mixed wildcard/glue remains unconstrained so the ranker may reorder.
     """
 
+    incomplete_angle = incomplete_angle_missing_thickness_parse(normalized)
+    if incomplete_angle is not None:
+        return incomplete_angle
     parsed = parse_fields(normalized)
     if parsed.ok and has_reliable_numeric_constraints(normalized):
         return parsed
@@ -437,6 +629,14 @@ def generate_candidates(raw_text: str, *, limit: int = 25) -> CandidateSet:
         ]:
             _add(label, "structural_field_match")
 
+    prefix_parse = reliable_acceptance_parse(normalized)
+    if prefix_parse is not None and prefix_parse.fields and len(ordered) < limit:
+        prefix_query = _structural_prefix_query(prefix_parse)
+        for label in generation_compatible_catalog_labels(prefix_query)[
+            : limit - len(ordered)
+        ]:
+            _add(label, "structural_field_match")
+
     if has_wildcards(normalized) and len(ordered) < limit:
         _add_wildcard_mask_candidates(normalized, _add, limit=limit, ordered=ordered)
 
@@ -444,7 +644,11 @@ def generate_candidates(raw_text: str, *, limit: int = 25) -> CandidateSet:
         for label in _ocr_flex_candidates(normalized, limit=limit):
             _add(label, "ocr_flex_positional")
 
-    if normalized and len(ordered) < limit:
+    if (
+        not is_missing_thickness_angle(normalized)
+        and normalized
+        and len(ordered) < limit
+    ):
         for label in _family_only_candidates(normalized, limit=limit - len(ordered)):
             _add(label, "family_only")
 
@@ -507,6 +711,14 @@ def generate_candidates_v3(raw_text: str, *, limit: int = 25) -> CandidateSet:
         for label in generation_compatible_catalog_labels(normalized)[: limit - len(ordered)]:
             _add(label, "structural_field_match")
 
+    prefix_parse = reliable_acceptance_parse(normalized)
+    if prefix_parse is not None and prefix_parse.fields and len(ordered) < limit:
+        prefix_query = _structural_prefix_query(prefix_parse)
+        for label in generation_compatible_catalog_labels(prefix_query)[
+            : limit - len(ordered)
+        ]:
+            _add(label, "structural_field_match")
+
     if has_wildcards(normalized) and len(ordered) < limit:
         _add_wildcard_mask_candidates(normalized, _add, limit=limit, ordered=ordered)
 
@@ -514,7 +726,11 @@ def generate_candidates_v3(raw_text: str, *, limit: int = 25) -> CandidateSet:
         for label in _ocr_flex_candidates(normalized, limit=limit - len(ordered)):
             _add(label, "ocr_flex_positional")
 
-    if normalized and len(ordered) < limit:
+    if (
+        not is_missing_thickness_angle(normalized)
+        and normalized
+        and len(ordered) < limit
+    ):
         for label in _family_only_candidates(normalized, limit=limit - len(ordered)):
             _add(label, "family_only")
 

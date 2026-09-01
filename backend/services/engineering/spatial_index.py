@@ -27,6 +27,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 from shapely.geometry import box as shapely_box
 from shapely.strtree import STRtree
 
+from services.engineering.detail_regions import same_region
 from services.engineering.graph_builder import build_geometry_nodes, build_text_nodes
 
 DEFAULT_MAX_DISTANCE = 160.0
@@ -235,6 +236,8 @@ def nearest_geometry_candidates(
 
     for index, distance in matches:
         node = ordered_geometry_nodes[index]
+        if not same_region(label_node.get("region_id"), node.get("region_id")):
+            continue
         if node.get("bbox") and _is_area_shaped(node["bbox"], max_distance):
             continue  # large filled region (border/hatch), not a candidate target
         add(node["node_id"], distance, "direct_distance")
@@ -250,6 +253,8 @@ def nearest_geometry_candidates(
                 target = ordered_geometry_nodes[r_index]
                 if target["node_id"] == node["node_id"]:
                     continue  # a leader is not its own target
+                if not same_region(label_node.get("region_id"), target.get("region_id")):
+                    continue
                 if target.get("geometry_kind") == "leader":
                     continue  # do not chain through multiple leaders
                 if target.get("bbox") and _is_area_shaped(target["bbox"], max_distance):

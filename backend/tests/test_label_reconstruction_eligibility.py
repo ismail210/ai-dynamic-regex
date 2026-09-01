@@ -29,6 +29,18 @@ DIMENSION_ONLY_QUERIES = (
     'PLATE 3 3/8"',
     'CAP PL 3/8"',
     'CONN PL 1/2"',
+    '1-1/2"',
+    '14-2".',
+    '1/2"x5/16"ANGLE',
+    '1-1/2",',
+    '1-1/4"Ø',
+    'x12"',
+    '(14"x52")',
+    '(20"x52")',
+    '(24"x30")',
+    '(L52"x52"x14"T)',
+    "6x6-W1.4xW1.4",
+    "[6 x 6",
 )
 
 
@@ -94,6 +106,14 @@ class DamagedSectionPreservationTests(unittest.TestCase):
             "2L8X4X5/8X3/8LLBB",
             "PIPE6STD",
             "W??X?7",
+            "HSS8X8X?",
+            "L4X4X5/16",
+            "L3X3X3/8X0'-6\"",
+            "L4X3X1/4X2'-0\"",
+            'HSS12"x4"x1/2"',
+            "W12x19@5'",
+            "L6x3",
+            "2L4x4",
         )
         for query in queries:
             with self.subTest(query=query):
@@ -128,6 +148,30 @@ class DamagedSectionPreservationTests(unittest.TestCase):
         wildcard_candidates = generate_candidates("W??X?7").candidates
         self.assertTrue(wildcard_candidates)
         self.assertTrue(all(not label.startswith("WT") for label in wildcard_candidates))
+        cut_length = generate_candidates("L3X3X3/8X0'-6\"")
+        self.assertIn("L3X3X3/8", cut_length.candidates)
+        self.assertNotIn("PIPE1-1/2XS", cut_length.candidates)
+        self.assertFalse(ineligible_for_section_reconstruction("L4X3X1/4X2'-0\""))
+        self.assertIn(
+            "L4X3X1/4",
+            generate_candidates("L4X3X1/4X2'-0\"").candidates,
+        )
+
+
+class GluedWQueryTests(unittest.TestCase):
+    def test_repeated_w_group_does_not_glue_into_w44(self) -> None:
+        self.assertEqual(conservative_normalize("W 4X4 4X4"), "W4X4")
+        self.assertNotIn("W44X408", generate_candidates("W 4X4 4X4").candidates)
+        result = reconstruct("W 4X4 4X4")
+        self.assertNotEqual(result.selected_prediction, "W44X408")
+        self.assertTrue(
+            result.selected_prediction is None
+            or result.selected_prediction.startswith("W4X")
+        )
+        self.assertFalse(ineligible_for_section_reconstruction("W??X?7"))
+        wildcard = generate_candidates("W??X?7").candidates
+        self.assertTrue(wildcard)
+        self.assertTrue(all(not label.startswith("WT") for label in wildcard))
 
     def test_exact_labels_remain_first_class_candidates(self) -> None:
         for label in ("W12X26", "L3X3X3/8", "HSS6X6X3/8"):

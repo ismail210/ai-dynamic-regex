@@ -37,7 +37,7 @@ from services.takeoff.ground_truth_excel import parse_ground_truth_excel
 
 
 # Bumped whenever prediction behaviour changes, so cached analyses are replaced.
-PIPELINE_VERSION = "4.10-context-quality"
+PIPELINE_VERSION = "4.11-scale-region-association"
 
 
 def _neural_model_status() -> Dict[str, Any]:
@@ -170,11 +170,11 @@ def run_multimodal_pipeline(
     )
 
     stage_started = time.perf_counter()
+    if settings.detail_regions_enabled:
+        assign_detail_regions(document, geometry)
     graph = graph_document or build_structural_graph(document, geometry)
     graph = enrich_graph_embeddings(graph)
     document_rules = evaluate_document_rules(graph)
-    if settings.detail_regions_enabled:
-        assign_detail_regions(document, geometry)
     attach_context_evidence(document, geometry, graph)
     timings["graph_rules_ms"] = round(
         (time.perf_counter() - stage_started) * 1000, 2

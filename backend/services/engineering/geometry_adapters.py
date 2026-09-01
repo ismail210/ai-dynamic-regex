@@ -43,6 +43,8 @@ class GeometryDocument:
     blocks: List[dict] = field(default_factory=list)
     groups: List[dict] = field(default_factory=list)
     metadata: Dict[str, Any] = field(default_factory=dict)
+    scale: Optional[dict] = None
+    association_radius_pdf_points: Optional[float] = None
 
     def to_dict(self) -> dict:
         counts: Dict[str, int] = {}
@@ -61,6 +63,12 @@ class GeometryDocument:
             "groups": self.groups,
             "objects": self.objects,
             "metadata": self.metadata,
+            "scale": self.scale or (self.metadata or {}).get("scale"),
+            "scale_value": (self.metadata or {}).get("scale_value"),
+            "scale_source": (self.metadata or {}).get("scale_source"),
+            "scale_confidence": (self.metadata or {}).get("scale_confidence"),
+            "association_radius_pdf_points": self.association_radius_pdf_points
+            or (self.metadata or {}).get("association_radius_pdf_points"),
         }
 
 
@@ -134,9 +142,20 @@ class PdfGeometryAdapter(GeometryAdapter):
                 {"name": name, "source": "optional_content_group"}
                 for name in (document_structure or {}).get("layers") or []
             ],
+            scale=extracted.get("scale"),
+            association_radius_pdf_points=extracted.get(
+                "association_radius_pdf_points"
+            ),
             metadata={
                 "page_summaries": extracted.get("page_summaries") or [],
                 "quality": "vector_heuristic",
+                "scale": extracted.get("scale"),
+                "scale_value": extracted.get("scale_value"),
+                "scale_source": extracted.get("scale_source"),
+                "scale_confidence": extracted.get("scale_confidence"),
+                "association_radius_pdf_points": extracted.get(
+                    "association_radius_pdf_points"
+                ),
             },
         )
 

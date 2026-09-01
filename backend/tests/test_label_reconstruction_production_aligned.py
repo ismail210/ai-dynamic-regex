@@ -11,19 +11,36 @@ from scripts.generate_label_reconstruction_production_aligned import (
 
 
 class ProductionDecisionAlignmentTests(unittest.TestCase):
-    def test_missing_thickness_hss_is_not_ranked(self) -> None:
-        for query in ("HSS8X8", "HSS8x8", "HSS 8X8 8X8", "HSS10X10", "HSS3X3"):
+    def test_incomplete_angle_is_not_ranked(self) -> None:
+        for query in ("L6x3", "L5x3", "L4x4", "2L4x4"):
             with self.subTest(query=query):
                 decision, candidate_set = _decision_for(query, None)
                 self.assertEqual(decision, "abstain_missing_thickness")
+                if query == "L6x3":
+                    # Catalog has L6X3-1/2..., not L6X3x... — do not invent L6X6.
+                    self.assertEqual(candidate_set.candidates, [])
+                    continue
                 self.assertTrue(candidate_set.candidates)
-                normalized_prefix = candidate_set.normalized + "X"
-                self.assertTrue(
-                    all(
-                        candidate.startswith(normalized_prefix)
-                        for candidate in candidate_set.candidates
+                if query.startswith("2L"):
+                    self.assertTrue(
+                        all(
+                            candidate.startswith("2L4X4")
+                            for candidate in candidate_set.candidates
+                        )
                     )
-                )
+                else:
+                    prefix = candidate_set.normalized + "X"
+                    self.assertTrue(
+                        all(
+                            candidate.startswith(prefix)
+                            for candidate in candidate_set.candidates
+                        )
+                    )
+
+    def test_spacing_suffix_does_not_glue_weight(self) -> None:
+        decision, candidate_set = _decision_for("W12x19@5'", "W12X19")
+        self.assertEqual(decision, "exact_match")
+        self.assertEqual(candidate_set.candidates, ["W12X19"])
 
     def test_invalid_hss6x8_does_not_inject_hss16(self) -> None:
         decision, candidate_set = _decision_for(
@@ -50,6 +67,18 @@ class ProductionDecisionAlignmentTests(unittest.TestCase):
             '1/8"x1"',
             "4x4",
             "3/4X4X6",
+            '1-1/2"',
+            '14-2".',
+            '1/2"x5/16"ANGLE',
+            '1-1/2",',
+            '1-1/4"Ø',
+            'x12"',
+            '(14"x52")',
+            '(20"x52")',
+            '(24"x30")',
+            '(L52"x52"x14"T)',
+            "6x6-W1.4xW1.4",
+            "[6 x 6",
         ):
             with self.subTest(query=query):
                 decision, candidate_set = _decision_for(query, None)

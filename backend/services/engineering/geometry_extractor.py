@@ -35,6 +35,11 @@ from typing import Any, Dict, List, Optional, Sequence
 
 import fitz
 
+from services.engineering.drawing_scale import (
+    association_radius_pdf_points,
+    detect_drawing_scale,
+    real_inches_from_pdf_points,
+)
 from services.engineering.models import GeometryKind
 
 
@@ -315,6 +320,9 @@ def extract_geometry(
     objects: List[dict] = []
     page_summaries: List[dict] = []
     counts: Dict[str, int] = {}
+    drawing_scale = detect_drawing_scale(document_structure)
+    nearby_radius = association_radius_pdf_points(drawing_scale) * (48.0 / 160.0)
+    nearby_radius = max(24.0, min(96.0, nearby_radius))
     active_pages = {
         int(token.get("page") or token.get("page_number") or 0)
         for token in (document_structure or {}).get("engineering_tokens") or []
@@ -343,8 +351,8 @@ def extract_geometry(
                     continue
                 line_center = line.get("center") or [0, 0]
                 key = (
-                    int(float(line_center[0]) // 48.0),
-                    int(float(line_center[1]) // 48.0),
+                    int(float(line_center[0]) // nearby_radius),
+                    int(float(line_center[1]) // nearby_radius),
                 )
                 line_grid.setdefault(key, []).append(line)
             page_count_before = len(objects)
@@ -377,16 +385,9 @@ def extract_geometry(
             # Keep the most structurally significant paths so geometry and graph
             # construction remain bounded and interactive.
             #
-            # ``dense_page_cap_strategy`` selects the sort key. The default,
-            # "legacy_area", is the ORIGINAL behavior and has a known defect:
-            # axis-aligned lines have zero bounding-box area, so they are the
-            # first entities dropped once a page exceeds the cap — see
-            # docs/geometry_graph_audit/03_geometry_audit.md §7. The
-            # "length_aware" strategy fixes this (see
-            # docs/geometry_graph_audit/08_prioritized_roadmap.md P0.1) but is
-            # opt-in only: this phase does not change production behavior by
-            # default, it only makes the loss observable via the
-            # cap_strategy_agreement diagnostic below.
+            # ``dense_page_cap_strategy`` selects the sort key. Production
+            # default is ``length_aware`` so thin structural lines survive
+            # the cap (docs/geometry_graph_audit/08_prioritized_roadmap.md P0.1).
             drawing_cap_applied = raw_drawing_count > 250
             cap_strategy_agreement: Optional[dict] = None
             if drawing_cap_applied:
@@ -494,6 +495,7 @@ def extract_geometry(
                     center,
                     page_number,
                     document_structure,
+                    radius=nearby_radius,
                     line_grid=line_grid,
                 )
 
@@ -551,6 +553,9 @@ def extract_geometry(
                     "layer": None,
                     "drawing_layer": None,
                     "block_name": None,
+                    "length_real_inches": real_inches_from_pdf_points(
+                        length, drawing_scale
+                    ),
                 }
                 if leader_endpoints:
                     obj["leader_endpoints"] = leader_endpoints
@@ -575,14 +580,14 @@ def extract_geometry(
                     "dense_page_cap_strategy": dense_page_cap_strategy,
                     "cap_strategy_agreement": cap_strategy_agreement,
                     "page_rotation": int(page.rotation or 0),
-                    # Scale detection is not implemented anywhere in this
-                    # pipeline yet (docs/geometry_graph_audit/09_open_questions.md
-                    # Q4). These fields are reserved schema placeholders so
-                    # consumers can distinguish "not populated" from "zero"
-                    # once scale detection lands.
-                    "scale_value": None,
-                    "scale_source": None,
-                    "scale_confidence": None,
+                    "scale_value": drawing_scale.raw if drawing_scale else None,
+                    "scale_source": drawing_scale.source if drawing_scale else None,
+                    "scale_confidence": (
+                        drawing_scale.confidence if drawing_scale else None
+                    ),
+                    "association_radius_pdf_points": association_radius_pdf_points(
+                        drawing_scale
+                    ),
                 }
             )
 
@@ -600,6 +605,7 @@ def extract_geometry(
         page_summaries.sort(key=lambda item: int(item.get("page_number") or 0))
 
     _attach_nearest_objects(objects)
+    scale_payload = drawing_scale.to_dict() if drawing_scale else None
     return {
         "source_file": path.name,
         "geometry_count": len(objects),
@@ -607,4 +613,12 @@ def extract_geometry(
         "page_summaries": page_summaries,
         "skipped_pages": skipped_pages,
         "objects": objects,
+        "units": "pdf_points",
+        "scale": scale_payload,
+        "scale_value": drawing_scale.raw if drawing_scale else None,
+        "scale_source": drawing_scale.source if drawing_scale else None,
+        "scale_confidence": drawing_scale.confidence if drawing_scale else None,
+        "association_radius_pdf_points": association_radius_pdf_points(
+            drawing_scale
+        ),
     }

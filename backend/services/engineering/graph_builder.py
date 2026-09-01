@@ -29,6 +29,8 @@ import math
 import re
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
+from services.engineering.detail_regions import same_region
+from services.engineering.drawing_scale import association_radius_from_geometry
 from services.engineering.models import NodeKind, RelationKind
 
 
@@ -181,6 +183,7 @@ def build_text_nodes(document_structure: dict) -> List[dict]:
                 "rotation": token.get("rotation"),
                 "drawing_references": line.get("drawing_references") or [],
                 "engineering_object_type": token.get("engineering_object_type"),
+                "region_id": token.get("region_id"),
             }
         )
     return nodes
@@ -213,6 +216,7 @@ def build_geometry_nodes(geometry: dict) -> List[dict]:
                 "width": geom.get("width"),
                 "area": geom.get("area"),
                 "orientation": geom.get("orientation"),
+                "region_id": geom.get("region_id"),
             }
         )
     return nodes
@@ -222,7 +226,7 @@ def build_graph(
     document_structure: dict,
     geometry: dict,
     *,
-    max_edge_distance: float = 160.0,
+    max_edge_distance: Optional[float] = None,
 ) -> Dict[str, Any]:
     """Construct node/edge graph from document text + geometry extraction."""
 
@@ -231,6 +235,9 @@ def build_graph(
         nearest_geometry_candidates,
         spatially_complete_geometry_pairs,
     )
+
+    if max_edge_distance is None:
+        max_edge_distance = association_radius_from_geometry(geometry)
 
     edges: List[dict] = []
     id_index: Dict[str, dict] = {}
@@ -352,6 +359,8 @@ def build_graph(
         for g in page_geom:
             nearest: Optional[Tuple[float, dict]] = None
             for lab in nearby(label_grid, g["center"]):
+                if not same_region(g.get("region_id"), lab.get("region_id")):
+                    continue
                 d = _dist(g["center"], lab["center"])
                 if d > max_edge_distance:
                     continue
@@ -518,6 +527,8 @@ def build_graph(
                 "geometry_pairwise_window_size": geometry_pairwise_window_size,
                 "geometry_pairwise_window_triggered": False,
                 "spatial_index_enabled": True,
+                "same_region_association": True,
+                "association_radius_pdf_points": max_edge_distance,
                 "leader_resolved_associations": leader_resolved_count,
                 "candidate_pairs_considered": pairwise_considered,
                 "candidate_pairs_possible": candidate_pairs_possible,
@@ -554,5 +565,6 @@ def build_graph(
             "edges_by_relationship": rel_counts,
             "label_count": len(label_nodes),
             "geometry_count": len(geom_nodes),
+            "association_radius_pdf_points": max_edge_distance,
         },
     }

@@ -13,6 +13,7 @@ import re
 from collections import Counter
 from typing import Any, Dict, List, Optional, Sequence
 
+from services.engineering.drawing_scale import association_radius_from_geometry
 from services.engineering.graph_builder import build_graph
 
 
@@ -78,11 +79,18 @@ def build_structural_graph(
     document_structure: dict,
     geometry: dict,
     *,
-    max_near_distance: float = 180.0,
+    max_near_distance: Optional[float] = None,
 ) -> Dict[str, Any]:
     """Build and enrich the base graph with structural semantics."""
 
-    graph = build_graph(document_structure, geometry)
+    association_radius = association_radius_from_geometry(geometry)
+    if max_near_distance is None:
+        max_near_distance = association_radius * (180.0 / 160.0)
+    graph = build_graph(
+        document_structure,
+        geometry,
+        max_edge_distance=association_radius,
+    )
     nodes = graph["nodes"]
     edges = graph["edges"]
 

@@ -40,6 +40,7 @@ from services.label_reconstruction.candidates import (
     conservative_normalize,
     generate_candidates,
     ineligible_for_section_reconstruction,
+    is_missing_thickness_angle,
     is_missing_thickness_hss,
 )
 
@@ -133,8 +134,9 @@ def reconstruct(
 
     candidate_set: CandidateSet = generate_candidates(raw_text)
     deterministic_pick = candidate_set.candidates[0] if candidate_set.candidates else None
-    # Missing-thickness square/rect HSS is a review set, never a unique pick.
-    if is_missing_thickness_hss(normalized):
+    # Missing-thickness square/rect HSS and incomplete L/2L (legs printed,
+    # thickness unknown) are review sets, never a unique catalog pick.
+    if is_missing_thickness_hss(normalized) or is_missing_thickness_angle(normalized):
         return LabelReconstructionResult(
             raw_text=raw_text,
             normalized_text=normalized,
@@ -175,7 +177,14 @@ def reconstruct(
             ranker_pick = _first_compatible_candidate(
                 [label for label, _score in ranked_pairs],
                 normalized,
-            ) or deterministic_pick
+            )
+            if ranker_pick is None:
+                if deterministic_pick and candidate_respects_reliable_query_fields(
+                    normalized, deterministic_pick
+                ):
+                    ranker_pick = deterministic_pick
+                else:
+                    ranker_pick = None
             margin = (
                 ranked_pairs[0][1] - ranked_pairs[1][1]
                 if len(ranked_pairs) > 1
@@ -210,10 +219,20 @@ def reconstruct(
                 _append_shadow_log(shadow_payload)
 
             if settings.ml_label_ranker_enabled:
-                selected = ranker_pick
-                reason = "learned_ranker_top_candidate"
-                model_version = ranker.version_id
-                ranking_scores = [round(score, 4) for _label, score in ranked_pairs]
+                if ranker_pick:
+                    selected = ranker_pick
+                    reason = "learned_ranker_top_candidate"
+                    model_version = ranker.version_id
+                    ranking_scores = [
+                        round(score, 4) for _label, score in ranked_pairs
+                    ]
+                elif deterministic_pick and candidate_respects_reliable_query_fields(
+                    normalized, deterministic_pick
+                ):
+                    selected = deterministic_pick
+                else:
+                    selected = None
+                    reason = "no_candidates"
 
     return LabelReconstructionResult(
         raw_text=raw_text,

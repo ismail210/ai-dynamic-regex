@@ -32,6 +32,7 @@ from services.label_reconstruction.candidates import (  # noqa: E402
     conservative_normalize,
     generate_candidates,
     ineligible_for_section_reconstruction,
+    is_missing_thickness_angle,
     is_missing_thickness_hss,
 )
 from services.label_reconstruction.catalog_reload import (  # noqa: E402
@@ -133,7 +134,7 @@ def _decision_for(
         )
 
     candidate_set = generate_candidates(raw_text, limit=CANDIDATE_LIMIT)
-    if is_missing_thickness_hss(normalized):
+    if is_missing_thickness_hss(normalized) or is_missing_thickness_angle(normalized):
         return "abstain_missing_thickness", candidate_set
     if target_label and target_label in candidate_set.candidates:
         return "rank", candidate_set
