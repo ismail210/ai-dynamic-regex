@@ -65,14 +65,13 @@ from services.engineering.document_prior import detect_legend_pages
 from services.structural_parser import parse_section
 from services.token_extractor import normalize_engineering_token
 
-PROFILE_VERSION = "legend_profile_v2"
-EXTRACTOR_VERSION = "legend_extractor_v2"
-SCHEMA_VERSION = "legend_schema_v2"
+PROFILE_VERSION = "legend_profile_v4"
+EXTRACTOR_VERSION = "legend_extractor_v4b"
+SCHEMA_VERSION = "project_rule_schema_v1"
 
 STATUS_PROPOSED_INFERENCE = "PROPOSED_INFERENCE"
 
 METHOD_DETERMINISTIC = "deterministic"
-METHOD_LLM_PROPOSED = "llm_proposed"
 
 # Overall per-document analysis outcome -- always set, so the UI/API never
 # has to guess *why* a panel is empty (see legend_profile_hook.py).
@@ -83,29 +82,6 @@ ANALYSIS_MODEL_UNAVAILABLE = "MODEL_UNAVAILABLE"
 ANALYSIS_MODEL_ERROR = "MODEL_ERROR"
 ANALYSIS_VISION_REQUIRED = "VISION_REQUIRED"
 ANALYSIS_DISABLED = "DISABLED"
-
-# Structural-steel-estimating categories a source fact may belong to (see
-# section 9 of the request this implements: notation, materials,
-# connections, fabrication, structural interpretation, estimator scope).
-CATEGORY_SECTION_NOTATION = "SECTION_NOTATION"
-CATEGORY_MATERIAL = "MATERIAL"
-CATEGORY_CONNECTION = "CONNECTION"
-CATEGORY_FABRICATION = "FABRICATION"
-CATEGORY_INTERPRETATION = "INTERPRETATION"
-CATEGORY_RESPONSIBILITY = "RESPONSIBILITY"
-CATEGORY_SCOPE = "SCOPE"
-CATEGORY_OTHER = "OTHER"
-
-_ALLOWED_CATEGORIES = {
-    CATEGORY_SECTION_NOTATION,
-    CATEGORY_MATERIAL,
-    CATEGORY_CONNECTION,
-    CATEGORY_FABRICATION,
-    CATEGORY_INTERPRETATION,
-    CATEGORY_RESPONSIBILITY,
-    CATEGORY_SCOPE,
-    CATEGORY_OTHER,
-}
 
 PAGE_ROLE_LEGEND = "LEGEND"
 PAGE_ROLE_GENERAL_NOTES = "GENERAL_NOTES"
@@ -405,18 +381,35 @@ def verify_quote(source_text: str, quote: str) -> bool:
     return _normalize_for_quote_match(quote) in _normalize_for_quote_match(source_text)
 
 
-#: ~60k chars (~15k tokens) comfortably covers most real note/spec page
-#: sets seen so far (GCDC: ~9 context pages; a real customer set: ~10
-#: pages, ~92k chars uncapped) while staying within a sensible local-model
-#: context window (see OllamaLegendProvider's num_ctx). Documents whose
-#: context pages exceed this ARE truncated in this checkpoint -- chunking
-#: is explicitly out of scope per the request ("chunk ONLY when
-#: necessary... do not turn this into an agentic loop yet"); this is a
-#: disclosed limitation (see diagnostics.context_chars_available vs.
-#: diagnostics.context_chars_sent in legend_profile_hook.py), not a silent
-#: one, and it is applied FAIRLY per page (see module docstring below), not
-#: as a first-come-first-served cut of the concatenated blob.
-_DEFAULT_MAX_CONTEXT_CHARS = 60000
+#: ~30k chars (~7k tokens) is the empirically usable envelope for the
+#: default local model (llama3.1:8b): checkpoint-3 real-Ollama testing
+#: found that a ~45k-char / ~8k-token blob of dense, multi-page structural
+#: spec text made the 8B model bail outright (returning ``{}`` or
+#: ``{"error": "Error in input"}``), while a ~24k-char blob of the SAME
+#: document produced a valid, populated analysis. Documents whose context
+#: pages exceed this ARE truncated -- chunking is deliberately still out
+#: of scope ("chunk ONLY when necessary... do not turn this into an
+#: agentic loop yet"); the truncation is disclosed, not silent (see
+#: diagnostics.context_chars_available vs. context_chars_sent), and it is
+#: applied by a RELEVANCE-WEIGHTED fair per-page budget (see
+#: build_context_text) so the high-value pages (general/structural notes,
+#: legend, abbreviations) are not starved by a document's boilerplate
+#: specification pages.
+_DEFAULT_MAX_CONTEXT_CHARS = 30000
+
+# Relevance weight per context-page role, used only to divide the bounded
+# character budget in build_context_text. A SPECIFICATIONS page is mostly
+# CSI-division boilerplate (generic code refs, submittal/QA procedures);
+# it still contributes, at ~1/3 the budget of a notes/legend page, but it
+# no longer crowds the pages an estimator actually needs read in full.
+_ROLE_CONTEXT_WEIGHT = {
+    PAGE_ROLE_ABBREVIATIONS: 1.0,
+    PAGE_ROLE_LEGEND: 1.0,
+    PAGE_ROLE_GENERAL_NOTES: 1.0,
+    PAGE_ROLE_STRUCTURAL_NOTES: 1.0,
+    PAGE_ROLE_SPECIFICATIONS: 0.35,
+}
+_MIN_PER_PAGE_CHARS = 600
 
 
 def build_context_text(
@@ -428,26 +421,43 @@ def build_context_text(
     """Bounded, page-tagged text blob for the single LLM call -- only
     readable context pages (never VISION_REQUIRED, never drawing pages).
 
-    Truncates PER PAGE with a fair, equal character budget, rather than
-    concatenating every page in page-number order and hard-cutting the
-    result at ``max_chars``. Confirmed real-document bug this fixes: on
-    GCDC Building 4 - ST1.pdf, pages 1+3+4 alone total ~61k characters --
-    a naive concatenate-then-cut approach silently dropped page 5 (the
-    page with the actual "W8"=W8x10-style abbreviation table) ENTIRELY,
-    because it happened to sort after three large pages. A fair per-page
-    budget instead guarantees every selected context page contributes at
-    least something to the model's input, regardless of page order or
-    other pages' sizes.
+    Budgets characters PER PAGE rather than concatenating in page order and
+    hard-cutting the blob at ``max_chars``. Two real-document failures this
+    guards against:
+
+    1. (checkpoint 2) On GCDC Building 4 - ST1.pdf, pages 1+3+4 alone total
+       ~61k characters -- a naive concatenate-then-cut approach silently
+       dropped page 5 (the "W8"=W8x10 abbreviation table) ENTIRELY. Every
+       selected page now gets a guaranteed minimum share.
+    2. (checkpoint 3) On the real data-center customer PDF, 4 of 10 context
+       pages are boilerplate SPECIFICATIONS sheets. Splitting the budget
+       equally gave the actual GENERAL NOTES page the same ~2.4k chars as a
+       CSI submittal-procedure page. The budget is now weighted by role
+       (``_ROLE_CONTEXT_WEIGHT``) so notes/legend pages get ~3x a spec
+       page, while every page still clears ``_MIN_PER_PAGE_CHARS``.
     """
 
     pages = _readable_context_pages(context_pages)
     if not pages:
         return ""
-    per_page_budget = max(max_chars // len(pages), 500)
-    combined = "\n\n".join(
-        f"[PAGE {page}]\n{_page_text(document, page)[:per_page_budget]}" for page in pages
+
+    weights = {
+        page: _ROLE_CONTEXT_WEIGHT.get(context_pages.get(page, ""), 1.0)
+        for page in pages
+    }
+    weight_sum = sum(weights.values()) or float(len(pages))
+    # A very page-heavy document can push the sum of per-page minimums over
+    # max_chars; scale the floor down proportionally in that case so every
+    # page still contributes rather than dropping the tail.
+    min_per_page = min(_MIN_PER_PAGE_CHARS, max(max_chars // len(pages), 1))
+    budgets: Dict[int, int] = {
+        page: max(int(max_chars * weights[page] / weight_sum), min_per_page)
+        for page in pages
+    }
+
+    return "\n\n".join(
+        f"[PAGE {page}]\n{_page_text(document, page)[:budgets[page]]}" for page in pages
     )
-    return combined[:max_chars]
 
 
 def _cache_path(cache_dir: Path, cache_key: str) -> Path:
@@ -526,8 +536,13 @@ def empty_profile(
         "llm_latency_ms": None,
         "context_pages": {},
         "executive_summary": "",
-        "source_facts": [],
+        # Deterministic "X" = Y member-size rules -- the LABEL_SUBSTITUTION
+        # source of truth (never model-derived).
         "abbreviation_rules": [],
+        # Checkpoint-4 drawing-language rule profile (LLM-discovered, then
+        # validated + typed by services.engineering.project_rules).
+        "project_rules": [],
+        "drawing_language": [],
         "derived_insights": [],
         "warnings_and_conflicts": [],
         "estimator_attention_items": [],

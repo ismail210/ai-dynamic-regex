@@ -30,6 +30,7 @@ from unittest.mock import MagicMock, patch
 from config import settings
 from services.engineering import legend_profile as lp
 from services.engineering import legend_llm_provider as llm
+from services.engineering import project_rules as pr
 from services.engineering.legend_profile_hook import attach_legend_profile
 
 
@@ -243,6 +244,34 @@ class ContextTextFairTruncationTests(unittest.TestCase):
         naive = "\n\n".join(f"[PAGE {p}]\n{lp._page_text(document, p)}" for p in pages)[:60000]
         self.assertNotIn("[PAGE 3]", naive)
 
+    def test_notes_page_gets_more_budget_than_a_specifications_page(self):
+        """Checkpoint 3: on the real data-center PDF, 4 of 10 context pages
+        are boilerplate SPECIFICATIONS sheets. An equal split gave the
+        actual GENERAL NOTES page the same room as a CSI submittal-
+        procedure page. The role-weighted budget must give a notes page
+        materially more of the model's input than a spec page."""
+
+        document = _doc({1: "N" * 20000, 2: "S" * 20000})
+        context_pages = {
+            1: lp.PAGE_ROLE_GENERAL_NOTES,
+            2: lp.PAGE_ROLE_SPECIFICATIONS,
+        }
+        context_text = lp.build_context_text(document, context_pages, max_chars=20000)
+        notes_chars = context_text.count("N")
+        spec_chars = context_text.count("S")
+        self.assertGreater(notes_chars, spec_chars * 2)
+        # both pages are still represented -- a spec page is de-prioritised,
+        # never dropped
+        self.assertIn("[PAGE 1]", context_text)
+        self.assertIn("[PAGE 2]", context_text)
+
+    def test_every_page_clears_the_minimum_even_with_many_spec_pages(self):
+        document = _doc({n: f"PAGE{n} " + "z" * 5000 for n in range(1, 13)})
+        context_pages = {n: lp.PAGE_ROLE_SPECIFICATIONS for n in range(1, 13)}
+        context_text = lp.build_context_text(document, context_pages, max_chars=30000)
+        for n in range(1, 13):
+            self.assertIn(f"[PAGE {n}]", context_text)
+
 
 # ---------------------------------------------------------------------------
 # Ollama provider transport tests
@@ -269,9 +298,14 @@ class OllamaProviderTests(unittest.TestCase):
         self.assertIn("/api/generate", called_request.full_url)
         sent_payload = json.loads(called_request.data.decode("utf-8"))
         self.assertEqual(sent_payload["model"], "llama3.1:8b")
-        self.assertEqual(sent_payload["format"], "json")
+        # Structured output: `format` is the response JSON schema, not the
+        # weak "json" mode (checkpoint 3 -- see legend_llm_provider).
+        self.assertIsInstance(sent_payload["format"], dict)
+        self.assertEqual(sent_payload["format"]["type"], "object")
+        self.assertIn("rules", sent_payload["format"]["properties"])
         self.assertFalse(sent_payload["stream"])
         self.assertIn("num_ctx", sent_payload["options"])
+        self.assertIn("num_predict", sent_payload["options"])
 
     def test_connection_refused_raises_unavailable_not_generic_error(self):
         with patch(
@@ -292,6 +326,56 @@ class OllamaProviderTests(unittest.TestCase):
             provider = llm.OllamaLegendProvider(base_url="http://localhost:11434", model="llama3.1:8b")
             with self.assertRaises(json.JSONDecodeError):
                 provider.propose("system prompt", "document text")
+
+    def test_response_wrapped_in_code_fence_still_parses(self):
+        payload = "```json\n" + json.dumps(
+            {"executive_summary": "ok", "source_facts": []}
+        ) + "\n```"
+        fake_body = json.dumps({"response": payload}).encode("utf-8")
+        fake_response = MagicMock()
+        fake_response.read.return_value = fake_body
+        fake_response.__enter__.return_value = fake_response
+        fake_response.__exit__.return_value = False
+        with patch("urllib.request.urlopen", return_value=fake_response):
+            provider = llm.OllamaLegendProvider(base_url="http://localhost:11434", model="llama3.1:8b")
+            result = provider.propose("system prompt", "document text")
+        self.assertEqual(result["executive_summary"], "ok")
+
+    def test_response_truncated_at_num_predict_is_salvaged(self):
+        """llama3.1:8b on a content-rich document hits num_predict and cuts
+        its JSON mid-string. The earlier, complete facts must still be
+        recovered rather than the whole analysis becoming MODEL_ERROR."""
+
+        truncated = (
+            '{"executive_summary": "A992 wide flange, A500 HSS.", '
+            '"source_facts": [{"category": "MATERIAL", "statement": "Wide flange is A992.", '
+            '"source_page": 1, "source_quote": "W SHAPES SHALL BE ASTM A992", "confidence": 1.0}, '
+            '{"category": "MATERIAL", "statement": "HSS is A500", "source_page": 1, '
+            '"source_quote": "HSS SHALL CONFORM TO ASTM A50'
+        )
+        fake_body = json.dumps({"response": truncated}).encode("utf-8")
+        fake_response = MagicMock()
+        fake_response.read.return_value = fake_body
+        fake_response.__enter__.return_value = fake_response
+        fake_response.__exit__.return_value = False
+        with patch("urllib.request.urlopen", return_value=fake_response):
+            provider = llm.OllamaLegendProvider(base_url="http://localhost:11434", model="llama3.1:8b")
+            result = provider.propose("system prompt", "document text")
+        self.assertEqual(result["executive_summary"], "A992 wide flange, A500 HSS.")
+        self.assertGreaterEqual(len(result["source_facts"]), 1)
+        self.assertEqual(result["source_facts"][0]["statement"], "Wide flange is A992.")
+
+    def test_response_with_trailing_prose_still_parses(self):
+        payload = json.dumps({"executive_summary": "ok"}) + "\n\nLet me know if you need more detail."
+        fake_body = json.dumps({"response": payload}).encode("utf-8")
+        fake_response = MagicMock()
+        fake_response.read.return_value = fake_body
+        fake_response.__enter__.return_value = fake_response
+        fake_response.__exit__.return_value = False
+        with patch("urllib.request.urlopen", return_value=fake_response):
+            provider = llm.OllamaLegendProvider(base_url="http://localhost:11434", model="llama3.1:8b")
+            result = provider.propose("system prompt", "document text")
+        self.assertEqual(result["executive_summary"], "ok")
 
     def test_propose_analysis_reports_unavailable_status(self):
         class _RefusingProvider:
@@ -328,207 +412,305 @@ class _FakeProvider:
         return self._response
 
 
-class SourceFactAndInsightValidationTests(unittest.TestCase):
-    CONTEXT_TEXT = "[PAGE 1]\n" + GENERAL_NOTES_TEXT
+class RuleProfileValidationTests(unittest.TestCase):
+    """project_rule_profile_v1: the model returns typed drawing-language
+    rules; project_rules validates each and assigns an application_policy."""
 
-    def test_valid_source_fact_with_grounded_quote_kept(self):
+    CONTEXT_TEXT = (
+        "[PAGE 5]\n"
+        'THE FOLLOWING MEMBER SIZE ABBREVIATIONS ARE USED ON THE FRAMING PLANS:\n'
+        '"W8" = W8x10\n"HSS8x4" = HSS8x4x1/4\n'
+        'c = 1-1/4" INDICATES CAMBER.\n'
+        '"CANT" INDICATES CANTILEVERED BEAM. WHERE BEAM IS STEEL AND SIZE IS '
+        "NOT INDICATED, THE CANTILEVERED BEAM SHALL BE THE SAME SIZE AS THE "
+        "ADJACENT BACKSPAN BEAM, UNO.\n"
+        "SQUARE AND RECTANGULAR HSS SHALL CONFORM TO ASTM A500 GRADE C.\n"
+    )
+
+    def _run(self, rules, insights=None, attention=None, summary="ok"):
         provider = _FakeProvider(
             {
-                "executive_summary": "",
-                "source_facts": [
-                    {
-                        "category": "SECTION_NOTATION",
-                        "statement": "CANT beams inherit the adjacent backspan size when unsized.",
-                        "source_page": 1,
-                        "source_quote": '"CANT" INDICATES CANTILEVERED BEAM.',
-                        "confidence": 0.85,
-                    }
-                ],
-                "derived_insights": [],
-                "warnings_and_conflicts": [],
-                "estimator_attention_items": [],
+                "executive_summary": summary,
+                "rules": rules,
+                "derived_insights": insights or [],
+                "estimator_attention": attention or [],
             }
         )
-        result = llm.propose_analysis(self.CONTEXT_TEXT, provider=provider)
-        self.assertIsNone(result.error)
-        self.assertEqual(len(result.source_facts), 1)
-        self.assertEqual(result.source_facts[0]["status"], lp.STATUS_PROPOSED_INFERENCE)
+        return llm.propose_analysis(self.CONTEXT_TEXT, provider=provider, abbreviation_rules=[])
+
+    def test_notation_grammar_camber_maps_to_controlled_type_and_parser_assist(self):
+        result = self._run(
+            [
+                {
+                    "type": "NOTATION_GRAMMAR",
+                    "statement": "c=<dimension> denotes beam camber.",
+                    "grammar": "c=<dimension>",
+                    "field": "camber",
+                    "scope": {"page_roles": ["FRAMING_PLAN"], "uno_applies": False},
+                    "relevance": "HIGH",
+                    "source_page": 5,
+                    "source_quote": 'c = 1-1/4" INDICATES CAMBER.',
+                }
+            ]
+        )
+        self.assertEqual(len(result.rules), 1)
+        rule = result.rules[0]
+        self.assertEqual(rule["grammar_type"], pr.GRAMMAR_CAMBER_PREFIX)
+        self.assertEqual(rule["application_policy"], pr.POLICY_PARSER_ASSIST)
+        self.assertEqual(rule["validation_status"], pr.VALIDATION_STATUS_VALIDATED)
+
+    def test_unrecognised_grammar_downgraded_to_information_only(self):
+        result = self._run(
+            [
+                {
+                    "type": "NOTATION_GRAMMAR",
+                    "statement": "A circled number is a typical-detail reference on the framing plans.",
+                    "grammar": "(n)",
+                    "field": "detail_reference",
+                    "source_page": 5,
+                    "source_quote": "THE FOLLOWING MEMBER SIZE ABBREVIATIONS ARE USED ON THE FRAMING PLANS:",
+                }
+            ]
+        )
+        self.assertEqual(result.rules[0]["grammar_type"], pr.GRAMMAR_UNKNOWN)
+        self.assertEqual(result.rules[0]["application_policy"], pr.POLICY_INFORMATION_ONLY)
+
+    def test_inheritance_rule_is_corroboration_required_and_keeps_relation(self):
+        result = self._run(
+            [
+                {
+                    "type": "INHERITANCE_RULE",
+                    "statement": "A CANT beam with no section shown takes the adjacent backspan beam size, UNO.",
+                    "trigger": "CANT",
+                    "condition": "section size not indicated",
+                    "relation": "adjacent_backspan_beam",
+                    "inherited_field": "section_designation",
+                    "scope": {"page_roles": ["FRAMING_PLAN"], "uno_applies": True},
+                    "relevance": "CRITICAL",
+                    "source_page": 5,
+                    "source_quote": '"CANT" INDICATES CANTILEVERED BEAM.',
+                }
+            ]
+        )
+        rule = result.rules[0]
+        self.assertEqual(rule["application_policy"], pr.POLICY_CORROBORATION_REQUIRED)
+        self.assertEqual(rule["relation"], "adjacent_backspan_beam")
+        self.assertEqual(rule["inherited_field"], "section_designation")
+
+    def test_label_substitution_is_auto_eligible(self):
+        result = self._run(
+            [
+                {
+                    "type": "LABEL_SUBSTITUTION",
+                    "statement": "HSS8X4 means HSS8X4X1/4 on framing plans.",
+                    "trigger": "HSS8X4",
+                    "result": "HSS8X4X1/4",
+                    "scope": {"page_roles": ["FRAMING_PLAN"], "uno_applies": False},
+                    "relevance": "CRITICAL",
+                    "source_page": 5,
+                    "source_quote": '"HSS8x4" = HSS8x4x1/4',
+                }
+            ]
+        )
+        self.assertEqual(result.rules[0]["application_policy"], pr.POLICY_AUTO_ELIGIBLE)
+
+    def test_attribute_default_material_grade(self):
+        result = self._run(
+            [
+                {
+                    "type": "ATTRIBUTE_DEFAULT",
+                    "statement": "Square and rectangular HSS conform to ASTM A500 Grade C.",
+                    "source_page": 5,
+                    "source_quote": "SQUARE AND RECTANGULAR HSS SHALL CONFORM TO ASTM A500 GRADE C.",
+                }
+            ]
+        )
+        self.assertEqual(result.rules[0]["application_policy"], pr.POLICY_ATTRIBUTE_ONLY)
+
+    def test_conflict_warning_becomes_a_warning_not_a_resolution(self):
+        result = self._run(
+            [
+                {
+                    "type": "CONFLICT_WARNING",
+                    "statement": "The camber note and the abbreviations note disagree.",
+                    "source_page": 5,
+                    "source_quote": 'c = 1-1/4" INDICATES CAMBER.',
+                }
+            ]
+        )
+        self.assertEqual(len(result.warnings), 1)
+        self.assertEqual(result.rules[0]["application_policy"], pr.POLICY_NEVER_AUTO)
 
     def test_hallucinated_quote_rejected(self):
-        provider = _FakeProvider(
-            {
-                "executive_summary": "",
-                "source_facts": [
-                    {
-                        "category": "MATERIAL",
-                        "statement": "All steel is A992.",
-                        "source_page": 1,
-                        "source_quote": "This exact sentence was never in the document.",
-                        "confidence": 0.9,
-                    }
-                ],
-                "derived_insights": [],
-                "warnings_and_conflicts": [],
-                "estimator_attention_items": [],
-            }
+        result = self._run(
+            [
+                {
+                    "type": "ATTRIBUTE_DEFAULT",
+                    "statement": "All steel is A992.",
+                    "source_page": 5,
+                    "source_quote": "This exact sentence was never in the document.",
+                }
+            ]
         )
-        result = llm.propose_analysis(self.CONTEXT_TEXT, provider=provider)
-        self.assertEqual(result.source_facts, [])
+        self.assertEqual(result.rules, [])
+        self.assertEqual(result.rejected_rule_count, 1)
 
-    def test_derived_insight_allowed_without_literal_quote_if_evidence_grounded(self):
-        """The key checkpoint-2 relaxation: an insight needs no quote of its
-        own, only grounded evidence_refs pointing at real, validated facts."""
-
-        provider = _FakeProvider(
-            {
-                "executive_summary": "",
-                "source_facts": [
-                    {
-                        "category": "SECTION_NOTATION",
-                        "statement": "W8 denotes W8X10 on framing plans.",
-                        "source_page": 1,
-                        "source_quote": '"W8" = W8x10',
-                        "confidence": 0.9,
-                    },
-                    {
-                        "category": "SECTION_NOTATION",
-                        "statement": "W10 denotes W10X12 on framing plans.",
-                        "source_page": 1,
-                        "source_quote": '"W10" = W10x12',
-                        "confidence": 0.9,
-                    },
-                ],
-                "derived_insights": [
-                    {
-                        "inference": "The project likely uses nominal-depth shorthand systematically for wide-flange beams.",
-                        "evidence_refs": [
-                            "W8 denotes W8X10 on framing plans.",
-                            "W10 denotes W10X12 on framing plans.",
-                        ],
-                        "reasoning_summary": "Multiple explicit mappings follow the same pattern.",
-                        "confidence": 0.91,
-                        "impact": "Incomplete W labels elsewhere may be intentional shorthand.",
-                        "human_review_recommended": True,
-                    }
-                ],
-                "warnings_and_conflicts": [],
-                "estimator_attention_items": [],
-            }
+    def test_real_quote_with_unrelated_statement_rejected(self):
+        result = self._run(
+            [
+                {
+                    "type": "SCOPE_RULE",
+                    "statement": "Elevator guide rails are supplied by the elevator manufacturer.",
+                    "source_page": 5,
+                    "source_quote": '"HSS8x4" = HSS8x4x1/4',
+                }
+            ]
         )
-        result = llm.propose_analysis(self.CONTEXT_TEXT, provider=provider)
-        self.assertEqual(len(result.derived_insights), 1)
-        insight = result.derived_insights[0]
-        self.assertEqual(insight["status"], lp.STATUS_PROPOSED_INFERENCE)
-        self.assertEqual(len(insight["evidence_refs"]), 2)
+        self.assertEqual(result.rules, [])
 
-    def test_multiple_source_facts_can_support_one_deduction(self):
-        # Same fixture as above -- two independent facts jointly ground one
-        # insight, exercising the "cross-note deduction" requirement.
-        self.test_derived_insight_allowed_without_literal_quote_if_evidence_grounded()
-
-    def test_insight_cannot_exist_without_grounded_evidence(self):
-        provider = _FakeProvider(
-            {
-                "executive_summary": "",
-                "source_facts": [],
-                "derived_insights": [
-                    {
-                        "inference": "The project uses an unusual convention.",
-                        "evidence_refs": ["Something the model made up, not in any extracted fact."],
-                        "reasoning_summary": "...",
-                        "confidence": 0.7,
-                        "impact": "...",
-                        "human_review_recommended": True,
-                    }
-                ],
-                "warnings_and_conflicts": [],
-                "estimator_attention_items": [],
-            }
+    def test_unknown_rule_type_rejected(self):
+        result = self._run(
+            [{"type": "MAGIC_RULE", "statement": "x", "source_page": 5, "source_quote": '"W8" = W8x10'}]
         )
-        result = llm.propose_analysis(self.CONTEXT_TEXT, provider=provider)
-        self.assertEqual(result.derived_insights, [])
+        self.assertEqual(result.rules, [])
 
-    def test_insight_with_no_evidence_refs_at_all_rejected(self):
-        provider = _FakeProvider(
+    def test_derived_insight_must_cite_validated_rule_ids(self):
+        rules = [
             {
-                "executive_summary": "",
-                "source_facts": [],
-                "derived_insights": [{"inference": "Unsupported claim.", "evidence_refs": []}],
-                "warnings_and_conflicts": [],
-                "estimator_attention_items": [],
+                "type": "LABEL_SUBSTITUTION",
+                "statement": "W8 means W8x10.",
+                "trigger": "W8",
+                "result": "W8X10",
+                "source_page": 5,
+                "source_quote": '"W8" = W8x10',
             }
+        ]
+        good = self._run(
+            rules,
+            insights=[
+                {
+                    "statement": "The project uses systematic framing-plan shorthand.",
+                    "evidence_refs": ["RULE_001"],
+                    "reasoning_summary": "an explicit mapping exists",
+                    "confidence": 0.9,
+                }
+            ],
         )
-        result = llm.propose_analysis(self.CONTEXT_TEXT, provider=provider)
-        self.assertEqual(result.derived_insights, [])
+        self.assertEqual(len(good.derived_insights), 1)
+        self.assertEqual(
+            good.derived_insights[0]["validation_status"], pr.VALIDATION_STATUS_PROPOSED_INFERENCE
+        )
 
-    def test_conflicting_notes_produce_warning_not_silent_resolution(self):
-        provider = _FakeProvider(
-            {
-                "executive_summary": "",
-                "source_facts": [],
-                "derived_insights": [],
-                "warnings_and_conflicts": [
-                    {
-                        "summary": "W8 alias conflicts between the general notes and an addendum.",
-                        "source_page": 1,
-                        "source_quote": '"W8" = W8x10',
-                    }
-                ],
-                "estimator_attention_items": [],
-            }
+        bad = self._run(
+            rules,
+            insights=[{"statement": "Unsupported claim.", "evidence_refs": ["RULE_999"]}],
         )
-        result = llm.propose_analysis(self.CONTEXT_TEXT, provider=provider)
-        self.assertEqual(len(result.warnings), 1)
-        self.assertIn("conflict", result.warnings[0]["summary"].lower())
+        self.assertEqual(bad.derived_insights, [])
+
+    def test_derived_insight_cannot_resolve_anything(self):
+        # A DERIVED_INSIGHT never carries an application_policy other than
+        # NEVER_AUTO, and is not in the `rules` list at all.
+        result = self._run(
+            [
+                {
+                    "type": "LABEL_SUBSTITUTION",
+                    "statement": "W8 means W8x10.",
+                    "trigger": "W8",
+                    "result": "W8X10",
+                    "source_page": 5,
+                    "source_quote": '"W8" = W8x10',
+                }
+            ],
+            insights=[
+                {
+                    "statement": "Incomplete labels may be intentional notation.",
+                    "evidence_refs": ["RULE_001"],
+                    "confidence": 0.8,
+                }
+            ],
+        )
+        for insight in result.derived_insights:
+            self.assertEqual(insight["application_policy"], pr.POLICY_NEVER_AUTO)
+        self.assertFalse(any(r["type"] == pr.DERIVED_INSIGHT for r in result.rules))
+
+    def test_drawing_language_is_derived_from_validated_rules(self):
+        result = self._run(
+            [
+                {
+                    "type": "NOTATION_GRAMMAR",
+                    "statement": "c=<dimension> denotes beam camber.",
+                    "grammar": "c=<dimension>",
+                    "field": "camber",
+                    "source_page": 5,
+                    "source_quote": 'c = 1-1/4" INDICATES CAMBER.',
+                },
+                {
+                    "type": "INHERITANCE_RULE",
+                    "statement": "CANT with no size takes the adjacent backspan, UNO.",
+                    "trigger": "CANT",
+                    "relation": "adjacent_backspan_beam",
+                    "source_page": 5,
+                    "source_quote": '"CANT" INDICATES CANTILEVERED BEAM.',
+                },
+            ]
+        )
+        joined = " ".join(result.drawing_language).lower()
+        self.assertIn("camber", joined)
+        self.assertIn("cant", joined)
+        self.assertIn("backspan", joined)
 
     def test_empty_but_valid_result(self):
-        provider = _FakeProvider(
-            {
-                "executive_summary": "",
-                "source_facts": [],
-                "derived_insights": [],
-                "warnings_and_conflicts": [],
-                "estimator_attention_items": [],
-            }
-        )
-        result = llm.propose_analysis(self.CONTEXT_TEXT, provider=provider)
+        result = self._run([])
         self.assertIsNone(result.error)
-        self.assertEqual(result.source_facts, [])
+        self.assertEqual(result.rules, [])
         self.assertEqual(result.derived_insights, [])
 
-    def test_full_structured_analysis_all_fields_populated(self):
-        provider = _FakeProvider(
-            {
-                "executive_summary": "This project delegates connection design and uses A992 steel.",
-                "source_facts": [
-                    {
-                        "category": "MATERIAL",
-                        "statement": "Steel conforms to ASTM A992.",
-                        "source_page": 1,
-                        "source_quote": "GENERAL NOTES",
-                        "confidence": 0.8,
-                    }
-                ],
-                "derived_insights": [
-                    {
-                        "inference": "Connection design should be treated as delegated scope.",
-                        "evidence_refs": ["Steel conforms to ASTM A992."],
-                        "reasoning_summary": "Combined with responsibility language.",
-                        "confidence": 0.6,
-                        "impact": "Do not assume typical-detail connections are fabrication-final.",
-                        "human_review_recommended": True,
-                    }
-                ],
-                "warnings_and_conflicts": [],
-                "estimator_attention_items": ["Verify delegated connection scope with the fabricator."],
-            }
+    def test_malformed_response_is_model_error(self):
+        result = llm.propose_analysis(
+            self.CONTEXT_TEXT, provider=_FakeProvider("not a dict"), abbreviation_rules=[]
         )
-        result = llm.propose_analysis(self.CONTEXT_TEXT, provider=provider)
-        self.assertTrue(result.executive_summary)
-        self.assertEqual(len(result.source_facts), 1)
-        self.assertEqual(len(result.derived_insights), 1)
-        self.assertEqual(len(result.attention_items), 1)
+        self.assertIsNotNone(result.error)
 
+
+class CacheHitTests(_IsolatedCacheTestCase):
+    """Section 21: a second analysis with unchanged inputs must be a
+    CACHE_HIT and must NOT call the provider again."""
+
+    def test_second_identical_analysis_is_a_cache_hit_with_no_provider_call(self):
+        calls = {"n": 0}
+
+        class _CountingProvider:
+            def propose(self, system_prompt, document_text):
+                calls["n"] += 1
+                return {
+                    "executive_summary": "ok",
+                    "rules": [
+                        {
+                            "type": "ATTRIBUTE_DEFAULT",
+                            "statement": "Wide-flange shapes conform to ASTM A992.",
+                            "source_page": 1,
+                            "source_quote": '"W8" = W8x10',
+                        }
+                    ],
+                    "derived_insights": [],
+                    "estimator_attention": [],
+                }
+
+        original = settings.legend_profile_llm_enabled
+        try:
+            object.__setattr__(settings, "legend_profile_llm_enabled", True)
+            document = _doc({1: GENERAL_NOTES_TEXT})
+            with patch(
+                "services.engineering.legend_llm_provider.get_default_provider",
+                return_value=_CountingProvider(),
+            ):
+                first = attach_legend_profile(document)
+                self.assertEqual(first["diagnostics"].get("cache_state"), "FRESH_LLM_RUN")
+                second = attach_legend_profile(_doc({1: GENERAL_NOTES_TEXT}))
+            self.assertEqual(calls["n"], 1, "provider was called on the cached run")
+            self.assertEqual(second["diagnostics"].get("cache_state"), "CACHE_HIT")
+        finally:
+            object.__setattr__(settings, "legend_profile_llm_enabled", original)
 
 # ---------------------------------------------------------------------------
 # Cache versioning
@@ -539,14 +721,11 @@ class CacheVersioningTests(unittest.TestCase):
     def test_prompt_version_change_invalidates_cache(self):
         doc_hash = "abc123"
         key_v1 = lp.compute_cache_key(doc_hash, llm_requested=True, provider_name="ollama", model="llama3.1:8b")
-        with patch.object(llm, "PROMPT_VERSION", "legend_analysis_v3"):
-            # Cache key itself is derived from EXTRACTOR_VERSION/SCHEMA_VERSION
-            # (bumped whenever the prompt changes) and provider/model -- not
-            # from PROMPT_VERSION directly, since PROMPT_VERSION lives in the
-            # provider module. Simulate a real prompt bump via extractor
-            # version instead, which is the actual mechanism.
-            pass
-        with patch.object(lp, "EXTRACTOR_VERSION", "legend_extractor_v3"):
+        # The cache key is derived from EXTRACTOR_VERSION/SCHEMA_VERSION
+        # (bumped whenever the prompt changes) plus provider/model, not from
+        # PROMPT_VERSION directly (that lives in the provider module). A
+        # real prompt bump is simulated here via the extractor version.
+        with patch.object(lp, "EXTRACTOR_VERSION", "legend_extractor_test_bump"):
             key_v2 = lp.compute_cache_key(doc_hash, llm_requested=True, provider_name="ollama", model="llama3.1:8b")
         self.assertNotEqual(key_v1, key_v2)
 
@@ -573,7 +752,7 @@ class CacheVersioningTests(unittest.TestCase):
             cache_dir = Path(tmp)
             old_key = lp.compute_cache_key("hash1", llm_requested=False)
             lp.save_profile(cache_dir, old_key, lp.empty_profile({}, status=lp.ANALYSIS_SUCCESS, llm_requested=False))
-            with patch.object(lp, "EXTRACTOR_VERSION", "legend_extractor_v3"):
+            with patch.object(lp, "EXTRACTOR_VERSION", "legend_extractor_test_bump"):
                 new_key = lp.compute_cache_key("hash1", llm_requested=False)
                 self.assertIsNone(lp.load_cached_profile(cache_dir, new_key))
 

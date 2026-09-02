@@ -8,6 +8,7 @@ from typing import Any, Dict
 from services.artifact_store import write_artifact
 from services.document_intelligence import build_extraction_diagnostics
 from services.annotation.fragment_grouper import group_annotation_fragments
+from services.engineering.context_scope import annotate_takeoff_scope
 from services.engineering.document_prior import attach_document_prior
 from services.engineering.legend_profile_hook import attach_legend_profile
 from services.engineering_object_filter import filter_engineering_objects
@@ -16,7 +17,7 @@ from services.pdf_parser import extract_document_structure
 
 # Bumped whenever extraction output changes, so cached documents are rebuilt
 # instead of replaying stale artifacts.
-EXTRACTION_VERSION = "3.9-keep-label-instances"
+EXTRACTION_VERSION = "3.10-context-definition-scope"
 
 
 def extract_engineering_document(
@@ -51,6 +52,11 @@ def extract_engineering_document(
     )
     document["extraction_discard_counts"] = discard_counts
     document["engineering_object_count"] = len(document["engineering_tokens"])
+    # Separate legend/general-note *definitions* (e.g. the "HSS8x4 = HSS8x4x1/4"
+    # cell on the abbreviations page) from real takeoff members. Read-only:
+    # only sets object_scope/takeoff_eligible/_skip_unknown_queue on tokens,
+    # never removes one. Consumers filter on takeoff_eligible.
+    document["context_scope_summary"] = annotate_takeoff_scope(document)
     document["source_file"] = path.name
     document["extraction_version"] = EXTRACTION_VERSION
     _rescope_diagnostics_to_engineering_objects(document)

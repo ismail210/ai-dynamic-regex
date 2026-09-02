@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Stack } from "@mui/material";
+import { Alert, Stack } from "@mui/material";
 import { FactCheckOutlined, PictureAsPdfOutlined, RateReviewOutlined } from "@mui/icons-material";
 import StatsCards from "../components/StatsCards";
 import Charts from "../components/Charts";
@@ -54,6 +54,14 @@ export default function ResultsPage() {
       />
       <StatsCards data={data} />
       <Charts data={data} />
+      {data.context_definitions?.length > 0 && (
+        <Alert severity="info" variant="outlined">
+          {data.context_definitions.length} steel designation
+          {data.context_definitions.length === 1 ? "" : "s"} on legend / general-note
+          pages are excluded from the takeoff — they define project notation, not
+          members on the structure.
+        </Alert>
+      )}
       <TokensTable results={data.results} />
       <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: "wrap" }}>
         <TipButton

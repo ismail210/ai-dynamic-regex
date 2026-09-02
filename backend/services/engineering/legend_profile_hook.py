@@ -86,6 +86,8 @@ def _build(document: Dict[str, Any]) -> Dict[str, Any]:
             cache_key[:12],
             cached.get("status"),
         )
+        if isinstance(cached.get("diagnostics"), dict):
+            cached["diagnostics"]["cache_state"] = "CACHE_HIT"
         return cached
 
     context_pages = lp.detect_context_pages(document)
@@ -124,6 +126,7 @@ def _build(document: Dict[str, Any]) -> Dict[str, Any]:
         "vision_required_pages": vision_pages,
         "abbreviation_rules_found": len(abbreviation_rules),
         "cache_key": cache_key[:12],
+        "cache_state": "FRESH_LLM_RUN" if llm_requested else "FRESH_DETERMINISTIC_RUN",
     }
 
     if llm_requested and readable_pages:
@@ -151,14 +154,25 @@ def _apply_llm(
         api_key_env=settings.legend_profile_llm_api_key_env,
         model=settings.legend_llm_model,
         ollama_base_url=settings.ollama_base_url,
+        ollama_num_ctx=settings.legend_llm_num_ctx,
+        ollama_num_predict=settings.legend_llm_num_predict,
+        ollama_timeout_s=settings.legend_llm_timeout_s,
     )
     context_text = lp.build_context_text(document, context_pages)
-    profile["diagnostics"]["context_chars_available"] = sum(
+    chars_available = sum(
         len(lp._page_text(document, p)) for p in lp._readable_context_pages(context_pages)
     )
+    profile["diagnostics"]["context_chars_available"] = chars_available
     profile["diagnostics"]["context_chars_sent"] = len(context_text)
+    profile["diagnostics"]["context_truncated"] = len(context_text) < chars_available
+    profile["diagnostics"]["num_ctx"] = settings.legend_llm_num_ctx
+    profile["diagnostics"]["num_predict"] = settings.legend_llm_num_predict
 
-    result = llm.propose_analysis(context_text, provider=provider)
+    result = llm.propose_analysis(
+        context_text,
+        provider=provider,
+        abbreviation_rules=profile.get("abbreviation_rules") or [],
+    )
 
     profile["llm_provider"] = settings.legend_llm_provider
     profile["llm_model"] = settings.legend_llm_model
@@ -169,10 +183,25 @@ def _apply_llm(
     profile["diagnostics"]["llm_model"] = settings.legend_llm_model
     profile["diagnostics"]["prompt_version"] = llm.PROMPT_VERSION
     profile["diagnostics"]["llm_latency_ms"] = result.latency_ms
-    profile["diagnostics"]["raw_fact_count"] = result.raw_fact_count
+    profile["diagnostics"]["raw_rule_count"] = result.raw_rule_count
+    profile["diagnostics"]["rejected_rule_count"] = result.rejected_rule_count
     profile["diagnostics"]["raw_insight_count"] = result.raw_insight_count
-    profile["diagnostics"]["rejected_fact_count"] = result.rejected_fact_count
     profile["diagnostics"]["rejected_insight_count"] = result.rejected_insight_count
+    profile["diagnostics"]["rules_by_type"] = result.rules_by_type()
+    # Ollama's own timing/token counters for the single model call, so the
+    # analysis-latency breakdown can attribute time to model load vs prompt
+    # eval vs generation rather than one opaque wall-clock number.
+    run_stats = getattr(provider, "last_run_stats", None)
+    if run_stats:
+        profile["diagnostics"]["ollama_stats"] = {
+            "load_ms": round((run_stats.get("load_duration") or 0) / 1e6, 1),
+            "prompt_eval_count": run_stats.get("prompt_eval_count"),
+            "prompt_eval_ms": round((run_stats.get("prompt_eval_duration") or 0) / 1e6, 1),
+            "eval_count": run_stats.get("eval_count"),
+            "eval_ms": round((run_stats.get("eval_duration") or 0) / 1e6, 1),
+            "total_ms": round((run_stats.get("total_duration") or 0) / 1e6, 1),
+            "done_reason": run_stats.get("done_reason"),
+        }
 
     if result.unavailable:
         profile["status"] = lp.ANALYSIS_MODEL_UNAVAILABLE
@@ -195,14 +224,15 @@ def _apply_llm(
     profile["llm_used"] = True
     profile["prompt_version"] = llm.PROMPT_VERSION
     profile["executive_summary"] = result.executive_summary
-    profile["source_facts"] = result.source_facts
+    profile["project_rules"] = result.rules
+    profile["drawing_language"] = result.drawing_language
     profile["derived_insights"] = result.derived_insights
     profile["warnings_and_conflicts"] = result.warnings
     profile["estimator_attention_items"] = result.attention_items
 
     has_content = bool(
         result.executive_summary
-        or result.source_facts
+        or result.rules
         or result.derived_insights
         or result.warnings
         or result.attention_items
@@ -212,14 +242,13 @@ def _apply_llm(
 
     logger.info(
         "legend_profile[%s]: LLM ok (provider=%s model=%s latency=%sms) -- "
-        "%d/%d facts kept, %d/%d insights kept, %d warnings, %d attention items -> status=%s",
+        "%d/%d rules kept %s, %d/%d insights kept, %d attention items -> status=%s",
         document_id,
         settings.legend_llm_provider,
         settings.legend_llm_model,
         result.latency_ms,
-        len(result.source_facts), result.raw_fact_count,
+        len(result.rules), result.raw_rule_count, result.rules_by_type(),
         len(result.derived_insights), result.raw_insight_count,
-        len(result.warnings),
         len(result.attention_items),
         profile["status"],
     )

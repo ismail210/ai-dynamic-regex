@@ -37,6 +37,13 @@ describe("MatchStatusBadge", () => {
     expect(screen.queryByText("Unresolved — Review Required")).not.toBeInTheDocument();
   });
 
+  it("renders a distinct 'Project Legend Match' label for project_rule_resolved, not exact_match or unresolved", () => {
+    render(<MatchStatusBadge matchStatus="project_rule_resolved" />);
+    expect(screen.getByText("Project Legend Match")).toBeInTheDocument();
+    expect(screen.queryByText("Exact PDF Match")).not.toBeInTheDocument();
+    expect(screen.queryByText("Unresolved — Review Required")).not.toBeInTheDocument();
+  });
+
   it("falls back to unresolved for an unknown status", () => {
     render(<MatchStatusBadge matchStatus="something_new" />);
     expect(screen.getByText("Unresolved — Review Required")).toBeInTheDocument();

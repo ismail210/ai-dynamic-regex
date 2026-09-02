@@ -36,98 +36,230 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 import time
 import urllib.error
 import urllib.request
-from typing import Any, Dict, List, Optional, Protocol, Tuple
+from difflib import SequenceMatcher
+from typing import Any, Dict, List, Optional, Protocol
 
-from services.engineering.legend_profile import (
-    _ALLOWED_CATEGORIES,
-    CATEGORY_OTHER,
-    METHOD_LLM_PROPOSED,
-    STATUS_PROPOSED_INFERENCE,
-    verify_quote,
-)
+from services.engineering import project_rules as pr
+from services.engineering.legend_profile import verify_quote
 
 logger = logging.getLogger("takeoff.legend_llm_provider")
 
-PROMPT_VERSION = "legend_analysis_v2"
+# Checkpoint 4, objective #3: the model now compiles the project's drawing
+# language into a typed rule profile (see services.engineering.project_rules),
+# not a notes summary. Bumping this invalidates every v3 cache entry.
+PROMPT_VERSION = "project_rule_profile_v1"
 
 _MAX_SUMMARY_CHARS = 1200
 _MAX_ITEM_CHARS = 320
-_MAX_QUOTE_CHARS = 400
-_MAX_REASONING_CHARS = 400
 
 # ---------------------------------------------------------------------------
-# Prompt v2 -- deep project-context analysis, not minimal extraction.
+# Prompt project_rule_profile_v1 -- compile the project's DRAWING LANGUAGE
+# into a typed, machine-readable rule profile (checkpoint 4, objective #3).
+#
+# The legend / general notes of a structural set are not a list of notes --
+# they define a project-specific shorthand for encoding member information on
+# the drawing pages. The model discovers that language and states it as
+# small, precise, typed rules; services.engineering.project_rules is the
+# deterministic layer that validates each rule and decides what Estima3D may
+# do with it (application_policy). Only LABEL_SUBSTITUTION is ever
+# auto-applicable, and only through the gated resolver.
+#
+# Kept from v3 (checkpoint-3 findings against the 8B model): structured
+# output schema (not "json" mode), a hard 3-sentence executive_summary cap,
+# an explicit LOW-VALUE exclusion list, output-count caps, and the
+# verbatim-quote + statement/quote-coherence validation.
 # ---------------------------------------------------------------------------
 
-SYSTEM_PROMPT = """You are analyzing the project-level structural notes of a steel construction drawing set. You are acting as an experienced structural-steel estimator reviewing this specific project's General Notes, Structural Notes, Legends, Abbreviation tables, Material notes, Design Criteria, Connection notes, Typical notes, Steel specifications, and schedules where present.
+SYSTEM_PROMPT = """You are an expert structural-steel estimator and structural-drawing reviewer. You are given only the text of ONE project's non-drawing context pages (General/Structural Notes, Legends, Abbreviation tables, framing keys, relevant specification pages), each preceded by a [PAGE N] marker.
 
-Your purpose is NOT merely to summarize text. Your purpose is to build a concise Project Context Profile that helps an experienced steel estimator understand how THIS SPECIFIC project should be interpreted, and what would materially affect takeoff, interpretation, pricing scope, fabrication assumptions, or connection responsibility.
+Structural drawings encode member information in a PROJECT-SPECIFIC SHORTHAND -- a small drawing language. Your job: read these context pages and compile that language into a concise, machine-readable RULE PROFILE that a structural-steel takeoff system can use. You are NOT doing takeoff, NOT identifying drawing objects, and you must NOT invent a steel family, section, dimension or grade the text does not state.
 
-You work in two distinct modes. Never confuse them.
+FOR EVERY EXPLICIT PROJECT STATEMENT, decide its type:
+- LABEL_SUBSTITUTION -- an abbreviated member label expands to a complete section (give `trigger` = the label exactly as written, `result` = the full designation).
+- NOTATION_GRAMMAR -- a bracketed / prefixed / parenthesised / suffixed annotation encodes a value: camber, shear studs, connection reaction, top-of-steel elevation, column posting load, a frame mark. Give `grammar` as a SEMANTIC pattern (e.g. "c=<dimension>", "[n]", "[n;n;n]", "(elev)") and `field` naming what it encodes ("camber", "shear_stud_count", "shear_stud_count_by_segment", "connection_reaction", "top_of_steel_elevation", "column_posting_load", "frame_mark"). Describe the syntax -- do NOT write a regular expression.
+- INHERITANCE_RULE -- a member attribute is taken from a NEIGHBOURING member when omitted. Give `trigger` (the mark, e.g. "CANT"), `condition` (when it applies), `relation` (the neighbour the value comes from, e.g. "adjacent_backspan_beam"), `inherited_field` (e.g. "section_designation"). State the RELATIONSHIP NEEDED -- never name or guess a specific member; geometry code resolves that later.
+- ATTRIBUTE_DEFAULT -- a project default for material grade, finish/coating, etc.
+- ORIENTATION_RULE -- fixes member orientation (e.g. HSS long side vertical UNO).
+- CONNECTION_DEFAULT -- a default for connection design (default reaction, connection type, delegated design).
+- SCOPE_RULE -- allocates structural-steel fabricator scope (supplemental steel, opening framing, allowances).
+- DOCUMENT_PRECEDENCE -- which document/detail/schedule governs, or that info must be taken from elsewhere.
+- CONFLICT_WARNING -- two project statements conflict. State it; do not resolve it.
 
-MODE 1 -- SOURCE FACTS (explicit, directly grounded)
-Extract only what the document explicitly states. Every source fact MUST include the exact page number and a verbatim quote copied character-for-character from the provided text. If you cannot quote it exactly, omit the fact entirely. Never invent a steel section designation, dimension, or grade that is not present in the text. Never propose an abbreviation/shorthand mapping ("X" means "Y") in this section -- those are handled separately by deterministic code; do not duplicate or contradict them here.
+For each rule, list which of these a takeoff system could gain (`system_benefit`, the letters that apply): A resolve an incomplete label - B parse a compound annotation - C join two text pieces into one member - D infer a missing attribute from a stated default - E a member-to-member relationship - F orientation - G interpret a reaction/camber/stud/elevation value - H connection-design assumptions - I fabricator scope - J info must come from another sheet - K a project-document conflict - L reduce unnecessary human review. Set `relevance` (CRITICAL/HIGH/MEDIUM/LOW): CRITICAL when the rule can resolve otherwise-incomplete member information or prevent review.
 
-Search actively across these categories, but only report what is actually present -- do not force content into a category when nothing relevant exists, and do not repeat generic boilerplate (standard code references, generic safety/legal disclaimers, generic tolerances) unless it materially affects takeoff, interpretation, pricing scope, fabrication assumptions, or connection responsibility:
-- Section notation: W/HSS/C/L shorthand, omitted dimensions, nominal naming conventions, unusual project-specific designation syntax (excluding literal "X"=Y mappings, handled elsewhere).
-- Materials: ASTM grades, steel grades, HSS grades, plate grades, bolt grades, anchor rods, galvanizing, coatings/fireproofing if relevant to steel.
-- Connections: delegated design, bolted vs welded assumptions, shear/moment connection defaults, connection responsibility, shop vs field welding, connection design loads.
-- Fabrication: camber, stiffeners, bearing plates, base plates, splice rules, holes, edge distances, weld requirements.
-- Structural interpretation: "unless otherwise noted" rules, typical-detail applicability, drawing hierarchy, conflicting notes, schedules overriding plans, detail references, revision-specific instructions.
-- Estimator scope: items included/excluded, delegated elements, miscellaneous steel, joists/deck if applicable, connection material, temporary works, erection requirements.
+WRITE SMALL, PRECISE, EXECUTABLE STATEMENTS.
+Bad: "the framing plans use special annotation conventions."
+Good: "c=<dimension> denotes beam camber."
+Bad: "cantilever rules apply."
+Good: "When a steel member marked CANT has no section indicated, its section is the same as the adjacent backspan beam, UNO."
+Bad: "connection reactions have project defaults."
+Good: "When a beam reaction is not shown, the default factored connection reaction depends on the beam nominal depth per the project table."
 
-MODE 2 -- DERIVED INSIGHTS (reasoning across facts)
-After extracting source facts, reason ACROSS them. Look for project-level conventions, patterns, risks, and implications that are not stated in any single sentence but emerge from combining multiple facts. This is genuinely valuable and you should do it -- do not be overly conservative here. Every derived insight MUST:
-- state the inference itself;
-- list which specific source facts it is based on (evidence_refs, referring to facts you extracted in Mode 1 -- do not invent evidence that isn't among your own extracted facts);
-- give a short reasoning_summary connecting those facts to the inference (concise reasoning, not your full internal deliberation);
-- give a confidence from 0.0 to 1.0;
-- state the practical impact for an estimator;
-- state whether a human should review this before relying on it (human_review_recommended).
-A derived insight does NOT need its own literal quote -- that is the point of reasoning -- but it must never introduce a fact not already captured in Mode 1.
+`scope`: `page_roles` is where the rule applies -- ["FRAMING_PLAN"] if the note says "used on the framing plans", ["ALL"] otherwise; `uno_applies` true when the note says "UNO" / "unless noted".
 
-CONFLICTS
-If two notes conflict (e.g. a general note and a more specific note disagree), report the conflict explicitly. Do not silently pick one and resolve it yourself.
+EVERY rule except a derived insight needs an integer `source_page` and a `source_quote` copied character-for-character from that page. If you cannot quote it, drop the rule. A real quote paired with an unrelated statement is rejected.
 
-OUTPUT DISCIPLINE
-An empty result in any category is valid and expected if the document does not support it -- never fabricate content to appear thorough. Keep the executive_summary concise (a few sentences), not a restatement of the notes. Output only your conclusions -- do not expose step-by-step internal deliberation.
+DERIVED INSIGHTS: after the rules, at most 3 short cross-rule observations. Each MUST list `evidence_refs` naming the rule ids it rests on (RULE_001, RULE_002, ...). Example: "The project uses a systematic framing-plan shorthand and annotation grammar, so some apparently incomplete or isolated OCR fragments may be valid project notation rather than extraction errors." Proposed inferences only -- never executable.
 
-Return ONLY a JSON object of exactly this shape, nothing else, no prose before or after it:
+LOW VALUE -- do NOT emit as rules: generic building-code citations; generic seismic / wind / snow / concrete / reinforcing / soils criteria; OSHA / safety / QA / special-inspection / submittal-procedure boilerplate; generic AISC / AWS / ASTM tolerance restatements; the contractor's duty to obtain / distribute / coordinate contract documents.
+
+OUTPUT DISCIPLINE (a small, tight profile -- the model is a fast local one): at most 10 rules (the highest-value only), at most 2 derived_insights, at most 4 estimator_attention. Omit every field that does not apply to a rule -- do not emit empty strings. One short sentence per statement / quote / reasoning_summary / impact. executive_summary: 3 SENTENCES MAX, plain, lead with the steel material / notation / connection picture for THIS project. Output only the JSON object -- no text before or after.
+
+Return ONLY a JSON object of this shape:
 {
-  "executive_summary": "<a few sentences: what should an estimator know about THIS project before interpreting the drawings>",
-  "source_facts": [
+  "executive_summary": "<3 sentences max>",
+  "rules": [
     {
-      "category": "SECTION_NOTATION" | "MATERIAL" | "CONNECTION" | "FABRICATION" | "INTERPRETATION" | "RESPONSIBILITY" | "SCOPE" | "OTHER",
-      "statement": "<the fact, in your own concise words>",
-      "source_page": <integer page number from the [PAGE N] markers>,
-      "source_quote": "<exact verbatim quote from that page>",
-      "confidence": <0.0 to 1.0>
+      "type": "LABEL_SUBSTITUTION | NOTATION_GRAMMAR | INHERITANCE_RULE | ATTRIBUTE_DEFAULT | ORIENTATION_RULE | CONNECTION_DEFAULT | SCOPE_RULE | DOCUMENT_PRECEDENCE | CONFLICT_WARNING",
+      "statement": "<one concise sentence>",
+      "trigger": "<label or mark, if applicable>",
+      "result": "<complete designation, for LABEL_SUBSTITUTION>",
+      "grammar": "<semantic pattern, for NOTATION_GRAMMAR>",
+      "field": "<what it encodes, for NOTATION_GRAMMAR>",
+      "relation": "<neighbour, for INHERITANCE_RULE>",
+      "inherited_field": "<field, for INHERITANCE_RULE>",
+      "condition": "<when it applies, if applicable>",
+      "scope": {"page_roles": ["FRAMING_PLAN"], "uno_applies": true},
+      "relevance": "CRITICAL | HIGH | MEDIUM | LOW",
+      "system_benefit": ["A", "L"],
+      "source_page": <integer>,
+      "source_quote": "<exact verbatim quote>"
     }
   ],
   "derived_insights": [
     {
-      "inference": "<the project-level pattern/convention/risk you derived>",
-      "evidence_refs": ["<short excerpt or statement text of each source fact this is based on>"],
-      "reasoning_summary": "<why these facts support this inference>",
-      "confidence": <0.0 to 1.0>,
-      "impact": "<practical consequence for the estimator>",
-      "human_review_recommended": true | false
+      "statement": "<cross-rule observation>",
+      "evidence_refs": ["RULE_001", "RULE_002"],
+      "reasoning_summary": "<one line>",
+      "impact": "<practical consequence>",
+      "confidence": <0.0 to 1.0>
     }
   ],
-  "warnings_and_conflicts": [
-    {
-      "summary": "<what is ambiguous or conflicting>",
-      "source_page": <integer page number>,
-      "source_quote": "<exact verbatim quote>"
-    }
-  ],
-  "estimator_attention_items": [
-    "<short, specific, actionable bullet -- something to verify, not assume, or watch for>"
-  ]
+  "estimator_attention": ["<short actionable bullet>"]
 }"""
+
+
+#: Ollama structured-output schema (passed as the request ``format``).
+#: Only `type` + `statement` + `source_page` + `source_quote` are required
+#: per rule -- checkpoint-3 finding: requiring every optional field makes the
+#: 8B model pad. The Python validators in ``project_rules`` do the real work.
+RESPONSE_SCHEMA: Dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "executive_summary": {"type": "string"},
+        "rules": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "type": {"type": "string", "enum": sorted(pr.RULE_TYPES - {pr.DERIVED_INSIGHT})},
+                    "statement": {"type": "string"},
+                    "trigger": {"type": "string"},
+                    "result": {"type": "string"},
+                    "grammar": {"type": "string"},
+                    "field": {"type": "string"},
+                    "relation": {"type": "string"},
+                    "inherited_field": {"type": "string"},
+                    "condition": {"type": "string"},
+                    "scope": {
+                        "type": "object",
+                        "properties": {
+                            "page_roles": {"type": "array", "items": {"type": "string"}},
+                            "uno_applies": {"type": "boolean"},
+                        },
+                    },
+                    "relevance": {"type": "string", "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"]},
+                    "system_benefit": {"type": "array", "items": {"type": "string"}},
+                    "source_page": {"type": "integer"},
+                    "source_quote": {"type": "string"},
+                },
+                "required": ["type", "statement", "source_page", "source_quote"],
+            },
+        },
+        "derived_insights": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "statement": {"type": "string"},
+                    "evidence_refs": {"type": "array", "items": {"type": "string"}},
+                    "reasoning_summary": {"type": "string"},
+                    "impact": {"type": "string"},
+                    "confidence": {"type": "number"},
+                },
+                "required": ["statement", "evidence_refs"],
+            },
+        },
+        "estimator_attention": {"type": "array", "items": {"type": "string"}},
+    },
+    "required": ["executive_summary", "rules", "derived_insights", "estimator_attention"],
+}
+
+
+def _close_truncated_json(text: str) -> str:
+    """Best-effort completion of a JSON object cut off mid-generation
+    (llama3.1:8b hitting num_predict on a content-rich document). Walks the
+    text tracking string/bracket state and appends the closers needed to
+    make it parseable, so the facts the model DID finish are recovered
+    instead of the whole analysis becoming MODEL_ERROR."""
+
+    stack: List[str] = []
+    in_string = False
+    escaped = False
+    for ch in text:
+        if in_string:
+            if escaped:
+                escaped = False
+            elif ch == "\\":
+                escaped = True
+            elif ch == '"':
+                in_string = False
+            continue
+        if ch == '"':
+            in_string = True
+        elif ch in "{[":
+            stack.append(ch)
+        elif ch in "}]" and stack:
+            stack.pop()
+    out = text
+    if in_string:
+        out += '"'
+    out = out.rstrip().rstrip(",")
+    out += "".join("}" if opener == "{" else "]" for opener in reversed(stack))
+    return out
+
+
+def _loads_lenient(raw: str) -> Dict[str, Any]:
+    """Parse a model response that should be a JSON object.
+
+    Structured-output mode makes a clean object the common case; this
+    additionally tolerates (a) a markdown code fence or a stray leading/
+    trailing sentence -- take the span from the first ``{`` to the last
+    ``}`` -- and (b) a response truncated at num_predict -- close the open
+    strings/brackets. Raises ``json.JSONDecodeError`` (surfaced by the
+    caller as MODEL_ERROR, never MODEL_UNAVAILABLE) only if nothing parses.
+    """
+
+    text = raw.strip()
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        pass
+    start = text.find("{")
+    if start == -1:
+        return json.loads(text)  # re-raise the original error
+    body = text[start:]
+    end = body.rfind("}")
+    if end != -1:
+        try:
+            return json.loads(body[: end + 1])
+        except json.JSONDecodeError:
+            pass
+    return json.loads(_close_truncated_json(body))
 
 
 class LLMProvider(Protocol):
@@ -161,8 +293,9 @@ class OllamaLegendProvider:
         *,
         base_url: str,
         model: str,
-        timeout_s: float = 180.0,
+        timeout_s: float = 420.0,
         num_ctx: int = 16384,
+        num_predict: int = 3000,
     ) -> None:
         self._base_url = base_url.rstrip("/")
         self._model = model
@@ -170,10 +303,21 @@ class OllamaLegendProvider:
         # Ollama defaults to a small context window (commonly 2048-4096
         # tokens) regardless of what the underlying model supports, unless
         # explicitly overridden per-request -- without this, a document's
-        # context text (up to ~60k chars / ~15k tokens, see
-        # legend_profile._DEFAULT_MAX_CONTEXT_CHARS) would be silently
-        # truncated by Ollama itself, on top of our own cap.
+        # context text (see legend_profile._DEFAULT_MAX_CONTEXT_CHARS,
+        # ~30k chars / ~7k tokens) plus the system prompt would be silently
+        # truncated by Ollama itself. num_ctx must comfortably exceed
+        # input + num_predict.
         self._num_ctx = num_ctx
+        # Cap generation. Checkpoint-3 real testing: with no cap, on a dense
+        # document llama3.1:8b spent 2500+ tokens on one runaway
+        # executive_summary paragraph and returned truncated (invalid) JSON;
+        # ~3k tokens is enough for a full populated analysis of a bounded
+        # context blob and bounds worst-case latency.
+        self._num_predict = num_predict
+        # Ollama's own timing/token fields from the most recent call
+        # (nanosecond *_duration fields + *_eval_count). Read by the hook
+        # for the analysis diagnostics -- see legend_profile_hook.
+        self.last_run_stats: Dict[str, Any] = {}
 
     def propose(self, system_prompt: str, document_text: str) -> Optional[Dict[str, Any]]:
         payload = json.dumps(
@@ -181,9 +325,20 @@ class OllamaLegendProvider:
                 "model": self._model,
                 "system": system_prompt,
                 "prompt": document_text,
-                "format": "json",
+                # Structured output: constrain generation to the response
+                # schema. Checkpoint-3: plain "json" mode let the 8B model
+                # bail with {} / {"error": "Error in input"} on dense
+                # multi-page input; the schema makes it emit the real shape.
+                "format": RESPONSE_SCHEMA,
                 "stream": False,
-                "options": {"temperature": 0.1, "num_ctx": self._num_ctx},
+                "options": {
+                    # Factual extraction, not creativity -- deterministic.
+                    "temperature": 0.0,
+                    "top_p": 0.9,
+                    "repeat_penalty": 1.1,
+                    "num_ctx": self._num_ctx,
+                    "num_predict": self._num_predict,
+                },
             }
         ).encode("utf-8")
         request = urllib.request.Request(
@@ -197,8 +352,20 @@ class OllamaLegendProvider:
                 body = json.loads(response.read().decode("utf-8"))
         except (urllib.error.URLError, ConnectionError, TimeoutError, OSError) as exc:
             raise OllamaUnavailableError(str(exc)) from exc
-        raw = str(body.get("response") or "")
-        return json.loads(raw)
+        self.last_run_stats = {
+            key: body[key]
+            for key in (
+                "total_duration",
+                "load_duration",
+                "prompt_eval_count",
+                "prompt_eval_duration",
+                "eval_count",
+                "eval_duration",
+                "done_reason",
+            )
+            if key in body
+        }
+        return _loads_lenient(str(body.get("response") or ""))
 
 
 class AnthropicLLMProvider:
@@ -246,145 +413,106 @@ def get_default_provider(
     api_key_env: str,
     model: str,
     ollama_base_url: str,
+    ollama_num_ctx: Optional[int] = None,
+    ollama_num_predict: Optional[int] = None,
+    ollama_timeout_s: Optional[float] = None,
 ) -> LLMProvider:
     if not enabled:
         return NullLLMProvider()
     if provider_name == "ollama":
-        return OllamaLegendProvider(base_url=ollama_base_url, model=model)
+        kwargs: Dict[str, Any] = {"base_url": ollama_base_url, "model": model}
+        if ollama_num_ctx:
+            kwargs["num_ctx"] = ollama_num_ctx
+        if ollama_num_predict:
+            kwargs["num_predict"] = ollama_num_predict
+        if ollama_timeout_s:
+            kwargs["timeout_s"] = ollama_timeout_s
+        return OllamaLegendProvider(**kwargs)
     if provider_name == "anthropic":
         return AnthropicLLMProvider(api_key_env=api_key_env, model=model)
     return NullLLMProvider()
 
 
-def _validate_source_fact(raw: Any, *, source_text: str) -> Optional[Dict[str, Any]]:
-    if not isinstance(raw, dict):
-        return None
-    category = str(raw.get("category") or "").strip().upper()
-    if category not in _ALLOWED_CATEGORIES:
-        category = CATEGORY_OTHER
-    statement = str(raw.get("statement") or "").strip()
-    quote = str(raw.get("source_quote") or "").strip()
-    if not statement or not quote:
-        return None
-    if not verify_quote(source_text, quote):
-        return None
-    try:
-        confidence = float(raw.get("confidence"))
-    except (TypeError, ValueError):
-        confidence = 0.5
-    confidence = max(0.0, min(1.0, confidence))
-    try:
-        source_page = int(raw.get("source_page"))
-    except (TypeError, ValueError):
-        source_page = None
+# Words too generic to count as shared meaning between a paraphrased
+# statement and its supposed source quote (or between an evidence_ref and a
+# fact). Without this, "structural steel framing" alone links almost any
+# two strings in a structural-notes document.
+_GENERIC_WORDS = frozenset(
+    {
+        "shall", "steel", "project", "structural", "framing", "design",
+        "connection", "connections", "contractor", "engineer", "member",
+        "members", "construction", "requirements", "provide", "including",
+        "attachment", "installation", "responsibility", "drawings", "detail",
+        "details", "note", "notes", "system", "uses", "used", "based",
+    }
+)
+
+
+def _content_words(text: str) -> set:
     return {
-        "category": category,
-        "statement": statement[:_MAX_ITEM_CHARS],
-        "source_page": source_page,
-        "source_quote": quote[:_MAX_QUOTE_CHARS],
-        "confidence": confidence,
-        "extraction_method": METHOD_LLM_PROPOSED,
-        "source_quote_verified": True,
-        "status": STATUS_PROPOSED_INFERENCE,
+        w
+        for w in re.findall(r"[a-z0-9]{4,}", text.lower())
+        if w not in _GENERIC_WORDS
     }
 
 
-def _validate_derived_insight(
-    raw: Any, *, validated_facts: List[Dict[str, Any]]
-) -> Optional[Dict[str, Any]]:
-    """A derived insight needs no literal quote of its own, but every one of
-    its evidence_refs must match (by substring, case-insensitive) an
-    already-validated source fact's statement or quote. An insight with no
-    grounded evidence_refs at all is discarded -- reasoning is welcome,
-    unsupported assertion is not."""
+def _statement_supported_by_quote(statement: str, quote: str) -> bool:
+    """A paraphrased statement must share at least one distinctive content
+    word with the verbatim quote it claims to rest on. Checkpoint 3:
+    llama3.1:8b sometimes pairs a real quote from the page with a statement
+    about something else entirely on that page (e.g. statement 'the project
+    uses plate' with a quote listing precast-facade connection types)."""
 
-    if not isinstance(raw, dict):
-        return None
-    inference = str(raw.get("inference") or "").strip()
-    if not inference:
-        return None
-    raw_refs = raw.get("evidence_refs")
-    if not isinstance(raw_refs, list) or not raw_refs:
-        return None
+    return bool(_content_words(statement) & _content_words(quote))
 
-    fact_haystack = [
-        (str(f.get("statement") or "") + " " + str(f.get("source_quote") or "")).lower()
-        for f in validated_facts
+
+def _phrase_overlap_factory(validated_rules: List[Dict[str, Any]]):
+    """A closure that decides whether a free-text evidence_ref matches a
+    validated rule's statement -- by fuzzy ratio or >=3 shared distinctive
+    content words (checkpoint-3 anti-pattern: a bare index or a citation
+    sharing only 'construction')."""
+
+    index = [
+        (r["statement"].lower(), _content_words(r["statement"] + " " + (r.get("source_quote") or "")))
+        for r in validated_rules
     ]
-    grounded_refs: List[str] = []
-    for ref in raw_refs:
-        ref_text = str(ref or "").strip()
-        if not ref_text:
-            continue
+
+    def _overlap(ref_text: str) -> bool:
+        if len(ref_text) < 12:
+            return False
         ref_lower = ref_text.lower()
-        if any(
-            ref_lower in haystack or haystack.find(ref_lower[:40]) != -1
-            for haystack in fact_haystack
-        ):
-            grounded_refs.append(ref_text[:_MAX_ITEM_CHARS])
-    if not grounded_refs:
-        return None
+        ref_words = _content_words(ref_text)
+        for statement_lower, rule_words in index:
+            if SequenceMatcher(None, ref_lower, statement_lower).ratio() >= 0.5:
+                return True
+            if len(ref_words & rule_words) >= 3:
+                return True
+        return False
 
-    try:
-        confidence = float(raw.get("confidence"))
-    except (TypeError, ValueError):
-        confidence = 0.4
-    confidence = max(0.0, min(1.0, confidence))
-
-    return {
-        "inference": inference[:_MAX_ITEM_CHARS],
-        "evidence_refs": grounded_refs,
-        "reasoning_summary": str(raw.get("reasoning_summary") or "").strip()[:_MAX_REASONING_CHARS],
-        "confidence": confidence,
-        "impact": str(raw.get("impact") or "").strip()[:_MAX_ITEM_CHARS],
-        "human_review_recommended": bool(raw.get("human_review_recommended", True)),
-        "extraction_method": METHOD_LLM_PROPOSED,
-        "status": STATUS_PROPOSED_INFERENCE,
-    }
-
-
-def _validate_warning(raw: Any, *, source_text: str) -> Optional[Dict[str, Any]]:
-    if not isinstance(raw, dict):
-        return None
-    summary = str(raw.get("summary") or "").strip()
-    quote = str(raw.get("source_quote") or "").strip()
-    if not summary or not quote:
-        return None
-    if not verify_quote(source_text, quote):
-        return None
-    try:
-        source_page = int(raw.get("source_page"))
-    except (TypeError, ValueError):
-        source_page = None
-    return {
-        "summary": summary[:_MAX_ITEM_CHARS],
-        "source_page": source_page,
-        "source_quote": quote[:_MAX_QUOTE_CHARS],
-    }
+    return _overlap
 
 
 def _validate_attention_item(raw: Any) -> Optional[str]:
     text = str(raw or "").strip()
-    if not text:
-        return None
-    return text[:_MAX_ITEM_CHARS]
+    return text[:_MAX_ITEM_CHARS] or None
 
 
 class LegendAnalysisResult:
-    """Plain data holder returned by ``propose_analysis`` -- avoids a
-    5-element positional tuple at the call site."""
+    """Plain data holder returned by ``propose_analysis`` (a rule profile
+    since checkpoint 4 -- see services.engineering.project_rules)."""
 
     __slots__ = (
         "executive_summary",
-        "source_facts",
+        "rules",
         "derived_insights",
+        "drawing_language",
         "warnings",
         "attention_items",
         "error",
         "unavailable",
-        "raw_fact_count",
+        "raw_rule_count",
+        "rejected_rule_count",
         "raw_insight_count",
-        "rejected_fact_count",
         "rejected_insight_count",
         "latency_ms",
     )
@@ -393,29 +521,50 @@ class LegendAnalysisResult:
         for key in self.__slots__:
             setattr(self, key, kwargs.get(key))
 
+    def rules_by_type(self) -> Dict[str, int]:
+        counts: Dict[str, int] = {}
+        for rule in self.rules or []:
+            counts[rule["type"]] = counts.get(rule["type"], 0) + 1
+        return counts
 
-def propose_analysis(context_text: str, *, provider: LLMProvider) -> LegendAnalysisResult:
-    """Call the provider once and validate the response.
 
-    Never raises. Distinguishes "provider unreachable" (``unavailable``)
-    from "provider responded but the response was unusable" (``error``) so
-    the hook can report MODEL_UNAVAILABLE vs. MODEL_ERROR respectively.
-    """
-
-    empty = LegendAnalysisResult(
+def _empty_result() -> "LegendAnalysisResult":
+    return LegendAnalysisResult(
         executive_summary="",
-        source_facts=[],
+        rules=[],
         derived_insights=[],
+        drawing_language=[],
         warnings=[],
         attention_items=[],
         error=None,
         unavailable=False,
-        raw_fact_count=0,
+        raw_rule_count=0,
+        rejected_rule_count=0,
         raw_insight_count=0,
-        rejected_fact_count=0,
         rejected_insight_count=0,
         latency_ms=None,
     )
+
+
+def propose_analysis(
+    context_text: str,
+    *,
+    provider: LLMProvider,
+    abbreviation_rules: Optional[List[Dict[str, Any]]] = None,
+) -> LegendAnalysisResult:
+    """Call the provider once and validate the rule profile.
+
+    Never raises. Distinguishes "provider unreachable" (``unavailable``)
+    from "provider responded but the response was unusable" (``error``) so
+    the hook can report MODEL_UNAVAILABLE vs. MODEL_ERROR respectively.
+
+    ``abbreviation_rules`` are the deterministic ``"X" = Y`` rules from
+    ``legend_profile`` -- passed in only so the human-readable
+    ``drawing_language`` bullets can mention them; they are the LABEL_
+    SUBSTITUTION source of truth and are NOT re-derived from the model.
+    """
+
+    empty = _empty_result()
     if not context_text.strip():
         return empty
 
@@ -445,47 +594,64 @@ def propose_analysis(context_text: str, *, provider: LLMProvider) -> LegendAnaly
 
     summary = str(response.get("executive_summary") or "").strip()[:_MAX_SUMMARY_CHARS]
 
-    raw_facts = response.get("source_facts")
-    raw_facts = raw_facts if isinstance(raw_facts, list) else []
-    validated_facts: List[Dict[str, Any]] = []
-    for raw in raw_facts:
-        validated = _validate_source_fact(raw, source_text=context_text)
-        if validated is not None:
-            validated_facts.append(validated)
+    raw_rules = response.get("rules")
+    raw_rules = raw_rules if isinstance(raw_rules, list) else []
+    validated_rules: List[Dict[str, Any]] = []
+    next_id = 1
+    for raw in raw_rules:
+        rule = pr.validate_rule(
+            raw,
+            source_text=context_text,
+            verify_quote=verify_quote,
+            statement_supported_by_quote=_statement_supported_by_quote,
+            next_id=next_id,
+        )
+        if rule is not None:
+            validated_rules.append(rule)
+            next_id += 1
 
+    valid_ids = {r["id"] for r in validated_rules}
+    overlap = _phrase_overlap_factory(validated_rules)
     raw_insights = response.get("derived_insights")
     raw_insights = raw_insights if isinstance(raw_insights, list) else []
     validated_insights: List[Dict[str, Any]] = []
     for raw in raw_insights:
-        validated = _validate_derived_insight(raw, validated_facts=validated_facts)
-        if validated is not None:
-            validated_insights.append(validated)
+        insight = pr.validate_insight(
+            raw, validated_rule_ids=valid_ids, phrase_overlap=overlap
+        )
+        if insight is not None:
+            validated_insights.append(insight)
 
-    raw_warnings = response.get("warnings_and_conflicts")
-    raw_warnings = raw_warnings if isinstance(raw_warnings, list) else []
-    validated_warnings: List[Dict[str, Any]] = []
-    for raw in raw_warnings:
-        validated = _validate_warning(raw, source_text=context_text)
-        if validated is not None:
-            validated_warnings.append(validated)
-
-    raw_items = response.get("estimator_attention_items")
-    raw_items = raw_items if isinstance(raw_items, list) else []
-    validated_items = [
-        item for item in (_validate_attention_item(raw) for raw in raw_items) if item
+    warnings = [
+        {
+            "summary": r["statement"],
+            "source_page": r.get("source_page"),
+            "source_quote": r.get("source_quote"),
+        }
+        for r in validated_rules
+        if r["type"] == pr.CONFLICT_WARNING
     ]
+
+    raw_items = response.get("estimator_attention") or response.get("estimator_attention_items")
+    raw_items = raw_items if isinstance(raw_items, list) else []
+    validated_items = [i for i in (_validate_attention_item(x) for x in raw_items) if i]
+
+    drawing_language = pr.build_drawing_language(
+        rules=validated_rules, abbreviation_rules=abbreviation_rules or []
+    )
 
     return LegendAnalysisResult(
         executive_summary=summary,
-        source_facts=validated_facts,
+        rules=validated_rules,
         derived_insights=validated_insights,
-        warnings=validated_warnings,
+        drawing_language=drawing_language,
+        warnings=warnings,
         attention_items=validated_items,
         error=None,
         unavailable=False,
-        raw_fact_count=len(raw_facts),
+        raw_rule_count=len(raw_rules),
+        rejected_rule_count=len(raw_rules) - len(validated_rules),
         raw_insight_count=len(raw_insights),
-        rejected_fact_count=len(raw_facts) - len(validated_facts),
         rejected_insight_count=len(raw_insights) - len(validated_insights),
         latency_ms=latency_ms,
     )

@@ -8,6 +8,13 @@ vi.mock("../context/AnalysisContext", () => ({
   useAnalysis: () => mockUseAnalysis(),
 }));
 
+// The exclusion note lives directly in ResultsPage; the chart/table children
+// pull in recharts (needs ResizeObserver) and are not under test here.
+vi.mock("../components/Charts", () => ({ default: () => null }));
+vi.mock("../components/StatsCards", () => ({ default: () => null }));
+vi.mock("../components/TokensTable", () => ({ default: () => null }));
+vi.mock("../components/DownloadButtons", () => ({ default: () => null }));
+
 function renderResultsPage() {
   return render(
     <MemoryRouter>
@@ -40,6 +47,30 @@ describe("ResultsPage empty states", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("Upload the PDF again")).toBeInTheDocument();
     expect(screen.queryByText("No analysis results")).not.toBeInTheDocument();
+  });
+
+  it("notes how many legend / general-note definitions were excluded from the takeoff", () => {
+    mockUseAnalysis.mockReturnValue({
+      data: {
+        results: [{ object_id: "t1", token: "W12X19" }],
+        context_definitions: [{ object_id: "c1" }, { object_id: "c2" }, { object_id: "c3" }],
+        summary: {},
+      },
+      restoreNotice: null,
+    });
+    renderResultsPage();
+    expect(
+      screen.getByText(/3 steel designations on legend \/ general-note pages are excluded/i),
+    ).toBeInTheDocument();
+  });
+
+  it("shows no exclusion note when there are no context definitions", () => {
+    mockUseAnalysis.mockReturnValue({
+      data: { results: [{ object_id: "t1", token: "W12X19" }], context_definitions: [], summary: {} },
+      restoreNotice: null,
+    });
+    renderResultsPage();
+    expect(screen.queryByText(/excluded from the takeoff/i)).not.toBeInTheDocument();
   });
 
   it("shows a distinct re-analysis message for a generic restore failure", () => {

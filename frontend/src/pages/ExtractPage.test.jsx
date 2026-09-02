@@ -110,32 +110,39 @@ describe("ExtractPage legend profile panel", () => {
     expect(screen.getByText(/Project notes analysis failed/)).toBeInTheDocument();
   });
 
-  it("renders the full deep analysis: summary, facts, derived insights, shorthand, attention items, and warnings", () => {
+  it("renders the drawing-language profile: overview, sections, drawing language, typed rules, insights, warnings", () => {
     mockUseAnalysis.mockReturnValue(
       withProfile({
         status: "SUCCESS",
-        executive_summary: "This project uses abbreviated W-shape notation and delegates connection design.",
-        source_facts: [
+        executive_summary: "This project uses abbreviated W/HSS notation and delegates connection design.",
+        abbreviation_rules: [
+          { lhs: "W8", rhs: "W8X10", source_page: 5, source_quote: '"W8" = W8x10', confidence: 0.95 },
+        ],
+        drawing_language: ["`c=<dimension>` denotes beam camber."],
+        project_rules: [
           {
-            category: "MATERIAL",
-            statement: "Structural steel wide-flange shapes conform to ASTM A992.",
-            source_page: 2,
-            source_quote: "STRUCTURAL STEEL SHALL CONFORM TO ASTM A992.",
-            confidence: 0.95,
+            type: "ATTRIBUTE_DEFAULT",
+            statement: "Square and rectangular HSS conform to ASTM A500 Grade C.",
+            source_page: 5,
+            source_quote: "SQUARE AND RECTANGULAR HSS SHALL CONFORM TO ASTM A500 GRADE C.",
+            application_policy: "ATTRIBUTE_ONLY",
+          },
+          {
+            type: "INHERITANCE_RULE",
+            statement: "A CANT beam with no section shown takes the adjacent backspan size, UNO.",
+            source_page: 5,
+            source_quote: '"CANT" INDICATES CANTILEVERED BEAM.',
+            application_policy: "CORROBORATION_REQUIRED",
           },
         ],
         derived_insights: [
           {
-            inference: "The project likely uses nominal-depth shorthand systematically for wide-flange beams.",
-            evidence_refs: ["W8 → W8X10", "W10 → W10X12"],
-            reasoning_summary: "Multiple explicit abbreviation mappings follow the same notation pattern.",
+            statement: "The project likely uses nominal-depth shorthand systematically for wide-flange beams.",
+            evidence_refs: ["RULE_001", "RULE_002"],
+            reasoning_summary: "Multiple explicit abbreviation mappings follow the same pattern.",
             confidence: 0.91,
-            impact: "Incomplete W labels elsewhere may be intentional shorthand, not OCR failures.",
-            human_review_recommended: true,
+            impact: "Incomplete W labels elsewhere may be intentional shorthand.",
           },
-        ],
-        abbreviation_rules: [
-          { lhs: "W8", rhs: "W8X10", source_page: 5, source_quote: '"W8" = W8x10', confidence: 0.95 },
         ],
         warnings_and_conflicts: [
           { summary: "Conflicting camber note found.", source_page: 6, source_quote: "..." },
@@ -145,61 +152,62 @@ describe("ExtractPage legend profile panel", () => {
     );
     renderPage();
     expect(screen.getByText("Important Project Notes")).toBeInTheDocument();
-    expect(screen.getByText(/abbreviated W-shape notation/)).toBeInTheDocument();
+    expect(screen.getByText(/abbreviated W\/HSS notation/)).toBeInTheDocument();
     expect(screen.getByText("W8 → W8X10")).toBeInTheDocument();
+    expect(screen.getByText(/denotes beam camber/)).toBeInTheDocument();
     expect(
-      screen.getByText("Structural steel wide-flange shapes conform to ASTM A992."),
+      screen.getByText("Square and rectangular HSS conform to ASTM A500 Grade C."),
     ).toBeInTheDocument();
+    expect(screen.getByText("attribute only")).toBeInTheDocument();
+    expect(screen.getByText("needs geometry check")).toBeInTheDocument();
     expect(screen.getByText("Project inference")).toBeInTheDocument();
     expect(
       screen.getByText(/nominal-depth shorthand systematically/),
     ).toBeInTheDocument();
-    expect(screen.getByText("Review recommended")).toBeInTheDocument();
+    expect(screen.getByText("Not stated directly")).toBeInTheDocument();
     expect(
       screen.getByText(/Verify exceptions marked U.N.O./),
     ).toBeInTheDocument();
     expect(screen.getByText("Conflicting camber note found.")).toBeInTheDocument();
   });
 
-  it("visually distinguishes a derived insight from an explicit source fact", () => {
+  it("marks a LABEL_SUBSTITUTION rule as auto-applying and an insight as not stated directly", () => {
     mockUseAnalysis.mockReturnValue(
       withProfile({
         status: "SUCCESS",
         executive_summary: "",
-        source_facts: [
+        abbreviation_rules: [],
+        drawing_language: [],
+        project_rules: [
           {
-            category: "SECTION_NOTATION",
-            statement: "W8 beam notation represents W8X10 unless otherwise noted.",
-            source_page: 5,
-            source_quote: "BEAMS NOTED W8 SHALL BE W8X10 U.N.O.",
-            confidence: 0.9,
+            type: "SCOPE_RULE",
+            statement: "Supplemental steel for precast attachment is fabricator scope.",
+            source_page: 4,
+            source_quote: "ANGLES, PLATES AND SUPPLEMENTAL FRAMING FOR PRECAST ARE BY THE STEEL FABRICATOR.",
+            application_policy: "INFORMATION_ONLY",
           },
         ],
         derived_insights: [
           {
-            inference: "The project appears to use simplified nominal-depth labels on framing plans.",
-            evidence_refs: ["W8 beam notation represents W8X10 unless otherwise noted."],
-            reasoning_summary: "Derived from the explicit W8 substitution note.",
+            statement: "The project appears to use simplified nominal-depth labels on framing plans.",
+            evidence_refs: ["RULE_001"],
+            reasoning_summary: "Derived from the explicit substitution rules.",
             confidence: 0.8,
-            impact: "Some W-shape annotations may intentionally omit the weight designation.",
-            human_review_recommended: false,
           },
         ],
-        abbreviation_rules: [],
         warnings_and_conflicts: [],
         estimator_attention_items: [],
       }),
     );
     renderPage();
-    // The explicit fact and the derived inference must both be visible,
-    // and only the inference carries the "Project inference" marker.
     expect(
-      screen.getByText("W8 beam notation represents W8X10 unless otherwise noted."),
+      screen.getByText("Supplemental steel for precast attachment is fabricator scope."),
     ).toBeInTheDocument();
     expect(
       screen.getByText("The project appears to use simplified nominal-depth labels on framing plans."),
     ).toBeInTheDocument();
     expect(screen.getAllByText("Project inference")).toHaveLength(1);
+    expect(screen.getAllByText("Not stated directly")).toHaveLength(1);
   });
 
   it("informational disclaimer is always present when the panel renders", () => {
@@ -207,16 +215,17 @@ describe("ExtractPage legend profile panel", () => {
       withProfile({
         status: "SUCCESS",
         executive_summary: "Summary text.",
-        source_facts: [],
-        derived_insights: [],
         abbreviation_rules: [],
+        drawing_language: [],
+        project_rules: [],
+        derived_insights: [],
         warnings_and_conflicts: [],
         estimator_attention_items: [],
       }),
     );
     renderPage();
     expect(
-      screen.getByText(/Informational only -- does not change any predicted section\./),
+      screen.getByText(/Informational only -- it does not change any predicted section/),
     ).toBeInTheDocument();
   });
 });

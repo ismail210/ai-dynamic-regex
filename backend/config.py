@@ -234,6 +234,21 @@ class Settings:
             "OLLAMA_BASE_URL", "http://localhost:11434"
         )
     )
+    # Ollama per-request generation controls for the project-context call.
+    # Defaults chosen from checkpoint-3 real llama3.1:8b testing (see
+    # services/engineering/legend_llm_provider.py): num_ctx must exceed the
+    # bounded context blob (~7k tokens) + num_predict; the 8B model needs a
+    # hard num_predict cap or it truncates its own JSON; a dense document's
+    # analysis takes ~60-150s on a warm model, so the timeout is generous.
+    legend_llm_num_ctx: int = field(
+        default_factory=lambda: int(os.getenv("LEGEND_LLM_NUM_CTX", "16384"))
+    )
+    legend_llm_num_predict: int = field(
+        default_factory=lambda: int(os.getenv("LEGEND_LLM_NUM_PREDICT", "3000"))
+    )
+    legend_llm_timeout_s: float = field(
+        default_factory=lambda: float(os.getenv("LEGEND_LLM_TIMEOUT_S", "420"))
+    )
     legend_profile_llm_api_key_env: str = field(
         default_factory=lambda: os.getenv(
             "LEGEND_PROFILE_LLM_API_KEY_ENV", "ANTHROPIC_API_KEY"
