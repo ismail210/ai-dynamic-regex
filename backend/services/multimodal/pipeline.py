@@ -9,6 +9,10 @@ from typing import Any, Dict, Optional
 from config import settings
 from services.artifact_store import prune_documents, write_artifact
 from services.dataset_manager import dataset_manager
+from services.engineering.context_scope import (
+    partition_takeoff,
+    reassert_prediction_scope,
+)
 from services.engineering.geometry_adapters import (
     extract_geometry_document,
     geometry_capabilities,
@@ -37,7 +41,8 @@ from services.takeoff.ground_truth_excel import parse_ground_truth_excel
 
 
 # Bumped whenever prediction behaviour changes, so cached analyses are replaced.
-PIPELINE_VERSION = "4.12-collinear-merge"
+# 4.12 collinear merge + Bassam context-definition takeoff scope.
+PIPELINE_VERSION = "4.16-legend-collinear"
 
 
 def _neural_model_status() -> Dict[str, Any]:
@@ -202,18 +207,23 @@ def run_multimodal_pipeline(
         document["spatial_association_tokens_added"] = len(spatial_tokens)
     prediction_tokens.extend(_missing_label_tokens(geometry, graph))
     for token in prediction_tokens:
-        raw_predictions.append(
-            fusion_engine.predict(
-                {
-                    "token": token,
-                    "document": document,
-                    "geometry": geometry,
-                    "graph": graph,
-                    "expected_excel": expected,
-                    "source_file": path.name,
-                }
-            ).to_dict()
-        )
+        prediction = fusion_engine.predict(
+            {
+                "token": token,
+                "document": document,
+                "geometry": geometry,
+                "graph": graph,
+                "expected_excel": expected,
+                "source_file": path.name,
+            }
+        ).to_dict()
+        # Carry the extraction-time takeoff scope onto the served prediction
+        # (see services.engineering.context_scope). A context-definition
+        # token stays in predictions.json for evidence/provenance but is
+        # filtered out of the served takeoff list at projection time.
+        prediction["object_scope"] = token.get("object_scope") or "takeoff"
+        prediction["takeoff_eligible"] = bool(token.get("takeoff_eligible", True))
+        raw_predictions.append(prediction)
     timings["prediction_ms"] = round(
         (time.perf_counter() - stage_started) * 1000, 2
     )
@@ -221,12 +231,22 @@ def run_multimodal_pipeline(
     deduped = merge_duplicate_predictions(raw_predictions)
     predictions = propagate_section_labels(deduped["predictions"], graph)
 
+    # Demote anything sitting on a strict-classified legend/notes page,
+    # including geometry "missing label", schedule/spatial and label-
+    # propagation predictions synthesized after the extraction-time pass, so
+    # the review-queue loop below and every downstream count skip them.
+    reassert_prediction_scope(predictions, document)
+
     # Human review is driven by multimodal confidence/conflicts, never by a
     # database miss alone.
     for prediction in predictions:
         if prediction.get("review_status") != "pending_review":
             continue
         if prediction.get("_skip_unknown_queue"):
+            continue
+        # A legend/general-note definition is not a member -- never queue it
+        # for unknown-token review (see services.engineering.context_scope).
+        if prediction.get("takeoff_eligible") is False:
             continue
         text_features = (prediction.get("features") or {}).get("text") or {}
         confidence_value = confidence_overall(prediction.get("confidence"))
@@ -257,6 +277,11 @@ def run_multimodal_pipeline(
         prediction["review_status"] = (
             "queued" if prediction["unknown_id"] else "pending_review"
         )
+
+    # Legend / general-note definitions are not members: keep them out of
+    # validation, Excel comparison, review indexing, counts and every served
+    # list. They are still written to predictions.json below for provenance.
+    predictions, context_definitions = partition_takeoff(predictions)
 
     validation = validate_multimodal_predictions(
         predictions,
@@ -320,6 +345,9 @@ def run_multimodal_pipeline(
                 "predictions.json",
                 {
                     "predictions": predictions,
+                    # Legend/general-note definitions -- retained for
+                    # provenance, never counted or validated as members.
+                    "context_definitions": context_definitions,
                     "duplicates": _merge_audit(deduped),
                 },
             ),
@@ -375,6 +403,7 @@ def run_multimodal_pipeline(
             "raw_tokens": len(raw_predictions),
             "duplicates_merged": deduped["duplicate_count"],
             "components_found": len(predictions),
+            "context_definitions": len(context_definitions),
             "ocr_corrections": corrected_count,
             "missing_components": missing_components,
             "extra_components": extra_components,
@@ -424,6 +453,7 @@ def run_multimodal_pipeline(
         "graph": graph,
         "document_rules": document_rules,
         "predictions": predictions,
+        "context_definitions": context_definitions,
         "validation": validation,
         "anonymous_dimension_metrics": anonymous_dimension_metrics,
         "excel_evaluation": excel_evaluation,

@@ -69,6 +69,7 @@ def _analysis_metadata(result: Dict[str, Any]) -> Dict[str, Any]:
             "geometry",
             "graph",
             "predictions",
+            "context_definitions",
             "validation",
             "expected_excel",
         }
@@ -115,19 +116,28 @@ def analysis_response(result: Dict[str, Any]) -> Dict[str, Any]:
     are tens of megabytes and no page consumes them, so they stay in the
     artifacts (downloadable through ``/artifacts/{name}``) and are summarized
     here. Sending them made a finished analysis look like a hung request.
+
+    Legend / general-note *definitions* (see
+    services.engineering.context_scope) are split off into
+    ``context_definitions`` -- retained for evidence/provenance, never in the
+    ``predictions`` list every takeoff/review page reads.
     """
 
-    predictions = [
-        {key: value for key, value in prediction.items() if key != "features"}
-        for prediction in enrich_missing_thickness_hss_predictions(
-            result.get("predictions") or []
-        )
-    ]
+    def _project(items: list) -> list:
+        return [
+            {key: value for key, value in item.items() if key != "features"}
+            for item in enrich_missing_thickness_hss_predictions(items)
+        ]
+
+    # run_multimodal_pipeline / load_cached_analysis have already split
+    # legend-definition predictions off into result["context_definitions"];
+    # this only projects both lists onto the API contract.
     return {
         **result,
         "geometry": _geometry_digest(result.get("geometry") or {}),
         "graph": _graph_digest(result.get("graph") or {}),
-        "predictions": predictions,
+        "predictions": _project(result.get("predictions") or []),
+        "context_definitions": _project(result.get("context_definitions") or []),
     }
 
 
@@ -176,6 +186,85 @@ def load_cached_extraction(document_id: str) -> Optional[Dict[str, Any]]:
         **extraction_response(document),
         "extraction_version": EXTRACTION_VERSION,
     }
+
+
+def _apply_project_rule_resolution(
+    predictions: list[Dict[str, Any]],
+    legend_profile: Optional[Dict[str, Any]],
+    reviewed_ids: set,
+) -> tuple[list[Dict[str, Any]], list[Dict[str, Any]]]:
+    """Overlay verified LABEL_SUBSTITUTION rules from the project legend
+    (services.engineering.project_rule_resolver) onto served predictions:
+    an abbreviated drawing-page label whose full designation the legend
+    states, and which clears every deterministic gate, is resolved instead
+    of being routed to "Missing Dimension -- Select Section".
+
+    Applied on every read, AFTER missing-thickness enrichment and BEFORE
+    human selections (a reviewer's choice always wins). Returns
+    (predictions, list-of-applied-provenance) for diagnostics.
+    """
+
+    abbreviation_rules = (legend_profile or {}).get("abbreviation_rules") or []
+    project_rules = (legend_profile or {}).get("project_rules") or []
+    if not abbreviation_rules:
+        return predictions, []
+
+    from services.engineering.project_rule_resolver import resolve_token
+
+    applied: list[Dict[str, Any]] = []
+    out: list[Dict[str, Any]] = []
+    for prediction in predictions:
+        object_id = str(prediction.get("object_id") or "")
+        source_text = prediction.get("source_text") or {}
+        raw = str(source_text.get("raw") or prediction.get("raw_text") or "")
+        status = (prediction.get("comparison") or {}).get("match_status")
+        already_resolved = status in {"exact_match", "normalized_match", "human_resolved"}
+        if not raw or object_id in reviewed_ids or already_resolved:
+            out.append(prediction)
+            continue
+
+        decision = resolve_token(
+            raw_token=raw,
+            normalized_token=str(source_text.get("normalized") or ""),
+            page_role="UNKNOWN",
+            takeoff_eligible=prediction.get("takeoff_eligible", True) is not False,
+            abbreviation_rules=abbreviation_rules,
+            project_rules=project_rules,
+            human_reviewed=object_id in reviewed_ids,
+        )
+        if decision is None:
+            out.append(prediction)
+            continue
+
+        label = decision["resolved_designation"]
+        resolved = dict(prediction)
+        resolved["final_label"] = label
+        resolved["section"] = label
+        resolved["needs_review"] = False
+        resolved["review_reason"] = None
+        resolved["project_rule_resolution"] = decision
+
+        def _patch(container: Dict[str, Any]) -> Dict[str, Any]:
+            patched = dict(container)
+            comp = dict(patched.get("comparison") or {})
+            comp["match_status"] = "project_rule_resolved"
+            comp["prediction_required"] = False
+            patched["comparison"] = comp
+            pred = dict(patched.get("prediction") or {})
+            pred["final_label"] = label
+            patched["prediction"] = pred
+            return patched
+
+        # Frontend reads `canonical.comparison.match_status` first, then the
+        # top-level; both must move (see frontend/src/lib/predictionContract.js).
+        resolved = _patch(resolved)
+        if isinstance(resolved.get("canonical"), dict):
+            resolved["canonical"] = _patch(resolved["canonical"])
+            resolved["needs_review"] = False
+        out.append(resolved)
+        applied.append({"object_id": object_id, **decision})
+
+    return out, applied
 
 
 def _apply_human_selections(
@@ -231,15 +320,27 @@ def load_cached_analysis(document_id: str) -> Optional[Dict[str, Any]]:
     validation = read_artifact(document_id, "validation.json")
     if extraction is None or prediction_view is None or validation is None:
         return None
+    # predictions_view.json holds only takeoff-eligible predictions (legend
+    # definitions are in its own context_definitions key). A view cached
+    # before this split fails the pipeline_fingerprint check above and is
+    # rebuilt, so no un-split view reaches here.
+    #
+    # Read-time overlays, in precedence order: missing-thickness enrichment
+    # -> verified project LABEL_SUBSTITUTION -> human selection (a reviewer
+    # always wins).
+    reviewed_ids = set(get_human_selection_entries(document_id).keys())
+    predictions, rule_resolutions = _apply_project_rule_resolution(
+        enrich_missing_thickness_hss_predictions(prediction_view.get("predictions") or []),
+        (extraction or {}).get("legend_profile"),
+        reviewed_ids,
+    )
+    predictions = _apply_human_selections(document_id, predictions)
     return {
         **metadata,
         "extraction": extraction,
-        "predictions": _apply_human_selections(
-            document_id,
-            enrich_missing_thickness_hss_predictions(
-                prediction_view.get("predictions") or []
-            ),
-        ),
+        "predictions": predictions,
+        "context_definitions": prediction_view.get("context_definitions") or [],
+        "project_rule_resolutions": rule_resolutions,
         "validation": validation,
         "cached": True,
     }
@@ -357,6 +458,9 @@ def run_analysis_stage(
         write_artifact(
             document_id, "analysis.json", _analysis_metadata(result)
         )
+        # run_multimodal_pipeline already excluded legend/general-note
+        # definitions from result["predictions"]; these counts and the upload
+        # log therefore describe the takeoff only.
         predictions = result.get("predictions") or []
         known = sum(bool(item.get("database_match")) for item in predictions)
         uncertain = sum(
@@ -375,16 +479,27 @@ def run_analysis_stage(
             document_id,
             stage="analyzed",
             analysis_artifact="analysis.json",
-            prediction_count=len(result.get("predictions") or []),
+            prediction_count=len(predictions),
         )
         response = analysis_response({**result, "cached": False})
-        # The projected predictions are what every page reads, so they are
-        # cached separately from the training feature bundles.
+        # predictions_view.json stays raw model output. The verified
+        # project-rule overlay is applied on read (load_cached_analysis) and,
+        # for parity, on this fresh /analyze response.
+        served = response.get("predictions") or []
         write_artifact(
             document_id,
             "predictions_view.json",
-            {"predictions": response.get("predictions") or []},
+            {
+                "predictions": served,
+                "context_definitions": response.get("context_definitions") or [],
+            },
         )
+        reviewed_ids = set(get_human_selection_entries(document_id).keys())
+        served, rule_resolutions = _apply_project_rule_resolution(
+            served, (document or {}).get("legend_profile"), reviewed_ids
+        )
+        response["predictions"] = served
+        response["project_rule_resolutions"] = rule_resolutions
         return response
     except Exception as exc:
         update_document(document_id, stage="failed", error=str(exc))

@@ -145,6 +145,10 @@ function normalizeAnalysis(data) {
     pages: data.summary?.pages,
     token_count: results.length,
     results,
+    // Legend / general-note definitions (e.g. "HSS8x4 = HSS8x4x1/4" on the
+    // abbreviations page) are excluded from `results` upstream; kept here
+    // only so a page can note how many were set aside.
+    context_definitions: data.context_definitions || [],
     summary: {
       ...data.summary,
       confidence_levels: confidenceLevels,

@@ -45,6 +45,12 @@ class MatchStatus(str, Enum):
     # NOT in _REVIEW_REASONS below: the ambiguity that required review is
     # exactly what this status means is now resolved.
     HUMAN_RESOLVED = "human_resolved"
+    # A verified project LABEL_SUBSTITUTION rule ("HSS8X4" = HSS8X4X1/4 in the
+    # legend) resolved an abbreviated drawing-page label to its complete AISC
+    # designation, after every deterministic gate in
+    # services.engineering.project_rule_resolver. High confidence, but
+    # deliberately NOT exact_match -- OCR did not contain the full section.
+    PROJECT_RULE_RESOLVED = "project_rule_resolved"
     GEOMETRY_ONLY = "geometry_only"
     SOURCE_TEXT_NOT_FOUND = "source_text_not_found"
     UNRESOLVED = "unresolved"

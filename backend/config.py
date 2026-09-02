@@ -183,6 +183,79 @@ class Settings:
         in ("1", "true", "yes", "on")
     )
 
+    # ---- Project context profile (legend/notes deep analysis) ---------
+    # Deterministic-only by default: LEGEND_PROFILE_ENABLED gates the whole
+    # feature (page selection + regex abbreviation-rule extraction +
+    # caching), and is safe to leave on -- it never touches
+    # engineering_tokens/candidates/predictions, only attaches
+    # document["legend_profile"] as read-only, informational output.
+    # LEGEND_PROFILE_LLM_ENABLED additionally gates the optional one-shot
+    # LLM call that proposes executive_summary/source_facts/
+    # derived_insights/warnings_and_conflicts/estimator_attention_items; it
+    # costs a model call per document, so it defaults off like the ranker
+    # flags below, and every LLM-derived item still goes through
+    # deterministic quote-grounding (facts) or grounded-evidence-refs
+    # (insights) validation before being kept (see
+    # services/engineering/legend_llm_provider.py).
+    #
+    # Default provider is Ollama (free, local, no API key, no data leaves
+    # the machine) -- see docs accompanying this commit for the
+    # recommended model and why. LEGEND_LLM_PROVIDER/LEGEND_LLM_MODEL/
+    # OLLAMA_BASE_URL are the primary knobs; LEGEND_PROFILE_LLM_API_KEY_ENV
+    # only matters for the "anthropic" provider.
+    legend_profile_enabled: bool = field(
+        default_factory=lambda: os.getenv(
+            "LEGEND_PROFILE_ENABLED", "true"
+        )
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
+    legend_profile_llm_enabled: bool = field(
+        default_factory=lambda: os.getenv(
+            "LEGEND_PROFILE_LLM_ENABLED", "false"
+        )
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
+    legend_llm_provider: str = field(
+        default_factory=lambda: os.getenv(
+            "LEGEND_LLM_PROVIDER", "ollama"
+        ).strip().lower()
+    )
+    legend_llm_model: str = field(
+        default_factory=lambda: os.getenv(
+            "LEGEND_LLM_MODEL", "llama3.1:8b"
+        )
+    )
+    ollama_base_url: str = field(
+        default_factory=lambda: os.getenv(
+            "OLLAMA_BASE_URL", "http://localhost:11434"
+        )
+    )
+    # Ollama per-request generation controls for the project-context call.
+    # Defaults chosen from checkpoint-3 real llama3.1:8b testing (see
+    # services/engineering/legend_llm_provider.py): num_ctx must exceed the
+    # bounded context blob (~7k tokens) + num_predict; the 8B model needs a
+    # hard num_predict cap or it truncates its own JSON; a dense document's
+    # analysis takes ~60-150s on a warm model, so the timeout is generous.
+    legend_llm_num_ctx: int = field(
+        default_factory=lambda: int(os.getenv("LEGEND_LLM_NUM_CTX", "16384"))
+    )
+    legend_llm_num_predict: int = field(
+        default_factory=lambda: int(os.getenv("LEGEND_LLM_NUM_PREDICT", "3000"))
+    )
+    legend_llm_timeout_s: float = field(
+        default_factory=lambda: float(os.getenv("LEGEND_LLM_TIMEOUT_S", "420"))
+    )
+    legend_profile_llm_api_key_env: str = field(
+        default_factory=lambda: os.getenv(
+            "LEGEND_PROFILE_LLM_API_KEY_ENV", "ANTHROPIC_API_KEY"
+        )
+    )
+    legend_profile_cache_dir: Path = BASE_DIR / "training" / "legend_profiles"
+
     # ---- Damaged-label reconstruction ranker (shadow mode only) -------
     # Both default false. ML_LABEL_RANKER_SHADOW may be turned on
     # independently of ML_LABEL_RANKER_ENABLED to log the trained
