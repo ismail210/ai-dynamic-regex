@@ -86,9 +86,9 @@ class DensePageCapTests(unittest.TestCase):
         self.assertEqual(page_summary["retained_drawing_count"], 250)
         self.assertEqual(page_summary["drawing_cap_threshold"], 250)
 
-    def test_default_strategy_is_length_aware(self) -> None:
+    def test_default_strategy_is_structural_first(self) -> None:
         explicit_default = extract_geometry(
-            str(self.pdf), None, dense_page_cap_strategy="length_aware"
+            str(self.pdf), None, dense_page_cap_strategy="structural_first"
         )
         implicit_default = extract_geometry(str(self.pdf), None)
         ids_explicit = sorted(o["geometry_id"] for o in explicit_default["objects"])
@@ -96,7 +96,7 @@ class DensePageCapTests(unittest.TestCase):
         self.assertEqual(ids_explicit, ids_implicit)
         self.assertEqual(
             implicit_default["page_summaries"][0]["dense_page_cap_strategy"],
-            "length_aware",
+            "structural_first",
         )
 
     def test_legacy_area_strategy_reproduces_the_known_defect(self) -> None:
@@ -170,6 +170,47 @@ class DensePageCapTests(unittest.TestCase):
             "length-aware strategy should no longer unconditionally keep "
             "every insignificant nonzero-area speck",
         )
+
+    def test_structural_first_keeps_long_lines_not_page_frames(self) -> None:
+        """Phase 1: page-sized rectangles consumed the 250-slot cap."""
+
+        with tempfile.TemporaryDirectory() as tmp:
+            pdf = Path(tmp) / "frames.pdf"
+            doc = fitz.open()
+            page = doc.new_page(width=2000, height=1500)
+            for i in range(40):
+                y = 40 + i * 12
+                page.draw_line(
+                    fitz.Point(80, y),
+                    fitz.Point(80 + 400, y),
+                    color=(0, 0, 0),
+                    width=1,
+                )
+            for i in range(280):
+                inset = 1 + (i % 5)
+                page.draw_rect(
+                    fitz.Rect(inset, inset, 2000 - inset, 1500 - inset),
+                    color=(0.8, 0.8, 0.8),
+                    fill=(0.95, 0.95, 0.95),
+                    width=0.5,
+                )
+            doc.save(pdf)
+            doc.close()
+            result = extract_geometry(str(pdf), None)
+            summary = result["page_summaries"][0]
+            self.assertTrue(summary["drawing_cap_applied"])
+            self.assertGreater(summary["drawings_excluded_page_frame"], 0)
+            kinds = [obj["kind"] for obj in result["objects"]]
+            line_like = sum(1 for k in kinds if k == "line")
+            self.assertGreaterEqual(line_like, 40)
+
+    def test_structural_first_default_keeps_more_lines_than_length_aware_on_fixture(
+        self,
+    ) -> None:
+        structural = extract_geometry(str(self.pdf), None)
+        kinds = [obj["kind"] for obj in structural["objects"]]
+        line_like = sum(1 for k in kinds if k == "line")
+        self.assertGreaterEqual(line_like, 250 - RECT_COUNT)
 
     def test_invalid_strategy_name_is_rejected(self) -> None:
         with self.assertRaises(ValueError):

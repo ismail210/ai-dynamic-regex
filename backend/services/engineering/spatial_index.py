@@ -163,21 +163,6 @@ def _is_area_shaped(bbox: Sequence[float], max_distance: float, *, multiplier: f
     """True when ``bbox`` is large in BOTH dimensions relative to
     ``max_distance`` -- i.e. it describes a filled region (title-block
     border, large hatch fill), not a linear member or leader.
-
-    Found via the Phase 2.5 real-project pilot: a page-spanning filled
-    rectangle (a sheet border, bbox ~2556 x ~2056 units against a
-    max_distance of 160) was returned as a "candidate" -- and even as a
-    leader-resolved target -- for nearly every label on the page, because
-    ``query_within_radius(..., use_bbox_distance=True)`` reports 0
-    distance for any point inside a bbox, and a page-spanning bbox
-    contains almost every point on the page. A real structural member or
-    leader is thin in at least one dimension even when very long in the
-    other (a beam spanning the whole page still has a normal member
-    width); only a genuine 2D filled region is large in both. This is a
-    geometric plausibility filter, not a hatch/border classifier -- it
-    does not attempt (and cannot replace) real border/hatch detection,
-    which would belong in production geometry classification, not this
-    experimental module. See docs/ml_association_phase/real_project_error_taxonomy.md.
     """
 
     x0, y0, x1, y1 = (float(v) for v in bbox[:4])
@@ -185,6 +170,34 @@ def _is_area_shaped(bbox: Sequence[float], max_distance: float, *, multiplier: f
     height = abs(y1 - y0)
     threshold = max_distance * multiplier
     return width > threshold and height > threshold
+
+
+def _is_oversized_sheet_furniture(
+    node: dict, max_distance: float
+) -> bool:
+    """Page-sized or long filled strips that Phase 1 associated as members.
+
+    ``_is_area_shaped`` requires BOTH sides > 4 * radius, so a 3327 x 200
+    sheet rectangle still wins at distance 0. Rectangles/paths/symbols
+    that are fat *and* longer than 8 * radius are not members or plates.
+    """
+
+    bbox = node.get("bbox")
+    if not bbox or len(bbox) < 4:
+        return False
+    if _is_area_shaped(bbox, max_distance):
+        return True
+    kind = str(node.get("geometry_kind") or "").lower()
+    if kind not in {"rectangle", "path", "symbol"}:
+        return False
+    width = abs(float(bbox[2]) - float(bbox[0]))
+    height = abs(float(bbox[3]) - float(bbox[1]))
+    return min(width, height) > 24.0 and max(width, height) > 8.0 * max_distance
+
+
+def _is_structural_member_kind(node: dict) -> bool:
+    kind = str(node.get("geometry_kind") or "").lower()
+    return kind in {"line", "polyline", "path", "arc", "curve"}
 
 
 def nearest_geometry_candidates(
@@ -238,10 +251,8 @@ def nearest_geometry_candidates(
         node = ordered_geometry_nodes[index]
         if not same_region(label_node.get("region_id"), node.get("region_id")):
             continue
-        if node.get("bbox") and _is_area_shaped(node["bbox"], max_distance):
-            continue  # large filled region (border/hatch), not a candidate target
-        add(node["node_id"], distance, "direct_distance")
-        if node.get("geometry_kind") == "leader" and node.get("bbox"):
+        kind = str(node.get("geometry_kind") or "").lower()
+        if kind == "leader" and node.get("bbox"):
             far_point = _leader_far_endpoint(label_node["center"], node["bbox"])
             for r_index, r_distance in query_within_radius(
                 tree,
@@ -255,15 +266,29 @@ def nearest_geometry_candidates(
                     continue  # a leader is not its own target
                 if not same_region(label_node.get("region_id"), target.get("region_id")):
                     continue
-                if target.get("geometry_kind") == "leader":
-                    continue  # do not chain through multiple leaders
-                if target.get("bbox") and _is_area_shaped(target["bbox"], max_distance):
-                    continue  # large filled region, not a real target
+                target_kind = str(target.get("geometry_kind") or "").lower()
+                if target_kind in {"leader", "dimension"}:
+                    continue
+                if _is_oversized_sheet_furniture(target, max_distance):
+                    continue
                 add(target["node_id"], r_distance, "leader_endpoint_resolved")
+            continue
+        if kind == "dimension":
+            continue
+        if _is_oversized_sheet_furniture(node, max_distance):
+            continue
+        add(node["node_id"], distance, "direct_distance")
 
+    kind_by_id = {
+        str(node["node_id"]): node for node in ordered_geometry_nodes
+    }
     ranked = sorted(
         by_node.values(),
-        key=lambda c: (0 if "leader_endpoint_resolved" in c.sources else 1, c.distance),
+        key=lambda c: (
+            0 if "leader_endpoint_resolved" in c.sources else 1,
+            0 if _is_structural_member_kind(kind_by_id.get(c.node_id) or {}) else 1,
+            c.distance,
+        ),
     )
     return ranked[:top_k]
 

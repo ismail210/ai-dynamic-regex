@@ -1,0 +1,31 @@
+{
+  "page": 8,
+  "label_text": "W18X35",
+  "label_bbox": [
+    1242.02,
+    1323.41,
+    1272.97,
+    1364.23
+  ],
+  "label_region": "p8_r0",
+  "has_association": true,
+  "distance": 106.48,
+  "target_id": "geom_7ed8632eaf02",
+  "target_kind": "arc",
+  "target_region": "p8_r0",
+  "cross_region": false,
+  "leader_resolved": true,
+  "association_sources": [
+    "leader_endpoint_resolved",
+    "leader_endpoint_resolved",
+    "leader_endpoint_resolved",
+    "leader_endpoint_resolved"
+  ],
+  "candidate_count": 1,
+  "target_is_leader": false,
+  "target_is_dimension": false,
+  "target_looks_filled": false,
+  "target_length": 31.583,
+  "nearby_parallel": false,
+  "heuristic_class": "ASSOCIATED_UNVERIFIED"
+}

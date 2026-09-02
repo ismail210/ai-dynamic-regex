@@ -31,14 +31,16 @@ from __future__ import annotations
 import hashlib
 import math
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence
+from collections import defaultdict
 
 import fitz
 
 from services.engineering.drawing_scale import (
     association_radius_pdf_points,
     detect_drawing_scale,
+    detect_page_scales,
     real_inches_from_pdf_points,
+    resolve_page_scale,
 )
 from services.engineering.geometry_normalizer import merge_collinear_fragments
 from services.engineering.models import GeometryKind
@@ -67,10 +69,9 @@ def _drawing_significance(item: dict) -> float:
     A zero-area axis-aligned line still has a nonzero perimeter
     (``2 * length``), so a long orthogonal structural line now outranks a
     small zero-length hatch fragment instead of tying with it at zero.
-    Large filled regions still rank highest via ``area``. This does not
-    change production behavior by itself — see the
-    ``dense_page_cap_strategy`` parameter below, which defaults to the
-    original ``_drawing_bbox_area`` key.
+    Large filled regions still rank highest via ``area``. Kept as the
+    ``length_aware`` A/B strategy. Production default is
+    ``structural_first`` (see ``_structural_keep_score``).
     """
 
     rect = item.get("rect")
@@ -79,6 +80,47 @@ def _drawing_significance(item: dict) -> float:
     width = abs(float(rect.width))
     height = abs(float(rect.height))
     return max(width * height, 2.0 * (width + height))
+
+
+def _drawing_wh(item: dict) -> tuple[float, float]:
+    rect = item.get("rect")
+    if rect is None:
+        return 0.0, 0.0
+    return abs(float(rect.width)), abs(float(rect.height))
+
+
+def _is_tiny_noise_drawing(item: dict) -> bool:
+    width, height = _drawing_wh(item)
+    return max(width, height) < 3.0
+
+
+def _is_page_frame_drawing(item: dict, page_width: float, page_height: float) -> bool:
+    """True for sheet-sized boxes that consume cap slots but are not members."""
+
+    if page_width <= 0 or page_height <= 0:
+        return False
+    width, height = _drawing_wh(item)
+    return width >= 0.40 * page_width and height >= 0.40 * page_height
+
+
+def _structural_keep_score(item: dict) -> float:
+    """Prefer long thin strokes over large fat fills when the cap must drop paths.
+
+    Phase 1: ``length_aware`` (max area, perimeter) still ranked page-sized
+    rectangles above beams, so the 250 survivors on ST p8 / K1200 p22 were
+    dominated by furniture, not members.
+    """
+
+    width, height = _drawing_wh(item)
+    min_d, max_d = min(width, height), max(width, height)
+    if max_d < 3.0:
+        return -1e9
+    thin = min_d <= 12.0 or (max_d > 1e-6 and min_d / max_d <= 0.08)
+    if thin:
+        return 1_000_000.0 + max_d
+    if max_d <= 160.0:
+        return 10_000.0 + max_d
+    return max_d - 5.0 * min_d
 
 
 def _gid(page_number: int, ordinal: int, bbox: Sequence[float], kind: str) -> str:
@@ -286,29 +328,40 @@ def _nearby_text(
     return best
 
 
+_DENSE_PAGE_CAP = 250
 _DENSE_PAGE_CAP_STRATEGIES = {
     "legacy_area": _drawing_bbox_area,
     "length_aware": _drawing_significance,
+    "structural_first": _structural_keep_score,
 }
+
+
+def _local_page_scale(
+    document_structure: Optional[dict],
+    page_number: int,
+    page_scales: Dict[int, Any],
+) -> tuple[Any, Dict[str, Any]]:
+    resolved = resolve_page_scale(
+        document_structure, page_number, page_scales=page_scales
+    )
+    if resolved.get("scale_reason") == "page_scale":
+        return page_scales.get(int(page_number)), resolved
+    return None, resolved
 
 
 def extract_geometry(
     pdf_path: str,
     document_structure: Optional[dict] = None,
     *,
-    dense_page_cap_strategy: str = "length_aware",
+    dense_page_cap_strategy: str = "structural_first",
 ) -> Dict[str, Any]:
     """Extract geometry objects from all pages of ``pdf_path``.
 
     ``dense_page_cap_strategy`` controls which sort key the >250-drawing
-    cap uses to decide what to keep. Production default is ``"length_aware"``
-    so thin structural lines are not dropped before large filled regions —
-    this is the same defect independently documented in
-    docs/geometry_graph_audit/08_prioritized_roadmap.md P0.1. Pass
-    ``"legacy_area"`` only for A/B comparison against the historical
-    zero-area-drop behavior. Regardless of which strategy is active, every
-    page where the cap triggers records an A/B diagnostic comparing what
-    both strategies would have kept.
+    cap uses to decide what to keep. Production default is
+    ``"structural_first"``: drop page-frame boxes and specks, then keep
+    long thin strokes. ``"length_aware"`` is the prior default (perimeter
+    vs area). Pass ``"legacy_area"`` only for A/B comparison.
     """
 
     if dense_page_cap_strategy not in _DENSE_PAGE_CAP_STRATEGIES:
@@ -322,8 +375,7 @@ def extract_geometry(
     page_summaries: List[dict] = []
     counts: Dict[str, int] = {}
     drawing_scale = detect_drawing_scale(document_structure)
-    nearby_radius = association_radius_pdf_points(drawing_scale) * (48.0 / 160.0)
-    nearby_radius = max(24.0, min(96.0, nearby_radius))
+    page_scales = detect_page_scales(document_structure)
     active_pages = {
         int(token.get("page") or token.get("page_number") or 0)
         for token in (document_structure or {}).get("engineering_tokens") or []
@@ -336,6 +388,9 @@ def extract_geometry(
         for page_index, page in iter_pdf_pages(doc, skipped=skipped_pages):
             page_number = page_index + 1
             if active_pages and page_number not in active_pages:
+                page_scale, scale_meta = _local_page_scale(
+                    document_structure, page_number, page_scales
+                )
                 page_summaries.append(
                     {
                         "page_number": page_number,
@@ -343,9 +398,26 @@ def extract_geometry(
                         "drawing_count": 0,
                         "processed_drawing_count": 0,
                         "skipped_without_engineering_tokens": True,
+                        "scale_value": page_scale.raw if page_scale else None,
+                        "scale_source": (
+                            page_scale.source
+                            if page_scale
+                            else scale_meta.get("scale_source")
+                        ),
+                        "is_nts": scale_meta.get("is_nts"),
+                        "scale_fallback": scale_meta.get("scale_fallback"),
+                        "scale_reason": scale_meta.get("scale_reason"),
+                        "association_radius_pdf_points": association_radius_pdf_points(
+                            page_scale
+                        ),
                     }
                 )
                 continue
+            page_scale, scale_meta = _local_page_scale(
+                document_structure, page_number, page_scales
+            )
+            nearby_radius = association_radius_pdf_points(page_scale) * (48.0 / 160.0)
+            nearby_radius = max(24.0, min(96.0, nearby_radius))
             line_grid: Dict[tuple[int, int], List[dict]] = {}
             for line in (document_structure or {}).get("lines") or []:
                 if int(line.get("page_number") or 0) != page_number:
@@ -385,11 +457,15 @@ def extract_geometry(
             # Dense CAD PDFs can contain tens of thousands of tiny hatch paths.
             # Keep the most structurally significant paths so geometry and graph
             # construction remain bounded and interactive.
-            #
-            # ``dense_page_cap_strategy`` selects the sort key. Production
-            # default is ``length_aware`` so thin structural lines survive
-            # the cap (docs/geometry_graph_audit/08_prioritized_roadmap.md P0.1).
-            drawing_cap_applied = raw_drawing_count > 250
+            page_width = float(page.rect.width)
+            page_height = float(page.rect.height)
+            drawings_excluded_tiny = sum(
+                1 for item in drawings if _is_tiny_noise_drawing(item)
+            )
+            drawings_excluded_page_frame = sum(
+                1 for item in drawings if _is_page_frame_drawing(item, page_width, page_height)
+            )
+            drawing_cap_applied = raw_drawing_count > _DENSE_PAGE_CAP
             cap_strategy_agreement: Optional[dict] = None
             if drawing_cap_applied:
                 active_sort_key = _DENSE_PAGE_CAP_STRATEGIES[dense_page_cap_strategy]
@@ -397,13 +473,13 @@ def extract_geometry(
                     id(item)
                     for item in sorted(
                         drawings, key=_drawing_bbox_area, reverse=True
-                    )[:250]
+                    )[:_DENSE_PAGE_CAP]
                 }
                 length_aware_kept_ids = {
                     id(item)
                     for item in sorted(
                         drawings, key=_drawing_significance, reverse=True
-                    )[:250]
+                    )[:_DENSE_PAGE_CAP]
                 }
                 zero_area_dropped_by_legacy = sum(
                     1
@@ -426,9 +502,22 @@ def extract_geometry(
                     "zero_area_paths_dropped_by_legacy_area": zero_area_dropped_by_legacy,
                     "zero_area_paths_dropped_by_length_aware": zero_area_dropped_by_length_aware,
                 }
-                drawings = sorted(
-                    drawings, key=active_sort_key, reverse=True
-                )[:250]
+                if dense_page_cap_strategy == "structural_first":
+                    pool = [
+                        item
+                        for item in drawings
+                        if not _is_tiny_noise_drawing(item)
+                        and not _is_page_frame_drawing(
+                            item, page_width, page_height
+                        )
+                    ]
+                    drawings = sorted(
+                        pool, key=_structural_keep_score, reverse=True
+                    )[:_DENSE_PAGE_CAP]
+                else:
+                    drawings = sorted(
+                        drawings, key=active_sort_key, reverse=True
+                    )[:_DENSE_PAGE_CAP]
             drawings_dropped_by_cap = raw_drawing_count - len(drawings)
             dropped_degenerate_count = 0
 
@@ -555,7 +644,7 @@ def extract_geometry(
                     "drawing_layer": None,
                     "block_name": None,
                     "length_real_inches": real_inches_from_pdf_points(
-                        length, drawing_scale
+                        length, page_scale
                     ),
                 }
                 if leader_endpoints:
@@ -575,19 +664,26 @@ def extract_geometry(
                     "raw_drawing_count": raw_drawing_count,
                     "retained_drawing_count": len(drawings),
                     "drawings_dropped_by_cap": drawings_dropped_by_cap,
-                    "drawing_cap_threshold": 250,
+                    "drawing_cap_threshold": _DENSE_PAGE_CAP,
+                    "drawings_excluded_tiny": drawings_excluded_tiny,
+                    "drawings_excluded_page_frame": drawings_excluded_page_frame,
                     "zero_area_path_count": zero_area_path_count,
                     "dropped_degenerate_count": dropped_degenerate_count,
                     "dense_page_cap_strategy": dense_page_cap_strategy,
                     "cap_strategy_agreement": cap_strategy_agreement,
                     "page_rotation": int(page.rotation or 0),
-                    "scale_value": drawing_scale.raw if drawing_scale else None,
-                    "scale_source": drawing_scale.source if drawing_scale else None,
-                    "scale_confidence": (
-                        drawing_scale.confidence if drawing_scale else None
+                    "scale_value": page_scale.raw if page_scale else None,
+                    "scale_source": (
+                        page_scale.source if page_scale else scale_meta.get("scale_source")
                     ),
+                    "scale_confidence": (
+                        page_scale.confidence if page_scale else None
+                    ),
+                    "is_nts": scale_meta.get("is_nts"),
+                    "scale_fallback": scale_meta.get("scale_fallback"),
+                    "scale_reason": scale_meta.get("scale_reason"),
                     "association_radius_pdf_points": association_radius_pdf_points(
-                        drawing_scale
+                        page_scale
                     ),
                 }
             )
@@ -605,7 +701,31 @@ def extract_geometry(
             )
         page_summaries.sort(key=lambda item: int(item.get("page_number") or 0))
 
-    objects, fragment_stats = merge_collinear_fragments(objects, scale=drawing_scale)
+    merged_objects: List[dict] = []
+    fragment_stats = {
+        "input_count": 0,
+        "output_count": 0,
+        "clusters_merged": 0,
+        "fragments_consumed": 0,
+        "merge_links": 0,
+        "fragment_gap_pdf_points": None,
+    }
+    objects_by_page: Dict[int, List[dict]] = defaultdict(list)
+    for obj in objects:
+        objects_by_page[int(obj.get("page_number") or obj.get("page") or 0)].append(obj)
+    for page_number_key, group in objects_by_page.items():
+        page_scale, _scale_meta = _local_page_scale(
+            document_structure, page_number_key, page_scales
+        )
+        part, stats = merge_collinear_fragments(group, scale=page_scale)
+        merged_objects.extend(part)
+        fragment_stats["input_count"] += stats["input_count"]
+        fragment_stats["output_count"] += stats["output_count"]
+        fragment_stats["clusters_merged"] += stats["clusters_merged"]
+        fragment_stats["fragments_consumed"] += stats["fragments_consumed"]
+        fragment_stats["merge_links"] += stats["merge_links"]
+        fragment_stats["fragment_gap_pdf_points"] = stats["fragment_gap_pdf_points"]
+    objects = merged_objects
     counts = {}
     for obj in objects:
         kind = str(obj.get("kind") or "unknown")
@@ -627,5 +747,8 @@ def extract_geometry(
         "association_radius_pdf_points": association_radius_pdf_points(
             drawing_scale
         ),
+        "page_scales": {
+            str(page): scale.to_dict() for page, scale in sorted(page_scales.items())
+        },
         "fragment_merge": fragment_stats,
     }

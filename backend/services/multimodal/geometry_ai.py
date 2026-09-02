@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import io
+import logging
+import os
 import threading
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
@@ -16,10 +18,15 @@ from config import settings
 from services.multimodal.torch_runtime import load_torch
 
 
+logger = logging.getLogger("takeoff.geometry_ai")
+
 _LOCK = threading.RLock()
 _RUNTIME: Optional[tuple[Any, Any, Any]] = None
 _INDEX: Optional[Dict[str, Any]] = None
+_INDEX_LOADED = False
+_INDEX_REJECTION: Optional[str] = None
 _EMBEDDING_DIM = 128
+_ENCODE_BATCH_SIZE = 32
 
 
 def _runtime() -> tuple[Any, Any, Any]:
@@ -32,6 +39,12 @@ def _runtime() -> tuple[Any, Any, Any]:
                 mobilenet_v3_small,
             )
 
+            # Torch defaults to a conservative thread count under uvicorn,
+            # which halves crop throughput on multi-core machines.
+            try:
+                torch.set_num_threads(max(1, os.cpu_count() or 1))
+            except (RuntimeError, ValueError):
+                pass
             weights = MobileNet_V3_Small_Weights.DEFAULT
             model = mobilenet_v3_small(weights=weights)
             model.classifier = torch.nn.Identity()
@@ -158,13 +171,16 @@ def encode_images(images: Iterable[Image.Image]) -> List[List[float]]:
     """Encode image crops with pretrained MobileNetV3-Small."""
 
     torch, model, transform = _runtime()
-    prepared = [transform(image) for image in images]
-    if not prepared:
+    pending = list(images)
+    if not pending:
         return []
     output: List[List[float]] = []
     with torch.inference_mode():
-        for start in range(0, len(prepared), 32):
-            batch = torch.stack(prepared[start : start + 32])
+        for start in range(0, len(pending), _ENCODE_BATCH_SIZE):
+            # Transform per batch: holding every resized tensor at once costs
+            # hundreds of megabytes on drawings with thousands of objects.
+            window = pending[start : start + _ENCODE_BATCH_SIZE]
+            batch = torch.stack([transform(image) for image in window])
             vectors = model(batch).detach().cpu().tolist()
             output.extend(
                 _compress_embedding(np.asarray(vector, dtype=np.float32))
@@ -175,21 +191,81 @@ def encode_images(images: Iterable[Image.Image]) -> List[List[float]]:
     return output
 
 
+def _rejection_reason(payload: Dict[str, Any]) -> Optional[str]:
+    """Explain why an index cannot produce usable role evidence.
+
+    Section-labelled (schema 1.0) indexes collapse to role ``other`` for every
+    crop and carry no orientation column, so encoding against them costs the
+    bulk of analysis wall-clock while returning a constant.
+    """
+
+    labels = payload.get("labels") or []
+    if not labels:
+        return "Geometry embedding index is empty"
+    roles = payload.get("roles") or []
+    orientations = payload.get("orientations") or []
+    if not roles or not orientations:
+        return (
+            f"Geometry embedding index is schema "
+            f"{payload.get('schema_version') or '1.0'} (section labels); it "
+            "resolves every crop to role 'other'. Rebuild it as schema 2.0 "
+            "role:orientation via geometry training to re-enable the CV encoder"
+        )
+    if not any(str(role) in _ROLE_LABELS for role in roles):
+        return "Geometry embedding index carries no recognised member roles"
+    return None
+
+
 def _load_index() -> Optional[Dict[str, Any]]:
-    global _INDEX
-    path = settings.geometry_embedding_index_path
-    if _INDEX is None and path.exists():
+    """Load the role-labelled embedding index, or None when unusable."""
+
+    global _INDEX, _INDEX_LOADED, _INDEX_REJECTION
+    with _LOCK:
+        if _INDEX_LOADED:
+            return _INDEX
+        path = settings.geometry_embedding_index_path
+        if not path.exists():
+            _INDEX_LOADED = True
+            _INDEX_REJECTION = "Geometry embedding index is not trained"
+            return None
         payload = joblib.load(path)
         raw_embeddings = payload.get("embeddings")
         embeddings = np.asarray(
             raw_embeddings if raw_embeddings is not None else [],
             dtype=np.float32,
         )
-        if embeddings.ndim == 2 and embeddings.shape[1] == _EMBEDDING_DIM:
-            norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
-            payload["embeddings"] = embeddings / np.maximum(norms, 1e-8)
-            _INDEX = payload
-    return _INDEX
+        _INDEX_LOADED = True
+        if embeddings.ndim != 2 or embeddings.shape[1] != _EMBEDDING_DIM:
+            _INDEX_REJECTION = (
+                "Geometry embedding index has an unexpected embedding shape"
+            )
+            return None
+        rejection = _rejection_reason(payload)
+        if rejection:
+            _INDEX_REJECTION = rejection
+            logger.warning("geometry embedding index skipped: %s", rejection)
+            return None
+        norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
+        payload["embeddings"] = embeddings / np.maximum(norms, 1e-8)
+        _INDEX = payload
+        _INDEX_REJECTION = None
+        return _INDEX
+
+
+def reset_index_cache() -> None:
+    """Forget the cached index so a retrained one is picked up."""
+
+    global _INDEX, _INDEX_LOADED, _INDEX_REJECTION
+    with _LOCK:
+        _INDEX = None
+        _INDEX_LOADED = False
+        _INDEX_REJECTION = None
+
+
+def geometry_index_ready() -> bool:
+    """Report whether the CV encoder can contribute role evidence."""
+
+    return _load_index() is not None
 
 
 def enrich_geometry_embeddings(
@@ -219,10 +295,12 @@ def enrich_geometry_embeddings(
         geometry["geometry_ai"] = {
             "available": False,
             "fallback": "vector_geometry",
-            "reason": (
+            "reason": _INDEX_REJECTION
+            or (
                 "Geometry embedding index is not trained; run geometry "
                 "training from reviewed corrections to enable the CV encoder"
             ),
+            "skipped_objects": len(pending),
         }
         return geometry
 
@@ -426,8 +504,7 @@ def build_geometry_embedding_index(
         "orientations": orientations,
     }
     joblib.dump(payload, path)
-    global _INDEX
-    _INDEX = payload
+    reset_index_cache()
     return {
         "path": str(path),
         "samples": len(labels),

@@ -30,7 +30,10 @@ import re
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from services.engineering.detail_regions import same_region
-from services.engineering.drawing_scale import association_radius_from_geometry
+from services.engineering.drawing_scale import (
+    association_radius_from_geometry,
+    page_association_radius,
+)
 from services.engineering.models import NodeKind, RelationKind
 
 
@@ -309,6 +312,7 @@ def build_graph(
     geometry_pairwise_window_size = 12
 
     for page_number_key, page_nodes in by_page.items():
+        page_radius = page_association_radius(geometry, int(page_number_key))
         pairwise_considered = 0
         page_text = [
             n
@@ -340,14 +344,14 @@ def build_graph(
         ]:
             center = item.get("center") or [0, 0]
             key = (
-                int(float(center[0]) // max_edge_distance),
-                int(float(center[1]) // max_edge_distance),
+                int(float(center[0]) // page_radius),
+                int(float(center[1]) // page_radius),
             )
             grid.setdefault(key, []).append(item)
 
         def nearby(grid: Dict[Tuple[int, int], List[dict]], center: list) -> List[dict]:
-            cx = int(float(center[0]) // max_edge_distance)
-            cy = int(float(center[1]) // max_edge_distance)
+            cx = int(float(center[0]) // page_radius)
+            cy = int(float(center[1]) // page_radius)
             return [
                 item
                 for dx in (-1, 0, 1)
@@ -362,7 +366,7 @@ def build_graph(
                 if not same_region(g.get("region_id"), lab.get("region_id")):
                     continue
                 d = _dist(g["center"], lab["center"])
-                if d > max_edge_distance:
+                if d > page_radius:
                     continue
                 if nearest is None or d < nearest[0]:
                     nearest = (d, lab)
@@ -380,7 +384,7 @@ def build_graph(
                 lab,
                 tree,
                 ordered_geom,
-                max_distance=max_edge_distance,
+                max_distance=page_radius,
                 top_k=3,
             )
             if not candidates:
@@ -407,7 +411,7 @@ def build_graph(
 
         # Pairwise geometric relations — spatially complete via STRtree (P1.2).
         pairwise_pairs = spatially_complete_geometry_pairs(
-            page_geom, max_distance=max_edge_distance
+            page_geom, max_distance=page_radius
         )
         pairwise_considered = len(pairwise_pairs)
         seen_pair_keys: set = set()
@@ -528,7 +532,7 @@ def build_graph(
                 "geometry_pairwise_window_triggered": False,
                 "spatial_index_enabled": True,
                 "same_region_association": True,
-                "association_radius_pdf_points": max_edge_distance,
+                "association_radius_pdf_points": page_radius,
                 "leader_resolved_associations": leader_resolved_count,
                 "candidate_pairs_considered": pairwise_considered,
                 "candidate_pairs_possible": candidate_pairs_possible,

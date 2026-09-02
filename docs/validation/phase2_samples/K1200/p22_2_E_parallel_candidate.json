@@ -1,0 +1,28 @@
+{
+  "page": 22,
+  "label_text": "HSS8X8X5/8",
+  "label_bbox": [
+    1837.2,
+    1080.75,
+    1892.91,
+    1090.3
+  ],
+  "label_region": "p22_r1",
+  "has_association": true,
+  "distance": 53.75,
+  "target_id": "geom_fe35b7dd7458",
+  "target_kind": "line",
+  "target_region": "p22_r1",
+  "cross_region": false,
+  "leader_resolved": false,
+  "association_sources": [
+    "direct_distance"
+  ],
+  "candidate_count": 3,
+  "target_is_leader": false,
+  "target_is_dimension": false,
+  "target_looks_filled": false,
+  "target_length": 609.48,
+  "nearby_parallel": true,
+  "heuristic_class": "E_parallel_candidate"
+}

@@ -1,0 +1,28 @@
+{
+  "page": 8,
+  "label_text": "W18x35",
+  "label_bbox": [
+    1852.08,
+    410.42,
+    1882.18,
+    420.91
+  ],
+  "label_region": "p8_r1",
+  "has_association": true,
+  "distance": 7.69,
+  "target_id": "geom_6d65a7e901f6",
+  "target_kind": "dimension",
+  "target_region": "p8_r1",
+  "cross_region": false,
+  "leader_resolved": false,
+  "association_sources": [
+    "direct_distance"
+  ],
+  "candidate_count": 3,
+  "target_is_leader": false,
+  "target_is_dimension": true,
+  "target_looks_filled": false,
+  "target_length": 276.72,
+  "nearby_parallel": false,
+  "heuristic_class": "G_dimension_target"
+}

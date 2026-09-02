@@ -13,7 +13,11 @@ from services.engineering.drawing_scale import (
     association_radius_from_geometry,
     association_radius_pdf_points,
     detect_drawing_scale,
+    detect_page_scales,
+    page_association_radius,
+    page_is_nts,
     parse_scale_text,
+    resolve_page_scale,
 )
 from services.engineering.geometry_extractor import extract_geometry
 from services.engineering.graph_builder import build_graph
@@ -48,9 +52,92 @@ class DrawingScaleParseTests(unittest.TestCase):
         self.assertEqual(scale.source, "title_block")
         self.assertIn("1/8", scale.raw)
 
-    def test_unknown_scale_keeps_historical_radius(self) -> None:
+    def test_sixty_fourth_scale(self) -> None:
+        parsed = parse_scale_text('3/64"=1\'-0"')
+        self.assertIsNotNone(parsed)
+        self.assertAlmostEqual(parsed.paper_inches, 3.0 / 64.0)
+
+    def test_scale_label_and_ratio_on_separate_lines(self) -> None:
+        document = {
+            "lines": [
+                {"text": "SCALE", "page_number": 5},
+                {"text": '3/64"=1\'-0"', "page_number": 5},
+                {"text": "W16X26", "page_number": 5},
+            ]
+        }
+        by_page = detect_page_scales(document)
+        self.assertIn(5, by_page)
+        self.assertIn("3/64", by_page[5].raw)
+
+    def test_later_page_scale_does_not_require_page_one(self) -> None:
+        document = {
+            "lines": [
+                {"text": "COVER SHEET", "page_number": 1},
+                {"text": 'SCALE: 1/8"=1\'-0"', "page_number": 3},
+            ]
+        }
+        self.assertIsNone(detect_page_scales(document).get(1))
+        page3 = detect_page_scales(document)[3]
+        self.assertIn("1/8", page3.raw)
+        overall = detect_drawing_scale(document)
+        self.assertIsNotNone(overall)
+        self.assertIn("1/8", overall.raw)
+
+    def test_not_to_scale_is_ignored(self) -> None:
+        self.assertIsNone(parse_scale_text("NOT TO SCALE"))
+        self.assertIsNone(parse_scale_text("NO SCALE"))
         self.assertEqual(association_radius_pdf_points(None), 160.0)
         self.assertEqual(association_radius_from_geometry({}), 160.0)
+
+    def test_nts_page_does_not_inherit_another_pages_scale(self) -> None:
+        document = {
+            "lines": [
+                {"text": "COVER SHEET NTS", "page_number": 1},
+                {"text": 'SCALE: 1"=1\'-0"', "page_number": 3},
+            ]
+        }
+        self.assertTrue(page_is_nts(document, 1))
+        resolved = resolve_page_scale(document, 1)
+        self.assertTrue(resolved["is_nts"])
+        self.assertIsNone(resolved["scale_value"])
+        self.assertEqual(resolved["scale_reason"], "nts")
+        self.assertFalse(resolved["scale_fallback"])
+        page3 = resolve_page_scale(document, 3)
+        self.assertIn("1\"", page3["scale_value"] or page3.get("raw") or "")
+
+    def test_nts_page_keeps_local_title_block_scale(self) -> None:
+        document = {
+            "title_blocks": [
+                {"text": 'NOTES  NOT TO SCALE  SCALE: 1/8"=1\'-0"', "page_number": 3},
+            ]
+        }
+        resolved = resolve_page_scale(document, 3)
+        self.assertTrue(resolved["is_nts"])
+        self.assertEqual(resolved["scale_reason"], "page_scale")
+        self.assertIn("1/8", resolved["raw"])
+
+    def test_page_without_scale_does_not_inherit_document_scale(self) -> None:
+        document = {
+            "lines": [
+                {"text": "COVER", "page_number": 1},
+                {"text": 'SCALE: 1/8"=1\'-0"', "page_number": 3},
+            ]
+        }
+        resolved = resolve_page_scale(document, 1)
+        self.assertFalse(resolved["is_nts"])
+        self.assertIsNone(resolved["scale_value"])
+        self.assertEqual(resolved["scale_reason"], "unknown")
+        self.assertIsNotNone(detect_drawing_scale(document))
+
+    def test_page_association_radius_does_not_use_document_scale(self) -> None:
+        geometry = {
+            "association_radius_pdf_points": 48.0,
+            "page_summaries": [
+                {"page_number": 1, "association_radius_pdf_points": 160.0},
+            ],
+        }
+        self.assertEqual(page_association_radius(geometry, 1), 160.0)
+        self.assertEqual(page_association_radius(geometry, 9), 160.0)
 
     def test_known_scale_changes_radius(self) -> None:
         eighth = parse_scale_text('1/8"=1\'-0"')

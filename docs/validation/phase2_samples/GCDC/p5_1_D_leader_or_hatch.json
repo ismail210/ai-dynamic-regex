@@ -1,0 +1,35 @@
+{
+  "page": 5,
+  "label_text": "W12x65",
+  "label_bbox": [
+    2348.04,
+    214.09,
+    2442.42,
+    223.17
+  ],
+  "label_region": "p5_r1",
+  "has_association": true,
+  "distance": 10.2,
+  "target_id": "geom_68458259198c",
+  "target_kind": "rectangle",
+  "target_region": "p5_r1",
+  "cross_region": false,
+  "leader_resolved": true,
+  "association_sources": [
+    "leader_endpoint_resolved",
+    "leader_endpoint_resolved",
+    "direct_distance",
+    "leader_endpoint_resolved",
+    "leader_endpoint_resolved",
+    "leader_endpoint_resolved",
+    "leader_endpoint_resolved",
+    "leader_endpoint_resolved"
+  ],
+  "candidate_count": 3,
+  "target_is_leader": false,
+  "target_is_dimension": false,
+  "target_looks_filled": true,
+  "target_length": 294.72,
+  "nearby_parallel": false,
+  "heuristic_class": "D_leader_or_hatch"
+}

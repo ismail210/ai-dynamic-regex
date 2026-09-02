@@ -1,0 +1,26 @@
+{
+  "schema_name": "estima3d_gold_set",
+  "schema_version": "1.0",
+  "created_at": "2026-09-02T00:00:00Z",
+  "status": "awaiting_human_association_review",
+  "record_count": 0,
+  "association_verified_count": 0,
+  "allowed_gold_statuses": [
+    "verified_correct",
+    "verified_wrong",
+    "verified_orphan",
+    "needs_review",
+    "ambiguous"
+  ],
+  "allowed_error_types": [
+    "none",
+    "association",
+    "geometry_recall",
+    "section_prediction",
+    "length",
+    "scale",
+    "ambiguous",
+    "other"
+  ],
+  "records": []
+}

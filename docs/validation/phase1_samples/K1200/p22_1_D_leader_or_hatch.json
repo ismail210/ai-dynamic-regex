@@ -1,0 +1,34 @@
+{
+  "page": 22,
+  "label_text": "HSS6X6X3/8",
+  "label_bbox": [
+    1929.72,
+    361.82,
+    1985.42,
+    371.39
+  ],
+  "label_region": "p22_r1",
+  "has_association": true,
+  "distance": 0.0,
+  "target_id": "geom_35b717812880",
+  "target_kind": "rectangle",
+  "target_region": "p22_r1",
+  "cross_region": false,
+  "leader_resolved": true,
+  "association_sources": [
+    "leader_endpoint_resolved",
+    "leader_endpoint_resolved",
+    "direct_distance",
+    "leader_endpoint_resolved",
+    "leader_endpoint_resolved",
+    "leader_endpoint_resolved",
+    "leader_endpoint_resolved"
+  ],
+  "candidate_count": 3,
+  "target_is_leader": false,
+  "target_is_dimension": false,
+  "target_looks_filled": true,
+  "target_length": 3327.36,
+  "nearby_parallel": false,
+  "heuristic_class": "D_leader_or_hatch"
+}

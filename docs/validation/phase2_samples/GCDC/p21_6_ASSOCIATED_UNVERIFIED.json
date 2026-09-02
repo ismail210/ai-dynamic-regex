@@ -1,0 +1,28 @@
+{
+  "page": 21,
+  "label_text": "W10x22",
+  "label_bbox": [
+    2176.49,
+    566.95,
+    2207.6,
+    575.56
+  ],
+  "label_region": "p21_r0",
+  "has_association": true,
+  "distance": 39.75,
+  "target_id": "geom_bf71d1d1a0b2",
+  "target_kind": "polyline",
+  "target_region": "p21_r0",
+  "cross_region": false,
+  "leader_resolved": false,
+  "association_sources": [
+    "direct_distance"
+  ],
+  "candidate_count": 1,
+  "target_is_leader": false,
+  "target_is_dimension": false,
+  "target_looks_filled": false,
+  "target_length": 2139.0,
+  "nearby_parallel": false,
+  "heuristic_class": "ASSOCIATED_UNVERIFIED"
+}

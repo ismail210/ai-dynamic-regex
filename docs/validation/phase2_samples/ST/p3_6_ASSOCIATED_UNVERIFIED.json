@@ -1,0 +1,28 @@
+{
+  "page": 3,
+  "label_text": "W16x26",
+  "label_bbox": [
+    2374.2,
+    739.53,
+    2409.52,
+    749.12
+  ],
+  "label_region": "p3_r0",
+  "has_association": true,
+  "distance": 116.66,
+  "target_id": "geom_fea579cfbbe6",
+  "target_kind": "line",
+  "target_region": "p3_r0",
+  "cross_region": false,
+  "leader_resolved": false,
+  "association_sources": [
+    "direct_distance"
+  ],
+  "candidate_count": 1,
+  "target_is_leader": false,
+  "target_is_dimension": false,
+  "target_looks_filled": false,
+  "target_length": 2040.719,
+  "nearby_parallel": false,
+  "heuristic_class": "ASSOCIATED_UNVERIFIED"
+}

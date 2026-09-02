@@ -1,0 +1,28 @@
+{
+  "page": 8,
+  "label_text": "HSS8x8",
+  "label_bbox": [
+    921.6,
+    846.81,
+    956.68,
+    856.39
+  ],
+  "label_region": "p8_r0",
+  "has_association": true,
+  "distance": 21.16,
+  "target_id": "geom_72f733ca8d75",
+  "target_kind": "polyline",
+  "target_region": "p8_r0",
+  "cross_region": false,
+  "leader_resolved": false,
+  "association_sources": [
+    "direct_distance"
+  ],
+  "candidate_count": 2,
+  "target_is_leader": false,
+  "target_is_dimension": false,
+  "target_looks_filled": false,
+  "target_length": 1264.44,
+  "nearby_parallel": true,
+  "heuristic_class": "E_parallel_candidate"
+}

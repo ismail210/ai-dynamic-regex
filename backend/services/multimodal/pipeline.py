@@ -22,7 +22,10 @@ from services.engineering.structural_graph import build_structural_graph
 from services.extraction_engine import extract_engineering_document
 from services.multimodal.duplicate_detector import merge_duplicate_predictions
 from services.multimodal.fusion_engine import fusion_engine
-from services.multimodal.geometry_ai import enrich_geometry_embeddings
+from services.multimodal.geometry_ai import (
+    enrich_geometry_embeddings,
+    geometry_index_ready,
+)
 from services.multimodal.graph_ai import enrich_graph_embeddings
 from services.multimodal.label_propagation import propagate_section_labels
 from services.multimodal.review_enrichment import index_predictions
@@ -41,14 +44,16 @@ from services.takeoff.ground_truth_excel import parse_ground_truth_excel
 
 
 # Bumped whenever prediction behaviour changes, so cached analyses are replaced.
-# 4.12 collinear merge + Bassam context-definition takeoff scope.
-PIPELINE_VERSION = "4.16-legend-collinear"
+# Combined: collinear merge, Bassam legend takeoff scope, association-safety gate.
+PIPELINE_VERSION = "4.16-legend-association-safety"
 
 
 def _neural_model_status() -> Dict[str, Any]:
     """Report which learned modules are trained, and the active fallback."""
 
-    geometry_trained = settings.geometry_embedding_index_path.exists()
+    # Existence is not enough: a section-labelled index is skipped at analyze
+    # time, so the reported model must match what actually runs.
+    geometry_trained = geometry_index_ready()
     graph_trained = settings.graphsage_model_path.exists()
     fusion_trained = settings.fusion_model_path.exists()
     return {

@@ -1,0 +1,26 @@
+{
+  "page": 22,
+  "label_text": "C7X9.8",
+  "label_bbox": [
+    1015.68,
+    451.21,
+    1047.28,
+    460.79
+  ],
+  "label_region": "p22_r1",
+  "has_association": false,
+  "distance": null,
+  "target_id": null,
+  "target_kind": null,
+  "target_region": null,
+  "cross_region": false,
+  "leader_resolved": false,
+  "association_sources": [],
+  "candidate_count": null,
+  "target_is_leader": false,
+  "target_is_dimension": false,
+  "target_looks_filled": false,
+  "target_length": null,
+  "nearby_parallel": false,
+  "heuristic_class": "F_orphan"
+}

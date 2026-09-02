@@ -70,6 +70,7 @@ class GeometryDocument:
             "association_radius_pdf_points": self.association_radius_pdf_points
             or (self.metadata or {}).get("association_radius_pdf_points"),
             "fragment_merge": (self.metadata or {}).get("fragment_merge"),
+            "page_scales": (self.metadata or {}).get("page_scales"),
         }
 
 
@@ -158,6 +159,7 @@ class PdfGeometryAdapter(GeometryAdapter):
                     "association_radius_pdf_points"
                 ),
                 "fragment_merge": extracted.get("fragment_merge"),
+                "page_scales": extracted.get("page_scales"),
             },
         )
 

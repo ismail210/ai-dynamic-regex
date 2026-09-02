@@ -214,12 +214,10 @@ class NearestGeometryCandidatesTests(unittest.TestCase):
         )
         target_candidate = next(c for c in candidates if c.node_id == "real_target")
         self.assertIn("leader_endpoint_resolved", target_candidate.sources)
-
-        # The real target should rank at or above the leader itself and
-        # the unrelated decoy, since leader-resolved candidates are
-        # prioritized over plain direct-distance candidates.
-        self.assertLess(
-            candidate_ids.index("real_target"), candidate_ids.index("leader")
+        self.assertNotIn(
+            "leader",
+            candidate_ids,
+            "the leader stroke is a pointer, not a member target",
         )
 
 

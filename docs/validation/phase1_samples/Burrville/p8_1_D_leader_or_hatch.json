@@ -1,0 +1,33 @@
+{
+  "page": 8,
+  "label_text": "W12X16",
+  "label_bbox": [
+    1629.14,
+    1349.33,
+    1660.09,
+    1390.15
+  ],
+  "label_region": "p8_r0",
+  "has_association": true,
+  "distance": 0.0,
+  "target_id": "geom_3ecc147b7264",
+  "target_kind": "rectangle",
+  "target_region": "p8_r0",
+  "cross_region": false,
+  "leader_resolved": true,
+  "association_sources": [
+    "direct_distance",
+    "leader_endpoint_resolved",
+    "leader_endpoint_resolved",
+    "leader_endpoint_resolved",
+    "leader_endpoint_resolved",
+    "leader_endpoint_resolved"
+  ],
+  "candidate_count": 3,
+  "target_is_leader": false,
+  "target_is_dimension": false,
+  "target_looks_filled": true,
+  "target_length": 170.64,
+  "nearby_parallel": false,
+  "heuristic_class": "D_leader_or_hatch"
+}
