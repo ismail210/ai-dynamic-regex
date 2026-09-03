@@ -16,11 +16,14 @@ A token is demoted to ``context_definition`` **only** when its page was
 confidently classified as a readable context page by
 ``legend_profile.detect_context_pages`` -- i.e. a page that matched a real
 LEGEND / ABBREVIATIONS / GENERAL NOTES / STRUCTURAL NOTES / SPECIFICATIONS
-heading AND passed ``_looks_like_drawing_page``'s negative filter (>=2
-Existing/New-tagged member callouts => it is a plan sheet, never demoted).
-The old, softer ``document_prior`` legend score is deliberately NOT used
-here -- it over-flags steel-dense framing plans (see the checkpoint-2
-diagnosis in ``legend_profile.py``).
+heading AND did NOT pass
+``legend_profile._has_strong_structural_drawing_evidence`` (renovation
+``(E)``/``(N)`` member tags, OR >= 25 catalog-valid section labels, OR a
+framing/schedule sheet title with >= 10 real labels -- see that function
+for the business rationale). A note keyword alone never suppresses a page
+that is doing real steel takeoff work. The old, softer ``document_prior``
+legend score is deliberately NOT used here -- it over-flags steel-dense
+framing plans (see the checkpoint-2 diagnosis in ``legend_profile.py``).
 
 Fail-safe: no ``legend_profile``, or no context pages, leaves every token
 ``takeoff_eligible = True`` -- exactly today's behavior.
@@ -77,10 +80,19 @@ def annotate_takeoff_scope(document: Dict[str, Any]) -> Dict[str, Any]:
             token.setdefault("object_scope", OBJECT_SCOPE_TAKEOFF)
             token.setdefault("takeoff_eligible", True)
 
+    diagnostics = (
+        (document.get("legend_profile") or {}).get("diagnostics") or {}
+    )
     return {
         "context_definition_pages": sorted(context_pages),
         "context_definition_tokens": demoted,
         "takeoff_tokens": len(tokens) - demoted,
+        # Framing/schedule pages that carried a note/legend keyword but were
+        # kept takeoff-eligible because they are dense with real steel
+        # labels (see legend_profile._has_strong_structural_drawing_evidence).
+        "full_page_demotion_blocked_pages": list(
+            diagnostics.get("full_page_demotion_blocked_pages") or []
+        ),
     }
 
 

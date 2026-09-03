@@ -175,6 +175,159 @@ class PageSelectionTests(unittest.TestCase):
         self.assertEqual(readable, [2])
 
 
+# --- Strong-drawing-evidence gate --------------------------------------------
+# A note/legend keyword on a page must not delete that page's steel takeoff
+# labels. Non-renovation framing plans (no "(E)/(N)" tags) were being demoted
+# whole-page by an incidental "SEE GENERAL NOTES" -- the highest measured
+# production accuracy loss (~0.29 macro section recall on a 7-project bench).
+
+_MANY_SECTIONS = " ".join(
+    [
+        "W16X26", "W21X44", "W18X35", "W12X19", "HSS8X8X3/8", "W14X22",
+        "W10X19", "W24X68", "W16X31", "W18X40", "W30X99", "W8X15",
+        "W12X26", "W16X36", "W21X50", "W10X15", "W24X55", "W18X46",
+    ]
+    * 2
+)  # 36 catalog-valid section labels
+
+
+class StrongDrawingEvidenceGateTests(unittest.TestCase):
+    def test_case_a_framing_page_with_general_notes_snippet_kept_eligible(self):
+        """A new-construction framing plan that also carries a
+        'SEE GENERAL NOTES' keynote keeps its steel labels eligible."""
+
+        page = (
+            "SECOND FLOOR FRAMING PLAN\n"
+            "1. SEE S-100 FOR GENERAL NOTES.  TYPICAL NOTES APPLY.\n"
+            + _MANY_SECTIONS
+            + "\n"
+        )
+        document = _doc({1: page})
+        self.assertNotIn(1, lp.detect_context_pages(document))
+        self.assertTrue(lp._has_strong_structural_drawing_evidence(page))
+
+    def test_case_b_no_renovation_tags_required(self):
+        """Recognising a framing plan must NOT require (E)/(N) markers."""
+
+        page = "ROOF FRAMING PLAN\nGENERAL NOTES: SEE SHEET S-001\n" + _MANY_SECTIONS
+        self.assertEqual(lp._MEMBER_CALLOUT_RE.findall(page), [])  # no (E)/(N)
+        self.assertNotIn(1, lp.detect_context_pages(_doc({1: page})))
+
+    def test_case_c_renovation_framing_page_still_recognised(self):
+        """Existing (E)/(N) behaviour is unchanged."""
+
+        self.assertTrue(lp._looks_like_drawing_page(REAL_FRAMING_PLAN_TEXT))
+        self.assertNotIn(1, lp.detect_context_pages(_doc({1: REAL_FRAMING_PLAN_TEXT})))
+
+    def test_case_d_true_general_notes_with_a_few_sections_is_context(self):
+        page = (
+            "GENERAL NOTES\n"
+            "1. STRUCTURAL STEEL SHALL CONFORM TO ASTM A992.\n"
+            "2. WHERE A BEAM SIZE IS NOT SHOWN, PROVIDE W12X19 MINIMUM.\n"
+            "3. TYPICAL EDGE ANGLE IS L4X4X1/4 UNO.\n"
+        )
+        document = _doc({1: page})
+        self.assertEqual(
+            lp.detect_context_pages(document).get(1), lp.PAGE_ROLE_GENERAL_NOTES
+        )
+        self.assertFalse(lp._has_strong_structural_drawing_evidence(page))
+
+    def test_case_e_legend_definitions_table_stays_context(self):
+        page = (
+            "STEEL BEAM LEGEND / ABBREVIATIONS\n"
+            '"B1" = W16X26\n"B2" = W18X35\n"B3" = W21X44\n"G1" = W24X68\n'
+            '"C1" = HSS8X8X3/8\n"C2" = HSS10X10X1/2\n"BR1" = HSS6X6X3/8\n'
+        )
+        document = _doc({1: page})
+        self.assertTrue(lp._looks_like_definitions_table(page))
+        self.assertFalse(lp._has_strong_structural_drawing_evidence(page))
+        self.assertIn(lp.detect_context_pages(document).get(1), lp._CONTEXT_PAGE_ROLES)
+
+    def test_case_f_high_density_page_cannot_be_fully_demoted(self):
+        """>= 25 catalog-valid section labels + a notes block => never
+        fully demoted (the hard safety guard)."""
+
+        page = (
+            "SPECIFICATIONS  GENERAL NOTES  ABBREVIATIONS  TYPICAL NOTES\n"
+            + _MANY_SECTIONS
+        )
+        self.assertGreaterEqual(
+            lp._count_catalog_valid_section_labels(page)[0],
+            lp._STRONG_DRAWING_MIN_SECTION_LABELS,
+        )
+        self.assertNotIn(1, lp.detect_context_pages(_doc({1: page})))
+        ev = lp.page_role_evidence(page)
+        self.assertTrue(ev["full_page_demotion_blocked"])
+
+    def test_case_g_lower_density_framing_page_survives_via_title(self):
+        """A smaller framing sheet (below the hard-guard count) still
+        survives on an explicit plan title + a moderate label count."""
+
+        sections = " ".join(["W16X26", "W12X19", "W18X35", "W14X22",
+                             "HSS8X8X3/8", "W10X19", "W21X44", "W16X31",
+                             "W18X40", "W24X55", "W12X26", "W8X15"])  # 12
+        page = "LOW ROOF FRAMING PLAN\nSEE GENERAL NOTES\n" + sections
+        occ = lp._count_catalog_valid_section_labels(page)[0]
+        self.assertLess(occ, lp._STRONG_DRAWING_MIN_SECTION_LABELS)
+        self.assertGreaterEqual(occ, lp._MODERATE_DRAWING_MIN_SECTION_LABELS)
+        self.assertNotIn(1, lp.detect_context_pages(_doc({1: page})))
+
+    def test_case_g2_braced_frame_elevation_survives_via_level_matrix(self):
+        """A braced-frame elevation / column schedule (level-datum stack,
+        no 'FRAMING PLAN' title) is a real drawing, not a spec page."""
+
+        page = (
+            "SPECIFICATIONS\n"
+            "FIRST FLOOR\n0' - 0\"\nSECOND FLOOR\n14' - 0\"\nROOF\n28' - 0\"\n"
+            "HSS6X6X5/8  35 KIPS   HSS6X6X3/8  100 KIPS\n"
+            "FIRST FLOOR\n0' - 0\"\nSECOND FLOOR\n14' - 0\"\nROOF\n28' - 0\"\n"
+            "HSS6X6X3/8  HSS8X8X3/8  HSS6X6X1/2  HSS6X6X3/8  HSS8X8X3/8\n"
+            "HSS6X6X3/8  HSS6X6X3/8  HSS6X6X1/2  HSS6X6X3/8\n"
+        )
+        self.assertTrue(lp._looks_like_schedule_or_elevation_matrix(page))
+        self.assertTrue(lp._has_strong_structural_drawing_evidence(page))
+        self.assertNotIn(1, lp.detect_context_pages(_doc({1: page})))
+
+    def test_level_matrix_does_not_fire_on_a_roof_detail(self):
+        """A roof/relieving-angle DETAIL mentions 'ROOF' and dimensions but
+        does not stack level datums -- it stays a context/detail page."""
+
+        page = (
+            "GENERAL NOTES\nTYPICAL DETAILS\n"
+            "ROOF DECK, SEE PLAN.  ROOFING AND INSUL, SEE ARCH DWGS.\n"
+            "L4X4X3/8 CONT  L4X4X3/8 HGR TYP  3/8\" PL TYP  L4X3X3/8X0'-6\"\n"
+            "L6X3-1/2X3/8 CONT  HSS5X3X3/16 BWT JOISTS  L4X4X3/8 DSA\n"
+        )
+        self.assertFalse(lp._looks_like_schedule_or_elevation_matrix(page))
+        self.assertFalse(lp._has_strong_structural_drawing_evidence(page))
+        self.assertIn(1, lp.detect_context_pages(_doc({1: page})))
+
+    def test_case_h_detail_page_sections_do_not_force_drawing_role(self):
+        """A typical-details sheet with a handful of section references is
+        NOT promoted to a takeoff drawing by this gate (full detail/region
+        counting is QuantityEngine's job, not this fix's)."""
+
+        page = (
+            "TYPICAL DETAILS\nGENERAL NOTES\n"
+            "DETAIL 4/S5.2 - TYPICAL BEAM AT W16X26.  "
+            "DETAIL 5/S5.2 - TYPICAL COLUMN CAP AT HSS8X8X3/8.  "
+            "SEE PLAN FOR W21X44 LOCATIONS.\n"
+        )
+        document = _doc({1: page})
+        self.assertFalse(lp._has_strong_structural_drawing_evidence(page))
+        self.assertIn(1, lp.detect_context_pages(document))
+
+    def test_page_role_evidence_reports_signals(self):
+        page = "FLOOR FRAMING PLAN\nSEE GENERAL NOTES\n" + _MANY_SECTIONS
+        ev = lp.page_role_evidence(page)
+        self.assertEqual(ev["page_role"], "DRAWING")
+        self.assertTrue(ev["strong_drawing_evidence"])
+        self.assertTrue(ev["has_drawing_title"])
+        self.assertIn("GENERAL_NOTES", ev["context_keyword_hits"])
+        self.assertTrue(ev["full_page_demotion_blocked"])
+        self.assertGreaterEqual(ev["valid_section_labels"], 25)
+
+
 class AbbreviationExtractionTests(unittest.TestCase):
     def test_extracts_explicit_w_shape_abbreviation(self):
         document = _doc({1: GENERAL_NOTES_TEXT})

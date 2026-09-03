@@ -91,6 +91,12 @@ def _build(document: Dict[str, Any]) -> Dict[str, Any]:
         return cached
 
     context_pages = lp.detect_context_pages(document)
+    page_role_evidence = lp.detect_context_page_evidence(document)
+    demotion_blocked_pages = sorted(
+        page
+        for page, ev in page_role_evidence.items()
+        if ev.get("full_page_demotion_blocked")
+    )
     readable_pages = lp._readable_context_pages(context_pages)
     vision_pages = sorted(
         p for p, role in context_pages.items() if role == lp.PAGE_ROLE_VISION_REQUIRED
@@ -127,6 +133,10 @@ def _build(document: Dict[str, Any]) -> Dict[str, Any]:
         "abbreviation_rules_found": len(abbreviation_rules),
         "cache_key": cache_key[:12],
         "cache_state": "FRESH_LLM_RUN" if llm_requested else "FRESH_DETERMINISTIC_RUN",
+        # Per-page role evidence: why each page was (not) demoted, and which
+        # framing/schedule pages were kept eligible despite a note keyword.
+        "page_role_evidence": {str(k): v for k, v in page_role_evidence.items()},
+        "full_page_demotion_blocked_pages": demotion_blocked_pages,
     }
 
     if llm_requested and readable_pages:

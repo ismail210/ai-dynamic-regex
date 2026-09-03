@@ -66,7 +66,12 @@ from services.structural_parser import parse_section
 from services.token_extractor import normalize_engineering_token
 
 PROFILE_VERSION = "legend_profile_v4"
-EXTRACTOR_VERSION = "legend_extractor_v4b"
+# v5: page-role classification now gates on
+# ``_has_strong_structural_drawing_evidence`` -- a note/legend keyword no
+# longer demotes a page that is dense with real catalog-valid section
+# labels (framing plans, column/beam schedules). This changes which pages
+# ``detect_context_pages`` returns, so cached profiles from v4b are stale.
+EXTRACTOR_VERSION = "legend_extractor_v5"
 SCHEMA_VERSION = "project_rule_schema_v1"
 
 STATUS_PROPOSED_INFERENCE = "PROPOSED_INFERENCE"
@@ -144,6 +149,150 @@ _MEMBER_CALLOUT_RE = re.compile(
 )
 _DRAWING_PAGE_MIN_CALLOUTS = 2
 
+# --- Strong-drawing-evidence gate ----------------------------------------
+#
+# BUSINESS BEHAVIOUR: the mere presence of a notes/legend keyword on a page
+# ("SEE GENERAL NOTES", "TYPICAL NOTES", "SPECIFICATIONS", a title-block
+# sheet-index that lists "ABBREVIATIONS") is NOT sufficient to suppress that
+# page's structural steel labels. A real structural framing sheet routinely
+# carries, on the SAME page: the framing itself, a keynote block, detail-
+# reference bubbles, dimensions, an embedded schedule and a title block.
+# ``_looks_like_drawing_page`` only recognised RENOVATION plans (repeated
+# "(E)"/"(N)" member tags); ordinary new-construction framing plans were the
+# blind spot, and an incidental heading match demoted the whole page --
+# deleting every steel label on it from the takeoff. Measured: this cost
+# ~0.29 of macro section recall across a 7-project benchmark for no measured
+# precision benefit.
+#
+# The rule below is deterministic and conservative: a page carrying a real,
+# catalog-valid section-label count that a framing sheet has (and a notes/
+# legend page does not) is treated as a drawing regardless of heading text.
+_STRONG_DRAWING_MIN_SECTION_LABELS = 25   # hard guard: never fully demote a
+                                          # page this dense with real labels
+_MODERATE_DRAWING_MIN_SECTION_LABELS = 10  # lower-density plan: needs a
+                                           # corroborating plan/schedule title
+_DEFINITIONS_TABLE_MIN_ROWS = 3            # >= N  "X" = <section>  rows means
+                                          # the page is a legend/abbreviation
+                                          # table -- its sections are
+                                          # dictionary entries, keep it context
+
+# Section-shaped token (family + at least the leading dimension). Kept
+# permissive on purpose; ``catalog_form`` below is the real gate -- it
+# accepts only exact spelling variants of a real designation and never
+# substitutes a similar shape.
+_SECTION_TOKEN_RE = re.compile(
+    r"\b(?:2L|WT|MT|ST|MC|HP|HSS|PIPE|W|S|M|C|L)\s?\d+(?:\.\d+)?"
+    r"(?:\s?[Xx×]\s?\d+(?:\.\d+)?(?:\s?[Xx×]\s?(?:\d+/\d+|\d+(?:\.\d+)?))?)?\b"
+)
+# A framing / erection / column-plan or schedule / braced-frame-elevation
+# sheet title. "FRAMING PLAN" also covers "ROOF/FLOOR/LEVEL 2 FRAMING PLAN"
+# as a substring; the trailing \b keeps "FRAMING PLANS" (a cross-reference
+# in prose) from matching.
+_DRAWING_TITLE_RE = re.compile(
+    r"\bFRAMING\s+PLAN\b|\bERECTION\s+PLAN\b|\bCOLUMN\s+PLAN\b"
+    r"|\bROOF\s+PLAN\b|\bFLOOR\s+PLAN\b|\bFOUNDATION\s+PLAN\b"
+    r"|\bCOLUMN\s+SCHEDULE\b|\bBEAM\s+SCHEDULE\b|\bBRACE\s+SCHEDULE\b"
+    r"|\bBRACING\s+SCHEDULE\b|\bFRAMING\s+SCHEDULE\b|\bJOIST\s+SCHEDULE\b"
+    r"|\bBRACED\s+FRAME\b|\bBRACE(?:D)?\s+ELEVATION\b|\bBRACING\s+ELEVATION\b"
+    r"|\bFRAME\s+ELEVATION\b|\bCOLUMN\s+ELEVATION\b",
+    re.I,
+)
+# The level/elevation axis shared by a column schedule and a braced-frame
+# elevation: a building-level word immediately followed by an elevation
+# callout ("FIRST FLOOR \n 0' - 0"", "MAIN ROOF \n 29' - 0""), repeated
+# down the sheet. A notes/spec/detail page does not stack level datums
+# like this. The ``COL UMN LOCAT IONS`` spelling tolerates the stray
+# spaces PDF text extraction inserts into that header.
+_LEVEL_DATUM_RE = re.compile(
+    r"\b(?:FLOOR|ROOF|LEVEL|PARAPET|GRADE|SLAB)\b[\s.:]*"
+    r"\d+'\s*-\s*\d+(?:\s+\d+/\d+)?\s*\"",
+    re.I,
+)
+_COLUMN_LOCATIONS_RE = re.compile(r"COL\s*UMN\s+LOCAT\s*IONS?", re.I)
+_LEVEL_DATUM_MIN = 3
+# "<abbrev>" = <section>  -- a legend/abbreviation substitution row.
+_DEFINITION_ROW_RE = re.compile(
+    r'"?[A-Za-z0-9./\-]{1,14}"?\s*=\s*'
+    r"(?:2L|WT|MT|ST|MC|HP|HSS|PIPE|W|S|M|C|L)\s?\d",
+    re.I,
+)
+
+
+def _looks_like_schedule_or_elevation_matrix(text: str) -> bool:
+    """True for a column schedule / braced-frame elevation: a
+    ``Column Locations`` header, or >= 3 stacked level-datum rows
+    (``<level word> <elevation>``). Such a sheet is a real takeoff
+    drawing even without a matching title."""
+
+    if _COLUMN_LOCATIONS_RE.search(text):
+        return True
+    return len(_LEVEL_DATUM_RE.findall(text)) >= _LEVEL_DATUM_MIN
+
+
+def _count_catalog_valid_section_labels(text: str) -> tuple[int, int]:
+    """``(occurrences, distinct)`` of tokens on ``text`` that resolve
+    EXACTLY to a catalog-valid AISC designation. Spelling variants only --
+    ``catalog_form`` never substitutes a different shape, so this counts
+    real, fully-specified section labels, not families or guesses."""
+
+    occurrences = 0
+    distinct: set[str] = set()
+    for match in _SECTION_TOKEN_RE.finditer(text):
+        token = match.group(0).replace("×", "X").replace(" ", "")
+        resolved = catalog_form(token)
+        if resolved:
+            occurrences += 1
+            distinct.add(resolved)
+    return occurrences, len(distinct)
+
+
+def _looks_like_definitions_table(text: str) -> bool:
+    """True for an abbreviations / legend table: rows of ``"X" = <section>``.
+    Such a page DEFINES project notation; its section strings are dictionary
+    entries, not members, so it stays a context page even when it lists many
+    sizes (Section 10 of the fix brief -- do not overfit to section count)."""
+
+    return len(_DEFINITION_ROW_RE.findall(text)) >= _DEFINITIONS_TABLE_MIN_ROWS
+
+
+def _has_strong_structural_drawing_evidence(text: str) -> bool:
+    """Positive evidence that a page is a structural DRAWING (framing plan,
+    column/beam schedule, erection plan) and not a notes/legend page -- even
+    without renovation ``(E)``/``(N)`` member tags.
+
+    Signals, in order:
+      1. renovation member-tag density (existing ``_looks_like_drawing_page``);
+      2. NEGATIVE: an abbreviations/legend definitions table -> not a drawing;
+      3. HARD GUARD: >= ``_STRONG_DRAWING_MIN_SECTION_LABELS`` catalog-valid
+         section labels -> a page this dense with real labels is doing
+         takeoff work; never fully demote it for a keyword alone;
+      4. a lower-density framing/schedule/elevation sheet: an explicit
+         plan/schedule/braced-frame title OR a schedule/elevation level-row
+         matrix, plus >= ``_MODERATE_DRAWING_MIN_SECTION_LABELS`` real
+         labels.
+
+    When uncertain this returns True (keep the page's steel eligible): the
+    Priority-1 objective is to maximise correct section inventory; false
+    positives are controlled separately by the member/noise filters, not by
+    page-wide exclusion.
+    """
+
+    if _looks_like_drawing_page(text):
+        return True
+
+    if _looks_like_definitions_table(text):
+        return False
+
+    occurrences, _distinct = _count_catalog_valid_section_labels(text)
+    if occurrences >= _STRONG_DRAWING_MIN_SECTION_LABELS:
+        return True
+    if occurrences >= _MODERATE_DRAWING_MIN_SECTION_LABELS and (
+        _DRAWING_TITLE_RE.search(text)
+        or _looks_like_schedule_or_elevation_matrix(text)
+    ):
+        return True
+    return False
+
 
 def _page_text(document: Dict[str, Any], page_number: int) -> str:
     """Duplicated from document_prior._page_text intentionally -- this
@@ -206,12 +355,16 @@ def _classify_page_role(text: str, *, is_legend_page: bool) -> Optional[str]:
     finding a real heading that sits after a long title-block/sheet-index
     preamble on the same page (the ST.pdf failure this checkpoint fixes)."""
 
-    # Checked FIRST, unconditionally -- a real framing/foundation plan page
-    # can still carry a small on-sheet note ("SEE GENERAL NOTES...") that
-    # would otherwise win the heading-match race below even though the
-    # page as a whole is dense with real member-schedule callouts, not
-    # project-level notes. See module docstring, failure mode 1.
-    if _looks_like_drawing_page(text):
+    # Checked FIRST, unconditionally -- a real structural drawing page (a
+    # framing plan, an erection plan, a column/beam schedule) can still
+    # carry a keynote block, a "SEE GENERAL NOTES..." cross-reference, or a
+    # title-block sheet index that names "ABBREVIATIONS"/"SPECIFICATIONS".
+    # None of that makes the page project-level notes: the presence of a
+    # note keyword must never suppress a page that is dense with real steel
+    # takeoff labels. ``_looks_like_drawing_page`` (renovation "(E)"/"(N)"
+    # tags) is now one signal inside this broader gate; see the constants
+    # and business rationale near ``_MEMBER_CALLOUT_RE``.
+    if _has_strong_structural_drawing_evidence(text):
         return None
 
     best_role: Optional[str] = None
@@ -226,6 +379,77 @@ def _classify_page_role(text: str, *, is_legend_page: bool) -> Optional[str]:
     if is_legend_page:
         return PAGE_ROLE_LEGEND
     return None
+
+
+def page_role_evidence(
+    text: str, *, is_legend_page: bool = False
+) -> Dict[str, Any]:
+    """Explain a page-role decision (see ``_classify_page_role``).
+
+    Diagnostics only -- not part of any production contract. Surfaced in the
+    legend-profile diagnostics and the ``context_scope`` summary so that a
+    page-wide demotion (or a blocked one) can always be accounted for.
+    """
+
+    occurrences, distinct = _count_catalog_valid_section_labels(text)
+    heading_hits = sorted(
+        (match.start(), role)
+        for role, pattern in _HEADING_PATTERNS
+        for match in (pattern.search(text),)
+        if match
+    )
+    strong = _has_strong_structural_drawing_evidence(text)
+    role = _classify_page_role(text, is_legend_page=is_legend_page)
+    return {
+        "page_role": role or "DRAWING",
+        "scope_reason": (
+            "strong_structural_drawing_evidence"
+            if strong
+            else "context_heading" if heading_hits
+            else "legend_score" if (is_legend_page and role)
+            else "drawing_default"
+        ),
+        "strong_drawing_evidence": strong,
+        "valid_section_labels": occurrences,
+        "distinct_section_labels": distinct,
+        "en_member_callouts": len(_MEMBER_CALLOUT_RE.findall(text)),
+        "has_drawing_title": bool(_DRAWING_TITLE_RE.search(text)),
+        "schedule_or_elevation_matrix": _looks_like_schedule_or_elevation_matrix(text),
+        "looks_like_definitions_table": _looks_like_definitions_table(text),
+        "context_keyword_hits": [role for _index, role in heading_hits],
+        "is_legend_score_page": bool(is_legend_page),
+        # True when a note/legend keyword IS present but the page was kept
+        # eligible anyway because it carries real structural takeoff labels.
+        "full_page_demotion_blocked": bool(strong and heading_hits),
+    }
+
+
+def detect_context_page_evidence(
+    document: Dict[str, Any]
+) -> Dict[int, Dict[str, Any]]:
+    """Per-page role evidence for every page that either became a context
+    page OR was kept as a drawing despite a note/legend keyword. Same
+    iteration as ``detect_context_pages``; diagnostics only."""
+
+    page_count = int(document.get("page_count") or 0)
+    if page_count <= 0:
+        return {}
+    legend_pages = set(detect_legend_pages(document))
+    out: Dict[int, Dict[str, Any]] = {}
+    for page_number in range(1, page_count + 1):
+        text = _page_text(document, page_number)
+        if not text.strip():
+            continue
+        evidence = page_role_evidence(
+            text, is_legend_page=page_number in legend_pages
+        )
+        if (
+            evidence["full_page_demotion_blocked"]
+            or evidence["context_keyword_hits"]
+            or evidence["is_legend_score_page"]
+        ):
+            out[page_number] = evidence
+    return out
 
 
 def detect_context_pages(document: Dict[str, Any]) -> Dict[int, str]:

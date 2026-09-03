@@ -132,6 +132,46 @@ class StrictClassifierRegressionTests(unittest.TestCase):
         context_pages = detect_context_pages(document)
         self.assertEqual(context_pages.get(1), PAGE_ROLE_ABBREVIATIONS)
 
+    def test_new_construction_framing_plan_with_notes_keyword_stays_eligible(self):
+        """The production bug this fix targets: a non-renovation framing
+        plan (no (E)/(N) tags) whose sheet also carries a 'SEE GENERAL
+        NOTES' keynote must keep every steel label takeoff-eligible."""
+
+        from services.engineering.legend_profile import detect_context_pages
+
+        sections = " ".join(
+            ["W16X26", "W21X44", "W18X35", "W12X19", "HSS8X8X3/8", "W14X22",
+             "W10X19", "W24X68", "W16X31", "W18X40", "W30X99", "W8X15",
+             "W12X26", "W16X36", "W21X50"] * 2
+        )
+        framing = (
+            "SECOND FLOOR FRAMING PLAN\n"
+            "SEE GENERAL NOTES ON S-001.  SPECIFICATIONS SECTION 05 12 00.\n"
+            + sections + "\n"
+        )
+        document = {
+            "page_count": 1,
+            "blocks": [{"page_number": 1, "text": framing}],
+            "lines": [],
+            "text": framing,
+        }
+        context_pages = detect_context_pages(document)
+        self.assertNotIn(1, context_pages)
+
+        cs_doc = {
+            "engineering_tokens": [
+                {"page": 1, "text": "W16X26"},
+                {"page": 1, "text": "HSS8X8X3/8"},
+            ],
+            "legend_profile": {
+                "context_pages": {str(k): v for k, v in context_pages.items()},
+                "diagnostics": {"full_page_demotion_blocked_pages": []},
+            },
+        }
+        summary = cs.annotate_takeoff_scope(cs_doc)
+        self.assertTrue(all(t["takeoff_eligible"] for t in cs_doc["engineering_tokens"]))
+        self.assertEqual(summary["context_definition_tokens"], 0)
+
 
 class PipelineIntegrationTests(unittest.TestCase):
     """End to end through extract_engineering_document: a synthetic PDF with
