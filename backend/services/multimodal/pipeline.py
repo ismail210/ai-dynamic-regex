@@ -2,9 +2,22 @@
 
 from __future__ import annotations
 
+import os
 import time
 from pathlib import Path
 from typing import Any, Dict, Optional
+
+
+def _ablate(name: str) -> bool:
+    """Evaluation-harness modality ablation (see feature_providers._ablation_active).
+    ``ABLATE_GEOMETRY`` / ``ABLATE_GRAPH`` also skip the geometry/graph-derived
+    synthetic prediction tokens and embedding enrichment here, so the modality
+    is genuinely absent from the decision pipeline, not just down-weighted.
+    The structural graph itself is still built from geometry topology because
+    the deterministic rule engine consumes it -- that residual coupling is
+    documented in the ablation report."""
+
+    return os.getenv(name, "").strip().lower() in ("1", "true", "yes", "on")
 
 from config import settings
 from services.artifact_store import prune_documents, write_artifact
@@ -172,7 +185,8 @@ def run_multimodal_pipeline(
     geometry = geometry_document or extract_geometry_document(
         path, document_structure=document
     )
-    geometry = enrich_geometry_embeddings(path, geometry)
+    if not _ablate("ABLATE_GEOMETRY"):
+        geometry = enrich_geometry_embeddings(path, geometry)
     timings["geometry_ms"] = (
         0.0
         if geometry_document is not None
@@ -183,7 +197,8 @@ def run_multimodal_pipeline(
     if settings.detail_regions_enabled:
         assign_detail_regions(document, geometry)
     graph = graph_document or build_structural_graph(document, geometry)
-    graph = enrich_graph_embeddings(graph)
+    if not _ablate("ABLATE_GRAPH"):
+        graph = enrich_graph_embeddings(graph)
     document_rules = evaluate_document_rules(graph)
     attach_context_evidence(document, geometry, graph)
     timings["graph_rules_ms"] = round(
@@ -202,7 +217,7 @@ def run_multimodal_pipeline(
         schedule_tokens = build_schedule_tokens(document, existing_tokens=prediction_tokens)
         prediction_tokens.extend(schedule_tokens)
         document["schedule_tokens_added"] = len(schedule_tokens)
-    if settings.spatial_association_enabled:
+    if settings.spatial_association_enabled and not _ablate("ABLATE_GEOMETRY"):
         spatial_tokens = build_spatial_association_tokens(
             document,
             geometry,
@@ -210,7 +225,8 @@ def run_multimodal_pipeline(
         )
         prediction_tokens.extend(spatial_tokens)
         document["spatial_association_tokens_added"] = len(spatial_tokens)
-    prediction_tokens.extend(_missing_label_tokens(geometry, graph))
+    if not (_ablate("ABLATE_GEOMETRY") or _ablate("ABLATE_GRAPH")):
+        prediction_tokens.extend(_missing_label_tokens(geometry, graph))
     for token in prediction_tokens:
         prediction = fusion_engine.predict(
             {
@@ -234,7 +250,11 @@ def run_multimodal_pipeline(
     )
 
     deduped = merge_duplicate_predictions(raw_predictions)
-    predictions = propagate_section_labels(deduped["predictions"], graph)
+    predictions = (
+        deduped["predictions"]
+        if _ablate("ABLATE_GRAPH")
+        else propagate_section_labels(deduped["predictions"], graph)
+    )
 
     # Demote anything sitting on a strict-classified legend/notes page,
     # including geometry "missing label", schedule/spatial and label-

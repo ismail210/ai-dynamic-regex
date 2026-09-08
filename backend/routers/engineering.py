@@ -152,23 +152,16 @@ async def analyze_multimodal_document(
         ),
     )
 
-    # Excel uploads are ground-truth pairs — auto-register for dataset generation.
+    # An uploaded Excel is ground truth for THIS analysis only. It is never
+    # auto-copied into training/ or folded into paired_takeoff_dataset.csv --
+    # doing that silently turned every validation run into a training run and
+    # moved held-out evaluation projects into the model (with fuzzy-matched
+    # labels; see services/takeoff/paired_dataset_builder.py). Building the
+    # paired training dataset is now an explicit, opt-in action only:
+    # POST /takeoff/dataset/build.
     if excel_path is not None:
-        from services.takeoff.takeoff_validation import (
-            _auto_build_dataset,
-            _register_uploaded_pair,
-        )
-
-        pair_id = await run_analysis(
-            "ground-truth pair registration",
-            _register_uploaded_pair,
-            pdf_path,
-            excel_path,
-        )
-        result["registered_pair_id"] = pair_id
-        result["dataset_build"] = await run_analysis(
-            "paired dataset build", _auto_build_dataset, pair_id
-        )
+        result["registered_pair_id"] = None
+        result["dataset_build"] = None
         result["excel_role"] = "ground_truth_only"
         result["excel_is_prediction"] = False
     return result

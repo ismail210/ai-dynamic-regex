@@ -3,9 +3,23 @@
 from __future__ import annotations
 
 import math
+import os
 import threading
 from collections import OrderedDict
 from typing import Any, Dict, List, Optional
+
+
+def _ablation_active(name: str) -> bool:
+    """Evaluation-harness switch: remove a whole evidence modality from the
+    decision pipeline BEFORE any consumer reads it (not merely zero its
+    fusion weight). ``ABLATE_GEOMETRY`` / ``ABLATE_GRAPH`` make the
+    corresponding feature provider return an explicit "unavailable" record,
+    so every downstream reader -- exact-section rerank, correction engine,
+    attention fusion, learned fusion, conflict routing, annotation typing --
+    sees the modality as absent. Off unless explicitly set. Not for
+    production use; the value is read live so tests can toggle it."""
+
+    return os.getenv(name, "").strip().lower() in ("1", "true", "yes", "on")
 
 from services.database_loader import lookup_shape, search_similar_shapes
 from services.engineering.structural_graph import (
@@ -139,6 +153,16 @@ class GeometryFeatureProvider:
     name = "pdf_geometry_features"
 
     def extract(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        if _ablation_active("ABLATE_GEOMETRY"):
+            return {
+                "available": False,
+                "ablated": True,
+                "nearest_distance": None,
+                "similarity": None,
+                "geometry_embedding": [],
+                "geometry_candidates": [],
+                "object": None,
+            }
         token = context["token"]
         page = int(token.get("page") or 0)
         bbox = token.get("bbox") or [0, 0, 0, 0]
@@ -253,6 +277,25 @@ class GraphFeatureProvider:
         return built
 
     def extract(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        if _ablation_active("ABLATE_GRAPH"):
+            return {
+                "available": False,
+                "graph_available": False,
+                "ablated": True,
+                "source_node": None,
+                "node_kind": None,
+                "degree": 0,
+                "structural_links": 0,
+                "geometry_links": 0,
+                "min_distance": None,
+                "graph_consistency": None,
+                "structural_consistency": None,
+                "graph_confidence": None,
+                "graph_embedding": [],
+                "graph_prediction": None,
+                "missing_label_probability": None,
+                "incorrect_label_probability": None,
+            }
         graph = context.get("graph") or {}
         if not graph.get("nodes"):
             return graph_features_for_token(graph, context["token"])

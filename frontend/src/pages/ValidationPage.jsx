@@ -231,6 +231,7 @@ function pct(value) {
 }
 
 function GroundTruthEvaluationPanel({ report }) {
+  const [showDetails, setShowDetails] = useState(false);
   const evaluation =
     report?.excel_evaluation ||
     report?.evaluation ||
@@ -242,69 +243,126 @@ function GroundTruthEvaluationPanel({ report }) {
   const missing = evaluation?.missing_elements || report?.missing_elements || [];
   const extra = evaluation?.extra_elements || report?.extra_elements || [];
   const comparisons = evaluation?.comparisons || report?.comparisons || [];
+  // Estimator-facing primary numbers (canonical_takeoff_eval). caught = min(pred, GT).
+  const estimatorRows =
+    evaluation?.estimator_table ||
+    report?.estimator_table ||
+    comparisons.map((r) => ({
+      section: r.section || r.label,
+      ground_truth: r.expected_quantity ?? r.ground_truth ?? 0,
+      correctly_caught: r.caught ?? Math.min(r.predicted_quantity ?? 0, r.expected_quantity ?? 0),
+      predicted: r.predicted_quantity ?? r.prediction ?? 0,
+      success_pct: r.success_pct,
+    }));
+  const overallSuccess =
+    evaluation?.overall_success_pct ??
+    report?.overall_success_pct ??
+    metrics.overall_success_pct;
+  const caught = metrics.caught;
+  const gtTotal = metrics.ground_truth_total;
+  const predictedTotal = metrics.predicted_total;
+  const falsePositives = metrics.false_positives;
   const precision = metrics.precision ?? metrics.section?.precision;
-  const recall = metrics.recall ?? metrics.section?.recall;
-  const quantityAccuracy = metrics.quantity_accuracy;
+  const recall = metrics.recall ?? overallSuccess / 100 ?? metrics.section?.recall;
   const f1 = metrics.f1 ?? metrics.section?.f1;
+  const overDetecting = Number(falsePositives || 0) > Number(caught || 0) * 0.15;
 
   return (
     <Stack spacing={2.25}>
       <Alert severity="success">
-        Excel is ground truth only — never used as prediction input. Compared section,
-        quantity, length, weight, and member fields against the uploaded workbook
+        Excel is ground truth only — never used as prediction input. "Correctly caught"
+        is capped at the ground-truth quantity for that exact section, so success can
+        never exceed 100%
         {report?.excel_file ? ` (${report.excel_file})` : ""}.
       </Alert>
 
       <Grid container spacing={1.5}>
-        <Grid size={{ xs: 6, md: 2 }}>
-          <Metric label="Precision" value={pct(precision)} color="success.main" />
-        </Grid>
-        <Grid size={{ xs: 6, md: 2 }}>
-          <Metric label="Recall" value={pct(recall)} color="success.main" />
-        </Grid>
-        <Grid size={{ xs: 6, md: 2 }}>
-          <Metric label="F1" value={pct(f1)} />
-        </Grid>
-        <Grid size={{ xs: 6, md: 2 }}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Metric
-            label="Quantity accuracy"
-            value={pct(quantityAccuracy)}
-            color="primary.main"
+            label="Overall success"
+            value={overallSuccess != null ? `${overallSuccess}%` : "—"}
+            color="success.main"
           />
         </Grid>
-        <Grid size={{ xs: 6, md: 2 }}>
+        <Grid size={{ xs: 6, md: 4 }}>
           <Metric
-            label="Missing elements"
+            label="Correctly caught"
+            value={caught != null && gtTotal != null ? `${caught} / ${gtTotal}` : "—"}
+          />
+        </Grid>
+        <Grid size={{ xs: 6, md: 4 }}>
+          <Metric
+            label="Missing sections"
             value={metrics.missing_count ?? missing.length}
             color="error.main"
           />
         </Grid>
-        <Grid size={{ xs: 6, md: 2 }}>
-          <Metric
-            label="Extra elements"
-            value={metrics.extra_count ?? extra.length}
-            color="warning.main"
-          />
-        </Grid>
       </Grid>
 
-      <Grid container spacing={1.5}>
-        <Grid size={{ xs: 6, md: 3 }}>
-          <Metric label="Length accuracy" value={pct(metrics.length_accuracy)} />
+      {overDetecting && (
+        <Alert severity="warning">
+          Over-detection: {predictedTotal} predictions for {gtTotal} ground-truth
+          members ({falsePositives} false positives, precision{" "}
+          {pct(precision)}). High success with low precision means the takeoff is
+          finding real members but also inventing many that are not there.
+        </Alert>
+      )}
+
+      <Button
+        size="small"
+        variant="text"
+        onClick={() => setShowDetails((v) => !v)}
+        sx={{ alignSelf: "flex-start" }}
+      >
+        {showDetails ? "Hide details" : "Show precision / scope details"}
+      </Button>
+      {showDetails && (
+        <Grid container spacing={1.5}>
+          <Grid size={{ xs: 6, md: 3 }}>
+            <Metric label="Precision" value={pct(precision)} />
+          </Grid>
+          <Grid size={{ xs: 6, md: 3 }}>
+            <Metric label="Recall (members)" value={pct(recall)} />
+          </Grid>
+          <Grid size={{ xs: 6, md: 3 }}>
+            <Metric label="F1" value={pct(f1)} />
+          </Grid>
+          <Grid size={{ xs: 6, md: 3 }}>
+            <Metric label="False positives" value={falsePositives ?? "—"} color="warning.main" />
+          </Grid>
+          <Grid size={{ xs: 6, md: 3 }}>
+            <Metric label="Total predictions" value={predictedTotal ?? "—"} />
+          </Grid>
+          <Grid size={{ xs: 6, md: 3 }}>
+            <Metric label="Extra sections" value={metrics.extra_count ?? extra.length} color="warning.main" />
+          </Grid>
+          <Grid size={{ xs: 6, md: 3 }}>
+            <Metric
+              label="Unsupported GT qty"
+              value={metrics.unsupported_gt_quantity ?? "—"}
+            />
+          </Grid>
+          <Grid size={{ xs: 6, md: 3 }}>
+            <Metric
+              label="Excluded GT qty"
+              value={metrics.excluded_gt_quantity ?? "—"}
+            />
+          </Grid>
+          <Grid size={{ xs: 12 }}>
+            <Typography variant="caption" color="text.secondary">
+              Scope: {metrics.scope || "primary_framing"}. Success is measured against
+              primary framing members (beams, columns, braces, joists). Connection
+              angles / stiffeners ({metrics.unsupported_gt_quantity ?? 0}) and
+              deck / misc / unparseable rows ({metrics.excluded_gt_quantity ?? 0}) are
+              recorded but not counted.
+              {metrics.catalog_invalid_predictions != null &&
+                ` Catalog-invalid predictions: ${metrics.catalog_invalid_predictions}.`}
+              {metrics.abstained_predictions != null &&
+                ` Abstained (sent to review): ${metrics.abstained_predictions}.`}
+            </Typography>
+          </Grid>
         </Grid>
-        <Grid size={{ xs: 6, md: 3 }}>
-          <Metric label="Weight accuracy" value={pct(metrics.weight_accuracy)} />
-        </Grid>
-        <Grid size={{ xs: 6, md: 3 }}>
-          <Metric label="Member accuracy" value={pct(metrics.member_accuracy)} />
-        </Grid>
-        <Grid size={{ xs: 6, md: 3 }}>
-          <Metric
-            label="Qty coverage"
-            value={pct(metrics.quantity_coverage)}
-          />
-        </Grid>
-      </Grid>
+      )}
 
       {(evaluation?.report_path || report?.report_path || report?.markdown_report_path) && (
         <Typography variant="caption" color="text.secondary">
@@ -326,13 +384,92 @@ function GroundTruthEvaluationPanel({ report }) {
       <Paper variant="outlined" sx={{ overflow: "hidden" }}>
         <Box sx={{ px: 2, py: 1.6, borderBottom: 1, borderColor: "divider" }}>
           <Typography variant="subtitle1" fontWeight={750}>
-            Section comparison
+            Section takeoff vs ground truth
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            Predicted vs Excel ground truth for section, quantity, length, weight, member.
+            Correctly caught = min(predicted, ground truth) for that exact section.
           </Typography>
         </Box>
-        <TableContainer sx={{ maxHeight: 360 }}>
+        <TableContainer sx={{ maxHeight: 400 }}>
+          <Table size="small" stickyHeader>
+            <TableHead>
+              <TableRow>
+                <TableCell>Section</TableCell>
+                <TableCell align="right">Ground Truth</TableCell>
+                <TableCell align="right">Correctly Caught</TableCell>
+                <TableCell align="right">Success</TableCell>
+                {showDetails && <TableCell align="right">Predicted</TableCell>}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {estimatorRows.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={showDetails ? 5 : 4}>
+                    <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
+                      No Excel comparisons available.
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              )}
+              {[...estimatorRows]
+                .sort((a, b) => (b.ground_truth || 0) - (a.ground_truth || 0))
+                .map((row) => {
+                  const gt = row.ground_truth || 0;
+                  const cc = row.correctly_caught ?? 0;
+                  const successPct =
+                    row.success_pct != null
+                      ? row.success_pct
+                      : gt > 0
+                        ? Math.round((cc / gt) * 1000) / 10
+                        : null;
+                  return (
+                    <TableRow key={`${row.section}`} hover>
+                      <TableCell sx={{ fontFamily: "monospace", fontWeight: 700 }}>
+                        {row.section}
+                      </TableCell>
+                      <TableCell align="right">{gt}</TableCell>
+                      <TableCell align="right">{cc}</TableCell>
+                      <TableCell
+                        align="right"
+                        sx={{
+                          color:
+                            successPct == null
+                              ? "text.disabled"
+                              : successPct >= 90
+                                ? "success.main"
+                                : successPct >= 60
+                                  ? "warning.main"
+                                  : "error.main",
+                          fontWeight: 700,
+                        }}
+                      >
+                        {successPct == null ? "—" : `${successPct}%`}
+                      </TableCell>
+                      {showDetails && (
+                        <TableCell
+                          align="right"
+                          sx={{
+                            color:
+                              (row.predicted || 0) > gt ? "warning.main" : "text.primary",
+                          }}
+                        >
+                          {row.predicted ?? 0}
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  );
+                })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
+      <Paper variant="outlined" sx={{ overflow: "hidden", display: showDetails ? "block" : "none" }}>
+        <Box sx={{ px: 2, py: 1.6, borderBottom: 1, borderColor: "divider" }}>
+          <Typography variant="subtitle1" fontWeight={750}>
+            Full comparison (details)
+          </Typography>
+        </Box>
+        <TableContainer sx={{ maxHeight: 320 }}>
           <Table size="small" stickyHeader>
             <TableHead>
               <TableRow>
@@ -340,21 +477,9 @@ function GroundTruthEvaluationPanel({ report }) {
                 <TableCell>Status</TableCell>
                 <TableCell align="right">Pred qty</TableCell>
                 <TableCell align="right">GT qty</TableCell>
-                <TableCell>Length</TableCell>
-                <TableCell>Weight</TableCell>
-                <TableCell>Member</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {comparisons.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={7}>
-                    <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
-                      No Excel comparisons available.
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-              )}
               {comparisons.map((row) => (
                 <TableRow key={`${row.section}-${row.status}`} hover>
                   <TableCell sx={{ fontFamily: "monospace", fontWeight: 700 }}>
@@ -379,15 +504,6 @@ function GroundTruthEvaluationPanel({ report }) {
                   </TableCell>
                   <TableCell align="right">
                     {row.expected_quantity ?? row.ground_truth ?? 0}
-                  </TableCell>
-                  <TableCell>
-                    {row.length_match == null ? "—" : row.length_match ? "Match" : "Miss"}
-                  </TableCell>
-                  <TableCell>
-                    {row.weight_match == null ? "—" : row.weight_match ? "Match" : "Miss"}
-                  </TableCell>
-                  <TableCell>
-                    {row.member_match == null ? "—" : row.member_match ? "Match" : "Miss"}
                   </TableCell>
                 </TableRow>
               ))}

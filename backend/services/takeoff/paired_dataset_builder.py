@@ -39,7 +39,14 @@ from services.takeoff.ground_truth_excel import parse_ground_truth_excel
 
 
 def _norm(token: str) -> str:
-    return str(token or "").upper().replace(" ", "").replace("-", "")
+    # Shared canonical form: same folding the evaluator and the exact-section
+    # model use (case / whitespace / separator / unicode-cross). A training
+    # target must be decided on this normalized identity, never on string
+    # similarity between two different designations.
+    text = str(token or "").upper().strip()
+    text = text.replace("×", "X").replace("✕", "X")
+    text = text.replace(" ", "").replace("-", "").replace("_", "")
+    return text
 
 
 def _material_hint(token: str, aisc: Optional[dict]) -> Optional[str]:
@@ -103,7 +110,30 @@ def list_training_pairs() -> List[dict]:
                     "ready": True,
                 },
             )
-    return list(pairs.values())
+
+    # De-duplicate: the manifest + auto-discovery routinely register the same
+    # project twice (a canonical name and a hash-suffixed copy of the same
+    # drawing -- e.g. "1200_k_street" and
+    # "1200 K_Permit_Bid_Dwgs - Structural__f3102c2da5"), which doubled that
+    # project's weight in the training set. Collapse by (pdf size, excel size)
+    # of the resolved files; keep the first (manifest order wins over
+    # auto-discovery).
+    deduped: Dict[tuple, dict] = {}
+    ordered: List[dict] = []
+    for pair in pairs.values():
+        sig: tuple
+        try:
+            sig = (
+                Path(pair["pdf_path"]).stat().st_size,
+                Path(pair["excel_path"]).stat().st_size,
+            )
+        except (OSError, TypeError):
+            sig = ("id", pair["id"])
+        if sig in deduped:
+            continue
+        deduped[sig] = pair
+        ordered.append(pair)
+    return ordered
 
 
 def build_pair_rows(pdf_path: str | Path, excel_path: str | Path, pair_id: str = "") -> Dict[str, Any]:
@@ -129,17 +159,25 @@ def build_pair_rows(pdf_path: str | Path, excel_path: str | Path, pair_id: str =
         norm = _norm(token)
         aisc = lookup_shape(token)
         entity = classify_category(token)
+        # Training target = EXACT section identity only. A PDF token whose
+        # canonical section is not literally present in the workbook is NOT
+        # training signal for "what section is this" -- it is left unlabeled.
+        # The previous SequenceMatcher>=0.78 fallback matched a correctly-read
+        # section to the nearest-looking workbook string (W18X50->W12X50,
+        # HSS8X6X3/8->HSS6X6X3/8, W8X24->W8X40, ...), which taught the
+        # exact-section retrieval model to substitute wrong shapes. The
+        # nearest-string is kept below as a diagnostic column only.
         gt_hit = gt_by_label.get(norm)
-        if not gt_hit and gt_by_label:
-            nearest_label, nearest_score = max(
+        nearest_gt_label = ""
+        nearest_gt_score = 0.0
+        if gt_by_label:
+            nearest_gt_label, nearest_gt_score = max(
                 (
                     (label, SequenceMatcher(None, norm, label).ratio())
                     for label in gt_by_label
                 ),
                 key=lambda item: item[1],
             )
-            if nearest_score >= 0.78:
-                gt_hit = gt_by_label[nearest_label]
         features = extract_structural_features(token)
         canonical = gt_hit["canonical_label"] if gt_hit else ""
         meta_source = str(canonical).strip() or token
@@ -180,7 +218,16 @@ def build_pair_rows(pdf_path: str | Path, excel_path: str | Path, pair_id: str =
             "normalized_token": norm,
             "canonical_label": str(canonical).upper().replace(" ", ""),
             "entity_class": entity_class,
-            "quantity": int(gt_hit["quantity"]) if gt_hit else 1,
+            # One extracted token = one occurrence. The whole-section GT
+            # aggregate lives in its own column so it can never be read back
+            # as a per-token count.
+            "quantity": 1,
+            "gt_section_quantity": int(gt_hit["quantity"]) if gt_hit else 0,
+            # Diagnostic only -- the nearest workbook section string and its
+            # ratio. NEVER a training target (see the exact-identity gate
+            # above); useful for auditing extraction vs workbook drift.
+            "nearest_gt_label": nearest_gt_label,
+            "nearest_gt_score": round(float(nearest_gt_score), 4),
             "source": "pdf+excel" if gt_hit else "pdf_only",
             "shape_family": meta["shape_family"],
             "material_hint": _material_hint(token, aisc),

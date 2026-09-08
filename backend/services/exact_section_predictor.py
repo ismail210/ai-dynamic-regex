@@ -111,11 +111,15 @@ def train_exact_section_model(
     persist: bool = True,
     exclude_tokens: Optional[set[str]] = None,
     exclude_split: Optional[str] = None,
+    exclude_pairs: Optional[set[str]] = None,
 ) -> Dict[str, Any]:
     """Train complete-label character retrieval and optionally persist it.
 
     ``exclude_tokens`` / ``exclude_split`` keep holdout rows out of the matrix
-    for honest evaluation runs.
+    for honest evaluation runs. ``exclude_pairs`` drops every
+    ``paired_takeoff_dataset.csv`` row whose ``pair_id`` is in the set -- use
+    it to hold whole projects (a PDF + its ground-truth Excel) out of
+    training when they are the evaluation benchmark.
     """
 
     labels = _canonical_labels()
@@ -151,15 +155,27 @@ def train_exact_section_model(
 
     # Real PDF/Excel pairs provide extraction variants and quantity/layout
     # metadata. They directly train the exact target, not a section family.
+    exclude_pair_ids = {str(p).strip() for p in (exclude_pairs or set())}
     if settings.paired_dataset_path.exists():
         try:
             paired = pd.read_csv(
                 settings.paired_dataset_path, dtype=str, keep_default_na=False
             )
             for _, row in paired.iterrows():
+                if str(row.get("pair_id") or "").strip() in exclude_pair_ids:
+                    continue
                 token = str(row.get("pdf_token") or "").strip()
                 target = normalize_section_text(row.get("canonical_label"))
                 if not token or not is_exact_section_label(target):
+                    continue
+                # A paired row may only REINFORCE a section the PDF already
+                # spelled correctly (an extra company-notation / OCR variant
+                # anchored to its own catalog identity). It must never teach a
+                # substitution: the paired-dataset builder's exact-identity
+                # gate should already guarantee token==target here, but a
+                # stale CSV predating that fix can still carry
+                # fuzzy-matched rows (W18X50 -> W12X50), so enforce it again.
+                if normalize_section_text(token) != target:
                     continue
                 key = (token.upper(), target)
                 if key in seen:

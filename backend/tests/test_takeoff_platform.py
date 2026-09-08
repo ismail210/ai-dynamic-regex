@@ -95,12 +95,14 @@ class GroundTruthExcelTests(unittest.TestCase):
                     writer, sheet_name="StructuralFramingSchedule", index=False, header=False
                 )
             result = parse_ground_truth_excel(path)
-            self.assertEqual(result["parser"], "ground_truth_excel")
+            self.assertEqual(result["parser"], "canonical_takeoff_eval")
             by_label = {
                 item["canonical_label"]: item["quantity"] for item in result["aggregates"]
             }
             self.assertEqual(by_label.get("W18X35"), 2)
             self.assertEqual(by_label.get("W21X44"), 1)
+            # primary-framing scope only; nothing silently merged
+            self.assertEqual(result["scope_quantity"]["primary_framing"], 3)
 
 
 class GroundTruthEvaluationTests(unittest.TestCase):
@@ -139,16 +141,23 @@ class GroundTruthEvaluationTests(unittest.TestCase):
         ]
         report = evaluate_against_excel(predictions, ground_truth=ground_truth)
         metrics = report["metrics"]
-        self.assertEqual(metrics["section"]["true_positive"], 1)
-        self.assertEqual(metrics["section"]["false_positive"], 1)
-        self.assertEqual(metrics["section"]["false_negative"], 1)
-        self.assertAlmostEqual(metrics["precision"], 0.5)
-        self.assertAlmostEqual(metrics["recall"], 0.5)
-        self.assertEqual(metrics["quantity_accuracy"], 1.0)
+        # Estimator-facing: caught = min(pred, GT). GT W18X35 x2 + W21X44 x1 = 3.
+        # Predicts W18X35 x2 (caught 2), W21X44 x0, HSS6X6X1/2 x1 (extra).
+        self.assertEqual(metrics["caught"], 2)
+        self.assertEqual(metrics["ground_truth_total"], 3)
+        self.assertEqual(metrics["predicted_total"], 3)
+        self.assertEqual(metrics["false_positives"], 1)
+        self.assertAlmostEqual(metrics["overall_success_pct"], round(200 / 3, 2))
+        self.assertAlmostEqual(metrics["precision"], round(2 / 3, 4))     # Σcaught/Σpred
+        self.assertAlmostEqual(metrics["recall"], round(2 / 3, 4))        # Σcaught/ΣGT
         self.assertEqual(len(report["missing_elements"]), 1)
         self.assertEqual(report["missing_elements"][0]["section"], "W21X44")
         self.assertEqual(len(report["extra_elements"]), 1)
         self.assertEqual(report["extra_elements"][0]["section"], "HSS6X6X1/2")
+        # estimator table rows carry caught + success + traceability
+        row = next(r for r in report["estimator_table"] if r["section"] == "W18X35")
+        self.assertEqual(row["correctly_caught"], 2)
+        self.assertEqual(row["success_pct"], 100.0)
         self.assertFalse(report["excel_is_prediction"])
 
     def test_persist_evaluation_report(self) -> None:
