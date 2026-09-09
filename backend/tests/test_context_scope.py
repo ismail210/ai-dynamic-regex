@@ -209,19 +209,215 @@ class PipelineIntegrationTests(unittest.TestCase):
         # Every token carries the two fields, and no token was removed.
         tokens = document["engineering_tokens"]
         self.assertEqual(
-            summary["context_definition_tokens"] + summary["takeoff_tokens"],
+            summary["context_definition_tokens"]
+            + summary.get("detail_reference_tokens", 0)
+            + summary["takeoff_tokens"],
             len(tokens),
         )
         for token in tokens:
-            self.assertIn(token.get("object_scope"), {cs.OBJECT_SCOPE_TAKEOFF, cs.OBJECT_SCOPE_CONTEXT_DEFINITION})
+            self.assertIn(
+                token.get("object_scope"),
+                {
+                    cs.OBJECT_SCOPE_TAKEOFF,
+                    cs.OBJECT_SCOPE_CONTEXT_DEFINITION,
+                    cs.OBJECT_SCOPE_DETAIL_REFERENCE,
+                    cs.OBJECT_SCOPE_NON_MEMBER_DIMENSION,
+                },
+            )
             page = int(token.get("page") or 0)
-            demoted = page in set(summary.get("context_definition_pages") or [])
+            demoted = cs.is_clip_fabrication_token(token) or (
+                (
+                    page in set(summary.get("context_definition_pages") or [])
+                    or page in set(summary.get("typical_detail_pages") or [])
+                )
+                and not cs.is_specified_typical_member_token(token)
+            )
             self.assertEqual(token.get("takeoff_eligible"), not demoted)
 
         # M: a demoted token is still in engineering_tokens (never deleted).
         # K / L: partition_takeoff is what every served surface filters on.
         takeoff, context = cs.partition_takeoff(tokens)
         self.assertEqual(len(takeoff) + len(context), len(tokens))
+
+
+class TypicalDetailAndClipScopeTests(unittest.TestCase):
+    def _title_blocks(self, page, title, *, x=2736.0, y=1838.0):
+        return [
+            {
+                "page_number": page,
+                "bbox": [x, y, x + 80, y + 10],
+                "text": "DRAWING TITLE:",
+            },
+            {
+                "page_number": page,
+                "bbox": [x, y + 14, x + 200, y + 40],
+                "text": title,
+            },
+        ]
+
+    def test_typical_details_page_is_not_a_rolled_member(self):
+        doc = {
+            "engineering_tokens": [
+                {"page": 18, "text": "W12X230", "raw_text": "W12X230"},
+                {"page": 7, "text": "W12X16", "raw_text": "W12X16"},
+            ],
+            "title_blocks": (
+                self._title_blocks(18, "TYPICAL DETAILS")
+                + self._title_blocks(7, "UPPER FLOOR FRAMING PLAN PART A")
+            ),
+        }
+        summary = cs.annotate_takeoff_scope(doc)
+        self.assertEqual(summary["typical_detail_pages"], [18])
+        by_page = {t["page"]: t for t in doc["engineering_tokens"]}
+        self.assertEqual(by_page[18]["object_scope"], cs.OBJECT_SCOPE_DETAIL_REFERENCE)
+        self.assertFalse(by_page[18]["takeoff_eligible"])
+        self.assertEqual(by_page[7]["object_scope"], cs.OBJECT_SCOPE_TAKEOFF)
+        self.assertTrue(by_page[7]["takeoff_eligible"])
+
+    def test_typical_framing_plan_stays_eligible(self):
+        doc = {
+            "engineering_tokens": [{"page": 18, "text": "W16X26", "raw_text": "W16X26"}],
+            "title_blocks": self._title_blocks(18, "TYPICAL FRAMING PLAN - LEVEL 06-10"),
+        }
+        cs.annotate_takeoff_scope(doc)
+        self.assertTrue(doc["engineering_tokens"][0]["takeoff_eligible"])
+        self.assertEqual(doc["engineering_tokens"][0]["object_scope"], cs.OBJECT_SCOPE_TAKEOFF)
+
+    def test_steel_sections_and_details_stay_eligible(self):
+        doc = {
+            "engineering_tokens": [
+                {"page": 36, "text": "HSS6X4X3/8", "raw_text": "HSS6X4X3/8"}
+            ],
+            "title_blocks": self._title_blocks(36, "STEEL SECTIONS AND DETAILS"),
+        }
+        cs.annotate_takeoff_scope(doc)
+        self.assertTrue(doc["engineering_tokens"][0]["takeoff_eligible"])
+
+    def test_clip_fabrication_length_is_not_a_member(self):
+        doc = {
+            "engineering_tokens": [
+                {"page": 9, "text": "L3x3x1/4x0'-3\"", "raw_text": "L3x3x1/4x0'-3\""},
+                {"page": 9, "text": "L4X4X3/8", "raw_text": "L4X4X3/8"},
+            ],
+            "title_blocks": self._title_blocks(9, "SECOND FLOOR FRAMING PLAN"),
+        }
+        cs.annotate_takeoff_scope(doc)
+        by_raw = {t["raw_text"]: t for t in doc["engineering_tokens"]}
+        self.assertFalse(by_raw["L3x3x1/4x0'-3\""]["takeoff_eligible"])
+        self.assertEqual(
+            by_raw["L3x3x1/4x0'-3\""]["object_scope"],
+            cs.OBJECT_SCOPE_DETAIL_REFERENCE,
+        )
+        self.assertTrue(by_raw["L4X4X3/8"]["takeoff_eligible"])
+
+    def test_see_framing_plan_note_does_not_save_a_typical_details_sheet(self):
+        doc = {
+            "engineering_tokens": [{"page": 16, "text": "C8x11.5", "raw_text": "C8x11.5"}],
+            "title_blocks": self._title_blocks(16, "TYPICAL DETAILS")
+            + [
+                {
+                    "page_number": 16,
+                    "bbox": [2141.0, 1687.0, 2275.0, 1700.0],
+                    "text": "SEE ROOF FRAMING PLAN",
+                }
+            ],
+        }
+        cs.annotate_takeoff_scope(doc)
+        self.assertFalse(doc["engineering_tokens"][0]["takeoff_eligible"])
+
+    def test_reassert_demotes_typical_details_and_clip_predictions(self):
+        document = {
+            "engineering_tokens": [],
+            "title_blocks": self._title_blocks(28, "TYPICAL STEEL DETAILS"),
+        }
+        predictions = [
+            {
+                "object_id": "detail",
+                "source_text": {"page_number": 28},
+                "raw_text": "L4x4x3/8",
+            },
+            {
+                "object_id": "clip",
+                "source_text": {"page_number": 5},
+                "raw_text": "L4X4X3/8X0'-8\"",
+            },
+            {
+                "object_id": "member",
+                "source_text": {"page_number": 5},
+                "raw_text": "W12X19",
+            },
+        ]
+        demoted = cs.reassert_prediction_scope(predictions, document)
+        self.assertEqual(demoted, 2)
+        by_id = {p["object_id"]: p for p in predictions}
+        self.assertFalse(by_id["detail"]["takeoff_eligible"])
+        self.assertFalse(by_id["clip"]["takeoff_eligible"])
+        self.assertNotIn("takeoff_eligible", by_id["member"])
+
+    def test_title_block_typical_details_without_drawing_title_label(self):
+        doc = {
+            "engineering_tokens": [
+                {"page": 6, "text": "L3X2X3/16", "raw_text": "L3X2X3/16"},
+                {"page": 13, "text": "W18X35", "raw_text": "W18X35"},
+            ],
+            "title_blocks": [
+                {
+                    "page_number": 6,
+                    "bbox": [2700, 1800, 2900, 1840],
+                    "text": "TYPICAL DETAILS -\nSTEEL",
+                },
+                {
+                    "page_number": 13,
+                    "bbox": [2700, 1800, 2900, 1840],
+                    "text": "LEVEL 00/FOUNDATION PLAN",
+                },
+            ],
+        }
+        summary = cs.annotate_takeoff_scope(doc)
+        self.assertEqual(summary["typical_detail_pages"], [6])
+        by_page = {t["page"]: t for t in doc["engineering_tokens"]}
+        self.assertFalse(by_page[6]["takeoff_eligible"])
+        self.assertTrue(by_page[13]["takeoff_eligible"])
+
+    def test_typical_edge_angle_stamp_stays_takeoff_eligible(self):
+        doc = {
+            "engineering_tokens": [
+                {
+                    "page": 18,
+                    "text": "L4X4X1/4",
+                    "raw_text": "L4X4X1/4",
+                    "normalized_text": "L4X4X1/4",
+                    "context": {"line_text": "SEE PLAN TYP L4X4X1/4 TYP", "neighbor_text": []},
+                },
+                {
+                    "page": 18,
+                    "text": "W12X230",
+                    "raw_text": "W12X230",
+                    "normalized_text": "W12X230",
+                    "context": {"line_text": "W12X230", "neighbor_text": []},
+                },
+            ],
+            "title_blocks": self._title_blocks(18, "TYPICAL DETAILS"),
+        }
+        cs.annotate_takeoff_scope(doc)
+        by_text = {t["text"]: t for t in doc["engineering_tokens"]}
+        self.assertTrue(by_text["L4X4X1/4"]["takeoff_eligible"])
+        self.assertFalse(by_text["W12X230"]["takeoff_eligible"])
+
+    def test_inch_clip_length_is_not_a_member(self):
+        doc = {
+            "engineering_tokens": [
+                {
+                    "page": 9,
+                    "text": 'L4x3x1/4x6"',
+                    "raw_text": 'L4x3x1/4x6"',
+                    "normalized_text": "L4X3X1/4",
+                }
+            ],
+            "title_blocks": self._title_blocks(9, "SECOND FLOOR FRAMING PLAN"),
+        }
+        cs.annotate_takeoff_scope(doc)
+        self.assertFalse(doc["engineering_tokens"][0]["takeoff_eligible"])
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 {
-  "active_version": "exact_section_20260803_104503",
+  "active_version": "exact_section_20260902_073947",
   "versions": [
     {
       "version_id": "exact_section_20260731_123846",
@@ -63,6 +63,38 @@
         "exact_section_model": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/training/models/exact_section/exact_section_20260803_104503/exact_section_model.joblib",
         "exact_section_metadata": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/training/models/exact_section/exact_section_20260803_104503/exact_section_model_metadata.json",
         "exact_section_dataset": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/training/models/exact_section/exact_section_20260803_104503/exact_section_dataset.csv"
+      }
+    },
+    {
+      "version_id": "exact_section_20260902_073947",
+      "family": "exact_section",
+      "schema_version": "1.0",
+      "created_at": "2026-09-02T07:39:47.484331+00:00",
+      "dataset_versions": {
+        "text": "text_20260902_072643"
+      },
+      "metrics": {
+        "exact_label_count": 2299,
+        "training_variant_count": 60562,
+        "accuracy": 1.0,
+        "f1_weighted": 1.0
+      },
+      "hyperparameters": {},
+      "feature_schema": [],
+      "artifact_checksums": {
+        "exact_section_model.joblib": "2b93f6552db2222aa9a57e83e2d4f92737b9bacd812b8690f9fc4a4a92f0e963",
+        "exact_section_model_metadata.json": "58b62d9b990a2d091e79c76e6d8c5c1281081b74f172544dd1c93706b71c03b8",
+        "exact_section_dataset.csv": "e0922bf219f5a624849159c1d13a436927d78810bc8bcd38e96b38de418701a2"
+      },
+      "promotion_status": "promoted",
+      "rejection_reasons": [],
+      "parent_version": "exact_section_20260803_104503",
+      "dependencies": {},
+      "notes": "exact section trained by user",
+      "artifacts": {
+        "exact_section_model": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/training/models/exact_section/exact_section_20260902_073947/exact_section_model.joblib",
+        "exact_section_metadata": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/training/models/exact_section/exact_section_20260902_073947/exact_section_model_metadata.json",
+        "exact_section_dataset": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/training/models/exact_section/exact_section_20260902_073947/exact_section_dataset.csv"
       }
     }
   ]

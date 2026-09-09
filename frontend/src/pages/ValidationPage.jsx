@@ -242,19 +242,28 @@ function GroundTruthEvaluationPanel({ report }) {
   const missing = evaluation?.missing_elements || report?.missing_elements || [];
   const extra = evaluation?.extra_elements || report?.extra_elements || [];
   const comparisons = evaluation?.comparisons || report?.comparisons || [];
-  const precision = metrics.precision ?? metrics.section?.precision;
-  const recall = metrics.recall ?? metrics.section?.recall;
-  const quantityAccuracy = metrics.quantity_accuracy;
-  const f1 = metrics.f1 ?? metrics.section?.f1;
+  const scoreboards = report?.scoreboards || evaluation?.scoreboards || {};
+  const section = scoreboards.section_recognition || metrics.section || {};
+  const quantityBoard = scoreboards.quantity;
+  const precision = section.precision ?? metrics.precision;
+  const recall = section.recall ?? metrics.recall;
+  const f1 = section.f1 ?? metrics.f1;
 
   return (
     <Stack spacing={2.25}>
       <Alert severity="success">
-        Excel is ground truth only — never used as prediction input. Compared section,
-        quantity, length, weight, and member fields against the uploaded workbook
+        Excel is ground truth only — never used as prediction input. Section recognition
+        and quantity are scored separately
         {report?.excel_file ? ` (${report.excel_file})` : ""}.
       </Alert>
 
+      <Typography variant="subtitle2" fontWeight={700}>
+        Section recognition
+      </Typography>
+      <Typography variant="body2" color="text.secondary">
+        Unique eligible designations vs Excel Framing / Column / Bracing. Quantity error
+        does not change this gate.
+      </Typography>
       <Grid container spacing={1.5}>
         <Grid size={{ xs: 6, md: 2 }}>
           <Metric label="Precision" value={pct(precision)} color="success.main" />
@@ -267,23 +276,65 @@ function GroundTruthEvaluationPanel({ report }) {
         </Grid>
         <Grid size={{ xs: 6, md: 2 }}>
           <Metric
-            label="Quantity accuracy"
-            value={pct(quantityAccuracy)}
-            color="primary.main"
-          />
-        </Grid>
-        <Grid size={{ xs: 6, md: 2 }}>
-          <Metric
-            label="Missing elements"
+            label="Missing sections"
             value={metrics.missing_count ?? missing.length}
             color="error.main"
           />
         </Grid>
         <Grid size={{ xs: 6, md: 2 }}>
           <Metric
-            label="Extra elements"
+            label="Extra sections"
             value={metrics.extra_count ?? extra.length}
             color="warning.main"
+          />
+        </Grid>
+      </Grid>
+
+      <Typography variant="subtitle2" fontWeight={700}>
+        Quantity (labeled callout vs Excel rows)
+      </Typography>
+      <Typography variant="body2" color="text.secondary">
+        QuantityEngine counts vs schedule rows. This is not true physical quantity and
+        is not section precision. Geometry does not add quantity.
+      </Typography>
+      <Grid container spacing={1.5}>
+        <Grid size={{ xs: 6, md: 2 }}>
+          <Metric
+            label="MAE"
+            value={quantityBoard?.mae ?? "—"}
+            color="primary.main"
+          />
+        </Grid>
+        <Grid size={{ xs: 6, md: 2 }}>
+          <Metric
+            label="Bias (signed)"
+            value={quantityBoard?.mean_signed_error ?? "—"}
+          />
+        </Grid>
+        <Grid size={{ xs: 6, md: 2 }}>
+          <Metric
+            label="Undercount"
+            value={quantityBoard?.undercount ?? "—"}
+            color="warning.main"
+          />
+        </Grid>
+        <Grid size={{ xs: 6, md: 2 }}>
+          <Metric
+            label="Overcount"
+            value={quantityBoard?.overcount ?? "—"}
+            color="warning.main"
+          />
+        </Grid>
+        <Grid size={{ xs: 6, md: 2 }}>
+          <Metric
+            label="Predicted total"
+            value={quantityBoard?.predicted_total ?? "—"}
+          />
+        </Grid>
+        <Grid size={{ xs: 6, md: 2 }}>
+          <Metric
+            label="Excel total"
+            value={quantityBoard?.expected_total ?? "—"}
           />
         </Grid>
       </Grid>

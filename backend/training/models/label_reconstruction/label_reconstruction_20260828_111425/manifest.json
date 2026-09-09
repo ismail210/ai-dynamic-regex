@@ -1,0 +1,75 @@
+{
+  "version_id": "label_reconstruction_20260828_111425",
+  "family": "label_reconstruction",
+  "schema_version": "1.0",
+  "created_at": "2026-08-28T11:14:25.333320+00:00",
+  "dataset_versions": {
+    "label_reconstruction": "label_reconstruction_production_aligned_20260828",
+    "candidate_generator": "services.label_reconstruction.candidates.generate_candidates"
+  },
+  "metrics": {
+    "rank_pairwise_val_ndcg_at_10": 0.9470786716508073,
+    "rank_ndcg_val_ndcg_at_10": 0.9491266030675393,
+    "best_objective": "rank:ndcg",
+    "objective": "rank:ndcg",
+    "val_ndcg_at_10": 0.9491266030675393,
+    "val_ndcg_at_5": 0.9473630532183049,
+    "train_seconds": 6.0
+  },
+  "hyperparameters": {
+    "tree_method": "hist",
+    "max_depth": 5,
+    "learning_rate": 0.1,
+    "n_estimators": 200,
+    "subsample": 0.9,
+    "colsample_bytree": 0.9,
+    "random_state": 20260827,
+    "objective": "rank:ndcg"
+  },
+  "feature_schema": [
+    "query_len",
+    "candidate_len",
+    "len_diff_abs",
+    "edit_distance",
+    "edit_distance_norm",
+    "ocr_aware_distance",
+    "ocr_aware_distance_norm",
+    "bigram_jaccard",
+    "trigram_jaccard",
+    "common_prefix_len",
+    "common_suffix_len",
+    "positional_match_count",
+    "positional_match_ratio",
+    "family_match",
+    "query_family_known",
+    "deterministic_rank",
+    "fuzzy_rank",
+    "is_structurally_compatible",
+    "known_fields_matched",
+    "known_fields_violated",
+    "field0_diff_norm",
+    "field1_diff_norm",
+    "field2_diff_norm",
+    "candidate_family_size_log1p",
+    "reason_exact_match",
+    "reason_structural_field_match",
+    "reason_wildcard_mask",
+    "reason_ocr_flex_positional",
+    "reason_family_only",
+    "reason_fuzzy_nearest_neighbor"
+  ],
+  "artifact_checksums": {
+    "label_ranker_v3.ubj": "619d11e22b8d34bb6abcc4a274f687ae117f869201bca4eebc957aa49809ed8f"
+  },
+  "promotion_status": "candidate",
+  "rejection_reasons": [],
+  "parent_version": null,
+  "dependencies": {
+    "xgboost": "3.3.0",
+    "git_revision": "ea82a23f5ebbd98e78a169992b27e3972bd09b26"
+  },
+  "notes": "Production-aligned Structural Reconstruction ranker: XGBRanker with query-grouped rank:ndcg objective (chosen over the alternative by validation NDCG@10). Every training group exactly matches production generate_candidates output; exact, ineligible, missing-thickness, and target-absent queries are excluded. Candidate only; not active or promoted.",
+  "artifacts": {
+    "booster": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/training/models/label_reconstruction/label_reconstruction_20260828_111425/label_ranker_v3.ubj"
+  }
+}

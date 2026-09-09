@@ -329,13 +329,19 @@ class TakeoffExporterTests(unittest.TestCase):
             [
                 {
                     "token": "W18X35",
+                    "section": "W18X35",
                     "prediction": "W18X35",
+                    "prediction_source": "Fusion",
+                    "takeoff_eligible": True,
                     "database_match": True,
                     "confidence": {"overall": 0.9, "level": "High"},
                 },
                 {
                     "token": "W18X35",
+                    "section": "W18X35",
                     "prediction": "W18X35",
+                    "prediction_source": "Fusion",
+                    "takeoff_eligible": True,
                     "database_match": True,
                     "confidence": {"overall": 0.8, "level": "High"},
                 },
@@ -343,6 +349,7 @@ class TakeoffExporterTests(unittest.TestCase):
         )
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]["Quantity"], 2)
+        self.assertEqual(rows[0]["Quantity Method"], "labeled_callout")
 
 
 if __name__ == "__main__":

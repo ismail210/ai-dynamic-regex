@@ -26,7 +26,7 @@ from sklearn.preprocessing import normalize
 
 from config import settings
 from services.data_augmentation import generate_variants_for_token
-from services.database_loader import df, lookup_shape
+from services.database_loader import catalog_form, df, lookup_shape
 from services.family_codes import MODERN_FAMILY_ALTERNATION
 
 
@@ -61,7 +61,9 @@ def catalog_valid_exact_section(value: object) -> Optional[str]:
     Conservatively normalizes ``value`` (case/whitespace/separator only — no
     fuzzy correction) and returns the AISC catalog's own canonical label
     string when that normalized text is an authoritative catalog entry,
-    otherwise ``None``.
+    otherwise ``None``. A trailing shop-cut / piece-length field is stripped
+    only when the remaining core is itself a catalog row (``L4x3x1/4x6"``
+    -> ``L4X3X1/4``). Incomplete labels such as ``L4x4`` stay ``None``.
 
     ``is_exact_section_label`` only checks that text is *shaped* like a
     section designation (a regex format check); it says nothing about
@@ -73,7 +75,29 @@ def catalog_valid_exact_section(value: object) -> Optional[str]:
     normalized = normalize_section_text(value)
     if not normalized:
         return None
+    form = catalog_form(normalized) or catalog_form(str(value or "").strip())
+    if form:
+        entry = lookup_shape(form)
+        return str(entry["shape"]) if entry else form
     entry = lookup_shape(normalized)
+    if entry:
+        return str(entry["shape"])
+
+    # Shop-cut / piece-length suffixes (L4x3x1/4x6", L3X3X3/8X0'-6") are
+    # not part of the AISC designation. If stripping a fabrication tail
+    # yields exactly one catalog row, that printed section is authoritative.
+    # Incomplete labels such as L4x4 stay None.
+    from services.token_extractor import core_section_token
+
+    core = core_section_token(str(value or ""))
+    core_normalized = normalize_section_text(core)
+    if not core_normalized or core_normalized == normalized:
+        return None
+    form = catalog_form(core_normalized) or catalog_form(core)
+    if form:
+        entry = lookup_shape(form)
+        return str(entry["shape"]) if entry else form
+    entry = lookup_shape(core_normalized)
     return str(entry["shape"]) if entry else None
 
 

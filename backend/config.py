@@ -71,7 +71,27 @@ class Settings:
     # solely because the checkpoint file exists on disk.
     learned_fusion_enabled: bool = field(
         default_factory=lambda: os.getenv(
-            "LEARNED_FUSION_ENABLED", "true"
+            "LEARNED_FUSION_ENABLED", "false"
+        )
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
+    # GraphSAGE role/embedding may still be useful for review, but it must
+    # not score the section family. Default off after the HSS→W family errors.
+    graphsage_section_scoring_enabled: bool = field(
+        default_factory=lambda: os.getenv(
+            "GRAPHSAGE_SECTION_SCORING_ENABLED", "false"
+        )
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
+    # Unlabeled-linework "missing label" tokens default to the sheet-common
+    # section. Keep off until association is gated.
+    geometry_missing_label_inference_enabled: bool = field(
+        default_factory=lambda: os.getenv(
+            "GEOMETRY_MISSING_LABEL_INFERENCE_ENABLED", "false"
         )
         .strip()
         .lower()

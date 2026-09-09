@@ -121,5 +121,22 @@ class AttentionFusionTests(unittest.TestCase):
         )
 
 
+class AttentionPriorsFrozenTests(unittest.TestCase):
+    def test_attention_priors_are_not_retuned(self):
+        from services.multimodal.modular_fusion import ATTENTION_PRIORS
+
+        self.assertEqual(
+            ATTENTION_PRIORS,
+            {
+                "text": 0.32,
+                "ocr": 0.08,
+                "layout": 0.08,
+                "geometry": 0.30,
+                "graph": 0.17,
+                "engineering_rules": 0.05,
+            },
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

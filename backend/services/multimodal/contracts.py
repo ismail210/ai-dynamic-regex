@@ -116,6 +116,8 @@ class MultiModalPrediction:
     candidate_sections: Optional[List[dict]] = None
     plate_annotation_type: Optional[str] = None
     section_prediction_not_applicable: bool = False
+    object_scope: Optional[str] = None
+    takeoff_eligible: Optional[bool] = None
 
     def to_dict(self) -> dict:
         fusion = self.feature_bundle.fusion or {}
@@ -148,6 +150,8 @@ class MultiModalPrediction:
             "missing_label_prediction": self.missing_label_prediction,
             "plate_annotation_type": self.plate_annotation_type,
             "section_prediction_not_applicable": self.section_prediction_not_applicable,
+            "object_scope": self.object_scope,
+            "takeoff_eligible": self.takeoff_eligible,
             "entity_type": self.entity_type,
             "family": family,
             "section": section,

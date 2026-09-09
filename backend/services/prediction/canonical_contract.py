@@ -30,7 +30,8 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
-from services.normalization import is_conservatively_equal
+from services.database_loader import catalog_form
+from services.normalization import is_conservatively_equal, normalize_label_text
 from services.wildcard_matcher import has_wildcards
 
 
@@ -126,6 +127,20 @@ class CanonicalPrediction(BaseModel):
     review_reason: Optional[str] = None
 
 
+def is_catalog_form_equivalent(raw: object, canonical: object) -> bool:
+    """True when both strings resolve to the same catalog spelling.
+
+    Drawings write round HSS/pipe as ``HSS10X0.500`` while the catalog stores
+    ``HSS10.000X0.500``. ``catalog_form`` only rewrites that spelling; it
+    never substitutes a different member. That is a normalized match, not a
+    reconstructed or remapped section.
+    """
+
+    left = catalog_form(normalize_label_text(raw).normalized)
+    right = catalog_form(normalize_label_text(canonical).normalized)
+    return bool(left) and left == right
+
+
 def _decision_source(decision: Decision) -> str:
     used = [
         name
@@ -153,9 +168,12 @@ def determine_comparison(
 ) -> Comparison:
     """
     Decide exact / normalized / corrected / incomplete / geometry-only /
-    source-text-not-found / unresolved / confirmed-annotation, using ONLY
-    the conservative (formatting-safe) normalizer — never an OCR-correction
-    guess.
+    source-text-not-found / unresolved / confirmed-annotation.
+
+    Normalized matches are formatting-safe conservative equality **or** a
+    catalog-form-only spelling rewrite of the same designation (round HSS
+    ``HSS10X0.500`` → ``HSS10.000X0.500``). OCR guesses, wildcard fills, and
+    missing-dimension completions stay out of this bucket.
     """
 
     if confirmed_annotation and str(annotation_type or "").upper() in {
@@ -220,6 +238,18 @@ def determine_comparison(
             match_status=MatchStatus.NORMALIZED_MATCH,
         )
 
+    if (
+        not used_wildcards
+        and not used_missing_dimension
+        and is_catalog_form_equivalent(raw_text, final_label)
+    ):
+        return Comparison(
+            exact_match=False,
+            normalized_match=True,
+            prediction_required=False,
+            match_status=MatchStatus.NORMALIZED_MATCH,
+        )
+
     if used_missing_dimension:
         return Comparison(
             exact_match=False,
@@ -258,6 +288,62 @@ _REVIEW_REASONS = {
         "Anonymous dimension; select the correct semantic interpretation or leave unresolved."
     ),
 }
+
+# Same trust partition the self-learning gate uses for exact/normalized
+# resolutions, plus project-rule / human / confirmed-annotation outcomes and
+# geometry-only candidates (QuantityEngine still excludes Geometry sources).
+# ``corrected_prediction`` and other review-only statuses are intentionally
+# absent: catalog membership alone must not make an unsupported Fusion remap
+# takeoff-eligible.
+MEMBER_TAKEOFF_TRUSTED_MATCH_STATUSES = frozenset(
+    {
+        MatchStatus.EXACT_MATCH,
+        MatchStatus.NORMALIZED_MATCH,
+        MatchStatus.PROJECT_RULE_RESOLVED,
+        MatchStatus.HUMAN_RESOLVED,
+        MatchStatus.CONFIRMED_ANNOTATION,
+        MatchStatus.GEOMETRY_ONLY,
+    }
+)
+
+
+def member_prediction_takeoff_eligible(
+    *,
+    unresolved_anonymous_dimension: bool,
+    confirmed_plate_type: Optional[str],
+    section: str,
+    match_status: MatchStatus | str | None,
+    retrieval_gate_failed: bool = False,
+    geometry_synthetic: bool = False,
+) -> bool:
+    """Whether a structural prediction may enter member takeoff.
+
+    Reuses the existing comparison / retrieval-gate abstention signals rather
+    than a broad confidence cutoff or sheet-type / token blacklist. Confirmed
+    plate annotations stay eligible; anonymous dimensions stay out; unsupported
+    Fusion remaps (``corrected_prediction``, failed retrieval gate) do not
+    become members merely because the catalog contains the guessed string.
+    """
+
+    if unresolved_anonymous_dimension:
+        return False
+    if geometry_synthetic:
+        return False
+    if confirmed_plate_type:
+        return True
+    if not str(section or "").strip():
+        return True
+    if retrieval_gate_failed:
+        return False
+    try:
+        status = (
+            match_status
+            if isinstance(match_status, MatchStatus)
+            else MatchStatus(str(match_status or MatchStatus.UNRESOLVED.value))
+        )
+    except ValueError:
+        status = MatchStatus.UNRESOLVED
+    return status in MEMBER_TAKEOFF_TRUSTED_MATCH_STATUSES
 
 
 def determine_review_from_status(

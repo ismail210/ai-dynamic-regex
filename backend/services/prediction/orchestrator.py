@@ -59,6 +59,7 @@ from services.annotation.taxonomy import (
     requires_review,
     understandability_value,
 )
+from services.engineering.context_scope import OBJECT_SCOPE_NON_MEMBER_DIMENSION
 from services.multimodal.encoder_contracts import (
     AttentionResult,
     FusedFeatures,
@@ -73,6 +74,7 @@ from services.prediction.label_ranker_hook import (
 from services.prediction.canonical_contract import (
     build_canonical_prediction,
     determine_review_from_status,
+    member_prediction_takeoff_eligible,
 )
 from services.prediction.confidence_engine import (
     level_from_score,
@@ -855,9 +857,35 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         if confirmed_plate_type
         else derive_family_from_section(section, fallback=family_label)
     )
+    text_locked_family = (
+        catalog_valid_exact_section(normalized)
+        or catalog_valid_exact_section(raw_text)
+    )
+    if (
+        not confirmed_plate_type
+        and text_locked_family
+        and section
+    ):
+        locked_family = derive_family_from_section(text_locked_family)
+        predicted_family = derive_family_from_section(section, fallback=family_label)
+        if (
+            locked_family
+            and predicted_family
+            and locked_family != predicted_family
+        ):
+            ai_reasons.append(
+                f"Kept catalog-valid extracted family {locked_family} "
+                f"({text_locked_family}); graph/fusion family {predicted_family} "
+                "cannot override printed characters."
+            )
+            section = text_locked_family
+            family = locked_family
 
     # Post-prediction AISC plausibility check; it never generates candidates.
-    db_exact = None if confirmed_plate_type else lookup_shape(section)
+    db_exact = None if confirmed_plate_type else (
+        lookup_shape(section)
+        or lookup_shape(catalog_form(section) or "")
+    )
     similar = search_similar_shapes(normalized, limit=8, minimum_score=0.35)
     best_similarity = (
         1.0 if db_exact else float(similar[0]["similarity"]) if similar else 0.0
@@ -1303,6 +1331,7 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     )
     semantic_annotation_type = confirmed_plate_type
     semantic_annotation_label = plate_annotation_label
+    unresolved_anonymous_dimension = False
     if resolved_semantic_annotation:
         section = str(resolved_semantic_annotation.get("label") or section or "")
         semantic_annotation_type = resolved_semantic_annotation.get("type")
@@ -1315,6 +1344,13 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     ):
         section = ""
         retrieval_gate_failed = True
+        unresolved_anonymous_dimension = True
+        # The dimension survived extraction intentionally so nearby plate
+        # evidence could promote it. Once that attempt abstains, represent it
+        # explicitly as a non-member instead of leaving consumers to infer
+        # semantics from an empty section.
+        semantic_annotation_type = AnnotationType.DIMENSION.value
+        semantic_annotation_label = raw_text or normalized
     needs_context_review = bool(
         is_anonymous_dim
         and anonymous_resolution
@@ -1364,7 +1400,11 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         confirmed_annotation=bool(confirmed_plate_type or resolved_semantic_annotation),
         annotation_type=semantic_annotation_type,
         annotation_label=semantic_annotation_label,
-        section_applicable=not bool(confirmed_plate_type or resolved_semantic_annotation),
+        section_applicable=not bool(
+            confirmed_plate_type
+            or resolved_semantic_annotation
+            or unresolved_anonymous_dimension
+        ),
         confidence_basis=(
             "extraction_confidence"
             if confirmed_plate_type or resolved_semantic_annotation
@@ -1477,6 +1517,26 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         ),
         "section_prediction_not_applicable": bool(confirmed_plate_type),
         "plate_annotation_type": confirmed_plate_type,
+        "object_scope": (
+            OBJECT_SCOPE_NON_MEMBER_DIMENSION
+            if unresolved_anonymous_dimension
+            else None
+        ),
+        "takeoff_eligible": member_prediction_takeoff_eligible(
+            unresolved_anonymous_dimension=unresolved_anonymous_dimension,
+            confirmed_plate_type=confirmed_plate_type,
+            section=str(section or ""),
+            match_status=(canonical_dict.get("comparison") or {}).get(
+                "match_status"
+            ),
+            retrieval_gate_failed=retrieval_gate_failed,
+            geometry_synthetic=bool(
+                token_record.get("missing_label")
+                or token_record.get("geometry_associated")
+                or token_record.get("extraction_method")
+                in {"spatial_association", "geometry_inference"}
+            ),
+        ),
         "missing_label_prediction": (
             {
                 "predicted_missing_label": section,
@@ -1539,6 +1599,7 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         "region_id": token_record.get("region_id"),
         "schedule_sourced": bool(token_record.get("schedule_sourced")),
         "geometry_associated": bool(token_record.get("geometry_associated")),
+        "missing_label": bool(token_record.get("missing_label")),
         "spatial_association": token_record.get("spatial_association"),
         "document_prior_applied": bool(document_prior.get("enabled")),
         # Internal only — lets predict_token() keep needs_review/review_reason

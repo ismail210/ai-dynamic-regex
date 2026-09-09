@@ -58,11 +58,9 @@ class GroundTruthExcelSanityTests(unittest.TestCase):
                     writer, sheet_name="Steel Elements Summary", index=False, header=False
                 )
             result = parse_ground_truth_excel(path)
-            item = next(
-                row for row in result["items"] if row["canonical_label"] == "L4X4X1/4"
-            )
-            self.assertEqual(item["quantity"], 1)
-            self.assertEqual(item["length"], "1092")
+            self.assertEqual(result["parser"], "ground_truth_excel")
+            self.assertEqual(result["items"], [])
+            self.assertEqual(result["total_quantity"], 0)
 
     def test_detailed_schedule_wins_over_summary_sheet(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -202,6 +200,139 @@ class SpatialAssociationTests(unittest.TestCase):
         self.assertEqual(tokens[0]["inferred_section"], "L4X4X1/4")
         self.assertEqual(tokens[0]["geometry_id"], "geom_line_1")
         self.assertTrue(tokens[0]["geometry_associated"])
+        self.assertFalse(tokens[0]["takeoff_eligible"])
+        self.assertTrue(tokens[0]["requires_review"])
+
+    def test_typical_detail_pages_are_not_associated(self) -> None:
+        document = {
+            "engineering_tokens": [
+                {
+                    "token_id": "lbl1",
+                    "text": "W12X16",
+                    "page": 18,
+                    "bbox": [100, 100, 160, 112],
+                    "engineering_object_type": "label",
+                    "region_id": "p18_r0",
+                }
+            ],
+            "pages": [{"page_number": 18, "width": 1000, "height": 800}],
+            "title_blocks": [
+                {
+                    "page_number": 18,
+                    "bbox": [2700, 1800, 2800, 1810],
+                    "text": "DRAWING TITLE:",
+                },
+                {
+                    "page_number": 18,
+                    "bbox": [2700, 1814, 2950, 1850],
+                    "text": "TYPICAL DETAILS",
+                },
+            ],
+            "detail_regions": {
+                18: [
+                    {
+                        "region_id": "p18_r0",
+                        "page_number": 18,
+                        "bbox": [0, 0, 1000, 800],
+                    }
+                ]
+            },
+        }
+        geometry = {
+            "objects": [
+                {
+                    "geometry_id": "geom_line_1",
+                    "page_number": 18,
+                    "bbox": [180, 100, 182, 200],
+                    "geometry_kind": "line",
+                    "geometry_role": "member",
+                    "region_id": "p18_r0",
+                }
+            ]
+        }
+        tokens = build_spatial_association_tokens(document, geometry)
+        self.assertEqual(tokens, [])
+
+    def test_non_catalog_label_does_not_invent_a_section(self) -> None:
+        document = {
+            "engineering_tokens": [
+                {
+                    "token_id": "lbl1",
+                    "text": "BEAM",
+                    "page": 1,
+                    "bbox": [100, 100, 160, 112],
+                    "engineering_object_type": "label",
+                    "region_id": "p1_r0",
+                }
+            ],
+            "pages": [{"page_number": 1, "width": 1000, "height": 800}],
+            "detail_regions": {
+                1: [
+                    {
+                        "region_id": "p1_r0",
+                        "page_number": 1,
+                        "bbox": [0, 0, 1000, 800],
+                    }
+                ]
+            },
+        }
+        geometry = {
+            "objects": [
+                {
+                    "geometry_id": "geom_line_1",
+                    "page_number": 1,
+                    "bbox": [180, 100, 182, 200],
+                    "geometry_kind": "line",
+                    "region_id": "p1_r0",
+                }
+            ]
+        }
+        tokens = build_spatial_association_tokens(document, geometry)
+        self.assertEqual(tokens, [])
+
+    def test_one_label_associates_to_one_geometry(self) -> None:
+        document = {
+            "engineering_tokens": [
+                {
+                    "token_id": "lbl1",
+                    "text": "W12X16",
+                    "page": 1,
+                    "bbox": [100, 100, 160, 112],
+                    "engineering_object_type": "label",
+                    "region_id": "p1_r0",
+                }
+            ],
+            "pages": [{"page_number": 1, "width": 1000, "height": 800}],
+            "detail_regions": {
+                1: [
+                    {
+                        "region_id": "p1_r0",
+                        "page_number": 1,
+                        "bbox": [0, 0, 1000, 800],
+                    }
+                ]
+            },
+        }
+        geometry = {
+            "objects": [
+                {
+                    "geometry_id": "geom_a",
+                    "page_number": 1,
+                    "bbox": [180, 100, 182, 200],
+                    "geometry_kind": "line",
+                    "region_id": "p1_r0",
+                },
+                {
+                    "geometry_id": "geom_b",
+                    "page_number": 1,
+                    "bbox": [400, 100, 402, 200],
+                    "geometry_kind": "line",
+                    "region_id": "p1_r0",
+                },
+            ]
+        }
+        tokens = build_spatial_association_tokens(document, geometry)
+        self.assertEqual(len(tokens), 1)
 
 
 if __name__ == "__main__":

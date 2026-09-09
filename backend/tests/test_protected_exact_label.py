@@ -73,6 +73,8 @@ class CatalogValidExactSectionTests(unittest.TestCase):
             ("wt7x15", "WT7X15"),
             ("st6x15.9", "ST6X15.9"),
             ("mt5x4.5", "MT5X4.5"),
+            ("HSS10X0.625", "HSS10.000X0.625"),
+            ("HSS18X0.375", "HSS18.000X0.375"),
         ]:
             with self.subTest(raw=raw):
                 self.assertEqual(catalog_valid_exact_section(raw), expected)
@@ -123,6 +125,18 @@ class ReliableExactCatalogLabelCutLengthTests(unittest.TestCase):
     def test_empty_text_does_not_resolve(self):
         self.assertIsNone(resolve_reliable_exact_catalog_label(""))
         self.assertIsNone(resolve_reliable_exact_catalog_label(None))
+
+    def test_shop_inch_suffix_resolves_to_clean_section(self):
+        self.assertEqual(
+            catalog_valid_exact_section('L4x3x1/4x6"'), "L4X3X1/4"
+        )
+        self.assertEqual(
+            resolve_reliable_exact_catalog_label('L4x3x1/4x6"'), "L4X3X1/4"
+        )
+
+    def test_incomplete_l4x4_does_not_resolve_via_shop_strip(self):
+        self.assertIsNone(catalog_valid_exact_section("L4x4"))
+        self.assertIsNone(catalog_valid_exact_section("L4X4"))
 
 
 class GatedExactOverrideCatalogBypassTests(unittest.TestCase):
@@ -202,6 +216,38 @@ class ProtectedExactLabelIntegrationTests(unittest.TestCase):
                 self.assertEqual(result["section"], expected)
                 self.assertNotEqual(result["section"], decoy)
 
+    def test_round_hss_shorthand_locks_against_w_family_fusion(self):
+        with patch(
+            "services.prediction.orchestrator.unified_multimodal_fusion.predict",
+            return_value=_fake_fusion_result("W12X16", confidence=0.80),
+        ):
+            result = predict_token(
+                "HSS10X0.625", queue_unknown=False, persist_learning=False
+            )
+
+        self.assertEqual(result["section"], "HSS10.000X0.625")
+        self.assertNotEqual(result["section"], "W12X16")
+        family = result.get("family")
+        if isinstance(family, dict):
+            family = family.get("label")
+        self.assertEqual(family, "HSS")
+        self.assertEqual(
+            (result.get("comparison") or {}).get("match_status"),
+            "normalized_match",
+        )
+
+    def test_round_hss_springhill_shorthand_does_not_become_w(self):
+        with patch(
+            "services.prediction.orchestrator.unified_multimodal_fusion.predict",
+            return_value=_fake_fusion_result("W21X44", confidence=0.80),
+        ):
+            result = predict_token(
+                "HSS18X0.375", queue_unknown=False, persist_learning=False
+            )
+
+        self.assertEqual(result["section"], "HSS18.000X0.375")
+        self.assertNotEqual(result["section"], "W21X44")
+
 
 class CutLengthLiveFusionIntegrationTests(unittest.TestCase):
     """End-to-end reproduction of the confirmed live bug: a cut-length
@@ -245,6 +291,18 @@ class CutLengthLiveFusionIntegrationTests(unittest.TestCase):
 
         self.assertEqual(result["section"], "HSS6X6X3/8")
         self.assertNotEqual(result["section"], "HSS8X8X1/2")
+
+    def test_shop_inch_suffix_does_not_regress_to_fusion_decoy(self):
+        with patch(
+            "services.prediction.orchestrator.unified_multimodal_fusion.predict",
+            return_value=_fake_fusion_result("L4X3X5/16", confidence=0.20),
+        ):
+            result = predict_token(
+                'L4x3x1/4x6"', queue_unknown=False, persist_learning=False
+            )
+
+        self.assertEqual(result["section"], "L4X3X1/4")
+        self.assertNotEqual(result["section"], "L4X3X5/16")
 
 
 if __name__ == "__main__":

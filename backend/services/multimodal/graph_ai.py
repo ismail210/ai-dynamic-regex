@@ -269,6 +269,14 @@ def _load_runtime() -> Optional[tuple[Any, Any, Dict[str, Any]]]:
 def enrich_graph_embeddings(graph: Dict[str, Any]) -> Dict[str, Any]:
     """Run trained GraphSAGE and attach learned node/source features."""
 
+    if not settings.graphsage_section_scoring_enabled:
+        graph["graph_ai"] = {
+            "available": False,
+            "fallback": "constructed_graph_features",
+            "reason": "GraphSAGE section scoring disabled",
+        }
+        return graph
+
     try:
         runtime = _load_runtime()
     except (ImportError, RuntimeError, OSError, KeyError) as exc:

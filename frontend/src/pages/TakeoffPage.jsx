@@ -23,6 +23,14 @@ import PageHeader from "../components/ui/PageHeader";
 import { TipButton } from "../components/ui/ActionButtons";
 
 
+function quantityMethodLabel(method) {
+  if (method === "labeled_callout") return "Labeled callout";
+  if (method === "schedule_cell") return "Schedule cell";
+  if (method === "elevation_callout") return "Elevation callout";
+  if (method === "insufficient") return "Insufficient";
+  return method || "—";
+}
+
 export default function TakeoffPage() {
   const { document, data } = useAnalysis();
   const [takeoff, setTakeoff] = useState(null);
@@ -64,7 +72,7 @@ export default function TakeoffPage() {
     <Stack spacing={2.5}>
       <PageHeader
         title="Structural steel takeoff"
-        subtitle="Aggregate exact-section predictions into a downloadable engineering workbook."
+        subtitle="Labeled-callout quantity estimate. Section precision is scored separately from quantity error."
         actions={
           <TipButton
             variant="contained"
@@ -91,8 +99,20 @@ export default function TakeoffPage() {
               </Button>
             }
           >
-            {takeoff.total_quantity} members across {takeoff.row_count} section rows.
+            {takeoff.total_quantity} labeled-callout members across {takeoff.row_count}{" "}
+            section rows. Not true physical quantity.
           </Alert>
+          {takeoff.scoreboards && (
+            <Alert severity="info">
+              Section recognition
+              {takeoff.scoreboards.section_recognition
+                ? ` P ${Math.round((takeoff.scoreboards.section_recognition.precision || 0) * 100)}% / R ${Math.round((takeoff.scoreboards.section_recognition.recall || 0) * 100)}%`
+                : " unavailable until Analyze with Excel"}
+              . Quantity MAE {takeoff.scoreboards.quantity?.mae ?? "—"}, bias{" "}
+              {takeoff.scoreboards.quantity?.mean_signed_error ?? "—"}. These are
+              separate gates.
+            </Alert>
+          )}
           <TableContainer component={Paper} variant="outlined">
             <Table size="small">
               <TableHead>
@@ -101,6 +121,7 @@ export default function TakeoffPage() {
                   <TableCell>Family</TableCell>
                   <TableCell>Entity</TableCell>
                   <TableCell align="right">Quantity</TableCell>
+                  <TableCell>Quantity method</TableCell>
                   <TableCell align="right">Confidence</TableCell>
                   <TableCell>Verification</TableCell>
                 </TableRow>
@@ -112,6 +133,9 @@ export default function TakeoffPage() {
                     <TableCell>{row.Family}</TableCell>
                     <TableCell>{row.Entity}</TableCell>
                     <TableCell align="right">{row.Quantity}</TableCell>
+                    <TableCell>
+                      {quantityMethodLabel(row["Quantity Method"])}
+                    </TableCell>
                     <TableCell align="right">
                       {row["Avg Confidence"] == null
                         ? "—"
