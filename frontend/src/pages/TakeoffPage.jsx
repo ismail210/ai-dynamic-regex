@@ -20,6 +20,7 @@ import {
 import { useAnalysis } from "../context/AnalysisContext";
 import EmptyState from "../components/ui/EmptyState";
 import PageHeader from "../components/ui/PageHeader";
+import WorkflowProgress from "../components/ui/WorkflowProgress";
 import { TipButton } from "../components/ui/ActionButtons";
 
 
@@ -52,7 +53,7 @@ export default function TakeoffPage() {
         title="Analysis is required"
         subtitle="Takeoff generation consumes the completed multimodal predictions. It never re-extracts the PDF."
         action={
-          <TipButton component={Link} to="/analyze" variant="contained">
+          <TipButton component={Link} to="/analysis" variant="contained">
             Go to analysis
           </TipButton>
         }
@@ -63,7 +64,7 @@ export default function TakeoffPage() {
   return (
     <Stack spacing={2.5}>
       <PageHeader
-        title="Structural steel takeoff"
+        title="Takeoff"
         subtitle="Aggregate exact-section predictions into a downloadable engineering workbook."
         actions={
           <TipButton
@@ -76,6 +77,7 @@ export default function TakeoffPage() {
           </TipButton>
         }
       />
+      <WorkflowProgress step="takeoff" />
       {error && <Alert severity="error">{error}</Alert>}
       {takeoff && (
         <>

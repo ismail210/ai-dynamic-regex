@@ -7,23 +7,39 @@ import {
   Divider,
   Paper,
   Stack,
+  Tab,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Tabs,
   TextField,
   Typography,
 } from "@mui/material";
-import { PictureAsPdfOutlined, TableRowsOutlined } from "@mui/icons-material";
+import {
+  ArrowForwardRounded,
+  FactCheckOutlined,
+  PictureAsPdfOutlined,
+  TableRowsOutlined,
+} from "@mui/icons-material";
 import { approveValidationCorrection, documentPdfUrl } from "../api/client";
 import PdfDocumentViewer from "../components/pdf/PdfDocumentViewer";
 import SectionResultsList from "../components/pdf/SectionResultsList";
 import SectionReviewSelector from "../components/SectionReviewSelector";
 import EmptyState from "../components/ui/EmptyState";
 import PageHeader from "../components/ui/PageHeader";
+import WorkflowProgress from "../components/ui/WorkflowProgress";
 import { TipButton } from "../components/ui/ActionButtons";
 import { useAnalysis } from "../context/AnalysisContext";
 import {
   formatCandidateLabel,
+  getDisplaySection,
   getPredictionLocation,
   getResultKey,
   getSection,
+  isHumanReviewed,
   isInferredLocation,
   isSectionReviewEligible,
 } from "../lib/predictionContract";
@@ -35,8 +51,13 @@ export default function DrawingReviewPage() {
   const [correctLabel, setCorrectLabel] = useState("");
   const [reviewMessage, setReviewMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [tab, setTab] = useState("review");
 
   const results = data?.results || data?.predictions || [];
+  const correctedRows = useMemo(
+    () => results.filter((result) => isHumanReviewed(result)),
+    [results],
+  );
   const pdfUrl = document?.document_id
     ? documentPdfUrl(document.document_id)
     : null;
@@ -51,6 +72,7 @@ export default function DrawingReviewPage() {
     if (!objectParam || !results.length) return;
     const match = results.find((result) => getResultKey(result) === objectParam);
     if (!match) return;
+    setTab("review");
     setSelection({
       key: objectParam,
       result: match,
@@ -124,7 +146,7 @@ export default function DrawingReviewPage() {
           }
           subtitle={restoreNotice.message}
           action={
-            <TipButton component={Link} to="/upload" variant="contained">
+            <TipButton component={Link} to="/upload-extract" variant="contained">
               {isMissingSource ? "Upload the PDF again" : "Start new analysis"}
             </TipButton>
           }
@@ -136,7 +158,7 @@ export default function DrawingReviewPage() {
         title="Drawing review needs an analysis"
         subtitle="Upload, extract, and analyze a drawing first, then open this page to locate sections on the PDF."
         action={
-          <TipButton component={Link} to="/upload" variant="contained">
+          <TipButton component={Link} to="/upload-extract" variant="contained">
             Start workflow
           </TipButton>
         }
@@ -270,20 +292,110 @@ export default function DrawingReviewPage() {
       sx={{ height: { md: "calc(100vh - 140px)" }, minHeight: 520 }}
     >
       <PageHeader
-        title="Drawing review"
+        title="Drawing Review"
         subtitle="PDF on the left, predicted steel sections on the right — click a section to zoom and highlight it."
         actions={
-          <TipButton
-            component={Link}
-            to="/results"
-            variant="outlined"
-            startIcon={<TableRowsOutlined />}
-          >
-            Results table
-          </TipButton>
+          <>
+            <TipButton
+              component={Link}
+              to="/analysis"
+              variant="outlined"
+              startIcon={<TableRowsOutlined />}
+            >
+              Analysis & Results
+            </TipButton>
+            <TipButton
+              component={Link}
+              to="/validation"
+              variant="contained"
+              endIcon={<ArrowForwardRounded />}
+            >
+              Continue to Validation
+            </TipButton>
+          </>
         }
       />
+      <WorkflowProgress step="review" />
 
+      <Tabs
+        value={tab}
+        onChange={(_event, next) => setTab(next)}
+        sx={{ minHeight: 40, mt: -0.5 }}
+      >
+        <Tab value="review" label="Review" sx={{ minHeight: 40 }} />
+        <Tab
+          value="history"
+          label={`Corrections (${correctedRows.length})`}
+          icon={<FactCheckOutlined sx={{ fontSize: 16 }} />}
+          iconPosition="start"
+          sx={{ minHeight: 40 }}
+        />
+      </Tabs>
+
+      {tab === "history" && (
+        <Paper variant="outlined" sx={{ overflow: "hidden" }}>
+          {correctedRows.length === 0 ? (
+            <Box sx={{ p: 3 }}>
+              <Typography variant="body2" color="text.secondary">
+                No human corrections on this drawing yet. Resolve a section in the
+                Review tab and it appears here.
+              </Typography>
+            </Box>
+          ) : (
+            <TableContainer sx={{ maxHeight: "60vh" }}>
+              <Table size="small" stickyHeader>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Detected text</TableCell>
+                    <TableCell>Predicted</TableCell>
+                    <TableCell>Corrected to</TableCell>
+                    <TableCell align="right">Page</TableCell>
+                    <TableCell>Decision</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {correctedRows.map((row) => {
+                    const key = getResultKey(row);
+                    const loc = getPredictionLocation(row);
+                    return (
+                      <TableRow
+                        key={key}
+                        hover
+                        sx={{ cursor: "pointer" }}
+                        onClick={() => {
+                          setTab("review");
+                          setSelection({ key, result: row, location: loc });
+                          setCorrectLabel(getSection(row) || "");
+                          setReviewMessage("");
+                        }}
+                      >
+                        <TableCell sx={{ fontFamily: "monospace" }}>
+                          {row.raw_text || row.original_token || "—"}
+                        </TableCell>
+                        <TableCell>{getSection(row) || "—"}</TableCell>
+                        <TableCell sx={{ fontWeight: 700 }}>
+                          {row.human_selected_section ||
+                            getDisplaySection(row).value ||
+                            "—"}
+                        </TableCell>
+                        <TableCell align="right">
+                          {loc.pageNumber ?? "—"}
+                        </TableCell>
+                        <TableCell>
+                          {row.decision_source || "human_review"}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </Paper>
+      )}
+
+      {tab === "review" && (
+      <>
       <Alert
         severity={
           selection && !selection.location?.hasLocation ? "warning" : "info"
@@ -383,6 +495,8 @@ export default function DrawingReviewPage() {
           </Box>
         </Paper>
       </Box>
+      </>
+      )}
     </Stack>
   );
 }

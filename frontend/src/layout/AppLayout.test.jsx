@@ -1,4 +1,4 @@
-import { render } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import AppLayout from "./AppLayout";
@@ -30,8 +30,8 @@ describe("AppLayout", () => {
     errorSpy.mockRestore();
   });
 
-  it("renders the sidebar and toolbar without forwarding invalid DOM props", () => {
-    render(
+  function renderLayout() {
+    return render(
       <MemoryRouter initialEntries={["/"]}>
         <ThemeModeProvider>
           <AnalysisProvider>
@@ -44,6 +44,39 @@ describe("AppLayout", () => {
         </ThemeModeProvider>
       </MemoryRouter>,
     );
+  }
+
+  it("renders the sidebar and toolbar without forwarding invalid DOM props", () => {
+    renderLayout();
     expect(invalidDomPropWarnings(errorSpy)).toHaveLength(0);
+  });
+
+  it("shows the consolidated workflow nav and drops the retired standalone pages", () => {
+    renderLayout();
+    const nav = screen.getByRole("navigation");
+    for (const label of [
+      "Dashboard",
+      "Upload & Extract",
+      "Drawing Summary",
+      "Analysis & Results",
+      "Drawing Review",
+      "Validation",
+      "Takeoff",
+      "Settings",
+    ]) {
+      expect(within(nav).getByText(label)).toBeInTheDocument();
+    }
+    for (const label of [
+      "Upload",
+      "Extract",
+      "Analyze",
+      "Results",
+      "Corrections",
+      "Dataset",
+      "Training",
+      "Analytics",
+    ]) {
+      expect(within(nav).queryByText(label)).not.toBeInTheDocument();
+    }
   });
 });

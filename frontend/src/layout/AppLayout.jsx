@@ -20,17 +20,13 @@ import {
   Brightness4,
   Brightness7,
   DashboardOutlined,
-  DatasetOutlined,
   FactCheckOutlined,
-  InsightsOutlined,
-  ModelTrainingOutlined,
-  RateReviewOutlined,
   RestartAltOutlined,
   SettingsOutlined,
+  SummarizeOutlined,
   TableRowsOutlined,
   UploadFileOutlined,
   HubOutlined,
-  ManageSearchOutlined,
   PictureAsPdfOutlined,
   ViewListOutlined,
 } from "@mui/icons-material";
@@ -40,33 +36,41 @@ import { useAnalysis } from "../context/AnalysisContext";
 const DRAWER_WIDTH = 260;
 
 const WORKFLOW_ITEMS = [
-  { to: "/upload", label: "Upload", icon: UploadFileOutlined },
-  { to: "/extract", label: "Extract", icon: ManageSearchOutlined },
-  { to: "/analyze", label: "Analyze", icon: HubOutlined },
-  { to: "/results", label: "Results", icon: TableRowsOutlined },
-  { to: "/review-drawing", label: "Drawing review", icon: PictureAsPdfOutlined },
+  { to: "/", label: "Dashboard", icon: DashboardOutlined },
+  { to: "/upload-extract", label: "Upload & Extract", icon: UploadFileOutlined },
+  { to: "/drawing-summary", label: "Drawing Summary", icon: SummarizeOutlined },
+  { to: "/analysis", label: "Analysis & Results", icon: TableRowsOutlined },
+  { to: "/review-drawing", label: "Drawing Review", icon: PictureAsPdfOutlined },
   { to: "/validation", label: "Validation", icon: FactCheckOutlined },
-  { to: "/review", label: "Corrections", icon: RateReviewOutlined },
   { to: "/takeoff", label: "Takeoff", icon: ViewListOutlined },
 ];
 
-const OPERATIONS_ITEMS = [
-  { to: "/", label: "Dashboard", icon: DashboardOutlined },
-  { to: "/dataset", label: "Dataset", icon: DatasetOutlined },
-  { to: "/training", label: "Training", icon: ModelTrainingOutlined },
-  { to: "/analytics", label: "Analytics", icon: InsightsOutlined },
+const SYSTEM_ITEMS = [
   { to: "/settings", label: "Settings", icon: SettingsOutlined },
 ];
-const NAV_ITEMS = [...WORKFLOW_ITEMS, ...OPERATIONS_ITEMS];
+const NAV_ITEMS = [...WORKFLOW_ITEMS, ...SYSTEM_ITEMS];
+
+// Off-nav routes kept URL-reachable — still deserve a header title.
+const OFF_NAV_TITLES = {
+  "/review": "Review queue",
+  "/dataset": "Dataset",
+  "/training": "Training",
+  "/analytics": "Analytics",
+  "/model": "Model",
+  "/history": "History",
+};
 
 export default function AppLayout() {
   const { mode, toggleMode } = useThemeMode();
   const location = useLocation();
   const navigate = useNavigate();
-  const { stage, rehydrating, rehydrationError, startNewAnalysis } = useAnalysis();
+  const { document, stage, rehydrating, rehydrationError, startNewAnalysis } =
+    useAnalysis();
   const title =
     NAV_ITEMS.find((item) => item.to === location.pathname)?.label ||
+    OFF_NAV_TITLES[location.pathname] ||
     "Steel Takeoff";
+  const projectName = document?.source_file || document?.original_filename || "";
 
   const drawer = (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
@@ -130,8 +134,8 @@ export default function AppLayout() {
               />
             </ListItemButton>
           ))}
-          <ListSubheader disableSticky sx={{ mt: 1 }}>Operations</ListSubheader>
-          {OPERATIONS_ITEMS.map(({ to, label, icon: Icon }) => (
+          <ListSubheader disableSticky sx={{ mt: 1 }}>System</ListSubheader>
+          {SYSTEM_ITEMS.map(({ to, label, icon: Icon }) => (
             <ListItemButton
               key={to}
               component={NavLink}
@@ -188,15 +192,28 @@ export default function AppLayout() {
         }}
       >
         <Toolbar sx={{ minHeight: "56px !important", px: { xs: 2, md: 3.5 } }}>
-          <Typography variant="subtitle1" sx={{ flex: 1 }}>
-            {title}
-          </Typography>
+          <Box sx={{ flex: 1, minWidth: 0, display: "flex", alignItems: "baseline", gap: 1.25 }}>
+            <Typography variant="subtitle1" sx={{ flexShrink: 0 }}>
+              {title}
+            </Typography>
+            {projectName && (
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                noWrap
+                title={projectName}
+                sx={{ minWidth: 0 }}
+              >
+                {projectName}
+              </Typography>
+            )}
+          </Box>
           {stage !== "empty" && (
             <Tooltip title="Start new analysis (clears the active document)">
               <IconButton
                 onClick={() => {
                   startNewAnalysis();
-                  navigate("/upload");
+                  navigate("/upload-extract");
                 }}
                 size="small"
                 aria-label="Start new analysis"
