@@ -56,6 +56,23 @@ class PersistFalseSkipsReviewIndexTests(unittest.TestCase):
                 run_multimodal_pipeline(pdf, persist=False)
             mock_index.assert_not_called()
 
+    def test_persist_false_does_not_enqueue_unknown_tokens(self):
+        """The review-queue loop calls dataset_manager.enqueue_unknown, which
+        appends to the shared training/unknown_tokens.csv + history.csv. That
+        is a persistence side effect and must not fire on a persist=False run
+        (research harness / preview / tests). The loop iterates
+        ``predictions if persist else []`` -- a persist=False run must never
+        reach enqueue_unknown regardless of what the predictions contain."""
+
+        with tempfile.TemporaryDirectory() as temp:
+            pdf = Path(temp) / "drawing.pdf"
+            _drawing(pdf)
+            with patch(
+                "services.multimodal.pipeline.dataset_manager.enqueue_unknown"
+            ) as mock_enqueue:
+                run_multimodal_pipeline(pdf, persist=False)
+            mock_enqueue.assert_not_called()
+
     def test_persist_true_still_indexes_predictions(self):
         """Control: persist=True must still index (the flag actually gates
         behavior, it isn't just dead code removed)."""

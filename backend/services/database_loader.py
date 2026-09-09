@@ -153,6 +153,11 @@ def is_catalog_label(token: str) -> bool:
 # ``HSS10.000X0.625``. That is a spelling difference, not a different member.
 _ROUND_SHORTHAND = re.compile(r"^(HSS|PIPE)(\d+(?:\.\d+)?)X(\d+(?:\.\d+)?)$")
 
+# Angle legs are catalogued with a hyphen before the fraction (``L4X3-1/2X3/8``),
+# but upstream normalizers that strip separators collapse it to ``L4X31/2X3/8``.
+# Re-insert the standard hyphen: a digit directly followed by ``<digit>/<digit>``.
+_FRACTION_LEG = re.compile(r"(?<=\d)(?=\d/\d)")
+
 
 def catalog_form(token: str) -> str:
     """Return the catalog spelling of ``token``, or ``""`` when it is not one.
@@ -172,6 +177,17 @@ def catalog_form(token: str) -> str:
         padded = f"{family}{float(diameter):.3f}X{float(wall):.3f}"
         if padded in _LABEL_INDEX:
             return padded
+    # angle-leg hyphen (``L4X31/2X3/8`` -> ``L4X3-1/2X3/8``)
+    if normalized[:1] in ("L", "2") and "/" in normalized:
+        hyphenated = _FRACTION_LEG.sub("-", normalized)
+        if hyphenated != normalized and hyphenated in _LABEL_INDEX:
+            return hyphenated
+    # trailing fabrication cut-length (``L3X3X3/8X0'-6"`` -> ``L3X3X3/8``)
+    stripped = re.sub(r"X\d+'[-\d/\". ]*$", "", normalized).rstrip("\",.")
+    if stripped != normalized and stripped:
+        inner = catalog_form(stripped)
+        if inner:
+            return inner
     return ""
 
 

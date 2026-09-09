@@ -77,6 +77,30 @@ class CatalogValidExactSectionTests(unittest.TestCase):
             with self.subTest(raw=raw):
                 self.assertEqual(catalog_valid_exact_section(raw), expected)
 
+    def test_round_hss_shorthand_is_text_grounded(self):
+        # Round HSS is catalogued zero-padded (HSS10.000X0.625) but drawings
+        # print the shorthand. The strict normalizer does not pad it, so the
+        # protection gate used to miss it and let fuzzy fusion override the
+        # printed section with a W-shape decoy.
+        self.assertEqual(
+            catalog_valid_exact_section("HSS10X0.625"), "HSS10.000X0.625"
+        )
+        self.assertEqual(
+            catalog_valid_exact_section("HSS18X0.375"), "HSS18.000X0.375"
+        )
+
+    def test_fractional_leg_angle_is_text_grounded(self):
+        # L4X3-1/2X3/8 is catalogued with the leg hyphen; separator stripping
+        # collapses it. Must still resolve as an authoritative match.
+        self.assertEqual(
+            catalog_valid_exact_section("L4X3-1/2X3/8"), "L4X3-1/2X3/8"
+        )
+
+    def test_notation_equivalence_never_yields_a_different_shape(self):
+        # catalog_form only resolves spellings of the *same* designation.
+        self.assertIsNone(catalog_valid_exact_section("HSS10X0.611"))
+        self.assertIsNone(catalog_valid_exact_section("W12X999"))
+
 
 class ReliableExactCatalogLabelCutLengthTests(unittest.TestCase):
     """The cut-length bug: printed text like L3X3X3/8X0'-6" carries an

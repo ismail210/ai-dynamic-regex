@@ -35,9 +35,23 @@ class CanonicalSectionTests(unittest.TestCase):
     def test_round_hss_shorthand_resolves(self):
         self.assertEqual(canonical_section("HSS14X0.500"), "HSS14.000X0.500")
 
+    def test_fractional_leg_angle_resolves(self):
+        # catalogued as L4X3-1/2X3/8; upstream separator-stripping collapses
+        # the hyphen -> must still resolve, not drop.
+        self.assertEqual(canonical_section("L4X3-1/2X3/8"), "L4X3-1/2X3/8")
+        self.assertEqual(canonical_section("L4X3 1/2 X 5/16"), "L4X3-1/2X5/16")
+        self.assertEqual(canonical_section("L6X3-1/2X3/8"), "L6X3-1/2X3/8")
+
+    def test_trailing_cut_length_is_stripped(self):
+        self.assertEqual(canonical_section("L3X3X3/8X0'-6\""), "L3X3X3/8")
+        self.assertEqual(canonical_section("L4X4X1/4X1'-0"), "L4X4X1/4")
+        self.assertEqual(canonical_section("W12X26"), "W12X26")
+
     def test_non_catalog_is_none(self):
         self.assertIsNone(canonical_section("HSS12X12X1/3"))   # not a real wall
         self.assertIsNone(canonical_section("W12X999"))
+        self.assertIsNone(canonical_section("L4X4"))            # incomplete (no thickness)
+        self.assertIsNone(canonical_section("2L3-1/2X2-1/2X5/16"))  # ambiguous LLBB/SLBB
         self.assertIsNone(canonical_section("GRANDTOTAL:108"))
 
 

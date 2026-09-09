@@ -26,7 +26,7 @@ from sklearn.preprocessing import normalize
 
 from config import settings
 from services.data_augmentation import generate_variants_for_token
-from services.database_loader import df, lookup_shape
+from services.database_loader import catalog_form, df, lookup_shape
 from services.family_codes import MODERN_FAMILY_ALTERNATION
 
 
@@ -74,6 +74,18 @@ def catalog_valid_exact_section(value: object) -> Optional[str]:
     if not normalized:
         return None
     entry = lookup_shape(normalized)
+    if entry is None:
+        # ``normalize_section_text`` only folds case/whitespace/separators; it
+        # does not resolve notation-equivalent spellings of the *same*
+        # designation (round-HSS shorthand ``HSS10X0.625`` ->
+        # ``HSS10.000X0.625``; fractional angle legs; trailing cut lengths).
+        # ``catalog_form`` does, and only ever returns a real catalog entry --
+        # never a similar-but-different shape -- so a hit here is still an
+        # authoritative, text-grounded match that exact-label protection must
+        # honour rather than let fuzzy fusion override.
+        canonical = catalog_form(normalized)
+        if canonical:
+            entry = lookup_shape(canonical)
     return str(entry["shape"]) if entry else None
 
 
