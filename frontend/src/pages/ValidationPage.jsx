@@ -20,11 +20,13 @@ import {
   Typography,
 } from "@mui/material";
 import {
+  ArrowForwardRounded,
   CheckCircleOutlined,
   DownloadOutlined,
 } from "@mui/icons-material";
 import PageHeader from "../components/ui/PageHeader";
 import EmptyState from "../components/ui/EmptyState";
+import WorkflowProgress from "../components/ui/WorkflowProgress";
 import PredictionExplainability from "../components/PredictionExplainability";
 import { approveValidationCorrection } from "../api/client";
 import { useAnalysis } from "../context/AnalysisContext";
@@ -230,8 +232,11 @@ function pct(value) {
   return `${Math.round(Number(value) * 1000) / 10}%`;
 }
 
+const GT_FILTERS = ["Largest errors", "Missing", "Excess", "All"];
+
 function GroundTruthEvaluationPanel({ report }) {
   const [showDetails, setShowDetails] = useState(false);
+  const [filter, setFilter] = useState("Largest errors");
   const evaluation =
     report?.excel_evaluation ||
     report?.evaluation ||
@@ -240,72 +245,103 @@ function GroundTruthEvaluationPanel({ report }) {
   const metrics = evaluation?.metrics || report?.metrics || report?.summary || null;
   if (!metrics && !evaluation) return null;
 
-  const missing = evaluation?.missing_elements || report?.missing_elements || [];
-  const extra = evaluation?.extra_elements || report?.extra_elements || [];
   const comparisons = evaluation?.comparisons || report?.comparisons || [];
-  // Estimator-facing primary numbers (canonical_takeoff_eval). caught = min(pred, GT).
-  const estimatorRows =
+  // Section × quantity histogram overlap (canonical_takeoff_eval). This is
+  // NOT object/member-level matching — see the caption below.
+  const rows = (
     evaluation?.estimator_table ||
     report?.estimator_table ||
     comparisons.map((r) => ({
       section: r.section || r.label,
       ground_truth: r.expected_quantity ?? r.ground_truth ?? 0,
-      correctly_caught: r.caught ?? Math.min(r.predicted_quantity ?? 0, r.expected_quantity ?? 0),
       predicted: r.predicted_quantity ?? r.prediction ?? 0,
-      success_pct: r.success_pct,
-    }));
-  const overallSuccess =
-    evaluation?.overall_success_pct ??
-    report?.overall_success_pct ??
-    metrics.overall_success_pct;
-  const caught = metrics.caught;
+      correctly_caught:
+        r.caught ?? Math.min(r.predicted_quantity ?? 0, r.expected_quantity ?? 0),
+    }))
+  ).map((r) => ({
+    ...r,
+    difference: (r.predicted || 0) - (r.ground_truth || 0),
+    match_pct:
+      r.ground_truth > 0
+        ? Math.round(((r.correctly_caught ?? 0) / r.ground_truth) * 1000) / 10
+        : null,
+  }));
+
   const gtTotal = metrics.ground_truth_total;
-  const predictedTotal = metrics.predicted_total;
-  const falsePositives = metrics.false_positives;
-  const precision = metrics.precision ?? metrics.section?.precision;
-  const recall = metrics.recall ?? overallSuccess / 100 ?? metrics.section?.recall;
-  const f1 = metrics.f1 ?? metrics.section?.f1;
-  const overDetecting = Number(falsePositives || 0) > Number(caught || 0) * 0.15;
+  const auto = metrics.auto_resolved_total ?? metrics.predicted_total;
+  const matching = metrics.matching_quantity ?? metrics.caught;
+  const sectionPrecision =
+    metrics.section_precision_pct ?? (metrics.precision != null ? metrics.precision * 100 : null);
+  const sectionRecall =
+    metrics.section_recall_pct ??
+    metrics.overall_success_pct ??
+    (metrics.recall != null ? metrics.recall * 100 : null);
+  const f1 =
+    metrics.f1 != null
+      ? metrics.f1 * 100
+      : sectionPrecision != null && sectionRecall != null && sectionPrecision + sectionRecall > 0
+        ? Math.round(
+            (2 * sectionPrecision * sectionRecall) / (sectionPrecision + sectionRecall) * 10,
+          ) / 10
+        : null;
+  const reviewQty = metrics.review_member_quantity ?? 0;
+  const weakQty = metrics.weak_geometry_quantity ?? 0;
+
+  const fmtPct = (v) => (v == null ? "—" : `${Math.round(v * 10) / 10}%`);
+
+  const filtered = rows
+    .filter((r) => {
+      if (filter === "Missing") return r.predicted === 0 && r.ground_truth > 0;
+      if (filter === "Excess") return r.difference > 0;
+      return true;
+    })
+    .sort((a, b) =>
+      filter === "All"
+        ? (b.ground_truth || 0) - (a.ground_truth || 0)
+        : Math.abs(b.difference) - Math.abs(a.difference),
+    );
 
   return (
     <Stack spacing={2.25}>
-      <Alert severity="success">
-        Excel is ground truth only — never used as prediction input. "Correctly caught"
-        is capped at the ground-truth quantity for that exact section, so success can
-        never exceed 100%
-        {report?.excel_file ? ` (${report.excel_file})` : ""}.
+      <Alert severity="info" variant="outlined">
+        Excel is ground truth only — never used as a prediction input. Numbers below
+        compare the <strong>section-quantity histogram</strong> (Σ&nbsp;min(Estima3D,
+        ground&nbsp;truth) per section); this is not object-level member matching, so a
+        section difference does not by itself mean a member was invented.
+        {report?.excel_file ? ` (${report.excel_file})` : ""}
       </Alert>
 
+      <Typography variant="subtitle1" fontWeight={750}>
+        Ground truth comparison
+      </Typography>
       <Grid container spacing={1.5}>
-        <Grid size={{ xs: 12, md: 4 }}>
-          <Metric
-            label="Overall success"
-            value={overallSuccess != null ? `${overallSuccess}%` : "—"}
-            color="success.main"
-          />
+        <Grid size={{ xs: 6, md: 2 }}>
+          <Metric label="Ground truth" value={gtTotal ?? "—"} />
         </Grid>
-        <Grid size={{ xs: 6, md: 4 }}>
-          <Metric
-            label="Correctly caught"
-            value={caught != null && gtTotal != null ? `${caught} / ${gtTotal}` : "—"}
-          />
+        <Grid size={{ xs: 6, md: 2 }}>
+          <Metric label="Estima3D" value={auto ?? "—"} />
         </Grid>
-        <Grid size={{ xs: 6, md: 4 }}>
-          <Metric
-            label="Missing sections"
-            value={metrics.missing_count ?? missing.length}
-            color="error.main"
-          />
+        <Grid size={{ xs: 6, md: 2 }}>
+          <Metric label="Matching quantity" value={matching ?? "—"} color="success.main" />
+        </Grid>
+        <Grid size={{ xs: 6, md: 2 }}>
+          <Metric label="Section precision" value={fmtPct(sectionPrecision)} />
+        </Grid>
+        <Grid size={{ xs: 6, md: 2 }}>
+          <Metric label="Section recall" value={fmtPct(sectionRecall)} />
+        </Grid>
+        <Grid size={{ xs: 6, md: 2 }}>
+          <Metric label="F1" value={fmtPct(f1)} />
         </Grid>
       </Grid>
 
-      {overDetecting && (
-        <Alert severity="warning">
-          Over-detection: {predictedTotal} predictions for {gtTotal} ground-truth
-          members ({falsePositives} false positives, precision{" "}
-          {pct(precision)}). High success with low precision means the takeoff is
-          finding real members but also inventing many that are not there.
-        </Alert>
+      {(reviewQty > 0 || weakQty > 0) && (
+        <Typography variant="body2" color="text.secondary">
+          <strong>{auto}</strong> members auto-resolved · <strong>{reviewQty}</strong> need
+          section review · <strong>{weakQty}</strong> weak geometry candidates. Members
+          whose section is geometry/adjacency-only are held for Drawing Review, not
+          auto-counted.
+        </Typography>
       )}
 
       <Button
@@ -314,51 +350,37 @@ function GroundTruthEvaluationPanel({ report }) {
         onClick={() => setShowDetails((v) => !v)}
         sx={{ alignSelf: "flex-start" }}
       >
-        {showDetails ? "Hide details" : "Show precision / scope details"}
+        {showDetails ? "Hide technical diagnostics" : "Technical diagnostics"}
       </Button>
       {showDetails && (
         <Grid container spacing={1.5}>
           <Grid size={{ xs: 6, md: 3 }}>
-            <Metric label="Precision" value={pct(precision)} />
+            <Metric label="Excess quantity by section" value={metrics.excess_quantity ?? metrics.false_positives ?? "—"} />
           </Grid>
           <Grid size={{ xs: 6, md: 3 }}>
-            <Metric label="Recall (members)" value={pct(recall)} />
+            <Metric label="Missing sections" value={metrics.missing_count ?? "—"} />
           </Grid>
           <Grid size={{ xs: 6, md: 3 }}>
-            <Metric label="F1" value={pct(f1)} />
+            <Metric label="Extra sections" value={metrics.extra_count ?? "—"} />
           </Grid>
           <Grid size={{ xs: 6, md: 3 }}>
-            <Metric label="False positives" value={falsePositives ?? "—"} color="warning.main" />
+            <Metric label="Catalog-invalid predictions" value={metrics.catalog_invalid_predictions ?? "—"} />
           </Grid>
           <Grid size={{ xs: 6, md: 3 }}>
-            <Metric label="Total predictions" value={predictedTotal ?? "—"} />
+            <Metric label="Abstained (to review)" value={metrics.abstained_predictions ?? "—"} />
           </Grid>
           <Grid size={{ xs: 6, md: 3 }}>
-            <Metric label="Extra sections" value={metrics.extra_count ?? extra.length} color="warning.main" />
+            <Metric label="Unsupported GT qty" value={metrics.unsupported_gt_quantity ?? "—"} />
           </Grid>
           <Grid size={{ xs: 6, md: 3 }}>
-            <Metric
-              label="Unsupported GT qty"
-              value={metrics.unsupported_gt_quantity ?? "—"}
-            />
-          </Grid>
-          <Grid size={{ xs: 6, md: 3 }}>
-            <Metric
-              label="Excluded GT qty"
-              value={metrics.excluded_gt_quantity ?? "—"}
-            />
+            <Metric label="Excluded GT qty" value={metrics.excluded_gt_quantity ?? "—"} />
           </Grid>
           <Grid size={{ xs: 12 }}>
             <Typography variant="caption" color="text.secondary">
-              Scope: {metrics.scope || "primary_framing"}. Success is measured against
-              primary framing members (beams, columns, braces, joists). Connection
-              angles / stiffeners ({metrics.unsupported_gt_quantity ?? 0}) and
+              Scope: {metrics.scope || "primary_framing"} (beams, columns, braces, joists).
+              Connection angles / stiffeners ({metrics.unsupported_gt_quantity ?? 0}) and
               deck / misc / unparseable rows ({metrics.excluded_gt_quantity ?? 0}) are
               recorded but not counted.
-              {metrics.catalog_invalid_predictions != null &&
-                ` Catalog-invalid predictions: ${metrics.catalog_invalid_predictions}.`}
-              {metrics.abstained_predictions != null &&
-                ` Abstained (sent to review): ${metrics.abstained_predictions}.`}
             </Typography>
           </Grid>
         </Grid>
@@ -382,128 +404,86 @@ function GroundTruthEvaluationPanel({ report }) {
       )}
 
       <Paper variant="outlined" sx={{ overflow: "hidden" }}>
-        <Box sx={{ px: 2, py: 1.6, borderBottom: 1, borderColor: "divider" }}>
+        <Box
+          sx={{
+            px: 2, py: 1.4, borderBottom: 1, borderColor: "divider",
+            display: "flex", flexWrap: "wrap", gap: 1,
+            alignItems: "center", justifyContent: "space-between",
+          }}
+        >
           <Typography variant="subtitle1" fontWeight={750}>
             Section takeoff vs ground truth
           </Typography>
-          <Typography variant="caption" color="text.secondary">
-            Correctly caught = min(predicted, ground truth) for that exact section.
-          </Typography>
+          <Stack direction="row" spacing={0.75} useFlexGap sx={{ flexWrap: "wrap" }}>
+            {GT_FILTERS.map((f) => (
+              <Chip
+                key={f}
+                size="small"
+                label={f}
+                color={filter === f ? "primary" : "default"}
+                variant={filter === f ? "filled" : "outlined"}
+                onClick={() => setFilter(f)}
+              />
+            ))}
+          </Stack>
         </Box>
-        <TableContainer sx={{ maxHeight: 400 }}>
+        <TableContainer sx={{ maxHeight: 420 }}>
           <Table size="small" stickyHeader>
             <TableHead>
               <TableRow>
                 <TableCell>Section</TableCell>
                 <TableCell align="right">Ground Truth</TableCell>
-                <TableCell align="right">Correctly Caught</TableCell>
-                <TableCell align="right">Success</TableCell>
-                {showDetails && <TableCell align="right">Predicted</TableCell>}
+                <TableCell align="right">Estima3D</TableCell>
+                <TableCell align="right">Difference</TableCell>
+                <TableCell align="right">Match %</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {estimatorRows.length === 0 && (
+              {filtered.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={showDetails ? 5 : 4}>
+                  <TableCell colSpan={5}>
                     <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
-                      No Excel comparisons available.
+                      No sections in this view.
                     </Typography>
                   </TableCell>
                 </TableRow>
               )}
-              {[...estimatorRows]
-                .sort((a, b) => (b.ground_truth || 0) - (a.ground_truth || 0))
-                .map((row) => {
-                  const gt = row.ground_truth || 0;
-                  const cc = row.correctly_caught ?? 0;
-                  const successPct =
-                    row.success_pct != null
-                      ? row.success_pct
-                      : gt > 0
-                        ? Math.round((cc / gt) * 1000) / 10
-                        : null;
-                  return (
-                    <TableRow key={`${row.section}`} hover>
-                      <TableCell sx={{ fontFamily: "monospace", fontWeight: 700 }}>
-                        {row.section}
-                      </TableCell>
-                      <TableCell align="right">{gt}</TableCell>
-                      <TableCell align="right">{cc}</TableCell>
-                      <TableCell
-                        align="right"
-                        sx={{
-                          color:
-                            successPct == null
-                              ? "text.disabled"
-                              : successPct >= 90
-                                ? "success.main"
-                                : successPct >= 60
-                                  ? "warning.main"
-                                  : "error.main",
-                          fontWeight: 700,
-                        }}
-                      >
-                        {successPct == null ? "—" : `${successPct}%`}
-                      </TableCell>
-                      {showDetails && (
-                        <TableCell
-                          align="right"
-                          sx={{
-                            color:
-                              (row.predicted || 0) > gt ? "warning.main" : "text.primary",
-                          }}
-                        >
-                          {row.predicted ?? 0}
-                        </TableCell>
-                      )}
-                    </TableRow>
-                  );
-                })}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
-      <Paper variant="outlined" sx={{ overflow: "hidden", display: showDetails ? "block" : "none" }}>
-        <Box sx={{ px: 2, py: 1.6, borderBottom: 1, borderColor: "divider" }}>
-          <Typography variant="subtitle1" fontWeight={750}>
-            Full comparison (details)
-          </Typography>
-        </Box>
-        <TableContainer sx={{ maxHeight: 320 }}>
-          <Table size="small" stickyHeader>
-            <TableHead>
-              <TableRow>
-                <TableCell>Section</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell align="right">Pred qty</TableCell>
-                <TableCell align="right">GT qty</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {comparisons.map((row) => (
-                <TableRow key={`${row.section}-${row.status}`} hover>
+              {filtered.map((row) => (
+                <TableRow key={row.section} hover>
                   <TableCell sx={{ fontFamily: "monospace", fontWeight: 700 }}>
-                    {row.section || row.label}
+                    {row.section}
                   </TableCell>
-                  <TableCell>
-                    <Chip
-                      size="small"
-                      label={String(row.status || "").replaceAll("_", " ")}
-                      color={
-                        row.status === "match"
-                          ? "success"
-                          : row.status === "missing_member" || row.status === "missing"
-                            ? "error"
-                            : "warning"
-                      }
-                      variant="outlined"
-                    />
+                  <TableCell align="right">{row.ground_truth}</TableCell>
+                  <TableCell align="right">{row.predicted}</TableCell>
+                  <TableCell
+                    align="right"
+                    sx={{
+                      color:
+                        row.difference === 0
+                          ? "text.secondary"
+                          : row.difference > 0
+                            ? "warning.main"
+                            : "error.main",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {row.difference > 0 ? `+${row.difference}` : row.difference}
                   </TableCell>
-                  <TableCell align="right">
-                    {row.predicted_quantity ?? row.prediction ?? 0}
-                  </TableCell>
-                  <TableCell align="right">
-                    {row.expected_quantity ?? row.ground_truth ?? 0}
+                  <TableCell
+                    align="right"
+                    sx={{
+                      color:
+                        row.match_pct == null
+                          ? "text.disabled"
+                          : row.match_pct >= 90
+                            ? "success.main"
+                            : row.match_pct >= 60
+                              ? "warning.main"
+                              : "error.main",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {row.match_pct == null ? "—" : `${row.match_pct}%`}
                   </TableCell>
                 </TableRow>
               ))}
@@ -511,57 +491,6 @@ function GroundTruthEvaluationPanel({ report }) {
           </Table>
         </TableContainer>
       </Paper>
-
-      <Grid container spacing={2}>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Paper variant="outlined" sx={{ p: 2, height: "100%" }}>
-            <Typography variant="subtitle2" fontWeight={750} mb={1}>
-              Missing elements
-            </Typography>
-            {missing.length === 0 ? (
-              <Typography variant="body2" color="text.secondary">
-                None
-              </Typography>
-            ) : (
-              <Stack spacing={0.75}>
-                {missing.slice(0, 40).map((item) => (
-                  <Typography
-                    key={`missing-${item.section}-${item.expected_quantity}`}
-                    variant="body2"
-                    fontFamily="monospace"
-                  >
-                    {item.section} ×{item.expected_quantity}
-                  </Typography>
-                ))}
-              </Stack>
-            )}
-          </Paper>
-        </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Paper variant="outlined" sx={{ p: 2, height: "100%" }}>
-            <Typography variant="subtitle2" fontWeight={750} mb={1}>
-              Extra elements
-            </Typography>
-            {extra.length === 0 ? (
-              <Typography variant="body2" color="text.secondary">
-                None
-              </Typography>
-            ) : (
-              <Stack spacing={0.75}>
-                {extra.slice(0, 40).map((item) => (
-                  <Typography
-                    key={`extra-${item.section}-${item.predicted_quantity}`}
-                    variant="body2"
-                    fontFamily="monospace"
-                  >
-                    {item.section} ×{item.predicted_quantity}
-                  </Typography>
-                ))}
-              </Stack>
-            )}
-          </Paper>
-        </Grid>
-      </Grid>
     </Stack>
   );
 }
@@ -886,6 +815,7 @@ export default function ValidationPage() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [approvingId, setApprovingId] = useState("");
+  const [showTech, setShowTech] = useState(false);
 
   async function approveIssue(issue, issueKey) {
     const suggestion = issue.suggested_correction || {};
@@ -937,13 +867,26 @@ export default function ValidationPage() {
         title="Validation"
         subtitle="AI-based PASS / WARNING / FAIL with reasons across extraction, OCR, geometry, graph, engineering rules, duplicates, and labels."
         actions={
-          report ? (
-            <Button variant="outlined" startIcon={<DownloadOutlined />} onClick={exportReport}>
-              Export report
-            </Button>
-          ) : null
+          <>
+            {report ? (
+              <Button variant="outlined" startIcon={<DownloadOutlined />} onClick={exportReport}>
+                Export report
+              </Button>
+            ) : null}
+            {report ? (
+              <TipButton
+                component={Link}
+                to="/takeoff"
+                variant="contained"
+                endIcon={<ArrowForwardRounded />}
+              >
+                Continue to Takeoff
+              </TipButton>
+            ) : null}
+          </>
         }
       />
+      <WorkflowProgress step="validate" />
 
       <Paper variant="outlined" sx={{ p: 2.25, mb: 2.5 }}>
         <Typography variant="body2" color="text.secondary">
@@ -962,14 +905,29 @@ export default function ValidationPage() {
         )}
       </Paper>
 
-      <ExtractionQualityPanel report={extractionReport} />
+      {extractionReport && (
+        <Box sx={{ mb: 2.5 }}>
+          <Button
+            size="small"
+            variant="text"
+            onClick={() => setShowTech((v) => !v)}
+          >
+            {showTech ? "Hide technical diagnostics" : "Technical diagnostics"}
+          </Button>
+          {showTech && (
+            <Box sx={{ mt: 1 }}>
+              <ExtractionQualityPanel report={extractionReport} />
+            </Box>
+          )}
+        </Box>
+      )}
 
       {!report && (
         <EmptyState
           title="No validation report"
           subtitle="Complete upload, extraction, and multimodal analysis first."
           action={
-            <TipButton component={Link} to="/analyze" variant="contained">
+            <TipButton component={Link} to="/analysis" variant="contained">
               Go to analysis
             </TipButton>
           }

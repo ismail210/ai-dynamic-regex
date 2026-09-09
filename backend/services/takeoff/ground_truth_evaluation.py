@@ -88,6 +88,13 @@ def evaluate_against_excel(
     metrics = {
         # honest redefinitions, computed on caught = min(pred, GT)
         "overall_success_pct": result["overall_success_pct"],
+        "section_recall_pct": result["section_recall_pct"],
+        "section_precision_pct": result["section_precision_pct"],
+        "matching_quantity": result["matching_quantity"],
+        "excess_quantity": result["excess_quantity"],
+        "auto_resolved_total": result["auto_resolved_total"],
+        "review_member_quantity": result["review_member_quantity"],
+        "weak_geometry_quantity": result["weak_geometry_quantity"],
         "caught": result["caught"],
         "ground_truth_total": result["ground_truth_total"],
         "predicted_total": result["predicted_total"],

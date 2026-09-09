@@ -293,7 +293,18 @@ def aggregate_predictions(predictions: List[dict]) -> Dict[str, Any]:
     counts: Dict[str, int] = defaultdict(int)
     object_ids: Dict[str, List[str]] = defaultdict(list)
     abstained = plate_or_dim = catalog_invalid = 0
+    # Members detected but not auto-counted: existence is supported, section
+    # is unconfirmed (routed to Drawing Review by member_resolution), or the
+    # geometry candidate itself is weak. These are NOT takeoff units.
+    review_members = weak_geometry = 0
     for p in predictions:
+        scope = p.get("object_scope")
+        if scope == "unresolved_member":
+            review_members += int(p.get("quantity") or 1)
+            continue
+        if scope == "weak_geometry_candidate":
+            weak_geometry += int(p.get("quantity") or 1)
+            continue
         if p.get("takeoff_eligible") is False:
             continue
         qty = int(p.get("quantity") or 1)
@@ -314,6 +325,7 @@ def aggregate_predictions(predictions: List[dict]) -> Dict[str, Any]:
         "counts": dict(counts), "object_ids": dict(object_ids),
         "abstained": abstained, "plate_or_dimension": plate_or_dim,
         "catalog_invalid": catalog_invalid,
+        "review_members": review_members, "weak_geometry": weak_geometry,
     }
 
 
@@ -388,12 +400,24 @@ def evaluate(
     sq = ground_truth.get("scope_quantity", {})
     return {
         "scope": scope,
+        # section-quantity histogram overlap (NOT object-level matching)
         "overall_success_pct": round(100.0 * sum_caught / sum_gt, 2) if sum_gt else 0.0,
-        "caught": sum_caught,
-        "ground_truth_total": sum_gt,
-        "predicted_total": sum_pred,
-        "false_positives": fp,
+        "section_recall_pct": round(100.0 * sum_caught / sum_gt, 2) if sum_gt else 0.0,
+        "section_precision_pct": round(100.0 * sum_caught / sum_pred, 2) if sum_pred else 0.0,
         "precision_pct": round(100.0 * sum_caught / sum_pred, 2) if sum_pred else 0.0,
+        "caught": sum_caught,
+        "matching_quantity": sum_caught,
+        "ground_truth_total": sum_gt,
+        # the automatic takeoff = members with explicit / high-confidence
+        # section evidence only (weak-section synthetic members are routed to
+        # review by member_resolution and excluded here).
+        "predicted_total": sum_pred,
+        "auto_resolved_total": sum_pred,
+        "excess_quantity": fp,
+        "false_positives": fp,
+        # detected but not auto-counted (section unconfirmed / weak geometry)
+        "review_member_quantity": agg.get("review_members", 0),
+        "weak_geometry_quantity": agg.get("weak_geometry", 0),
         "sections_ground_truth": len(gt_counts),
         "sections_predicted": len(pred_counts),
         "sections_missing": sum(1 for r in rows if r["status"] == "missing"),

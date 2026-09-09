@@ -20,10 +20,20 @@ from services.entity_taxonomy import classify_category
 from services.prediction.contract import confidence_overall
 
 
+# Members detected but not auto-resolved (section unconfirmed / weak
+# geometry, routed to Drawing Review by services.multimodal.member_resolution)
+# and legend/context definitions are not automatic takeoff units.
+_NON_TAKEOFF_SCOPES = {"unresolved_member", "weak_geometry_candidate", "context_definition"}
+
+
 def build_takeoff_rows(predictions: List[dict]) -> List[dict]:
     counts: Counter = Counter()
     meta: Dict[str, dict] = {}
     for result in predictions:
+        if result.get("takeoff_eligible") is False:
+            continue
+        if result.get("object_scope") in _NON_TAKEOFF_SCOPES:
+            continue
         label = str(
             result.get("section")
             or result.get("token")

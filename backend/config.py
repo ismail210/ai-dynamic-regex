@@ -182,6 +182,18 @@ class Settings:
         .lower()
         in ("1", "true", "yes", "on")
     )
+    # Route a synthetic member whose section is only nearest-label /
+    # geometry-inferred to Drawing Review instead of auto-counting it with a
+    # guessed section (services.multimodal.member_resolution). Nothing is
+    # deleted; the member stays in predictions.json and the review list.
+    member_resolution_gating_enabled: bool = field(
+        default_factory=lambda: os.getenv(
+            "MEMBER_RESOLUTION_GATING_ENABLED", "true"
+        )
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
 
     # ---- Project context profile (legend/notes deep analysis) ---------
     # Deterministic-only by default: LEGEND_PROFILE_ENABLED gates the whole

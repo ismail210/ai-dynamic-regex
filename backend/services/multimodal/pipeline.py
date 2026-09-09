@@ -41,6 +41,7 @@ from services.multimodal.geometry_ai import (
 )
 from services.multimodal.graph_ai import enrich_graph_embeddings
 from services.multimodal.label_propagation import propagate_section_labels
+from services.multimodal.member_resolution import route_member_resolution
 from services.multimodal.review_enrichment import index_predictions
 from services.multimodal.schedule_ingestion import build_schedule_tokens
 from services.multimodal.spatial_association import build_spatial_association_tokens
@@ -58,7 +59,7 @@ from services.takeoff.ground_truth_excel import parse_ground_truth_excel
 
 # Bumped whenever prediction behaviour changes, so cached analyses are replaced.
 # Combined: collinear merge, Bassam legend takeoff scope, association-safety gate.
-PIPELINE_VERSION = "4.16-legend-association-safety"
+PIPELINE_VERSION = "4.17-member-resolution-gating"
 
 
 def _neural_model_status() -> Dict[str, Any]:
@@ -262,9 +263,19 @@ def run_multimodal_pipeline(
     # the review-queue loop below and every downstream count skip them.
     reassert_prediction_scope(predictions, document)
 
+    # Separate "a member exists here" from "this is its section". A synthetic
+    # member whose section is only nearest-label / geometry-inferred is routed
+    # to Drawing Review (takeoff_eligible=False) instead of being auto-counted
+    # with a guessed section. Nothing is deleted -- see member_resolution.py.
+    if settings.member_resolution_gating_enabled:
+        route_member_resolution(predictions, document)
+
     # Human review is driven by multimodal confidence/conflicts, never by a
-    # database miss alone.
-    for prediction in predictions:
+    # database miss alone. Enqueuing writes to the shared unknown-token queue
+    # (training/unknown_tokens.csv + history.csv), so it is a persistence side
+    # effect: a persist=False run (research harness, tests, previews) leaves the
+    # prediction as ``pending_review`` without touching disk.
+    for prediction in predictions if persist else []:
         if prediction.get("review_status") != "pending_review":
             continue
         if prediction.get("_skip_unknown_queue"):
