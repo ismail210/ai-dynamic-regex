@@ -35,17 +35,36 @@ describe("DrawingSummaryPage", () => {
         tokens: [],
         legend_profile: {
           status: "SUCCESS",
-          executive_summary: "A three-storey steel-framed office building.",
           abbreviation_rules: [],
-          drawing_language: [],
           project_rules: [],
           derived_insights: [],
-          warnings_and_conflicts: [],
-          estimator_attention_items: [],
+          drawing_intelligence: {
+            version: "drawing_intelligence_v1",
+            method: "deterministic",
+            page_count: 3,
+            steel_system: { families: [], representative_sections: [] },
+            page_groups: [{ detail: { category: "floor_framing", pages: [2] } }],
+            typical_conditions: [],
+            schedule_insights: [],
+            scope_signals: [],
+            structural_notes: [],
+            uncertainties: [],
+            narrative: {
+              project_overview: "A three-storey steel-framed office building.",
+              structural_content: "Page make-up: 1 floor framing.",
+              steel_system: "Wide-flange framing dominates.",
+              drawing_language: "No project-specific shorthand substitutions were found.",
+              typical_conditions: "No TYP / U.N.O. / repeated-condition language detected.",
+              schedules: "No structural schedules identified.",
+              scope_revision: "No explicit issue/revision/phase markings detected.",
+              important_notes: [],
+              uncertainties: ["No unresolved conflicts or ambiguous page roles detected."],
+            },
+          },
         },
       },
     });
-    expect(screen.getByText("Important Project Notes")).toBeInTheDocument();
+    expect(screen.getByText("What Estima3D read from this drawing set")).toBeInTheDocument();
     expect(screen.getByText(/three-storey steel-framed office/)).toBeInTheDocument();
     expect(screen.getByText("Analyze Steel Takeoff")).toBeInTheDocument();
   });

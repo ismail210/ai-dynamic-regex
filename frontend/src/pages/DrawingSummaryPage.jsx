@@ -15,7 +15,7 @@ import { TipButton } from "../components/ui/ActionButtons";
  * already produced (`extraction.legend_profile`).
  */
 export default function DrawingSummaryPage() {
-  const { document, extraction, data } = useAnalysis();
+  const { extraction } = useAnalysis();
 
   if (!extraction) {
     return (
@@ -32,8 +32,14 @@ export default function DrawingSummaryPage() {
   }
 
   const profile = extraction.legend_profile;
+  const di = profile?.drawing_intelligence;
   const hasProfile =
-    profile && (profile.status || Object.keys(profile).length > 0);
+    profile &&
+    ((di && (di.narrative || di.page_groups?.length)) ||
+      (profile.project_rules || []).length > 0 ||
+      (profile.abbreviation_rules || []).length > 0 ||
+      profile.status === "MODEL_ERROR" ||
+      profile.status === "MODEL_UNAVAILABLE");
 
   return (
     <Stack spacing={2.5}>
@@ -44,7 +50,7 @@ export default function DrawingSummaryPage() {
       <WorkflowProgress step="summary" />
 
       {hasProfile ? (
-        <DrawingSummaryPanel profile={profile} extraction={extraction} data={data} />
+        <DrawingSummaryPanel profile={profile} />
       ) : (
         <Alert severity="info" variant="outlined">
           No legend, general-note, or specification pages were identified in this

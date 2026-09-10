@@ -397,6 +397,33 @@ def run_multimodal_pipeline(
             )
         artifacts = {name: path for name, path in written.items() if path}
 
+    # Phase C -- physical member reconstruction, SHADOW ONLY. Default off.
+    # Produces a separate shadow takeoff that is attached to the result under
+    # its own key and is never merged into predictions, the review queue,
+    # exports or the canonical takeoff. Failure here never affects the result.
+    member_reconstruction_shadow: Optional[Dict[str, Any]] = None
+    if settings.member_reconstruction_shadow_enabled:
+        try:
+            from services.engineering.member_reconstruction import (
+                reconstruct_members_shadow,
+            )
+
+            _shadow = reconstruct_members_shadow(
+                document,
+                geometry,
+                drawing_intelligence=(document.get("legend_profile") or {}).get(
+                    "drawing_intelligence"
+                ),
+                predictions=predictions,
+                base_graph=graph,
+            )
+            _shadow.pop("candidates", None)  # keep the result payload light
+            member_reconstruction_shadow = _shadow
+        except Exception as exc:  # noqa: BLE001 - shadow feature must never break analyse
+            member_reconstruction_shadow = {
+                "error": f"reconstruction_failed: {type(exc).__name__}"
+            }
+
     validation_summary = validation["summary"]
     expected_counts = validation.get("expected_counts") or {}
     predicted_counts = validation.get("predicted_counts") or {}
@@ -494,6 +521,7 @@ def run_multimodal_pipeline(
         "anonymous_dimension_metrics": anonymous_dimension_metrics,
         "excel_evaluation": excel_evaluation,
         "performance": timings,
+        "member_reconstruction_shadow": member_reconstruction_shadow,
         "expected_excel": expected,
         "excel_role": "ground_truth_only" if expected else None,
         "excel_is_prediction": False,

@@ -231,6 +231,22 @@ class Settings:
         .lower()
         in ("1", "true", "yes", "on")
     )
+    # Optional LLM polish of the Drawing Summary prose ONLY. Independent of
+    # LEGEND_PROFILE_LLM_ENABLED (which gates the project-rule compiler). When
+    # true, a single schema-constrained call rewrites the deterministic
+    # DrawingIntelligenceProfile narrative; every claim is re-checked against
+    # the profile evidence and a claim that cannot be tied to it is dropped.
+    # The LLM never changes a prediction, candidate, section or takeoff
+    # quantity, and never sees the ground-truth Excel. Default off: the
+    # deterministic narrative is always produced regardless.
+    drawing_summary_llm_enabled: bool = field(
+        default_factory=lambda: os.getenv(
+            "DRAWING_SUMMARY_LLM_ENABLED", "false"
+        )
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
     legend_llm_provider: str = field(
         default_factory=lambda: os.getenv(
             "LEGEND_LLM_PROVIDER", "ollama"
@@ -267,6 +283,30 @@ class Settings:
         )
     )
     legend_profile_cache_dir: Path = BASE_DIR / "training" / "legend_profiles"
+
+    # ---- Phase C: physical member reconstruction (SHADOW ONLY) --------
+    # Deterministic W-member candidate detection + structural graph V2 +
+    # section propagation. Produces a SEPARATE shadow takeoff histogram that
+    # is never added to production predictions, the review queue, exports or
+    # the canonical takeoff. MEMBER_RECONSTRUCTION_AUTO_ENABLED is a hard
+    # guard that must stay false until a promotion review -- it does nothing
+    # today. Decoupled from the Drawing Summary LLM flag.
+    member_reconstruction_shadow_enabled: bool = field(
+        default_factory=lambda: os.getenv(
+            "MEMBER_RECONSTRUCTION_SHADOW_ENABLED", "false"
+        )
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
+    member_reconstruction_auto_enabled: bool = field(
+        default_factory=lambda: os.getenv(
+            "MEMBER_RECONSTRUCTION_AUTO_ENABLED", "false"
+        )
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
 
     # ---- Damaged-label reconstruction ranker (shadow mode only) -------
     # Both default false. ML_LABEL_RANKER_SHADOW may be turned on
