@@ -58,9 +58,15 @@ class GroundTruthExcelSanityTests(unittest.TestCase):
                     writer, sheet_name="Steel Elements Summary", index=False, header=False
                 )
             result = parse_ground_truth_excel(path)
-            self.assertEqual(result["parser"], "ground_truth_excel")
-            self.assertEqual(result["items"], [])
-            self.assertEqual(result["total_quantity"], 0)
+            # "Steel Elements Summary" is a Revit rollup sheet, redundant with
+            # the detail schedules. The canonical parser classifies it
+            # out-of-scope rather than trusting an implausible Count (1092)
+            # that is really a total length -- so it never inflates the
+            # primary member count, and it is not silently dropped either.
+            self.assertEqual(result["scope_quantity"]["primary_framing"], 0)
+            self.assertNotIn(
+                "L4X4X1/4", {i["canonical_label"] for i in result["items"]}
+            )
 
     def test_detailed_schedule_wins_over_summary_sheet(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

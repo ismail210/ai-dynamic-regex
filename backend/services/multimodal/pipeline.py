@@ -2,9 +2,22 @@
 
 from __future__ import annotations
 
+import os
 import time
 from pathlib import Path
 from typing import Any, Dict, Optional
+
+
+def _ablate(name: str) -> bool:
+    """Evaluation-harness modality ablation (see feature_providers._ablation_active).
+    ``ABLATE_GEOMETRY`` / ``ABLATE_GRAPH`` also skip the geometry/graph-derived
+    synthetic prediction tokens and embedding enrichment here, so the modality
+    is genuinely absent from the decision pipeline, not just down-weighted.
+    The structural graph itself is still built from geometry topology because
+    the deterministic rule engine consumes it -- that residual coupling is
+    documented in the ablation report."""
+
+    return os.getenv(name, "").strip().lower() in ("1", "true", "yes", "on")
 
 from config import settings
 from services.artifact_store import prune_documents, write_artifact
@@ -31,6 +44,7 @@ from services.multimodal.geometry_ai import (
 )
 from services.multimodal.graph_ai import enrich_graph_embeddings
 from services.multimodal.label_propagation import propagate_section_labels
+from services.multimodal.member_resolution import route_member_resolution
 from services.multimodal.review_enrichment import index_predictions
 from services.multimodal.schedule_ingestion import build_schedule_tokens
 from services.multimodal.spatial_association import build_spatial_association_tokens
@@ -50,7 +64,7 @@ from services.takeoff.ground_truth_excel import parse_ground_truth_excel
 
 # Bumped whenever prediction behaviour changes, so cached analyses are replaced.
 # Combined: collinear merge, Bassam legend takeoff scope, association-safety gate.
-PIPELINE_VERSION = "4.18-repeated-detail-linker"
+PIPELINE_VERSION = "4.19-member-resolution-and-repeated-detail"
 
 
 def _neural_model_status() -> Dict[str, Any]:
@@ -193,7 +207,8 @@ def run_multimodal_pipeline(
     geometry = geometry_document or extract_geometry_document(
         path, document_structure=document
     )
-    geometry = enrich_geometry_embeddings(path, geometry)
+    if not _ablate("ABLATE_GEOMETRY"):
+        geometry = enrich_geometry_embeddings(path, geometry)
     timings["geometry_ms"] = (
         0.0
         if geometry_document is not None
@@ -204,7 +219,8 @@ def run_multimodal_pipeline(
     if settings.detail_regions_enabled:
         assign_detail_regions(document, geometry)
     graph = graph_document or build_structural_graph(document, geometry)
-    graph = enrich_graph_embeddings(graph)
+    if not _ablate("ABLATE_GRAPH"):
+        graph = enrich_graph_embeddings(graph)
     document_rules = evaluate_document_rules(graph)
     attach_context_evidence(document, geometry, graph)
     timings["graph_rules_ms"] = round(
@@ -218,7 +234,7 @@ def run_multimodal_pipeline(
         schedule_tokens = build_schedule_tokens(document, existing_tokens=prediction_tokens)
         prediction_tokens.extend(schedule_tokens)
         document["schedule_tokens_added"] = len(schedule_tokens)
-    if settings.spatial_association_enabled:
+    if settings.spatial_association_enabled and not _ablate("ABLATE_GEOMETRY"):
         spatial_tokens = build_spatial_association_tokens(
             document,
             geometry,
@@ -226,7 +242,8 @@ def run_multimodal_pipeline(
         )
         prediction_tokens.extend(spatial_tokens)
         document["spatial_association_tokens_added"] = len(spatial_tokens)
-    prediction_tokens.extend(_missing_label_tokens(geometry, graph))
+    if not (_ablate("ABLATE_GEOMETRY") or _ablate("ABLATE_GRAPH")):
+        prediction_tokens.extend(_missing_label_tokens(geometry, graph))
     for token in prediction_tokens:
         prediction = fusion_engine.predict(
             {
@@ -256,7 +273,11 @@ def run_multimodal_pipeline(
     )
 
     deduped = merge_duplicate_predictions(raw_predictions)
-    predictions = propagate_section_labels(deduped["predictions"], graph)
+    predictions = (
+        deduped["predictions"]
+        if _ablate("ABLATE_GRAPH")
+        else propagate_section_labels(deduped["predictions"], graph)
+    )
 
     # Demote anything sitting on a strict-classified legend/notes page,
     # including geometry "missing label", schedule/spatial and label-
@@ -264,9 +285,19 @@ def run_multimodal_pipeline(
     # the review-queue loop below and every downstream count skip them.
     reassert_prediction_scope(predictions, document)
 
+    # Separate "a member exists here" from "this is its section". A synthetic
+    # member whose section is only nearest-label / geometry-inferred is routed
+    # to Drawing Review (takeoff_eligible=False) instead of being auto-counted
+    # with a guessed section. Nothing is deleted -- see member_resolution.py.
+    if settings.member_resolution_gating_enabled:
+        route_member_resolution(predictions, document)
+
     # Human review is driven by multimodal confidence/conflicts, never by a
-    # database miss alone.
-    for prediction in predictions:
+    # database miss alone. Enqueuing writes to the shared unknown-token queue
+    # (training/unknown_tokens.csv + history.csv), so it is a persistence side
+    # effect: a persist=False run (research harness, tests, previews) leaves the
+    # prediction as ``pending_review`` without touching disk.
+    for prediction in predictions if persist else []:
         if prediction.get("review_status") != "pending_review":
             continue
         if prediction.get("_skip_unknown_queue"):

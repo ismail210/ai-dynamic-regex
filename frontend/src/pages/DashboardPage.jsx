@@ -16,8 +16,8 @@ import {
 } from "@mui/material";
 import {
   CloudUploadOutlined,
-  RateReviewOutlined,
-  ModelTrainingOutlined,
+  FactCheckOutlined,
+  PlayArrowRounded,
 } from "@mui/icons-material";
 import {
   Area,
@@ -29,6 +29,7 @@ import {
   YAxis,
 } from "recharts";
 import { getHistory, getStatistics } from "../api/client";
+import { useAnalysis } from "../context/AnalysisContext";
 import PageHeader from "../components/ui/PageHeader";
 import KpiCard from "../components/ui/KpiCard";
 import SectionCard from "../components/ui/SectionCard";
@@ -36,6 +37,7 @@ import EmptyState from "../components/ui/EmptyState";
 import { TipButton } from "../components/ui/ActionButtons";
 
 export default function DashboardPage() {
+  const { stage } = useAnalysis();
   const [stats, setStats] = useState(null);
   const [history, setHistory] = useState([]);
   const [error, setError] = useState("");
@@ -101,31 +103,33 @@ export default function DashboardPage() {
         actions={
           <>
             <TipButton
-              title="Upload a drawing"
+              title="Start a new takeoff from a drawing"
               component={RouterLink}
-              to="/upload"
+              to="/upload-extract"
               variant="contained"
               startIcon={<CloudUploadOutlined />}
             >
-              Upload
+              Start New Takeoff
             </TipButton>
+            {stage !== "empty" && (
+              <TipButton
+                title="Resume the drawing you were working on"
+                component={RouterLink}
+                to="/analysis"
+                variant="outlined"
+                startIcon={<PlayArrowRounded />}
+              >
+                Continue project
+              </TipButton>
+            )}
             <TipButton
               title="Open validation"
               component={RouterLink}
               to="/validation"
               variant="outlined"
-              startIcon={<RateReviewOutlined />}
+              startIcon={<FactCheckOutlined />}
             >
               Validation
-            </TipButton>
-            <TipButton
-              title="Training workspace"
-              component={RouterLink}
-              to="/training"
-              variant="outlined"
-              startIcon={<ModelTrainingOutlined />}
-            >
-              Training
             </TipButton>
           </>
         }
@@ -147,7 +151,7 @@ export default function DashboardPage() {
               </Grid>
             ))
           : [
-              ["Total PDFs", stats?.total_pdfs ?? 0, "/upload"],
+              ["Total PDFs", stats?.total_pdfs ?? 0, "/upload-extract"],
               ["Known tokens", stats?.aisc_samples ?? 0, "/dataset"],
               ["Unknown", unk.pending ?? 0, "/review", "warning.main"],
               ["Approved", stats?.approved_tokens ?? 0, "/review?status=approved", "success.main"],

@@ -11,8 +11,17 @@ vi.mock("../api/client", () => ({
 import { analyzeDocument, extractDocument, getDocument } from "../api/client";
 
 function Probe() {
-  const { document, extraction, data, rehydrating, stage, startNewAnalysis, restoreNotice } =
-    useAnalysis();
+  const {
+    document,
+    extraction,
+    data,
+    excelFile,
+    setExcelFile,
+    rehydrating,
+    stage,
+    startNewAnalysis,
+    restoreNotice,
+  } = useAnalysis();
   return (
     <div>
       <span data-testid="stage">{stage}</span>
@@ -20,8 +29,10 @@ function Probe() {
       <span data-testid="document-id">{document?.document_id || ""}</span>
       <span data-testid="extraction">{extraction ? "yes" : "no"}</span>
       <span data-testid="data">{data ? "yes" : "no"}</span>
+      <span data-testid="excel">{excelFile?.name || ""}</span>
       <span data-testid="restore-notice-kind">{restoreNotice?.kind || ""}</span>
       <span data-testid="restore-notice-message">{restoreNotice?.message || ""}</span>
+      <button onClick={() => setExcelFile({ name: "gt.xlsx" })}>set-excel</button>
       <button onClick={startNewAnalysis}>reset</button>
     </div>
   );
@@ -145,6 +156,23 @@ describe("AnalysisContext workflow persistence", () => {
     expect(screen.getByTestId("restore-notice-message").textContent).not.toContain(
       "no longer available",
     );
+  });
+
+  it("holds an optional ground-truth Excel and clears it on reset, without persisting it", async () => {
+    const { fireEvent } = await import("@testing-library/react");
+    render(
+      <AnalysisProvider>
+        <Probe />
+      </AnalysisProvider>,
+    );
+    await waitFor(() => expect(screen.getByTestId("rehydrating").textContent).toBe("false"));
+
+    fireEvent.click(screen.getByText("set-excel"));
+    expect(screen.getByTestId("excel").textContent).toBe("gt.xlsx");
+    expect(sessionStorage.getItem("steelTakeoff.workflow.v1")).toBeNull();
+
+    fireEvent.click(screen.getByText("reset"));
+    expect(screen.getByTestId("excel").textContent).toBe("");
   });
 
   it("never persists the analysis payload itself, only the document id/stage", async () => {

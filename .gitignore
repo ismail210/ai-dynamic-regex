@@ -81,3 +81,10 @@ backend/training/legend_profiles/
 # sanitized, non-confidential summary that IS committed.
 # =========================
 backend/training/ml_association/real_project_pilot/
+
+# =========================
+# Claude Code — team config in .claude/ IS tracked; machine-local files are not
+# =========================
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
+CLAUDE.local.md

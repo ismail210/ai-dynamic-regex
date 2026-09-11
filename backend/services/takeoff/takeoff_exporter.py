@@ -34,6 +34,15 @@ _TRUSTED_REPRESENTATIVE_MATCH = frozenset(
     }
 )
 
+# Members detected but not auto-resolved (section unconfirmed / weak
+# geometry, routed to Drawing Review by services.multimodal.member_resolution)
+# and legend/context definitions are not automatic takeoff units.
+_NON_TAKEOFF_SCOPES = {
+    "unresolved_member",
+    "weak_geometry_candidate",
+    "context_definition",
+}
+
 
 def _representative_rank(
     prediction: Dict[str, Any], label: str
@@ -94,6 +103,10 @@ def build_takeoff_rows(
         if source not in LABELED_PREDICTION_SOURCES:
             continue
         if is_repeated_detail_member(prediction):
+            continue
+        if prediction.get("takeoff_eligible") is False:
+            continue
+        if prediction.get("object_scope") in _NON_TAKEOFF_SCOPES:
             continue
         label = normalized_section(prediction)
         if not label:

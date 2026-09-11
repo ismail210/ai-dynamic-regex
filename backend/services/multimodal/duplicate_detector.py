@@ -1,15 +1,40 @@
-"""Collapse the same printed annotation when extraction emits it twice.
+"""
+Duplicate annotation detection and merge helpers.
 
-Identity is the source OCR record — never the nearest geometry object.
-Two W10X19 stamps at different plan locations must stay separate even if
-they share a gridline bbox.
+Identity is the EXTRACTED SOURCE ANNOTATION, never the geometry that was
+later associated with it. Two predictions are the same annotation only when
+they came from the same printed label on the page:
+
+  * the same source token id (the same extraction record), or
+  * the same page + same normalized label text + heavily overlapping source
+    text bounding boxes (IoU >= ``iou_threshold``).
+
+What this deliberately does NOT merge:
+  * two identical labels printed at different positions (different bbox);
+  * two different labels that happen to sit on the same member / gridline;
+  * a label that has several candidate geometry associations (that is one
+    annotation with metadata, not two predictions);
+  * a real extracted label and a synthesized schedule/geometry token that
+    happen to share a section string (different provenance, no source-bbox
+    overlap).
+
+Historical bug (fixed here): identity was keyed on
+``prediction["geometry_preview"]["bbox"]`` -- the bbox of the *nearest
+geometry object*, not the extracted text. On a dense framing plan many
+distinct beam labels share a nearest gridline, so they collapsed into one;
+turning geometry off (which nulls ``geometry_preview``) then fell through to
+``prediction.get("bbox")`` -- a key that does not exist in the v3 payload
+(it is ``bounding_box``) -- so dedup silently did nothing at all. Neither
+behaviour was correct.
 """
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Sequence
+import re
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from services.prediction.contract import confidence_overall
+
 
 SOURCE_IOU_THRESHOLD = 0.6
 
@@ -21,9 +46,10 @@ def _as_bbox(raw: Any) -> Optional[List[float]]:
         box = [float(raw[0]), float(raw[1]), float(raw[2]), float(raw[3])]
     except (TypeError, ValueError):
         return None
-    if box[2] <= box[0] or box[3] <= box[1]:
+    x0, y0, x1, y1 = box
+    if x0 == x1 or y0 == y1:
         return None
-    return box
+    return [min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1)]
 
 
 def _source_text_block(prediction: Dict[str, Any]) -> Dict[str, Any]:
@@ -32,7 +58,7 @@ def _source_text_block(prediction: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def source_token_id(prediction: Dict[str, Any]) -> str:
-    """Extraction record id — not component_id (that folds in member role)."""
+    """Extraction record id -- not component_id, which folds in member role."""
 
     source = _source_text_block(prediction)
     for key in ("token_id", "source_token_id"):
@@ -47,38 +73,52 @@ def source_token_id(prediction: Dict[str, Any]) -> str:
 
 def source_page(prediction: Dict[str, Any]) -> int:
     source = _source_text_block(prediction)
-    candidate = (
-        source.get("page_number")
-        or prediction.get("page_number")
-        or prediction.get("page")
-        or 0
-    )
-    try:
-        return int(candidate or 0)
-    except (TypeError, ValueError):
-        return 0
+    features = prediction.get("features") if isinstance(prediction.get("features"), dict) else {}
+    text_features = features.get("text") if isinstance(features.get("text"), dict) else {}
+    for candidate in (
+        source.get("page_number"),
+        prediction.get("page_number"),
+        prediction.get("page"),
+        text_features.get("page"),
+    ):
+        if candidate is not None:
+            try:
+                return int(candidate)
+            except (TypeError, ValueError):
+                continue
+    return 0
 
 
 def source_bbox(prediction: Dict[str, Any]) -> Optional[List[float]]:
-    """Extracted text position only — never geometry_preview."""
+    """Extracted text position only -- never geometry_preview."""
 
     source = _source_text_block(prediction)
-    return _as_bbox(
-        source.get("bounding_box")
-        or prediction.get("bounding_box")
-    )
+    features = prediction.get("features") if isinstance(prediction.get("features"), dict) else {}
+    text_features = features.get("text") if isinstance(features.get("text"), dict) else {}
+    for candidate in (
+        source.get("bounding_box"),
+        prediction.get("bounding_box"),
+        text_features.get("bbox"),
+    ):
+        box = _as_bbox(candidate)
+        if box:
+            return box
+    return None
 
 
 def normalized_source_text(prediction: Dict[str, Any]) -> str:
     source = _source_text_block(prediction)
-    raw = (
-        source.get("normalized")
-        or source.get("raw")
-        or prediction.get("original_token")
-        or prediction.get("raw_text")
-        or ""
-    )
-    return str(raw).upper().replace(" ", "").replace("×", "X")
+    for value in (
+        source.get("normalized"),
+        source.get("raw"),
+        prediction.get("normalized_text"),
+        prediction.get("raw_text"),
+        prediction.get("original_token"),
+    ):
+        text = re.sub(r"\s+", "", str(value or "")).upper().replace("×", "X")
+        if text:
+            return text
+    return ""
 
 
 def bbox_iou(left: Sequence[float], right: Sequence[float]) -> float:
@@ -114,9 +154,8 @@ def same_source_annotation(
         return False
     if source_page(left) != source_page(right):
         return False
-    if not normalized_source_text(left) or (
-        normalized_source_text(left) != normalized_source_text(right)
-    ):
+    left_label = normalized_source_text(left)
+    if not left_label or left_label != normalized_source_text(right):
         return False
     return bbox_iou(left_box, right_box) >= iou_threshold
 
@@ -135,17 +174,28 @@ def merge_duplicate_predictions(
 
     del distance_threshold
     kept: List[dict] = []
+    buckets: Dict[Tuple[str, str] | Tuple[str, int, str], List[int]] = {}
     merges: List[dict] = []
+
     for prediction in predictions:
-        merged_into = None
-        for index, existing in enumerate(kept):
-            if same_source_annotation(
-                existing, prediction, iou_threshold=iou_threshold
-            ):
-                merged_into = index
-                break
         page = source_page(prediction)
         box = source_bbox(prediction)
+        label = normalized_source_text(prediction)
+        source_id = source_token_id(prediction)
+        id_key = ("id", source_id) if source_id else None
+        label_key = ("label", page, label)
+        merged_into: Optional[int] = None
+        candidate_indices = list(buckets.get(id_key, ())) if id_key else []
+        candidate_indices.extend(
+            index
+            for index in buckets.get(label_key, ())
+            if index not in candidate_indices
+        )
+        for index in candidate_indices:
+            if same_source_annotation(kept[index], prediction, iou_threshold=iou_threshold):
+                merged_into = index
+                break
+
         if merged_into is None:
             item = dict(prediction)
             item["page"] = page
@@ -154,6 +204,10 @@ def merge_duplicate_predictions(
                 item["bounding_box"] = box
             item["merged_from"] = []
             kept.append(item)
+            kept_index = len(kept) - 1
+            if id_key:
+                buckets.setdefault(id_key, []).append(kept_index)
+            buckets.setdefault(label_key, []).append(kept_index)
             continue
 
         survivor = kept[merged_into]
@@ -162,7 +216,7 @@ def merge_duplicate_predictions(
         dropped_id = prediction.get("object_id") or prediction.get("component_id")
         kept_id = survivor.get("object_id") or survivor.get("component_id")
         if challenger_conf > survivor_conf:
-            provenance = survivor.get("merged_from") or []
+            provenance = list(survivor.get("merged_from") or [])
             provenance.append(kept_id)
             replacement = dict(prediction)
             replacement["page"] = page
@@ -174,13 +228,7 @@ def merge_duplicate_predictions(
             kept_id = replacement.get("object_id") or replacement.get("component_id")
         else:
             survivor.setdefault("merged_from", []).append(dropped_id)
-        merges.append(
-            {
-                "kept": kept_id,
-                "dropped": dropped_id,
-                "label": normalized_source_text(prediction),
-            }
-        )
+        merges.append({"kept": kept_id, "dropped": dropped_id, "label": label})
 
     return {
         "predictions": kept,

@@ -13,7 +13,7 @@ def _pred(
     token: str,
     page: int,
     bbox,
-    confidence: float = 0.8,
+    confidence=0.8,
     geometry_preview=None,
     token_id: str = "",
     missing_label: bool = False,
@@ -22,6 +22,7 @@ def _pred(
         "object_id": object_id,
         "component_id": f"comp_{object_id}",
         "section": token,
+        "normalized_text": token,
         "original_token": token,
         "raw_text": token,
         "confidence": confidence,
@@ -40,6 +41,7 @@ def _pred(
     if missing_label:
         payload["source_text"] = {"raw": "", "normalized": "", "page_number": page}
         payload["bounding_box"] = None
+        payload["normalized_text"] = ""
         payload["original_token"] = ""
         payload["raw_text"] = ""
         payload["missing_label"] = True
@@ -58,7 +60,7 @@ class DuplicateDetectorTests(unittest.TestCase):
         self.assertEqual(len(result["predictions"]), 2)
         self.assertEqual(result["duplicate_count"], 0)
 
-    def test_same_text_from_two_extraction_passes_keeps_highest_confidence(self) -> None:
+    def test_same_token_id_keeps_highest_confidence(self) -> None:
         result = merge_duplicate_predictions(
             [
                 _pred(
@@ -83,6 +85,50 @@ class DuplicateDetectorTests(unittest.TestCase):
         self.assertEqual(result["duplicate_count"], 1)
         self.assertEqual(result["predictions"][0]["confidence"], 0.9)
 
+    def test_overlapping_source_boxes_same_label_merge(self) -> None:
+        result = merge_duplicate_predictions(
+            [
+                _pred(object_id="ocr-1", token="W12X16", page=1, bbox=[100, 100, 120, 110]),
+                _pred(object_id="ocr-2", token="W12X16", page=1, bbox=[101, 100, 121, 110]),
+            ]
+        )
+        self.assertEqual(result["duplicate_count"], 1)
+        self.assertEqual(len(result["predictions"]), 1)
+
+    def test_page_identity_is_respected_for_bbox_matching(self) -> None:
+        box = [10, 10, 40, 20]
+        result = merge_duplicate_predictions(
+            [
+                _pred(object_id="p1", token="W12X16", page=1, bbox=box),
+                _pred(object_id="p2", token="W12X16", page=2, bbox=box),
+            ]
+        )
+        self.assertEqual(len(result["predictions"]), 2)
+        self.assertEqual(result["duplicate_count"], 0)
+
+    def test_two_labels_on_same_gridline_stay_separate(self) -> None:
+        gridline = {"bbox": [0, 0, 2000, 40]}
+        result = merge_duplicate_predictions(
+            [
+                _pred(
+                    object_id="token_p5_3",
+                    token="W21X44",
+                    page=5,
+                    bbox=[100, 100, 130, 110],
+                    geometry_preview=gridline,
+                ),
+                _pred(
+                    object_id="token_p5_4",
+                    token="W24X55",
+                    page=5,
+                    bbox=[100, 700, 130, 710],
+                    geometry_preview=gridline,
+                ),
+            ]
+        )
+        self.assertEqual(result["duplicate_count"], 0)
+        self.assertEqual(len(result["predictions"]), 2)
+
     def test_twelve_w10x33_sharing_one_gridline_are_not_collapsed(self) -> None:
         gridline = {"bbox": [0, 0, 2000, 40]}
         predictions = [
@@ -96,17 +142,8 @@ class DuplicateDetectorTests(unittest.TestCase):
             for index in range(12)
         ]
         result = merge_duplicate_predictions(predictions)
+        self.assertEqual(result["duplicate_count"], 0)
         self.assertEqual(len(result["predictions"]), 12)
-
-    def test_page_identity_is_respected(self) -> None:
-        box = [10, 10, 40, 20]
-        result = merge_duplicate_predictions(
-            [
-                _pred(object_id="p1", token="W12X16", page=1, bbox=box),
-                _pred(object_id="p2", token="W12X16", page=2, bbox=box),
-            ]
-        )
-        self.assertEqual(len(result["predictions"]), 2)
 
     def test_geometry_preview_on_and_off_deduplicate_identically(self) -> None:
         low = _pred(
@@ -135,46 +172,16 @@ class DuplicateDetectorTests(unittest.TestCase):
         self.assertEqual(without_geo["duplicate_count"], 1)
         self.assertEqual(len(with_geo["predictions"]), len(without_geo["predictions"]))
 
-    def test_geometry_inferred_token_without_source_bbox_never_merges_by_section(
-        self,
-    ) -> None:
-        labeled = _pred(
-            object_id="callout",
-            token="W10X33",
-            page=8,
-            bbox=[10, 10, 40, 20],
-        )
-        inferred = _pred(
-            object_id="geo1",
-            token="W10X33",
-            page=8,
-            bbox=None,
-            missing_label=True,
-        )
+    def test_missing_source_bbox_never_merges_by_section_or_geometry(self) -> None:
+        labeled = _pred(object_id="callout", token="W10X33", page=8, bbox=[10, 10, 40, 20])
+        inferred = _pred(object_id="geo1", token="W10X33", page=8, bbox=None, missing_label=True)
         inferred["section"] = "W10X33"
+        inferred["geometry_preview"] = {"bbox": [10, 10, 40, 20]}
         other = dict(inferred)
         other["object_id"] = "geo2"
         result = merge_duplicate_predictions([labeled, inferred, other])
+        self.assertEqual(result["duplicate_count"], 0)
         self.assertEqual(len(result["predictions"]), 3)
-
-    def test_overlapping_source_boxes_same_label_merge(self) -> None:
-        result = merge_duplicate_predictions(
-            [
-                _pred(
-                    object_id="ocr-1",
-                    token="W12X16",
-                    page=1,
-                    bbox=[100, 100, 120, 110],
-                ),
-                _pred(
-                    object_id="ocr-2",
-                    token="W12X16",
-                    page=1,
-                    bbox=[101, 100, 121, 110],
-                ),
-            ]
-        )
-        self.assertEqual(len(result["predictions"]), 1)
 
     def test_component_id_is_not_identity(self) -> None:
         result = merge_duplicate_predictions(
@@ -209,6 +216,7 @@ class DuplicateDetectorTests(unittest.TestCase):
                 },
             ]
         )
+        self.assertEqual(result["duplicate_count"], 0)
         self.assertEqual(len(result["predictions"]), 2)
 
 

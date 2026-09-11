@@ -52,6 +52,10 @@ export function AnalysisProvider({ children }) {
   const [document, setDocument] = useState(null);
   const [extraction, setExtraction] = useState(null);
   const [data, setData] = useState(null);
+  // Optional ground-truth Excel the estimator can attach on Upload & Extract so
+  // it is ready when Analysis runs. A File object — never persisted (it can't be
+  // serialized, and the analyze stage re-sends it anyway).
+  const [excelFile, setExcelFile] = useState(null);
   const [rehydrating, setRehydrating] = useState(true);
   const [rehydrationError, setRehydrationError] = useState(null);
   const [restoreNotice, setRestoreNotice] = useState(null);
@@ -60,6 +64,7 @@ export function AnalysisProvider({ children }) {
     setDocument(null);
     setExtraction(null);
     setData(null);
+    setExcelFile(null);
     setRestoreNotice(null);
     writePersistedWorkflow(null);
   };
@@ -150,6 +155,8 @@ export function AnalysisProvider({ children }) {
       setExtraction,
       data,
       setData,
+      excelFile,
+      setExcelFile,
       clearData,
       startNewAnalysis,
       rehydrating,
@@ -164,7 +171,7 @@ export function AnalysisProvider({ children }) {
             ? "uploaded"
             : "empty",
     }),
-    [data, document, extraction, rehydrating, rehydrationError, restoreNotice],
+    [data, document, extraction, excelFile, rehydrating, rehydrationError, restoreNotice],
   );
   return <AnalysisContext.Provider value={value}>{children}</AnalysisContext.Provider>;
 }

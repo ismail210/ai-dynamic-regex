@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, useLocation } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import DrawingReviewPage from "./DrawingReviewPage";
@@ -262,6 +262,34 @@ describe("DrawingReviewPage deep link from a result elsewhere in the app", () =>
     // page's own local copy).
     await waitFor(() => expect(screen.getByText("Selected section")).toBeInTheDocument());
     expect(setData).toHaveBeenCalled();
+  });
+});
+
+describe("DrawingReviewPage corrections history tab", () => {
+  it("lists this drawing's human-reviewed rows and switches back to Review on click", () => {
+    renderPage({
+      data: { results: [hssResult("obj_a"), hssResult("obj_b", { resolved: true })] },
+    });
+
+    fireEvent.click(screen.getByRole("tab", { name: /Corrections \(1\)/ }));
+
+    // Only the resolved object appears, showing detected text -> corrected section.
+    expect(screen.getByText("Corrected to")).toBeInTheDocument();
+    const rows = screen.getAllByRole("row").filter((r) => within(r).queryByText("HSS8X8"));
+    expect(rows).toHaveLength(1);
+    expect(within(rows[0]).getAllByText("HSS8X8X1/4").length).toBeGreaterThan(0);
+
+    // Clicking it returns to the Review tab focused on that object.
+    fireEvent.click(rows[0]);
+    expect(screen.getByText(/Locating HSS8X8X1\/4 on page 7/)).toBeInTheDocument();
+  });
+
+  it("shows an empty message when nothing has been corrected", () => {
+    renderPage({ data: { results: [hssResult("obj_a")] } });
+    fireEvent.click(screen.getByRole("tab", { name: /Corrections \(0\)/ }));
+    expect(
+      screen.getByText(/No human corrections on this drawing yet/),
+    ).toBeInTheDocument();
   });
 });
 

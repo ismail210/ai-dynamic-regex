@@ -87,12 +87,18 @@ def validate_takeoff(
     pdf_path: str | Path,
     excel_path: str | Path,
     run_ai: bool = True,
-    auto_register_pair: bool = True,
-    auto_build_dataset: bool = True,
+    auto_register_pair: bool = False,
+    auto_build_dataset: bool = False,
     persist_report: bool = True,
 ) -> Dict[str, Any]:
     """
     Run AI prediction on PDF and validate against Excel ground truth.
+
+    ``auto_register_pair`` / ``auto_build_dataset`` default to False: a
+    validation run must never copy the ground-truth Excel into training/ or
+    rebuild paired_takeoff_dataset.csv as a side effect (that silently moved
+    held-out evaluation projects into the exact-section model). Building the
+    paired training dataset is an explicit action -- POST /takeoff/dataset/build.
     """
 
     pdf_path = Path(pdf_path)
