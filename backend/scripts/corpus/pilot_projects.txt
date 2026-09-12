@@ -1,0 +1,17 @@
+60 - GCDC Building 4
+00 - Yellow Spring
+01 - Washington Latin
+03 - The Field School
+04 - Thomas ES
+06 - Tempelton
+08 - Fort Davis Community Center
+12 - Manassad Park City Hall
+24 - 1919 Penn Ave
+30 - Holy Cross Health
+38 - Sidwell School
+39 - Tubman ES
+51 - Burrvile ES
+52 - H5 Herndon
+57 - Hart MS
+61 - Ketcham ES
+18-Quantum Labs
