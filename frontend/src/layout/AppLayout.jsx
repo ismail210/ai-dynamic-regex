@@ -21,6 +21,7 @@ import {
   Brightness7,
   DashboardOutlined,
   FactCheckOutlined,
+  FindInPageOutlined,
   RestartAltOutlined,
   SettingsOutlined,
   SummarizeOutlined,
@@ -41,6 +42,7 @@ const WORKFLOW_ITEMS = [
   { to: "/drawing-summary", label: "Drawing Summary", icon: SummarizeOutlined },
   { to: "/analysis", label: "Analysis & Results", icon: TableRowsOutlined },
   { to: "/review-drawing", label: "Drawing Review", icon: PictureAsPdfOutlined },
+  { to: "/semantic-review", label: "Semantic Review", icon: FindInPageOutlined },
   { to: "/validation", label: "Validation", icon: FactCheckOutlined },
   { to: "/takeoff", label: "Takeoff", icon: ViewListOutlined },
 ];

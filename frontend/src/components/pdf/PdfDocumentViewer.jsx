@@ -32,6 +32,12 @@ const ZOOM_STEP = 1.5;
 export default function PdfDocumentViewer({
   fileUrl,
   selection = null,
+  // Optional array of { key, pageNumber, boundingBox, variant, dashed,
+  // badge, badgeTitle, onClick } rendered on every loaded page underneath
+  // the (stronger) `selection` highlight -- the semantic workspace's
+  // annotation overlay layer. Left empty/undefined, the viewer behaves
+  // exactly as before (Drawing Review's single-selection use).
+  overlays = null,
 }) {
   const containerRef = useRef(null);
   const pageRefs = useRef({});
@@ -198,6 +204,18 @@ export default function PdfDocumentViewer({
       pageHeightPts: size.height,
       availableWidth: containerSize.width,
       availableHeight: containerSize.height,
+      // Optional, per-selection overrides (default preserves the original
+      // fillRatio/maxZoomMultiplier below) -- a document with many pages
+      // mounted at once (react-pdf renders every page's canvas at the same
+      // shared `pageWidth`, not just the target page) pays for a large
+      // zoom-in with an expensive simultaneous re-render of every page, not
+      // just the one being viewed. A caller working against such a
+      // document (e.g. dozens of full-size sheets) can request a gentler
+      // magnification via `selection.zoomFillRatio` /
+      // `selection.zoomMaxMultiplier` to keep that cost bounded, without
+      // changing this viewer's default behavior for existing callers.
+      ...(selection.zoomFillRatio != null ? { fillRatio: selection.zoomFillRatio } : {}),
+      ...(selection.zoomMaxMultiplier != null ? { maxZoomMultiplier: selection.zoomMaxMultiplier } : {}),
     });
 
     if (Math.abs(nextWidth - (renderedWidthsRef.current[pageNumber] ?? -1)) < 0.5) {
@@ -268,6 +286,20 @@ export default function PdfDocumentViewer({
     () => Array.from({ length: numPages }, (_, index) => index + 1),
     [numPages],
   );
+
+  // Grouped once per `overlays` change, not recomputed per page per render --
+  // keeps annotation-heavy documents (thousands of annotations total) cheap
+  // as long as the caller passes overlays for a bounded set of pages (the
+  // semantic workspace passes only the current page's annotations).
+  const overlaysByPage = useMemo(() => {
+    const grouped = {};
+    for (const overlay of overlays || []) {
+      const key = Number(overlay.pageNumber);
+      if (!grouped[key]) grouped[key] = [];
+      grouped[key].push(overlay);
+    }
+    return grouped;
+  }, [overlays]);
 
   if (!fileUrl) {
     return (
@@ -431,6 +463,22 @@ export default function PdfDocumentViewer({
                       }
                     }}
                   />
+                  {size?.width
+                    ? overlaysByPage[pageNumber]?.map((overlay) => (
+                        <BboxHighlight
+                          key={overlay.key}
+                          boundingBox={overlay.boundingBox}
+                          pageWidthPts={size.width}
+                          renderedWidth={pageWidth}
+                          active={false}
+                          variant={overlay.variant}
+                          dashed={overlay.dashed}
+                          badge={overlay.badge}
+                          badgeTitle={overlay.badgeTitle}
+                          onClick={overlay.onClick}
+                        />
+                      ))
+                    : null}
                   {isSelectedPage && selection?.boundingBox && size?.width ? (
                     <BboxHighlight
                       boundingBox={selection.boundingBox}

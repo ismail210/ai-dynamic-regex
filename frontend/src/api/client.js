@@ -120,6 +120,34 @@ export async function extractDocument(documentId, force = false) {
   });
 }
 
+/** Run (or re-run with `force`) the semantic preprocessor for a document. */
+export async function processSemanticDocument(documentId, force = false) {
+  return timedRequest("Semantic processing", async () => {
+    const { data } = await client.post(
+      `/api/documents/${encodeURIComponent(documentId)}/semantic`,
+      null,
+      { params: force ? { force: true } : undefined },
+    );
+    return data;
+  });
+}
+
+/** Cached semantic result, or throws (404) if not processed yet. */
+export async function getSemanticDocument(documentId) {
+  const { data } = await client.get(
+    `/api/documents/${encodeURIComponent(documentId)}/semantic`,
+  );
+  return data;
+}
+
+export async function reviewSemanticAnnotation(documentId, annotationId, action, editedText) {
+  const { data } = await client.patch(
+    `/api/documents/${encodeURIComponent(documentId)}/semantic/annotations/${encodeURIComponent(annotationId)}/review`,
+    { action, edited_text: editedText ?? null },
+  );
+  return data;
+}
+
 function normalizeAnalysis(data) {
   const results = (data.predictions || []).map((prediction) => ({
     ...prediction,

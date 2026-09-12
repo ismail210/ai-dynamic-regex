@@ -16,6 +16,7 @@ from routers.analysis import router as analysis_router
 from routers.documents import router as documents_router
 from routers.engineering import router as engineering_router
 from routers.learning import router as learning_router
+from routers.semantic import router as semantic_router
 from routers.takeoff import router as takeoff_router
 from routers.upload import router as upload_router
 
@@ -41,6 +42,7 @@ app.include_router(documents_router, prefix="/api", tags=["Documents"])
 app.include_router(analysis_router, prefix="/api", tags=["Analysis"])
 app.include_router(learning_router, prefix="/api", tags=["Learning"])
 app.include_router(engineering_router, prefix="/api", tags=["Engineering"])
+app.include_router(semantic_router, prefix="/api", tags=["Semantic"])
 app.include_router(takeoff_router, prefix="/api", tags=["Takeoff"])
 
 

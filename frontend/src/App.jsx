@@ -15,6 +15,7 @@ const UploadExtractPage = lazy(() => import("./pages/UploadExtractPage"));
 const DrawingSummaryPage = lazy(() => import("./pages/DrawingSummaryPage"));
 const AnalysisResultsPage = lazy(() => import("./pages/AnalysisResultsPage"));
 const DrawingReviewPage = lazy(() => import("./pages/DrawingReviewPage"));
+const SemanticReviewPage = lazy(() => import("./pages/SemanticReviewPage"));
 const TakeoffPage = lazy(() => import("./pages/TakeoffPage"));
 const ValidationPage = lazy(() => import("./pages/ValidationPage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
@@ -64,6 +65,7 @@ export default function App() {
               <Route path="/drawing-summary" element={<DrawingSummaryPage />} />
               <Route path="/analysis" element={<AnalysisResultsPage />} />
               <Route path="/review-drawing" element={<DrawingReviewPage />} />
+              <Route path="/semantic-review" element={<SemanticReviewPage />} />
               <Route path="/validation" element={<ValidationPage />} />
               <Route path="/takeoff" element={<TakeoffPage />} />
               <Route path="/settings" element={<SettingsPage />} />
