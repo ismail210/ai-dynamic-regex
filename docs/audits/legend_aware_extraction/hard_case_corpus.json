@@ -1,0 +1,341 @@
+[
+  {
+    "case_id": "BP-001",
+    "project": "Burrville",
+    "page": 16,
+    "raw_text": "1/2\" BENT PL W/ 1/2\"\u00d8x 9\" WELDED STUD @ 12\" OC",
+    "case_category": "positive_bent_plate_dimensioned",
+    "simulated_token_extractor_capture": "PL1/2X9",
+    "line_context_used_for_stage4": "1/2\" BENT PL W/ 1/2\"\u00d8x 9\" WELDED STUD @ 12\" OC",
+    "stage4_engineering_object_filter_result": "plate",
+    "stage5_entity_taxonomy_on_captured_text": {
+      "category": "plate",
+      "category_label": "Plate",
+      "class": "PL",
+      "source": "heuristic",
+      "confidence": 0.85
+    },
+    "stage5_entity_taxonomy_on_full_raw_text_hypothetical": {
+      "category": "unknown",
+      "category_label": "Unknown",
+      "class": null,
+      "source": "heuristic",
+      "confidence": 0.35
+    },
+    "ground_truth_status": "high_confidence_inference"
+  },
+  {
+    "case_id": "BP-002",
+    "project": "1200 K",
+    "page": 37,
+    "raw_text": "3/8\" BENT PL.",
+    "case_category": "positive_bent_plate_no_capturable_dimension_pair",
+    "simulated_token_extractor_capture": null,
+    "line_context_used_for_stage4": "3/8\" BENT PL. 1/4 1/4 CLADDING, SEE ARCH.",
+    "stage4_engineering_object_filter_result": null,
+    "stage5_entity_taxonomy_on_captured_text": null,
+    "stage5_entity_taxonomy_on_full_raw_text_hypothetical": {
+      "category": "unknown",
+      "category_label": "Unknown",
+      "class": null,
+      "source": "heuristic",
+      "confidence": 0.35
+    },
+    "ground_truth_status": "high_confidence_inference"
+  },
+  {
+    "case_id": "BP-003",
+    "project": "Sidwell",
+    "page": 27,
+    "raw_text": "BENT PL 3/8\" AT END CONDITION.",
+    "case_category": "positive_bent_plate_dimensioned",
+    "simulated_token_extractor_capture": "PL3/8",
+    "line_context_used_for_stage4": "BENT PL 3/8\" AT END CONDITION. OMIT IF DECK CONTINUES.",
+    "stage4_engineering_object_filter_result": null,
+    "stage5_entity_taxonomy_on_captured_text": {
+      "category": "plate",
+      "category_label": "Plate",
+      "class": "PL",
+      "source": "heuristic",
+      "confidence": 0.85
+    },
+    "stage5_entity_taxonomy_on_full_raw_text_hypothetical": {
+      "category": "unknown",
+      "category_label": "Unknown",
+      "class": null,
+      "source": "heuristic",
+      "confidence": 0.35
+    },
+    "ground_truth_status": "high_confidence_inference"
+  },
+  {
+    "case_id": "BP-005",
+    "project": "Springhill ES",
+    "page": 13,
+    "raw_text": "PL1/4\" MIN (BENT OR FABRICATED)",
+    "case_category": "positive_bent_plate_parenthetical_qualifier",
+    "simulated_token_extractor_capture": "PL1/4",
+    "line_context_used_for_stage4": "PL1/4\" MIN (BENT OR FABRICATED)",
+    "stage4_engineering_object_filter_result": null,
+    "stage5_entity_taxonomy_on_captured_text": {
+      "category": "plate",
+      "category_label": "Plate",
+      "class": "PL",
+      "source": "heuristic",
+      "confidence": 0.85
+    },
+    "stage5_entity_taxonomy_on_full_raw_text_hypothetical": {
+      "category": "anchor_bolt",
+      "category_label": "Anchor Bolt",
+      "class": "PL1/4\"MIN(BENTORFABRICATED)",
+      "source": "heuristic",
+      "confidence": 0.8
+    },
+    "ground_truth_status": "high_confidence_inference"
+  },
+  {
+    "case_id": "BP-006",
+    "project": "Springhill ES",
+    "page": 18,
+    "raw_text": "SHEET METAL BENT PL FOR MULLION SUPT",
+    "case_category": "positive_bent_plate_no_dimension_role_word_only",
+    "simulated_token_extractor_capture": null,
+    "line_context_used_for_stage4": "SHEET METAL BENT PL FOR MULLION SUPT",
+    "stage4_engineering_object_filter_result": null,
+    "stage5_entity_taxonomy_on_captured_text": null,
+    "stage5_entity_taxonomy_on_full_raw_text_hypothetical": {
+      "category": "unknown",
+      "category_label": "Unknown",
+      "class": null,
+      "source": "heuristic",
+      "confidence": 0.35
+    },
+    "ground_truth_status": "high_confidence_inference"
+  },
+  {
+    "case_id": "BP-008",
+    "project": "GCDC Building",
+    "page": 60,
+    "raw_text": "USE 1/4\" BENT PL FOR DIM \"A\" = 12 1/4\" TO 20\"",
+    "case_category": "positive_bent_plate_conditional_rule",
+    "simulated_token_extractor_capture": "PL1/4",
+    "line_context_used_for_stage4": "USE 1/4\" BENT PL FOR DIM \"A\" = 12 1/4\" TO 20\"",
+    "stage4_engineering_object_filter_result": null,
+    "stage5_entity_taxonomy_on_captured_text": {
+      "category": "plate",
+      "category_label": "Plate",
+      "class": "PL",
+      "source": "heuristic",
+      "confidence": 0.85
+    },
+    "stage5_entity_taxonomy_on_full_raw_text_hypothetical": {
+      "category": "unknown",
+      "category_label": "Unknown",
+      "class": null,
+      "source": "heuristic",
+      "confidence": 0.35
+    },
+    "ground_truth_status": "high_confidence_inference"
+  },
+  {
+    "case_id": "PF-001",
+    "project": "GCDC Building",
+    "page": 4,
+    "raw_text": "GUSSET PLATE",
+    "case_category": "sibling_fabricated_plate_no_leading_pl_token",
+    "simulated_token_extractor_capture": null,
+    "line_context_used_for_stage4": "GUSSET PLATE (3/8\" THK MIN) TYP",
+    "stage4_engineering_object_filter_result": null,
+    "stage5_entity_taxonomy_on_captured_text": null,
+    "stage5_entity_taxonomy_on_full_raw_text_hypothetical": {
+      "category": "unknown",
+      "category_label": "Unknown",
+      "class": null,
+      "source": "heuristic",
+      "confidence": 0.35
+    },
+    "ground_truth_status": "high_confidence_inference"
+  },
+  {
+    "case_id": "PF-002",
+    "project": "Springhill ES",
+    "page": 14,
+    "raw_text": "1/4\" CAP PL",
+    "case_category": "sibling_fabricated_plate",
+    "simulated_token_extractor_capture": "PL1/4",
+    "line_context_used_for_stage4": "COLUMN 1/4\" CAP PL 1/4\" CAP PL",
+    "stage4_engineering_object_filter_result": null,
+    "stage5_entity_taxonomy_on_captured_text": {
+      "category": "plate",
+      "category_label": "Plate",
+      "class": "PL",
+      "source": "heuristic",
+      "confidence": 0.85
+    },
+    "stage5_entity_taxonomy_on_full_raw_text_hypothetical": {
+      "category": "unknown",
+      "category_label": "Unknown",
+      "class": null,
+      "source": "heuristic",
+      "confidence": 0.35
+    },
+    "ground_truth_status": "high_confidence_inference"
+  },
+  {
+    "case_id": "PF-004",
+    "project": "Burrville",
+    "page": 17,
+    "raw_text": "CONN PL 1/2\"",
+    "case_category": "sibling_fabricated_plate",
+    "simulated_token_extractor_capture": "PL1/2",
+    "line_context_used_for_stage4": "L5x3-1/2x3/8 CONN PL 1/2\" SOMD, SEE PLAN",
+    "stage4_engineering_object_filter_result": null,
+    "stage5_entity_taxonomy_on_captured_text": {
+      "category": "plate",
+      "category_label": "Plate",
+      "class": "PL",
+      "source": "heuristic",
+      "confidence": 0.85
+    },
+    "stage5_entity_taxonomy_on_full_raw_text_hypothetical": {
+      "category": "unknown",
+      "category_label": "Unknown",
+      "class": null,
+      "source": "heuristic",
+      "confidence": 0.35
+    },
+    "ground_truth_status": "high_confidence_inference"
+  },
+  {
+    "case_id": "NEG-001",
+    "project": "Ketcham",
+    "page": 3,
+    "raw_text": "BENTONITE ROPE WATERSTOP",
+    "case_category": "hard_negative_unrelated_material_substring_only",
+    "simulated_token_extractor_capture": null,
+    "line_context_used_for_stage4": "DOWELS TO MATCH VERTICAL REINF. BENTONITE ROPE WATERSTOP",
+    "stage4_engineering_object_filter_result": null,
+    "stage5_entity_taxonomy_on_captured_text": null,
+    "stage5_entity_taxonomy_on_full_raw_text_hypothetical": {
+      "category": "unknown",
+      "category_label": "Unknown",
+      "class": null,
+      "source": "heuristic",
+      "confidence": 0.35
+    },
+    "ground_truth_status": "high_confidence_inference"
+  },
+  {
+    "case_id": "NEG-002",
+    "project": "Ketcham",
+    "page": 5,
+    "raw_text": "BENT GRIPSTAY",
+    "case_category": "hard_negative_proprietary_masonry_anchor",
+    "simulated_token_extractor_capture": null,
+    "line_context_used_for_stage4": "HOHMANN & BARNARD #365 BENT GRIPSTAY GALV. STEEL ANCHOR w/ #360 CHANNEL 16\" O.C.",
+    "stage4_engineering_object_filter_result": null,
+    "stage5_entity_taxonomy_on_captured_text": null,
+    "stage5_entity_taxonomy_on_full_raw_text_hypothetical": {
+      "category": "unknown",
+      "category_label": "Unknown",
+      "class": null,
+      "source": "heuristic",
+      "confidence": 0.35
+    },
+    "ground_truth_status": "high_confidence_inference"
+  },
+  {
+    "case_id": "NEG-003",
+    "project": "Sidwell",
+    "page": 15,
+    "raw_text": "HSS16X4X1/2 BENT",
+    "case_category": "hard_negative_bent_hss_member_not_a_plate",
+    "simulated_token_extractor_capture": "HSS16X4X1/2",
+    "line_context_used_for_stage4": "W14X22 HSS16X4X1/2 BENT",
+    "stage4_engineering_object_filter_result": "column_or_brace",
+    "stage5_entity_taxonomy_on_captured_text": {
+      "category": "structural_section",
+      "category_label": "Steel Section",
+      "class": "HSS",
+      "source": "heuristic",
+      "confidence": 0.85
+    },
+    "stage5_entity_taxonomy_on_full_raw_text_hypothetical": {
+      "category": "structural_section",
+      "category_label": "Steel Section",
+      "class": "HSS",
+      "source": "heuristic",
+      "confidence": 0.85
+    },
+    "ground_truth_status": "high_confidence_inference"
+  },
+  {
+    "case_id": "LGD-001",
+    "project": "Burrville",
+    "page": 2,
+    "raw_text": "W27X84 [88] c=1\"",
+    "case_category": "legend_example_not_a_member",
+    "simulated_token_extractor_capture": "W27X84",
+    "line_context_used_for_stage4": "STEEL BEAM LEGEND NUMBER OF STUDS ... W27X84 [88] c=1\" BEAM CAMBER AT MID SPAN AFTER ERECTION",
+    "stage4_engineering_object_filter_result": null,
+    "stage5_entity_taxonomy_on_captured_text": {
+      "category": "structural_section",
+      "category_label": "Steel Section",
+      "class": "W",
+      "source": "heuristic",
+      "confidence": 0.8
+    },
+    "stage5_entity_taxonomy_on_full_raw_text_hypothetical": {
+      "category": "structural_section",
+      "category_label": "Steel Section",
+      "class": "W",
+      "source": "heuristic",
+      "confidence": 0.8
+    },
+    "ground_truth_status": "high_confidence_inference"
+  },
+  {
+    "case_id": "LGD-002",
+    "project": "GCDC Building",
+    "page": 5,
+    "raw_text": "\"W8\" = W8x10",
+    "case_category": "legend_project_specific_abbreviation_rule",
+    "simulated_token_extractor_capture": "W8X10",
+    "line_context_used_for_stage4": "THE FOLLOWING MEMBER SIZE ABBREVIATIONS ARE USED ON THE FRAMING PLANS: \"W8\" = W8x10",
+    "stage4_engineering_object_filter_result": "steel_section",
+    "stage5_entity_taxonomy_on_captured_text": {
+      "category": "structural_section",
+      "category_label": "Steel Section",
+      "class": "W",
+      "source": "heuristic",
+      "confidence": 0.8
+    },
+    "stage5_entity_taxonomy_on_full_raw_text_hypothetical": {
+      "category": "unknown",
+      "category_label": "Unknown",
+      "class": null,
+      "source": "heuristic",
+      "confidence": 0.35
+    },
+    "ground_truth_status": "high_confidence_inference"
+  },
+  {
+    "case_id": "LGD-004",
+    "project": "GCDC Building",
+    "page": 5,
+    "raw_text": "BENT PLATE CONNECTIONS WELDED TO THE SUPPORTING MEMBER.",
+    "case_category": "legend_connection_type_documentation_prohibited",
+    "simulated_token_extractor_capture": null,
+    "line_context_used_for_stage4": "CONNECTION TYPES ARE PROHIBITED ON BEAMS AND GIRDERS: - SINGLE & DOUBLE ANGLE CONNECTIONS WELDED TO THE SUPPORTING MEMBER. - BENT PLATE CONNECTIONS WELDED TO THE SUPPORTING MEMBER.",
+    "stage4_engineering_object_filter_result": null,
+    "stage5_entity_taxonomy_on_captured_text": null,
+    "stage5_entity_taxonomy_on_full_raw_text_hypothetical": {
+      "category": "connection_plate",
+      "category_label": "Connection Plate",
+      "class": "BENTPLATECONNECTIONSWELDEDTOTHESUPPORTINGMEMBER.",
+      "source": "heuristic",
+      "confidence": 0.85
+    },
+    "ground_truth_status": "high_confidence_inference"
+  }
+]
