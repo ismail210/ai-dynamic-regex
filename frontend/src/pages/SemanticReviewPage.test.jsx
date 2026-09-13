@@ -10,11 +10,15 @@ vi.mock("../context/AnalysisContext", () => ({
 const getSemanticDocument = vi.fn();
 const processSemanticDocument = vi.fn();
 const reviewSemanticAnnotation = vi.fn().mockResolvedValue({ annotation: {} });
+const getBenchmarkContext = vi.fn().mockResolvedValue(null);
+const getAnnotationOracle = vi.fn().mockResolvedValue({ oracle: null });
 vi.mock("../api/client", () => ({
   documentPdfUrl: (id) => `/api/documents/${id}/pdf`,
   getSemanticDocument: (...args) => getSemanticDocument(...args),
   processSemanticDocument: (...args) => processSemanticDocument(...args),
   reviewSemanticAnnotation: (...args) => reviewSemanticAnnotation(...args),
+  getBenchmarkContext: (...args) => getBenchmarkContext(...args),
+  getAnnotationOracle: (...args) => getAnnotationOracle(...args),
 }));
 
 // The real viewer needs a real PDF worker; here only the overlay/selection

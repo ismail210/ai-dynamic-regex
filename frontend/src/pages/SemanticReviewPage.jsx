@@ -15,9 +15,10 @@ import {
   Tabs,
   Typography,
 } from "@mui/material";
-import { PlayArrowOutlined, RefreshOutlined } from "@mui/icons-material";
+import { PlayArrowOutlined, RefreshOutlined, ScienceOutlined } from "@mui/icons-material";
 import {
   documentPdfUrl,
+  getBenchmarkContext,
   getSemanticDocument,
   processSemanticDocument,
   reviewSemanticAnnotation,
@@ -53,6 +54,7 @@ export default function SemanticReviewPage() {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState(null);
+  const [benchmarkContext, setBenchmarkContext] = useState(null);
 
   const [selectedAnnotationId, setSelectedAnnotationId] = useState(null);
   const [viewerOverride, setViewerOverride] = useState(null); // {page, boundingBox} from "View source"
@@ -85,6 +87,22 @@ export default function SemanticReviewPage() {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Dev/demo only (Section 34/35): silently no-ops (null) for any ordinary
+  // document -- this must never affect or delay normal Semantic Review use.
+  useEffect(() => {
+    let cancelled = false;
+    getBenchmarkContext(documentId)
+      .then((context) => {
+        if (!cancelled) setBenchmarkContext(context);
+      })
+      .catch(() => {
+        if (!cancelled) setBenchmarkContext(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [documentId]);
 
   const handleProcess = async (force = false) => {
     setProcessing(true);
@@ -135,11 +153,11 @@ export default function SemanticReviewPage() {
     setViewerOverride({ page, boundingBox: null });
   }, []);
 
-  const handleReview = async (action, editedText) => {
+  const handleReview = async (action, editedText, candidateText) => {
     if (!selectedAnnotation) return;
     setReviewBusy(true);
     try {
-      await reviewSemanticAnnotation(documentId, selectedAnnotation.annotation_id, action, editedText);
+      await reviewSemanticAnnotation(documentId, selectedAnnotation.annotation_id, action, editedText, candidateText);
       await load();
     } catch (err) {
       setError(err.friendlyMessage || "Could not save the review action.");
@@ -261,6 +279,14 @@ export default function SemanticReviewPage() {
         <>
           <DocumentSummaryBar summary={summary} />
 
+          {benchmarkContext && (
+            <Alert severity="info" icon={<ScienceOutlined fontSize="small" />} data-testid="benchmark-banner">
+              <b>Attack Benchmark</b> — controlled corrupted PDF, source: real cleaned project (
+              {benchmarkContext.source_pdf}). {benchmarkContext.mutation_count} mutations,{" "}
+              {benchmarkContext.clean_control_count} clean controls. Not a customer document.
+            </Alert>
+          )}
+
           {/* A bounded height here is load-bearing, not cosmetic: the PDF
               viewer's own "fit page" sizing measures its scroll container's
               clientHeight via ResizeObserver, and this GCDC drawing's real
@@ -338,6 +364,8 @@ export default function SemanticReviewPage() {
                   onViewSource={handleViewSource}
                   onReview={handleReview}
                   busy={reviewBusy}
+                  documentId={documentId}
+                  benchmarkContext={benchmarkContext}
                 />
               </Paper>
             </Grid>

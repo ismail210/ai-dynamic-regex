@@ -56,6 +56,19 @@ class LabelReconstructionResult:
     reason: str
     model_version: Optional[str]
     shadow: Optional[dict] = field(default=None)
+    # Which deterministic strategy produced each candidate (exact_match,
+    # structural_field_match, ocr_flex_positional, family_only,
+    # fuzzy_nearest_neighbor, wildcard_mask) -- real evidence for a UI
+    # trace, not re-derived/guessed downstream (Section 7/9 of the
+    # repair-trace brief: no hand-written demo explanation may substitute
+    # for real values).
+    generation_reasons: Dict[str, List[str]] = field(default_factory=dict)
+    # (candidate, raw_score) pairs in ranked order, populated whenever a
+    # ranker model actually scored this query -- independent of the
+    # production ML_LABEL_RANKER_SHADOW/ENABLED gates, which control
+    # *logging* and *applying* the ranking, not whether a caller that asked
+    # via `force_shadow_score` gets the scores back for display.
+    ranked_pairs: Optional[List[tuple]] = None
 
     def to_dict(self) -> dict:
         return {
@@ -68,6 +81,8 @@ class LabelReconstructionResult:
             "reason": self.reason,
             "model_version": self.model_version,
             "shadow": self.shadow,
+            "generation_reasons": self.generation_reasons,
+            "ranked_pairs": self.ranked_pairs,
         }
 
 
@@ -92,6 +107,7 @@ def reconstruct(
     *,
     corruption_type_hint: Optional[List[str]] = None,
     live_prediction: Optional[str] = None,
+    force_shadow_score: bool = False,
 ) -> LabelReconstructionResult:
     """Never invents a label -- ``selected_prediction`` is always either an
     exact catalog match or the deterministic generator's top pick, UNLESS
@@ -104,6 +120,15 @@ def reconstruct(
     ``live_prediction`` is optional analyze-path context (the multimodal
     section already chosen). When shadow logging is on it is recorded for
     offline comparison; it never becomes ``selected_prediction`` by itself.
+
+    ``force_shadow_score=True`` lets a non-production caller (the Semantic
+    Review repair-trace UI) get real ranker scores back in the *return
+    value* even when the global ``ML_LABEL_RANKER_SHADOW`` env flag is off,
+    without writing to the shared production shadow-log file (that file is
+    for aggregate live-traffic monitoring; a per-click UI trace is not that).
+    It still can never flip ``selected_prediction`` away from the
+    deterministic pick -- only ``ML_LABEL_RANKER_ENABLED`` (unchanged,
+    global, off by default) does that.
     """
 
     normalized = conservative_normalize(raw_text)
@@ -146,14 +171,17 @@ def reconstruct(
             selected_prediction=None,
             reason="no_candidates",
             model_version=None,
+            generation_reasons=candidate_set.generation_reasons,
         )
     selected = deterministic_pick
     reason = "deterministic_top_candidate" if deterministic_pick else "no_candidates"
     model_version = None
     ranking_scores: Optional[List[float]] = None
     shadow_payload: Optional[dict] = None
+    ranked_pairs_out: Optional[List[tuple]] = None
+    run_ranker = settings.ml_label_ranker_enabled or settings.ml_label_ranker_shadow or force_shadow_score
 
-    if (settings.ml_label_ranker_enabled or settings.ml_label_ranker_shadow) and candidate_set.candidates:
+    if run_ranker and candidate_set.candidates:
         from services.label_reconstruction.ranker import get_active_ranker
 
         ranker = get_active_ranker()
@@ -173,6 +201,7 @@ def reconstruct(
             ranked_pairs = sorted(
                 zip(candidate_set.candidates, scores), key=lambda pair: -pair[1]
             )
+            ranked_pairs_out = [(label, round(score, 4)) for label, score in ranked_pairs]
             ungated_ranker_pick = ranked_pairs[0][0] if ranked_pairs else None
             ranker_pick = _first_compatible_candidate(
                 [label for label, _score in ranked_pairs],
@@ -244,4 +273,6 @@ def reconstruct(
         reason=reason,
         model_version=model_version,
         shadow=shadow_payload,
+        generation_reasons=candidate_set.generation_reasons,
+        ranked_pairs=ranked_pairs_out,
     )

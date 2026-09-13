@@ -19,6 +19,7 @@ from services.artifact_store import read_artifact, write_artifact
 from services.document_registry import document_source
 from services.pdf_parser import extract_document_structure
 from services.semantic.models import OperationKind, OperationRecord, ReviewStatus
+from services.semantic.repair_shadow import attach_repair_shadow
 from services.semantic.serialization import load_semantic_document, to_dict
 from services.semantic_preprocessor.extraction import build_text_primitives
 from services.semantic_preprocessor.pipeline import process_primitives
@@ -100,16 +101,38 @@ def run_semantic_pipeline(document_id: str, *, force: bool = False) -> dict:
         document_id=document_id,
         drawing_language_rules=rules,
     )
+    # Shadow-mode only (repair-trace sprint, Section 2/23): attaches ranked
+    # repair_candidates and an UNACCEPTED proposal operation to annotations
+    # the deterministic layer left unresolved. Never changes effective_text
+    # by itself -- see services.semantic.repair_shadow's module docstring.
+    repair_summary = attach_repair_shadow(document)
     payload = to_dict(document)
     payload["diagnostics"]["page_classes"] = {str(k): v for k, v in page_classes.items()}
+    payload["diagnostics"]["repair_shadow"] = {
+        "evaluated": repair_summary.evaluated,
+        "candidates_found": repair_summary.candidates_found,
+        "no_candidates": repair_summary.no_candidates,
+        "already_clean_skipped": repair_summary.already_clean_skipped,
+    }
     write_artifact(document_id, _ARTIFACT_NAME, payload)
     return payload
 
 
 def apply_review_action(
-    document_id: str, annotation_id: str, action: str, edited_text: Optional[str] = None
+    document_id: str,
+    annotation_id: str,
+    action: str,
+    edited_text: Optional[str] = None,
+    candidate_text: Optional[str] = None,
 ) -> dict:
     """Apply a reviewer decision to one annotation and persist it.
+
+    ``candidate_text`` is how "Accept proposal" and "Choose alternate"
+    (repair-trace sprint, Section 18) share one action: it names which
+    ``repair_candidates`` entry (or already-pending proposal operation) the
+    human is accepting. Omit it to accept whatever is already the current
+    effective text unchanged (the pre-existing normalization/completion
+    accept flow -- unaffected by this parameter).
 
     Session/file-scoped persistence: this writes back to the same
     per-document artifact the pipeline itself produces, via the existing
@@ -129,15 +152,55 @@ def apply_review_action(
         raise LookupError(f"Annotation {annotation_id!r} not found")
 
     if action == "accept":
+        if candidate_text:
+            # Reuse an already-pending (unaccepted) proposal for this exact
+            # text if one exists -- e.g. the shadow-attached rank-1 proposal
+            # -- rather than appending a duplicate. "Choose alternate" (a
+            # candidate_text that has no pending operation yet) synthesizes
+            # one from the matching RepairCandidate's own evidence/score, so
+            # the accepted operation is never a bare, unexplained value.
+            target_op = next(
+                (o for o in reversed(annotation.operations) if not o.accepted and o.output_text == candidate_text),
+                None,
+            )
+            if target_op is None:
+                candidate = next(
+                    (c for c in annotation.repair_candidates if c.candidate_text == candidate_text), None
+                )
+                if candidate is None:
+                    raise ValueError(f"{candidate_text!r} is not a known repair candidate for this annotation")
+                target_op = OperationRecord(
+                    operation=OperationKind.REPAIR,
+                    input_text=annotation.effective_text,
+                    output_text=candidate_text,
+                    reason_codes=list(candidate.reason_codes) + ["human_chose_alternate_candidate"],
+                    evidence=list(candidate.evidence),
+                    score=(candidate.scores[0] if candidate.scores else None),
+                    deterministic=False,
+                    provenance="human_reviewed_label_reconstruction",
+                    accepted=False,
+                )
+                annotation.operations.append(target_op)
+            target_op.accepted = True
         annotation.review.status = ReviewStatus.HUMAN_ACCEPTED
     elif action == "reject":
-        # Preserve the proposal -- never mutate the annotation as though it
-        # never existed (Section 45). Mark the last operation as no longer
-        # in effect; effective_text then falls back to the prior accepted
-        # operation (or the original text) on its own.
+        # Preserve every proposal -- never mutate the annotation as though
+        # it never existed (Section 45). Un-accept every REPAIR operation
+        # specifically (not just the last one): the deterministic single-
+        # char-confusion repair auto-accepts itself by construction (see
+        # semantic_preprocessor.normalization._try_repair) BEFORE a shadow
+        # proposal is ever appended, so rejecting only the most recent
+        # operation would leave that earlier auto-applied repair in effect
+        # -- a human "reject" must mean "no repair", not "undo whichever
+        # proposal happened to be appended last". NORMALIZATION/COMPLETION
+        # operations are untouched: rejecting a repair proposal never
+        # un-does an unrelated, already-settled representation change.
         annotation.review.status = ReviewStatus.HUMAN_REJECTED
         if annotation.operations:
-            annotation.operations[-1].accepted = False
+            annotation.operations[-1].accepted = False  # preserves prior single-operation behavior
+        for op in annotation.operations:
+            if op.operation == OperationKind.REPAIR:
+                op.accepted = False
     elif action == "edit":
         if not edited_text:
             raise ValueError("edited_text is required for the 'edit' action")
@@ -194,4 +257,77 @@ def document_summary(document: dict[str, Any]) -> dict[str, Any]:
         "needs_review_count": needs_review,
         "geometry_linked_count": geometry_linked,
         "drawing_rule_count": len(document.get("drawing_language_rules", [])),
+    }
+
+
+def get_benchmark_context(document_id: str) -> Optional[dict]:
+    """Dev/demo only (Section 20/34): if this document is a registered copy
+    of a PDF-attack-benchmark attacked file, return its manifest summary so
+    the UI can show an "Attack Benchmark" badge. Returns None for any
+    ordinary document -- this must never affect normal Semantic Review use
+    (Section 35)."""
+    from services.semantic import benchmark_bridge
+
+    if not benchmark_bridge.is_benchmark_available():
+        return None
+    try:
+        source_path = str(document_source(document_id))
+    except (FileNotFoundError, ValueError):
+        return None
+    manifest = benchmark_bridge.find_manifest_for_document(source_path)
+    if manifest is None:
+        return None
+    return benchmark_bridge.benchmark_summary(manifest)
+
+
+def get_annotation_oracle(document_id: str, annotation_id: str) -> Optional[dict]:
+    """Dev/demo only: the known-clean answer key for one annotation, IF this
+    document is a recognized attack case AND that annotation matches a
+    mutation/control by page+bbox. Never called from the repair path itself
+    (see services.semantic.repair_shadow / test_module_never_imports_the_
+    attack_benchmark_package) -- this is strictly a post-decision reveal for
+    the reviewer, wired only from a dedicated endpoint."""
+    from services.semantic import benchmark_bridge
+
+    if not benchmark_bridge.is_benchmark_available():
+        return None
+    try:
+        source_path = str(document_source(document_id))
+    except (FileNotFoundError, ValueError):
+        return None
+    manifest = benchmark_bridge.find_manifest_for_document(source_path)
+    if manifest is None:
+        return None
+
+    document_dict = get_cached_semantic_document(document_id)
+    if document_dict is None:
+        return None
+    annotation = next(
+        (a for a in document_dict.get("annotations", []) if a["annotation_id"] == annotation_id), None
+    )
+    if annotation is None:
+        return None
+
+    match = benchmark_bridge.oracle_for_annotation(
+        manifest, annotation.get("page"), annotation.get("semantic_bbox")
+    )
+    if match is None:
+        return None
+
+    record = match["record"]
+    if match["kind"] == "mutation":
+        return {
+            "kind": "mutation",
+            "mutation_id": record["mutation_id"],
+            "clean_text": record["clean_text"],
+            "corrupted_text": record["corrupted_text"],
+            "target_operation": record["target_operation"],
+            "mutation_type": record["mutation_type"],
+            "corruption_types": record["corruption_types"],
+            "human_decision_matches_truth": annotation.get("effective_text") == record["clean_text"],
+        }
+    return {
+        "kind": "clean_control",
+        "clean_text": record["clean_text"],
+        "human_decision_matches_truth": annotation.get("effective_text") == record["clean_text"],
     }

@@ -140,10 +140,29 @@ export async function getSemanticDocument(documentId) {
   return data;
 }
 
-export async function reviewSemanticAnnotation(documentId, annotationId, action, editedText) {
+export async function reviewSemanticAnnotation(documentId, annotationId, action, editedText, candidateText) {
   const { data } = await client.patch(
     `/api/documents/${encodeURIComponent(documentId)}/semantic/annotations/${encodeURIComponent(annotationId)}/review`,
-    { action, edited_text: editedText ?? null },
+    { action, edited_text: editedText ?? null, candidate_text: candidateText ?? null },
+  );
+  return data;
+}
+
+/** Dev/demo only: non-null only when `documentId` is a registered copy of a
+ * PDF-attack-benchmark attacked file (Section 20/34/35). */
+export async function getBenchmarkContext(documentId) {
+  const { data } = await client.get(
+    `/api/documents/${encodeURIComponent(documentId)}/semantic/benchmark`,
+  );
+  return data.benchmark;
+}
+
+/** Dev/demo only: the known-clean answer key for one annotation, if this is
+ * a recognized benchmark case (Section 20/26 -- never called by the repair
+ * path itself, only by the post-decision reveal UI). */
+export async function getAnnotationOracle(documentId, annotationId) {
+  const { data } = await client.get(
+    `/api/documents/${encodeURIComponent(documentId)}/semantic/annotations/${encodeURIComponent(annotationId)}/oracle`,
   );
   return data;
 }

@@ -14,6 +14,8 @@ from services.document_registry import document_source
 from services.semantic_document_service import (
     apply_review_action,
     document_summary,
+    get_annotation_oracle,
+    get_benchmark_context,
     get_cached_semantic_document,
     list_review_queue,
     run_semantic_pipeline,
@@ -48,16 +50,34 @@ def get_review_queue(document_id: str):
     return {"items": list_review_queue(document_id)}
 
 
+@router.get("/documents/{document_id}/semantic/benchmark")
+def get_benchmark(document_id: str):
+    """Dev/demo only (Section 20/34/35): None for any ordinary document --
+    only non-None when this document is a registered copy of a PDF-attack-
+    benchmark attacked file. Never consulted by the repair path itself."""
+    return {"benchmark": get_benchmark_context(document_id)}
+
+
+@router.get("/documents/{document_id}/semantic/annotations/{annotation_id}/oracle")
+def get_oracle(document_id: str, annotation_id: str):
+    """Dev/demo only: reveals the known-clean answer key for one annotation
+    AFTER a review decision, for benchmark cases only (Section 20 -- no
+    target leakage into the repair path; this is a separate, dedicated
+    endpoint the repair engine never calls)."""
+    return {"oracle": get_annotation_oracle(document_id, annotation_id)}
+
+
 class ReviewActionRequest(BaseModel):
     action: str  # "accept" | "reject" | "edit"
     edited_text: Optional[str] = None
+    candidate_text: Optional[str] = None  # which repair_candidates entry "accept" applies to
 
 
 @router.patch("/documents/{document_id}/semantic/annotations/{annotation_id}/review")
 def review_annotation(document_id: str, annotation_id: str, body: ReviewActionRequest):
     try:
         annotation = apply_review_action(
-            document_id, annotation_id, body.action, body.edited_text
+            document_id, annotation_id, body.action, body.edited_text, body.candidate_text
         )
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc

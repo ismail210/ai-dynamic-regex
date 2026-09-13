@@ -141,6 +141,10 @@ SCORE_CALIBRATED = "calibrated_probability"
 SCORE_RULE_CONFIDENCE = "rule_confidence"
 SCORE_ASSOCIATION_DISTANCE = "association_distance"
 SCORE_DETERMINISTIC = "deterministic"
+SCORE_SIMILARITY = "similarity_ratio"  # e.g. difflib SequenceMatcher.ratio() -- a
+# string-similarity number, not a model output and not a probability. Kept
+# distinct from SCORE_RAW_MODEL so a UI never captions a plain similarity
+# ratio as "model score" or vice versa (Section 8 of the repair-trace brief).
 
 
 @dataclass
@@ -340,6 +344,42 @@ class OperationRecord:
             "provenance": self.provenance,
             "accepted": self.accepted,
             "notes": self.notes,
+        }
+
+
+# ---------------------------------------------------------------------------
+# Repair candidates -- a ranked-reconstruction proposal for damaged/invalid
+# structural text (the repair-trace UI feature). Deliberately reuses
+# ScoreValue/EvidenceRecord rather than inventing parallel "confidence"
+# fields; a candidate never has an opinion about whether it was accepted --
+# that state lives only on the OperationRecord a human acts on (Section 10:
+# a repair candidate is evidence offered to a human, not itself a decision).
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class RepairCandidate:
+    candidate_text: str
+    rank: int
+    family: Optional[str] = None
+    catalog_valid: bool = True
+    scores: List[ScoreValue] = field(default_factory=list)
+    evidence: List[EvidenceRecord] = field(default_factory=list)
+    reason_codes: List[str] = field(default_factory=list)
+    source: str = ""  # e.g. "label_reconstruction_ranker", "label_reconstruction_deterministic", "fuzzy_fallback"
+    model_version: Optional[str] = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "candidate_text": self.candidate_text,
+            "rank": self.rank,
+            "family": self.family,
+            "catalog_valid": self.catalog_valid,
+            "scores": [s.to_dict() for s in self.scores],
+            "evidence": [e.to_dict() for e in self.evidence],
+            "reason_codes": list(self.reason_codes),
+            "source": self.source,
+            "model_version": self.model_version,
         }
 
 
@@ -546,6 +586,12 @@ class SemanticAnnotation:
     # Annotation-level evidence not tied to a single operation
     evidence: List[EvidenceRecord] = field(default_factory=list)
 
+    # RANKED REPAIR PROPOSALS (shadow/review mode) -- never auto-applied by
+    # merely existing here; a candidate only affects effective_text once a
+    # human (or an explicitly-allowed policy) accepts a corresponding
+    # OperationRecord (see services.semantic.repair_shadow).
+    repair_candidates: List["RepairCandidate"] = field(default_factory=list)
+
     # WHETHER SAFE FOR DOWNSTREAM TAKEOFF (independent of semantic validity)
     takeoff_eligible: Optional[bool] = None
 
@@ -632,6 +678,7 @@ class SemanticAnnotation:
             "structural_parse": self.structural_parse.to_dict() if self.structural_parse else None,
             "operations": [o.to_dict() for o in self.operations],
             "evidence": [e.to_dict() for e in self.evidence],
+            "repair_candidates": [c.to_dict() for c in self.repair_candidates],
             "takeoff_eligible": self.takeoff_eligible,
             "geometry_associations": [a.to_dict() for a in self.geometry_associations],
             "review": self.review.to_dict(),

@@ -15,24 +15,70 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 from services.semantic.models import (
     SCHEMA_VERSION,
     DrawingLanguageRule,
+    EvidenceRecord,
+    EvidenceStrength,
+    EvidenceType,
     GeometryAssociation,
     GeometryEvidence,
     GeometryProvider,
     Modifier,
     OperationKind,
     OperationRecord,
+    RepairCandidate,
     ReviewState,
     ReviewStatus,
+    ScoreValue,
     SemanticAnnotation,
     SemanticDocument,
     SourceFragment,
     StructuralParse,
 )
+
+
+def _score_from_dict(raw: Optional[Dict[str, Any]]) -> Optional[ScoreValue]:
+    if not raw:
+        return None
+    return ScoreValue(
+        value=float(raw["value"]),
+        kind=raw.get("kind", "deterministic"),
+        calibrated=bool(raw.get("calibrated", False)),
+        model_name=raw.get("model_name"),
+        model_version=raw.get("model_version"),
+    )
+
+
+def _evidence_from_dict(raw: Dict[str, Any]) -> EvidenceRecord:
+    return EvidenceRecord(
+        evidence_id=raw.get("evidence_id", ""),
+        evidence_type=EvidenceType(raw.get("evidence_type", "other")),
+        source=raw.get("source", ""),
+        strength=EvidenceStrength(raw.get("strength", "unknown")),
+        reference=raw.get("reference"),
+        score=_score_from_dict(raw.get("score")),
+        page=raw.get("page"),
+        bbox=raw.get("bbox"),
+        notes=raw.get("notes"),
+        details=raw.get("details") or {},
+    )
+
+
+def _repair_candidate_from_dict(raw: Dict[str, Any]) -> RepairCandidate:
+    return RepairCandidate(
+        candidate_text=raw["candidate_text"],
+        rank=raw.get("rank", 0),
+        family=raw.get("family"),
+        catalog_valid=bool(raw.get("catalog_valid", True)),
+        scores=[_score_from_dict(s) for s in raw.get("scores") or [] if s],
+        evidence=[_evidence_from_dict(e) for e in raw.get("evidence") or []],
+        reason_codes=list(raw.get("reason_codes") or []),
+        source=raw.get("source", ""),
+        model_version=raw.get("model_version"),
+    )
 
 DRAWING_SEMANTICS_SCHEMA = "drawing_semantics_v2"
 
@@ -134,7 +180,13 @@ def _annotation_from_current(a: Dict[str, Any]) -> SemanticAnnotation:
             input_text=o.get("input_text"),
             output_text=o.get("output_text"),
             reason_codes=list(o.get("reason_codes") or []),
+            evidence=[_evidence_from_dict(e) for e in o.get("evidence") or []],
+            score=_score_from_dict(o.get("score")),
+            deterministic=bool(o.get("deterministic", True)),
+            semantic_information_added=bool(o.get("semantic_information_added", False)),
+            provenance=o.get("provenance"),
             accepted=bool(o.get("accepted", True)),
+            notes=o.get("notes"),
         )
         for o in a.get("operations", [])
     ]
@@ -143,6 +195,10 @@ def _annotation_from_current(a: Dict[str, Any]) -> SemanticAnnotation:
         status=ReviewStatus(review_raw.get("status", a.get("review_status", "pending"))),
         resolved_text=review_raw.get("resolved_text"),
         reason=review_raw.get("reason"),
+        comment=review_raw.get("comment"),
+        reviewed_at=review_raw.get("reviewed_at"),
+        reviewed_by=review_raw.get("reviewed_by"),
+        history=list(review_raw.get("history") or []),
     )
     geometry_assocs = [
         GeometryAssociation(
@@ -179,11 +235,16 @@ def _annotation_from_current(a: Dict[str, Any]) -> SemanticAnnotation:
                 family=a["structural_parse"].get("family"),
                 grammar=a["structural_parse"].get("grammar"),
                 fields=a["structural_parse"].get("fields") or {},
+                complete=bool(a["structural_parse"].get("complete", True)),
+                catalog_status=a["structural_parse"].get("catalog_status", "unknown"),
+                parser_reason=a["structural_parse"].get("parser_reason"),
             )
             if a.get("structural_parse")
             else None
         ),
         operations=ops,
+        evidence=[_evidence_from_dict(e) for e in a.get("evidence") or []],
+        repair_candidates=[_repair_candidate_from_dict(c) for c in a.get("repair_candidates") or []],
         takeoff_eligible=a.get("takeoff_eligible"),
         geometry_associations=geometry_assocs,
         review=review,

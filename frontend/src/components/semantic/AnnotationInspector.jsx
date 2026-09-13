@@ -20,10 +20,14 @@ import {
 import OperationBadge from "./OperationBadge";
 import DrawingRuleCard from "./DrawingRuleCard";
 import GeometryEvidenceCard from "./GeometryEvidenceCard";
+import ProcessTimeline from "./ProcessTimeline";
+import RepairCandidatesPanel from "./RepairCandidatesPanel";
+import BenchmarkTruthPanel from "./BenchmarkTruthPanel";
 import {
   evidenceRulesFor,
   getOperation,
   getOperationMeta,
+  getRepairCandidates,
   isDemoSynthetic,
   OPERATION,
 } from "../../lib/semanticContract";
@@ -81,6 +85,8 @@ export default function AnnotationInspector({
   onViewSource,
   onReview,
   busy = false,
+  documentId = null,
+  benchmarkContext = null,
 }) {
   const [editValue, setEditValue] = useState("");
   const [editing, setEditing] = useState(false);
@@ -107,6 +113,8 @@ export default function AnnotationInspector({
   const rules = evidenceRulesFor(document, annotation);
   const synthetic = isDemoSynthetic(annotation);
 
+  const candidates = getRepairCandidates(annotation);
+
   return (
     <Stack spacing={1.5}>
       <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
@@ -119,7 +127,17 @@ export default function AnnotationInspector({
             </Box>
           </Tooltip>
         )}
+        {benchmarkContext && (
+          <Tooltip title={`Attacked from real project: ${benchmarkContext.source_pdf}`}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, color: "text.secondary" }}>
+              <ScienceOutlined fontSize="small" />
+              <Typography variant="caption">Attack Benchmark</Typography>
+            </Box>
+          </Tooltip>
+        )}
       </Stack>
+
+      <ProcessTimeline annotation={annotation} />
 
       <Paper variant="outlined" sx={{ p: 1.5 }}>
         <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
@@ -169,6 +187,14 @@ export default function AnnotationInspector({
         <Typography variant="body2" sx={{ mb: 1 }}>{meta.explanation}</Typography>
         <ReasonList annotation={annotation} />
       </Box>
+
+      {candidates.length > 0 && (
+        <RepairCandidatesPanel
+          annotation={annotation}
+          busy={busy}
+          onAccept={(candidateText) => onReview("accept", null, candidateText)}
+        />
+      )}
 
       {rules.length > 0 && (
         <Box>
@@ -235,9 +261,9 @@ export default function AnnotationInspector({
               color="success"
               startIcon={<CheckCircleOutlined fontSize="small" />}
               disabled={busy}
-              onClick={() => onReview("accept")}
+              onClick={() => onReview("accept", null, candidates[0]?.candidate_text)}
             >
-              Accept
+              Accept{candidates.length > 0 ? ` proposal (${candidates[0].candidate_text})` : ""}
             </Button>
             <Button
               size="small"
@@ -264,6 +290,15 @@ export default function AnnotationInspector({
           Status: <b>{annotation.review_status.replace("_", " ")}</b>
         </Typography>
       </Box>
+
+      {benchmarkContext && documentId && (
+        <Box>
+          <Typography variant="overline" sx={{ fontWeight: 700, letterSpacing: 0.4, display: "block", mb: 0.5 }}>
+            Benchmark (dev only)
+          </Typography>
+          <BenchmarkTruthPanel documentId={documentId} annotationId={annotation.annotation_id} />
+        </Box>
+      )}
     </Stack>
   );
 }

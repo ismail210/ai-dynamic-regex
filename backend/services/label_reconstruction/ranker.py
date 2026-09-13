@@ -107,6 +107,26 @@ class LabelRanker:
 _CACHED_RANKER: Optional[LabelRanker] = None
 
 
+def _resolve_local_artifact_path(entry: dict, model_path: str) -> Optional[Path]:
+    """The registry stores the ABSOLUTE path from whichever machine trained
+    and promoted the model (e.g. a teammate's ``/Users/.../backend/...``),
+    which does not exist on a different machine/OS even though the same
+    artifact file is present locally under ``training/models/<family>/
+    <version_id>/<basename>``. Try the stored path first (still correct on
+    the training machine); fall back to the local, version-scoped path
+    derived from ``settings.BASE_DIR`` before giving up."""
+
+    stored = Path(model_path)
+    if stored.exists():
+        return stored
+    from config import BASE_DIR
+
+    local = BASE_DIR / "training" / "models" / "label_reconstruction" / entry["version_id"] / stored.name
+    if local.exists():
+        return local
+    return None
+
+
 def get_active_ranker() -> Optional[LabelRanker]:
     """Load the promoted label_reconstruction ranker, if one exists and has
     been promoted. Returns None (never raises) when no model is active yet,
@@ -123,10 +143,13 @@ def get_active_ranker() -> Optional[LabelRanker]:
         return None
     artifacts = entry.get("artifacts") or {}
     model_path = artifacts.get("booster")
-    if not model_path or not Path(model_path).exists():
+    if not model_path:
+        return None
+    resolved = _resolve_local_artifact_path(entry, model_path)
+    if resolved is None:
         return None
     _CACHED_RANKER = LabelRanker.load(
-        Path(model_path),
+        resolved,
         version_id=entry["version_id"],
         feature_names=entry.get("feature_schema"),
     )
