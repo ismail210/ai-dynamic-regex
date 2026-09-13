@@ -282,3 +282,37 @@ def corrupt_multi_step(text: str, family_start: int, rng: random.Random, steps: 
 
 def family_prefix_length(family: str) -> int:
     return len(family)
+
+
+# ---------------------------------------------------------------------------
+# Fragmentation / tokenization variants (GROUPING, Section 14/D) -- these are
+# NOT string corruptions, they simulate a native-PDF extractor emitting the
+# same label as multiple separate text spans. Never mixed into the repair
+# benchmark; evaluated as a grouping/reconstruction task instead.
+# ---------------------------------------------------------------------------
+
+def corrupt_fragmentation(text: str, family: str, rng: random.Random) -> Optional[CorruptionExample]:
+    """Split one clean label into 2-3 fragments the way PyMuPDF sometimes
+    emits separate words/spans for one visual label (Section 14/Case D)."""
+    if not text.startswith(family) or len(text) <= len(family) + 1:
+        return None
+    rest = text[len(family):]
+    sep_match = re.search(r"[Xx]", rest)
+    schemes: list[list[str]] = [[family, rest]]  # ["W18", "X40"] style baseline
+    if sep_match:
+        i = sep_match.start()
+        schemes.append([family + rest[:i], rest[i], rest[i + 1:]])  # ["W18","X","40"]
+        schemes.append([family, rest[:i] + rest[i] + rest[i + 1:]])  # ["W", "18X40"]
+        schemes.append([family + rest[:i] + rest[i], rest[i + 1:]])  # ["W18X", "40"]
+    schemes = [s for s in schemes if all(part for part in s)]
+    if not schemes:
+        return None
+    fragments_text = rng.choice(schemes)
+    fragments = [{"text": part, "order": idx} for idx, part in enumerate(fragments_text)]
+    return CorruptionExample(
+        clean_text=text, corrupted_text="".join(fragments_text), target_operation="GROUPING",
+        category="fragmentation", difficulty=1,
+        corruptions=[CorruptionStep("fragmentation", {"scheme": fragments_text})],
+        seed=rng.randint(0, 2**31),
+        fragments=fragments,
+    )

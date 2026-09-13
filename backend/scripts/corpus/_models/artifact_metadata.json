@@ -1,0 +1,206 @@
+{
+  "model_a": {
+    "type": "LGBMClassifier(multiclass)",
+    "version": "repair_policy_v2.model_a.1",
+    "git_commit": "0dfd64f742b94db21a4b44896ccf6747c7a9528b",
+    "dataset_manifest_sha256": "6f2d8751914e547dd54a81ba996e5fd4138c6d12ced8314e43b2644db7a249b3",
+    "train_projects": [
+      "03 - The Field School",
+      "08 - Fort Davis Community Center",
+      "12 - Manassad Park City Hall",
+      "24 - 1919 Penn Ave",
+      "30 - Holy Cross Health",
+      "38 - Sidwell School",
+      "57 - Hart MS",
+      "60 - GCDC Building 4",
+      "61 - Ketcham ES"
+    ],
+    "validation_projects": [
+      "04 - Thomas ES",
+      "06 - Tempelton",
+      "51 - Burrvile ES"
+    ],
+    "test_projects": [
+      "00 - Yellow Spring",
+      "01 - Washington Latin",
+      "39 - Tubman ES"
+    ],
+    "feature_schema": [
+      "catalog_valid",
+      "family_known",
+      "fields_ok",
+      "canonicalize_changed",
+      "canonicalize_is_none",
+      "length",
+      "has_confusable_char",
+      "has_whitespace",
+      "top1_score",
+      "top1_top2_margin",
+      "num_close_candidates",
+      "pool_size"
+    ],
+    "random_seed": 20260912,
+    "metrics": {
+      "train": {
+        "n": 38315,
+        "class_distribution": {
+          "KEEP": 15326,
+          "REVIEW": 3831,
+          "REPAIR_CANDIDATE": 19158
+        },
+        "precision": {
+          "KEEP": 0.9937646141855028,
+          "REPAIR_CANDIDATE": 0.9986378876781223,
+          "REVIEW": 1.0
+        },
+        "recall": {
+          "KEEP": 0.9983035364739659,
+          "REPAIR_CANDIDATE": 0.9949890385217663,
+          "REVIEW": 1.0
+        },
+        "f1": {
+          "KEEP": 0.9960289043682052,
+          "REPAIR_CANDIDATE": 0.9968101239345291,
+          "REVIEW": 1.0
+        },
+        "clean_change_rate": 0.0016964635260341902
+      },
+      "validation": {
+        "n": 15205,
+        "class_distribution": {
+          "KEEP": 6082,
+          "REPAIR_CANDIDATE": 7545,
+          "REVIEW": 1578
+        },
+        "precision": {
+          "KEEP": 0.9837767683322518,
+          "REPAIR_CANDIDATE": 0.9975881012997454,
+          "REVIEW": 1.0
+        },
+        "recall": {
+          "KEEP": 0.9970404472213088,
+          "REPAIR_CANDIDATE": 0.9867461895294898,
+          "REVIEW": 1.0
+        },
+        "f1": {
+          "KEEP": 0.9903642005552834,
+          "REPAIR_CANDIDATE": 0.992137526652452,
+          "REVIEW": 1.0
+        },
+        "clean_change_rate": 0.00295955277869122
+      },
+      "test": {
+        "n": 12105,
+        "class_distribution": {
+          "KEEP": 4842,
+          "REPAIR_CANDIDATE": 6030,
+          "REVIEW": 1233
+        },
+        "precision": {
+          "KEEP": 0.9928234570432644,
+          "REPAIR_CANDIDATE": 1.0,
+          "REVIEW": 1.0
+        },
+        "recall": {
+          "KEEP": 1.0,
+          "REPAIR_CANDIDATE": 0.9941956882255389,
+          "REVIEW": 1.0
+        },
+        "f1": {
+          "KEEP": 0.9963988064615701,
+          "REPAIR_CANDIDATE": 0.9970893970893971,
+          "REVIEW": 1.0
+        },
+        "clean_change_rate": 0.0
+      }
+    }
+  },
+  "model_b": {
+    "type": "LGBMRanker(lambdarank)",
+    "version": "repair_policy_v2.model_b.1",
+    "git_commit": "0dfd64f742b94db21a4b44896ccf6747c7a9528b",
+    "dataset_manifest_sha256": "6f2d8751914e547dd54a81ba996e5fd4138c6d12ced8314e43b2644db7a249b3",
+    "train_projects": [
+      "03 - The Field School",
+      "08 - Fort Davis Community Center",
+      "12 - Manassad Park City Hall",
+      "24 - 1919 Penn Ave",
+      "30 - Holy Cross Health",
+      "38 - Sidwell School",
+      "57 - Hart MS",
+      "60 - GCDC Building 4",
+      "61 - Ketcham ES"
+    ],
+    "validation_projects": [
+      "04 - Thomas ES",
+      "06 - Tempelton",
+      "51 - Burrvile ES"
+    ],
+    "test_projects": [
+      "00 - Yellow Spring",
+      "01 - Washington Latin",
+      "39 - Tubman ES"
+    ],
+    "feature_schema": [
+      "rapidfuzz_ratio",
+      "levenshtein_distance",
+      "normalized_levenshtein",
+      "char_bigram_jaccard",
+      "length_delta",
+      "prefix_match_len",
+      "suffix_match_len",
+      "family_match",
+      "field_count_match",
+      "candidate_field_ok",
+      "round_vs_rect_compatible",
+      "doc_frequency"
+    ],
+    "feature_schema_no_context": [
+      "rapidfuzz_ratio",
+      "levenshtein_distance",
+      "normalized_levenshtein",
+      "char_bigram_jaccard",
+      "length_delta",
+      "prefix_match_len",
+      "suffix_match_len",
+      "family_match",
+      "field_count_match",
+      "candidate_field_ok",
+      "round_vs_rect_compatible"
+    ],
+    "random_seed": 20260912,
+    "metrics_with_context": {
+      "validation": {
+        "n": 9123,
+        "top1": 0.7807738682450948,
+        "top3": 0.9448646278636413,
+        "mrr": 0.8647769389908633
+      },
+      "test": {
+        "n": 7263,
+        "top1": 0.7860388269310202,
+        "top3": 0.9369406581302492,
+        "mrr": 0.8662570223082385
+      }
+    },
+    "metrics_no_context": {
+      "validation": {
+        "n": 9123,
+        "top1": 0.7946947276115313,
+        "top3": 0.9473857283788227,
+        "mrr": 0.8734357627973269
+      },
+      "test": {
+        "n": 7263,
+        "top1": 0.7923722979485062,
+        "top3": 0.9413465510119785,
+        "mrr": 0.8722099291853509
+      }
+    }
+  },
+  "policy": {
+    "auto_thresh": -2.19,
+    "margin_thresh": 0.0112,
+    "max_precision_on_validation": 0.9969944182052383
+  }
+}
