@@ -1,5 +1,16 @@
 # Upstream Structural Drawing Semantic Preprocessor
 
+> **Schema note (2026-09-13):** on `bassam/estima3d-integration`, this
+> package's domain model (`services.semantic_preprocessor.models`) was
+> consolidated with the parallel `services.prediction.semantic_contract`
+> model into one canonical model at `services/semantic/models.py`. See
+> `docs/architecture/unified_semantic_contract.md` on that branch for the
+> current schema, field-by-field comparison, and migration notes. This
+> branch (`bassam/rnd-geometry-ml-foundations`) predates that consolidation;
+> the field names below (`correction`, `AssociationCandidate`, etc.) are
+> pre-consolidation and will need the same migration once this branch merges
+> with `bassam/estima3d-integration`.
+
 Implementation status: **Phase 1 foundation landed this session** (see
 "What's implemented" below). This is a design + as-built reference for
 `backend/services/semantic_preprocessor/`, not a forward-looking proposal --
