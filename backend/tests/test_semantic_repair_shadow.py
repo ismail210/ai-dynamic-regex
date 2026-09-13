@@ -88,7 +88,7 @@ class DeletionAndInsertionRetrievalTests(unittest.TestCase):
     repair attempts in the deterministic-only path. Assert the shadow
     engine actually reaches candidate retrieval for both."""
 
-    def test_deletion_reaches_fuzzy_fallback_with_real_similarity_candidates(self):
+    def test_deletion_reaches_broadened_candidates(self):
         anns = _run(("W10X3", [0, 0, 60, 10]))  # W10X33 with the trailing digit deleted
         ann = anns["W10X3"]
         self.assertEqual(ann.structural_parse.catalog_status, "not_in_catalog")
@@ -96,9 +96,13 @@ class DeletionAndInsertionRetrievalTests(unittest.TestCase):
         self.assertGreater(len(ann.repair_candidates), 0, "deletion must reach candidate retrieval")
         texts = [c.candidate_text for c in ann.repair_candidates]
         self.assertIn("W10X33", texts)
+        # Reaches the broadened fallback (reconstruct() widened the search);
+        # scored by the real ranker when one is active/available on this
+        # machine, else by SequenceMatcher similarity as the last resort --
+        # either is acceptable here, a bare/uninformative score is not.
         for c in ann.repair_candidates:
-            self.assertEqual(c.source, "label_reconstruction_fuzzy_fallback")
-            self.assertEqual(c.scores[0].kind, SCORE_SIMILARITY)
+            self.assertIn(c.source, ("label_reconstruction_broadened_ranker", "label_reconstruction_broadened_similarity"))
+            self.assertEqual(c.scores[0].kind, SCORE_RAW_MODEL if c.source.endswith("ranker") else SCORE_SIMILARITY)
             self.assertFalse(c.scores[0].calibrated)
 
     def test_insertion_reaches_ranked_candidates(self):

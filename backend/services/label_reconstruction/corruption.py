@@ -165,6 +165,25 @@ def corrupt_added_noise(label: str, rng: random.Random) -> Optional[Corruption]:
     return Corruption(text, [tag])
 
 
+def corrupt_char_insertion(label: str, rng: random.Random) -> Optional[Corruption]:
+    """Duplicate a digit or the field separator (a stuck key / doubled
+    scanner artifact) -- e.g. ``W8X10`` -> ``W88X10``, ``W18X40`` ->
+    ``W18XX40``. The mirror image of ``corrupt_char_deletion``: together
+    they are what make a corrupted string a different LENGTH than any real
+    catalog label, which is exactly the case the deterministic generator's
+    length-implicit strategies (exact/structural-field/OCR-flex) cannot
+    retrieve on their own (see ``candidates.is_broadened_fallback_query``).
+    """
+
+    positions = [i for i, ch in enumerate(label) if ch.isdigit() or ch == "X"]
+    if not positions:
+        return None
+    index = rng.choice(positions)
+    ch = label[index]
+    text = label[: index + 1] + ch + label[index + 1 :]
+    return Corruption(text, [f"char_insertion_duplicate_{ch}"])
+
+
 def corrupt_missing_prefix(label: str, rng: random.Random) -> Optional[Corruption]:
     """Drop the family letter prefix entirely (leader points at the number
     only) or keep only the family with nothing else."""
@@ -180,6 +199,7 @@ def corrupt_missing_prefix(label: str, rng: random.Random) -> Optional[Corruptio
 
 CORRUPTION_FAMILIES: List[Tuple[str, Callable[[str, random.Random], Optional[Corruption]]]] = [
     ("char_deletion", corrupt_char_deletion),
+    ("char_insertion", corrupt_char_insertion),
     ("unknown_char", corrupt_unknown_char),
     ("ocr_substitution", corrupt_ocr_substitution),
     ("separator", corrupt_separator),

@@ -50,6 +50,16 @@ class LabelRanker:
         booster.load_model(str(model_path))
         return cls(booster, version_id, feature_names or FEATURE_NAMES)
 
+    @property
+    def supports_broadened_fallback(self) -> bool:
+        """True when this version's own recorded schema includes
+        ``is_fallback_broadened`` -- i.e. it was trained with schema v5+.
+        Callers use this to decide whether it's worth scoring broadened
+        (deletion/insertion) fallback candidates with this model at all,
+        versus an older promoted version that never saw that context."""
+
+        return "is_fallback_broadened" in self.feature_names
+
     def score(
         self,
         query: str,
@@ -57,12 +67,19 @@ class LabelRanker:
         *,
         generation_reasons: Optional[Dict[str, List[str]]] = None,
         fuzzy_ranks: Optional[Dict[str, int]] = None,
+        is_fallback_broadened: bool = False,
     ) -> List[float]:
         """``candidates`` is assumed to already be in the deterministic
         generator's own priority order (its list position IS the
         ``deterministic_rank`` feature) -- pass
         ``CandidateSet.candidates``/``.generation_reasons``/``.fuzzy_ranks``
-        straight through, do not re-sort before calling this."""
+        straight through, do not re-sort before calling this.
+
+        ``is_fallback_broadened`` is a query-level flag (Section 10/12 of
+        the broadened-ranker brief); harmlessly ignored by any model
+        version whose own ``feature_names`` predates schema v5 (that column
+        is simply never referenced when building ``rows`` below), so this
+        is always safe to pass regardless of which version is active."""
 
         import xgboost as xgb
 
@@ -83,6 +100,7 @@ class LabelRanker:
                     rank=rank,
                     reasons=reasons_by_candidate.get(candidate),
                     fuzzy_rank=fuzzy_ranks.get(candidate),
+                    is_fallback_broadened=is_fallback_broadened,
                 )
             ]
         ]
@@ -96,9 +114,11 @@ class LabelRanker:
         *,
         generation_reasons: Optional[Dict[str, List[str]]] = None,
         fuzzy_ranks: Optional[Dict[str, int]] = None,
+        is_fallback_broadened: bool = False,
     ) -> List[str]:
         scores = self.score(
-            query, candidates, generation_reasons=generation_reasons, fuzzy_ranks=fuzzy_ranks
+            query, candidates, generation_reasons=generation_reasons, fuzzy_ranks=fuzzy_ranks,
+            is_fallback_broadened=is_fallback_broadened,
         )
         ranked = sorted(zip(candidates, scores), key=lambda pair: -pair[1])
         return [label for label, _score in ranked]
@@ -168,9 +188,12 @@ def load_ranker_version(version_id: str) -> Optional[LabelRanker]:
         if entry.get("version_id") != version_id:
             continue
         model_path = (entry.get("artifacts") or {}).get("booster")
-        if not model_path or not Path(model_path).exists():
+        if not model_path:
+            return None
+        resolved = _resolve_local_artifact_path(entry, model_path)
+        if resolved is None:
             return None
         return LabelRanker.load(
-            Path(model_path), version_id=version_id, feature_names=entry.get("feature_schema")
+            resolved, version_id=version_id, feature_names=entry.get("feature_schema")
         )
     return None

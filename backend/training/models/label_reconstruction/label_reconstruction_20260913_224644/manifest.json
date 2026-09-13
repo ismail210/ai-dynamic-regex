@@ -1,0 +1,82 @@
+{
+  "version_id": "label_reconstruction_20260913_224644",
+  "family": "label_reconstruction",
+  "schema_version": "1.0",
+  "created_at": "2026-09-13T22:46:44.015491+00:00",
+  "dataset_versions": {
+    "label_reconstruction_standard": "label_reconstruction_production_aligned_20260828",
+    "label_reconstruction_broadened": "label_reconstruction_broadened_20260914",
+    "candidate_generator": "services.label_reconstruction.candidates.generate_candidates",
+    "broadened_candidate_generator": "services.label_reconstruction.candidates._fuzzy_candidates"
+  },
+  "metrics": {
+    "rank_pairwise_val_ndcg_at_10": 0.9626040204242637,
+    "rank_ndcg_val_ndcg_at_10": 0.9621801443142504,
+    "best_objective": "rank:pairwise",
+    "objective": "rank:pairwise",
+    "val_ndcg_at_10": 0.9626040204242637,
+    "val_ndcg_at_5": 0.9600063847740149,
+    "val_ndcg_at_10_standard": 0.9610429955617625,
+    "val_ndcg_at_10_broadened": 0.9696853968459738,
+    "train_seconds": 1.8
+  },
+  "hyperparameters": {
+    "tree_method": "hist",
+    "max_depth": 5,
+    "learning_rate": 0.1,
+    "n_estimators": 200,
+    "subsample": 0.9,
+    "colsample_bytree": 0.9,
+    "random_state": 20260914,
+    "objective": "rank:pairwise"
+  },
+  "feature_schema": [
+    "query_len",
+    "candidate_len",
+    "len_diff_abs",
+    "edit_distance",
+    "edit_distance_norm",
+    "ocr_aware_distance",
+    "ocr_aware_distance_norm",
+    "bigram_jaccard",
+    "trigram_jaccard",
+    "common_prefix_len",
+    "common_suffix_len",
+    "positional_match_count",
+    "positional_match_ratio",
+    "family_match",
+    "query_family_known",
+    "deterministic_rank",
+    "fuzzy_rank",
+    "is_structurally_compatible",
+    "known_fields_matched",
+    "known_fields_violated",
+    "field0_diff_norm",
+    "field1_diff_norm",
+    "field2_diff_norm",
+    "candidate_family_size_log1p",
+    "reason_exact_match",
+    "reason_structural_field_match",
+    "reason_wildcard_mask",
+    "reason_ocr_flex_positional",
+    "reason_family_only",
+    "reason_fuzzy_nearest_neighbor",
+    "reason_fuzzy_fallback_broadened",
+    "is_fallback_broadened"
+  ],
+  "artifact_checksums": {
+    "label_ranker_v4_broadened.ubj": "39d5045cf91656aca1743cb2a4c5714d9aa88bbf1c77e19ac7adc14f124e38d9"
+  },
+  "promotion_status": "candidate",
+  "rejection_reasons": [],
+  "parent_version": null,
+  "dependencies": {
+    "xgboost": "3.3.0",
+    "git_revision": "bcae9fc5f22ba7f796e030217d6ce7d7b921a336",
+    "feature_schema_version": "v5_broadened_fallback"
+  },
+  "notes": "Schema-v5 Structural Reconstruction ranker: adds is_fallback_broadened (+ reason_fuzzy_fallback_broadened) so deletion/insertion queries the standard generator abstains on (zero candidates, e.g. W10X3, W18XX40) are ranked by this model instead of raw SequenceMatcher ordering. Trained on the frozen standard dataset PLUS the additive broadened slice; no PDF-attack-benchmark data anywhere in training. Candidate only; not active or promoted -- see reports/broadened_xgb_ranker_benchmark.md for the promotion decision.",
+  "artifacts": {
+    "booster": "C:\\Users\\Bassam\\git\\ai-dynamic-regex-integration\\backend\\training\\models\\label_reconstruction\\label_reconstruction_20260913_224644\\label_ranker_v4_broadened.ubj"
+  }
+}

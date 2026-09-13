@@ -474,6 +474,53 @@ def candidate_respects_reliable_query_fields(normalized: str, label: str) -> boo
     return generation_fields_compatible(constraints.fields, candidate.fields)
 
 
+def is_broadened_fallback_query(raw_text: str, normalized: str = "") -> bool:
+    """True exactly when ``generate_candidates`` is expected to abstain
+    with an empty candidate list because the query's numeric fields LOOK
+    complete/reliable (``has_reliable_numeric_constraints``) even though a
+    deletion or insertion changed its length -- e.g. ``W10X3`` (a deleted
+    trailing digit of ``W10X33``) or ``W18XX40`` (a duplicated separator).
+    This is the single shared trigger condition for the broadened
+    fuzzy-similarity fallback, used identically by
+    ``services.semantic.repair_shadow`` (inference) and
+    ``scripts/generate_label_reconstruction_production_aligned.py``
+    (training-data labeling) so the two can never silently drift apart.
+
+    Deliberately narrow: a query that is ineligible for section
+    reconstruction at all (a dimension, a note, a plate callout, ...) or
+    that is a genuine missing-thickness/incomplete case is never
+    "broadened" -- those stay honest abstentions, not a length-changed
+    catalog member to hunt for.
+
+    Also deliberately restricted to ``depth_weight`` grammar (W/M/S/HP/C/
+    MC/L/2L -- a single weight/size field, e.g. ``W10X33``): a
+    FULLY-SPECIFIED HSS/pipe/plate query that simply doesn't exist in the
+    catalog (e.g. ``HSS6X8X1/2`` -- a real, deliberate combination someone
+    wrote down, not a corruption of anything) must keep abstaining exactly
+    as before. Found necessary empirically: the existing, deliberate safety
+    fixture ``test_hss6x8x1_2_abstains_when_absent`` regressed the first
+    time this was tried without the restriction -- HSS's much sparser,
+    3-field combinatorial space makes "nearest real catalog member" a much
+    less reliable guess than it is for W-shape depth/weight tables, and
+    guessing a substitute size for a genuinely custom/nonexistent HSS is an
+    engineering-safety risk this module must not take.
+    """
+
+    normalized = normalized or conservative_normalize(raw_text)
+    if not normalized:
+        return False
+    if ineligible_for_section_reconstruction(raw_text, normalized):
+        return False
+    if is_missing_thickness_hss(normalized) or is_missing_thickness_angle(normalized):
+        return False
+    if not has_reliable_numeric_constraints(normalized):
+        return False
+    if parse_fields(normalized).grammar != "depth_weight":
+        return False
+    candidate_set = generate_candidates(raw_text)
+    return len(candidate_set.candidates) == 0
+
+
 def is_missing_thickness_hss(normalized: str) -> bool:
     parsed = parse_fields(normalized)
     return (

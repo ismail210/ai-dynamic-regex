@@ -36,13 +36,17 @@ from config import settings
 from services.database_loader import is_catalog_label
 from services.label_reconstruction.candidates import (
     CandidateSet,
+    _fuzzy_candidates,
     candidate_respects_reliable_query_fields,
     conservative_normalize,
     generate_candidates,
     ineligible_for_section_reconstruction,
+    is_broadened_fallback_query,
     is_missing_thickness_angle,
     is_missing_thickness_hss,
 )
+
+_BROADENED_FALLBACK_LIMIT = 10
 
 
 @dataclass
@@ -69,6 +73,13 @@ class LabelReconstructionResult:
     # *logging* and *applying* the ranking, not whether a caller that asked
     # via `force_shadow_score` gets the scores back for display.
     ranked_pairs: Optional[List[tuple]] = None
+    # True when the standard generator abstained with zero candidates and
+    # this query was routed to the broadened fuzzy-similarity fallback
+    # (Section 10/25/26 of the broadened-ranker brief) -- e.g. a deletion
+    # like W10X3 or an insertion like W18XX40, where the field-reliability
+    # gate blocks the standard structural/OCR-flex strategies. Never
+    # inferred downstream from candidate_labels/reasons; set once, here.
+    is_fallback_broadened: bool = False
 
     def to_dict(self) -> dict:
         return {
@@ -83,6 +94,7 @@ class LabelReconstructionResult:
             "shadow": self.shadow,
             "generation_reasons": self.generation_reasons,
             "ranked_pairs": self.ranked_pairs,
+            "is_fallback_broadened": self.is_fallback_broadened,
         }
 
 
@@ -173,8 +185,42 @@ def reconstruct(
             model_version=None,
             generation_reasons=candidate_set.generation_reasons,
         )
+
+    # Broadened deletion/insertion fallback (Section 10/25/26): only when
+    # the standard generator abstained with ZERO candidates because the
+    # query's numeric fields looked "reliable" (has_reliable_numeric_
+    # constraints) even though its length changed -- e.g. W10X3 (a deleted
+    # trailing digit of W10X33) or W18XX40 (a duplicated separator). This
+    # never widens an already-non-empty candidate set, and never applies to
+    # a query the field-reliability gate would legitimately reject for
+    # other reasons (ineligible / missing-thickness, both already returned
+    # above).
+    is_broadened = False
+    if not candidate_set.candidates and is_broadened_fallback_query(raw_text, normalized):
+        pool = _fuzzy_candidates(normalized, limit=_BROADENED_FALLBACK_LIMIT)
+        if pool:
+            is_broadened = True
+            candidate_set = CandidateSet(
+                normalized=normalized,
+                family=candidate_set.family,
+                candidates=pool,
+                generation_reasons={label: ["fuzzy_fallback_broadened"] for label in pool},
+                fuzzy_ranks={label: i for i, label in enumerate(pool)},
+            )
+            # Deliberately NOT set as deterministic_pick: a fuzzy-similarity
+            # position is not the same confidence class as a real
+            # deterministic-generator strategy (exact/structural-field/OCR-
+            # flex) -- selected_prediction must stay unset for a broadened
+            # query unless the ranker (or, absent one, nothing) picks it.
+            deterministic_pick = None
+
     selected = deterministic_pick
-    reason = "deterministic_top_candidate" if deterministic_pick else "no_candidates"
+    if deterministic_pick:
+        reason = "deterministic_top_candidate"
+    elif is_broadened and candidate_set.candidates:
+        reason = "broadened_fallback_candidates"
+    else:
+        reason = "no_candidates"
     model_version = None
     ranking_scores: Optional[List[float]] = None
     shadow_payload: Optional[dict] = None
@@ -185,19 +231,29 @@ def reconstruct(
         from services.label_reconstruction.ranker import get_active_ranker
 
         ranker = get_active_ranker()
+        scores: Optional[List[float]] = None
         if ranker is not None:
-            # RAW text, not `normalized` -- the ranker was trained with
-            # pairwise "query" = raw_corrupted text (see
-            # generate_label_corruption_dataset.py's build_pairwise_rows),
-            # so scoring with the normalized string here would be an
-            # inference/training preprocessing mismatch: the exact failure
-            # mode this package's own design docs warn about elsewhere.
-            scores = ranker.score(
-                raw_text,
-                candidate_set.candidates,
-                generation_reasons=candidate_set.generation_reasons,
-                fuzzy_ranks=getattr(candidate_set, "fuzzy_ranks", None),
-            )
+            try:
+                # RAW text, not `normalized` -- the ranker was trained with
+                # pairwise "query" = raw_corrupted text (see
+                # generate_label_corruption_dataset.py's build_pairwise_rows),
+                # so scoring with the normalized string here would be an
+                # inference/training preprocessing mismatch: the exact failure
+                # mode this package's own design docs warn about elsewhere.
+                scores = ranker.score(
+                    raw_text,
+                    candidate_set.candidates,
+                    generation_reasons=candidate_set.generation_reasons,
+                    fuzzy_ranks=getattr(candidate_set, "fuzzy_ranks", None),
+                    is_fallback_broadened=is_broadened,
+                )
+            except Exception:  # noqa: BLE001
+                # Fail safe (Section 12/26): a feature-schema mismatch or any
+                # other scoring error must degrade to "no ranker score" for
+                # this call, never crash the semantic pipeline / Semantic
+                # Review. The deterministic candidate list is still returned.
+                scores = None
+        if scores is not None:
             ranked_pairs = sorted(
                 zip(candidate_set.candidates, scores), key=lambda pair: -pair[1]
             )
@@ -275,4 +331,5 @@ def reconstruct(
         shadow=shadow_payload,
         generation_reasons=candidate_set.generation_reasons,
         ranked_pairs=ranked_pairs_out,
+        is_fallback_broadened=is_broadened,
     )

@@ -41,9 +41,23 @@ GENERATION_REASONS: List[str] = [
     "ocr_flex_positional",
     "family_only",
     "fuzzy_nearest_neighbor",
+    # Broadened deletion/insertion fallback (schema v5): the query's fields
+    # looked "reliable" so the standard generator abstained with zero
+    # candidates; this candidate came from the broader, similarity-only
+    # search instead. See candidates.is_broadened_fallback_query.
+    "fuzzy_fallback_broadened",
 ]
 _NO_RANK_SENTINEL = 25.0  # one past the largest candidate-list limit used anywhere
 _NO_DIFF_SENTINEL = 999.0  # "fields not comparable" -- never a real numeric diff
+
+# Bumped when FEATURE_NAMES changes shape/order (Section 12 of the
+# broadened-ranker brief) -- a model's registry entry records the schema
+# version it was trained against; ranker.py refuses to silently score with
+# a mismatched schema. v5 adds `is_fallback_broadened` (a query-level
+# context flag: 0 = went through standard retrieval, 1 = the query needed
+# the broadened fuzzy-similarity fallback) and the matching
+# `reason_fuzzy_fallback_broadened` one-hot.
+FEATURE_SCHEMA_VERSION = "v5_broadened_fallback"
 
 FEATURE_NAMES: List[str] = [
     "query_len",
@@ -71,6 +85,7 @@ FEATURE_NAMES: List[str] = [
     "field2_diff_norm",
     "candidate_family_size_log1p",
     *[f"reason_{name}" for name in GENERATION_REASONS],
+    "is_fallback_broadened",
 ]
 
 
@@ -225,6 +240,7 @@ def pair_features(
     rank: Optional[int] = None,
     reasons: Optional[Sequence[str]] = None,
     fuzzy_rank: Optional[int] = None,
+    is_fallback_broadened: bool = False,
 ) -> Dict[str, float]:
     """Deterministic (query, candidate) -> feature dict. Both strings are
     expected to already be conservatively normalized (upper-case, no
@@ -234,7 +250,17 @@ def pair_features(
     position/provenance in the deterministic generator's output for this
     query (see ``services.label_reconstruction.candidates.generate_candidates_v3``).
     Callers that don't have this context (e.g. ad-hoc string-pair scoring)
-    may omit them; they fall back to "unknown" sentinel values."""
+    may omit them; they fall back to "unknown" sentinel values.
+
+    ``is_fallback_broadened`` is a QUERY-level flag (constant across every
+    candidate for one query, schema v5): True when this query only has
+    candidates at all because ``candidates.is_broadened_fallback_query``
+    routed it to the broader fuzzy-similarity search -- the standard
+    generator abstained with zero candidates. A boolean alone can't rank
+    candidates against each other; it lets the tree learn a different
+    decision boundary (e.g. trust edit_distance less) specifically for
+    these queries, where the generator's own field-reliability gate has
+    already said the retrieved candidates are lower-confidence than usual."""
 
     q, c = query, candidate
     max_len = max(len(q), len(c), 1)
@@ -263,6 +289,7 @@ def pair_features(
         "deterministic_rank": float(rank) if rank is not None else _NO_RANK_SENTINEL,
         "fuzzy_rank": float(fuzzy_rank) if fuzzy_rank is not None else _NO_RANK_SENTINEL,
         "candidate_family_size_log1p": _log1p(_family_size(family_of(c))),
+        "is_fallback_broadened": 1.0 if is_fallback_broadened else 0.0,
     }
     row.update(_structural_diff_features(q, c))
     for name in GENERATION_REASONS:
@@ -273,7 +300,7 @@ def pair_features(
     return {name: row[name] for name in FEATURE_NAMES}
 
 
-def features_from_candidate_set(candidate: str, candidate_set) -> Dict[str, float]:
+def features_from_candidate_set(candidate: str, candidate_set, *, is_fallback_broadened: bool = False) -> Dict[str, float]:
     """Build one candidate's feature row from a ``CandidateSet`` (as returned
     by ``services.label_reconstruction.candidates.generate_candidates_v3``)
     -- the single source of truth for this candidate's ``rank`` (position in
@@ -299,6 +326,7 @@ def features_from_candidate_set(candidate: str, candidate_set) -> Dict[str, floa
         rank=rank,
         reasons=candidate_set.generation_reasons.get(candidate),
         fuzzy_rank=candidate_set.fuzzy_ranks.get(candidate),
+        is_fallback_broadened=is_fallback_broadened,
     )
 
 
@@ -309,6 +337,10 @@ def feature_vector(
     rank: Optional[int] = None,
     reasons: Optional[Sequence[str]] = None,
     fuzzy_rank: Optional[int] = None,
+    is_fallback_broadened: bool = False,
 ) -> List[float]:
-    row = pair_features(query, candidate, rank=rank, reasons=reasons, fuzzy_rank=fuzzy_rank)
+    row = pair_features(
+        query, candidate, rank=rank, reasons=reasons, fuzzy_rank=fuzzy_rank,
+        is_fallback_broadened=is_fallback_broadened,
+    )
     return [row[name] for name in FEATURE_NAMES]

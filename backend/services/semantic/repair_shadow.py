@@ -28,7 +28,6 @@ from dataclasses import dataclass
 from typing import Dict, List, Optional
 
 from services.label_reconstruction.candidates import (
-    _fuzzy_candidates,
     conservative_normalize,
     ineligible_for_section_reconstruction,
 )
@@ -61,6 +60,11 @@ _GENERATION_REASON_LABELS: Dict[str, str] = {
     "wildcard_mask": "Matches the wildcard-masked query",
     "family_only": "Same family; no other constraint recoverable",
     "fuzzy_nearest_neighbor": "Nearest catalog entry by character similarity",
+    "fuzzy_fallback_broadened": (
+        "Broadened fallback: numeric fields looked complete, so the standard "
+        "generator found no exact catalog match and abstained; this is a "
+        "similarity-based suggestion, not a deterministic-strategy match"
+    ),
 }
 
 
@@ -111,18 +115,33 @@ def needs_repair_shadow(annotation: SemanticAnnotation) -> bool:
     return True
 
 
-def _score_from_ranked_pairs(candidate_text: str, ranked_pairs: Optional[List[tuple]], model_version: Optional[str]) -> List[ScoreValue]:
-    if not ranked_pairs:
+def _score_from_ranked_pairs(
+    candidate_text: str,
+    query: str,
+    ranked_pairs: Optional[List[tuple]],
+    model_version: Optional[str],
+    is_fallback_broadened: bool,
+) -> List[ScoreValue]:
+    if ranked_pairs:
+        for label, value in ranked_pairs:
+            if label == candidate_text:
+                return [ScoreValue(
+                    value=float(value),
+                    kind=SCORE_RAW_MODEL,
+                    calibrated=False,
+                    model_name="label_reconstruction_ranker",
+                    model_version=model_version,
+                )]
         return []
-    for label, value in ranked_pairs:
-        if label == candidate_text:
-            return [ScoreValue(
-                value=float(value),
-                kind=SCORE_RAW_MODEL,
-                calibrated=False,
-                model_name="label_reconstruction_ranker",
-                model_version=model_version,
-            )]
+    if is_fallback_broadened:
+        # Model unavailable/unscored for this broadened query (Section 26:
+        # SequenceMatcher is the last-resort ordering, never the primary
+        # one) -- a real similarity ratio, honestly labeled as such, never
+        # captioned as a model score.
+        from difflib import SequenceMatcher
+
+        ratio = SequenceMatcher(None, conservative_normalize(query), candidate_text).ratio()
+        return [ScoreValue(value=round(ratio, 4), kind=SCORE_SIMILARITY, calibrated=False)]
     return []
 
 
@@ -151,8 +170,9 @@ def _build_candidate(
     ranked_pairs: Optional[List[tuple]],
     model_version: Optional[str],
     source: str,
+    is_fallback_broadened: bool,
 ) -> RepairCandidate:
-    scores = _score_from_ranked_pairs(candidate_text, ranked_pairs, model_version)
+    scores = _score_from_ranked_pairs(candidate_text, query, ranked_pairs, model_version, is_fallback_broadened)
     notes = _evidence_notes(query, candidate_text, reasons)
     evidence = [
         EvidenceRecord(
@@ -176,49 +196,6 @@ def _build_candidate(
         source=source,
         model_version=model_version,
     )
-
-
-def _fuzzy_fallback_candidates(query: str, family: Optional[str]) -> List[RepairCandidate]:
-    """Last-resort candidates for a query the main engine's conservative
-    "this field already looks reliable" gate abstained on entirely (e.g. a
-    deletion that still parses as a syntactically-valid-but-wrong catalog
-    shape -- ``W10X3``, brief Section 25). Real ``difflib.SequenceMatcher``
-    similarity, never fabricated; explicitly labeled low-confidence and
-    never eligible to become ``selected_prediction`` -- display/choose-
-    alternate only.
-    """
-    normalized = conservative_normalize(query)
-    if not normalized:
-        return []
-    from difflib import SequenceMatcher
-
-    pool = _fuzzy_candidates(normalized, limit=MAX_CANDIDATES_ATTACHED)
-    out = []
-    for rank, label in enumerate(pool, start=1):
-        ratio = SequenceMatcher(None, normalized, label).ratio()
-        out.append(RepairCandidate(
-            candidate_text=label,
-            rank=rank,
-            family=family,
-            catalog_valid=True,
-            scores=[ScoreValue(value=round(ratio, 4), kind=SCORE_SIMILARITY, calibrated=False)],
-            evidence=[EvidenceRecord(
-                evidence_id=f"repair_candidate:{label}:fallback",
-                evidence_type=EvidenceType.REPAIR_CANDIDATE,
-                source="label_reconstruction_fuzzy_fallback",
-                strength=EvidenceStrength.INFERRED,
-                reference=label,
-                notes=(
-                    "Broadened fuzzy fallback: the main candidate generator treats this "
-                    "query's numeric fields as reliable/complete and found no exact catalog "
-                    "match, so it abstained rather than guess. This is a lower-confidence, "
-                    "similarity-only suggestion for human review, not an engine recommendation."
-                ),
-            )],
-            reason_codes=["fuzzy_fallback_broadened"],
-            source="label_reconstruction_fuzzy_fallback",
-        ))
-    return out
 
 
 @dataclass
@@ -248,8 +225,24 @@ def attach_repair_shadow(document: SemanticDocument) -> RepairShadowSummary:
             continue
         summary.evaluated += 1
 
+        # Broadening (deletion/insertion fallback) now lives entirely inside
+        # reconstruct() itself (services.label_reconstruction.shadow), which
+        # tries the standard generator first and only widens to the fuzzy-
+        # similarity pool -- ranked by the real XGBRanker when one supports
+        # schema v5, else left for the SequenceMatcher fallback below -- when
+        # the standard path abstained with zero candidates AND
+        # is_broadened_fallback_query agrees this query's fields looked
+        # "reliable" despite a length change. Nothing here re-implements
+        # that eligibility check.
         result = reconstruct(query, force_shadow_score=True)
         family = annotation.structural_parse.family if annotation.structural_parse else None
+        is_broadened = result.is_fallback_broadened
+        candidate_source = (
+            "label_reconstruction_broadened_ranker" if (is_broadened and result.ranked_pairs) else
+            "label_reconstruction_broadened_similarity" if is_broadened else
+            "label_reconstruction_ranker" if result.ranked_pairs else
+            "label_reconstruction_deterministic"
+        )
 
         candidates: List[RepairCandidate] = [
             _build_candidate(
@@ -260,7 +253,8 @@ def attach_repair_shadow(document: SemanticDocument) -> RepairShadowSummary:
                 reasons=result.generation_reasons.get(label, []),
                 ranked_pairs=result.ranked_pairs,
                 model_version=model_version,
-                source="label_reconstruction_ranker" if result.ranked_pairs else "label_reconstruction_deterministic",
+                source=candidate_source,
+                is_fallback_broadened=is_broadened,
             )
             for i, label in enumerate(result.candidate_labels[:MAX_CANDIDATES_ATTACHED])
         ]
@@ -272,24 +266,19 @@ def attach_repair_shadow(document: SemanticDocument) -> RepairShadowSummary:
             candidates.sort(key=lambda c: order.get(c.candidate_text, len(order)))
             for i, c in enumerate(candidates):
                 c.rank = i + 1
-
-        # Fuzzy fallback is restricted to text OUR OWN parser already
-        # accepted as a real, grammar-valid structural shape (family +
-        # grammar known, just not a catalog member -- the "W10X3" deletion
-        # case). For text our parser never recognized as structural at all,
-        # an empty candidate list is an honest abstention, not a gap to
-        # paper over with unrelated fuzzy matches.
-        parse = annotation.structural_parse
-        grammar_valid_shape = bool(parse and parse.is_structural and parse.grammar not in (None, "incomplete"))
-        if not candidates and grammar_valid_shape:
-            candidates = _fuzzy_fallback_candidates(query, family)
+        elif is_broadened:
+            # No ranker score available for this broadened query -- order by
+            # the SequenceMatcher similarity score just computed per
+            # candidate (Section 26: last resort only, never primary).
+            candidates.sort(key=lambda c: -(c.scores[0].value if c.scores else 0.0))
+            for i, c in enumerate(candidates):
+                c.rank = i + 1
 
         annotation.repair_candidates = candidates
 
         if candidates:
             summary.candidates_found += 1
             top = candidates[0]
-            is_fallback = top.source == "label_reconstruction_fuzzy_fallback"
             annotation.operations.append(OperationRecord(
                 operation=OperationKind.REPAIR,
                 input_text=query,
@@ -297,7 +286,7 @@ def attach_repair_shadow(document: SemanticDocument) -> RepairShadowSummary:
                 reason_codes=list(top.reason_codes) + ["label_reconstruction_shadow_proposal"],
                 evidence=list(top.evidence),
                 score=(top.scores[0] if top.scores else None),
-                deterministic=(model_version is None and not is_fallback),
+                deterministic=(model_version is None and not is_broadened),
                 semantic_information_added=False,
                 provenance=top.source,
                 accepted=False,  # SHADOW MODE: never changes effective_text by itself
@@ -305,7 +294,9 @@ def attach_repair_shadow(document: SemanticDocument) -> RepairShadowSummary:
             annotation.review.status = ReviewStatus.NEEDS_REVIEW
             if not annotation.review.reason:
                 annotation.review.reason = (
-                    "ambiguous_low_confidence_candidates" if is_fallback else "repair_candidate_available"
+                    "ambiguous_low_confidence_candidates"
+                    if candidate_source == "label_reconstruction_broadened_similarity"
+                    else "repair_candidate_available"
                 )
         else:
             summary.no_candidates += 1
