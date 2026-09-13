@@ -173,8 +173,10 @@ class UnsupportedAnnotationTests(unittest.TestCase):
 
 
 class GeometryConflictTests(unittest.TestCase):
-    """Exact AISC text + conflicting evidence: retain the text reading,
-    flag the conflict, never substitute a different section."""
+    """Exact AISC text + conflicting evidence: retain the text reading, record
+    the disagreement as a member-association diagnostic, never substitute a
+    different section and never force SECTION review for it (resolution
+    contract, sections 8/11-14/26)."""
 
     def test_exact_text_survives_conflicting_fusion_pick(self):
         with patch(
@@ -188,11 +190,15 @@ class GeometryConflictTests(unittest.TestCase):
             (result.get("canonical") or {}).get("prediction", {}).get("final_label"),
             "W16X26",
         )
-        self.assertIn(
-            "protected_label_conflict",
-            (result.get("features") or {}).get("fusion", {}).get("detected_issues", []),
+        detected = (result.get("features") or {}).get("fusion", {}).get(
+            "detected_issues", []
         )
-        self.assertTrue(result["needs_review"])
+        # The disagreement is surfaced (not hidden) -- but as a non-forcing
+        # member-association note, not a section-review trigger.
+        self.assertIn("explicit_section_context_disagreement", detected)
+        self.assertNotIn("protected_label_conflict", detected)
+        self.assertFalse(result["needs_review"])
+        self.assertEqual(result["section_resolution"], "explicit_catalog_exact")
 
 
 class ArtificiallyHighModelScoreOodTests(unittest.TestCase):

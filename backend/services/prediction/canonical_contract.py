@@ -82,6 +82,12 @@ class PredictionSummary(BaseModel):
     annotation_label: Optional[str] = None
     section_applicable: bool = True
     confidence_basis: Optional[str] = None
+    # How the section identity was resolved. ``explicit_catalog_exact`` means
+    # the printed text is itself one complete AISC catalog section and no
+    # inference was used or allowed to change it; ``inferred`` is everything
+    # else (fuzzy retrieval, fusion, ranker, geometry-only, ...).
+    section_resolution: str = "inferred"
+    inference_required: bool = True
 
 
 class Comparison(BaseModel):
@@ -150,6 +156,7 @@ def determine_comparison(
     confirmed_annotation: bool = False,
     annotation_type: Optional[str] = None,
     used_needs_context: bool = False,
+    trusted_explicit: bool = False,
 ) -> Comparison:
     """
     Decide exact / normalized / corrected / incomplete / geometry-only /
@@ -213,6 +220,21 @@ def determine_comparison(
         )
 
     if is_conservatively_equal(raw_text, final_label):
+        return Comparison(
+            exact_match=False,
+            normalized_match=True,
+            prediction_required=False,
+            match_status=MatchStatus.NORMALIZED_MATCH,
+        )
+
+    if trusted_explicit:
+        # ``final_label`` is a ``resolve_trusted_explicit_section`` result: the
+        # printed text names exactly one catalog row under deterministic,
+        # lossless notation folding only (round-HSS zero-padding
+        # "HSS10X0.625" -> "HSS10.000X0.625", fractional angle legs, a
+        # trailing fabrication cut-length "L3X3X3/8X0'-6\"" -> "L3X3X3/8").
+        # That is a normalized match, not an OCR correction, so it must not
+        # be routed to review as "source text differs".
         return Comparison(
             exact_match=False,
             normalized_match=True,
@@ -341,6 +363,8 @@ def build_canonical_prediction(
     section_applicable: bool = True,
     confidence_basis: Optional[str] = None,
     used_needs_context: bool = False,
+    section_resolution: str = "inferred",
+    inference_required: bool = True,
 ) -> CanonicalPrediction:
     source_text = SourceText(
         raw=raw_text or None,
@@ -362,6 +386,7 @@ def build_canonical_prediction(
         confirmed_annotation=confirmed_annotation,
         annotation_type=annotation_type,
         used_needs_context=used_needs_context,
+        trusted_explicit=(section_resolution == "explicit_catalog_exact"),
     )
     # ``final_label`` is the canonical, automatically-accepted answer -- it
     # must never carry a fuzzy-retrieved or learned-corrected guess dressed
@@ -384,6 +409,8 @@ def build_canonical_prediction(
         annotation_label=annotation_label or None,
         section_applicable=bool(section_applicable),
         confidence_basis=confidence_basis or None,
+        section_resolution=section_resolution or "inferred",
+        inference_required=bool(inference_required),
     )
     decision = Decision(
         used_text=bool(used_text),

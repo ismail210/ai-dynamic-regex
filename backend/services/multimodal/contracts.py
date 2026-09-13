@@ -197,6 +197,12 @@ class MultiModalPrediction:
             payload["annotation_label"] = canonical_prediction.get("annotation_label")
             payload["section_applicable"] = canonical_prediction.get("section_applicable")
             payload["confidence_basis"] = canonical_prediction.get("confidence_basis")
+            payload["section_resolution"] = canonical_prediction.get(
+                "section_resolution", "inferred"
+            )
+            payload["inference_required"] = canonical_prediction.get(
+                "inference_required", True
+            )
         return payload
 
 

@@ -23,6 +23,7 @@ import {
   getSection,
   getTechnicalExplanation,
   isLegacyPrediction,
+  isTrustedExplicitSection,
   LEGACY_PROVENANCE_MESSAGE,
 } from "../lib/predictionContract";
 import MatchStatusBadge from "./ui/MatchStatusBadge";
@@ -202,8 +203,95 @@ function SourceVsPrediction({ canonical, section, family, isLegacy }) {
   );
 }
 
-function CandidateList({ candidates, section }) {
+function CandidateRow({ candidate, section, diagnostic, trustedExplicit }) {
+  const isSelected = candidate.label === section;
+  return (
+    <Paper
+      variant="outlined"
+      sx={{
+        p: 1,
+        borderColor: isSelected && !diagnostic ? "primary.main" : undefined,
+        opacity: diagnostic ? 0.7 : 1,
+      }}
+    >
+      <Stack
+        direction="row"
+        gap={0.5}
+        sx={{ justifyContent: "space-between", alignItems: "center", flexWrap: "wrap" }}
+      >
+        <Typography fontFamily="monospace" fontWeight={700}>
+          {candidate.label}
+        </Typography>
+        <Stack direction="row" spacing={0.5}>
+          {candidate.catalog_valid && (
+            <Chip size="small" label="In AISC catalog" color="success" variant="outlined" />
+          )}
+          {candidate.mask_match && (
+            <Chip size="small" label="Wildcard mask match" color="info" variant="outlined" />
+          )}
+          {isSelected && trustedExplicit ? (
+            <Chip size="small" color="primary" label="Selected · Exact OCR · AISC verified" />
+          ) : diagnostic ? null : (
+            <Chip size="small" label={`score ${percent(candidate.combined_score)}`} />
+          )}
+        </Stack>
+      </Stack>
+      {candidate.match_reasons?.length > 0 && (
+        <Typography variant="caption" color="text.secondary">
+          {candidate.match_reasons.join(" · ")}
+        </Typography>
+      )}
+    </Paper>
+  );
+}
+
+function CandidateList({ candidates, section, trustedExplicit = false }) {
   if (!candidates.length) return null;
+
+  // Trusted explicit section: the printed text IS the section. Only the
+  // selected label is a production candidate; the rest are collapsed
+  // diagnostics, never presented as equal competitors.
+  if (trustedExplicit) {
+    const selected =
+      candidates.find((c) => c.label === section) || candidates[0];
+    const others = candidates.filter((c) => c !== selected).slice(0, 7);
+    return (
+      <Box>
+        <Typography variant="subtitle2" fontWeight={750} mb={0.75}>
+          Section
+        </Typography>
+        <Stack spacing={0.75}>
+          <CandidateRow
+            candidate={{ ...selected, label: selected.label || section }}
+            section={section}
+            trustedExplicit
+          />
+        </Stack>
+        {others.length > 0 && (
+          <Accordion disableGutters elevation={0} sx={{ mt: 0.75, "&:before": { display: "none" } }}>
+            <AccordionSummary expandIcon={<ExpandMoreOutlined />} sx={{ px: 0, minHeight: 0 }}>
+              <Typography variant="caption" color="text.secondary">
+                Alternative diagnostic candidates ({others.length}) — not used for the decision
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails sx={{ px: 0 }}>
+              <Stack spacing={0.75}>
+                {others.map((candidate) => (
+                  <CandidateRow
+                    key={candidate.label}
+                    candidate={candidate}
+                    section={section}
+                    diagnostic
+                  />
+                ))}
+              </Stack>
+            </AccordionDetails>
+          </Accordion>
+        )}
+      </Box>
+    );
+  }
+
   return (
     <Box>
       <Typography variant="subtitle2" fontWeight={750} mb={0.75}>
@@ -211,39 +299,7 @@ function CandidateList({ candidates, section }) {
       </Typography>
       <Stack spacing={0.75}>
         {candidates.slice(0, 8).map((candidate) => (
-          <Paper
-            key={candidate.label}
-            variant="outlined"
-            sx={{
-              p: 1,
-              borderColor:
-                candidate.label === section ? "primary.main" : undefined,
-            }}
-          >
-            <Stack
-              direction="row"
-              gap={0.5}
-              sx={{ justifyContent: "space-between", alignItems: "center", flexWrap: "wrap" }}
-            >
-              <Typography fontFamily="monospace" fontWeight={700}>
-                {candidate.label}
-              </Typography>
-              <Stack direction="row" spacing={0.5}>
-                {candidate.catalog_valid && (
-                  <Chip size="small" label="In AISC catalog" color="success" variant="outlined" />
-                )}
-                {candidate.mask_match && (
-                  <Chip size="small" label="Wildcard mask match" color="info" variant="outlined" />
-                )}
-                <Chip size="small" label={`score ${percent(candidate.combined_score)}`} />
-              </Stack>
-            </Stack>
-            {candidate.match_reasons?.length > 0 && (
-              <Typography variant="caption" color="text.secondary">
-                {candidate.match_reasons.join(" · ")}
-              </Typography>
-            )}
-          </Paper>
+          <CandidateRow key={candidate.label} candidate={candidate} section={section} />
         ))}
       </Stack>
     </Box>
@@ -262,6 +318,7 @@ export default function PredictionExplainability({ result, compact = false }) {
   const legacy = isLegacyPrediction(result);
   const engineer = getEngineerExplanation(result);
   const technical = getTechnicalExplanation(result);
+  const trustedExplicit = isTrustedExplicitSection(result);
 
   return (
     <Stack spacing={compact ? 1.5 : 2}>
@@ -276,15 +333,30 @@ export default function PredictionExplainability({ result, compact = false }) {
         </Grid>
         <Grid size={{ xs: 12, sm: 4 }}>
           <Typography variant="caption" color="text.secondary">
-            {display.isCalibrated ? "CALIBRATED CONFIDENCE" : "RANKING SCORE (uncalibrated)"}
+            {trustedExplicit
+              ? "RESOLUTION"
+              : display.isCalibrated
+                ? "CALIBRATED CONFIDENCE"
+                : "RANKING SCORE (uncalibrated)"}
           </Typography>
-          <Typography fontWeight={750}>
-            {legacyConfidence.level} · {percent(display.value)}
-          </Typography>
-          {!display.isCalibrated && (
-            <Typography variant="caption" color="text.secondary">
-              Not a calibrated probability — see relative candidate ranking below.
-            </Typography>
+          {trustedExplicit ? (
+            <>
+              <Typography fontWeight={750}>Exact OCR · AISC verified</Typography>
+              <Typography variant="caption" color="text.secondary">
+                Deterministic — no section inference was required.
+              </Typography>
+            </>
+          ) : (
+            <>
+              <Typography fontWeight={750}>
+                {legacyConfidence.level} · {percent(display.value)}
+              </Typography>
+              {!display.isCalibrated && (
+                <Typography variant="caption" color="text.secondary">
+                  Not a calibrated probability — see relative candidate ranking below.
+                </Typography>
+              )}
+            </>
           )}
         </Grid>
         <Grid size={{ xs: 12, sm: 4 }}>
@@ -292,9 +364,11 @@ export default function PredictionExplainability({ result, compact = false }) {
           <Typography variant="body2">
             {legacy
               ? "Legacy record — re-analyze to determine review status."
-              : canonical.needsReview
-                ? canonical.reviewReason || "Flagged for review."
-                : "No review required."}
+              : trustedExplicit && !canonical.needsReview
+                ? "No section review required — explicit catalog-valid designation."
+                : canonical.needsReview
+                  ? canonical.reviewReason || "Flagged for review."
+                  : "No review required."}
           </Typography>
         </Grid>
       </Grid>
@@ -341,7 +415,11 @@ export default function PredictionExplainability({ result, compact = false }) {
         </Grid>
       </Grid>
 
-      <CandidateList candidates={canonical.candidates} section={section} />
+      <CandidateList
+        candidates={canonical.candidates}
+        section={section}
+        trustedExplicit={trustedExplicit}
+      />
 
       {!canonical.candidates.length && (
         <Box>

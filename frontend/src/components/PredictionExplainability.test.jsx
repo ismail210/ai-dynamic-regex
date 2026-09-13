@@ -118,3 +118,69 @@ describe("PredictionExplainability legacy handling", () => {
     expect(screen.queryByText(LEGACY_PROVENANCE_MESSAGE)).not.toBeInTheDocument();
   });
 });
+
+describe("PredictionExplainability trusted explicit section", () => {
+  const trustedExplicitResult = {
+    canonical: {
+      object_id: "token_hss",
+      source_text: {
+        raw: "HSS6X6X3/8",
+        normalized: "HSS6X6X3/8",
+        page_number: 26,
+        bounding_box: [1, 2, 3, 4],
+        extraction_method: "pdf_text",
+        available: true,
+      },
+      prediction: {
+        final_label: "HSS6X6X3/8",
+        family: "HSS",
+        ranking_score: 1,
+        final_confidence: 1,
+        confidence_is_calibrated: true,
+        section_resolution: "explicit_catalog_exact",
+        confidence_basis: "explicit_catalog_exact",
+        inference_required: false,
+      },
+      comparison: {
+        exact_match: true,
+        normalized_match: true,
+        prediction_required: false,
+        match_status: "exact_match",
+      },
+      decision: { source: "text", used_text: true, used_catalog: true },
+      candidates: [
+        {
+          label: "HSS6X6X3/8",
+          catalog_valid: true,
+          combined_score: 1,
+          match_reasons: ["Explicit OCR match", "Label exists in the loaded AISC catalog"],
+        },
+        { label: "HSS10X6X3/8", catalog_valid: true, combined_score: 0.9, match_reasons: [] },
+      ],
+      evidence: {},
+      needs_review: false,
+      review_reason: null,
+    },
+    section_resolution: "explicit_catalog_exact",
+    section: "HSS6X6X3/8",
+    family: "HSS",
+    confidence: { overall: 1, level: "High" },
+  };
+
+  it("shows the exact-OCR resolution instead of a confidence percentage", () => {
+    render(<PredictionExplainability result={trustedExplicitResult} />);
+    expect(screen.getByText("Exact OCR · AISC verified")).toBeInTheDocument();
+    expect(
+      screen.getByText("No section review required — explicit catalog-valid designation."),
+    ).toBeInTheDocument();
+  });
+
+  it("marks the printed section Selected and collapses the decoy as a diagnostic", () => {
+    render(<PredictionExplainability result={trustedExplicitResult} />);
+    expect(screen.getByText("Selected · Exact OCR · AISC verified")).toBeInTheDocument();
+    expect(screen.queryByText("score 90%")).not.toBeInTheDocument();
+    expect(
+      screen.getByText(/Alternative diagnostic candidates \(1\)/),
+    ).toBeInTheDocument();
+  });
+});

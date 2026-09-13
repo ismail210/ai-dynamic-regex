@@ -169,7 +169,11 @@ class ProtectedExactLabelIntegrationTests(unittest.TestCase):
     when internal fusion strongly prefers a different candidate."""
 
     def test_w16x26_does_not_regress_to_w14x22(self):
-        """Direct reproduction of the live audit finding."""
+        """Direct reproduction of the live audit finding. A complete,
+        catalog-valid printed section is resolved from the text itself:
+        weaker-modality disagreement (fusion/graph/geometry) may not change
+        the identity, and may not force SECTION review for it either
+        (resolution contract, sections 8/11-14/26)."""
 
         with patch(
             "services.prediction.orchestrator.unified_multimodal_fusion.predict",
@@ -179,7 +183,9 @@ class ProtectedExactLabelIntegrationTests(unittest.TestCase):
 
         self.assertEqual(result["section"], "W16X26")
         self.assertNotEqual(result["section"], "W14X22")
-        self.assertEqual(result["review_status"], "pending_review")
+        self.assertEqual(result["section_resolution"], "explicit_catalog_exact")
+        self.assertFalse(result["inference_required"])
+        self.assertFalse(result["needs_review"])
 
     def test_conflict_is_surfaced_not_hidden(self):
         with patch(

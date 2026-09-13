@@ -66,6 +66,19 @@ def _is_human_or_rule(prediction: Dict[str, Any]) -> bool:
     return status in {"human_resolved", "project_rule_resolved"}
 
 
+def _is_trusted_explicit(prediction: Dict[str, Any]) -> bool:
+    """The section was resolved deterministically from a complete, catalog-valid
+    printed designation (``resolve_trusted_explicit_section``). Its identity is
+    not in question — only its physical-member association can be."""
+
+    if prediction.get("section_resolution") == "explicit_catalog_exact":
+        return True
+    canonical_prediction = (prediction.get("canonical") or {}).get("prediction") or {}
+    return canonical_prediction.get("section_resolution") == "explicit_catalog_exact" or (
+        canonical_prediction.get("confidence_basis") == "explicit_catalog_exact"
+    )
+
+
 def _spatial(prediction: Dict[str, Any]) -> Optional[dict]:
     sa = prediction.get("spatial_association")
     return sa if isinstance(sa, dict) else None
@@ -118,6 +131,15 @@ def classify_member(prediction: Dict[str, Any]) -> Tuple[str, float, float, str]
     # 1. Human / project-rule resolutions always auto-count.
     if _is_human_or_rule(prediction):
         return AUTO, 1.0, max(overall, 0.9), "human_or_rule"
+
+    # 1b. Section identity resolved deterministically from a complete
+    #     catalog-valid printed designation -> always AUTO with a
+    #     deterministic (not learned) section confidence. Geometry/graph may
+    #     still disagree about which physical member it labels; that is a
+    #     member-association review reason handled elsewhere, never a section
+    #     one, and it does not demote the section here.
+    if _is_trusted_explicit(prediction) and not _is_synthetic(prediction):
+        return AUTO, 1.0, max(overall, 0.95), "explicit_catalog_exact"
 
     # 2. Real printed designations (not synthetic) keep today's behaviour.
     if not _is_synthetic(prediction):

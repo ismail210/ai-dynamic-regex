@@ -363,6 +363,24 @@ export function getSection(result = {}) {
   );
 }
 
+/**
+ * True when the backend resolved the section identity deterministically from
+ * a complete, catalog-valid printed designation (resolve_trusted_explicit_section).
+ * The printed text IS the section — geometry/graph/fusion did not choose it and
+ * cannot override it. The UI must not present alternates as competitors, must
+ * not show a "Review required" section picker, and must not label the
+ * confidence as an AI probability. Backend is authoritative — this only reads
+ * the flag it set (top-level or on the canonical prediction).
+ */
+export function isTrustedExplicitSection(result = {}) {
+  if (result.section_resolution === "explicit_catalog_exact") return true;
+  const prediction = (result.canonical || {}).prediction || {};
+  return (
+    prediction.section_resolution === "explicit_catalog_exact"
+    || prediction.confidence_basis === "explicit_catalog_exact"
+  );
+}
+
 /** Readable label for ranking / Top-K candidate objects. */
 export function formatCandidateLabel(item) {
   if (typeof item === "string") return item;

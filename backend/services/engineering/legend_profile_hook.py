@@ -68,14 +68,19 @@ def attach_legend_profile(document: Dict[str, Any]) -> Dict[str, Any]:
 def _build(document: Dict[str, Any]) -> Dict[str, Any]:
     from services.engineering import legend_profile as lp
 
+    from services.engineering import drawing_summary_llm as ds
+
     document_id = document.get("document_id") or document.get("source_file") or "?"
     llm_requested = bool(settings.legend_profile_llm_enabled)
+    summary_llm_requested = bool(settings.drawing_summary_llm_enabled)
     document_hash = lp.compute_document_hash(document)
     cache_key = lp.compute_cache_key(
         document_hash,
         llm_requested=llm_requested,
         provider_name=settings.legend_llm_provider,
         model=settings.legend_llm_model,
+        summary_llm_requested=summary_llm_requested,
+        summary_prompt_version=ds.SUMMARY_PROMPT_VERSION,
     )
     cache_dir = settings.legend_profile_cache_dir
     cached = lp.load_cached_profile(cache_dir, cache_key)
@@ -126,13 +131,41 @@ def _build(document: Dict[str, Any]) -> Dict[str, Any]:
     profile = lp.empty_profile(document, status=status, llm_requested=llm_requested)
     profile["context_pages"] = {str(k): v for k, v in context_pages.items()}
     profile["abbreviation_rules"] = abbreviation_rules
+
+    # Deterministic Drawing Intelligence Profile -- always built (no model, no
+    # network). This is what makes the Drawing Summary substantive even with
+    # the LLM off. It reads only already-extracted document data.
+    try:
+        from services.engineering import drawing_intelligence as di
+
+        profile["drawing_intelligence"] = di.build_drawing_intelligence(
+            document,
+            context_pages={str(k): v for k, v in context_pages.items()},
+            abbreviation_rules=abbreviation_rules,
+        )
+        # A useful deterministic summary is itself "relevant information".
+        if status == lp.ANALYSIS_NO_RELEVANT_INFORMATION and _has_di_content(
+            profile["drawing_intelligence"]
+        ):
+            status = lp.ANALYSIS_SUCCESS
+            profile["status"] = status
+    except Exception:  # noqa: BLE001 - never break extraction for the summary
+        logger.exception("legend_profile_hook: drawing_intelligence build failed")
+        profile["drawing_intelligence"] = {}
+
     profile["diagnostics"] = {
         "candidate_context_pages": {str(k): v for k, v in context_pages.items()},
         "readable_pages": readable_pages,
         "vision_required_pages": vision_pages,
         "abbreviation_rules_found": len(abbreviation_rules),
         "cache_key": cache_key[:12],
-        "cache_state": "FRESH_LLM_RUN" if llm_requested else "FRESH_DETERMINISTIC_RUN",
+        "cache_state": (
+            "FRESH_LLM_RUN"
+            if llm_requested
+            else "FRESH_SUMMARY_LLM_RUN"
+            if summary_llm_requested
+            else "FRESH_DETERMINISTIC_RUN"
+        ),
         # Per-page role evidence: why each page was (not) demoted, and which
         # framing/schedule pages were kept eligible despite a note keyword.
         "page_role_evidence": {str(k): v for k, v in page_role_evidence.items()},
@@ -144,8 +177,79 @@ def _build(document: Dict[str, Any]) -> Dict[str, Any]:
     elif llm_requested and not readable_pages:
         logger.info("legend_profile[%s]: LLM requested but no readable pages to send", document_id)
 
+    if settings.drawing_summary_llm_enabled and _has_di_content(
+        profile.get("drawing_intelligence") or {}
+    ):
+        _apply_summary_llm(profile, document_id=document_id)
+
     lp.save_profile(cache_dir, cache_key, profile)
     return profile
+
+
+def _has_di_content(di_profile: Dict[str, Any]) -> bool:
+    """True when the deterministic drawing intelligence found substantive,
+    estimator-relevant content -- steel designations, project shorthand,
+    repeated-condition language, structural schedules or a scope stamp.
+    Page classification alone does NOT count (that is just navigation)."""
+
+    if not di_profile:
+        return False
+    return bool(
+        di_profile.get("steel_system", {}).get("families")
+        or [i for i in di_profile.get("typical_conditions", []) if i.get("detail", {}).get("present")]
+        or di_profile.get("schedule_insights")
+        or [i for i in di_profile.get("scope_signals", []) if i.get("detail", {}).get("present")]
+        or di_profile.get("abbreviation_rules")
+        or di_profile.get("structural_notes")
+    )
+
+
+def _apply_summary_llm(profile: Dict[str, Any], *, document_id: str) -> None:
+    """Optionally rewrite the drawing-intelligence narrative prose via one
+    grounded LLM call. Failure leaves the deterministic narrative in place."""
+
+    from services.engineering import drawing_intelligence as di
+    from services.engineering import drawing_summary_llm as ds
+    from services.engineering import legend_llm_provider as llm
+
+    di_profile = profile["drawing_intelligence"]
+    provider = llm.get_default_provider(
+        enabled=True,
+        provider_name=settings.legend_llm_provider,
+        api_key_env=settings.legend_profile_llm_api_key_env,
+        model=settings.legend_llm_model,
+        ollama_base_url=settings.ollama_base_url,
+        ollama_num_ctx=settings.legend_llm_num_ctx,
+        ollama_num_predict=settings.legend_llm_num_predict,
+        ollama_timeout_s=settings.legend_llm_timeout_s,
+        # Drawing Summary prose schema -- NOT the project-rule schema. Without
+        # this the Ollama provider pins ``format`` to RESPONSE_SCHEMA and the
+        # model can never emit project_overview/structural_content/... so every
+        # section fails grounding and the summary silently stays deterministic.
+        response_schema=ds.RESPONSE_SCHEMA,
+    )
+    result = ds.summarize(
+        di_profile,
+        provider=provider,
+        evidence_text=di.evidence_packet(di_profile),
+    )
+    di_profile["summary_prompt_version"] = ds.SUMMARY_PROMPT_VERSION
+    di_profile["summary_llm_latency_ms"] = result.latency_ms
+    di_profile["summary_llm_error"] = result.error
+    di_profile["summary_dropped_sections"] = result.dropped_claims or []
+    if result.narrative is not None:
+        di_profile["narrative"] = result.narrative
+        di_profile["overview"] = result.narrative.get("project_overview", di_profile.get("overview"))
+        di_profile["method"] = result.method
+        logger.info(
+            "legend_profile[%s]: drawing summary LLM ok (latency=%sms, %d section(s) kept deterministic)",
+            document_id, result.latency_ms, len(result.dropped_claims or []),
+        )
+    else:
+        logger.info(
+            "legend_profile[%s]: drawing summary LLM not applied (%s) -- deterministic narrative kept",
+            document_id, result.error,
+        )
 
 
 def _apply_llm(

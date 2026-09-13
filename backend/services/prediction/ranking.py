@@ -60,6 +60,10 @@ class RankingResult:
     weights: Dict[str, float]
     near_tie: bool
     near_tie_margin: Optional[float]
+    # True when section identity was resolved deterministically from explicit
+    # catalog-valid text: the first candidate is the answer, the rest are
+    # diagnostic-only and must not be presented as competitors or a near-tie.
+    section_locked: bool = False
 
     def to_dict(self) -> dict:
         return {
@@ -71,7 +75,15 @@ class RankingResult:
                 if self.near_tie_margin is not None
                 else None
             ),
+            "section_locked": self.section_locked,
         }
+
+
+_TRUSTED_EXPLICIT_REASONS = [
+    "Explicit OCR match - the printed text is a complete AISC designation",
+    "Label exists in the loaded AISC catalog",
+    "Section identity resolved from explicit text; no inference required",
+]
 
 
 def build_ranking(
@@ -79,6 +91,7 @@ def build_ranking(
     fusion_candidate_scores: Optional[List[Dict[str, Any]]] = None,
     wildcard_candidates: Optional[List[Any]] = None,
     limit: int = 8,
+    locked_section: Optional[str] = None,
 ) -> RankingResult:
     """Merge fusion candidate scores and wildcard-mask candidates into one
     ranked, catalog-checked candidate list. A wildcard-mask hit that is also
@@ -163,9 +176,41 @@ def build_ranking(
         margin = ranked[0].combined_score - ranked[1].combined_score
         near_tie = margin < NEAR_TIE_MARGIN
 
+    locked = str(locked_section or "").upper().replace(" ", "")
+    if locked:
+        # Section identity is deterministic. Put the explicit label first as
+        # the selected answer with deterministic reasons; the remaining
+        # candidates are kept only as diagnostics (no near-tie, no competition).
+        norm = lambda s: str(s or "").upper().replace(" ", "")
+        locked_card = next(
+            (c for c in by_label.values() if norm(c.label) == locked), None
+        )
+        if locked_card is None:
+            locked_card = RankedCandidate(
+                label=str(locked_section),
+                catalog_valid=True,
+                mask_match=False,
+                text_similarity=1.0,
+                geometry_score=0.0,
+                graph_score=0.0,
+                engineering_score=0.0,
+                combined_score=1.0,
+            )
+        locked_card.catalog_valid = True
+        locked_card.text_similarity = 1.0
+        locked_card.combined_score = 1.0
+        locked_card.match_reasons = list(_TRUSTED_EXPLICIT_REASONS)
+        others = [
+            c for c in ranked if norm(c.label) != locked and c is not locked_card
+        ]
+        ranked = [locked_card] + others[: max(0, limit - 1)]
+        near_tie = False
+        margin = None
+
     return RankingResult(
         candidates=ranked,
         weights=dict(ATTENTION_PRIORS),
         near_tie=near_tie,
         near_tie_margin=margin,
+        section_locked=bool(locked),
     )

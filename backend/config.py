@@ -231,6 +231,23 @@ class Settings:
         .lower()
         in ("1", "true", "yes", "on")
     )
+    # Optional LLM polish of the Drawing Summary prose ONLY. Independent of
+    # LEGEND_PROFILE_LLM_ENABLED (which gates the project-rule compiler). When
+    # true, a single schema-constrained call rewrites the deterministic
+    # DrawingIntelligenceProfile narrative; every claim is re-checked against
+    # the profile evidence and a claim that cannot be tied to it is dropped.
+    # The LLM never changes a prediction, candidate, section or takeoff
+    # quantity, and never sees the ground-truth Excel. Default ON for the
+    # demo: the deterministic narrative is always produced regardless, so
+    # disabling this only removes the prose polish, never the summary itself.
+    drawing_summary_llm_enabled: bool = field(
+        default_factory=lambda: os.getenv(
+            "DRAWING_SUMMARY_LLM_ENABLED", "true"
+        )
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
     legend_llm_provider: str = field(
         default_factory=lambda: os.getenv(
             "LEGEND_LLM_PROVIDER", "ollama"

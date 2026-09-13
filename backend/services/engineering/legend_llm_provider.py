@@ -296,10 +296,18 @@ class OllamaLegendProvider:
         timeout_s: float = 420.0,
         num_ctx: int = 16384,
         num_predict: int = 3000,
+        response_schema: Optional[Dict[str, Any]] = None,
     ) -> None:
         self._base_url = base_url.rstrip("/")
         self._model = model
         self._timeout_s = timeout_s
+        # Ollama structured-output ``format`` schema. Defaults to the
+        # project-rule schema (RESPONSE_SCHEMA); a caller that reuses this
+        # provider for a different grounded call -- e.g. the Drawing Summary
+        # prose polish -- MUST pass its own schema, otherwise Ollama forces
+        # the response into the project-rule shape and every downstream key
+        # lookup misses.
+        self._format = response_schema or RESPONSE_SCHEMA
         # Ollama defaults to a small context window (commonly 2048-4096
         # tokens) regardless of what the underlying model supports, unless
         # explicitly overridden per-request -- without this, a document's
@@ -329,7 +337,7 @@ class OllamaLegendProvider:
                 # schema. Checkpoint-3: plain "json" mode let the 8B model
                 # bail with {} / {"error": "Error in input"} on dense
                 # multi-page input; the schema makes it emit the real shape.
-                "format": RESPONSE_SCHEMA,
+                "format": self._format,
                 "stream": False,
                 "options": {
                     # Factual extraction, not creativity -- deterministic.
@@ -416,6 +424,7 @@ def get_default_provider(
     ollama_num_ctx: Optional[int] = None,
     ollama_num_predict: Optional[int] = None,
     ollama_timeout_s: Optional[float] = None,
+    response_schema: Optional[Dict[str, Any]] = None,
 ) -> LLMProvider:
     if not enabled:
         return NullLLMProvider()
@@ -427,6 +436,8 @@ def get_default_provider(
             kwargs["num_predict"] = ollama_num_predict
         if ollama_timeout_s:
             kwargs["timeout_s"] = ollama_timeout_s
+        if response_schema is not None:
+            kwargs["response_schema"] = response_schema
         return OllamaLegendProvider(**kwargs)
     if provider_name == "anthropic":
         return AnthropicLLMProvider(api_key_env=api_key_env, model=model)

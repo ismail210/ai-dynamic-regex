@@ -71,7 +71,12 @@ PROFILE_VERSION = "legend_profile_v4"
 # longer demotes a page that is dense with real catalog-valid section
 # labels (framing plans, column/beam schedules). This changes which pages
 # ``detect_context_pages`` returns, so cached profiles from v4b are stale.
-EXTRACTOR_VERSION = "legend_extractor_v5"
+# v6: profile now carries ``drawing_intelligence`` -- the deterministic
+# Drawing Intelligence Profile (page groups, steel system, TYP / repeated
+# conditions, schedule semantics, scope/revision signals, uncertainties) and
+# its rendered narrative. Bumping invalidates every v5 cache entry so the
+# richer summary is produced on next analyse.
+EXTRACTOR_VERSION = "legend_extractor_v6"
 SCHEMA_VERSION = "project_rule_schema_v1"
 
 STATUS_PROPOSED_INFERENCE = "PROPOSED_INFERENCE"
@@ -694,19 +699,31 @@ def compute_cache_key(
     llm_requested: bool,
     provider_name: str = "",
     model: str = "",
+    summary_llm_requested: bool = False,
+    summary_prompt_version: str = "",
 ) -> str:
     """Cache key versioned on everything that changes the analysis: content,
     extractor/schema code version, and -- when the LLM ran -- which
     provider/model produced the prose fields. Changing the prompt (which
     bumps EXTRACTOR_VERSION/SCHEMA_VERSION), switching provider, or
     switching model all invalidate old cache entries automatically instead
-    of silently replaying a stale (possibly empty) analysis."""
+    of silently replaying a stale (possibly empty) analysis.
+
+    ``summary_llm_requested``/``summary_prompt_version`` cover the separate
+    Drawing Summary LLM polish (DRAWING_SUMMARY_LLM_ENABLED): toggling that
+    flag, or changing its prompt, must invalidate the cache too -- otherwise
+    a document analysed once with it off would silently replay the old
+    profile (no narrative) forever after turning it on."""
 
     parts = [document_hash, PROFILE_VERSION, EXTRACTOR_VERSION, SCHEMA_VERSION]
     if llm_requested:
         parts.extend([provider_name or "", model or ""])
     else:
         parts.append("no_llm")
+    if summary_llm_requested:
+        parts.extend(["summary_llm", provider_name or "", model or "", summary_prompt_version or ""])
+    else:
+        parts.append("no_summary_llm")
     raw = "|".join(parts)
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:40]
 
@@ -770,5 +787,11 @@ def empty_profile(
         "derived_insights": [],
         "warnings_and_conflicts": [],
         "estimator_attention_items": [],
+        # Structured, evidence-grounded description of the drawing set (page
+        # groups, steel system, TYP/repeated conditions, schedules, scope
+        # signals, uncertainties) plus a deterministic rendered narrative.
+        # Built by services.engineering.drawing_intelligence; informational
+        # only, never an input to any prediction. See attach_legend_profile.
+        "drawing_intelligence": {},
         "diagnostics": {},
     }

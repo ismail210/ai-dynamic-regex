@@ -30,6 +30,7 @@ from services.exact_section_predictor import (
     catalog_valid_exact_section,
     predict_exact_sections,
     predict_exact_sections_for_labels,
+    resolve_trusted_explicit_section,
 )
 from services.family_codes import MODERN_FAMILY_CODES
 from services.hss_completion import (
@@ -68,7 +69,6 @@ from services.annotation.model_governance import model_may_influence
 from services.prediction.calibration import calibrate_score
 from services.prediction.label_ranker_hook import (
     apply_label_ranker_for_analyze,
-    resolve_reliable_exact_catalog_label,
 )
 from services.prediction.canonical_contract import (
     build_canonical_prediction,
@@ -341,27 +341,24 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         or ""
     )
 
-    # PROTECTED EXACT LABEL PATH: if the conservatively-normalized OCR text is
-    # already a real, catalog-valid AISC section on its own, that text-exact
-    # reading is authoritative. Fusion/graph/geometry may still add
-    # corroborating or conflicting evidence used for review routing below,
-    # but nothing downstream may silently substitute a different section for
-    # a clean catalog-valid exact label (see the applied check after the
-    # label-ranker hook, further down this function).
+    # TRUSTED EXPLICIT SECTION PATH: if the conservatively-normalized OCR text
+    # is already exactly one real catalog-valid AISC section on its own, that
+    # text-exact reading is authoritative. Fusion/graph/geometry still run and
+    # their disagreement is recorded as a member-association diagnostic, but
+    # nothing downstream may substitute a different section, lower the
+    # section's confidence, mark identity ambiguous, or force SECTION review
+    # for a clean catalog-valid explicit label (see ``section_text_locked``
+    # below and its use through the rest of this function).
     #
-    # A trailing cut-length/quantity field (e.g. "L3X3X3/8X0'-6\"") keeps the
-    # untrimmed text from matching the catalog as a whole string even though
-    # the printed section itself is unambiguous -- without the fallback
-    # below, that case fell through to weighted fusion, which could let
-    # geometry/graph evidence silently override the explicit printed
-    # section. resolve_reliable_exact_catalog_label is deterministic and
-    # unconditional (not gated by the ranker flags); it only returns a
-    # label when the reliable prefix names exactly one catalog row.
+    # ``resolve_trusted_explicit_section`` is the single authoritative helper:
+    # it composes whole-string catalog membership (incl. ``catalog_form``
+    # notation-equivalents like round-HSS zero padding / fractional angle
+    # legs) with the reliable-prefix resolver that also handles a trailing
+    # fabrication cut-length ("L3X3X3/8X0'-6\"" -> L3X3X3/8). It never infers a
+    # missing dimension and never substitutes a nearest/most-common section.
     protected_exact_section = (
-        catalog_valid_exact_section(normalized)
-        or catalog_valid_exact_section(raw_text)
-        or resolve_reliable_exact_catalog_label(normalized)
-        or resolve_reliable_exact_catalog_label(raw_text)
+        resolve_trusted_explicit_section(normalized)
+        or resolve_trusted_explicit_section(raw_text)
     )
     extraction_confidence = float(token_record.get("confidence") or 0.5)
 
@@ -434,6 +431,11 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     retrieval_gate_failed = True
     label_ranker_meta: Dict[str, Any] = {}
     protected_label_conflict = False
+    # Weaker-modality (fusion / graph / geometry / ranker) evidence pointed at a
+    # different candidate than the trusted explicit section. Diagnostic only --
+    # it is surfaced for developer research and as a member-association note,
+    # but it never forces SECTION review or changes the locked identity.
+    explicit_section_context_disagreement = False
     ranker_applied_effective = False
     hss_dimensions: Optional[tuple] = None
     hss_completions: List[Any] = []
@@ -711,13 +713,19 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
 
         if protected_exact_section:
             if section and section != protected_exact_section:
-                protected_label_conflict = True
+                # Record the disagreement for diagnostics, but the drawing
+                # text itself already resolved the section: a weaker modality
+                # cannot override a clean catalog-valid explicit label or
+                # push it into section review. (Per the resolution contract,
+                # only a human reviewer or a verified project/schedule rule
+                # outranks trusted explicit text.)
+                explicit_section_context_disagreement = True
             section = protected_exact_section
             retrieval_gate_failed = False
 
         ranker_applied_effective = bool(
             label_ranker_meta.get("applied")
-        ) and not protected_label_conflict
+        ) and not explicit_section_context_disagreement
 
     ai_reasons = list(unified_fusion.reasons)
     if skip_section_fusion:
@@ -792,10 +800,9 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
             # The extracted characters already resolve to a clean,
             # catalog-valid AISC section (see the protected-label check
             # above) — that text evidence outranks annotation-taxonomy
-            # heuristics derived from geometry/graph context. Text
-            # resolution and annotation understandability are different
-            # questions: keep the label, but still force review via the
-            # "annotation_*" issue tags appended further down.
+            # heuristics derived from geometry/graph context. Keep the label;
+            # ``section_text_locked`` (computed just below) then keeps the
+            # "annotation_*" tags from forcing SECTION review for it.
             pass
         else:
             # Unreadable/unsupported text with no protected exact label must
@@ -810,13 +817,6 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         if not protected_exact_section:
             retrieval_gate_failed = True
 
-    if protected_label_conflict:
-        ai_reasons.append(
-            f"Kept catalog-valid exact text match ({protected_exact_section}); "
-            "fusion/graph/ranker evidence favored a different candidate but "
-            "cannot silently override a clean exact label. Flagged for review."
-        )
-
     if missing_thickness_needs_review:
         retrieval_gate_failed = True
         ai_reasons.append(
@@ -828,13 +828,58 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     if skip_section_fusion:
         retrieval_gate_failed = False
 
+    # --- Trusted explicit section: identity is resolved from the drawing -----
+    # The conservatively-normalized OCR text is itself exactly one real AISC
+    # catalog entry and that reading was kept as ``section``. Per the
+    # resolution contract (sections 8/11-14): weaker modalities may DISAGREE
+    # and that disagreement is recorded for diagnostics + member-association
+    # review, but it may not change the identity, lower section confidence,
+    # mark it ambiguous, force SECTION review, or cause abstention. Only a
+    # human reviewer or a verified project/schedule rule outranks it.
+    # Only THIS object's own extracted characters count. A geometry-inferred /
+    # spatially-associated / schedule-sourced member carries a section copied
+    # from a *nearby* printed label; its identity is not resolved by its own
+    # text, so it stays in member-association review, not locked.
+    section_from_own_text = bool(
+        (extracted_text or "").strip()
+        and not token_record.get("geometry_associated")
+        and not token_record.get("inferred_section")
+        and not token_record.get("missing_label")
+        and not token_record.get("schedule_sourced")
+        and not token_record.get("spatial_association")
+        and not str(token_record.get("token_id") or "").startswith(
+            ("geom_assoc", "geom_", "schedule_", "spatial_")
+        )
+    )
+    section_text_locked = bool(
+        protected_exact_section
+        and section == protected_exact_section
+        and section_from_own_text
+        and not retrieval_gate_failed
+        and not confirmed_plate_type
+        and not missing_thickness_needs_review
+    )
+
+    if explicit_section_context_disagreement:
+        ai_reasons.append(
+            f"Section identity {protected_exact_section} is resolved directly "
+            "from the explicit, catalog-valid printed text. Geometry/graph/"
+            "fusion evidence favoured a different candidate; that is recorded "
+            "as a member-association note and does not change the section."
+        )
+
     model_label = section
     model_probability = (
         extraction_confidence
         if confirmed_plate_type
         else (0.0 if retrieval_gate_failed else float(unified_fusion.confidence))
     )
-    if protected_exact_section and not retrieval_gate_failed:
+    if section_text_locked:
+        # Section identity is deterministic (explicit catalog-valid text), not
+        # a learned probability. Report it as fully supported so review policy
+        # and the UI treat it as resolved, not as a low-confidence guess.
+        model_probability = 1.0
+    elif protected_exact_section and not retrieval_gate_failed:
         # A clean catalog-valid exact text match is itself strong evidence;
         # do not surface the (rejected) fusion candidate's own confidence as
         # if it belonged to the protected label.
@@ -939,7 +984,9 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         if confirmed_plate_type
         else (0.0 if retrieval_gate_failed else float(unified_fusion.confidence))
     )
-    if protected_exact_section and not retrieval_gate_failed:
+    if section_text_locked:
+        confidence_value = 1.0
+    elif protected_exact_section and not retrieval_gate_failed:
         confidence_value = max(confidence_value, extraction_confidence)
     elif ranker_applied_effective:
         confidence_value = model_probability
@@ -966,6 +1013,12 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         },
         "weights": dict(contributions_for_display),
         "database_role": "verification_only",
+        # How the section was resolved: a deterministic explicit-catalog match
+        # (no inference) vs. a learned/fused prediction.
+        "basis": (
+            "explicit_catalog_exact" if section_text_locked else "multimodal_fusion"
+        ),
+        "type": "deterministic" if section_text_locked else "inferred",
     }
     geometry_confidence = float(
         geometry.get("geometry_confidence")
@@ -1058,6 +1111,7 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         database_verified=database_verified,
         rule_findings=rules.findings,
         candidate_scores=unified_fusion.candidate_scores,
+        section_text_locked=section_text_locked,
         text_evidence={
             "token": normalized,
             "raw_text": raw_text,
@@ -1217,15 +1271,24 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         issues.append("automatic_correction_suggested")
     if not database_verified and not confirmed_plate_type:
         issues.append("database_unverified")
-    if rule_score < 0.55 and not confirmed_plate_type:
+    if rule_score < 0.55 and not confirmed_plate_type and not section_text_locked:
         issues.append("engineering_rule_conflict")
+    # Geometry / graph disagreement is member-association evidence, never
+    # section-identity evidence. For a trusted explicit catalog-valid label it
+    # is recorded as ``member_association_uncertain`` (a non-forcing INFO tag),
+    # so it neither counts toward the two-conflict review threshold nor raises
+    # an estimator-facing "section may be wrong" warning.
     if geometry.get("available") and geometry_similarity < 0.45:
-        issues.append("geometry_conflict")
+        issues.append(
+            "member_association_uncertain" if section_text_locked else "geometry_conflict"
+        )
     if float(graph.get("degree") or 0) > 0 and graph_consistency < 0.45:
-        issues.append("graph_conflict")
+        issues.append(
+            "member_association_uncertain" if section_text_locked else "graph_conflict"
+        )
     if retrieval_gate_failed or (not section and not confirmed_plate_type):
         issues.append("retrieval_gate_failed")
-    if annotation_pack.get("abstain_for_review"):
+    if annotation_pack.get("abstain_for_review") and not section_text_locked:
         issues.append("annotation_requires_review")
     if understandability_status == Understandability.UNREADABLE.value:
         issues.append("annotation_unreadable")
@@ -1234,10 +1297,11 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     if (
         understandability_status == Understandability.AMBIGUOUS.value
         and not confirmed_plate_type
+        and not section_text_locked
     ):
         issues.append("annotation_ambiguous")
-    if protected_label_conflict:
-        issues.append("protected_label_conflict")
+    if explicit_section_context_disagreement:
+        issues.append("explicit_section_context_disagreement")
     if token_record.get("schedule_sourced"):
         issues.append("schedule_sourced_member")
     if token_record.get("geometry_associated"):
@@ -1289,6 +1353,7 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         fusion_candidate_scores=unified_fusion.candidate_scores,
         wildcard_candidates=wildcard_hits,
         limit=8,
+        locked_section=section if section_text_locked else None,
     )
     ranking_score = float(confidence["overall"])
     final_confidence, confidence_is_calibrated = calibrate_score(ranking_score)
@@ -1366,10 +1431,16 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         annotation_label=semantic_annotation_label,
         section_applicable=not bool(confirmed_plate_type or resolved_semantic_annotation),
         confidence_basis=(
-            "extraction_confidence"
+            "explicit_catalog_exact"
+            if section_text_locked
+            else "extraction_confidence"
             if confirmed_plate_type or resolved_semantic_annotation
             else None
         ),
+        section_resolution=(
+            "explicit_catalog_exact" if section_text_locked else "inferred"
+        ),
+        inference_required=not section_text_locked,
         used_needs_context=needs_context_review,
     )
 
@@ -1467,6 +1538,8 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         "prediction_source": (
             "Annotation"
             if confirmed_plate_type
+            else "Explicit catalog match"
+            if section_text_locked
             else (
                 "Correction"
                 if final_correction and output_corrected_text != normalized
@@ -1475,6 +1548,18 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
                 else "Fusion"
             )
         ),
+        # Trusted-explicit provenance (see resolve_trusted_explicit_section):
+        # section identity came straight from the catalog-valid printed text,
+        # not from any inference. Consumed by member_resolution, the
+        # validation engine, and the Prediction Details / Ranked Candidates UI.
+        "section_resolution": (
+            "explicit_catalog_exact" if section_text_locked else "inferred"
+        ),
+        "inference_required": not section_text_locked,
+        "section_confidence_type": (
+            "deterministic" if section_text_locked else "inferred"
+        ),
+        "context_modality_disagreement": bool(explicit_section_context_disagreement),
         "section_prediction_not_applicable": bool(confirmed_plate_type),
         "plate_annotation_type": confirmed_plate_type,
         "missing_label_prediction": (
@@ -1545,6 +1630,7 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         # in sync after it recomputes review_status from regex matching.
         # Popped before the response is returned; not part of the contract.
         "_ranking_near_tie": ranking.near_tie,
+        "_section_text_locked": section_text_locked,
         "geometry_preview": geometry.get("object"),
         "graph_preview": {
             "degree": graph.get("degree"),
@@ -1688,11 +1774,16 @@ def predict_token(
     inner_issues = list(
         (result.get("features") or {}).get("fusion", {}).get("detected_issues") or []
     )
-    protected_label_conflict = "protected_label_conflict" in inner_issues
-    confirmed_plate = bool(result.get("section_prediction_not_applicable"))
-    abstain = "retrieval_gate_failed" in inner_issues or (
-        not section and not confirmed_plate
+    section_text_locked = bool(result.pop("_section_text_locked", False))
+    # A trusted explicit catalog-valid section: weaker-modality disagreement is
+    # diagnostic only and must not force review or abstention here either.
+    protected_label_conflict = (
+        "protected_label_conflict" in inner_issues and not section_text_locked
     )
+    confirmed_plate = bool(result.get("section_prediction_not_applicable"))
+    abstain = (
+        "retrieval_gate_failed" in inner_issues or (not section and not confirmed_plate)
+    ) and not section_text_locked
 
     review_status = decide_review_status(
         confidence=float(conf.get("overall") or 0.0),
@@ -1723,7 +1814,7 @@ def predict_token(
     # review_status above is recomputed from fusion/gate signals after the
     # canonical contract was already built inside predict_from_context —
     # refresh needs_review/review_reason so they reflect this final status.
-    near_tie = bool(result.pop("_ranking_near_tie", False))
+    near_tie = bool(result.pop("_ranking_near_tie", False)) and not section_text_locked
     match_status = str((result.get("comparison") or {}).get("match_status") or "unresolved")
     needs_review, review_reason = determine_review_from_status(
         match_status=match_status, near_tie=near_tie, review_status=review_status

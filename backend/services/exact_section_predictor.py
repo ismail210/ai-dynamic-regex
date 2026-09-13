@@ -89,6 +89,55 @@ def catalog_valid_exact_section(value: object) -> Optional[str]:
     return str(entry["shape"]) if entry else None
 
 
+def resolve_trusted_explicit_section(raw_source_text: object) -> Optional[str]:
+    """The one authoritative "does the drawing itself already name the
+    section" check for the whole pipeline.
+
+    Returns the AISC catalog's own canonical label **only** when
+    ``raw_source_text`` — under deterministic, lossless normalization only
+    (case / whitespace / multiplication-symbol / safe separator folding,
+    ``catalog_form`` notation-equivalents such as round-HSS zero padding and
+    fractional-angle legs, and a safe trailing fabrication cut-length strip)
+    — resolves to exactly one real catalog section. Returns ``None`` for an
+    incomplete designation (``L4X4``, ``W12``, ``HSS8X8``), a bare dimension
+    (``3/4"``), or a well-formed but non-existent shape (``W12X999``).
+
+    It NEVER infers a missing dimension and NEVER substitutes the
+    most-common / nearest catalog section. When it returns a value, section
+    identity is resolved from explicit text: no weaker modality (fuzzy
+    retrieval, geometry, graph, fusion, document prior, learned ranker) may
+    change it, lower its confidence, mark it ambiguous, or force section
+    review — only a human reviewer or a verified project/schedule rule may.
+
+    Composes the two existing deterministic resolvers so downstream code has
+    ONE concept to reuse: ``catalog_valid_exact_section`` (whole-string
+    catalog membership, incl. ``catalog_form`` notation-equivalents) and
+    ``label_reconstruction.candidates.reliable_exact_catalog_label`` (a
+    reliable designation prefix that names exactly one catalog row even when
+    a trailing cut-length/quantity field is attached).
+    """
+
+    text = str(raw_source_text or "").strip()
+    if not text:
+        return None
+    direct = catalog_valid_exact_section(text)
+    if direct:
+        return direct
+    normalized = normalize_section_text(text)
+    if normalized and normalized != text.upper():
+        direct = catalog_valid_exact_section(normalized)
+        if direct:
+            return direct
+    try:
+        from services.label_reconstruction.candidates import (
+            reliable_exact_catalog_label,
+        )
+
+        return reliable_exact_catalog_label(normalized or text) or None
+    except Exception:  # noqa: BLE001 - never break prediction for this helper
+        return None
+
+
 def _ocr_variants(label: str) -> List[str]:
     variants = {
         label,

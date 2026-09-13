@@ -30,7 +30,11 @@ ISSUE_TYPES = (
     "unknown_labels",
 )
 
-SEVERITY_RANK = {"PASS": 0, "WARNING": 1, "FAIL": 2}
+# INFO ranks with PASS: it never escalates a check's status and is not an
+# "actionable" finding (see the WARNING/FAIL filters below). It carries a
+# contextual note that would otherwise be lost — e.g. weak member association
+# on a member whose section identity is already resolved from explicit text.
+SEVERITY_RANK = {"PASS": 0, "INFO": 0, "WARNING": 1, "FAIL": 2}
 
 
 def _confidence_value(prediction: dict) -> float:
@@ -85,6 +89,21 @@ def _annotation_record(prediction: dict) -> dict:
         )
         or {}
     )
+
+
+def _is_trusted_explicit(prediction: dict) -> bool:
+    """Section identity was resolved deterministically from a complete,
+    catalog-valid printed designation. Geometry/graph disagreement is then a
+    member-association note, never a "the section may be wrong" finding."""
+
+    if prediction.get("section_resolution") == "explicit_catalog_exact":
+        return True
+    canonical_prediction = (prediction.get("canonical") or {}).get("prediction") or {}
+    if canonical_prediction.get("section_resolution") == "explicit_catalog_exact":
+        return True
+    if canonical_prediction.get("confidence_basis") == "explicit_catalog_exact":
+        return True
+    return "member_association_uncertain" in _fusion_issues(prediction)
 
 
 def _is_confirmed_plate_annotation(prediction: dict) -> bool:
@@ -271,6 +290,7 @@ def _worst(statuses: List[str]) -> str:
 def _token_issues(prediction: dict) -> List[dict]:
     issues: List[dict] = []
     confirmed_plate = _is_confirmed_plate_annotation(prediction)
+    trusted_explicit = _is_trusted_explicit(prediction)
     plate_label = _confirmed_plate_label(prediction) if confirmed_plate else ""
     section = _section(prediction)
     family = _family(prediction)
@@ -437,7 +457,31 @@ def _token_issues(prediction: dict) -> List[dict]:
         or geometry.get("similarity")
         or 0.0
     )
-    if geometry_available and (
+    if (
+        geometry_available
+        and trusted_explicit
+        and (geometry_score < 0.35 or "geometry_conflict" in fusion_issues)
+    ):
+        # Section identity is resolved from explicit catalog-valid text.
+        # Geometry only informs which physical member the label attaches to —
+        # it is not an AISC section classifier — so a low score here is a
+        # member-association note, not a "the section may be wrong" finding.
+        issues.append(
+            _issue(
+                issue_type="geometry_consistency",
+                severity="INFO",
+                why=(
+                    f"Member geometry association is weak ({geometry_score:.0%}); "
+                    f"the explicit catalog section {section or '—'} is preserved."
+                ),
+                evidence={"geometry_score": geometry_score},
+                component_id=component_id,
+                object_id=object_id,
+                original_token=original,
+                predicted_shape=section,
+            )
+        )
+    elif geometry_available and (
         geometry_score < 0.35 or "geometry_conflict" in fusion_issues
     ):
         geometry_why = (
@@ -505,7 +549,31 @@ def _token_issues(prediction: dict) -> List[dict]:
         or graph.get("graph_consistency")
         or 0.0
     )
-    if degree > 0 and (graph_score < 0.35 or "graph_conflict" in fusion_issues):
+    if (
+        degree > 0
+        and trusted_explicit
+        and (graph_score < 0.35 or "graph_conflict" in fusion_issues)
+    ):
+        # Section identity is resolved from explicit catalog-valid text. The
+        # structural graph informs member connectivity/role, not the AISC
+        # designation, so a weak neighbourhood is a member-association note.
+        issues.append(
+            _issue(
+                issue_type="graph_consistency",
+                severity="INFO",
+                why=(
+                    f"Structural graph neighbourhood is weak "
+                    f"({graph_score:.0%}, degree {int(degree)}); the explicit "
+                    f"catalog section {section or '—'} is preserved."
+                ),
+                evidence={"graph_score": graph_score, "degree": degree},
+                component_id=component_id,
+                object_id=object_id,
+                original_token=original,
+                predicted_shape=section,
+            )
+        )
+    elif degree > 0 and (graph_score < 0.35 or "graph_conflict" in fusion_issues):
         graph_why = (
             f"Structural graph neighborhood is weak for plate annotation "
             f"({graph_score:.0%}, degree {int(degree)})"
@@ -662,6 +730,12 @@ def _token_issues(prediction: dict) -> List[dict]:
         and corrected_norm
         and original_norm != corrected_norm
         and confidence >= 0.55
+        # A trusted explicit section was resolved from the printed text under
+        # deterministic normalization only (trailing punctuation, a
+        # fabrication cut-length, round-HSS shorthand). The raw string not
+        # matching character-for-character is expected and is not a
+        # "wrong section name" -- the section identity is correct.
+        and not trusted_explicit
     ):
         issues.append(
             _issue(

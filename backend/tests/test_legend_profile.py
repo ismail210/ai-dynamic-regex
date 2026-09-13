@@ -859,8 +859,14 @@ class CacheHitTests(_IsolatedCacheTestCase):
             ):
                 first = attach_legend_profile(document)
                 self.assertEqual(first["diagnostics"].get("cache_state"), "FRESH_LLM_RUN")
+                # A fresh run may legitimately call the provider more than once
+                # (legend project-rule call + optional Drawing Summary polish).
+                # The invariant here is that the *cached* run adds no call.
+                calls_after_fresh = calls["n"]
                 second = attach_legend_profile(_doc({1: GENERAL_NOTES_TEXT}))
-            self.assertEqual(calls["n"], 1, "provider was called on the cached run")
+            self.assertEqual(
+                calls["n"], calls_after_fresh, "provider was called on the cached run"
+            )
             self.assertEqual(second["diagnostics"].get("cache_state"), "CACHE_HIT")
         finally:
             object.__setattr__(settings, "legend_profile_llm_enabled", original)

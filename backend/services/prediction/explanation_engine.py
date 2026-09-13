@@ -96,6 +96,7 @@ def build_explanation(
     geometry_evidence: Optional[Dict[str, Any]] = None,
     graph_evidence: Optional[Dict[str, Any]] = None,
     engineering_evidence: Optional[Dict[str, Any]] = None,
+    section_text_locked: bool = False,
 ) -> Dict[str, Any]:
     reasons: List[str] = list(ai_reasons or [])
     reasons.append(
@@ -131,6 +132,18 @@ def build_explanation(
     top_candidates, why_selected, why_rejected = _candidate_explanations(
         section, candidate_scores
     )
+    if section_text_locked:
+        # Section identity was resolved deterministically from the explicit
+        # printed text -- fusion did not choose it, so its candidate score is
+        # not the reason. Geometry/graph evidence is not used to override an
+        # explicit catalog-valid designation.
+        why_selected = [
+            "The printed OCR is a complete AISC designation.",
+            f"{section} exists in the loaded AISC catalog.",
+            "No section inference was required.",
+            "Geometry and graph evidence are not used to override an explicit "
+            "catalog-valid designation.",
+        ]
     calibration_method = (
         "temperature_scaling"
         if any("temperature scaling" in reason.lower() for reason in ai_reasons)
