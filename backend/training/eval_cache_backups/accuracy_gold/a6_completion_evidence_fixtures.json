@@ -1,0 +1,76 @@
+{
+  "schema": "a6_completion_evidence_fixtures_v1",
+  "policy": {
+    "catalog_alone_never_completes": true,
+    "conflicts_abstain": true,
+    "incomplete_l_auto_complete_enabled": false
+  },
+  "fixtures": [
+    {
+      "fixture_id": "a6_catalog_alone_abstain",
+      "raw_text": "L4X4",
+      "drawing_evidence": [],
+      "catalog_hits": ["L4X4X1/4", "L4X4X3/8", "L4X4X1/2"],
+      "expected_decision": "abstain",
+      "expected_completion_status": "missing_thickness",
+      "reason": "catalog_not_thickness_evidence"
+    },
+    {
+      "fixture_id": "a6_nearby_complete_conflict_abstain",
+      "raw_text": "L4X4",
+      "drawing_evidence": [
+        {
+          "evidence_type": "nearby_note",
+          "evidence_source": "same_page_callout",
+          "evidence_reference": "L4X4X1/4",
+          "evidence_strength": "inferred",
+          "page_number": 34
+        },
+        {
+          "evidence_type": "nearby_note",
+          "evidence_source": "same_page_callout",
+          "evidence_reference": "L4X4X3/8",
+          "evidence_strength": "inferred",
+          "page_number": 34
+        }
+      ],
+      "expected_decision": "abstain",
+      "expected_completion_status": "missing_thickness",
+      "reason": "conflicting_nearby_completes"
+    },
+    {
+      "fixture_id": "a6_legend_unique_source_verified",
+      "raw_text": "L4X4",
+      "drawing_evidence": [
+        {
+          "evidence_type": "legend",
+          "evidence_source": "angle_schedule",
+          "evidence_reference": "L4X4X3/8 TYP UNLESS NOTED",
+          "evidence_strength": "explicit",
+          "page_number": 2
+        }
+      ],
+      "expected_decision": "source_verified_candidate",
+      "expected_completion_status": "missing_thickness",
+      "note": "Eligible for a future gated completion path; not auto-applied in production.",
+      "auto_apply": false
+    },
+    {
+      "fixture_id": "a6_half_leg_already_complete",
+      "raw_text": "L6X3-1/2X3/8",
+      "drawing_evidence": [],
+      "expected_decision": "no_completion_needed",
+      "expected_completion_status": "complete",
+      "reason": "printed_thickness_present"
+    },
+    {
+      "fixture_id": "a6_2l_incomplete_abstain",
+      "raw_text": "2L4X4",
+      "drawing_evidence": [],
+      "catalog_hits": ["2L4X4X1/4", "2L4X4X3/8"],
+      "expected_decision": "abstain",
+      "expected_completion_status": "missing_thickness",
+      "reason": "catalog_not_thickness_evidence"
+    }
+  ]
+}

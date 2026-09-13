@@ -209,6 +209,11 @@ def run_multimodal_pipeline(
     )
     if not _ablate("ABLATE_GEOMETRY"):
         geometry = enrich_geometry_embeddings(path, geometry)
+        from services.engineering.member_geometry import (
+            ensure_member_candidates_on_geometry,
+        )
+
+        geometry = ensure_member_candidates_on_geometry(geometry)
     timings["geometry_ms"] = (
         0.0
         if geometry_document is not None
@@ -279,6 +284,15 @@ def run_multimodal_pipeline(
         else propagate_section_labels(deduped["predictions"], graph)
     )
 
+    # OCR/extraction evidence only: attach member_candidate bbox metadata
+    # without changing section prediction, takeoff, or incomplete-L gates.
+    if not _ablate("ABLATE_GEOMETRY"):
+        from services.engineering.member_geometry import (
+            attach_member_geometry_to_predictions,
+        )
+
+        attach_member_geometry_to_predictions(predictions, geometry)
+
     # Demote anything sitting on a strict-classified legend/notes page,
     # including geometry "missing label", schedule/spatial and label-
     # propagation predictions synthesized after the extraction-time pass, so
@@ -302,9 +316,22 @@ def run_multimodal_pipeline(
             continue
         if prediction.get("_skip_unknown_queue"):
             continue
-        # A legend/general-note definition is not a member -- never queue it
-        # for unknown-token review (see services.engineering.context_scope).
-        if prediction.get("takeoff_eligible") is False:
+        # A legend/general-note *definition* is not a member -- never queue it.
+        # Incomplete-thickness abstentions (completion_status=missing_thickness)
+        # stay reviewable on the compilation surface even when takeoff_eligible
+        # is False (Accuracy Track A1).
+        if (
+            prediction.get("takeoff_eligible") is False
+            and str(prediction.get("completion_status") or "") != "missing_thickness"
+        ):
+            continue
+        if prediction.get("object_scope") == "context_definition":
+            continue
+        # detail_reference + missing_thickness: still reviewable for compilation
+        if (
+            prediction.get("object_scope") == "detail_reference"
+            and str(prediction.get("completion_status") or "") != "missing_thickness"
+        ):
             continue
         text_features = (prediction.get("features") or {}).get("text") or {}
         confidence_value = confidence_overall(prediction.get("confidence"))
@@ -338,8 +365,23 @@ def run_multimodal_pipeline(
 
     # Legend / general-note definitions are not members: keep them out of
     # validation, Excel comparison, review indexing, counts and every served
-    # list. They are still written to predictions.json below for provenance.
+    # takeoff list. Thickness-abstained member callouts stay on ``predictions``
+    # for the compilation surface (takeoff_eligible remains False).
     predictions, excluded_predictions = partition_takeoff(predictions)
+    abstained_for_compilation = [
+        item
+        for item in excluded_predictions
+        if str(item.get("completion_status") or "") == "missing_thickness"
+        and item.get("object_scope") != "non_member_dimension"
+    ]
+    if abstained_for_compilation:
+        predictions = list(predictions) + abstained_for_compilation
+        excluded_ids = {
+            id(item) for item in abstained_for_compilation
+        }
+        excluded_predictions = [
+            item for item in excluded_predictions if id(item) not in excluded_ids
+        ]
     non_member_annotations = [
         item
         for item in excluded_predictions

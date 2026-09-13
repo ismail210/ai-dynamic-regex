@@ -95,6 +95,9 @@ class MultiModalPrediction:
     review_status: str
     geometry_preview: Optional[dict] = None
     graph_preview: Optional[dict] = None
+    # OCR/extraction dual-bbox evidence (member stroke). Never a prediction
+    # source for section/takeoff — see services.engineering.member_geometry.
+    member_geometry: Optional[dict] = None
     component_id: Optional[str] = None
     material: Optional[str] = None
     document_id: Optional[str] = None
@@ -171,6 +174,7 @@ class MultiModalPrediction:
             "review_status": self.review_status,
             "geometry_preview": self.geometry_preview,
             "graph_preview": self.graph_preview,
+            "member_geometry": self.member_geometry,
             "ai_first": True,
             "database_decides_prediction": False,
             "completion_status": self.completion_status,

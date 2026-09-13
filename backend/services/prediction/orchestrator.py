@@ -69,6 +69,10 @@ from services.annotation.model_governance import model_may_influence
 from services.prediction.calibration import calibrate_score
 from services.prediction.label_ranker_hook import (
     apply_label_ranker_for_analyze,
+    incomplete_angle_preserved_core,
+    is_complete_angle_outside_catalog,
+    is_incomplete_angle_missing_thickness,
+    non_catalog_angle_preserved_core,
     resolve_reliable_exact_catalog_label,
 )
 from services.prediction.canonical_contract import (
@@ -440,6 +444,9 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     hss_dimensions: Optional[tuple] = None
     hss_completions: List[Any] = []
     missing_thickness_needs_review = False
+    incomplete_angle_needs_review = False
+    non_catalog_angle_needs_review = False
+    angle_catalog_abstain = False
 
     if skip_section_fusion:
         provisional_rules = evaluate_engineering_rules(
@@ -509,6 +516,35 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         )
         missing_thickness_needs_review = len(hss_completions) > 1
 
+        # INCOMPLETE ANGLE PATH: L4x4 / 2L4X4 have printed legs but no
+        # thickness. catalog_valid_exact_section correctly returns None;
+        # without this gate, predict_exact_sections TF-IDF invents a
+        # complete catalog neighbor (or even wrong family). Abstain and
+        # preserve the incomplete printed core — never invent thickness
+        # or promote L→2L.
+        incomplete_angle_needs_review = bool(
+            not protected_exact_section
+            and not hss_dimensions
+            and (
+                is_incomplete_angle_missing_thickness(normalized)
+                or is_incomplete_angle_missing_thickness(raw_text)
+            )
+        )
+        # NON-CATALOG COMPLETE ANGLE: L2x2x10 has three printed fields but
+        # is not an AISC row. Do not invent a nearest catalog thickness.
+        non_catalog_angle_needs_review = bool(
+            not protected_exact_section
+            and not hss_dimensions
+            and not incomplete_angle_needs_review
+            and (
+                is_complete_angle_outside_catalog(normalized)
+                or is_complete_angle_outside_catalog(raw_text)
+            )
+        )
+        angle_catalog_abstain = bool(
+            incomplete_angle_needs_review or non_catalog_angle_needs_review
+        )
+
         family_prediction = predict_with_confidence(normalized)
         family_label = family_prediction.label
         family_probability = float(family_prediction.probability)
@@ -538,7 +574,11 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
 
         # Single exact-section AI call with multimodal rerank (Priority 1).
         exact_candidates = []
-        if hss_completions:
+        if angle_catalog_abstain:
+            # Do not run fuzzy catalog retrieval — it invents thickness /
+            # nearest-neighbor catalog rows for incomplete or non-catalog L/2L.
+            exact_candidates = []
+        elif hss_completions:
             exact_candidates = predict_exact_sections_for_labels(
                 [item.designation for item in hss_completions],
                 geometry=geometry,
@@ -562,7 +602,11 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
                 graph=graph,
                 engineering_rules=provisional_rules.to_dict(),
             )
-        if not exact_candidates and _is_structural_family(family_label):
+        if (
+            not exact_candidates
+            and not angle_catalog_abstain
+            and _is_structural_family(family_label)
+        ):
             exact_candidates = predict_exact_sections(
                 str(family_label),
                 limit=10,
@@ -571,7 +615,11 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
                 engineering_rules=provisional_rules.to_dict(),
             )
 
-        if document_prior.get("enabled") and not protected_exact_section:
+        if (
+            document_prior.get("enabled")
+            and not protected_exact_section
+            and not angle_catalog_abstain
+        ):
             exact_candidates = apply_prior_to_candidates(
                 exact_candidates,
                 document_prior,
@@ -581,15 +629,21 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         expected_family = (
             str(family_label) if _is_structural_family(family_label) else None
         )
-        corrections = suggest_token_corrections(
-            extracted_text or normalized,
-            expected_family=expected_family,
-            geometry=geometry,
-            graph=graph,
-            engineering_context=provisional_rules.to_dict(),
-            similarity_candidates=exact_candidates,
-            limit=8,
-        )
+        if angle_catalog_abstain:
+            # Corrections/search_similar can inject complete catalog angles
+            # (or even other families). Keep the printed incomplete/non-catalog
+            # core only.
+            corrections = []
+        else:
+            corrections = suggest_token_corrections(
+                extracted_text or normalized,
+                expected_family=expected_family,
+                geometry=geometry,
+                graph=graph,
+                engineering_context=provisional_rules.to_dict(),
+                similarity_candidates=exact_candidates,
+                limit=8,
+            )
         # Geometry vector hits contribute role/consistency evidence only — they
         # must not inject section strings into fusion (plan-view lines cannot
         # distinguish W12X26 from W21X44).
@@ -639,14 +693,22 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
             )
             is not None
         ]
-        if document_prior.get("enabled") and not protected_exact_section:
+        if (
+            document_prior.get("enabled")
+            and not protected_exact_section
+            and not angle_catalog_abstain
+        ):
             fusion_candidates = apply_prior_to_candidates(
                 fusion_candidates,
                 document_prior,
                 token_text=normalized or raw_text,
             )
         corrected_text = corrections[0].corrected if corrections else normalized
-        if missing_thickness_needs_review:
+        if (
+            missing_thickness_needs_review
+            or incomplete_angle_needs_review
+            or non_catalog_angle_needs_review
+        ):
             corrected_text = normalized
 
         encodings = encoder_registry.encode_all(
@@ -717,9 +779,33 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
             section = protected_exact_section
             retrieval_gate_failed = False
 
-        ranker_applied_effective = bool(
-            label_ranker_meta.get("applied")
-        ) and not protected_label_conflict
+        if incomplete_angle_needs_review:
+            # Preserve printed incomplete core (L4X4 / 2L4X4). Never keep a
+            # fusion/TF-IDF completion or L→2L promotion.
+            preserved = (
+                incomplete_angle_preserved_core(normalized)
+                or incomplete_angle_preserved_core(raw_text)
+                or ""
+            )
+            section = preserved
+            retrieval_gate_failed = True
+        elif non_catalog_angle_needs_review:
+            # Preserve printed non-catalog complete angle (L2X2X10). Never
+            # substitute a nearest catalog neighbor.
+            preserved = (
+                non_catalog_angle_preserved_core(normalized)
+                or non_catalog_angle_preserved_core(raw_text)
+                or str(normalized or raw_text or "").upper().replace(" ", "")
+                or ""
+            )
+            section = preserved
+            retrieval_gate_failed = True
+
+        ranker_applied_effective = (
+            bool(label_ranker_meta.get("applied"))
+            and not protected_label_conflict
+            and not angle_catalog_abstain
+        )
 
     ai_reasons = list(unified_fusion.reasons)
     if skip_section_fusion:
@@ -825,6 +911,29 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
             "Wall thickness is not present in the extracted designation "
             f"({normalized}); select the correct catalog section from "
             f"{len(hss_completions)} valid completions."
+        )
+
+    if incomplete_angle_needs_review:
+        retrieval_gate_failed = True
+        preserved = section or incomplete_angle_preserved_core(normalized) or normalized
+        ai_reasons.append(
+            "Angle thickness is not present in the extracted designation "
+            f"({preserved}); legs are printed but thickness must not be "
+            "invented from catalog retrieval, fusion, geometry, graph, or "
+            "document prior. Flagged for review."
+        )
+
+    if non_catalog_angle_needs_review:
+        retrieval_gate_failed = True
+        preserved = (
+            section
+            or non_catalog_angle_preserved_core(normalized)
+            or normalized
+        )
+        ai_reasons.append(
+            "Angle designation is not catalog-valid "
+            f"({preserved}); the printed fields must not be replaced by a "
+            "nearest catalog neighbor. Flagged for review."
         )
 
     if skip_section_fusion:
@@ -1396,7 +1505,9 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         review_status=review_status,
         near_tie=ranking.near_tie,
         used_wildcards=used_wildcards,
-        used_missing_dimension=missing_thickness_needs_review,
+        used_missing_dimension=(
+            missing_thickness_needs_review or incomplete_angle_needs_review
+        ),
         confirmed_annotation=bool(confirmed_plate_type or resolved_semantic_annotation),
         annotation_type=semantic_annotation_type,
         annotation_label=semantic_annotation_label,
@@ -1553,7 +1664,9 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         # thickness, N catalog-valid completions" from an ordinary
         # correction/prediction without guessing from review_reason text.
         "completion_status": (
-            "missing_thickness" if hss_completions else "complete"
+            "missing_thickness"
+            if (hss_completions or incomplete_angle_needs_review)
+            else "complete"
         ),
         "known_dimensions": list(hss_dimensions) if hss_dimensions else None,
         "candidate_sections": [

@@ -530,6 +530,12 @@ export function getPredictionLocation(result = {}) {
     Array.isArray(rawBox) && rawBox.length >= 4
       ? rawBox.slice(0, 4).map(Number)
       : null;
+  const memberGeometry = result.member_geometry;
+  const memberRaw = memberGeometry?.available ? memberGeometry?.bbox : null;
+  const memberBoundingBox =
+    Array.isArray(memberRaw) && memberRaw.length >= 4
+      ? memberRaw.slice(0, 4).map(Number)
+      : null;
   const hasLocation =
     pageNumber != null
     && Number.isFinite(Number(pageNumber))
@@ -538,6 +544,12 @@ export function getPredictionLocation(result = {}) {
   return {
     pageNumber: hasLocation ? Number(pageNumber) : pageNumber != null ? Number(pageNumber) : null,
     boundingBox: hasLocation ? boundingBox : null,
+    memberBoundingBox:
+      hasLocation
+      && memberBoundingBox != null
+      && memberBoundingBox.every((value) => Number.isFinite(value))
+        ? memberBoundingBox
+        : null,
     hasLocation,
   };
 }

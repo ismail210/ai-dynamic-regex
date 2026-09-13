@@ -33,6 +33,17 @@ export default function BboxHighlight({
   const width = Math.abs(x1 - x0) * scale;
   const height = Math.abs(y1 - y0) * scale;
   const inferred = variant === "inferred";
+  const member = variant === "member";
+  const borderColor = member
+    ? (active ? "success.main" : "success.light")
+    : inferred
+      ? (active ? "info.main" : "info.light")
+      : (active ? "error.main" : "warning.main");
+  const bgcolor = member
+    ? (active ? "rgba(46, 125, 50, 0.14)" : "rgba(46, 125, 50, 0.08)")
+    : inferred
+      ? (active ? "rgba(2, 136, 209, 0.16)" : "rgba(2, 136, 209, 0.08)")
+      : (active ? "rgba(211, 47, 47, 0.18)" : "rgba(237, 108, 2, 0.12)");
 
   return (
     <Box
@@ -46,20 +57,18 @@ export default function BboxHighlight({
         height: Math.max(height, 2),
         border: 2,
         borderStyle: inferred ? "dashed" : "solid",
-        borderColor: inferred
-          ? (active ? "info.main" : "info.light")
-          : (active ? "error.main" : "warning.main"),
-        bgcolor: inferred
-          ? (active ? "rgba(2, 136, 209, 0.16)" : "rgba(2, 136, 209, 0.08)")
-          : (active ? "rgba(211, 47, 47, 0.18)" : "rgba(237, 108, 2, 0.12)"),
+        borderColor,
+        bgcolor,
         borderRadius: 0.5,
         pointerEvents: "none",
-        boxShadow: active && !inferred
-          ? "0 0 0 2px rgba(211, 47, 47, 0.35)"
-          : active && inferred
-            ? "0 0 0 2px rgba(2, 136, 209, 0.3)"
-            : "none",
-        zIndex: 2,
+        boxShadow: active && member
+          ? "0 0 0 2px rgba(46, 125, 50, 0.3)"
+          : active && !inferred
+            ? "0 0 0 2px rgba(211, 47, 47, 0.35)"
+            : active && inferred
+              ? "0 0 0 2px rgba(2, 136, 209, 0.3)"
+              : "none",
+        zIndex: member ? 1 : 2,
         "&::after": inferred
           ? {
               content: '"Inferred"',
@@ -75,7 +84,22 @@ export default function BboxHighlight({
               borderRadius: 0.5,
               lineHeight: 1.4,
             }
-          : undefined,
+          : member
+            ? {
+                content: '"Member"',
+                position: "absolute",
+                top: -18,
+                left: 0,
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: 0.3,
+                color: "success.main",
+                bgcolor: "background.paper",
+                px: 0.5,
+                borderRadius: 0.5,
+                lineHeight: 1.4,
+              }
+            : undefined,
       }}
     />
   );

@@ -1,19 +1,13 @@
-"""Regression coverage for the dense-page (>250 drawings) geometry cap.
+"""Regression coverage for the dense-page geometry cap.
 
 Reproduces the defect documented in
-docs/geometry_graph_audit/03_geometry_audit.md §7 and confirmed by the
-ChatGPT deep-research report's local PyMuPDF experiment: the original
-cap sorts by raw bounding-box area, and axis-aligned lines have zero
-bbox area, so they are the first entities dropped once a page exceeds
-250 raw drawings — even when every dropped line is a long, structurally
-significant member and every kept "positive area" shape is an
-insignificant speck.
+docs/geometry_graph_audit/03_geometry_audit.md §7: the original cap sorts
+by raw bounding-box area, and axis-aligned lines have zero bbox area, so
+they are dropped first.
 
-This file exercises both ``dense_page_cap_strategy`` values (see
-``services.engineering.geometry_extractor.extract_geometry``) against the
-same synthetic dense page, so the A/B improvement is measured, not just
-asserted narratively. Production default is now ``"length_aware"``; the
-historical ``"legacy_area"`` defect remains covered by an explicit test.
+Production ``_DENSE_PAGE_CAP`` is large (member retention). These strategy
+tests patch the cap to 250 so the classic A/B fixture stays fast and
+deterministic.
 """
 
 from __future__ import annotations
@@ -21,23 +15,24 @@ from __future__ import annotations
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import fitz
 
+import services.engineering.geometry_extractor as geometry_extractor
 from services.engineering.geometry_extractor import extract_geometry
 
+TEST_CAP = 250
 LINE_COUNT = 300
 RECT_COUNT = 20
 LINE_LENGTH = 300.0
-RECT_SIZE = 1.0  # deliberately tiny/insignificant "noise" rectangles
+RECT_SIZE = 1.0
 
 
 def _make_dense_page_pdf(path: Path) -> None:
     doc = fitz.open()
     page = doc.new_page(width=2200, height=1700)
 
-    # 300 independent horizontal line paths -> zero bbox area each,
-    # but each is a genuinely long (300pt), structurally significant path.
     for i in range(LINE_COUNT):
         y = 10 + (i % 150) * 10
         x0 = 50 if i < 150 else 1150
@@ -48,7 +43,6 @@ def _make_dense_page_pdf(path: Path) -> None:
             width=1,
         )
 
-    # 20 tiny 1x1 "noise" rectangles -> nonzero (but insignificant) bbox area.
     for i in range(RECT_COUNT):
         x = 50 + i * 20
         y = 1600
@@ -67,24 +61,36 @@ class DensePageCapTests(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.pdf = Path(self.tmp.name) / "dense.pdf"
         _make_dense_page_pdf(self.pdf)
+        self.cap_patch = mock.patch.object(
+            geometry_extractor, "_DENSE_PAGE_CAP", TEST_CAP
+        )
+        self.cap_patch.start()
 
     def tearDown(self) -> None:
+        self.cap_patch.stop()
         self.tmp.cleanup()
 
     def _agreement_for(self, page_summary: dict) -> dict:
         agreement = page_summary.get("cap_strategy_agreement")
         self.assertIsNotNone(
-            agreement, "cap must have triggered on this fixture (>250 raw drawings)"
+            agreement, "cap must have triggered on this fixture (raw > test cap)"
         )
         return agreement
+
+    def test_production_cap_is_raised_for_member_retention(self) -> None:
+        self.cap_patch.stop()
+        try:
+            self.assertGreaterEqual(geometry_extractor._DENSE_PAGE_CAP, 400)
+        finally:
+            self.cap_patch.start()
 
     def test_raw_drawing_count_exceeds_cap(self) -> None:
         result = extract_geometry(str(self.pdf), None)
         page_summary = result["page_summaries"][0]
         self.assertEqual(page_summary["raw_drawing_count"], LINE_COUNT + RECT_COUNT)
         self.assertTrue(page_summary["drawing_cap_applied"])
-        self.assertEqual(page_summary["retained_drawing_count"], 250)
-        self.assertEqual(page_summary["drawing_cap_threshold"], 250)
+        self.assertEqual(page_summary["retained_drawing_count"], TEST_CAP)
+        self.assertEqual(page_summary["drawing_cap_threshold"], TEST_CAP)
 
     def test_default_strategy_is_structural_first(self) -> None:
         explicit_default = extract_geometry(
@@ -106,14 +112,10 @@ class DensePageCapTests(unittest.TestCase):
         summary = result["page_summaries"][0]
         agreement = self._agreement_for(summary)
 
-        # Every one of the 20 insignificant 1x1 specks survives (area > 0
-        # beats area == 0 unconditionally), while the 70 excess long lines
-        # (zero bbox area) are the ones dropped -- reproducing the exact
-        # mechanical defect the audit and research report both describe.
-        self.assertEqual(agreement["legacy_area_kept_count"], 250)
+        self.assertEqual(agreement["legacy_area_kept_count"], TEST_CAP)
         self.assertEqual(
             agreement["zero_area_paths_dropped_by_legacy_area"],
-            LINE_COUNT + RECT_COUNT - 250,
+            LINE_COUNT + RECT_COUNT - TEST_CAP,
         )
 
         kinds = [obj["kind"] for obj in result["objects"]]
@@ -122,7 +124,7 @@ class DensePageCapTests(unittest.TestCase):
         self.assertEqual(rectangle_like, RECT_COUNT, "all 20 specks should survive")
         self.assertEqual(
             line_like,
-            250 - RECT_COUNT,
+            TEST_CAP - RECT_COUNT,
             "only 230 of the 300 significant lines should survive",
         )
 
@@ -139,17 +141,11 @@ class DensePageCapTests(unittest.TestCase):
         legacy_agreement = self._agreement_for(legacy_summary)
         length_aware_agreement = self._agreement_for(length_aware_summary)
 
-        # Both A/B numbers are computed identically regardless of which
-        # strategy is active (the diagnostic is a pure comparison), so
-        # they must agree between the two calls.
         self.assertEqual(
             legacy_agreement["zero_area_paths_dropped_by_length_aware"],
             length_aware_agreement["zero_area_paths_dropped_by_length_aware"],
         )
 
-        # The whole point of the fix: length-aware dropping loses strictly
-        # fewer of the long, significant zero-area lines than the legacy
-        # area-only sort did.
         self.assertLess(
             length_aware_agreement["zero_area_paths_dropped_by_length_aware"],
             legacy_agreement["zero_area_paths_dropped_by_legacy_area"],
@@ -160,7 +156,7 @@ class DensePageCapTests(unittest.TestCase):
         rectangle_like = sum(1 for k in kinds if k in {"rectangle", "symbol"})
         self.assertGreater(
             line_like,
-            250 - RECT_COUNT,
+            TEST_CAP - RECT_COUNT,
             "length-aware strategy should retain more significant lines "
             "than the legacy area-only sort",
         )
@@ -172,7 +168,7 @@ class DensePageCapTests(unittest.TestCase):
         )
 
     def test_structural_first_keeps_long_lines_not_page_frames(self) -> None:
-        """Phase 1: page-sized rectangles consumed the 250-slot cap."""
+        """Page-sized rectangles must not consume the whole cap."""
 
         with tempfile.TemporaryDirectory() as tmp:
             pdf = Path(tmp) / "frames.pdf"
@@ -210,16 +206,13 @@ class DensePageCapTests(unittest.TestCase):
         structural = extract_geometry(str(self.pdf), None)
         kinds = [obj["kind"] for obj in structural["objects"]]
         line_like = sum(1 for k in kinds if k == "line")
-        self.assertGreaterEqual(line_like, 250 - RECT_COUNT)
+        self.assertGreaterEqual(line_like, TEST_CAP - RECT_COUNT)
 
     def test_invalid_strategy_name_is_rejected(self) -> None:
         with self.assertRaises(ValueError):
             extract_geometry(str(self.pdf), None, dense_page_cap_strategy="bogus")
 
     def test_cap_diagnostics_absent_when_cap_does_not_trigger(self) -> None:
-        # Reuse the small fixture pattern from test_engineering_pipeline.py
-        # to confirm the new diagnostic fields degrade gracefully below the
-        # cap threshold instead of raising or misreporting.
         with tempfile.TemporaryDirectory() as tmp:
             small_pdf = Path(tmp) / "small.pdf"
             doc = fitz.open()

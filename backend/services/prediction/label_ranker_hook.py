@@ -16,6 +16,10 @@ Two independent things live here, and they must not be confused:
   field (cut length, quantity) that keeps it from matching the catalog as
   a whole string. It must remain safe to call unconditionally, with the
   ranker fully disabled.
+* ``is_incomplete_angle_missing_thickness`` /
+  ``incomplete_angle_preserved_core`` — deterministic incomplete L/2L
+  detection (legs printed, thickness absent). Always-on; used by the
+  orchestrator to abstain instead of inventing thickness.
 """
 
 from __future__ import annotations
@@ -147,3 +151,166 @@ def resolve_reliable_exact_catalog_label(
             "label_ranker_hook: reliable_exact_catalog_label failed for %r", text
         )
         return None
+
+
+def _incomplete_angle_surface(text: str) -> str:
+    """Normalize for incomplete-angle detection without inventing dimensions.
+
+    Strips OCR/list trailing noise (``,;:`` and a bare trailing ``"``) via the
+    existing eligibility unwrap helper, then applies conservative_normalize.
+    For L/2L only, also drops an ``@...`` suffix (spacing / OCR noise such as
+    ``L4X4@length``) so it cannot block missing-thickness detection.
+    Shop/cut forms such as ``L4x3x1/4x6"`` remain multi-field after quote
+    strip and are still not incomplete.
+    """
+
+    from services.label_reconstruction.candidates import (
+        _unwrap_eligibility_text,
+        conservative_normalize,
+        family_of,
+    )
+
+    surface = _unwrap_eligibility_text(str(text or "").strip())
+    if surface.endswith('"'):
+        surface = surface[:-1].rstrip()
+    surface = conservative_normalize(surface)
+    if "@" in surface:
+        left, _right = surface.split("@", 1)
+        if family_of(left) in {"L", "2L"} and left:
+            surface = left
+    return surface
+
+
+def is_incomplete_angle_missing_thickness(
+    text: str,
+    *,
+    detector_fn: Optional[Callable[[str], bool]] = None,
+) -> bool:
+    """True for explicit L/2L with two printed legs and no thickness.
+
+    Examples: ``L4x4``, ``L5X3``, ``2L4X4``, and trailing-noise variants
+    ``L4X4,`` / ``L4X4;`` / ``L4X4"``. Complete sections such as
+    ``L4X4X1/4`` and shop/cut cores such as ``L4x3x1/4x6"`` are False.
+
+    Deterministic and always-on (not gated by ML ranker flags). Production
+    Analyze uses this to abstain instead of inventing thickness via fuzzy
+    exact-section retrieval / fusion.
+    """
+
+    raw = (text or "").strip()
+    if not raw:
+        return False
+    if detector_fn is None:
+        from services.label_reconstruction.candidates import (
+            is_missing_thickness_angle,
+        )
+
+        def detector_fn(value: str) -> bool:  # type: ignore[no-redef]
+            return is_missing_thickness_angle(_incomplete_angle_surface(value))
+
+    try:
+        return bool(detector_fn(raw))
+    except Exception:  # noqa: BLE001 - must not crash Analyze
+        logger.exception(
+            "label_ranker_hook: incomplete-angle detection failed for %r", raw
+        )
+        return False
+
+
+def incomplete_angle_preserved_core(
+    text: str,
+    *,
+    parse_fn: Optional[Callable[[str], Any]] = None,
+) -> Optional[str]:
+    """Return the normalized incomplete L/2L core (e.g. ``L4X4``), or None.
+
+    Preserves printed family + legs only. Never invents thickness.
+    Trailing OCR/list punctuation is stripped before parsing.
+    """
+
+    raw = (text or "").strip()
+    if not raw:
+        return None
+    if parse_fn is None:
+        from services.label_reconstruction.candidates import (
+            incomplete_angle_missing_thickness_parse,
+        )
+
+        def parse_fn(value: str) -> Any:  # type: ignore[no-redef]
+            return incomplete_angle_missing_thickness_parse(
+                _incomplete_angle_surface(value)
+            )
+
+    try:
+        parsed = parse_fn(raw)
+    except Exception:  # noqa: BLE001 - must not crash Analyze
+        logger.exception(
+            "label_ranker_hook: incomplete-angle preserve failed for %r", raw
+        )
+        return None
+    if parsed is None:
+        return None
+    family = str(getattr(parsed, "family", "") or "")
+    fields = list(getattr(parsed, "fields", None) or [])
+    if family not in {"L", "2L"} or len(fields) < 2:
+        return None
+    leg_a = str(fields[0] or "").strip()
+    leg_b = str(fields[1] or "").strip()
+    if not leg_a or not leg_b:
+        return None
+    return f"{family}{leg_a}X{leg_b}"
+
+
+def is_complete_angle_outside_catalog(
+    text: str,
+    *,
+    catalog_fn: Optional[Callable[[str], Optional[str]]] = None,
+) -> bool:
+    """True for L/2L with three printed fields that are not catalog-valid.
+
+    Example: ``L2x2x10`` — thickness is printed, but the designation is not
+    an AISC row. Production must preserve the printed form and abstain rather
+    than inventing a nearest catalog neighbor (e.g. ``L2X2X1/8``).
+    """
+
+    raw = (text or "").strip()
+    if not raw:
+        return False
+    surface = _incomplete_angle_surface(raw)
+    if not surface or is_incomplete_angle_missing_thickness(surface):
+        return False
+
+    from services.label_reconstruction.candidates import (
+        _is_printed_numeric_field,
+        family_of,
+    )
+
+    fam = family_of(surface)
+    if fam not in {"L", "2L"}:
+        return False
+    parts = surface[len(fam) :].split("X")
+    if len(parts) != 3:
+        return False
+    if not all(_is_printed_numeric_field(part) for part in parts):
+        return False
+
+    if catalog_fn is None:
+        from services.exact_section_predictor import catalog_valid_exact_section
+
+        catalog_fn = catalog_valid_exact_section
+    try:
+        return catalog_fn(surface) is None
+    except Exception:  # noqa: BLE001 - must not crash Analyze
+        logger.exception(
+            "label_ranker_hook: non-catalog angle detection failed for %r", raw
+        )
+        return False
+
+
+def non_catalog_angle_preserved_core(text: str) -> Optional[str]:
+    """Return the normalized printed L/2L core when outside the catalog."""
+
+    if not is_complete_angle_outside_catalog(text):
+        return None
+    surface = _incomplete_angle_surface(text)
+    return surface or None

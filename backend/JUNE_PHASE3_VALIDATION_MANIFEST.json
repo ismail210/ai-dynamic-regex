@@ -1,0 +1,163 @@
+{
+  "experiment_id": "june_phase3_first_run_2026-09-13",
+  "generated_at": "2026-09-13T10:06:04.103680+00:00",
+  "corpus": {
+    "root": "Testing Projects",
+    "pdf_count": 19,
+    "project_folders": [
+      "02 - MARS Arcadia",
+      "03 - The Field School",
+      "04 - Thomas ES",
+      "18 - River Road",
+      "20 - 2100 Crystal Dr",
+      "34 - Fairwood ES",
+      "35 - Fort Lincoln Park",
+      "41 - SOME",
+      "47 - William Winchester ES",
+      "51 - Burrvile ES",
+      "54 - Duckworth ES",
+      "55 - Springhill Lake",
+      "57 - Hart MS"
+    ],
+    "project_folder_count": 13,
+    "exists": true
+  },
+  "selection": {
+    "policy": "Phase 0C ~16-page recommended subset",
+    "total_pages": 16,
+    "projects": [
+      "18 - River Road",
+      "51 - Burrvile ES",
+      "41 - SOME"
+    ],
+    "incomplete_2l_in_subset": false,
+    "note": "Page extracts under training/eval_cache_backups/june_phase3/page_extracts/ are validation work products only \u2014 not corpus duplicates for training",
+    "buckets_evaluated": [
+      "predictions",
+      "context_definitions",
+      "non_member_annotations",
+      "repeated_detail_members"
+    ]
+  },
+  "documents": [
+    {
+      "doc_key": "river_road",
+      "project": "18 - River Road",
+      "pdf_rel": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+      "sha256": "e613630919341dfd19366a57d7a67d61eb53acd6d8652c9a42e1b03323ed01bb",
+      "page_count": 215,
+      "selected_pages": [
+        {
+          "page": 25,
+          "rationale": "Normal W labels on floor framing"
+        },
+        {
+          "page": 28,
+          "rationale": "Roof framing W + HSS + complete L"
+        },
+        {
+          "page": 30,
+          "rationale": "Dense W labeling"
+        },
+        {
+          "page": 33,
+          "rationale": "Incomplete L4X4 + complete L angles (abstention)"
+        },
+        {
+          "page": 34,
+          "rationale": "Incomplete L4X4 near completes \u2014 must not auto-complete"
+        },
+        {
+          "page": 38,
+          "rationale": "Incomplete L5X3 + completes"
+        },
+        {
+          "page": 41,
+          "rationale": "Incomplete L4X4 on opening detail"
+        }
+      ],
+      "document_id": "doc_juneph3riverroad",
+      "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf"
+    },
+    {
+      "doc_key": "burrville",
+      "project": "51 - Burrvile ES",
+      "pdf_rel": "Testing Projects/51 - Burrvile ES/Burrville_DD Pricing Set_260317.pdf",
+      "sha256": "2b1cc4a4870c8ef8f514bbebf315697e6c267cc9c3a5fcda7ec59f42d0d0f885",
+      "page_count": 248,
+      "selected_pages": [
+        {
+          "page": 54,
+          "rationale": "Half-leg L5X3-1/2X5/16 must stay complete"
+        },
+        {
+          "page": 59,
+          "rationale": "Dense floor framing W"
+        },
+        {
+          "page": 63,
+          "rationale": "Roof framing W + HSS"
+        },
+        {
+          "page": 65,
+          "rationale": "Mixed W/HSS/L on roof"
+        },
+        {
+          "page": 72,
+          "rationale": "2L + complete L details"
+        },
+        {
+          "page": 75,
+          "rationale": "Complete 2L4X4X3/8 (not incomplete 2L)"
+        },
+        {
+          "page": 78,
+          "rationale": "Dense HSS"
+        }
+      ],
+      "document_id": "doc_juneph3burrville",
+      "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/burrville_phase3_extract.pdf"
+    },
+    {
+      "doc_key": "some",
+      "project": "41 - SOME",
+      "pdf_rel": "Testing Projects/41 - SOME/2025-12-18_100 DD SET-current (1).pdf",
+      "sha256": "e7accb41fb73a57dc4c6d2786abccaf153ec53c06c821c1050ef393fd2f21e3f",
+      "page_count": 99,
+      "selected_pages": [
+        {
+          "page": 58,
+          "rationale": "Dense framing W (spacing/case)"
+        },
+        {
+          "page": 65,
+          "rationale": "Half-leg completes / detector false-positive guard"
+        }
+      ],
+      "document_id": "doc_juneph3some",
+      "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/some_phase3_extract.pdf"
+    }
+  ],
+  "pipeline_path": {
+    "entry": "services.multimodal.pipeline.run_multimodal_pipeline",
+    "prediction_owner": "services.prediction.orchestrator via fusion_engine.predict",
+    "eval_classifier": "scripts.evaluate_first_run._classify_row",
+    "semantic_projection": "services.prediction.semantic_contract.project_semantic_annotation",
+    "excel": null,
+    "persist": true
+  },
+  "feature_flags": {
+    "learned_fusion_enabled": false,
+    "graphsage_section_scoring_enabled": false,
+    "geometry_missing_label_inference_enabled": false,
+    "ml_label_ranker_enabled": false,
+    "ml_label_ranker_shadow": false,
+    "legend_profile_llm_enabled": false,
+    "ml_association_dataset_enabled": false
+  },
+  "artifacts": {
+    "results": "june_phase3_results.json",
+    "report": "JUNE_PHASE3_FIRST_RUN_REPORT.md",
+    "raw_predictions_dir": "training/eval_cache_backups/june_phase3/raw_predictions"
+  }
+}

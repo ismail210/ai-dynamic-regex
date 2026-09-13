@@ -25,6 +25,31 @@ def _rot_delta(a: Any, b: Any) -> float:
     return min(delta, 180.0 - delta)
 
 
+def _is_dim_token(text: str) -> bool:
+    return bool(re.fullmatch(r"\d+(?:\.\d+)?|\d+/\d+", str(text or "").strip()))
+
+
+def _is_family_token(text: str) -> bool:
+    return bool(
+        re.fullmatch(
+            r"(?:2L|WT|MT|ST|MC|HP|HSS|PIPE|W|S|M|C|L)",
+            str(text or "").strip(),
+            re.I,
+        )
+    )
+
+
+def _is_separator_token(text: str) -> bool:
+    return str(text or "").strip().lower() in {"x", "×", "✕", "*", "-"}
+
+
+def _strip_outer_brackets(text: str) -> str:
+    raw = str(text or "").strip()
+    if len(raw) >= 2 and raw[0] in "[(" and raw[-1] in "])":
+        return raw[1:-1].strip()
+    return raw
+
+
 def _compatible(
     left: Dict[str, Any],
     right: Dict[str, Any],
@@ -42,17 +67,33 @@ def _compatible(
         return False
     lc = _center(lb)
     rc = _center(rb)
-    if math.hypot(lc[0] - rc[0], lc[1] - rc[1]) > max_gap:
+    gap = math.hypot(lc[0] - rc[0], lc[1] - rc[1])
+    # Rotated callouts (≈90°) often sit farther apart along the reading axis.
+    rot = as_float(left.get("rotation")) or 0.0
+    gap_limit = max_gap
+    if 70.0 <= (abs(rot) % 180.0) <= 110.0:
+        gap_limit = max_gap * 1.55
+    # Family + dimension fragments (``W`` ``12`` ``x`` ``26``) tolerate a
+    # slightly larger gap than arbitrary text.
+    lt = _strip_outer_brackets(str(left.get("text") or ""))
+    rt = _strip_outer_brackets(str(right.get("text") or ""))
+    if (
+        _is_family_token(lt)
+        or _is_dim_token(lt)
+        or _is_separator_token(lt)
+    ) and (
+        _is_family_token(rt)
+        or _is_dim_token(rt)
+        or _is_separator_token(rt)
+    ):
+        gap_limit = max(gap_limit, max_gap * 1.25)
+    if gap > gap_limit:
         return False
     left_font = as_float(left.get("font_size"))
     right_font = as_float(right.get("font_size"))
     if left_font and right_font and abs(left_font - right_font) > 3.0:
         return False
     return True
-
-
-def _is_dim_token(text: str) -> bool:
-    return bool(re.fullmatch(r"\d+(?:\.\d+)?|\d+/\d+", str(text or "").strip()))
 
 
 def group_annotation_fragments(
@@ -110,10 +151,15 @@ def group_annotation_fragments(
             seed["was_merged"] = False
             joined.append(seed)
             continue
-        texts = [str(part.get("text") or "").strip() for part in group]
-        raw = " ".join(texts)
-        if any(t.lower() in {"x", "×", "✕"} for t in texts) or all(
-            _is_dim_token(t) for t in texts if t.lower() not in {"x", "×", "✕"}
+        texts = [
+            _strip_outer_brackets(str(part.get("text") or "").strip())
+            for part in group
+        ]
+        raw = " ".join(t for t in texts if t)
+        if any(_is_separator_token(t) for t in texts) or all(
+            _is_dim_token(t) or _is_family_token(t)
+            for t in texts
+            if not _is_separator_token(t)
         ):
             raw = "".join(texts)
         elif all(len(t) <= 2 for t in texts):

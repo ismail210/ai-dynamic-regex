@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Estima3D — A2 / A7 Human Review (validation only)</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="top">
+    <div>
+      <h1>Human Review — Validation Only</h1>
+      <p class="sub">Does not change production inference. Excel is not ground truth. Catalog ≠ thickness evidence.</p>
+    </div>
+    <div class="mode">
+      <button id="mode-a2" class="active" type="button">A2 (70)</button>
+      <button id="mode-a7" type="button">A7 (100)</button>
+    </div>
+  </header>
+
+  <section class="toolbar">
+    <button id="prev" type="button">← Prev</button>
+    <span id="counter">—</span>
+    <button id="next" type="button">Next →</button>
+    <label>Filter
+      <select id="filter">
+        <option value="all">all</option>
+        <option value="unreviewed">unreviewed</option>
+        <option value="reviewed">reviewed</option>
+        <option value="ambiguous">ambiguous</option>
+        <option value="incorrect">incorrect</option>
+        <option value="abstain">abstain</option>
+      </select>
+    </label>
+    <button id="save" type="button" class="primary">Save progress</button>
+    <span id="status"></span>
+  </section>
+
+  <main class="grid">
+    <section class="panel context">
+      <h2>Drawing context</h2>
+      <dl id="context"></dl>
+      <p class="hint">Open the extract/full PDF locally at the listed path and page. BBoxes are PDF page coordinates when present.</p>
+      <pre id="bbox"></pre>
+    </section>
+
+    <section class="panel system">
+      <h2>System result</h2>
+      <pre id="system"></pre>
+    </section>
+
+    <section class="panel human">
+      <h2>Human judgment</h2>
+      <div id="form"></div>
+      <label class="block">Notes
+        <textarea id="notes" rows="4"></textarea>
+      </label>
+      <label class="block">Reviewed by
+        <input id="reviewed_by" type="text" placeholder="initials / name" />
+      </label>
+    </section>
+  </main>
+
+  <footer>
+    <p>Safety reminder: do not invent L thickness from catalog or Excel. Incomplete <code>L4X4</code>/<code>L5X3</code> without drawing thickness → abstain.</p>
+  </footer>
+  <script src="app.js"></script>
+</body>
+</html>

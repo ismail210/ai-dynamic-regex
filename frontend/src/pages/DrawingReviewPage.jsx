@@ -446,6 +446,7 @@ export default function DrawingReviewPage() {
                       key: selection.key,
                       pageNumber: selection.location.pageNumber,
                       boundingBox: selection.location.boundingBox,
+                      memberBoundingBox: selection.location.memberBoundingBox || null,
                       variant: isInferredLocation(selection.result)
                         ? "inferred"
                         : "text",
@@ -455,6 +456,7 @@ export default function DrawingReviewPage() {
                         key: selection.key,
                         pageNumber: null,
                         boundingBox: null,
+                        memberBoundingBox: null,
                       }
                     : null
               }

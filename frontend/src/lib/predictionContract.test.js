@@ -312,7 +312,12 @@ describe("getPredictionLocation — locates source text, never the prediction", 
       finalLabel: "W18X35",
     });
     const location = getPredictionLocation(result);
-    expect(location).toEqual({ pageNumber: 7, boundingBox: [10, 20, 60, 40], hasLocation: true });
+    expect(location).toEqual({
+      pageNumber: 7,
+      boundingBox: [10, 20, 60, 40],
+      memberBoundingBox: null,
+      hasLocation: true,
+    });
   });
 
   it("formatting normalization: still locates the ORIGINAL source span, not a re-search for the normalized string", () => {
@@ -327,7 +332,12 @@ describe("getPredictionLocation — locates source text, never the prediction", 
       finalLabel: "W18X35",
     });
     const location = getPredictionLocation(result);
-    expect(location).toEqual({ pageNumber: 7, boundingBox: [10, 20, 75, 40], hasLocation: true });
+    expect(location).toEqual({
+      pageNumber: 7,
+      boundingBox: [10, 20, 75, 40],
+      memberBoundingBox: null,
+      hasLocation: true,
+    });
   });
 
   it("OCR correction: locates the damaged RAW text's own position, not a position derived from the corrected suggestion", () => {
@@ -345,8 +355,29 @@ describe("getPredictionLocation — locates source text, never the prediction", 
     expect(location).toEqual({
       pageNumber: 12,
       boundingBox: [200, 300, 260, 320],
+      memberBoundingBox: null,
       hasLocation: true,
     });
+  });
+
+  it("exposes member_geometry bbox separately when available", () => {
+    const result = {
+      ...canonicalResult({
+        raw: "W12X16",
+        pageNumber: 10,
+        boundingBox: [10, 20, 40, 30],
+        matchStatus: "exact_match",
+        finalLabel: "W12X16",
+      }),
+      member_geometry: {
+        available: true,
+        type: "member_candidate",
+        bbox: [0, 50, 200, 50],
+      },
+    };
+    const location = getPredictionLocation(result);
+    expect(location.boundingBox).toEqual([10, 20, 40, 30]);
+    expect(location.memberBoundingBox).toEqual([0, 50, 200, 50]);
   });
 
   it("missing/incomplete label with no resolvable source position reports hasLocation=false rather than guessing", () => {
