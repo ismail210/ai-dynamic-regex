@@ -16,7 +16,8 @@ from services.family_codes import MODERN_FAMILY_ALTERNATION
 
 _SECTION = re.compile(
     rf"^(?:{MODERN_FAMILY_ALTERNATION})"
-    r"\d+(?:[./]\d+)?(?:X\d+(?:[./]\d+)?){1,3}$",
+    r"\d+(?:-\d+/\d+)?(?:[./]\d+)?"
+    r"(?:X\d+(?:-\d+/\d+)?(?:[./]\d+)?){1,3}$",
     re.IGNORECASE,
 )
 _PLATE = re.compile(
@@ -96,17 +97,23 @@ def classify_engineering_object(
 
     text = _normalized(token.get("normalized_text") or token.get("text"))
     context = _context(token)
-    if not text or _NON_OBJECT_CONTEXT.search(context):
+    if not text:
+        return None
+
+    # Catalog-valid callouts survive incidental GENERAL NOTES / LEGEND /
+    # SPECIFICATIONS keywords in the same block (a framing sheet routinely
+    # carries both). Page-scope demotion happens later in context_scope.
+    if _SECTION.fullmatch(text):
+        return _section_object_type(text, context)
+    if _PLATE.fullmatch(text):
+        return "plate"
+
+    if _NON_OBJECT_CONTEXT.search(context):
         return None
 
     if _ANONYMOUS_DIM.fullmatch(text):
         return "anonymous_dimension"
 
-    # Fast path: catalog sections / plates / marks — skip heavy annotation parser.
-    if _SECTION.fullmatch(text):
-        return _section_object_type(text, context)
-    if _PLATE.fullmatch(text):
-        return "plate"
     if _MEMBER_MARK.fullmatch(text):
         return _member_mark_object_type(text)
     if _CONNECTION.fullmatch(text):

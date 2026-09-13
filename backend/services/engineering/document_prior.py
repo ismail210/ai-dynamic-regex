@@ -14,7 +14,7 @@ from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 
 from services.database_loader import catalog_form, lookup_shape
 from services.structural_parser import parse_section
-from services.token_extractor import normalize_engineering_token
+from services.token_extractor import core_section_token, normalize_engineering_token
 
 PRIOR_VERSION = "document_prior_v2"
 
@@ -318,9 +318,22 @@ def _local_plate_signals(normalized: str, compact: str) -> Dict[str, bool]:
 
 
 def _explicit_local_sections(token_text: str) -> Set[str]:
-    """Catalog-valid sections explicitly present in a local callout."""
+    """Catalog-valid sections explicitly present in a local callout.
 
-    return _extract_sections(token_text or "")
+    Shop-cut suffixes (``L4x3x1/4x6"``) keep ``_SHAPE_LINE_RE`` from seeing
+    the printed section because the trailing ``x6"`` is not a word boundary.
+    Strip that fabrication tail and accept the catalog core when it is an
+    unambiguous AISC row — priors must not reorder a written thickness.
+    """
+
+    text = token_text or ""
+    sections = _extract_sections(text)
+    core = core_section_token(text)
+    if core:
+        form = catalog_form(core) or core
+        if lookup_shape(form) or lookup_shape(core):
+            sections.add(catalog_form(core) or form)
+    return sections
 
 
 def build_document_prior(document: Dict[str, Any]) -> Dict[str, Any]:

@@ -288,6 +288,29 @@ class StrongDrawingEvidenceGateTests(unittest.TestCase):
         self.assertTrue(lp._has_strong_structural_drawing_evidence(page))
         self.assertNotIn(1, lp.detect_context_pages(_doc({1: page})))
 
+    def test_case_g3_structural_detail_with_incomplete_l_not_notes(self):
+        """June Phase 3 / A1: DETAIL sheets with incomplete L + completes
+        must not be whole-page GENERAL_NOTES demotions."""
+
+        page = (
+            "TYPICAL CONNECTION DETAILS\n"
+            "SEE GENERAL NOTES ON S-001\n"
+            "L4X4X1/4  L4X4X3/8  L5X3X1/4  HSS8X8X3/8  W6X15\n"
+            "PROVIDE L4X4 AT OPENING WHERE SHOWN\n"
+            "L4X4\n"
+        )
+        self.assertTrue(lp._has_strong_structural_drawing_evidence(page))
+        self.assertNotIn(1, lp.detect_context_pages(_doc({1: page})))
+
+    def test_case_g4_moderate_density_plus_incomplete_angle(self):
+        page = (
+            "SEE GENERAL NOTES\n"
+            "L4X4X3/8 L5X3X1/4 L3X3X1/4 HSS6X6X3/8 W8X10\n"
+            "L4X4\n"
+        )
+        self.assertTrue(lp._has_strong_structural_drawing_evidence(page))
+        self.assertNotIn(1, lp.detect_context_pages(_doc({1: page})))
+
     def test_level_matrix_does_not_fire_on_a_roof_detail(self):
         """A roof/relieving-angle DETAIL mentions 'ROOF' and dimensions but
         does not stack level datums -- it stays a context/detail page."""

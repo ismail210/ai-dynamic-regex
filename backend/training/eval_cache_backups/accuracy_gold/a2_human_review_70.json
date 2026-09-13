@@ -1,0 +1,3519 @@
+{
+  "schema": "a2_human_review_v1",
+  "purpose": "Human review of 70 unverified A2 gold rows \u2014 NOT training, NOT Excel GT",
+  "source_gold": "training/eval_cache_backups/accuracy_gold/june_16page_extract_group_gold.json",
+  "source_gold_sha256": "9ef38635d7a267241155827e1cce29c63ba2b1f53ab4f2008c3f27feeb0de60c",
+  "source_gold_count": 87,
+  "policy_verified_excluded": 17,
+  "count": 70,
+  "reviewed_count": 2,
+  "enums": {
+    "extraction_correct": [
+      "YES",
+      "NO",
+      "AMBIGUOUS"
+    ],
+    "grouping_correct": [
+      "YES",
+      "NO",
+      "AMBIGUOUS",
+      "NOT_APPLICABLE"
+    ],
+    "operation_correct": [
+      "YES",
+      "NO",
+      "AMBIGUOUS"
+    ],
+    "should_abstain": [
+      "YES",
+      "NO",
+      "AMBIGUOUS"
+    ],
+    "verdict": [
+      "ACCEPT",
+      "CORRECT",
+      "ABSTAIN",
+      "AMBIGUOUS"
+    ],
+    "reason_code": [
+      "correct",
+      "extraction_error",
+      "grouping_error",
+      "normalization_error",
+      "unsafe_completion",
+      "should_abstain",
+      "missing_evidence",
+      "ambiguous_drawing",
+      "other"
+    ]
+  },
+  "safety_note": "Do not invent thickness from catalog/Excel. Incomplete L4X4/L5X3 without drawing thickness should abstain. Reviewer judgment is independent of system.",
+  "rows": [
+    {
+      "review_id": "a2r0001",
+      "source_gold_id": "g0018",
+      "source_annotation_id": "token_p5_351",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 34,
+      "extract_page": 5,
+      "raw_text": "L4X3X3/8X1'-0\"",
+      "fragments_gold": [
+        "L4X3X3/8X1'-0\""
+      ],
+      "group_id_gold": "grp_token_p5_351",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 34,
+        "extract_page": 5,
+        "label_bbox": [
+          897.84,
+          362.78,
+          952.93,
+          372.3
+        ]
+      },
+      "system": {
+        "normalized_value": "L4X3X3/8",
+        "section": "L4X3X3/8",
+        "operation": "normalization",
+        "completion_status": "complete",
+        "takeoff_eligible": false,
+        "object_scope": "detail_reference",
+        "predicted_bucket": "context_definitions",
+        "source_bucket": "context_definitions",
+        "canonical_label_or_abstain_seed": "L4X3X3/8"
+      },
+      "human_review": {
+        "extraction_correct": "YES",
+        "grouping_correct": "YES",
+        "operation_correct": "YES",
+        "expected_normalized_value": null,
+        "should_abstain": "YES",
+        "verdict": "ACCEPT",
+        "reason_code": "correct",
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": "2026-09-13T12:00:49.445Z"
+      }
+    },
+    {
+      "review_id": "a2r0002",
+      "source_gold_id": "g0019",
+      "source_annotation_id": "token_p5_309",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 34,
+      "extract_page": 5,
+      "raw_text": "L4X3X3/8X0'-6\"",
+      "fragments_gold": [
+        "L4X3X3/8X0'-6\""
+      ],
+      "group_id_gold": "grp_token_p5_309",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 34,
+        "extract_page": 5,
+        "label_bbox": [
+          1014.96,
+          912.49,
+          1070.05,
+          922.02
+        ]
+      },
+      "system": {
+        "normalized_value": "L4X3X3/8",
+        "section": "L4X3X3/8",
+        "operation": "normalization",
+        "completion_status": "complete",
+        "takeoff_eligible": false,
+        "object_scope": "detail_reference",
+        "predicted_bucket": "context_definitions",
+        "source_bucket": "context_definitions",
+        "canonical_label_or_abstain_seed": "L4X3X3/8"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0003",
+      "source_gold_id": "g0020",
+      "source_annotation_id": "token_p6_482",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 38,
+      "extract_page": 6,
+      "raw_text": "L3X3X1/4X0'-4\"",
+      "fragments_gold": [
+        "L3X3X1/4X0'-4\""
+      ],
+      "group_id_gold": "grp_token_p6_482",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 38,
+        "extract_page": 6,
+        "label_bbox": [
+          1124.64,
+          862.32,
+          1179.73,
+          871.86
+        ]
+      },
+      "system": {
+        "normalized_value": "L3X3X1/4",
+        "section": "L3X3X1/4",
+        "operation": "normalization",
+        "completion_status": "complete",
+        "takeoff_eligible": false,
+        "object_scope": "detail_reference",
+        "predicted_bucket": "context_definitions",
+        "source_bucket": "context_definitions",
+        "canonical_label_or_abstain_seed": "L3X3X1/4"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0004",
+      "source_gold_id": "g0021",
+      "source_annotation_id": "token_p6_485",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 38,
+      "extract_page": 6,
+      "raw_text": "L3X3X3/8X0'-10\"",
+      "fragments_gold": [
+        "L3X3X3/8X0'-10\""
+      ],
+      "group_id_gold": "grp_token_p6_485",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 38,
+        "extract_page": 6,
+        "label_bbox": [
+          1124.64,
+          876.36,
+          1184.05,
+          885.9
+        ]
+      },
+      "system": {
+        "normalized_value": "L3X3X3/8",
+        "section": "L3X3X3/8",
+        "operation": "normalization",
+        "completion_status": "complete",
+        "takeoff_eligible": false,
+        "object_scope": "detail_reference",
+        "predicted_bucket": "context_definitions",
+        "source_bucket": "context_definitions",
+        "canonical_label_or_abstain_seed": "L3X3X3/8"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0005",
+      "source_gold_id": "g0022",
+      "source_annotation_id": "token_p5_466",
+      "document_id": "doc_juneph3burrville",
+      "document": "51 - Burrvile ES",
+      "page": 72,
+      "extract_page": 5,
+      "raw_text": "L4x3x1/4x6\"",
+      "fragments_gold": [
+        "L4x3x1/4x6\""
+      ],
+      "group_id_gold": "grp_token_p5_466",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/burrville_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/51 - Burrvile ES/Burrville_DD Pricing Set_260317.pdf",
+        "source_page": 72,
+        "extract_page": 5,
+        "label_bbox": [
+          692.16,
+          290.9,
+          748.76,
+          303.5
+        ]
+      },
+      "system": {
+        "normalized_value": "L4X3X1/4",
+        "section": "L4X3X1/4",
+        "operation": "normalization",
+        "completion_status": "complete",
+        "takeoff_eligible": false,
+        "object_scope": "detail_reference",
+        "predicted_bucket": "context_definitions",
+        "source_bucket": "context_definitions",
+        "canonical_label_or_abstain_seed": "L4X3X1/4"
+      },
+      "human_review": {
+        "extraction_correct": "YES",
+        "grouping_correct": "YES",
+        "operation_correct": "YES",
+        "expected_normalized_value": null,
+        "should_abstain": "YES",
+        "verdict": "ACCEPT",
+        "reason_code": "correct",
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": "2026-09-13T12:01:45.934Z"
+      }
+    },
+    {
+      "review_id": "a2r0006",
+      "source_gold_id": "g0023",
+      "source_annotation_id": "token_p5_469",
+      "document_id": "doc_juneph3burrville",
+      "document": "51 - Burrvile ES",
+      "page": 72,
+      "extract_page": 5,
+      "raw_text": "L4x3x1/4x1'-0\"",
+      "fragments_gold": [
+        "L4x3x1/4x1'-0\""
+      ],
+      "group_id_gold": "grp_token_p5_469",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/burrville_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/51 - Burrvile ES/Burrville_DD Pricing Set_260317.pdf",
+        "source_page": 72,
+        "extract_page": 5,
+        "label_bbox": [
+          146.28,
+          291.02,
+          214.04,
+          303.62
+        ]
+      },
+      "system": {
+        "normalized_value": "L4X3X1/4",
+        "section": "L4X3X1/4",
+        "operation": "normalization",
+        "completion_status": "complete",
+        "takeoff_eligible": false,
+        "object_scope": "detail_reference",
+        "predicted_bucket": "context_definitions",
+        "source_bucket": "context_definitions",
+        "canonical_label_or_abstain_seed": "L4X3X1/4"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0007",
+      "source_gold_id": "g0024",
+      "source_annotation_id": "token_p5_479",
+      "document_id": "doc_juneph3burrville",
+      "document": "51 - Burrvile ES",
+      "page": 72,
+      "extract_page": 5,
+      "raw_text": "L4x3x1/4x6\"",
+      "fragments_gold": [
+        "L4x3x1/4x6\""
+      ],
+      "group_id_gold": "grp_token_p5_479",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/burrville_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/51 - Burrvile ES/Burrville_DD Pricing Set_260317.pdf",
+        "source_page": 72,
+        "extract_page": 5,
+        "label_bbox": [
+          1472.4,
+          299.06,
+          1529,
+          311.66
+        ]
+      },
+      "system": {
+        "normalized_value": "L4X3X1/4",
+        "section": "L4X3X1/4",
+        "operation": "normalization",
+        "completion_status": "complete",
+        "takeoff_eligible": false,
+        "object_scope": "detail_reference",
+        "predicted_bucket": "context_definitions",
+        "source_bucket": "context_definitions",
+        "canonical_label_or_abstain_seed": "L4X3X1/4"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0008",
+      "source_gold_id": "g0025",
+      "source_annotation_id": "token_p5_474",
+      "document_id": "doc_juneph3burrville",
+      "document": "51 - Burrvile ES",
+      "page": 72,
+      "extract_page": 5,
+      "raw_text": "L4x3x1/4x6\"",
+      "fragments_gold": [
+        "L4x3x1/4x6\""
+      ],
+      "group_id_gold": "grp_token_p5_474",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/burrville_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/51 - Burrvile ES/Burrville_DD Pricing Set_260317.pdf",
+        "source_page": 72,
+        "extract_page": 5,
+        "label_bbox": [
+          356.88,
+          751.7,
+          413.48,
+          764.3
+        ]
+      },
+      "system": {
+        "normalized_value": "L4X3X1/4",
+        "section": "L4X3X1/4",
+        "operation": "normalization",
+        "completion_status": "complete",
+        "takeoff_eligible": false,
+        "object_scope": "detail_reference",
+        "predicted_bucket": "context_definitions",
+        "source_bucket": "context_definitions",
+        "canonical_label_or_abstain_seed": "L4X3X1/4"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0009",
+      "source_gold_id": "g0026",
+      "source_annotation_id": "token_p5_473",
+      "document_id": "doc_juneph3burrville",
+      "document": "51 - Burrvile ES",
+      "page": 72,
+      "extract_page": 5,
+      "raw_text": "L4x3x1/4x6\"",
+      "fragments_gold": [
+        "L4x3x1/4x6\""
+      ],
+      "group_id_gold": "grp_token_p5_473",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/burrville_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/51 - Burrvile ES/Burrville_DD Pricing Set_260317.pdf",
+        "source_page": 72,
+        "extract_page": 5,
+        "label_bbox": [
+          882.12,
+          751.7,
+          938.72,
+          764.3
+        ]
+      },
+      "system": {
+        "normalized_value": "L4X3X1/4",
+        "section": "L4X3X1/4",
+        "operation": "normalization",
+        "completion_status": "complete",
+        "takeoff_eligible": false,
+        "object_scope": "detail_reference",
+        "predicted_bucket": "context_definitions",
+        "source_bucket": "context_definitions",
+        "canonical_label_or_abstain_seed": "L4X3X1/4"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0010",
+      "source_gold_id": "g0027",
+      "source_annotation_id": "token_p5_448",
+      "document_id": "doc_juneph3burrville",
+      "document": "51 - Burrvile ES",
+      "page": 72,
+      "extract_page": 5,
+      "raw_text": "L4x3x1/4x6\"",
+      "fragments_gold": [
+        "L4x3x1/4x6\""
+      ],
+      "group_id_gold": "grp_token_p5_448",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/burrville_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/51 - Burrvile ES/Burrville_DD Pricing Set_260317.pdf",
+        "source_page": 72,
+        "extract_page": 5,
+        "label_bbox": [
+          769.56,
+          1273.82,
+          826.17,
+          1286.42
+        ]
+      },
+      "system": {
+        "normalized_value": "L4X3X1/4",
+        "section": "L4X3X1/4",
+        "operation": "normalization",
+        "completion_status": "complete",
+        "takeoff_eligible": false,
+        "object_scope": "detail_reference",
+        "predicted_bucket": "context_definitions",
+        "source_bucket": "context_definitions",
+        "canonical_label_or_abstain_seed": "L4X3X1/4"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0011",
+      "source_gold_id": "g0028",
+      "source_annotation_id": "token_p5_450",
+      "document_id": "doc_juneph3burrville",
+      "document": "51 - Burrvile ES",
+      "page": 72,
+      "extract_page": 5,
+      "raw_text": "L4x3x1/4x6\"",
+      "fragments_gold": [
+        "L4x3x1/4x6\""
+      ],
+      "group_id_gold": "grp_token_p5_450",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/burrville_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/51 - Burrvile ES/Burrville_DD Pricing Set_260317.pdf",
+        "source_page": 72,
+        "extract_page": 5,
+        "label_bbox": [
+          201.48,
+          1299.38,
+          258.09,
+          1311.98
+        ]
+      },
+      "system": {
+        "normalized_value": "L4X3X1/4",
+        "section": "L4X3X1/4",
+        "operation": "normalization",
+        "completion_status": "complete",
+        "takeoff_eligible": false,
+        "object_scope": "detail_reference",
+        "predicted_bucket": "context_definitions",
+        "source_bucket": "context_definitions",
+        "canonical_label_or_abstain_seed": "L4X3X1/4"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0012",
+      "source_gold_id": "g0029",
+      "source_annotation_id": "token_p5_463",
+      "document_id": "doc_juneph3burrville",
+      "document": "51 - Burrvile ES",
+      "page": 72,
+      "extract_page": 5,
+      "raw_text": "L4x3x1/4x1'-0\"",
+      "fragments_gold": [
+        "L4x3x1/4x1'-0\""
+      ],
+      "group_id_gold": "grp_token_p5_463",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/burrville_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/51 - Burrvile ES/Burrville_DD Pricing Set_260317.pdf",
+        "source_page": 72,
+        "extract_page": 5,
+        "label_bbox": [
+          1784.04,
+          1324.34,
+          1851.8,
+          1336.94
+        ]
+      },
+      "system": {
+        "normalized_value": "L4X3X1/4",
+        "section": "L4X3X1/4",
+        "operation": "normalization",
+        "completion_status": "complete",
+        "takeoff_eligible": false,
+        "object_scope": "detail_reference",
+        "predicted_bucket": "context_definitions",
+        "source_bucket": "context_definitions",
+        "canonical_label_or_abstain_seed": "L4X3X1/4"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0013",
+      "source_gold_id": "g0030",
+      "source_annotation_id": "token_p5_460",
+      "document_id": "doc_juneph3burrville",
+      "document": "51 - Burrvile ES",
+      "page": 72,
+      "extract_page": 5,
+      "raw_text": "L4x3x1/4x2'-0\"",
+      "fragments_gold": [
+        "L4x3x1/4x2'-0\""
+      ],
+      "group_id_gold": "grp_token_p5_460",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/burrville_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/51 - Burrvile ES/Burrville_DD Pricing Set_260317.pdf",
+        "source_page": 72,
+        "extract_page": 5,
+        "label_bbox": [
+          1292.4,
+          1324.94,
+          1360.28,
+          1337.54
+        ]
+      },
+      "system": {
+        "normalized_value": "L4X3X1/4",
+        "section": "L4X3X1/4",
+        "operation": "normalization",
+        "completion_status": "complete",
+        "takeoff_eligible": false,
+        "object_scope": "detail_reference",
+        "predicted_bucket": "context_definitions",
+        "source_bucket": "context_definitions",
+        "canonical_label_or_abstain_seed": "L4X3X1/4"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0014",
+      "source_gold_id": "g0031",
+      "source_annotation_id": "token_p5_453",
+      "document_id": "doc_juneph3burrville",
+      "document": "51 - Burrvile ES",
+      "page": 72,
+      "extract_page": 5,
+      "raw_text": "L4x3x1/4x6\"",
+      "fragments_gold": [
+        "L4x3x1/4x6\""
+      ],
+      "group_id_gold": "grp_token_p5_453",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/burrville_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/51 - Burrvile ES/Burrville_DD Pricing Set_260317.pdf",
+        "source_page": 72,
+        "extract_page": 5,
+        "label_bbox": [
+          945.36,
+          1623.98,
+          1001.97,
+          1636.58
+        ]
+      },
+      "system": {
+        "normalized_value": "L4X3X1/4",
+        "section": "L4X3X1/4",
+        "operation": "normalization",
+        "completion_status": "complete",
+        "takeoff_eligible": false,
+        "object_scope": "detail_reference",
+        "predicted_bucket": "context_definitions",
+        "source_bucket": "context_definitions",
+        "canonical_label_or_abstain_seed": "L4X3X1/4"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0015",
+      "source_gold_id": "g0032",
+      "source_annotation_id": "token_p5_439",
+      "document_id": "doc_juneph3burrville",
+      "document": "51 - Burrvile ES",
+      "page": 72,
+      "extract_page": 5,
+      "raw_text": "L4x3x1/4x6\"",
+      "fragments_gold": [
+        "L4x3x1/4x6\""
+      ],
+      "group_id_gold": "grp_token_p5_439",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/burrville_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/51 - Burrvile ES/Burrville_DD Pricing Set_260317.pdf",
+        "source_page": 72,
+        "extract_page": 5,
+        "label_bbox": [
+          367.44,
+          1629.61,
+          424.04,
+          1642.22
+        ]
+      },
+      "system": {
+        "normalized_value": "L4X3X1/4",
+        "section": "L4X3X1/4",
+        "operation": "normalization",
+        "completion_status": "complete",
+        "takeoff_eligible": false,
+        "object_scope": "detail_reference",
+        "predicted_bucket": "context_definitions",
+        "source_bucket": "context_definitions",
+        "canonical_label_or_abstain_seed": "L4X3X1/4"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0016",
+      "source_gold_id": "g0033",
+      "source_annotation_id": "token_p1_9",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 25,
+      "extract_page": 1,
+      "raw_text": "W24X55",
+      "fragments_gold": [
+        "W",
+        "24",
+        "X",
+        "55"
+      ],
+      "group_id_gold": "grp_token_p1_9",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 25,
+        "extract_page": 1,
+        "label_bbox": [
+          1507.08,
+          422.77,
+          1536.98,
+          432.3
+        ]
+      },
+      "system": {
+        "normalized_value": "W24X55",
+        "section": "W24X55",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W24X55"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0017",
+      "source_gold_id": "g0034",
+      "source_annotation_id": "token_p1_8",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 25,
+      "extract_page": 1,
+      "raw_text": "W24X76",
+      "fragments_gold": [
+        "W",
+        "24",
+        "X",
+        "76"
+      ],
+      "group_id_gold": "grp_token_p1_8",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 25,
+        "extract_page": 1,
+        "label_bbox": [
+          1090.92,
+          423.97,
+          1120.7,
+          433.5
+        ]
+      },
+      "system": {
+        "normalized_value": "W24X76",
+        "section": "W24X76",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W24X76"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0018",
+      "source_gold_id": "g0035",
+      "source_annotation_id": "token_p1_5",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 25,
+      "extract_page": 1,
+      "raw_text": "W24X55",
+      "fragments_gold": [
+        "W",
+        "24",
+        "X",
+        "55"
+      ],
+      "group_id_gold": "grp_token_p1_5",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 25,
+        "extract_page": 1,
+        "label_bbox": [
+          610.08,
+          424.81,
+          639.98,
+          434.34
+        ]
+      },
+      "system": {
+        "normalized_value": "W24X55",
+        "section": "W24X55",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W24X55"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0019",
+      "source_gold_id": "g0036",
+      "source_annotation_id": "token_p1_7",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 25,
+      "extract_page": 1,
+      "raw_text": "W24X55",
+      "fragments_gold": [
+        "W",
+        "24",
+        "X",
+        "55"
+      ],
+      "group_id_gold": "grp_token_p1_7",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 25,
+        "extract_page": 1,
+        "label_bbox": [
+          376.8,
+          563.05,
+          406.58,
+          572.58
+        ]
+      },
+      "system": {
+        "normalized_value": "W24X55",
+        "section": "W24X55",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W24X55"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0020",
+      "source_gold_id": "g0037",
+      "source_annotation_id": "token_p1_12",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 25,
+      "extract_page": 1,
+      "raw_text": "W24X55",
+      "fragments_gold": [
+        "W",
+        "24",
+        "X",
+        "55"
+      ],
+      "group_id_gold": "grp_token_p1_12",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 25,
+        "extract_page": 1,
+        "label_bbox": [
+          1389,
+          563.17,
+          1418.78,
+          572.7
+        ]
+      },
+      "system": {
+        "normalized_value": "W24X55",
+        "section": "W24X55",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W24X55"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0021",
+      "source_gold_id": "g0038",
+      "source_annotation_id": "token_p1_11",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 25,
+      "extract_page": 1,
+      "raw_text": "W24X55",
+      "fragments_gold": [
+        "W",
+        "24",
+        "X",
+        "55"
+      ],
+      "group_id_gold": "grp_token_p1_11",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 25,
+        "extract_page": 1,
+        "label_bbox": [
+          1792.2,
+          563.17,
+          1821.98,
+          572.7
+        ]
+      },
+      "system": {
+        "normalized_value": "W24X55",
+        "section": "W24X55",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W24X55"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0022",
+      "source_gold_id": "g0039",
+      "source_annotation_id": "token_p1_13",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 25,
+      "extract_page": 1,
+      "raw_text": "W24X55",
+      "fragments_gold": [
+        "W",
+        "24",
+        "X",
+        "55"
+      ],
+      "group_id_gold": "grp_token_p1_13",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 25,
+        "extract_page": 1,
+        "label_bbox": [
+          781.68,
+          564.01,
+          811.46,
+          573.54
+        ]
+      },
+      "system": {
+        "normalized_value": "W24X55",
+        "section": "W24X55",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W24X55"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0023",
+      "source_gold_id": "g0040",
+      "source_annotation_id": "token_p1_14",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 25,
+      "extract_page": 1,
+      "raw_text": "W16X26",
+      "fragments_gold": [
+        "W",
+        "16",
+        "X",
+        "26"
+      ],
+      "group_id_gold": "grp_token_p1_14",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 25,
+        "extract_page": 1,
+        "label_bbox": [
+          762.36,
+          656.37,
+          771.91,
+          686.16
+        ]
+      },
+      "system": {
+        "normalized_value": "W16X26",
+        "section": "W16X26",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W16X26"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0024",
+      "source_gold_id": "g0041",
+      "source_annotation_id": "token_p1_15",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 25,
+      "extract_page": 1,
+      "raw_text": "W16X26",
+      "fragments_gold": [
+        "W",
+        "16",
+        "X",
+        "26"
+      ],
+      "group_id_gold": "grp_token_p1_15",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 25,
+        "extract_page": 1,
+        "label_bbox": [
+          829.8,
+          656.37,
+          839.35,
+          686.16
+        ]
+      },
+      "system": {
+        "normalized_value": "W16X26",
+        "section": "W16X26",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W16X26"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0025",
+      "source_gold_id": "g0042",
+      "source_annotation_id": "token_p1_22",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 25,
+      "extract_page": 1,
+      "raw_text": "W16X26",
+      "fragments_gold": [
+        "W",
+        "16",
+        "X",
+        "26"
+      ],
+      "group_id_gold": "grp_token_p1_22",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 25,
+        "extract_page": 1,
+        "label_bbox": [
+          1369.56,
+          656.37,
+          1379.1,
+          686.16
+        ]
+      },
+      "system": {
+        "normalized_value": "W16X26",
+        "section": "W16X26",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W16X26"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0026",
+      "source_gold_id": "g0043",
+      "source_annotation_id": "token_p1_23",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 25,
+      "extract_page": 1,
+      "raw_text": "W16X26",
+      "fragments_gold": [
+        "W",
+        "16",
+        "X",
+        "26"
+      ],
+      "group_id_gold": "grp_token_p1_23",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 25,
+        "extract_page": 1,
+        "label_bbox": [
+          1437.12,
+          656.37,
+          1446.67,
+          686.16
+        ]
+      },
+      "system": {
+        "normalized_value": "W16X26",
+        "section": "W16X26",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W16X26"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0027",
+      "source_gold_id": "g0044",
+      "source_annotation_id": "token_p1_17",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 25,
+      "extract_page": 1,
+      "raw_text": "W16X26",
+      "fragments_gold": [
+        "W",
+        "16",
+        "X",
+        "26"
+      ],
+      "group_id_gold": "grp_token_p1_17",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 25,
+        "extract_page": 1,
+        "label_bbox": [
+          357.48,
+          656.61,
+          367.03,
+          686.4
+        ]
+      },
+      "system": {
+        "normalized_value": "W16X26",
+        "section": "W16X26",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W16X26"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0028",
+      "source_gold_id": "g0045",
+      "source_annotation_id": "token_p1_18",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 25,
+      "extract_page": 1,
+      "raw_text": "W16X26",
+      "fragments_gold": [
+        "W16X26"
+      ],
+      "group_id_gold": "grp_token_p1_18",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 25,
+        "extract_page": 1,
+        "label_bbox": [
+          424.92,
+          656.61,
+          434.47,
+          686.4
+        ]
+      },
+      "system": {
+        "normalized_value": "W16X26",
+        "section": "W16X26",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W16X26"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0029",
+      "source_gold_id": "g0046",
+      "source_annotation_id": "token_p1_29",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 25,
+      "extract_page": 1,
+      "raw_text": "W16X26",
+      "fragments_gold": [
+        "W16X26"
+      ],
+      "group_id_gold": "grp_token_p1_29",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 25,
+        "extract_page": 1,
+        "label_bbox": [
+          1774.32,
+          656.61,
+          1783.86,
+          686.4
+        ]
+      },
+      "system": {
+        "normalized_value": "W16X26",
+        "section": "W16X26",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W16X26"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0030",
+      "source_gold_id": "g0047",
+      "source_annotation_id": "token_p1_30",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 25,
+      "extract_page": 1,
+      "raw_text": "W16X26",
+      "fragments_gold": [
+        "W16X26"
+      ],
+      "group_id_gold": "grp_token_p1_30",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 25,
+        "extract_page": 1,
+        "label_bbox": [
+          1841.88,
+          656.61,
+          1851.42,
+          686.4
+        ]
+      },
+      "system": {
+        "normalized_value": "W16X26",
+        "section": "W16X26",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W16X26"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0031",
+      "source_gold_id": "g0048",
+      "source_annotation_id": "token_p1_16",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 25,
+      "extract_page": 1,
+      "raw_text": "W24X55",
+      "fragments_gold": [
+        "W24X55"
+      ],
+      "group_id_gold": "grp_token_p1_16",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 25,
+        "extract_page": 1,
+        "label_bbox": [
+          378.48,
+          732.73,
+          408.26,
+          742.26
+        ]
+      },
+      "system": {
+        "normalized_value": "W24X55",
+        "section": "W24X55",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W24X55"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0032",
+      "source_gold_id": "g0049",
+      "source_annotation_id": "token_p1_19",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 25,
+      "extract_page": 1,
+      "raw_text": "W24X55",
+      "fragments_gold": [
+        "W24X55"
+      ],
+      "group_id_gold": "grp_token_p1_19",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 25,
+        "extract_page": 1,
+        "label_bbox": [
+          781.68,
+          732.73,
+          811.46,
+          742.26
+        ]
+      },
+      "system": {
+        "normalized_value": "W24X55",
+        "section": "W24X55",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W24X55"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0033",
+      "source_gold_id": "g0050",
+      "source_annotation_id": "token_p1_20",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 25,
+      "extract_page": 1,
+      "raw_text": "W24X55",
+      "fragments_gold": [
+        "W24X55"
+      ],
+      "group_id_gold": "grp_token_p1_20",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 25,
+        "extract_page": 1,
+        "label_bbox": [
+          1389,
+          732.73,
+          1418.78,
+          742.26
+        ]
+      },
+      "system": {
+        "normalized_value": "W24X55",
+        "section": "W24X55",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W24X55"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0034",
+      "source_gold_id": "g0051",
+      "source_annotation_id": "token_p1_21",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 25,
+      "extract_page": 1,
+      "raw_text": "W24X55",
+      "fragments_gold": [
+        "W24X55"
+      ],
+      "group_id_gold": "grp_token_p1_21",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 25,
+        "extract_page": 1,
+        "label_bbox": [
+          1792.2,
+          732.73,
+          1821.98,
+          742.26
+        ]
+      },
+      "system": {
+        "normalized_value": "W24X55",
+        "section": "W24X55",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W24X55"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0035",
+      "source_gold_id": "g0052",
+      "source_annotation_id": "token_p1_25",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 25,
+      "extract_page": 1,
+      "raw_text": "MC10X28.5",
+      "fragments_gold": [
+        "MC10X28.5"
+      ],
+      "group_id_gold": "grp_token_p1_25",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 25,
+        "extract_page": 1,
+        "label_bbox": [
+          312.36,
+          791.37,
+          321.9,
+          832.68
+        ]
+      },
+      "system": {
+        "normalized_value": "MC10X28.5",
+        "section": "MC10X28.5",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "MC10X28.5"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0036",
+      "source_gold_id": "g0053",
+      "source_annotation_id": "token_p1_24",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 25,
+      "extract_page": 1,
+      "raw_text": "MC10X28.5",
+      "fragments_gold": [
+        "MC10X28.5"
+      ],
+      "group_id_gold": "grp_token_p1_24",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 25,
+        "extract_page": 1,
+        "label_bbox": [
+          1901.4,
+          793.17,
+          1910.94,
+          834.48
+        ]
+      },
+      "system": {
+        "normalized_value": "MC10X28.5",
+        "section": "MC10X28.5",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "MC10X28.5"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0037",
+      "source_gold_id": "g0054",
+      "source_annotation_id": "token_p1_26",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 25,
+      "extract_page": 1,
+      "raw_text": "W24X55",
+      "fragments_gold": [
+        "W24X55"
+      ],
+      "group_id_gold": "grp_token_p1_26",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 25,
+        "extract_page": 1,
+        "label_bbox": [
+          1071.12,
+          886.21,
+          1101.02,
+          895.74
+        ]
+      },
+      "system": {
+        "normalized_value": "W24X55",
+        "section": "W24X55",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W24X55"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0038",
+      "source_gold_id": "g0055",
+      "source_annotation_id": "token_p2_104",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "W16X40",
+      "fragments_gold": [
+        "W16X40"
+      ],
+      "group_id_gold": "grp_token_p2_104",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          323.52,
+          382.77,
+          333.07,
+          412.56
+        ]
+      },
+      "system": {
+        "normalized_value": "W16X40",
+        "section": "W16X40",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W16X40"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0039",
+      "source_gold_id": "g0056",
+      "source_annotation_id": "token_p2_105",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "W16X40",
+      "fragments_gold": [
+        "W16X40"
+      ],
+      "group_id_gold": "grp_token_p2_105",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          357.36,
+          382.77,
+          366.91,
+          412.56
+        ]
+      },
+      "system": {
+        "normalized_value": "W16X40",
+        "section": "W16X40",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W16X40"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0040",
+      "source_gold_id": "g0057",
+      "source_annotation_id": "token_p2_106",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "W16X40",
+      "fragments_gold": [
+        "W16X40"
+      ],
+      "group_id_gold": "grp_token_p2_106",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          1841.76,
+          382.77,
+          1851.3,
+          412.56
+        ]
+      },
+      "system": {
+        "normalized_value": "W16X40",
+        "section": "W16X40",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W16X40"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0041",
+      "source_gold_id": "g0058",
+      "source_annotation_id": "token_p2_107",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "W16X40",
+      "fragments_gold": [
+        "W16X40"
+      ],
+      "group_id_gold": "grp_token_p2_107",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          1875.48,
+          382.77,
+          1885.02,
+          412.56
+        ]
+      },
+      "system": {
+        "normalized_value": "W16X40",
+        "section": "W16X40",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W16X40"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0042",
+      "source_gold_id": "g0059",
+      "source_annotation_id": "token_p2_55",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "W16X36",
+      "fragments_gold": [
+        "W16X36"
+      ],
+      "group_id_gold": "grp_token_p2_55",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          1111.32,
+          387.6,
+          1141.23,
+          397.15
+        ]
+      },
+      "system": {
+        "normalized_value": "W16X36",
+        "section": "W16X36",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W16X36"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0043",
+      "source_gold_id": "g0060",
+      "source_annotation_id": "token_p2_51",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "HSS10X10X5/16",
+      "fragments_gold": [
+        "HSS10X10X5/16"
+      ],
+      "group_id_gold": "grp_token_p2_51",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          511.34,
+          508.14,
+          559.93,
+          556.61
+        ]
+      },
+      "system": {
+        "normalized_value": "HSS10X10X5/16",
+        "section": "HSS10X10X5/16",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "HSS10X10X5/16"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0044",
+      "source_gold_id": "g0061",
+      "source_annotation_id": "token_p2_46",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "W24X76",
+      "fragments_gold": [
+        "W24X76"
+      ],
+      "group_id_gold": "grp_token_p2_46",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          1426.32,
+          561.84,
+          1456.23,
+          571.39
+        ]
+      },
+      "system": {
+        "normalized_value": "W24X76",
+        "section": "W24X76",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W24X76"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0045",
+      "source_gold_id": "g0062",
+      "source_annotation_id": "token_p2_50",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "W24X68",
+      "fragments_gold": [
+        "W24X68"
+      ],
+      "group_id_gold": "grp_token_p2_50",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          1801.2,
+          564,
+          1831.11,
+          573.55
+        ]
+      },
+      "system": {
+        "normalized_value": "W24X68",
+        "section": "W24X68",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W24X68"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0046",
+      "source_gold_id": "g0063",
+      "source_annotation_id": "token_p2_40",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "W24X68",
+      "fragments_gold": [
+        "W24X68"
+      ],
+      "group_id_gold": "grp_token_p2_40",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          412.92,
+          564.36,
+          442.83,
+          573.91
+        ]
+      },
+      "system": {
+        "normalized_value": "W24X68",
+        "section": "W24X68",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W24X68"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0047",
+      "source_gold_id": "g0064",
+      "source_annotation_id": "token_p2_41",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "W24X76",
+      "fragments_gold": [
+        "W24X76"
+      ],
+      "group_id_gold": "grp_token_p2_41",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          613.56,
+          564.36,
+          643.47,
+          573.91
+        ]
+      },
+      "system": {
+        "normalized_value": "W24X76",
+        "section": "W24X76",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W24X76"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0048",
+      "source_gold_id": "g0065",
+      "source_annotation_id": "token_p2_43",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "W24X76",
+      "fragments_gold": [
+        "W24X76"
+      ],
+      "group_id_gold": "grp_token_p2_43",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          816,
+          564.36,
+          845.91,
+          573.91
+        ]
+      },
+      "system": {
+        "normalized_value": "W24X76",
+        "section": "W24X76",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W24X76"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0049",
+      "source_gold_id": "g0066",
+      "source_annotation_id": "token_p2_47",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "W24X76",
+      "fragments_gold": [
+        "W24X76"
+      ],
+      "group_id_gold": "grp_token_p2_47",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          1646.28,
+          564.36,
+          1676.19,
+          573.91
+        ]
+      },
+      "system": {
+        "normalized_value": "W24X76",
+        "section": "W24X76",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W24X76"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0050",
+      "source_gold_id": "g0067",
+      "source_annotation_id": "token_p2_85",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "W12X14",
+      "fragments_gold": [
+        "W12X14"
+      ],
+      "group_id_gold": "grp_token_p2_85",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          531.72,
+          574.68,
+          561.63,
+          584.23
+        ]
+      },
+      "system": {
+        "normalized_value": "W12X14",
+        "section": "W12X14",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W12X14"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0051",
+      "source_gold_id": "g0068",
+      "source_annotation_id": "token_p2_56",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "W16X26",
+      "fragments_gold": [
+        "W16X26"
+      ],
+      "group_id_gold": "grp_token_p2_56",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          1520.76,
+          658.32,
+          1550.67,
+          667.87
+        ]
+      },
+      "system": {
+        "normalized_value": "W16X26",
+        "section": "W16X26",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W16X26"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0052",
+      "source_gold_id": "g0069",
+      "source_annotation_id": "token_p2_62",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "W16X26",
+      "fragments_gold": [
+        "W16X26"
+      ],
+      "group_id_gold": "grp_token_p2_62",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          1838.88,
+          658.44,
+          1868.79,
+          667.99
+        ]
+      },
+      "system": {
+        "normalized_value": "W16X26",
+        "section": "W16X26",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W16X26"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0053",
+      "source_gold_id": "g0070",
+      "source_annotation_id": "token_p2_57",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "W16X26",
+      "fragments_gold": [
+        "W16X26"
+      ],
+      "group_id_gold": "grp_token_p2_57",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          647.04,
+          658.56,
+          676.95,
+          668.11
+        ]
+      },
+      "system": {
+        "normalized_value": "W16X26",
+        "section": "W16X26",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W16X26"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0054",
+      "source_gold_id": "g0071",
+      "source_annotation_id": "token_p2_63",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "W16X36",
+      "fragments_gold": [
+        "W16X36"
+      ],
+      "group_id_gold": "grp_token_p2_63",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          1774.68,
+          666.33,
+          1784.22,
+          696.12
+        ]
+      },
+      "system": {
+        "normalized_value": "W16X36",
+        "section": "W16X36",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W16X36"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0055",
+      "source_gold_id": "g0072",
+      "source_annotation_id": "token_p2_64",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "W16X26",
+      "fragments_gold": [
+        "W16X26"
+      ],
+      "group_id_gold": "grp_token_p2_64",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          322.2,
+          671.37,
+          331.75,
+          701.16
+        ]
+      },
+      "system": {
+        "normalized_value": "W16X26",
+        "section": "W16X26",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W16X26"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0056",
+      "source_gold_id": "g0073",
+      "source_annotation_id": "token_p2_65",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "W16X26",
+      "fragments_gold": [
+        "W16X26"
+      ],
+      "group_id_gold": "grp_token_p2_65",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          358.56,
+          671.37,
+          368.11,
+          701.16
+        ]
+      },
+      "system": {
+        "normalized_value": "W16X26",
+        "section": "W16X26",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W16X26"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0057",
+      "source_gold_id": "g0074",
+      "source_annotation_id": "token_p2_66",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "W16X36",
+      "fragments_gold": [
+        "W16X36"
+      ],
+      "group_id_gold": "grp_token_p2_66",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          391.44,
+          671.37,
+          400.99,
+          701.16
+        ]
+      },
+      "system": {
+        "normalized_value": "W16X36",
+        "section": "W16X36",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W16X36"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0058",
+      "source_gold_id": "g0075",
+      "source_annotation_id": "token_p2_42",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "W24X76",
+      "fragments_gold": [
+        "W24X76"
+      ],
+      "group_id_gold": "grp_token_p2_42",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          588.36,
+          732.72,
+          618.27,
+          742.27
+        ]
+      },
+      "system": {
+        "normalized_value": "W24X76",
+        "section": "W24X76",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W24X76"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0059",
+      "source_gold_id": "g0076",
+      "source_annotation_id": "token_p2_44",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "W24X76",
+      "fragments_gold": [
+        "W24X76"
+      ],
+      "group_id_gold": "grp_token_p2_44",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          790.68,
+          732.72,
+          820.59,
+          742.27
+        ]
+      },
+      "system": {
+        "normalized_value": "W24X76",
+        "section": "W24X76",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W24X76"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0060",
+      "source_gold_id": "g0077",
+      "source_annotation_id": "token_p2_45",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "W24X76",
+      "fragments_gold": [
+        "W24X76"
+      ],
+      "group_id_gold": "grp_token_p2_45",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          1398,
+          732.72,
+          1427.91,
+          742.27
+        ]
+      },
+      "system": {
+        "normalized_value": "W24X76",
+        "section": "W24X76",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W24X76"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0061",
+      "source_gold_id": "g0078",
+      "source_annotation_id": "token_p2_48",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "W24X76",
+      "fragments_gold": [
+        "W24X76"
+      ],
+      "group_id_gold": "grp_token_p2_48",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          1626.12,
+          732.72,
+          1656.03,
+          742.27
+        ]
+      },
+      "system": {
+        "normalized_value": "W24X76",
+        "section": "W24X76",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W24X76"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0062",
+      "source_gold_id": "g0079",
+      "source_annotation_id": "token_p2_49",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "W24X68",
+      "fragments_gold": [
+        "W24X68"
+      ],
+      "group_id_gold": "grp_token_p2_49",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          1801.2,
+          732.72,
+          1831.11,
+          742.27
+        ]
+      },
+      "system": {
+        "normalized_value": "W24X68",
+        "section": "W24X68",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W24X68"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0063",
+      "source_gold_id": "g0080",
+      "source_annotation_id": "token_p2_39",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "W24X68",
+      "fragments_gold": [
+        "W24X68"
+      ],
+      "group_id_gold": "grp_token_p2_39",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          359.52,
+          733.68,
+          389.43,
+          743.23
+        ]
+      },
+      "system": {
+        "normalized_value": "W24X68",
+        "section": "W24X68",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W24X68"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0064",
+      "source_gold_id": "g0081",
+      "source_annotation_id": "token_p2_37",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "MC10X28.5",
+      "fragments_gold": [
+        "MC10X28.5"
+      ],
+      "group_id_gold": "grp_token_p2_37",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          312.48,
+          791.13,
+          322.03,
+          832.44
+        ]
+      },
+      "system": {
+        "normalized_value": "MC10X28.5",
+        "section": "MC10X28.5",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "MC10X28.5"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0065",
+      "source_gold_id": "g0082",
+      "source_annotation_id": "token_p2_38",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "MC10X28.5",
+      "fragments_gold": [
+        "MC10X28.5"
+      ],
+      "group_id_gold": "grp_token_p2_38",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          1899.6,
+          791.25,
+          1909.14,
+          832.56
+        ]
+      },
+      "system": {
+        "normalized_value": "MC10X28.5",
+        "section": "MC10X28.5",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "MC10X28.5"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0066",
+      "source_gold_id": "g0083",
+      "source_annotation_id": "token_p2_84",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "L6X4X3/8",
+      "fragments_gold": [
+        "L6X4X3/8"
+      ],
+      "group_id_gold": "grp_token_p2_84",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          788.52,
+          832.32,
+          822.87,
+          841.87
+        ]
+      },
+      "system": {
+        "normalized_value": "L6X4X3/8",
+        "section": "L6X4X3/8",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "L6X4X3/8"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0067",
+      "source_gold_id": "g0084",
+      "source_annotation_id": "token_p2_108",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "W16X40",
+      "fragments_gold": [
+        "W16X40"
+      ],
+      "group_id_gold": "grp_token_p2_108",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          1841.76,
+          851.61,
+          1851.3,
+          881.4
+        ]
+      },
+      "system": {
+        "normalized_value": "W16X40",
+        "section": "W16X40",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W16X40"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0068",
+      "source_gold_id": "g0085",
+      "source_annotation_id": "token_p2_109",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "W16X40",
+      "fragments_gold": [
+        "W16X40"
+      ],
+      "group_id_gold": "grp_token_p2_109",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          1875.48,
+          851.61,
+          1885.02,
+          881.4
+        ]
+      },
+      "system": {
+        "normalized_value": "W16X40",
+        "section": "W16X40",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W16X40"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0069",
+      "source_gold_id": "g0086",
+      "source_annotation_id": "token_p2_110",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "W16X40",
+      "fragments_gold": [
+        "W16X40"
+      ],
+      "group_id_gold": "grp_token_p2_110",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          323.52,
+          855.09,
+          333.07,
+          884.88
+        ]
+      },
+      "system": {
+        "normalized_value": "W16X40",
+        "section": "W16X40",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W16X40"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    },
+    {
+      "review_id": "a2r0070",
+      "source_gold_id": "g0087",
+      "source_annotation_id": "token_p2_111",
+      "document_id": "doc_juneph3riverroad",
+      "document": "18 - River Road",
+      "page": 28,
+      "extract_page": 2,
+      "raw_text": "W16X40",
+      "fragments_gold": [
+        "W16X40"
+      ],
+      "group_id_gold": "grp_token_p2_111",
+      "drawing_refs": {
+        "extract_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+        "full_pdf": "Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+        "source_page": 28,
+        "extract_page": 2,
+        "label_bbox": [
+          357.36,
+          855.09,
+          366.91,
+          884.88
+        ]
+      },
+      "system": {
+        "normalized_value": "W16X40",
+        "section": "W16X40",
+        "operation": "none",
+        "completion_status": "complete",
+        "takeoff_eligible": true,
+        "object_scope": "takeoff",
+        "predicted_bucket": "predictions",
+        "source_bucket": "predictions",
+        "canonical_label_or_abstain_seed": "W16X40"
+      },
+      "human_review": {
+        "extraction_correct": null,
+        "grouping_correct": null,
+        "operation_correct": null,
+        "expected_normalized_value": null,
+        "should_abstain": null,
+        "verdict": null,
+        "reason_code": null,
+        "notes": "",
+        "reviewed_by": "",
+        "reviewed_at": null
+      }
+    }
+  ]
+}

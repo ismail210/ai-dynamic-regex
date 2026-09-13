@@ -17,7 +17,8 @@ const ZOOM_STEP = 1.5;
 /**
  * Multi-page PDF viewer with bbox highlight and zoom-to-selection.
  *
- * `selection` shape: `{ pageNumber, boundingBox, key }`
+ * `selection` shape: `{ pageNumber, boundingBox, memberBoundingBox?, key, variant? }`
+ * Text and member boxes stay separate overlays (never a combined bbox).
  * pageNumber is 1-based (matches backend / pdf.js).
  *
  * Deliberately small state model -- exactly one mode owns `pageWidth` at a
@@ -479,6 +480,15 @@ export default function PdfDocumentViewer({
                         />
                       ))
                     : null}
+                  {isSelectedPage && selection?.memberBoundingBox && size?.width ? (
+                    <BboxHighlight
+                      boundingBox={selection.memberBoundingBox}
+                      pageWidthPts={size.width}
+                      renderedWidth={pageWidth}
+                      active
+                      variant="member"
+                    />
+                  ) : null}
                   {isSelectedPage && selection?.boundingBox && size?.width ? (
                     <BboxHighlight
                       boundingBox={selection.boundingBox}

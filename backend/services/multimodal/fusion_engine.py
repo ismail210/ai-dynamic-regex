@@ -172,6 +172,8 @@ class WeightedFusionEngine(FusionModel):
             section_prediction_not_applicable=bool(
                 result.get("section_prediction_not_applicable")
             ),
+            object_scope=result.get("object_scope"),
+            takeoff_eligible=result.get("takeoff_eligible"),
         )
 
 

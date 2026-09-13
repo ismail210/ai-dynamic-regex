@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
+from config import settings
 from services.exact_section_predictor import encode_exact_section_text
 from services.feature_extractor import extract_structural_features
 from services.multimodal.encoder_contracts import ModalityEncoder, ModalityEncoding
@@ -279,7 +280,11 @@ class ClassicalGraphEncoder(ModalityEncoder):
 
     def encode(self, context: Dict[str, Any]) -> ModalityEncoding:
         graph = context.get("graph") or {}
-        learned_embedding = graph.get("graph_embedding") or []
+        learned_embedding = (
+            graph.get("graph_embedding") or []
+            if settings.graphsage_section_scoring_enabled
+            else []
+        )
         degree = float(graph.get("degree") or 0.0)
         links = float(graph.get("structural_links") or 0.0)
         consistency = _clip(

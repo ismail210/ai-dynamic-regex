@@ -95,6 +95,9 @@ class MultiModalPrediction:
     review_status: str
     geometry_preview: Optional[dict] = None
     graph_preview: Optional[dict] = None
+    # OCR/extraction dual-bbox evidence (member stroke). Never a prediction
+    # source for section/takeoff — see services.engineering.member_geometry.
+    member_geometry: Optional[dict] = None
     component_id: Optional[str] = None
     material: Optional[str] = None
     document_id: Optional[str] = None
@@ -116,6 +119,8 @@ class MultiModalPrediction:
     candidate_sections: Optional[List[dict]] = None
     plate_annotation_type: Optional[str] = None
     section_prediction_not_applicable: bool = False
+    object_scope: Optional[str] = None
+    takeoff_eligible: Optional[bool] = None
 
     def to_dict(self) -> dict:
         fusion = self.feature_bundle.fusion or {}
@@ -148,6 +153,8 @@ class MultiModalPrediction:
             "missing_label_prediction": self.missing_label_prediction,
             "plate_annotation_type": self.plate_annotation_type,
             "section_prediction_not_applicable": self.section_prediction_not_applicable,
+            "object_scope": self.object_scope,
+            "takeoff_eligible": self.takeoff_eligible,
             "entity_type": self.entity_type,
             "family": family,
             "section": section,
@@ -167,6 +174,7 @@ class MultiModalPrediction:
             "review_status": self.review_status,
             "geometry_preview": self.geometry_preview,
             "graph_preview": self.graph_preview,
+            "member_geometry": self.member_geometry,
             "ai_first": True,
             "database_decides_prediction": False,
             "completion_status": self.completion_status,

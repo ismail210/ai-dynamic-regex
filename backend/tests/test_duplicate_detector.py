@@ -1,102 +1,224 @@
-"""Annotation-identity dedup: geometry must never determine identity."""
+"""Source-annotation identity for duplicate prediction merge."""
 
 from __future__ import annotations
+
+import unittest
 
 from services.multimodal.duplicate_detector import merge_duplicate_predictions
 
 
-def _pred(*, oid, page, bbox, label, conf=0.8, geom_bbox=None, section=None):
-    return {
-        "object_id": oid,
-        "section": section if section is not None else label,
-        "normalized_text": label,
-        "raw_text": label,
-        "original_token": label,
-        "confidence": {"overall": conf},
-        "source_text": {"page_number": page, "bounding_box": bbox},
-        "geometry_preview": {"bbox": geom_bbox} if geom_bbox else None,
-        "component_id": oid,
+def _pred(
+    *,
+    object_id: str,
+    token: str,
+    page: int,
+    bbox,
+    confidence=0.8,
+    geometry_preview=None,
+    token_id: str = "",
+    missing_label: bool = False,
+) -> dict:
+    payload = {
+        "object_id": object_id,
+        "component_id": f"comp_{object_id}",
+        "section": token,
+        "normalized_text": token,
+        "original_token": token,
+        "raw_text": token,
+        "confidence": confidence,
+        "page_number": page,
+        "bounding_box": list(bbox) if bbox else None,
+        "source_text": {
+            "raw": token,
+            "normalized": token,
+            "page_number": page,
+            "bounding_box": list(bbox) if bbox else None,
+            "token_id": token_id or object_id,
+        },
+        "geometry_preview": geometry_preview or {},
+        "prediction_source": "Fusion",
     }
+    if missing_label:
+        payload["source_text"] = {"raw": "", "normalized": "", "page_number": page}
+        payload["bounding_box"] = None
+        payload["normalized_text"] = ""
+        payload["original_token"] = ""
+        payload["raw_text"] = ""
+        payload["missing_label"] = True
+        payload["prediction_source"] = "Geometry"
+    return payload
 
 
-def test_two_labels_different_positions_not_merged():
-    a = _pred(oid="token_p3_10", page=3, bbox=[10, 10, 40, 20], label="W10X19")
-    b = _pred(oid="token_p3_88", page=3, bbox=[400, 500, 430, 510], label="W10X19")
-    out = merge_duplicate_predictions([a, b])
-    assert out["duplicate_count"] == 0
-    assert len(out["predictions"]) == 2
+class DuplicateDetectorTests(unittest.TestCase):
+    def test_two_w10x19_at_different_positions_stay_separate(self) -> None:
+        result = merge_duplicate_predictions(
+            [
+                _pred(object_id="a", token="W10X19", page=4, bbox=[10, 10, 40, 20]),
+                _pred(object_id="b", token="W10X19", page=4, bbox=[400, 10, 430, 20]),
+            ]
+        )
+        self.assertEqual(len(result["predictions"]), 2)
+        self.assertEqual(result["duplicate_count"], 0)
 
+    def test_same_token_id_keeps_highest_confidence(self) -> None:
+        result = merge_duplicate_predictions(
+            [
+                _pred(
+                    object_id="token_p4_1",
+                    token_id="token_p4_1",
+                    token="W16X26",
+                    page=4,
+                    bbox=[10, 10, 40, 20],
+                    confidence=0.4,
+                ),
+                _pred(
+                    object_id="token_p4_1b",
+                    token_id="token_p4_1",
+                    token="W16X26",
+                    page=4,
+                    bbox=[11, 10, 41, 20],
+                    confidence=0.9,
+                ),
+            ]
+        )
+        self.assertEqual(len(result["predictions"]), 1)
+        self.assertEqual(result["duplicate_count"], 1)
+        self.assertEqual(result["predictions"][0]["confidence"], 0.9)
 
-def test_same_text_duplicated_by_two_extraction_passes_is_merged():
-    a = _pred(oid="token_p3_10", page=3, bbox=[10, 10, 40, 20], label="W16X26", conf=0.7)
-    b = _pred(oid="line_9f2", page=3, bbox=[11, 10, 41, 20], label="W16X26", conf=0.9)
-    out = merge_duplicate_predictions([a, b])
-    assert out["duplicate_count"] == 1
-    assert len(out["predictions"]) == 1
-    # highest-confidence survivor kept
-    assert out["predictions"][0]["object_id"] == "line_9f2"
+    def test_overlapping_source_boxes_same_label_merge(self) -> None:
+        result = merge_duplicate_predictions(
+            [
+                _pred(object_id="ocr-1", token="W12X16", page=1, bbox=[100, 100, 120, 110]),
+                _pred(object_id="ocr-2", token="W12X16", page=1, bbox=[101, 100, 121, 110]),
+            ]
+        )
+        self.assertEqual(result["duplicate_count"], 1)
+        self.assertEqual(len(result["predictions"]), 1)
 
+    def test_page_identity_is_respected_for_bbox_matching(self) -> None:
+        box = [10, 10, 40, 20]
+        result = merge_duplicate_predictions(
+            [
+                _pred(object_id="p1", token="W12X16", page=1, bbox=box),
+                _pred(object_id="p2", token="W12X16", page=2, bbox=box),
+            ]
+        )
+        self.assertEqual(len(result["predictions"]), 2)
+        self.assertEqual(result["duplicate_count"], 0)
 
-def test_two_labels_on_same_gridline_stay_separate():
-    # identical geometry_preview (same nearest gridline) but distinct source
-    # text positions and distinct labels -> must NOT merge.
-    grid = [200, 0, 205, 900]
-    a = _pred(oid="token_p5_3", page=5, bbox=[100, 100, 130, 110], label="W21X44", geom_bbox=grid)
-    b = _pred(oid="token_p5_4", page=5, bbox=[100, 700, 130, 710], label="W24X55", geom_bbox=grid)
-    out = merge_duplicate_predictions([a, b])
-    assert out["duplicate_count"] == 0
-    assert len(out["predictions"]) == 2
+    def test_two_labels_on_same_gridline_stay_separate(self) -> None:
+        gridline = {"bbox": [0, 0, 2000, 40]}
+        result = merge_duplicate_predictions(
+            [
+                _pred(
+                    object_id="token_p5_3",
+                    token="W21X44",
+                    page=5,
+                    bbox=[100, 100, 130, 110],
+                    geometry_preview=gridline,
+                ),
+                _pred(
+                    object_id="token_p5_4",
+                    token="W24X55",
+                    page=5,
+                    bbox=[100, 700, 130, 710],
+                    geometry_preview=gridline,
+                ),
+            ]
+        )
+        self.assertEqual(result["duplicate_count"], 0)
+        self.assertEqual(len(result["predictions"]), 2)
 
-
-def test_same_label_many_positions_sharing_one_gridline_not_collapsed():
-    grid = [200, 0, 205, 900]
-    preds = [
-        _pred(oid=f"token_p5_{i}", page=5, bbox=[100, 40 * i, 130, 40 * i + 10],
-              label="W10X33", geom_bbox=grid)
-        for i in range(12)
-    ]
-    out = merge_duplicate_predictions(preds)
-    assert out["duplicate_count"] == 0
-    assert len(out["predictions"]) == 12
-
-
-def test_page_identity_respected():
-    a = _pred(oid="token_p1_10", page=1, bbox=[10, 10, 40, 20], label="C12X20.7")
-    b = _pred(oid="token_p2_10", page=2, bbox=[10, 10, 40, 20], label="C12X20.7")
-    out = merge_duplicate_predictions([a, b])
-    assert out["duplicate_count"] == 0
-    assert len(out["predictions"]) == 2
-
-
-def test_geometry_association_change_does_not_alter_identity():
-    """The same two source annotations, once with geometry_preview populated
-    and once without, must dedup identically."""
-    def scene(geom):
-        return [
-            _pred(oid="token_p3_10", page=3, bbox=[10, 10, 40, 20], label="W12X26",
-                  geom_bbox=geom, conf=0.7),
-            _pred(oid="token_p3_10b", page=3, bbox=[10, 10, 40, 20], label="W12X26",
-                  geom_bbox=geom, conf=0.9),
-            _pred(oid="token_p3_55", page=3, bbox=[600, 600, 630, 610], label="W12X26",
-                  geom_bbox=geom, conf=0.8),
+    def test_twelve_w10x33_sharing_one_gridline_are_not_collapsed(self) -> None:
+        gridline = {"bbox": [0, 0, 2000, 40]}
+        predictions = [
+            _pred(
+                object_id=f"t{index}",
+                token="W10X33",
+                page=7,
+                bbox=[20 + index * 80, 50, 50 + index * 80, 62],
+                geometry_preview=gridline,
+            )
+            for index in range(12)
         ]
-    with_geom = merge_duplicate_predictions(scene([0, 0, 5, 900]))
-    no_geom = merge_duplicate_predictions(scene(None))
-    assert with_geom["duplicate_count"] == no_geom["duplicate_count"] == 1
-    assert len(with_geom["predictions"]) == len(no_geom["predictions"]) == 2
+        result = merge_duplicate_predictions(predictions)
+        self.assertEqual(result["duplicate_count"], 0)
+        self.assertEqual(len(result["predictions"]), 12)
+
+    def test_geometry_preview_on_and_off_deduplicate_identically(self) -> None:
+        low = _pred(
+            object_id="token_same",
+            token_id="token_same",
+            token="W18X35",
+            page=5,
+            bbox=[10, 10, 40, 20],
+            confidence=0.5,
+            geometry_preview={"bbox": [0, 0, 900, 900]},
+        )
+        high = _pred(
+            object_id="token_same_b",
+            token_id="token_same",
+            token="W18X35",
+            page=5,
+            bbox=[10, 10, 40, 20],
+            confidence=0.95,
+            geometry_preview={},
+        )
+        with_geo = merge_duplicate_predictions([low, high])
+        without_geo = merge_duplicate_predictions(
+            [{**low, "geometry_preview": {}}, {**high, "geometry_preview": {}}]
+        )
+        self.assertEqual(with_geo["duplicate_count"], 1)
+        self.assertEqual(without_geo["duplicate_count"], 1)
+        self.assertEqual(len(with_geo["predictions"]), len(without_geo["predictions"]))
+
+    def test_missing_source_bbox_never_merges_by_section_or_geometry(self) -> None:
+        labeled = _pred(object_id="callout", token="W10X33", page=8, bbox=[10, 10, 40, 20])
+        inferred = _pred(object_id="geo1", token="W10X33", page=8, bbox=None, missing_label=True)
+        inferred["section"] = "W10X33"
+        inferred["geometry_preview"] = {"bbox": [10, 10, 40, 20]}
+        other = dict(inferred)
+        other["object_id"] = "geo2"
+        result = merge_duplicate_predictions([labeled, inferred, other])
+        self.assertEqual(result["duplicate_count"], 0)
+        self.assertEqual(len(result["predictions"]), 3)
+
+    def test_component_id_is_not_identity(self) -> None:
+        result = merge_duplicate_predictions(
+            [
+                {
+                    "object_id": "geom_a",
+                    "component_id": "beam_1",
+                    "section": "W10X19",
+                    "original_token": "W10X19",
+                    "page_number": 3,
+                    "bounding_box": [10, 10, 30, 20],
+                    "source_text": {
+                        "raw": "W10X19",
+                        "page_number": 3,
+                        "bounding_box": [10, 10, 30, 20],
+                    },
+                    "confidence": 0.8,
+                },
+                {
+                    "object_id": "geom_b",
+                    "component_id": "beam_1",
+                    "section": "W10X19",
+                    "original_token": "W10X19",
+                    "page_number": 3,
+                    "bounding_box": [300, 10, 330, 20],
+                    "source_text": {
+                        "raw": "W10X19",
+                        "page_number": 3,
+                        "bounding_box": [300, 10, 330, 20],
+                    },
+                    "confidence": 0.8,
+                },
+            ]
+        )
+        self.assertEqual(result["duplicate_count"], 0)
+        self.assertEqual(len(result["predictions"]), 2)
 
 
-def test_missing_source_bbox_never_merges_by_geometry():
-    # geometry-inferred token: no source text bbox. Must not merge with a
-    # real label just because a section string matches.
-    real = _pred(oid="token_p4_2", page=4, bbox=[10, 10, 40, 20], label="W18X40")
-    inferred = {
-        "object_id": "geo_abc", "section": "W18X40",
-        "normalized_text": "W18X40", "raw_text": "", "original_token": "",
-        "confidence": {"overall": 0.5},
-        "source_text": {"page_number": 4, "bounding_box": None},
-        "geometry_preview": {"bbox": [12, 12, 42, 22]},
-    }
-    out = merge_duplicate_predictions([real, inferred])
-    assert out["duplicate_count"] == 0
-    assert len(out["predictions"]) == 2
+if __name__ == "__main__":
+    unittest.main()

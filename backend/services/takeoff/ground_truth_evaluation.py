@@ -42,7 +42,11 @@ def evaluate_against_excel(
     ground_truth: Optional[dict] = None,
     scope: str = PRIMARY_FRAMING,
 ) -> Dict[str, Any]:
-    """Compare AI predictions to Excel ground truth and build an eval report."""
+    """Compare PDF-only predictions to Excel ground truth.
+
+    Predictions must already be fully generated. This function only reads
+    Excel as offline evaluation/reference data and never as prediction input.
+    """
 
     if ground_truth is None:
         if excel_path is None:
@@ -128,6 +132,7 @@ def evaluate_against_excel(
         "schema_version": "2.0",
         "role": "excel_ground_truth_evaluation",
         "excel_is_prediction": False,
+        "prediction_source": "pdf_only",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "source_file": ground_truth.get("source_file"),
         "parser": ground_truth.get("parser") or "canonical_takeoff_eval",
@@ -233,3 +238,68 @@ def persist_evaluation_report(
     report["report_path"] = str(path)
     report["markdown_report_path"] = str(md_path)
     return path
+
+
+def _aggregate_ground_truth(ground_truth: dict) -> Dict[str, dict]:
+    """Compatibility shim for quantity_scoreboard.
+
+    Canonical eval stores PRIMARY_FRAMING aggregates under ``aggregates`` /
+    ``items``. Quantity scoreboard only needs section -> quantity buckets.
+    """
+
+    aggregates: Dict[str, dict] = {}
+    for item in ground_truth.get("aggregates") or []:
+        section = str(
+            item.get("canonical_label") or item.get("shape") or item.get("section") or ""
+        ).upper().replace(" ", "")
+        if not section:
+            continue
+        bucket = aggregates.setdefault(
+            section,
+            {
+                "section": section,
+                "quantity": 0,
+                "lengths_ft": [],
+                "tons_values": [],
+                "weight_plf_values": [],
+                "members": [],
+                "member_types": [],
+                "entity_class": item.get("entity_class"),
+                "rows": [],
+                "tonnage_source": item.get("tonnage_source"),
+            },
+        )
+        try:
+            bucket["quantity"] += int(item.get("quantity") or 0)
+        except (TypeError, ValueError):
+            continue
+
+    if aggregates:
+        return aggregates
+
+    for item in ground_truth.get("items") or []:
+        section = str(
+            item.get("canonical_label") or item.get("shape") or item.get("section") or ""
+        ).upper().replace(" ", "")
+        if not section:
+            continue
+        bucket = aggregates.setdefault(
+            section,
+            {
+                "section": section,
+                "quantity": 0,
+                "lengths_ft": [],
+                "tons_values": [],
+                "weight_plf_values": [],
+                "members": [],
+                "member_types": [],
+                "entity_class": item.get("entity_class"),
+                "rows": [],
+                "tonnage_source": item.get("tonnage_source"),
+            },
+        )
+        try:
+            bucket["quantity"] += int(item.get("quantity") or 1)
+        except (TypeError, ValueError):
+            bucket["quantity"] += 1
+    return aggregates

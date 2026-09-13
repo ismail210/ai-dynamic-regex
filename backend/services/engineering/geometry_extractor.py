@@ -280,8 +280,9 @@ def _looks_like_leader(kind: GeometryKind, length: float, bbox: List[float]) -> 
         return False
     w = abs(bbox[2] - bbox[0])
     h = abs(bbox[3] - bbox[1])
-    # Short-ish strokes that are mostly linear → potential leader
-    return 8.0 <= length <= 180.0 and min(w, h) < 40.0
+    # Short callout stubs only. Framing member strokes are typically longer;
+    # classifying up to 180pt as leaders previously starved member retention.
+    return 8.0 <= length <= 72.0 and min(w, h) < 24.0
 
 
 def _looks_like_dimension(kind: GeometryKind, length: float, nearby_text: str) -> bool:
@@ -328,12 +329,57 @@ def _nearby_text(
     return best
 
 
-_DENSE_PAGE_CAP = 250
+# Framing plans are dense; 250 starved member strokes, but 1200 made Burrville
+# Analyze hit the 600s multimodal timeout (~30k objects + graph). 450 keeps
+# more long members than 250 while staying interactive.
+_DENSE_PAGE_CAP = 450
+# Within the cap, prefer strokes at least this long (PDF points) before filling
+# remaining slots with short callouts/leaders.
+_STRUCTURAL_MIN_SPAN_PT = 80.0
 _DENSE_PAGE_CAP_STRATEGIES = {
     "legacy_area": _drawing_bbox_area,
     "length_aware": _drawing_significance,
     "structural_first": _structural_keep_score,
 }
+
+
+def _select_under_dense_cap(
+    drawings: List[dict],
+    *,
+    page_width: float,
+    page_height: float,
+    cap: int,
+    strategy: str,
+) -> List[dict]:
+    """Apply the dense-page retention policy for one page's drawings."""
+
+    if strategy == "structural_first":
+        pool = [
+            item
+            for item in drawings
+            if not _is_tiny_noise_drawing(item)
+            and not _is_page_frame_drawing(item, page_width, page_height)
+        ]
+        scored = sorted(pool, key=_structural_keep_score, reverse=True)
+        long_strokes = [
+            item
+            for item in scored
+            if max(_drawing_wh(item)) >= _STRUCTURAL_MIN_SPAN_PT
+        ]
+        short_strokes = [
+            item
+            for item in scored
+            if max(_drawing_wh(item)) < _STRUCTURAL_MIN_SPAN_PT
+        ]
+        # Prefer member-scale strokes first; only then fill with short callouts.
+        kept = long_strokes[:cap]
+        if len(kept) < cap:
+            kept.extend(short_strokes[: cap - len(kept)])
+        return kept
+
+    active_sort_key = _DENSE_PAGE_CAP_STRATEGIES[strategy]
+    return sorted(drawings, key=active_sort_key, reverse=True)[:cap]
+
 
 
 def _local_page_scale(
@@ -357,11 +403,11 @@ def extract_geometry(
 ) -> Dict[str, Any]:
     """Extract geometry objects from all pages of ``pdf_path``.
 
-    ``dense_page_cap_strategy`` controls which sort key the >250-drawing
-    cap uses to decide what to keep. Production default is
-    ``"structural_first"``: drop page-frame boxes and specks, then keep
-    long thin strokes. ``"length_aware"`` is the prior default (perimeter
-    vs area). Pass ``"legacy_area"`` only for A/B comparison.
+    ``dense_page_cap_strategy`` controls which sort key the dense-page
+    cap (``_DENSE_PAGE_CAP``) uses to decide what to keep. Production
+    default is ``"structural_first"``: drop page-frame boxes and specks,
+    then keep long thin strokes. ``"length_aware"`` is the prior default
+    (perimeter vs area). Pass ``"legacy_area"`` only for A/B comparison.
     """
 
     if dense_page_cap_strategy not in _DENSE_PAGE_CAP_STRATEGIES:
@@ -503,17 +549,13 @@ def extract_geometry(
                     "zero_area_paths_dropped_by_length_aware": zero_area_dropped_by_length_aware,
                 }
                 if dense_page_cap_strategy == "structural_first":
-                    pool = [
-                        item
-                        for item in drawings
-                        if not _is_tiny_noise_drawing(item)
-                        and not _is_page_frame_drawing(
-                            item, page_width, page_height
-                        )
-                    ]
-                    drawings = sorted(
-                        pool, key=_structural_keep_score, reverse=True
-                    )[:_DENSE_PAGE_CAP]
+                    drawings = _select_under_dense_cap(
+                        drawings,
+                        page_width=page_width,
+                        page_height=page_height,
+                        cap=_DENSE_PAGE_CAP,
+                        strategy="structural_first",
+                    )
                 else:
                     drawings = sorted(
                         drawings, key=active_sort_key, reverse=True

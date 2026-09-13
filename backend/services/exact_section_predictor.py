@@ -61,7 +61,9 @@ def catalog_valid_exact_section(value: object) -> Optional[str]:
     Conservatively normalizes ``value`` (case/whitespace/separator only — no
     fuzzy correction) and returns the AISC catalog's own canonical label
     string when that normalized text is an authoritative catalog entry,
-    otherwise ``None``.
+    otherwise ``None``. A trailing shop-cut / piece-length field is stripped
+    only when the remaining core is itself a catalog row (``L4x3x1/4x6"``
+    -> ``L4X3X1/4``). Incomplete labels such as ``L4x4`` stay ``None``.
 
     ``is_exact_section_label`` only checks that text is *shaped* like a
     section designation (a regex format check); it says nothing about
@@ -73,19 +75,36 @@ def catalog_valid_exact_section(value: object) -> Optional[str]:
     normalized = normalize_section_text(value)
     if not normalized:
         return None
+    form = catalog_form(normalized) or catalog_form(str(value or "").strip())
+    if form:
+        entry = lookup_shape(form)
+        return str(entry["shape"]) if entry else form
     entry = lookup_shape(normalized)
     if entry is None:
-        # ``normalize_section_text`` only folds case/whitespace/separators; it
-        # does not resolve notation-equivalent spellings of the *same*
-        # designation (round-HSS shorthand ``HSS10X0.625`` ->
-        # ``HSS10.000X0.625``; fractional angle legs; trailing cut lengths).
-        # ``catalog_form`` does, and only ever returns a real catalog entry --
-        # never a similar-but-different shape -- so a hit here is still an
-        # authoritative, text-grounded match that exact-label protection must
-        # honour rather than let fuzzy fusion override.
+        # Notation-equivalent spellings of the *same* designation
+        # (round-HSS shorthand, fractional angle legs, trailing cut lengths)
+        # via catalog_form — never a similar-but-different shape.
         canonical = catalog_form(normalized)
         if canonical:
             entry = lookup_shape(canonical)
+    if entry:
+        return str(entry["shape"])
+
+    # Shop-cut / piece-length suffixes (L4x3x1/4x6", L3X3X3/8X0'-6") are
+    # not part of the AISC designation. If stripping a fabrication tail
+    # yields exactly one catalog row, that printed section is authoritative.
+    # Incomplete labels such as L4x4 stay None.
+    from services.token_extractor import core_section_token
+
+    core = core_section_token(str(value or ""))
+    core_normalized = normalize_section_text(core)
+    if not core_normalized or core_normalized == normalized:
+        return None
+    form = catalog_form(core_normalized) or catalog_form(core)
+    if form:
+        entry = lookup_shape(form)
+        return str(entry["shape"]) if entry else form
+    entry = lookup_shape(core_normalized)
     return str(entry["shape"]) if entry else None
 
 

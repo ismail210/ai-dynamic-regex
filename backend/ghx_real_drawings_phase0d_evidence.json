@@ -1,0 +1,67 @@
+{
+  "experiment_id": "ghx_real_drawings_phase0d_2026-09-12",
+  "verdict": "BLOCKED",
+  "gh_live_run": "BLOCKED",
+  "project": "New bldg - St",
+  "source": {
+    "drawings_folder": "/Users/hibareda/Desktop/DWGs",
+    "drawing": "New bldg - St_p9_FIRST_FLOOR_FRAMING_PLAN.dwg",
+    "page_or_sheet": "p9 FIRST FLOOR FRAMING PLAN (intended; not executed)",
+    "note": "Selected for future live run; no Grasshopper execution performed."
+  },
+  "environment": {
+    "rhino_app_found": false,
+    "grasshopper_available": false,
+    "gh_or_ghx_found": false,
+    "rhino_support_remnant": "/Users/hibareda/Library/Application Support/McNeel/Rhinoceros/8.0/",
+    "execution_mode": "inspection_only"
+  },
+  "missing_dependencies": [
+    "Estima Grasshopper definition (.gh / .ghx)",
+    "Runnable Rhino + Grasshopper installation",
+    "Prior RH_OUT export (JSON/CSV/3DM) if live run unavailable"
+  ],
+  "grasshopper_output": {
+    "beam_text": [],
+    "beam_curve": [],
+    "beam_text_unpaired": [],
+    "beam_element_id": [],
+    "plan_text": [],
+    "plan_curve": [],
+    "plan_column_closed": [],
+    "misc_beam_curve": []
+  },
+  "observed_relationship": {
+    "relationship_type": "unknown",
+    "confidence": "none",
+    "evidence": "No live RH_OUT DataTrees captured; BeamTxt[i]==BeamCrv[i] was not assumed and not tested."
+  },
+  "beam_element_id_stability": {
+    "classification": "UNKNOWN",
+    "runs_compared": 0
+  },
+  "coordinate_relationship": {
+    "status": "NOT_DETERMINABLE",
+    "correspondence_pairs": []
+  },
+  "inventory": {
+    "dwg_count": 13,
+    "pdf_count": 0,
+    "ghx_count": 0,
+    "files": [
+      "New bldg - St_p8_GROUND_FLOOR_FOUNDATION_PLAN.dwg",
+      "New bldg - St_p9_FIRST_FLOOR_FRAMING_PLAN.dwg",
+      "New bldg - St_p9_FIRST_FLOOR_FRAMING_PLAN_edited.dwg",
+      "New bldg - St_p10_SECOND_FLOOR_FRAMING_PLAN.dwg",
+      "New bldg - St_p11_THIRD_FLOOR_FRAMING_PLAN.dwg",
+      "New bldg - St_p12_FOURTH_FLOOR_FRAMING_PLAN.dwg",
+      "New bldg - St_p13_ROOF_FRAMING_PLAN.dwg",
+      "New bldg - St_p15_COLUMN_SCHEDULE.dwg",
+      "New bldg - St_p17_BRACED_FRAME_ELEVATIONS.dwg",
+      "New bldg - St_p19_GRAVITY_BRACE.dwg",
+      "New bldg - St_p19_GRAVITY_BRACE_scaled.dwg",
+      "New bldg - St_p20-21-22_SECTIONS.dwg",
+      "New bldg - St_p23_SECTIONS.dwg"
+    ]
+  }
+}

@@ -138,6 +138,9 @@ def analysis_response(result: Dict[str, Any]) -> Dict[str, Any]:
         "graph": _graph_digest(result.get("graph") or {}),
         "predictions": _project(result.get("predictions") or []),
         "context_definitions": _project(result.get("context_definitions") or []),
+        "repeated_detail_members": list(
+            result.get("repeated_detail_members") or []
+        ),
     }
 
 
@@ -340,6 +343,9 @@ def load_cached_analysis(document_id: str) -> Optional[Dict[str, Any]]:
         "extraction": extraction,
         "predictions": predictions,
         "context_definitions": prediction_view.get("context_definitions") or [],
+        "repeated_detail_members": prediction_view.get("repeated_detail_members")
+        or metadata.get("repeated_detail_members")
+        or [],
         "project_rule_resolutions": rule_resolutions,
         "validation": validation,
         "cached": True,
@@ -492,6 +498,8 @@ def run_analysis_stage(
             {
                 "predictions": served,
                 "context_definitions": response.get("context_definitions") or [],
+                "repeated_detail_members": response.get("repeated_detail_members")
+                or [],
             },
         )
         reviewed_ids = set(get_human_selection_entries(document_id).keys())

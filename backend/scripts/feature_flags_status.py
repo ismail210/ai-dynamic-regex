@@ -70,7 +70,21 @@ def status() -> dict:
                 "LEARNED_FUSION_ENABLED",
                 settings.learned_fusion_enabled,
                 "Gates multimodal_fusion.pt override in live ranking.",
-                default="true",
+                default="false",
+            ),
+            _flag(
+                "GRAPHSAGE_SECTION_SCORING_ENABLED",
+                settings.graphsage_section_scoring_enabled,
+                "When false, GraphSAGE is not used as a section scorer; "
+                "constructed graph topology remains for review.",
+                default="false",
+            ),
+            _flag(
+                "GEOMETRY_MISSING_LABEL_INFERENCE_ENABLED",
+                settings.geometry_missing_label_inference_enabled,
+                "When false, unlabeled linework does not emit sheet-common "
+                "section tokens.",
+                default="false",
             ),
         ],
         "paths": {

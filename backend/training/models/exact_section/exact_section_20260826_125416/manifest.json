@@ -1,0 +1,32 @@
+{
+  "version_id": "exact_section_20260826_125416",
+  "family": "exact_section",
+  "schema_version": "1.0",
+  "created_at": "2026-08-26T12:54:16.930430+00:00",
+  "dataset_versions": {
+    "text": "text_20260826_124421"
+  },
+  "metrics": {
+    "exact_label_count": 2299,
+    "training_variant_count": 60576,
+    "accuracy": 1.0,
+    "f1_weighted": 1.0
+  },
+  "hyperparameters": {},
+  "feature_schema": [],
+  "artifact_checksums": {
+    "exact_section_model.joblib": "95523dd093727487e7a0180a6cb8b1c57d4342915d0334e1c86c238a06df26fa",
+    "exact_section_model_metadata.json": "db0706701ea3685dc35a261be460fd9a0f39a8976bffe8efe2761aeaf9830cf5",
+    "exact_section_dataset.csv": "50fe4dbc26b2d8350cbb7857e7079de59bae9d1e7130490bc0abfac904359d51"
+  },
+  "promotion_status": "candidate",
+  "rejection_reasons": [],
+  "parent_version": "exact_section_20260820_080457",
+  "dependencies": {},
+  "notes": "exact section trained by user",
+  "artifacts": {
+    "exact_section_model": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/training/models/exact_section/exact_section_20260826_125416/exact_section_model.joblib",
+    "exact_section_metadata": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/training/models/exact_section/exact_section_20260826_125416/exact_section_model_metadata.json",
+    "exact_section_dataset": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/training/models/exact_section/exact_section_20260826_125416/exact_section_dataset.csv"
+  }
+}

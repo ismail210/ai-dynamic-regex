@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 from typing import Any, Dict, List, Optional, Set
 
+from services.engineering.context_scope import typical_detail_pages
 from services.engineering.detail_regions import region_for_point, same_region
 from services.engineering.graph_builder import build_text_nodes
 from services.engineering.spatial_index import (
@@ -17,7 +18,7 @@ from services.engineering.spatial_index import (
     build_page_index,
     nearest_geometry_candidates,
 )
-from services.structural_parser import parse_section
+from services.exact_section_predictor import catalog_valid_exact_section
 from services.token_extractor import normalize_engineering_token
 
 _STEEL_LABEL_KINDS = {
@@ -38,9 +39,9 @@ def _norm(text: str) -> str:
 
 
 def _section_from_label(text: str) -> Optional[str]:
-    cleaned = _norm(text)
-    parsed = parse_section(cleaned)
-    return parsed.normalized if parsed and parsed.catalog_valid else None
+    """Trusted catalog designation only — never a sheet-common default."""
+
+    return catalog_valid_exact_section(_norm(text) or text)
 
 
 def _center_from_bbox(bbox: List[float]) -> List[float]:
@@ -99,15 +100,13 @@ def build_spatial_association_tokens(
 
     tokens = list(existing_tokens or document.get("engineering_tokens") or [])
     claimed_geometry: Set[str] = set()
-    claimed_text: Set[str] = set()
+    claimed_labels: Set[str] = set()
     for token in tokens:
         if token.get("geometry_id"):
             claimed_geometry.add(str(token["geometry_id"]))
-        token_id = token.get("token_id")
-        if token_id:
-            claimed_text.add(str(token_id))
 
     regions = document.get("detail_regions") or {}
+    skipped_pages = typical_detail_pages(document)
     geometry_by_id = {
         str(obj.get("geometry_id") or ""): obj
         for obj in (geometry.get("objects") or [])
@@ -129,6 +128,8 @@ def build_spatial_association_tokens(
     )
 
     for page_number in pages:
+        if page_number in skipped_pages:
+            continue
         text_nodes = [
             node
             for node in build_text_nodes(document)
@@ -147,6 +148,9 @@ def build_spatial_association_tokens(
         for label in text_nodes:
             section = _section_from_label(str(label.get("text") or ""))
             if not section:
+                continue
+            label_id = str(label.get("node_id") or label.get("token_id") or "")
+            if label_id and label_id in claimed_labels:
                 continue
             label_region = label.get("region_id") or region_for_point(
                 regions, page_number, label["center"]
@@ -204,9 +208,12 @@ def build_spatial_association_tokens(
                         "extraction_method": "spatial_association",
                         "region_id": target_region,
                         "requires_review": True,
+                        "takeoff_eligible": False,
                     }
                 )
                 claimed_geometry.add(geom_id)
+                if label_id:
+                    claimed_labels.add(label_id)
                 break
 
     return association_tokens

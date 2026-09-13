@@ -71,12 +71,14 @@ PROFILE_VERSION = "legend_profile_v4"
 # longer demotes a page that is dense with real catalog-valid section
 # labels (framing plans, column/beam schedules). This changes which pages
 # ``detect_context_pages`` returns, so cached profiles from v4b are stale.
+# v5b (Accuracy A1): structural DETAIL sheets with moderate section density
+# and/or incomplete L callouts are not whole-page GENERAL_NOTES demotions.
 # v6: profile now carries ``drawing_intelligence`` -- the deterministic
 # Drawing Intelligence Profile (page groups, steel system, TYP / repeated
 # conditions, schedule semantics, scope/revision signals, uncertainties) and
 # its rendered narrative. Bumping invalidates every v5 cache entry so the
 # richer summary is produced on next analyse.
-EXTRACTOR_VERSION = "legend_extractor_v6"
+EXTRACTOR_VERSION = "legend_extractor_v6b"
 SCHEMA_VERSION = "project_rule_schema_v1"
 
 STATUS_PROPOSED_INFERENCE = "PROPOSED_INFERENCE"
@@ -202,6 +204,31 @@ _DRAWING_TITLE_RE = re.compile(
     r"|\bFRAME\s+ELEVATION\b|\bCOLUMN\s+ELEVATION\b",
     re.I,
 )
+# Structural DETAIL sheets (connection / opening / typical details) often
+# carry real L/W/HSS callouts — including incomplete L — but lack a framing
+# plan title. Title-block "SEE GENERAL NOTES" must not whole-page demote them
+# when catalog-valid section density is already moderate (June Phase 3 / A1).
+_DETAIL_DRAWING_TITLE_RE = re.compile(
+    r"\b(?:TYPICAL\s+)?(?:STEEL\s+|CONNECTION\s+|ROOF\s+OPENING\s+)?"
+    r"DETAILS?\b"
+    r"|\bCONNECTION\s+DETAIL\b"
+    r"|\bBEAM[- ]TO[- ]BEAM\b"
+    r"|\bCOLUMN\s+SPLICE\b"
+    r"|\bDECK\s+ATTACHMENT\b"
+    r"|\bMETAL\s+ROOF\s+DECK\b",
+    re.I,
+)
+# Incomplete printed angles still prove the sheet is doing member callout
+# work (compiler surface), even when thickness is absent.
+_INCOMPLETE_ANGLE_CALLOUT_RE = re.compile(
+    r"(?<![A-Z0-9])(?:2L|L)\s*\d+(?:\.\d+)?\s*[Xx×]\s*\d+(?:\.\d+)?"
+    # Reject thickness (X…), fraction walls (/…), half-legs (-1/2), or
+    # glued numeric continuation — do not count L6X3-1/2X3/8 as incomplete.
+    r"(?!\s*[Xx×/\d-])",
+    re.I,
+)
+_DETAIL_DRAWING_MIN_SECTION_LABELS = 5
+_DETAIL_DRAWING_MIN_INCOMPLETE_ANGLES = 1
 # The level/elevation axis shared by a column schedule and a braced-frame
 # elevation: a building-level word immediately followed by an elevation
 # callout ("FIRST FLOOR \n 0' - 0"", "MAIN ROOF \n 29' - 0""), repeated
@@ -294,6 +321,18 @@ def _has_strong_structural_drawing_evidence(text: str) -> bool:
     if occurrences >= _MODERATE_DRAWING_MIN_SECTION_LABELS and (
         _DRAWING_TITLE_RE.search(text)
         or _looks_like_schedule_or_elevation_matrix(text)
+    ):
+        return True
+    incomplete_angles = len(_INCOMPLETE_ANGLE_CALLOUT_RE.findall(text))
+    # DETAIL titles alone are common on GENERAL NOTES / typical-details
+    # sheets. Require incomplete-L callout evidence so complete-only note
+    # pages stay demoted (June Phase 3 / A1).
+    if (
+        incomplete_angles >= _DETAIL_DRAWING_MIN_INCOMPLETE_ANGLES
+        and (
+            _DETAIL_DRAWING_TITLE_RE.search(text)
+            or occurrences >= _DETAIL_DRAWING_MIN_SECTION_LABELS
+        )
     ):
         return True
     return False

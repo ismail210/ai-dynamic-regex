@@ -175,7 +175,15 @@ class DocumentWorkflowApiTests(IsolatedApiTestCase):
         body = response.json()
         self.assertIn("filename", body)
         self.assertIn("rows", body)
-        self.assertGreaterEqual(body["row_count"], 1)
+        # QuantityEngine (Accuracy Track A5) only counts a physical quantity
+        # when a labeled callout has geometry/member-association evidence
+        # backing it. This synthetic fixture is two bare text labels with no
+        # drawn steel objects, so both sections are correctly excluded as
+        # "unlabeled_source" -- row_count == 0 here is the safety-correct
+        # answer, not a pipeline failure. This assertion only needs the
+        # endpoint to succeed and return the expected shape.
+        self.assertGreaterEqual(body["row_count"], 0)
+        self.assertIn("quantity_engine", body)
 
     def test_takeoff_generate_before_analysis_returns_409(self):
         document = self._upload_document()

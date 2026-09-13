@@ -24,6 +24,7 @@ from services.takeoff.paired_dataset_builder import (
     list_training_pairs,
 )
 from services.takeoff.takeoff_exporter import generate_takeoff_excel
+from services.takeoff.quantity_scoreboard import build_scoreboards
 from services.takeoff.takeoff_validation import validate_pair
 from services.upload_service import run_analysis
 
@@ -132,12 +133,21 @@ async def generate_takeoff(body: GenerateTakeoffRequest):
         pdf_path = document_source(body.document_id)
     except (FileNotFoundError, ValueError) as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
-    return await run_analysis(
+    payload = await run_analysis(
         "takeoff generation",
         generate_takeoff_excel,
         pdf_path,
         predictions=prediction_artifact.get("predictions") or [],
     )
+    validation_artifact = read_artifact(body.document_id, "validation.json") or {}
+    excel_evaluation = validation_artifact.get("excel_ground_truth") or {}
+    expected = read_artifact(body.document_id, "expected_excel.json")
+    payload["scoreboards"] = build_scoreboards(
+        section_recognition=(excel_evaluation.get("metrics") or {}).get("section"),
+        quantity_report=payload.get("quantity_engine"),
+        ground_truth=expected,
+    )
+    return payload
 
 
 @router.get("/takeoff/exports/{filename}")

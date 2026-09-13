@@ -26,6 +26,9 @@ from services.engineering.context_scope import (
     partition_takeoff,
     reassert_prediction_scope,
 )
+from services.engineering.repeated_detail_linker import (
+    link_repeated_detail_members,
+)
 from services.engineering.geometry_adapters import (
     extract_geometry_document,
     geometry_capabilities,
@@ -48,6 +51,8 @@ from services.multimodal.spatial_association import build_spatial_association_to
 from services.multimodal.validation_engine import (
     validate_multimodal_predictions,
 )
+from services.takeoff.quantity_engine import quantity_engine
+from services.takeoff.quantity_scoreboard import build_scoreboards
 from services.engineering.detail_regions import assign_detail_regions
 from services.annotation.context_evidence import attach_context_evidence
 from services.annotation.anonymous_dimension_metrics import (
@@ -59,7 +64,7 @@ from services.takeoff.ground_truth_excel import parse_ground_truth_excel
 
 # Bumped whenever prediction behaviour changes, so cached analyses are replaced.
 # Combined: collinear merge, Bassam legend takeoff scope, association-safety gate.
-PIPELINE_VERSION = "4.17-member-resolution-gating"
+PIPELINE_VERSION = "4.19-member-resolution-and-repeated-detail"
 
 
 def _neural_model_status() -> Dict[str, Any]:
@@ -68,20 +73,31 @@ def _neural_model_status() -> Dict[str, Any]:
     # Existence is not enough: a section-labelled index is skipped at analyze
     # time, so the reported model must match what actually runs.
     geometry_trained = geometry_index_ready()
-    graph_trained = settings.graphsage_model_path.exists()
-    fusion_trained = settings.fusion_model_path.exists()
+    graph_checkpoint = settings.graphsage_model_path.exists()
+    fusion_checkpoint = settings.fusion_model_path.exists()
+    graph_scoring = (
+        graph_checkpoint and settings.graphsage_section_scoring_enabled
+    )
+    fusion_scoring = fusion_checkpoint and settings.learned_fusion_enabled
     return {
         "geometry_model": (
             "mobilenet_v3_small_embedding_index"
             if geometry_trained
             else "vector_geometry_fallback"
         ),
-        "graph_model": "graphsage" if graph_trained else "structural_rules_fallback",
+        "graph_model": "graphsage" if graph_scoring else "structural_rules_fallback",
         "fusion_model": (
-            "candidate_fusion_mlp" if fusion_trained else "attention_fallback"
+            "candidate_fusion_mlp" if fusion_scoring else "attention_fallback"
         ),
         "confidence_calibration": (
-            "temperature_scaling" if fusion_trained else "attention_confidence"
+            "temperature_scaling" if fusion_scoring else "attention_confidence"
+        ),
+        "learned_fusion_enabled": settings.learned_fusion_enabled,
+        "graphsage_section_scoring_enabled": (
+            settings.graphsage_section_scoring_enabled
+        ),
+        "geometry_missing_label_inference_enabled": (
+            settings.geometry_missing_label_inference_enabled
         ),
     }
 
@@ -91,6 +107,9 @@ def _missing_label_tokens(
     graph: Dict[str, Any],
 ) -> list[dict]:
     """Create inference records only when trained geometry and graph models agree."""
+
+    if not settings.geometry_missing_label_inference_enabled:
+        return []
 
     graph_features = graph.get("source_features") or {}
     records = []
@@ -126,6 +145,8 @@ def _missing_label_tokens(
                 or obj.get("geometry_role"),
                 "missing_label": True,
                 "extraction_method": "geometry_inference",
+                "takeoff_eligible": False,
+                "requires_review": True,
             }
         )
     return records
@@ -188,6 +209,11 @@ def run_multimodal_pipeline(
     )
     if not _ablate("ABLATE_GEOMETRY"):
         geometry = enrich_geometry_embeddings(path, geometry)
+        from services.engineering.member_geometry import (
+            ensure_member_candidates_on_geometry,
+        )
+
+        geometry = ensure_member_candidates_on_geometry(geometry)
     timings["geometry_ms"] = (
         0.0
         if geometry_document is not None
@@ -204,11 +230,6 @@ def run_multimodal_pipeline(
     attach_context_evidence(document, geometry, graph)
     timings["graph_rules_ms"] = round(
         (time.perf_counter() - stage_started) * 1000, 2
-    )
-    expected = (
-        parse_ground_truth_excel(expected_excel_path)
-        if expected_excel_path
-        else None
     )
 
     stage_started = time.perf_counter()
@@ -235,7 +256,6 @@ def run_multimodal_pipeline(
                 "document": document,
                 "geometry": geometry,
                 "graph": graph,
-                "expected_excel": expected,
                 "source_file": path.name,
             }
         ).to_dict()
@@ -243,8 +263,15 @@ def run_multimodal_pipeline(
         # (see services.engineering.context_scope). A context-definition
         # token stays in predictions.json for evidence/provenance but is
         # filtered out of the served takeoff list at projection time.
-        prediction["object_scope"] = token.get("object_scope") or "takeoff"
-        prediction["takeoff_eligible"] = bool(token.get("takeoff_eligible", True))
+        prediction["object_scope"] = (
+            prediction.get("object_scope")
+            or token.get("object_scope")
+            or "takeoff"
+        )
+        if prediction.get("takeoff_eligible") is None:
+            prediction["takeoff_eligible"] = bool(
+                token.get("takeoff_eligible", True)
+            )
         raw_predictions.append(prediction)
     timings["prediction_ms"] = round(
         (time.perf_counter() - stage_started) * 1000, 2
@@ -256,6 +283,15 @@ def run_multimodal_pipeline(
         if _ablate("ABLATE_GRAPH")
         else propagate_section_labels(deduped["predictions"], graph)
     )
+
+    # OCR/extraction evidence only: attach member_candidate bbox metadata
+    # without changing section prediction, takeoff, or incomplete-L gates.
+    if not _ablate("ABLATE_GEOMETRY"):
+        from services.engineering.member_geometry import (
+            attach_member_geometry_to_predictions,
+        )
+
+        attach_member_geometry_to_predictions(predictions, geometry)
 
     # Demote anything sitting on a strict-classified legend/notes page,
     # including geometry "missing label", schedule/spatial and label-
@@ -280,9 +316,22 @@ def run_multimodal_pipeline(
             continue
         if prediction.get("_skip_unknown_queue"):
             continue
-        # A legend/general-note definition is not a member -- never queue it
-        # for unknown-token review (see services.engineering.context_scope).
-        if prediction.get("takeoff_eligible") is False:
+        # A legend/general-note *definition* is not a member -- never queue it.
+        # Incomplete-thickness abstentions (completion_status=missing_thickness)
+        # stay reviewable on the compilation surface even when takeoff_eligible
+        # is False (Accuracy Track A1).
+        if (
+            prediction.get("takeoff_eligible") is False
+            and str(prediction.get("completion_status") or "") != "missing_thickness"
+        ):
+            continue
+        if prediction.get("object_scope") == "context_definition":
+            continue
+        # detail_reference + missing_thickness: still reviewable for compilation
+        if (
+            prediction.get("object_scope") == "detail_reference"
+            and str(prediction.get("completion_status") or "") != "missing_thickness"
+        ):
             continue
         text_features = (prediction.get("features") or {}).get("text") or {}
         confidence_value = confidence_overall(prediction.get("confidence"))
@@ -316,8 +365,46 @@ def run_multimodal_pipeline(
 
     # Legend / general-note definitions are not members: keep them out of
     # validation, Excel comparison, review indexing, counts and every served
-    # list. They are still written to predictions.json below for provenance.
-    predictions, context_definitions = partition_takeoff(predictions)
+    # takeoff list. Thickness-abstained member callouts stay on ``predictions``
+    # for the compilation surface (takeoff_eligible remains False).
+    predictions, excluded_predictions = partition_takeoff(predictions)
+    abstained_for_compilation = [
+        item
+        for item in excluded_predictions
+        if str(item.get("completion_status") or "") == "missing_thickness"
+        and item.get("object_scope") != "non_member_dimension"
+    ]
+    if abstained_for_compilation:
+        predictions = list(predictions) + abstained_for_compilation
+        excluded_ids = {
+            id(item) for item in abstained_for_compilation
+        }
+        excluded_predictions = [
+            item for item in excluded_predictions if id(item) not in excluded_ids
+        ]
+    non_member_annotations = [
+        item
+        for item in excluded_predictions
+        if item.get("object_scope") == "non_member_dimension"
+    ]
+    context_definitions = [
+        item
+        for item in excluded_predictions
+        if item.get("object_scope") != "non_member_dimension"
+    ]
+    # Review-only typical-condition links. Kept off the takeoff prediction
+    # list so they cannot enter QuantityEngine, Fusion, or Excel evaluation.
+    repeated_detail_members = link_repeated_detail_members(document)
+
+    quantity_report = quantity_engine.count(predictions)
+
+    # Excel is offline ground truth only. Parse it after PDF-only
+    # predictions are complete so it cannot influence fusion or ranking.
+    expected = (
+        parse_ground_truth_excel(expected_excel_path)
+        if expected_excel_path
+        else None
+    )
 
     validation = validate_multimodal_predictions(
         predictions,
@@ -349,6 +436,15 @@ def run_multimodal_pipeline(
                 ),
             )
         validation["excel_ground_truth"] = excel_evaluation
+    scoreboards = build_scoreboards(
+        section_recognition=(
+            (excel_evaluation or {}).get("metrics", {}).get("section")
+            if excel_evaluation
+            else None
+        ),
+        quantity_report=quantity_report,
+        ground_truth=expected,
+    )
     validation["document_rules"] = document_rules
     validation["duplicates"] = {
         "merged": deduped["duplicate_count"],
@@ -384,6 +480,14 @@ def run_multimodal_pipeline(
                     # Legend/general-note definitions -- retained for
                     # provenance, never counted or validated as members.
                     "context_definitions": context_definitions,
+                    # Unpromoted anonymous dimensions are retained for
+                    # diagnostics/review, but never served as members.
+                    "non_member_annotations": non_member_annotations,
+                    # Review-only typical-condition evidence; never counted.
+                    "repeated_detail_members": repeated_detail_members,
+                    # Conservative PDF-only labeled-callout quantities.
+                    "quantity_engine": quantity_report.to_dict(),
+                    "scoreboards": scoreboards,
                     "duplicates": _merge_audit(deduped),
                 },
             ),
@@ -440,6 +544,8 @@ def run_multimodal_pipeline(
             "duplicates_merged": deduped["duplicate_count"],
             "components_found": len(predictions),
             "context_definitions": len(context_definitions),
+            "non_member_annotations": len(non_member_annotations),
+            "repeated_detail_members": len(repeated_detail_members),
             "ocr_corrections": corrected_count,
             "missing_components": missing_components,
             "extra_components": extra_components,
@@ -471,6 +577,16 @@ def run_multimodal_pipeline(
                 if excel_evaluation
                 else None
             ),
+            "section_recognition_precision": (
+                (scoreboards.get("section_recognition") or {}).get("precision")
+            ),
+            "section_recognition_recall": (
+                (scoreboards.get("section_recognition") or {}).get("recall")
+            ),
+            "quantity_mae": (scoreboards.get("quantity") or {}).get("mae"),
+            "quantity_mean_signed_error": (
+                (scoreboards.get("quantity") or {}).get("mean_signed_error")
+            ),
             **validation["summary"],
         },
         "anonymous_dimension_metrics": anonymous_dimension_metrics,
@@ -490,6 +606,10 @@ def run_multimodal_pipeline(
         "document_rules": document_rules,
         "predictions": predictions,
         "context_definitions": context_definitions,
+        "non_member_annotations": non_member_annotations,
+        "repeated_detail_members": repeated_detail_members,
+        "quantity_engine": quantity_report.to_dict(),
+        "scoreboards": scoreboards,
         "validation": validation,
         "anonymous_dimension_metrics": anonymous_dimension_metrics,
         "excel_evaluation": excel_evaluation,

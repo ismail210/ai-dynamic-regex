@@ -56,17 +56,22 @@ export default function BboxHighlight({
   const height = Math.abs(y1 - y0) * scale;
   const inferred = variant === "inferred";
   const semantic = SEMANTIC_COLORS[variant];
+  const member = variant === "member";
 
   const borderColor = semantic
     ? semantic.border
-    : inferred
-      ? (active ? "info.main" : "info.light")
-      : (active ? "error.main" : "warning.main");
+    : member
+      ? (active ? "success.main" : "success.light")
+      : inferred
+        ? (active ? "info.main" : "info.light")
+        : (active ? "error.main" : "warning.main");
   const bgcolor = semantic
     ? semantic.bg
-    : inferred
-      ? (active ? "rgba(2, 136, 209, 0.16)" : "rgba(2, 136, 209, 0.08)")
-      : (active ? "rgba(211, 47, 47, 0.18)" : "rgba(237, 108, 2, 0.12)");
+    : member
+      ? (active ? "rgba(46, 125, 50, 0.14)" : "rgba(46, 125, 50, 0.08)")
+      : inferred
+        ? (active ? "rgba(2, 136, 209, 0.16)" : "rgba(2, 136, 209, 0.08)")
+        : (active ? "rgba(211, 47, 47, 0.18)" : "rgba(237, 108, 2, 0.12)");
   const borderStyle = semantic ? (dashed ? "dashed" : "solid") : (inferred ? "dashed" : "solid");
 
   return (
@@ -89,9 +94,15 @@ export default function BboxHighlight({
         pointerEvents: onClick ? "auto" : "none",
         cursor: onClick ? "pointer" : undefined,
         boxShadow: active
-          ? `0 0 0 2px ${semantic ? "rgba(37,99,235,0.35)" : "rgba(211, 47, 47, 0.35)"}`
+          ? semantic
+            ? "0 0 0 2px rgba(37,99,235,0.35)"
+            : member
+              ? "0 0 0 2px rgba(46, 125, 50, 0.3)"
+              : inferred
+                ? "0 0 0 2px rgba(2, 136, 209, 0.3)"
+                : "0 0 0 2px rgba(211, 47, 47, 0.35)"
           : "none",
-        zIndex: active ? 3 : 2,
+        zIndex: member ? 1 : active ? 3 : 2,
         "&:hover": onClick ? { boxShadow: "0 0 0 2px rgba(37,99,235,0.45)" } : undefined,
         "&::after": inferred || (semantic && badge)
           ? {
@@ -110,7 +121,22 @@ export default function BboxHighlight({
               whiteSpace: "nowrap",
               display: active ? "block" : "none",
             }
-          : undefined,
+          : member
+            ? {
+                content: '"Member"',
+                position: "absolute",
+                top: -18,
+                left: 0,
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: 0.3,
+                color: "success.main",
+                bgcolor: "background.paper",
+                px: 0.5,
+                borderRadius: 0.5,
+                lineHeight: 1.4,
+              }
+            : undefined,
       }}
     />
   );

@@ -308,6 +308,8 @@ function GroundTruthEvaluationPanel({ report }) {
         compare the <strong>section-quantity histogram</strong> (Σ&nbsp;min(Estima3D,
         ground&nbsp;truth) per section); this is not object-level member matching, so a
         section difference does not by itself mean a member was invented.
+        Review-held members and weak geometry candidates are shown separately and are not
+        auto-counted in the takeoff.
         {report?.excel_file ? ` (${report.excel_file})` : ""}
       </Alert>
 

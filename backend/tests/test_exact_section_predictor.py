@@ -12,6 +12,7 @@ import pandas as pd
 from services.exact_section_predictor import (
     is_exact_section_label,
     normalize_section_text,
+    reload_exact_section_artifact,
     train_exact_section_model,
 )
 
@@ -26,6 +27,13 @@ class ExactSectionHelpersTests(unittest.TestCase):
 
 class ApprovedIngestionTests(unittest.TestCase):
     def test_approved_rows_use_exact_token_as_target(self):
+        # train_exact_section_model(persist=True) below replaces the
+        # module-global in-memory retrieval artifact (_ARTIFACT) with one
+        # built from this test's tiny fake catalog. That global is not
+        # reset when the `settings` patch below exits, so without this
+        # cleanup every later test in the same process would keep
+        # resolving against a 3-label fake index instead of the real one.
+        self.addCleanup(reload_exact_section_artifact)
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             approved = root / "approved_dataset.csv"

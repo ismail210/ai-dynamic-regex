@@ -7,6 +7,7 @@ import unittest
 from services.prediction.canonical_contract import (
     MatchStatus,
     build_canonical_prediction,
+    member_prediction_takeoff_eligible,
 )
 
 
@@ -58,6 +59,22 @@ class MatchStatusTests(unittest.TestCase):
         self.assertTrue(result.comparison.normalized_match)
         self.assertFalse(result.needs_review)
 
+    def test_catalog_form_round_hss_is_normalized_match(self):
+        for raw, canonical in (
+            ("HSS10X0.500", "HSS10.000X0.500"),
+            ("HSS10X0.625", "HSS10.000X0.625"),
+            ("hss10x0.500", "HSS10.000X0.500"),
+        ):
+            with self.subTest(raw=raw):
+                result = _build(raw_text=raw, final_label=canonical)
+                self.assertEqual(
+                    result.comparison.match_status, MatchStatus.NORMALIZED_MATCH
+                )
+                self.assertFalse(result.comparison.exact_match)
+                self.assertTrue(result.comparison.normalized_match)
+                self.assertFalse(result.needs_review)
+                self.assertEqual(result.prediction.final_label, canonical)
+
     def test_corrected_prediction(self):
         result = _build(
             raw_text="W18X3S", final_label="W18X35", review_status="pending_review"
@@ -68,6 +85,24 @@ class MatchStatusTests(unittest.TestCase):
         self.assertTrue(result.needs_review)
         self.assertIn("differs from predicted label", result.review_reason)
 
+    def test_semantic_remap_stays_corrected_prediction(self):
+        for raw, canonical in (
+            ("A325", "W14X132"),
+            ("L4X3", "L4X3-1/2X3/8"),
+            ("HSS10X0.500", "HSS10.000X0.625"),
+        ):
+            with self.subTest(raw=raw, canonical=canonical):
+                result = _build(
+                    raw_text=raw,
+                    final_label=canonical,
+                    review_status="pending_review",
+                )
+                self.assertEqual(
+                    result.comparison.match_status, MatchStatus.CORRECTED_PREDICTION
+                )
+                self.assertTrue(result.needs_review)
+                self.assertIsNone(result.prediction.final_label)
+
     def test_incomplete_label_wildcard(self):
         result = _build(
             raw_text="W44X3**",
@@ -76,6 +111,18 @@ class MatchStatusTests(unittest.TestCase):
             review_status="pending_review",
         )
         self.assertEqual(result.comparison.match_status, MatchStatus.INCOMPLETE_LABEL)
+        self.assertTrue(result.needs_review)
+
+    def test_missing_dimension_is_not_catalog_form_normalized(self):
+        result = _build(
+            raw_text="HSS8X8",
+            final_label="HSS8X8X3/8",
+            used_missing_dimension=True,
+            review_status="pending_review",
+        )
+        self.assertEqual(
+            result.comparison.match_status, MatchStatus.MISSING_DIMENSION_FIELD
+        )
         self.assertTrue(result.needs_review)
 
     def test_geometry_only_when_source_text_missing_but_predicted(self):
@@ -103,6 +150,34 @@ class MatchStatusTests(unittest.TestCase):
     def test_unresolved_when_text_present_but_no_prediction(self):
         result = _build(raw_text="W18X35", final_label=None)
         self.assertEqual(result.comparison.match_status, MatchStatus.UNRESOLVED)
+
+    def test_catalog_form_round_hss_is_takeoff_eligible(self):
+        for raw, canonical in (
+            ("HSS10X0.500", "HSS10.000X0.500"),
+            ("HSS10X0.625", "HSS10.000X0.625"),
+        ):
+            with self.subTest(raw=raw):
+                result = _build(raw_text=raw, final_label=canonical)
+                self.assertTrue(
+                    member_prediction_takeoff_eligible(
+                        unresolved_anonymous_dimension=False,
+                        confirmed_plate_type=None,
+                        section=canonical,
+                        match_status=result.comparison.match_status,
+                    )
+                )
+
+    def test_geometry_synthetic_stays_ineligible_even_for_catalog_form(self):
+        result = _build(raw_text="HSS10X0.500", final_label="HSS10.000X0.500")
+        self.assertFalse(
+            member_prediction_takeoff_eligible(
+                unresolved_anonymous_dimension=False,
+                confirmed_plate_type=None,
+                section="HSS10.000X0.500",
+                match_status=result.comparison.match_status,
+                geometry_synthetic=True,
+            )
+        )
 
 
 class ProvenanceTests(unittest.TestCase):

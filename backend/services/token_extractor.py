@@ -12,6 +12,22 @@ from services.engineering.feet_inch_filter import (
 )
 
 
+# Angle legs: 4, 3.5, 3-1/2, 3 1/2, or CAD-compact 31/2 (missing hyphen).
+_ANGLE_LEG = (
+    r"(?:\d+-\d+/\d+"
+    r"|\d(?=\d/\d)\d/\d"
+    r"|\d+\s+\d+/\d+"
+    r"|\d+(?:\.\d+)?)"
+)
+_ANGLE_THICKNESS = r"(?:\d+/\d+|\d+(?:\.\d+)?)"
+# Shop-cut length after the designation: x0'-8", x1'-0", x6".
+_FAB_LENGTH = (
+    r"(?:\s*[X×]\s*"
+    r"(?:\d+\s*['’]\s*-\s*\d+(?:\s+\d+/\d+)?\s*\"?"
+    r"|\d+\s*\")"
+    r")?"
+)
+
 TOKEN_PATTERNS = (
     r"\b(?:\d+(?:\.\d+)?|\d+/\d+)\"?\s*BENT\s*PL(?:ATE)?\b[^|\n]{0,40}",
     r"\b(?:\d+(?:\.\d+)?|\d+/\d+)\"?\s*BENT\s*PL(?:ATE)?\b",
@@ -19,8 +35,9 @@ TOKEN_PATTERNS = (
     r"\b(?:W|WT|S|M|HP|C|MC)\s*\d+(?:\.\d+)?\s*[X×]\s*\d+(?:\.\d+)?\b",
     r"\bHSS\s*\d+(?:\.\d+)?\s*[X×]\s*\d+(?:\.\d+)?"
     r"(?:\s*[X×]\s*(?:\d+/\d+|\d+(?:\.\d+)?))?\b",
-    r"\b(?:L|2L)\s*\d+(?:\.\d+)?\s*[X×]\s*\d+(?:\.\d+)?"
-    r"(?:\s*[X×]\s*(?:\d+/\d+|\d+(?:\.\d+)?))?\b",
+    rf"\b(?:2L|L)\s*{_ANGLE_LEG}\s*[X×]\s*{_ANGLE_LEG}"
+    rf"(?:\s*[X×]\s*{_ANGLE_THICKNESS})?"
+    rf"{_FAB_LENGTH}",
     r"\bPIPE\s*\d+(?:\.\d+)?\b",
     r"\bPL(?:ATE)?\s*(?:\d+(?:\.\d+)?|\d+/\d+)"
     r"(?:\s*[X×]\s*(?:\d+(?:\.\d+)?|\d+/\d+)){0,2}\b",
@@ -61,6 +78,11 @@ _DIGIT_RE = re.compile(r"\d")
 EXTRACTION_STATUSES = ("VALID", "SUSPICIOUS", "BROKEN", "INVALID")
 _NOISE_RE = re.compile(r"^[\W_]+$")
 _MAX_WORD_GAP_PTS = 24.0
+_RENOVATION_TAG_RE = re.compile(r"^\(\s*[EN]\s*\)\s*", re.I)
+_FAB_TAIL_RE = re.compile(
+    r"(?:X\d+['’]\-?\d+(?:/\d+)?\"?|X\d+\-\d+\"?|X\d+\")$",
+    re.I,
+)
 
 
 def normalize_engineering_token(text: str) -> str:
@@ -75,6 +97,56 @@ def normalize_engineering_token(text: str) -> str:
     )
     normalized = re.sub(r"\s+", "", normalized)
     return normalized
+
+
+def core_section_token(text: str) -> str:
+    """Catalog core of a token, stripping an optional shop-cut length suffix."""
+
+    compact = normalize_engineering_token(text).replace("'", "").replace("’", "")
+    stripped = _FAB_TAIL_RE.sub("", compact)
+    return stripped or compact
+
+
+def _starts_label_window(text: str) -> bool:
+    """True when a word can begin a label window, including ``(N)`` / ``(E)``."""
+
+    value = str(text or "").strip()
+    if not value:
+        return False
+    if _RENOVATION_TAG_RE.match(value):
+        rest = _RENOVATION_TAG_RE.sub("", value, count=1)
+        return (not rest) or rest[0].isalnum()
+    return value[0].isalnum()
+
+
+def _prefer_longest_matches(
+    matches: List[tuple[re.Match[str], List[dict]]],
+) -> List[tuple[re.Match[str], List[dict]]]:
+    """Drop truncated prefixes of a longer match in the same window string."""
+
+    ordered = sorted(
+        matches,
+        key=lambda item: (
+            item[0].start(),
+            -(item[0].end() - item[0].start()),
+            -len(item[0].group(0)),
+        ),
+    )
+    kept: List[tuple[re.Match[str], List[dict]]] = []
+    for match, words in ordered:
+        superseded = False
+        for kept_match, _kept_words in kept:
+            if kept_match.string != match.string:
+                continue
+            if match.start() >= kept_match.end() or match.end() <= kept_match.start():
+                continue
+            if (kept_match.end() - kept_match.start()) >= (match.end() - match.start()):
+                superseded = True
+                break
+        if not superseded:
+            kept.append((match, words))
+    kept.sort(key=lambda item: (-len(item[0].group(0)), item[0].start()))
+    return kept
 
 
 def _is_explicit_engineering_callout(text: str) -> bool:
@@ -238,7 +310,7 @@ def _candidate_windows(ordered: List[dict]) -> Iterable[tuple[str, List[dict]]]:
     seen: set[tuple[str, tuple[str, ...]]] = set()
     for start in range(len(ordered)):
         first = str(ordered[start].get("text") or "")
-        if not first or not first[0].isalnum():
+        if not _starts_label_window(first):
             continue
         for size in range(1, max_words + 1):
             window = ordered[start : start + size]
@@ -331,9 +403,9 @@ def extract_engineering_token_records(
             candidate_matches.extend(
                 (match, candidate_words) for match in _matches(candidate_text)
             )
-        for match, candidate_words in candidate_matches:
+        for match, candidate_words in _prefer_longest_matches(candidate_matches):
             raw = match.group(0)
-            normalized = normalize_engineering_token(raw)
+            normalized = core_section_token(raw)
             contributing = _words_for_match(match.string, candidate_words, match)
             if not contributing:
                 contributing = candidate_words

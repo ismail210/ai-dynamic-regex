@@ -163,10 +163,22 @@ def catalog_form(token: str) -> str:
     """Return the catalog spelling of ``token``, or ``""`` when it is not one.
 
     Only spelling variants of the same designation are resolved here; no
-    similar-but-different shape is ever substituted.
+    similar-but-different shape is ever substituted. Trailing OCR/list
+    punctuation (``,;:`` / bare ``"``) is stripped as format noise only —
+    this never invents missing dimensions (``L4X4`` stays unresolved).
     """
 
-    normalized = str(token or "").upper().replace(" ", "")
+    normalized = (
+        str(token or "")
+        .upper()
+        .replace(" ", "")
+        .replace("×", "X")
+        .replace("✕", "X")
+    )
+    # Format-only: list separators / dangling inch mark after a designation.
+    normalized = re.sub(r"[,;:]+$", "", normalized)
+    if normalized.endswith('"'):
+        normalized = normalized[:-1]
     if not normalized:
         return ""
     if normalized in _LABEL_INDEX:

@@ -359,6 +359,36 @@ class DocumentPriorV2RegressionTests(unittest.TestCase):
         self.assertEqual(w30.confidence, 0.51)
         self.assertEqual(w27.confidence, 0.50)
 
+    def test_shop_length_local_section_blocks_typical_reorder(self) -> None:
+        prior = {
+            "enabled": True,
+            "typical_sections": ["L4X3X5/16"],
+            "allowed_families": ["L"],
+            "mark_map": {},
+        }
+        written = ExactSectionCandidate(
+            shape="L4X3X1/4",
+            confidence=0.55,
+            text_similarity=0.55,
+            evidence={"text": 0.55},
+        )
+        typical = ExactSectionCandidate(
+            shape="L4X3X5/16",
+            confidence=0.54,
+            text_similarity=0.54,
+            evidence={"text": 0.54},
+        )
+        boosted = apply_prior_to_candidates(
+            [written, typical],
+            prior,
+            token_text='L4x3x1/4x6"',
+        )
+        written_out = next(item for item in boosted if item.shape == "L4X3X1/4")
+        typical_out = next(item for item in boosted if item.shape == "L4X3X5/16")
+        self.assertEqual(written_out.confidence, 0.55)
+        self.assertEqual(typical_out.confidence, 0.54)
+        self.assertEqual(boosted[0].shape, "L4X3X1/4")
+
 
 if __name__ == "__main__":
     unittest.main()
