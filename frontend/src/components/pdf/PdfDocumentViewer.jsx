@@ -13,13 +13,22 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 
 const MIN_PAGE_WIDTH = 240;
 const ZOOM_STEP = 1.5;
+// Below this delta, treat two widths as "the same" -- without this,
+// float-precision/scrollbar-driven jitter of a fraction of a pixel would
+// re-set `pageWidth` to an "already there" value forever, re-triggering a
+// full re-render of every mounted page for nothing.
+const WIDTH_EPSILON = 0.5;
 
 /**
  * Multi-page PDF viewer with bbox highlight and zoom-to-selection.
  *
- * `selection` shape: `{ pageNumber, boundingBox, memberBoundingBox?, key, variant? }`
+ * `selection` shape: `{ pageNumber, boundingBox?, memberBoundingBox?, key, variant? }`
  * Text and member boxes stay separate overlays (never a combined bbox).
- * pageNumber is 1-based (matches backend / pdf.js).
+ * pageNumber is 1-based (matches backend / pdf.js). `boundingBox` is
+ * optional: with it, the viewer zooms in on that label (existing
+ * behavior); without it, the viewer just navigates to `pageNumber` at
+ * whatever width Fit Page/manual zoom already has -- a plain page jump
+ * must not force a document-wide re-render just to get there (Section 6).
  *
  * Deliberately small state model -- exactly one mode owns `pageWidth` at a
  * time, and `currentPage` is tracked explicitly rather than derived, so
@@ -73,11 +82,24 @@ export default function PdfDocumentViewer({
   useEffect(() => {
     const node = containerRef.current;
     if (!node || typeof ResizeObserver === "undefined") return undefined;
-    const measure = () =>
-      setContainerSize({
+    const measure = () => {
+      const next = {
         width: Math.max(280, Math.floor(node.clientWidth - 8)),
         height: Math.max(200, Math.floor(node.clientHeight - 8)),
-      });
+      };
+      // Skip the update entirely when nothing meaningfully changed (e.g. a
+      // vertical scrollbar toggling on/off shifts clientWidth by its own
+      // width every time Fit Page's own output changes total content
+      // height) -- a same-value object still fails Object.is in the Fit
+      // Page effect's dependency array, which would otherwise recompute
+      // and re-render every mounted page for a no-op resize.
+      setContainerSize((prev) =>
+        Math.abs(prev.width - next.width) < WIDTH_EPSILON
+        && Math.abs(prev.height - next.height) < WIDTH_EPSILON
+          ? prev
+          : next,
+      );
+    };
     const observer = new ResizeObserver(measure);
     observer.observe(node);
     measure();
@@ -89,17 +111,28 @@ export default function PdfDocumentViewer({
   // The one effect that computes Fit Page's width -- only while that mode
   // is active, only for currentPage. Never fires as a side effect of
   // zooming or selecting; those are separate, explicit actions below.
+  //
+  // Waits for the CURRENT page's real intrinsic size before ever calling
+  // setPageWidth. Guessing an interim width from the container alone (the
+  // old behavior) still forces every mounted page to re-render its canvas
+  // at that guess, and then AGAIN moments later once the real page size
+  // arrives and the guess is superseded -- on a document with dozens of
+  // full-size sheets, each of those is an expensive simultaneous
+  // re-render, and stacking two of them back to back is what made the
+  // viewer visibly stall/flicker between an unfit guess and the correct
+  // fit right after opening a document (reproduced this session). One
+  // settle, not two.
   useEffect(() => {
     if (mode !== "fit-page") return;
-    setPageWidth(
-      computeFitPageWidth({
-        pageWidthPts: currentPageSize?.width,
-        pageHeightPts: currentPageSize?.height,
-        availableWidth: containerSize.width,
-        availableHeight: containerSize.height,
-        minWidth: MIN_PAGE_WIDTH,
-      }),
-    );
+    if (!currentPageSize?.width || !currentPageSize?.height) return;
+    const next = computeFitPageWidth({
+      pageWidthPts: currentPageSize.width,
+      pageHeightPts: currentPageSize.height,
+      availableWidth: containerSize.width,
+      availableHeight: containerSize.height,
+      minWidth: MIN_PAGE_WIDTH,
+    });
+    setPageWidth((prev) => (Math.abs(prev - next) < WIDTH_EPSILON ? prev : next));
   }, [mode, containerSize, currentPageSize?.width, currentPageSize?.height]);
 
   // Scrolls the highlight into view. Only safe to call once react-pdf's
@@ -183,7 +216,7 @@ export default function PdfDocumentViewer({
   // zoom and silently overwriting a reviewer's very next Fit Page/zoom
   // click a moment later.
   useEffect(() => {
-    if (!selection?.pageNumber || !selection?.boundingBox) {
+    if (!selection?.pageNumber) {
       pendingScrollRef.current = null;
       lastHandledSelectionKeyRef.current = null;
       return undefined;
@@ -196,6 +229,31 @@ export default function PdfDocumentViewer({
     if (!size?.width) return undefined; // not loaded yet; retry when pageSizes updates
 
     lastHandledSelectionKeyRef.current = selection.key;
+
+    // No label to zoom into -- a plain page jump. Navigate there and stay
+    // in (or return to) Fit Page at whatever width that mode already
+    // settles on for this page; never force pageWidthForBbox's zoom-in
+    // just to bring a page into view (Section 6/8). If this page already
+    // rendered at the current pageWidth (the common case: most sheets in
+    // one set share the same paper size, so Fit Page's width doesn't
+    // change when the target page does), there is nothing to wait on --
+    // scroll next frame. Otherwise the Fit Page effect above will compute
+    // this page's own fit width next, and the `width: null` marker below
+    // tells onRenderSuccess to scroll once THIS page finishes rendering
+    // at whatever that turns out to be, without this effect needing to
+    // predict the value.
+    if (!selection.boundingBox) {
+      setCurrentPage(pageNumber);
+      setMode("fit-page");
+      if (Math.abs(pageWidth - (renderedWidthsRef.current[pageNumber] ?? -1)) < WIDTH_EPSILON) {
+        pendingScrollRef.current = null;
+        const raf = window.requestAnimationFrame(() => scrollToSelection(pageNumber));
+        return () => window.cancelAnimationFrame(raf);
+      }
+      pendingScrollRef.current = { key: selection.key, pageNumber, width: null };
+      return undefined;
+    }
+
     setCurrentPage(pageNumber);
     setMode("selection-zoom");
 
@@ -219,7 +277,7 @@ export default function PdfDocumentViewer({
       ...(selection.zoomMaxMultiplier != null ? { maxZoomMultiplier: selection.zoomMaxMultiplier } : {}),
     });
 
-    if (Math.abs(nextWidth - (renderedWidthsRef.current[pageNumber] ?? -1)) < 0.5) {
+    if (Math.abs(nextWidth - (renderedWidthsRef.current[pageNumber] ?? -1)) < WIDTH_EPSILON) {
       // This exact page has ALREADY finished rendering at (approximately)
       // the target width -- e.g. selecting a different label on the same
       // page/zoom level -- so no new onRenderSuccess will fire to trigger
@@ -240,8 +298,11 @@ export default function PdfDocumentViewer({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- containerSize
     // intentionally omitted: a resize while a selection is active should
     // not re-trigger this effect's zoom math (see the Fit Page effect's own
-    // comment on the same tradeoff).
-  }, [selection?.key, selection?.pageNumber, selection?.boundingBox, pageSizes, scrollToSelection]);
+    // comment on the same tradeoff). pageWidth IS included so the
+    // navigate-only branch above always checks against the current value,
+    // not a stale closure -- the lastHandledSelectionKeyRef guard above
+    // still limits actual work to once per selection.key.
+  }, [selection?.key, selection?.pageNumber, selection?.boundingBox, pageSizes, scrollToSelection, pageWidth]);
 
   // Manual zoom: same page, no mode fighting -- just scales pageWidth from
   // wherever it currently is, and does a best-effort job of keeping the
@@ -457,7 +518,12 @@ export default function PdfDocumentViewer({
                       if (
                         pending
                         && pending.pageNumber === pageNumber
-                        && Math.abs(pending.width - pageWidth) < 0.5
+                        // `width: null` (a navigate-only page jump waiting
+                        // on Fit Page to settle on this page's own fit
+                        // width -- see the selection effect above) matches
+                        // whatever width this page just finished at;
+                        // otherwise wait for the specific requested width.
+                        && (pending.width == null || Math.abs(pending.width - pageWidth) < WIDTH_EPSILON)
                       ) {
                         pendingScrollRef.current = null;
                         scrollToSelection(pageNumber);

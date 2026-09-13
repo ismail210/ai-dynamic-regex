@@ -14,6 +14,12 @@ const renderCallbacks = {};
 const loadCallbacks = {};
 const PAGE_WIDTH_PTS = 3024;
 const PAGE_HEIGHT_PTS = 2160;
+// Counts how many times the mocked <Page> function component itself runs
+// (i.e. React actually re-rendering it, typically because its `width` prop
+// changed) -- the regression this guards against is a document's pages
+// being asked to re-render their canvas over and over for no new width at
+// all (Section 71/15: at most one necessary scale transition).
+let pageRenderCount = 0;
 
 // @mui/icons-material's barrel is ~11k modules, more than macOS's 10240
 // per-process file descriptor cap allows Vite to transform at once (EMFILE
@@ -36,6 +42,7 @@ vi.mock("react-pdf", () => ({
     return <div>{children}</div>;
   },
   Page: ({ pageNumber, width, onLoadSuccess, onRenderSuccess }) => {
+    pageRenderCount += 1;
     const loaded = useRef(false);
     loadCallbacks[pageNumber] = () =>
       onLoadSuccess?.({
@@ -279,6 +286,7 @@ describe("PdfDocumentViewer Fit Page / manual zoom / resize", () => {
     roCallback = null;
     originalResizeObserver = window.ResizeObserver;
     window.ResizeObserver = FakeResizeObserver;
+    pageRenderCount = 0;
   });
 
   afterEach(() => {
@@ -422,5 +430,101 @@ describe("PdfDocumentViewer Fit Page / manual zoom / resize", () => {
     fireEvent.click(screen.getByLabelText("Zoom out"));
     fireEvent.click(screen.getByLabelText("Zoom out"));
     expect(screen.getByTestId("pdf-viewer-root").dataset.currentPage).toBe("1");
+  });
+
+  // Regression coverage for the viewer oscillating between an unfit and an
+  // overzoomed page (reported and reproduced live this session): repeated
+  // ResizeObserver events carrying the SAME dimensions -- which a real
+  // vertical scrollbar toggling on/off produces on every Fit Page
+  // recalculation -- must not keep re-requesting the same scale over and
+  // over, each time forcing every mounted page to re-render its canvas.
+  it("repeated ResizeObserver events with identical dimensions do not repeatedly update scale", () => {
+    const { container } = render(
+      <PdfDocumentViewer fileUrl="test.pdf" selection={null} />,
+    );
+    setContainerClientSize(container, 731, 403);
+    triggerResize();
+    finishRender(1);
+    const widthBefore = canvasWidth();
+    const rendersBefore = pageRenderCount;
+
+    // Same dimensions, fired several times in a row -- exactly what a
+    // scrollbar flipping in response to its OWN prior effect looks like.
+    triggerResize();
+    triggerResize();
+    triggerResize();
+
+    expect(canvasWidth()).toBe(widthBefore);
+    expect(pageRenderCount).toBe(rendersBefore);
+  });
+
+  it("a sub-pixel dimension jitter does not cause zoom oscillation", () => {
+    const { container } = render(
+      <PdfDocumentViewer fileUrl="test.pdf" selection={null} />,
+    );
+    setContainerClientSize(container, 731, 403);
+    triggerResize();
+    finishRender(1);
+    const widthBefore = canvasWidth();
+    const rendersBefore = pageRenderCount;
+
+    // A fraction-of-a-pixel jitter (well under the epsilon) -- must settle
+    // to the same rendered width without forcing a new canvas re-render.
+    setContainerClientSize(container, 731.2, 403.1);
+    triggerResize();
+
+    expect(canvasWidth()).toBe(widthBefore);
+    expect(pageRenderCount).toBe(rendersBefore);
+  });
+
+  it("navigating to a page without a bounding box keeps that page current and does not force a re-zoom", () => {
+    const { container, rerender } = render(
+      <PdfDocumentViewer fileUrl="test.pdf" selection={null} />,
+    );
+    setContainerClientSize(container, 731, 403);
+    triggerResize();
+    finishRender(1);
+    const fitPageWidth = canvasWidth();
+
+    // A plain page-jump: pageNumber only, no boundingBox (SemanticReviewPage's
+    // page-jump buttons; see its handleJumpToPage).
+    rerender(
+      <PdfDocumentViewer
+        fileUrl="test.pdf"
+        selection={{ key: "jump-1", pageNumber: 1 }}
+      />,
+    );
+
+    expect(screen.getByTestId("pdf-viewer-root").dataset.currentPage).toBe("1");
+    expect(screen.getByTestId("pdf-viewer-root").dataset.viewMode).toBe("fit-page");
+    // Same page, already rendered at the current Fit Page width -- the
+    // requested width itself must not change (no actual canvas re-render
+    // is needed, just a scroll), even though the prop change from
+    // `rerender` still re-invokes the page component once.
+    expect(canvasWidth()).toBe(fitPageWidth);
+    expect(Element.prototype.scrollTo).toHaveBeenCalled();
+  });
+
+  it("toggling overlays does not alter the page fit scale", () => {
+    const { container, rerender } = render(
+      <PdfDocumentViewer fileUrl="test.pdf" selection={null} overlays={[]} />,
+    );
+    setContainerClientSize(container, 731, 403);
+    triggerResize();
+    finishRender(1);
+    const widthBefore = canvasWidth();
+
+    rerender(
+      <PdfDocumentViewer
+        fileUrl="test.pdf"
+        selection={null}
+        overlays={[
+          { key: "o1", pageNumber: 1, boundingBox: [10, 10, 50, 30], variant: "info" },
+          { key: "o2", pageNumber: 1, boundingBox: [60, 60, 90, 90], variant: "warning" },
+        ]}
+      />,
+    );
+
+    expect(canvasWidth()).toBe(widthBefore);
   });
 });

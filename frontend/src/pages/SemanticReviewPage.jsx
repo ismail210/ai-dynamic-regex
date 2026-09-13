@@ -120,13 +120,20 @@ export default function SemanticReviewPage() {
   // just change which page's overlays are filtered in -- otherwise a
   // presenter opening the page fresh has to manually scroll past dozens of
   // sheets to reach the demo page (found during this session's browser QA).
-  // Reuses the same anchor a real annotation click would target: the first
-  // annotation on that page.
+  //
+  // No boundingBox on purpose: a page jump means "show me this page", not
+  // "zoom into one specific label on it" -- passing a bbox here used to
+  // route through PdfDocumentViewer's zoom-to-selection path, which forces
+  // a document-wide canvas re-render on every jump (expensive on a
+  // real multi-sheet set, and the actual cause of the viewer
+  // freezing/oscillating between an unfit and an overzoomed page that was
+  // reported and reproduced this session). Passing pageNumber alone
+  // navigates and scrolls to that page at whatever width Fit Page/manual
+  // zoom already has -- see PdfDocumentViewer's selection effect.
   const handleJumpToPage = useCallback((page) => {
     setCurrentPage(page);
-    const target = semanticDoc?.annotations?.find((a) => a.page === page && a.semantic_bbox);
-    setViewerOverride(target ? { page, boundingBox: target.semantic_bbox } : null);
-  }, [semanticDoc]);
+    setViewerOverride({ page, boundingBox: null });
+  }, []);
 
   const handleReview = async (action, editedText) => {
     if (!selectedAnnotation) return;
