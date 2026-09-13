@@ -1,0 +1,1366 @@
+{
+  "definition": {
+    "path": "C:\\Users\\Bassam\\Downloads\\estima3d_web_plan.ghx",
+    "sha256": "35d5bb064f30ad82c7364485f4a53ee15971581aed9d7b117e382e95c75fab0e",
+    "file_size_bytes": 6798022,
+    "top_level_object_count": 315
+  },
+  "rh_out_contract": [
+    {
+      "nickname": "RH_OUT:DeckSheetName",
+      "instance_guid": "26a6abb8-a98a-431c-a6ca-ebfbbd8870b9",
+      "member_count": 2,
+      "members": [
+        {
+          "instance_guid": "e6f067c7-5887-4395-ad04-db653142b81c",
+          "type_name": null,
+          "nickname": null,
+          "unresolved": true
+        },
+        {
+          "instance_guid": "354e28a9-5e31-475e-919d-ed4d37c03fef",
+          "type_name": null,
+          "nickname": null,
+          "unresolved": true
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:BeamTxt",
+      "instance_guid": "f15c3265-4411-4e64-9445-418fd865bf5a",
+      "member_count": 2,
+      "members": [
+        {
+          "instance_guid": "78665df1-5930-496e-a87f-d90069cad33f",
+          "type_name": null,
+          "nickname": null,
+          "unresolved": true
+        },
+        {
+          "instance_guid": "43f0af81-ef4f-4c9f-906a-a4bfdc610a91",
+          "type_name": "Text Entity",
+          "nickname": "Text Entity",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:BeamCrv",
+      "instance_guid": "67b4697d-958c-451e-8768-ed3056b3d30f",
+      "member_count": 3,
+      "members": [
+        {
+          "instance_guid": "f82ed014-cb9d-41ad-87c8-cca244e2cd25",
+          "type_name": null,
+          "nickname": null,
+          "unresolved": true
+        },
+        {
+          "instance_guid": "5bdfd5c4-56fe-4ed6-8166-108e14b679ff",
+          "type_name": null,
+          "nickname": null,
+          "unresolved": true
+        },
+        {
+          "instance_guid": "8fc4f71c-a200-4a1f-8540-6bb193e51ad0",
+          "type_name": "Data",
+          "nickname": "Data",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:BeamTxtUnpaired",
+      "instance_guid": "60b8535a-3062-4c49-b2ac-321c16b7c68a",
+      "member_count": 2,
+      "members": [
+        {
+          "instance_guid": "07848b16-6d0b-4c13-a3f1-f2248ca5bc43",
+          "type_name": null,
+          "nickname": null,
+          "unresolved": true
+        },
+        {
+          "instance_guid": "5fc4818a-62ba-4a3a-b58b-87e95b7a6e2d",
+          "type_name": "Text Entity",
+          "nickname": "Text Entity",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:BeamTypeCnt",
+      "instance_guid": "11465ae2-bc8f-4775-b9ff-84d805cd11a5",
+      "member_count": 2,
+      "members": [
+        {
+          "instance_guid": "24181672-696d-472f-8075-243a9453e19b",
+          "type_name": null,
+          "nickname": null,
+          "unresolved": true
+        },
+        {
+          "instance_guid": "28434b0d-5cca-4940-8fbe-ebd15c159ab5",
+          "type_name": "Integer",
+          "nickname": "Integer",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:BeamTypeList",
+      "instance_guid": "49625332-fbfb-44f3-81b9-4a68d88bce5c",
+      "member_count": 2,
+      "members": [
+        {
+          "instance_guid": "f9e28c10-ec88-4f5e-9e8d-2f5f062a1d94",
+          "type_name": null,
+          "nickname": null,
+          "unresolved": true
+        },
+        {
+          "instance_guid": "514e724a-c244-4d1d-94c5-15e957249a51",
+          "type_name": "Text",
+          "nickname": "Text",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:BeamLength",
+      "instance_guid": "1e77503b-df50-419a-a371-3720fc5e2f25",
+      "member_count": 1,
+      "members": [
+        {
+          "instance_guid": "2a835484-dbd4-4c9b-8eb0-7a86ca45794b",
+          "type_name": "Number",
+          "nickname": "Number",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:BeamCamber",
+      "instance_guid": "b2d16555-dec9-45e5-b766-a7e9428dc33d",
+      "member_count": 1,
+      "members": [
+        {
+          "instance_guid": "6fe510b7-8ed3-4901-ab34-64dc8ac2cd03",
+          "type_name": "Text",
+          "nickname": "Text",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:BeamStudCnt",
+      "instance_guid": "86e3a784-ca4a-479b-9bc6-22692206b940",
+      "member_count": 2,
+      "members": [
+        {
+          "instance_guid": "5dd9da5a-a64d-4f62-b413-7973ad292a3c",
+          "type_name": null,
+          "nickname": null,
+          "unresolved": true
+        },
+        {
+          "instance_guid": "e2f616fd-400d-4512-b15c-058f73711c46",
+          "type_name": "Data",
+          "nickname": "Data",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:BeamType",
+      "instance_guid": "fb87ee44-feb3-4621-bb89-82a87f335f79",
+      "member_count": 1,
+      "members": [
+        {
+          "instance_guid": "7048b110-bb3a-4a0e-b636-8fc5b8dd3470",
+          "type_name": "Text",
+          "nickname": "Text",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:BeamFinish",
+      "instance_guid": "481e2183-2bcf-4e29-97ca-e8dbe0eba510",
+      "member_count": 1,
+      "members": [
+        {
+          "instance_guid": "51140a7b-ff37-4acd-8c6d-1a5fd25087c4",
+          "type_name": "Text",
+          "nickname": "Text",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:BeamSheetName",
+      "instance_guid": "f614fba7-b418-408a-b965-bfa1827cbfef",
+      "member_count": 2,
+      "members": [
+        {
+          "instance_guid": "f9e28c10-ec88-4f5e-9e8d-2f5f062a1d94",
+          "type_name": null,
+          "nickname": null,
+          "unresolved": true
+        },
+        {
+          "instance_guid": "e2439e59-fb5a-45b9-a187-e117887c3f10",
+          "type_name": "Text",
+          "nickname": "Text",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:BeamMomentBoolean",
+      "instance_guid": "81da223c-d596-44ef-812f-7bdc13ecc66b",
+      "member_count": 1,
+      "members": [
+        {
+          "instance_guid": "b2ad4b78-f06e-48bc-ba00-813f35969b77",
+          "type_name": null,
+          "nickname": null,
+          "unresolved": true
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:PlanLine",
+      "instance_guid": "1e121507-8769-49e0-a84f-c79bb513f470",
+      "member_count": 1,
+      "members": [
+        {
+          "instance_guid": "76684307-137e-4f81-bf00-45f738b57e3e",
+          "type_name": "Curve",
+          "nickname": "Curve",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:PlanCrv",
+      "instance_guid": "4da2a64a-fab1-4f16-b15c-4cb3f7db34d2",
+      "member_count": 1,
+      "members": [
+        {
+          "instance_guid": "996d8d65-10b4-4455-b035-d17e23fd9551",
+          "type_name": "Curve",
+          "nickname": "Curve",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:MomentPnt",
+      "instance_guid": "7b3ddb4f-16f4-47fb-9684-d31dc4604d21",
+      "member_count": 1,
+      "members": [
+        {
+          "instance_guid": "cc4dcaf6-d29d-473f-b1ad-335e05a08261",
+          "type_name": "Point",
+          "nickname": "Point",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:MomentCnt",
+      "instance_guid": "774cdf33-bed6-40ba-8f96-0464f9860a49",
+      "member_count": 1,
+      "members": [
+        {
+          "instance_guid": "646da15d-a79b-487c-bf15-786be895af0a",
+          "type_name": "Integer",
+          "nickname": "Integer",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:BeamMomentCnt",
+      "instance_guid": "6ca3519d-0f8a-428c-810a-c40312e52766",
+      "member_count": 1,
+      "members": [
+        {
+          "instance_guid": "3c08b18d-d603-415d-b3c1-72712eaff8e8",
+          "type_name": "Integer",
+          "nickname": "Integer",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:MomentRect",
+      "instance_guid": "4a283b20-43ec-42b0-b2a5-d05b26910749",
+      "member_count": 1,
+      "members": [
+        {
+          "instance_guid": "0746dbba-bff8-4825-991e-6ed300d7a4f7",
+          "type_name": "Rectangle",
+          "nickname": "Rectangle",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:MomentWidth",
+      "instance_guid": "08141fd1-44d0-4036-81b9-10bc56dba949",
+      "member_count": 1,
+      "members": [
+        {
+          "instance_guid": "c2c9f8d8-af7e-47c1-8963-2c2b8913083e",
+          "type_name": "Number",
+          "nickname": "Number",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:MomentLength",
+      "instance_guid": "0130e282-10ce-4cd1-a37a-95eab76c2b42",
+      "member_count": 1,
+      "members": [
+        {
+          "instance_guid": "ea2501ce-6ba3-46d4-afd8-e46b1d84df9b",
+          "type_name": "Number",
+          "nickname": "Number",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:MomentThickness",
+      "instance_guid": "03ed1268-bd02-469c-beef-9917fccb625d",
+      "member_count": 1,
+      "members": [
+        {
+          "instance_guid": "bbe4971a-0608-45c6-899c-3d3e36d58458",
+          "type_name": "Number",
+          "nickname": "Number",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:MomentSheetName",
+      "instance_guid": "8f0541a6-e9ed-40e8-9ffa-ff3c5a2cd100",
+      "member_count": 2,
+      "members": [
+        {
+          "instance_guid": "f9e28c10-ec88-4f5e-9e8d-2f5f062a1d94",
+          "type_name": null,
+          "nickname": null,
+          "unresolved": true
+        },
+        {
+          "instance_guid": "873b2cd4-f6a1-43b4-b984-168c123a4244",
+          "type_name": "Text",
+          "nickname": "Text",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:MomentArea",
+      "instance_guid": "6054c1c0-d002-4811-b028-4c9ce005bed1",
+      "member_count": 1,
+      "members": [
+        {
+          "instance_guid": "687f459c-5386-4429-b6ea-1f979d7489c9",
+          "type_name": "Number",
+          "nickname": "Number",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:MomentType",
+      "instance_guid": "123bf8e8-1f68-48a7-a1b0-5524043e508b",
+      "member_count": 1,
+      "members": [
+        {
+          "instance_guid": "993a45ff-7bee-4a51-8df7-e9786e171bef",
+          "type_name": "Text",
+          "nickname": "Text",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:MomentFinish",
+      "instance_guid": "f579ef39-4c48-418c-862d-3f20dd8e96dc",
+      "member_count": 2,
+      "members": [
+        {
+          "instance_guid": "f9e28c10-ec88-4f5e-9e8d-2f5f062a1d94",
+          "type_name": null,
+          "nickname": null,
+          "unresolved": true
+        },
+        {
+          "instance_guid": "cdf0d295-dd37-49e8-b4a3-16fc12386ab8",
+          "type_name": "Text",
+          "nickname": "Text",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:AngleGeo",
+      "instance_guid": "0a4e2aad-91be-4ab4-abf9-e21e015b0b3d",
+      "member_count": 2,
+      "members": [
+        {
+          "instance_guid": "97c31bc7-0875-452a-ac80-25756d69479a",
+          "type_name": null,
+          "nickname": null,
+          "unresolved": true
+        },
+        {
+          "instance_guid": "de22f712-5183-4e91-a73e-477da758f634",
+          "type_name": "Geometry",
+          "nickname": "Geometry",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:AngleLength",
+      "instance_guid": "da87c10d-9dcb-43ed-87c0-650ce119485c",
+      "member_count": 1,
+      "members": [
+        {
+          "instance_guid": "1b15a745-5d81-44af-b9f8-fdb2ad42011f",
+          "type_name": "Number",
+          "nickname": "Number",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:AngleCnt",
+      "instance_guid": "3e26e9a3-9cae-4776-bb1f-40d5a32040db",
+      "member_count": 1,
+      "members": [
+        {
+          "instance_guid": "7baf6e69-bbdd-4b60-aedf-bb1499352832",
+          "type_name": "Integer",
+          "nickname": "Integer",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:BeamSheetTitle",
+      "instance_guid": "37ce35ed-f079-43ed-ae79-43d62e6686f0",
+      "member_count": 1,
+      "members": [
+        {
+          "instance_guid": "7d394889-06b4-4a60-ad5b-c0c201daea27",
+          "type_name": null,
+          "nickname": null,
+          "unresolved": true
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:BeamElementID",
+      "instance_guid": "5e1abd1e-18de-4cc3-b5d6-2c99a7b71c9e",
+      "member_count": 3,
+      "members": [
+        {
+          "instance_guid": "4b002a7c-8e21-48fc-b950-62bc4d387c0a",
+          "type_name": null,
+          "nickname": null,
+          "unresolved": true
+        },
+        {
+          "instance_guid": "b9accef4-6d13-4dd5-82bc-2842a8a265b8",
+          "type_name": "Text",
+          "nickname": "Text",
+          "is_script": false,
+          "is_cluster": false
+        },
+        {
+          "instance_guid": "4211e360-3949-40bf-9181-a5832ec4afba",
+          "type_name": null,
+          "nickname": null,
+          "unresolved": true
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:PlanDebug",
+      "instance_guid": "f3802070-9646-49d8-8b17-903969e48895",
+      "member_count": 1,
+      "members": [
+        {
+          "instance_guid": "e95d8596-4af3-46d0-a2b3-e70cdfb5da04",
+          "type_name": "Text",
+          "nickname": "Text",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:PlanSheetCurve",
+      "instance_guid": "331e2be2-fba2-4a85-a82d-d330c9080bbd",
+      "member_count": 1,
+      "members": [
+        {
+          "instance_guid": "5f44ad44-2dc1-49ea-9b08-3647955cd789",
+          "type_name": "Curve",
+          "nickname": "Curve",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:PlanText",
+      "instance_guid": "e9b80290-602f-42e9-9170-5f7f7afe9e94",
+      "member_count": 1,
+      "members": [
+        {
+          "instance_guid": "c8d8c6d0-cb51-4412-a597-d2b351a753d5",
+          "type_name": "Text Entity",
+          "nickname": "Text Entity",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:MiscBeamCrv",
+      "instance_guid": "47b3b23e-cacf-4740-a64c-7ce8497065dd",
+      "member_count": 2,
+      "members": [
+        {
+          "instance_guid": "cee6c626-ed0c-4cd1-a98a-274d854eeb77",
+          "type_name": null,
+          "nickname": null,
+          "unresolved": true
+        },
+        {
+          "instance_guid": "8c5daf35-0ba6-4beb-92bf-d341ec419851",
+          "type_name": "Curve",
+          "nickname": "Curve",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:PlanColumnClosed",
+      "instance_guid": "b3f17149-468d-4084-b53c-87a5f71d11ea",
+      "member_count": 1,
+      "members": [
+        {
+          "instance_guid": "7e5fdcf2-4999-44eb-bd29-47269842e5c5",
+          "type_name": "Curve",
+          "nickname": "Curve",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:PlanColumnOpen",
+      "instance_guid": "d5fbe2d8-d638-4cb1-bd1c-48d2e2bf7817",
+      "member_count": 1,
+      "members": [
+        {
+          "instance_guid": "0f6d8c69-9494-458c-a224-e642ac5948a6",
+          "type_name": "Curve",
+          "nickname": "Curve",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:MiscScatteredText",
+      "instance_guid": "6ae3cfdc-963b-4504-93f4-4e2d25466579",
+      "member_count": 1,
+      "members": [
+        {
+          "instance_guid": "ece80382-d08f-4c73-ae0f-120860b173a9",
+          "type_name": "Geometry",
+          "nickname": "Geo",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:CheckCurves",
+      "instance_guid": "ed798004-82b0-454d-bae5-29b3cbf60df0",
+      "member_count": 2,
+      "members": [
+        {
+          "instance_guid": "054bb351-982b-4db8-8fb8-52fb13bcae36",
+          "type_name": null,
+          "nickname": null,
+          "unresolved": true
+        },
+        {
+          "instance_guid": "d233343a-33ce-4a67-856a-532c4f7f3f16",
+          "type_name": "Data",
+          "nickname": "Data",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:BeamFabBoltCnt",
+      "instance_guid": "1ea47a71-1ece-4a45-be15-31212092d8cc",
+      "member_count": 2,
+      "members": [
+        {
+          "instance_guid": "24181672-696d-472f-8075-243a9453e19b",
+          "type_name": null,
+          "nickname": null,
+          "unresolved": true
+        },
+        {
+          "instance_guid": "788f8891-b1aa-42b3-afd8-ea4e8db30747",
+          "type_name": "Integer",
+          "nickname": "Integer",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:BeamFieldBoltCnt",
+      "instance_guid": "fe3c3c09-5fda-487b-9d29-924a7b31115a",
+      "member_count": 2,
+      "members": [
+        {
+          "instance_guid": "24181672-696d-472f-8075-243a9453e19b",
+          "type_name": null,
+          "nickname": null,
+          "unresolved": true
+        },
+        {
+          "instance_guid": "a6aa8117-08ce-4005-bc84-5e5e7ce88471",
+          "type_name": "Integer",
+          "nickname": "Integer",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    },
+    {
+      "nickname": "RH_OUT:RemainingPlanText",
+      "instance_guid": "3b99ce15-d907-4782-9db9-06423159ce56",
+      "member_count": 1,
+      "members": [
+        {
+          "instance_guid": "81ced00d-9ef7-4584-b751-79bb17edb2e0",
+          "type_name": "Text Entity",
+          "nickname": "Text Entity",
+          "is_script": false,
+          "is_cluster": false
+        }
+      ]
+    }
+  ],
+  "main_clusters_or_groups": [
+    {
+      "nickname": "MAIN_PlanPurging",
+      "type_name": "MAIN_PlanPurging",
+      "instance_guid": "63c97194-c404-456d-a93d-f4a3e5bcb84a",
+      "is_cluster_component": true
+    },
+    {
+      "nickname": "MAIN_FilterBeamText",
+      "type_name": "MAIN_FilterBeamText",
+      "instance_guid": "acf0a406-b136-44ae-9cac-0d5357f20a5e",
+      "is_cluster_component": true
+    },
+    {
+      "nickname": "MAIN_BeamProcessing&Selection",
+      "type_name": "MAIN_BeamProcessing&Selection",
+      "instance_guid": "b3f293fd-c9cd-4ec9-98e6-0c1ad6f48258",
+      "is_cluster_component": true
+    },
+    {
+      "nickname": "MAIN_BeamsMomentConnection",
+      "type_name": "MAIN_BeamsMomentConnection",
+      "instance_guid": "c4de5144-4bf6-414e-af14-d2bf09ff5817",
+      "is_cluster_component": true
+    }
+  ],
+  "cluster_components": [
+    {
+      "nickname": "BeamsSheetTitle",
+      "instance_guid": "03ca8752-373d-44f2-b5b6-e65eab13bb02"
+    },
+    {
+      "nickname": "BeamConnections",
+      "instance_guid": "8c1a528d-d3fe-47e2-b853-79cdf237a646"
+    },
+    {
+      "nickname": "MAIN_PlanPurging",
+      "instance_guid": "63c97194-c404-456d-a93d-f4a3e5bcb84a"
+    },
+    {
+      "nickname": "MAIN_FilterBeamText",
+      "instance_guid": "acf0a406-b136-44ae-9cac-0d5357f20a5e"
+    },
+    {
+      "nickname": "MAIN_BeamProcessing&Selection",
+      "instance_guid": "b3f293fd-c9cd-4ec9-98e6-0c1ad6f48258"
+    },
+    {
+      "nickname": "MAIN_BeamsMomentConnection",
+      "instance_guid": "c4de5144-4bf6-414e-af14-d2bf09ff5817"
+    }
+  ],
+  "scripts": [
+    {
+      "order_index": 54,
+      "nickname": "C# Script",
+      "language_hint": "csharp",
+      "was_base64_encoded": true,
+      "length_chars": 3437,
+      "keyword_hits": [
+        "File3dm",
+        "FromByteArray",
+        "i3dmBase64",
+        "archive.Objects",
+        "GeometryBase",
+        "Rhino.Compute"
+      ],
+      "snippet": "// Grasshopper Script Instance\r\n#region Usings\r\nusing System;\r\nusing System.IO;\r\nusing System.Linq;\r\nusing System.Collections;\r\nusing System.Collections.Generic;\r\nusing System.Drawing;\r\n\r\nusing Rhino;\r\nusing Rhino.Geometry;\r\nusing Rhino.FileIO;\r\n\r\nusing Grasshopper;\r\nusing Grasshopper.Kernel;\r\nusing Grasshopper.Kernel.Data;\r\nusing Grasshopper.Kernel.Types;\r\n#endregion\r\n\r\npublic class Script_Instance : GH_ScriptInstance\r\n{\r\n    #region Notes\r\n    /* \r\n      Members:\r\n        RhinoDoc RhinoDocument\r\n        GH_Document GrasshopperDocument\r\n        IGH_Component Component\r\n        int Iteration\r\n\r\n      Methods (Virtual & overridable):\r\n        Print(string text)\r\n        Print(string format, params object[] args)\r\n        Reflect(object obj)\r\n        Reflect(object obj, string method_name)\r\n\r\n      Wiring:\r\n        x  <- i3dmBase64 (base64 .3dm from Rhino.Compute REST)\r\n        y  <- unused\r\n        a  -> RH_OUT:i3dmContents (List<GeometryBase>)\r\n    */\r\n    #endregion\r\n\r\n    private void RunScript(object x, ref object a)\r\n    {\r\n        a = null;\r\n\r\n        try\r\n        {\r\n            string data = CoerceBase64String(x);\r\n            if (string.IsNullOrWhiteSpace(data))\r\n            {\r\n                Print(\"ERR: empty i3dmBase64 on input x\");\r\n                return;\r\n            }\r\n\r\n            string clean = data.Trim();\r\n            if (clean.Length >= 2 && clean[0] == '\"' && clean[clean.Length - 1] == '\"')\r\n                clean = clean.Substring(1, clean.Length - 2);\r\n\r\n            byte[] bytes = Convert.FromBase64String(clean);\r\n            Print(\"decoded bytes: {0}\""
+    },
+    {
+      "order_index": 84,
+      "nickname": "ControlPointsCount",
+      "language_hint": "python",
+      "was_base64_encoded": true,
+      "length_chars": 562,
+      "keyword_hits": [],
+      "snippet": "import Rhino.Geometry as rg\r\n\r\n# Inputs:\r\n# x : Curve (closed, planar)\r\n\r\na = False  # Default output\r\n\r\nif x and x.IsClosed:\r\n    # Try to convert curve into a polyline\r\n    success, poly = x.TryGetPolyline()\r\n    if success:\r\n        # Polyline points can be accessed like a list\r\n        pts = list(poly)  # Convert to Python list\r\n\r\n        # Remove duplicate last point (polyline is closed)\r\n        if pts[0].DistanceTo(pts[-1]) < 1e-6:\r\n            pts = pts[:-1]\r\n\r\n        # Check if exactly 3 vertices\r\n        if len(pts) == 3:\r\n            a = True\r\n"
+    },
+    {
+      "order_index": 162,
+      "nickname": "grasshopper\\data\\aisc_section_catalog.json",
+      "language_hint": "python",
+      "was_base64_encoded": true,
+      "length_chars": 6381,
+      "keyword_hits": [
+        "Rhino.Compute"
+      ],
+      "snippet": "\"\"\"\r\nGrasshopper Python 3 \u2014 AISC section lookup (height, width, weight).\r\n\r\nWire this script into a GhPython component (Rhino 8+ / Python 3).\r\n\r\nInputs (add in component, type hints optional):\r\n  name    Item or List \u2014 section label, e.g. W12X50, HSS14X6X1_2, Pipe6STD\r\n  catalog Item \u2014 EITHER:\r\n      \u2022 full path to aisc_section_catalog.json (use a File Path component), OR\r\n      \u2022 the JSON text from a Read File component (recommended on Rhino.Compute)\r\n\r\nOutputs:\r\n  height   depth / overall height (in)\r\n  width    flange width, leg width, or outer diameter (in); round sections use OD for both\r\n  weight   weight (lb/ft)\r\n  warning  empty when found; otherwise a short lookup message\r\n\r\nWiring (recommended):\r\n  File Path \u2192 Read File \u2192 catalog\r\n  beam types (list)     \u2192 name\r\n\r\nDo NOT wire beam names into catalog \u2014 that produces:\r\n  \"invalid catalog JSON: Extra data: line 1 column 3 (char 2)\"\r\n\"\"\"\r\n\r\nimport json\r\nimport re\r\n\r\n_CATALOG_CACHE = {}\r\n_BEAM_LIKE_RE = re.compile(r\"^[A-Z]{0,4}\\d+X[\\d_./-]+$\", re.IGNORECASE)\r\n# Keep in sync with backend/integrations/steel/section_catalog.py normalize_designation().\r\n_MIXED_NUMBER_SLASH_RE = re.compile(r\"(\\d+)\\s*-\\s*(\\d+)/(\\d+)\")\r\n_MIXED_NUMBER_SPACE_RE = re.compile(r\"(\\d+)\\s+(\\d+)/(\\d+)\")\r\n_MIXED_NUMBER_HYPHEN_UNDERSCORE_RE = re.compile(r\"(\\d+)-(\\d+)_(\\d+)\")\r\n\r\n\r\ndef _normalize_designation(raw):\r\n    text = (raw or \"\").strip().upper()\r\n    text = _MIXED_NUMBER_SLASH_RE.sub(r\"\\1_\\2_\\3\", text)\r\n    text = _MIXED_NUMBER_SPACE_RE.sub(r\"\\1_\\2_\\3\", text)\r\n    text = re.sub(r\"\\s+\", \"\", text)\r\n    if text.startswith(\"PIPE\"):\r\n        text = \"P"
+    },
+    {
+      "order_index": 254,
+      "nickname": "Py3",
+      "language_hint": "python",
+      "was_base64_encoded": true,
+      "length_chars": 217,
+      "keyword_hits": [],
+      "snippet": "lookup = {\r\n    8:  2,\r\n    10: 2,\r\n    12: 3,\r\n    14: 4,\r\n    16: 4,\r\n    18: 5,\r\n    21: 6,\r\n    24: 7,\r\n    27: 8,\r\n    30: 9,\r\n    33: 10,\r\n    36: 11,\r\n    40: 12,\r\n    44: 13,\r\n}\r\n\r\na = lookup.get(int(x), None)"
+    },
+    {
+      "order_index": 255,
+      "nickname": "Py3",
+      "language_hint": "python",
+      "was_base64_encoded": true,
+      "length_chars": 162,
+      "keyword_hits": [],
+      "snippet": "import re\r\n\r\n# x = input text (e.g. \"W8x10\")\r\n\r\nmatch = re.search(r'[A-Za-z]+(\\d+(?:\\.\\d+)?)', x)\r\n\r\nif match:\r\n    a = float(match.group(1))\r\nelse:\r\n    a = None"
+    },
+    {
+      "order_index": 271,
+      "nickname": "Py3",
+      "language_hint": "python",
+      "was_base64_encoded": true,
+      "length_chars": 1062,
+      "keyword_hits": [],
+      "snippet": "import math\r\n \r\ndef fraction_feet_inches(feet):\r\n    total_inches = feet * 12\r\n \r\n    # Round to nearest 1/16\"\r\n    sixteenths = int(round(total_inches * 16))\r\n \r\n    total_inches = sixteenths / 16.0\r\n \r\n    # Separate feet and inches\r\n    whole_feet = int(total_inches // 12)\r\n    remaining_sixteenths = sixteenths - (whole_feet * 12 * 16)\r\n \r\n    whole_inches = remaining_sixteenths // 16\r\n    remainder = remaining_sixteenths % 16\r\n \r\n    # No fraction\r\n    if remainder == 0:\r\n        return str(whole_feet) + \"'-\" + str(whole_inches) + '\"'\r\n \r\n    # Simplify fraction\r\n    g = math.gcd(remainder, 16)\r\n    num = remainder // g\r\n    den = 16 // g\r\n \r\n    # Feet + fractional inches\r\n    if whole_inches == 0:\r\n        inch_string = str(num) + \"/\" + str(den)\r\n    else:\r\n        inch_string = str(whole_inches) + \" \" + str(num) + \"/\" + str(den)\r\n \r\n    return str(whole_feet) + \"'-\" + inch_string + '\"'\r\n \r\n \r\n# Handle single value or list\r\nif isinstance(D, (list, tuple)):\r\n    A = [fraction_feet_inches(x) for x in D]\r\nelse:\r\n    A = fraction_feet_inches(D)"
+    },
+    {
+      "order_index": 272,
+      "nickname": "Py3",
+      "language_hint": "python",
+      "was_base64_encoded": true,
+      "length_chars": 663,
+      "keyword_hits": [],
+      "snippet": "import math\r\n \r\ndef fraction_inch(feet):\r\n    inches = feet * 12\r\n \r\n    # Round to nearest 1/16\"\r\n    sixteenths = int(round(inches * 16))\r\n \r\n    whole = sixteenths // 16\r\n    remainder = sixteenths % 16\r\n \r\n    if remainder == 0:\r\n        return str(whole) + '\"'\r\n \r\n    # Simplify fraction\r\n    g = math.gcd(remainder, 16)\r\n    num = remainder // g\r\n    den = 16 // g\r\n \r\n    if whole == 0:\r\n        return str(num) + \"/\" + str(den) + '\"'\r\n    else:\r\n        return str(whole) + \" \" + str(num) + \"/\" + str(den) + '\"'\r\n \r\n \r\n# Handle single value or list\r\nif isinstance(D, (list, tuple)):\r\n    A = [fraction_inch(x) for x in D]\r\nelse:\r\n    A = fraction_inch(D)"
+    },
+    {
+      "order_index": 280,
+      "nickname": "Py3",
+      "language_hint": "python",
+      "was_base64_encoded": true,
+      "length_chars": 663,
+      "keyword_hits": [],
+      "snippet": "import math\r\n \r\ndef fraction_inch(feet):\r\n    inches = feet * 12\r\n \r\n    # Round to nearest 1/16\"\r\n    sixteenths = int(round(inches * 16))\r\n \r\n    whole = sixteenths // 16\r\n    remainder = sixteenths % 16\r\n \r\n    if remainder == 0:\r\n        return str(whole) + '\"'\r\n \r\n    # Simplify fraction\r\n    g = math.gcd(remainder, 16)\r\n    num = remainder // g\r\n    den = 16 // g\r\n \r\n    if whole == 0:\r\n        return str(num) + \"/\" + str(den) + '\"'\r\n    else:\r\n        return str(whole) + \" \" + str(num) + \"/\" + str(den) + '\"'\r\n \r\n \r\n# Handle single value or list\r\nif isinstance(D, (list, tuple)):\r\n    A = [fraction_inch(x) for x in D]\r\nelse:\r\n    A = fraction_inch(D)"
+    },
+    {
+      "order_index": 298,
+      "nickname": "grasshopper\\data\\aisc_section_catalog.json",
+      "language_hint": "python",
+      "was_base64_encoded": true,
+      "length_chars": 13503,
+      "keyword_hits": [
+        "Rhino.Compute"
+      ],
+      "snippet": "\"\"\"\r\nGrasshopper Python 3 \u2014 AISC section lookup (height, width, weight, thicknesses).\r\n\r\nWire this script into a GhPython component (Rhino 8+ / Python 3).\r\n\r\nInputs (add in component, type hints optional):\r\n  name    Item or List \u2014 section label, e.g. W12X50, HSS14X6X1_2, Pipe6STD\r\n  catalog Item \u2014 EITHER:\r\n      \u2022 full path to aisc_section_catalog.json (use a File Path component), OR\r\n      \u2022 the JSON text from a Read File component (recommended on Rhino.Compute)\r\n\r\nOutputs:\r\n  height                  depth / overall height (in)\r\n  width                   flange width, leg width, or outer diameter (in); round sections use OD for both\r\n  weight                  weight (lb/ft)\r\n  flange_thickness        tf for I-shapes; wall thickness for HSS/Pipe; leg thickness for L-shapes (in)\r\n  web_thickness           tw for I-shapes; wall thickness for HSS/Pipe; leg thickness for L-shapes (in)\r\n  centroid_to_web_face    tw/2 for I-shapes; B/2 for HSS rectangular; OD/2 for HSS round/Pipe; leg_t/2 for L-shapes (in)\r\n  warning                 empty when found; otherwise a short lookup message\r\n\r\nWiring (recommended):\r\n  File Path \u2192 Read File \u2192 catalog\r\n  beam types (list)     \u2192 name\r\n\r\nDo NOT wire beam names into catalog \u2014 that produces:\r\n  \"invalid catalog JSON: Extra data: line 1 column 3 (char 2)\"\r\n\"\"\"\r\n\r\nimport json\r\nimport re\r\n\r\n_CATALOG_CACHE = {}\r\n_BEAM_LIKE_RE = re.compile(r\"^[A-Z]{0,4}\\d+X[\\d_./-]+$\", re.IGNORECASE)\r\n\r\n# Keep in sync with backend/integrations/steel/section_catalog.py normalize_designation().\r\n_MIXED_NUMBER_SLASH_RE = re.compile(r\"(\\d+)\\s*-\\s*(\\d+)/(\\d+)\")\r\n_MIXED"
+    },
+    {
+      "order_index": 300,
+      "nickname": "grasshopper\\data\\aisc_section_catalog.json",
+      "language_hint": "python",
+      "was_base64_encoded": true,
+      "length_chars": 13503,
+      "keyword_hits": [
+        "Rhino.Compute"
+      ],
+      "snippet": "\"\"\"\r\nGrasshopper Python 3 \u2014 AISC section lookup (height, width, weight, thicknesses).\r\n\r\nWire this script into a GhPython component (Rhino 8+ / Python 3).\r\n\r\nInputs (add in component, type hints optional):\r\n  name    Item or List \u2014 section label, e.g. W12X50, HSS14X6X1_2, Pipe6STD\r\n  catalog Item \u2014 EITHER:\r\n      \u2022 full path to aisc_section_catalog.json (use a File Path component), OR\r\n      \u2022 the JSON text from a Read File component (recommended on Rhino.Compute)\r\n\r\nOutputs:\r\n  height                  depth / overall height (in)\r\n  width                   flange width, leg width, or outer diameter (in); round sections use OD for both\r\n  weight                  weight (lb/ft)\r\n  flange_thickness        tf for I-shapes; wall thickness for HSS/Pipe; leg thickness for L-shapes (in)\r\n  web_thickness           tw for I-shapes; wall thickness for HSS/Pipe; leg thickness for L-shapes (in)\r\n  centroid_to_web_face    tw/2 for I-shapes; B/2 for HSS rectangular; OD/2 for HSS round/Pipe; leg_t/2 for L-shapes (in)\r\n  warning                 empty when found; otherwise a short lookup message\r\n\r\nWiring (recommended):\r\n  File Path \u2192 Read File \u2192 catalog\r\n  beam types (list)     \u2192 name\r\n\r\nDo NOT wire beam names into catalog \u2014 that produces:\r\n  \"invalid catalog JSON: Extra data: line 1 column 3 (char 2)\"\r\n\"\"\"\r\n\r\nimport json\r\nimport re\r\n\r\n_CATALOG_CACHE = {}\r\n_BEAM_LIKE_RE = re.compile(r\"^[A-Z]{0,4}\\d+X[\\d_./-]+$\", re.IGNORECASE)\r\n\r\n# Keep in sync with backend/integrations/steel/section_catalog.py normalize_designation().\r\n_MIXED_NUMBER_SLASH_RE = re.compile(r\"(\\d+)\\s*-\\s*(\\d+)/(\\d+)\")\r\n_MIXED"
+    }
+  ],
+  "embedded_base64_blob_scan": {
+    "total_blob_candidates_found": 17,
+    "inspected": [
+      {
+        "byte_offset": 165708,
+        "raw_length": 864,
+        "base64_decoded_ok": true,
+        "zlib_decompressed_ok": false,
+        "decompressed_length": 0,
+        "sample_strings": []
+      },
+      {
+        "byte_offset": 224757,
+        "raw_length": 864,
+        "base64_decoded_ok": true,
+        "zlib_decompressed_ok": false,
+        "decompressed_length": 0,
+        "sample_strings": []
+      },
+      {
+        "byte_offset": 368689,
+        "raw_length": 4588,
+        "base64_decoded_ok": true,
+        "zlib_decompressed_ok": false,
+        "decompressed_length": 0,
+        "sample_strings": []
+      },
+      {
+        "byte_offset": 434403,
+        "raw_length": 22308,
+        "base64_decoded_ok": true,
+        "zlib_decompressed_ok": true,
+        "decompressed_length": 55330,
+        "sample_strings": [
+          "Match Text",
+          "Match a text against a pattern",
+          "Match Text",
+          "Text to match",
+          "1True if the text adheres to all supplied patterns",
+          "Point In Curve",
+          "*Test a point for closed curve containment.",
+          "Point In Curve",
+          "InCurve",
+          "$Boundary region (closed curves only)",
+          "Curve",
+          "Curve",
+          "$Boundary region (closed curves only)",
+          "Curve",
+          "Text Entity",
+          "The Rhino text entity",
+          "Text Entity",
+          "Text Entity",
+          "(A panel for custom notes and text values",
+          "UserText",
+          "Text Entity",
+          "Text Entity",
+          "Text Entity",
+          "The Rhino text entity",
+          "Text Entity"
+        ]
+      },
+      {
+        "byte_offset": 510367,
+        "raw_length": 752,
+        "base64_decoded_ok": true,
+        "zlib_decompressed_ok": false,
+        "decompressed_length": 0,
+        "sample_strings": []
+      },
+      {
+        "byte_offset": 735399,
+        "raw_length": 126356,
+        "base64_decoded_ok": true,
+        "zlib_decompressed_ok": true,
+        "decompressed_length": 144077,
+        "sample_strings": [
+          "S-BeamCrv",
+          "S-BeamCrv",
+          "S-BeamCrv",
+          "S-BeamCrv",
+          "S-BeamCrv",
+          "S-Beam",
+          "S-Beam",
+          "S-Beam",
+          "S-Beam",
+          "S-Beam",
+          "\"Concatenate some fragments of text",
+          "First text fragment",
+          "Second text fragment",
+          ".Resulting text consisting of all the fragments",
+          "Second text fragment",
+          "First text fragment",
+          "*grasshopper\\data\\aisc_section_catalog.json",
+          "BeamDepth",
+          "BeamDepth",
+          "BeamDepth",
+          "BeamDepth",
+          "BeamDepth",
+          "BeamDepth",
+          "BeamDepth",
+          "Length of rectangle curve"
+        ]
+      },
+      {
+        "byte_offset": 918968,
+        "raw_length": 8556,
+        "base64_decoded_ok": true,
+        "zlib_decompressed_ok": false,
+        "decompressed_length": 0,
+        "sample_strings": []
+      },
+      {
+        "byte_offset": 1143035,
+        "raw_length": 265104,
+        "base64_decoded_ok": true,
+        "zlib_decompressed_ok": true,
+        "decompressed_length": 249065,
+        "sample_strings": [
+          "Sorted Text to Bake",
+          "Cluster",
+          "ClusterDocument",
+          ",Contains a cluster of Grasshopper components",
+          "Cluster",
+          "WColumnCurvesExraction",
+          "Curves to join",
+          "Curves",
+          "Curves",
+          "Curve for mid-point.",
+          "Curve",
+          "CurvesFomGrid",
+          "ClosedCurves",
+          "OpenCurves",
+          "'Contains a collection of text fragments",
+          "OpenCurvesWColumns",
+          "Cluster",
+          "ClusterDocument",
+          ",Contains a cluster of Grasshopper components",
+          "Cluster",
+          "GridLinesFiltration",
+          "Curve to explode",
+          "Curve",
+          "Curves",
+          "CurvesForGrid"
+        ]
+      },
+      {
+        "byte_offset": 1446364,
+        "raw_length": 36844,
+        "base64_decoded_ok": true,
+        "zlib_decompressed_ok": true,
+        "decompressed_length": 112337,
+        "sample_strings": [
+          "Match Text",
+          "Match a text against a pattern",
+          "Match Text",
+          "Text to match",
+          "1True if the text adheres to all supplied patterns",
+          "(A panel for custom notes and text values",
+          "UserText",
+          "Text Split",
+          "/Split some text into fragments using separators",
+          "Text Split",
+          "Text to split.",
+          "Resulting text fragments",
+          "Match Text",
+          "Match a text against a pattern",
+          "Match Text",
+          "Text to match",
+          "1True if the text adheres to all supplied patterns",
+          "Text Join",
+          ",Join a collection of text fragments into one",
+          "Text Join",
+          "Text fragments to join.",
+          "Resulting text",
+          "ASolve area properties for breps, meshes and planar closed curves.",
+          "6Brep, mesh or planar closed curve for area computation",
+          "(A panel for custom notes and text values"
+        ]
+      },
+      {
+        "byte_offset": 1500852,
+        "raw_length": 375488,
+        "base64_decoded_ok": true,
+        "zlib_decompressed_ok": true,
+        "decompressed_length": 1248625,
+        "sample_strings": [
+          "$IFS_UI_Beam_v34.0_CurvesExtension.gh",
+          "Main (straight + curved)",
+          "*find intersections with non parallel beams",
+          "CurvedBeams",
+          "NonSpecifiedBeams",
+          "\"Concatenate some fragments of text",
+          "First text fragment",
+          "Second text fragment",
+          ".Resulting text consisting of all the fragments",
+          "6Extract the nurbs control points and knots of a curve.",
+          "Curve to evaluate",
+          "Curve",
+          "First text fragment",
+          "Curve",
+          "Curves",
+          "Curve to evaluate",
+          "Curve",
+          "Curves",
+          "Curve Middle",
+          "&Get the point in the middle of a curve",
+          "Curve Middle",
+          "Curve for mid-point.",
+          "Curve",
+          " Point in the middle of the curve",
+          "CulledBeamTextGEO"
+        ]
+      },
+      {
+        "byte_offset": 2090843,
+        "raw_length": 83872,
+        "base64_decoded_ok": true,
+        "zlib_decompressed_ok": true,
+        "decompressed_length": 272945,
+        "sample_strings": [
+          "Moments Without Columns",
+          "'Find appropriate intersection with beam",
+          "Moments with column",
+          "=sub tree structure {A;B} per moment {B} under parent beam {A}",
+          ",ChecksIfBeamEndpoints&MomentAreSameDirection",
+          "\"ChangeDimensionsOFMomentConnection",
+          "moment curves",
+          "Length of rectangle curve",
+          "MovesMomentConnectionWithBeam",
+          "&Explode a curve into smaller segments.",
+          "Curve to explode",
+          "Curve",
+          "-Exploded segments that make up the base curve",
+          "\"Extract the end points of a curve.",
+          "Curve to evaluate",
+          "Curve",
+          "Curve start point",
+          "Curve end point",
+          "HssColumns",
+          "HssColumns",
+          "HssColumns",
+          "'Contains a collection of generic curves",
+          "HssColumns",
+          "HssColumns",
+          "MomentCurves"
+        ]
+      },
+      {
+        "byte_offset": 2223284,
+        "raw_length": 1416,
+        "base64_decoded_ok": true,
+        "zlib_decompressed_ok": false,
+        "decompressed_length": 0,
+        "sample_strings": []
+      },
+      {
+        "byte_offset": 2236886,
+        "raw_length": 884,
+        "base64_decoded_ok": true,
+        "zlib_decompressed_ok": false,
+        "decompressed_length": 0,
+        "sample_strings": []
+      },
+      {
+        "byte_offset": 2337653,
+        "raw_length": 884,
+        "base64_decoded_ok": true,
+        "zlib_decompressed_ok": false,
+        "decompressed_length": 0,
+        "sample_strings": []
+      },
+      {
+        "byte_offset": 6657023,
+        "raw_length": 18052,
+        "base64_decoded_ok": true,
+        "zlib_decompressed_ok": false,
+        "decompressed_length": 0,
+        "sample_strings": []
+      },
+      {
+        "byte_offset": 6702337,
+        "raw_length": 18052,
+        "base64_decoded_ok": true,
+        "zlib_decompressed_ok": false,
+        "decompressed_length": 0,
+        "sample_strings": []
+      },
+      {
+        "byte_offset": 6773421,
+        "raw_length": 24520,
+        "base64_decoded_ok": true,
+        "zlib_decompressed_ok": false,
+        "decompressed_length": 0,
+        "sample_strings": []
+      }
+    ]
+  },
+  "type_name_histogram": {
+    "Group": 100,
+    "Panel": 31,
+    "Text": 15,
+    "Number": 13,
+    "Curve": 11,
+    "Geometry": 10,
+    "Data": 9,
+    "Python 3 Script": 9,
+    "List Item": 7,
+    "Text Entity": 6,
+    "Integer": 6,
+    "Stream Filter": 6,
+    "Number Slider": 5,
+    "Scribble": 5,
+    "Cull Pattern": 4,
+    "Member Index": 4,
+    "Clean Tree": 4,
+    "Null Item": 3,
+    "Colour Swatch": 3,
+    "Get String": 3,
+    "Merge": 3,
+    "Multiplication": 3,
+    "Replace Nulls": 3,
+    "Filter Content": 2,
+    "Equality Filter": 2,
+    "Value List Object Type": 2,
+    "Line": 2,
+    "File Path": 2,
+    "Custom Preview Lineweights": 2,
+    "Cluster": 2,
+    "Point": 2,
+    "List Length": 2,
+    "Concatenate": 2,
+    "Relay": 2,
+    "Area": 2,
+    "Bounding Box": 2,
+    "Get Geometry": 2,
+    "Content Information": 1,
+    "Smaller Than": 1,
+    "Custom Preview": 1,
+    "C# Script": 1,
+    "Read File": 1,
+    "Length": 1,
+    "Boolean": 1,
+    "Unit Z": 1,
+    "Rectangle": 1,
+    "Get Number": 1,
+    "Create Set": 1,
+    "Offset Curve": 1,
+    "Extrude": 1,
+    "Boundary Surfaces": 1,
+    "Sort Points": 1,
+    "Curve Middle": 1,
+    "Series": 1,
+    "Closest Point": 1,
+    "MAIN_PlanPurging": 1,
+    "MAIN_FilterBeamText": 1,
+    "MAIN_BeamProcessing&Selection": 1,
+    "MAIN_BeamsMomentConnection": 1,
+    "Set Difference": 1,
+    "Replace Text": 1
+  },
+  "all_nicknames": [
+    "About",
+    "Area",
+    "A\u00d7B",
+    "BBox",
+    "Base64 Input Method",
+    "BeamConnections",
+    "BeamCrv",
+    "BeamCurves (from preprocessor)",
+    "BeamHeight",
+    "BeamPrefix",
+    "BeamType",
+    "BeamWidth",
+    "BeamsSheetTitle",
+    "Boolean",
+    "Boundary",
+    "C# Script",
+    "ChecksIfWeareInTheSameDocumentOrNot",
+    "Clean",
+    "ClosedCurveForSlab",
+    "Closest Point",
+    "Colour Swatch",
+    "Concatenate",
+    "ControlPointsCount",
+    "Create Beam Bounding Box using member dimensions",
+    "Create Set",
+    "Crv",
+    "Cull",
+    "Curve",
+    "Curves",
+    "Custom Preview Lineweights",
+    "Data",
+    "Difference",
+    "Equals",
+    "Extr",
+    "File Path",
+    "Filter",
+    "Geo",
+    "Geometry",
+    "Information",
+    "Integer",
+    "Item",
+    "LINES",
+    "Length",
+    "Line",
+    "Lines",
+    "List Item",
+    "List Length",
+    "LookupTableForHardwareCount",
+    "MAIN_BeamProcessing&Selection",
+    "MAIN_BeamsMomentConnection",
+    "MAIN_FilterBeamText",
+    "MAIN_PlanPurging",
+    "MIndex",
+    "MemberHeight",
+    "MemberWebThickness",
+    "MemberWidth",
+    "Merge",
+    "MidPt",
+    "Moment Thickness (num)",
+    "Moment Thickness (str)",
+    "Multiplication",
+    "Null",
+    "Number",
+    "Number Slider",
+    "Object Type",
+    "OffCrv",
+    "OpeningCurveForSlab",
+    "PLATE THICKNESS UI?",
+    "Point",
+    "Prefix",
+    "Preview",
+    "Pt",
+    "Py3",
+    "RH_OUT:AngleCnt",
+    "RH_OUT:AngleGeo",
+    "RH_OUT:AngleLength",
+    "RH_OUT:BeamCamber",
+    "RH_OUT:BeamCrv",
+    "RH_OUT:BeamElementID",
+    "RH_OUT:BeamFabBoltCnt",
+    "RH_OUT:BeamFieldBoltCnt",
+    "RH_OUT:BeamFinish",
+    "RH_OUT:BeamLength",
+    "RH_OUT:BeamMomentBoolean",
+    "RH_OUT:BeamMomentCnt",
+    "RH_OUT:BeamSheetName",
+    "RH_OUT:BeamSheetTitle",
+    "RH_OUT:BeamStudCnt",
+    "RH_OUT:BeamTxt",
+    "RH_OUT:BeamTxtUnpaired",
+    "RH_OUT:BeamType",
+    "RH_OUT:BeamTypeCnt",
+    "RH_OUT:BeamTypeList",
+    "RH_OUT:CheckCurves",
+    "RH_OUT:DeckSheetName",
+    "RH_OUT:MiscBeamCrv",
+    "RH_OUT:MiscScatteredText",
+    "RH_OUT:MomentArea",
+    "RH_OUT:MomentCnt",
+    "RH_OUT:MomentFinish",
+    "RH_OUT:MomentLength",
+    "RH_OUT:MomentPnt",
+    "RH_OUT:MomentRect",
+    "RH_OUT:MomentSheetName",
+    "RH_OUT:MomentThickness",
+    "RH_OUT:MomentType",
+    "RH_OUT:MomentWidth",
+    "RH_OUT:PlanColumnClosed",
+    "RH_OUT:PlanColumnOpen",
+    "RH_OUT:PlanCrv",
+    "RH_OUT:PlanDebug",
+    "RH_OUT:PlanLine",
+    "RH_OUT:PlanSheetCurve",
+    "RH_OUT:PlanText",
+    "RH_OUT:RemainingPlanText",
+    "Read File",
+    "Rectangle",
+    "Rep",
+    "Replace Nulls",
+    "Rounding",
+    "S-Beam (BB)",
+    "Scribble",
+    "Series",
+    "Smaller",
+    "Sort Pt",
+    "Swatch",
+    "TakesInTheFirstNumberinString",
+    "Text",
+    "Text Entity",
+    "ToTalkAbout",
+    "Txt",
+    "UI",
+    "Unit Z",
+    "UserInput",
+    "feet",
+    "flange_thickness",
+    "grasshopper\\data\\aisc_section_catalog.json",
+    "i3dmBase64",
+    "iMomentThickness",
+    "iMomentThicknessStr",
+    "iResolve",
+    "iResolveText",
+    "iShearConnectionType",
+    "mm"
+  ]
+}
