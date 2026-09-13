@@ -17,6 +17,16 @@ from __future__ import annotations
 import hashlib
 from typing import Any, Dict, List, Optional
 
+from services.semantic.models import (
+    EvidenceRecord,
+    EvidenceStrength,
+    EvidenceType,
+    OperationKind,
+    OperationRecord,
+    ReviewStatus,
+    SemanticAnnotation,
+    SemanticDocument,
+)
 from services.semantic_preprocessor import association, normalization
 from services.semantic_preprocessor.coordinate_transform import CoordinateTransform
 from services.semantic_preprocessor.drawing_language_profile import resolve_completion
@@ -25,62 +35,72 @@ from services.semantic_preprocessor.geometry_evidence import (
     NullGeometryEvidenceProvider,
 )
 from services.semantic_preprocessor.grouping import group_primitives
-from services.semantic_preprocessor.models import (
-    OP_COMPLETION,
-    REVIEW_AUTO_ACCEPTED,
-    REVIEW_NEEDS_REVIEW,
-    REVIEW_PENDING,
-    Correction,
-    SemanticAnnotation,
-    SemanticDocument,
-    TextPrimitive,
-)
+from services.semantic_preprocessor.models import TextPrimitive
 
 
-def _combine_review_status(annotation: SemanticAnnotation) -> str:
-    correction = annotation.correction
-    if "drawing_language_conflict" in correction.reason_codes:
-        return REVIEW_NEEDS_REVIEW
-    if correction.operation == normalization.OP_REPAIR:
-        return REVIEW_NEEDS_REVIEW
-    if any(c.review_status == REVIEW_NEEDS_REVIEW for c in annotation.geometry_associations):
-        return REVIEW_NEEDS_REVIEW
-    if correction.auto_accept:
-        return REVIEW_AUTO_ACCEPTED
-    return REVIEW_PENDING
+def _combine_review_status(annotation: SemanticAnnotation) -> ReviewStatus:
+    current = annotation.current_operation
+    reason_codes = current.reason_codes if current else []
+    if "drawing_language_conflict" in reason_codes:
+        return ReviewStatus.NEEDS_REVIEW
+    if current is not None and current.operation == OperationKind.REPAIR:
+        return ReviewStatus.NEEDS_REVIEW
+    if any(c.review_status == ReviewStatus.NEEDS_REVIEW for c in annotation.geometry_associations):
+        return ReviewStatus.NEEDS_REVIEW
+    if current is not None and current.operation != OperationKind.KEEP:
+        return ReviewStatus.AUTO_ACCEPTED
+    return ReviewStatus.PENDING
+
+
+def _evidence_for_rule_ids(evidence_ids: List[str]) -> List[EvidenceRecord]:
+    return [
+        EvidenceRecord(
+            evidence_id=rule_id,
+            evidence_type=EvidenceType.DRAWING_RULE,
+            source="drawing_language_rule",
+            reference=rule_id,
+            strength=EvidenceStrength.EXPLICIT,
+        )
+        for rule_id in evidence_ids
+    ]
 
 
 def _apply_correction(annotation: SemanticAnnotation, drawing_language_rules: List[Dict[str, Any]]) -> None:
     label = annotation.primary_label or ""
     result = normalization.canonicalize(label)
     annotation.structural_parse = result.parse
-    annotation.correction = result.correction
+    annotation.operations.append(result.operation)
 
     if result.parse.is_structural and result.parse.grammar == "incomplete":
         resolution = resolve_completion(label, annotation.page, drawing_language_rules)
         if resolution.allowed and resolution.canonical:
-            annotation.correction = Correction(
-                operation=OP_COMPLETION,
-                original=label,
-                canonical=resolution.canonical,
-                confidence=None,
-                confidence_is_calibrated=False,
-                auto_accept=True,
-                reason_codes=[resolution.reason],
-                evidence_ids=resolution.evidence_ids,
+            annotation.operations.append(
+                OperationRecord(
+                    operation=OperationKind.COMPLETION,
+                    input_text=label,
+                    output_text=resolution.canonical,
+                    score=None,
+                    deterministic=True,
+                    semantic_information_added=True,
+                    provenance="drawing_language_rule",
+                    reason_codes=[resolution.reason],
+                    evidence=_evidence_for_rule_ids(resolution.evidence_ids),
+                )
             )
         elif resolution.reason == "conflicting_source_verified_rules":
-            annotation.correction = Correction(
-                operation=normalization.OP_NONE,
-                original=label,
-                canonical=label,
-                auto_accept=False,
-                reason_codes=["drawing_language_conflict"],
-                evidence_ids=resolution.evidence_ids,
+            annotation.operations.append(
+                OperationRecord(
+                    operation=OperationKind.KEEP,
+                    input_text=label,
+                    output_text=label,
+                    reason_codes=["drawing_language_conflict"],
+                    evidence=_evidence_for_rule_ids(resolution.evidence_ids),
+                )
             )
-        # else: no rule / no source-verified rule -- correction stays as the
-        # deterministic layer's OP_NONE result. A bare "W8" is left exactly
-        # as "W8"; it is never completed from statistics or from geometry.
+        # else: no rule / no source-verified rule -- the operation history
+        # stays at the deterministic layer's KEEP result. A bare "W8" is
+        # left exactly as "W8"; it is never completed from statistics or
+        # from geometry.
 
 
 def process_primitives(
@@ -100,7 +120,7 @@ def process_primitives(
     pages = sorted({p.page for p in primitives})
     annotations: List[SemanticAnnotation] = []
     for page in pages:
-        annotations.extend(group_primitives(primitives, page))
+        annotations.extend(group_primitives(primitives, page, document_id))
 
     for annotation in annotations:
         _apply_correction(annotation, drawing_language_rules)
@@ -127,20 +147,24 @@ def process_primitives(
                     "the annotation's canonical label (see Section 28/45)."
                 ),
             })
-        annotation.review_status = _combine_review_status(annotation)
+        annotation.review.status = _combine_review_status(annotation)
 
     document = SemanticDocument(
         document_id=document_id,
         input_pdf_sha256=input_pdf_sha256,
         annotations=annotations,
         drawing_language_rules=drawing_language_rules,
-        grasshopper_geometry=geometry_list,
+        geometry_evidence=geometry_list,
         coordinate_frames=[coordinate_transform] if coordinate_transform else [],
         diagnostics={"ghx_text_discrepancies": discrepancies},
         metrics={
             "annotation_count": len(annotations),
-            "auto_accepted_count": sum(1 for a in annotations if a.review_status == REVIEW_AUTO_ACCEPTED),
-            "needs_review_count": sum(1 for a in annotations if a.review_status == REVIEW_NEEDS_REVIEW),
+            "auto_accepted_count": sum(
+                1 for a in annotations if a.review_status == ReviewStatus.AUTO_ACCEPTED
+            ),
+            "needs_review_count": sum(
+                1 for a in annotations if a.review_status == ReviewStatus.NEEDS_REVIEW
+            ),
         },
     )
     return document

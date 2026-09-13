@@ -66,7 +66,7 @@ export default function GeometryEvidenceCard({ document, annotation }) {
                   size="small"
                   variant="outlined"
                   icon={<TimelineOutlined fontSize="small" />}
-                  label={geom?.source === "grasshopper" ? "Grasshopper candidate" : geom?.source || "unknown source"}
+                  label={geom?.provider === "grasshopper" ? "Grasshopper candidate" : geom?.provider || "unknown source"}
                 />
                 {geom?.source_output && (
                   <Typography variant="caption" color="text.secondary">
@@ -74,9 +74,9 @@ export default function GeometryEvidenceCard({ document, annotation }) {
                   </Typography>
                 )}
               </Stack>
-              {assoc.association_reason?.length > 0 && (
+              {assoc.reason_codes?.length > 0 && (
                 <Box component="ul" sx={{ m: "4px 0 0", pl: 2.5 }}>
-                  {assoc.association_reason.map((reason) => (
+                  {assoc.reason_codes.map((reason) => (
                     <Typography
                       key={reason}
                       component="li"

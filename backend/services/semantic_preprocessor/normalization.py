@@ -28,12 +28,7 @@ from fractions import Fraction
 from typing import Optional
 
 from services.normalization import normalize_label_text
-from services.semantic_preprocessor.models import (
-    OP_NONE,
-    OP_NORMALIZATION,
-    OP_REPAIR,
-    Correction,
-)
+from services.semantic.models import OperationKind, OperationRecord, ScoreValue
 from services.semantic_preprocessor.structural_parser import (
     StructuralParse,
     parse_structural_label,
@@ -57,7 +52,7 @@ _OCR_CONFUSIONS = {
 @dataclass
 class CanonicalizationResult:
     parse: StructuralParse
-    correction: Correction
+    operation: OperationRecord
 
 
 def _to_fraction_string(value: str) -> Optional[str]:
@@ -118,10 +113,10 @@ def canonicalize(raw_text: str) -> CanonicalizationResult:
     if not parse.is_structural:
         repaired = _try_repair(lexed)
         if repaired is not None:
-            return CanonicalizationResult(parse=parse, correction=repaired)
+            return CanonicalizationResult(parse=parse, operation=repaired)
         return CanonicalizationResult(
             parse=parse,
-            correction=Correction(operation=OP_NONE, original=raw_text, canonical=lexed),
+            operation=OperationRecord(operation=OperationKind.KEEP, input_text=raw_text, output_text=lexed),
         )
 
     if parse.grammar == "incomplete":
@@ -129,7 +124,7 @@ def canonicalize(raw_text: str) -> CanonicalizationResult:
         # not something this module may guess at.
         return CanonicalizationResult(
             parse=parse,
-            correction=Correction(operation=OP_NONE, original=raw_text, canonical=lexed),
+            operation=OperationRecord(operation=OperationKind.KEEP, input_text=raw_text, output_text=lexed),
         )
 
     canonical = _reassemble(parse) or lexed
@@ -140,23 +135,24 @@ def canonicalize(raw_text: str) -> CanonicalizationResult:
     if canonical == raw_text:
         return CanonicalizationResult(
             parse=parse,
-            correction=Correction(operation=OP_NONE, original=raw_text, canonical=canonical),
+            operation=OperationRecord(operation=OperationKind.KEEP, input_text=raw_text, output_text=canonical),
         )
     return CanonicalizationResult(
         parse=parse,
-        correction=Correction(
-            operation=OP_NORMALIZATION,
-            original=raw_text,
-            canonical=canonical,
-            confidence=1.0,
-            confidence_is_calibrated=False,
-            auto_accept=True,
+        operation=OperationRecord(
+            operation=OperationKind.NORMALIZATION,
+            input_text=raw_text,
+            output_text=canonical,
+            score=ScoreValue(value=1.0, kind="deterministic", calibrated=False),
+            deterministic=True,
+            semantic_information_added=False,
+            provenance="deterministic_normalizer",
             reason_codes=["deterministic_grammar_equivalence"],
         ),
     )
 
 
-def _try_repair(lexed: str) -> Optional[Correction]:
+def _try_repair(lexed: str) -> Optional[OperationRecord]:
     """Single-character OCR-confusion repair, gated to an exact grammar+catalog hit.
 
     Deliberately does not rank multiple candidates or use edit-distance
@@ -177,12 +173,12 @@ def _try_repair(lexed: str) -> Optional[Correction]:
     if len(candidates) != 1:
         return None  # zero or ambiguous -- abstain rather than guess
     (canonical,) = candidates
-    return Correction(
-        operation=OP_REPAIR,
-        original=lexed,
-        canonical=canonical,
-        confidence=None,  # uncalibrated -- never fabricate a number
-        confidence_is_calibrated=False,
-        auto_accept=False,  # repair is never auto-applied by this module
+    return OperationRecord(
+        operation=OperationKind.REPAIR,
+        input_text=lexed,
+        output_text=canonical,
+        score=None,  # uncalibrated -- never fabricate a number
+        deterministic=True,
+        provenance="deterministic_normalizer",
         reason_codes=["single_char_ocr_confusion_candidate"],
     )

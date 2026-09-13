@@ -15,12 +15,8 @@ from __future__ import annotations
 import re
 from typing import List, Optional
 
-from services.semantic_preprocessor.models import (
-    Modifier,
-    SemanticAnnotation,
-    SourceFragment,
-    TextPrimitive,
-)
+from services.semantic.models import Modifier, SemanticAnnotation, SourceFragment, derive_annotation_id
+from services.semantic_preprocessor.models import TextPrimitive
 
 _BRACKET_TAG_RE = re.compile(r"^\[(?P<value>[^\[\]]+)\]$")
 
@@ -62,7 +58,9 @@ def _same_baseline(a: TextPrimitive, b: TextPrimitive) -> bool:
     return abs(a_mid - b_mid) <= tolerance
 
 
-def group_primitives(primitives: List[TextPrimitive], page: int) -> List[SemanticAnnotation]:
+def group_primitives(
+    primitives: List[TextPrimitive], page: int, document_id: str = ""
+) -> List[SemanticAnnotation]:
     """Group same-page primitives into semantic annotations.
 
     Only three merge rules fire, each with its own reason code:
@@ -171,7 +169,7 @@ def group_primitives(primitives: List[TextPrimitive], page: int) -> List[Semanti
             for pid in source_ids
         ]
         annotation = SemanticAnnotation(
-            annotation_id=f"ann_{page}_{i}",
+            annotation_id=derive_annotation_id(document_id, page, source_ids),
             page=page,
             original_text=raw_text.strip(),
             source_fragment_ids=source_ids,

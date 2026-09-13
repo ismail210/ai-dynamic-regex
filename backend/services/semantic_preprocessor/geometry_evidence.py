@@ -22,7 +22,7 @@ import hashlib
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
-from services.semantic_preprocessor.models import GeometryEvidence
+from services.semantic.models import GeometryEvidence, GeometryProvider
 
 
 class GeometryEvidenceProvider(ABC):
@@ -96,7 +96,7 @@ class GrasshopperGeometryEvidenceProvider(GeometryEvidenceProvider):
                 )
                 evidence.append(GeometryEvidence(
                     geometry_id=geometry_id,
-                    source="grasshopper",
+                    provider=GeometryProvider.GRASSHOPPER,
                     geometry_type=geometry_type,
                     source_geometry_id=element_id,
                     source_definition_sha256=sha,
@@ -109,11 +109,13 @@ class GrasshopperGeometryEvidenceProvider(GeometryEvidenceProvider):
                     end=item.get("end"),
                     length=length,
                     orientation=item.get("orientation"),
-                    metadata={k: v for k, v in item.items() if k not in {
-                        "points", "bbox", "centroid", "start", "end", "length",
-                        "orientation", "element_id",
-                    }},
-                    provenance={"rh_out": output_name, "cluster": "MAIN_BeamProcessing&Selection"},
+                    metadata={
+                        **{k: v for k, v in item.items() if k not in {
+                            "points", "bbox", "centroid", "start", "end", "length",
+                            "orientation", "element_id",
+                        }},
+                        "provenance": {"rh_out": output_name, "cluster": "MAIN_BeamProcessing&Selection"},
+                    },
                 ))
         return evidence
 

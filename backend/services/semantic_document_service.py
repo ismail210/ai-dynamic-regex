@@ -18,15 +18,10 @@ from typing import Any, Optional
 from services.artifact_store import read_artifact, write_artifact
 from services.document_registry import document_source
 from services.pdf_parser import extract_document_structure
+from services.semantic.models import OperationKind, OperationRecord, ReviewStatus
+from services.semantic.serialization import load_semantic_document, to_dict
 from services.semantic_preprocessor.extraction import build_text_primitives
-from services.semantic_preprocessor.models import (
-    OP_COMPLETION,
-    OP_NONE,
-    REVIEW_ACCEPTED,
-    REVIEW_NEEDS_REVIEW,
-)
 from services.semantic_preprocessor.pipeline import process_primitives
-from services.semantic_preprocessor.serialization import to_dict
 from services.semantic_preprocessor.structural_parser import parse_structural_label
 
 _ARTIFACT_NAME = "semantic.json"
@@ -122,58 +117,71 @@ def apply_review_action(
     audit-trail database. Sufficient for this sprint; a real review-history
     table is the natural next step (see docs/upstream_semantic_preprocessor.md).
     """
-    document = get_cached_semantic_document(document_id)
-    if document is None:
+    document_dict = get_cached_semantic_document(document_id)
+    if document_dict is None:
         raise KeyError(f"No semantic document cached for {document_id!r}")
 
+    document = load_semantic_document(document_dict)
     annotation = next(
-        (a for a in document["annotations"] if a["annotation_id"] == annotation_id), None
+        (a for a in document.annotations if a.annotation_id == annotation_id), None
     )
     if annotation is None:
         raise LookupError(f"Annotation {annotation_id!r} not found")
 
     if action == "accept":
-        annotation["review_status"] = REVIEW_ACCEPTED
+        annotation.review.status = ReviewStatus.HUMAN_ACCEPTED
     elif action == "reject":
-        annotation["review_status"] = REVIEW_NEEDS_REVIEW
-        annotation["correction"]["operation"] = OP_NONE
-        annotation["correction"]["canonical"] = annotation["correction"]["original"]
-        annotation["correction"]["auto_accept"] = False
+        # Preserve the proposal -- never mutate the annotation as though it
+        # never existed (Section 45). Mark the last operation as no longer
+        # in effect; effective_text then falls back to the prior accepted
+        # operation (or the original text) on its own.
+        annotation.review.status = ReviewStatus.HUMAN_REJECTED
+        if annotation.operations:
+            annotation.operations[-1].accepted = False
     elif action == "edit":
         if not edited_text:
             raise ValueError("edited_text is required for the 'edit' action")
-        annotation["correction"]["operation"] = OP_COMPLETION if annotation["correction"]["operation"] == OP_COMPLETION else annotation["correction"]["operation"]
-        annotation["correction"]["canonical"] = edited_text
-        annotation["review_status"] = REVIEW_ACCEPTED
+        prior = annotation.current_operation
+        annotation.operations.append(
+            OperationRecord(
+                operation=prior.operation if prior else OperationKind.KEEP,
+                input_text=annotation.effective_text,
+                output_text=edited_text,
+                deterministic=False,
+                provenance="human",
+            )
+        )
+        annotation.review.status = ReviewStatus.HUMAN_ACCEPTED
     else:
         raise ValueError(f"Unknown review action: {action!r}")
 
-    annotation.setdefault("review_history", []).append({
-        "action": action,
-        "edited_text": edited_text,
-    })
+    annotation.review.history.append({"action": action, "edited_text": edited_text})
 
-    write_artifact(document_id, _ARTIFACT_NAME, document)
-    return annotation
+    payload = document.to_dict()
+    write_artifact(document_id, _ARTIFACT_NAME, payload)
+    return next(a for a in payload["annotations"] if a["annotation_id"] == annotation_id)
 
 
 def list_review_queue(document_id: str) -> list[dict]:
     document = get_cached_semantic_document(document_id)
     if document is None:
         return []
-    return [a for a in document["annotations"] if a["review_status"] == REVIEW_NEEDS_REVIEW]
+    return [
+        a for a in document["annotations"]
+        if a["review_status"] == ReviewStatus.NEEDS_REVIEW.value
+    ]
 
 
 def document_summary(document: dict[str, Any]) -> dict[str, Any]:
     """Only-real-numbers summary for the top document bar (Section 8)."""
     annotations = document.get("annotations", [])
-    op_counts = {"normalization": 0, "repair": 0, "completion": 0, "none": 0}
+    op_counts = {"normalization": 0, "repair": 0, "completion": 0, "keep": 0}
     needs_review = 0
     geometry_linked = 0
     for a in annotations:
-        op = a.get("correction", {}).get("operation", "none")
+        op = a.get("correction", {}).get("operation", "keep")
         op_counts[op] = op_counts.get(op, 0) + 1
-        if a.get("review_status") == REVIEW_NEEDS_REVIEW:
+        if a.get("review_status") == ReviewStatus.NEEDS_REVIEW.value:
             needs_review += 1
         if a.get("geometry_associations"):
             geometry_linked += 1
@@ -182,7 +190,7 @@ def document_summary(document: dict[str, Any]) -> dict[str, Any]:
         "normalized_count": op_counts["normalization"],
         "repaired_count": op_counts["repair"],
         "completed_count": op_counts["completion"],
-        "unchanged_count": op_counts["none"],
+        "unchanged_count": op_counts["keep"],
         "needs_review_count": needs_review,
         "geometry_linked_count": geometry_linked,
         "drawing_rule_count": len(document.get("drawing_language_rules", [])),

@@ -11,14 +11,9 @@ from __future__ import annotations
 
 import unittest
 
+from services.semantic.models import OperationKind, ReviewStatus
 from services.semantic_preprocessor.geometry_evidence import GrasshopperGeometryEvidenceProvider
-from services.semantic_preprocessor.models import (
-    OP_COMPLETION,
-    OP_NONE,
-    REVIEW_AUTO_ACCEPTED,
-    REVIEW_PENDING,
-    TextPrimitive,
-)
+from services.semantic_preprocessor.models import TextPrimitive
 from services.semantic_preprocessor.pipeline import process_primitives
 
 
@@ -32,9 +27,9 @@ class PipelineRunsWithoutGrasshopperTests(unittest.TestCase):
         document = process_primitives(primitives, document_id="doc1")
         self.assertEqual(len(document.annotations), 1)
         ann = document.annotations[0]
-        self.assertEqual(ann.correction.canonical, "HSS8X8X3/8")
-        self.assertEqual(ann.review_status, REVIEW_AUTO_ACCEPTED)
-        self.assertEqual(document.grasshopper_geometry, [])
+        self.assertEqual(ann.effective_text, "HSS8X8X3/8")
+        self.assertEqual(ann.review_status, ReviewStatus.AUTO_ACCEPTED)
+        self.assertEqual(document.geometry_evidence, [])
 
 
 class GhxNeverCompletesALabelTests(unittest.TestCase):
@@ -58,8 +53,8 @@ class GhxNeverCompletesALabelTests(unittest.TestCase):
             drawing_language_rules=[],  # no evidence at all
         )
         ann = document.annotations[0]
-        self.assertEqual(ann.correction.canonical, "W8")
-        self.assertNotEqual(ann.correction.operation, OP_COMPLETION)
+        self.assertEqual(ann.effective_text, "W8")
+        self.assertNotEqual(ann.current_operation.operation, OperationKind.COMPLETION)
         # The discrepancy must still be visible somewhere for a human/QA pass.
         self.assertEqual(len(document.diagnostics["ghx_text_discrepancies"]), 1)
         self.assertEqual(document.diagnostics["ghx_text_discrepancies"][0]["ghx_text"], "W8X10")
@@ -73,9 +68,10 @@ class GhxNeverCompletesALabelTests(unittest.TestCase):
         }]
         document = process_primitives(primitives, document_id="doc1", drawing_language_rules=rules)
         ann = document.annotations[0]
-        self.assertEqual(ann.correction.operation, OP_COMPLETION)
-        self.assertEqual(ann.correction.canonical, "W8X10")
-        self.assertEqual(ann.review_status, REVIEW_AUTO_ACCEPTED)
+        self.assertEqual(ann.current_operation.operation, OperationKind.COMPLETION)
+        self.assertTrue(ann.current_operation.semantic_information_added)
+        self.assertEqual(ann.effective_text, "W8X10")
+        self.assertEqual(ann.review_status, ReviewStatus.AUTO_ACCEPTED)
 
     def test_conflicting_rules_force_review_not_a_guess(self):
         primitives = [_prim("p1", "W8", [0, 0, 20, 10])]
@@ -87,9 +83,9 @@ class GhxNeverCompletesALabelTests(unittest.TestCase):
         ]
         document = process_primitives(primitives, document_id="doc1", drawing_language_rules=rules)
         ann = document.annotations[0]
-        self.assertEqual(ann.correction.operation, OP_NONE)
-        self.assertEqual(ann.correction.canonical, "W8")
-        self.assertNotEqual(ann.review_status, REVIEW_AUTO_ACCEPTED)
+        self.assertEqual(ann.current_operation.operation, OperationKind.KEEP)
+        self.assertEqual(ann.effective_text, "W8")
+        self.assertNotEqual(ann.review_status, ReviewStatus.AUTO_ACCEPTED)
 
 
 class GeometryEnrichmentTests(unittest.TestCase):
@@ -105,7 +101,7 @@ class GeometryEnrichmentTests(unittest.TestCase):
             primitives, document_id="doc1", geometry_provider=provider, ghx_text_pairs=ghx_pairs,
         )
         ann = document.annotations[0]
-        self.assertEqual(ann.correction.canonical, "W8X10")
+        self.assertEqual(ann.effective_text, "W8X10")
         self.assertEqual(len(ann.geometry_associations), 1)
         self.assertEqual(ann.geometry_associations[0].geometry_id, "geom_ghx_e1")
 
@@ -115,8 +111,8 @@ class UnresolvedIncompleteLabelStaysPendingTests(unittest.TestCase):
         primitives = [_prim("p1", "W8", [0, 0, 20, 10])]
         document = process_primitives(primitives, document_id="doc1")
         ann = document.annotations[0]
-        self.assertEqual(ann.correction.canonical, "W8")
-        self.assertEqual(ann.review_status, REVIEW_PENDING)
+        self.assertEqual(ann.effective_text, "W8")
+        self.assertEqual(ann.review_status, ReviewStatus.PENDING)
 
 
 if __name__ == "__main__":

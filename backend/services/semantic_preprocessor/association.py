@@ -14,17 +14,19 @@ from __future__ import annotations
 import math
 from typing import Any, Dict, List, Optional, Tuple
 
-from services.semantic_preprocessor.coordinate_transform import apply_transform
-from services.semantic_preprocessor.models import (
-    REVIEW_ACCEPTED,
-    REVIEW_NEEDS_REVIEW,
-    REVIEW_PENDING,
-    AssociationCandidate,
+from services.semantic.models import (
     CoordinateTransform,
-    EvidenceItem,
+    EvidenceRecord,
+    EvidenceStrength,
+    EvidenceType,
+    GeometryAssociation,
     GeometryEvidence,
+    GeometryProvider,
+    ReviewStatus,
+    ScoreValue,
     SemanticAnnotation,
 )
+from services.semantic_preprocessor.coordinate_transform import apply_transform
 
 REASON_GHX_EXISTING_PAIR = "GHX_EXISTING_PAIR"
 REASON_PDF_LEADER_INTERSECTION = "PDF_LEADER_INTERSECTION"
@@ -40,7 +42,7 @@ _NEAREST_NEIGHBOR_TIE_MARGIN = 0.15  # relative distance margin considered "too 
 
 def associate_via_ghx_pairing(
     annotation: SemanticAnnotation, ghx_text_pairs: List[Dict[str, Any]]
-) -> Tuple[Optional[AssociationCandidate], Optional[str]]:
+) -> Tuple[Optional[GeometryAssociation], Optional[str]]:
     """Match this annotation against an explicit GHX text<->geometry pairing.
 
     Returns ``(candidate, discrepancy_text)``. ``discrepancy_text`` is set
@@ -60,13 +62,20 @@ def associate_via_ghx_pairing(
         ghx_full_text = pair.get("full_text") or pair.get("text")
         if ghx_full_text and str(ghx_full_text).strip().upper() != normalized_label:
             discrepancy = str(ghx_full_text)
-        candidate = AssociationCandidate(
-            annotation_id=annotation.annotation_id,
+        candidate = GeometryAssociation(
             geometry_id=geometry_id,
-            score=0.9,  # evidence strength, not a calibrated probability
-            evidence=[EvidenceItem(type="ghx_existing_pairing", value=True, weight=1.0)],
-            association_reason=[REASON_GHX_EXISTING_PAIR],
-            review_status=REVIEW_PENDING,
+            provider=GeometryProvider.GRASSHOPPER,
+            score=ScoreValue(value=0.9, kind="deterministic"),  # evidence strength, not a calibrated probability
+            evidence=[
+                EvidenceRecord(
+                    evidence_id=f"{annotation.annotation_id}:ghx_pairing",
+                    evidence_type=EvidenceType.GRASSHOPPER_GEOMETRY,
+                    source="ghx_existing_pairing",
+                    strength=EvidenceStrength.EXPLICIT,
+                )
+            ],
+            reason_codes=[REASON_GHX_EXISTING_PAIR],
+            review_status=ReviewStatus.PENDING,
         )
         return candidate, discrepancy
     return None, None
@@ -76,7 +85,7 @@ def associate_via_nearest_geometry(
     annotation: SemanticAnnotation,
     geometry_list: List[GeometryEvidence],
     transform: Optional[CoordinateTransform],
-) -> Optional[AssociationCandidate]:
+) -> Optional[GeometryAssociation]:
     """Deterministic nearest-structural-geometry fallback.
 
     Refuses to run (returns None) without a valid transform and an original
@@ -107,31 +116,40 @@ def associate_via_nearest_geometry(
         key=lambda pair: pair[0],
     )
     best_distance, best_geom = distances[0]
+    distance_evidence = [
+        EvidenceRecord(
+            evidence_id=f"{annotation.annotation_id}:nearest_distance",
+            evidence_type=EvidenceType.GEOMETRY_DISTANCE,
+            source="nearest_distance",
+            strength=EvidenceStrength.INFERRED,
+            details={"distance": best_distance},
+        )
+    ]
     if len(distances) > 1:
         second_distance, _ = distances[1]
         if second_distance > 0 and (second_distance - best_distance) / second_distance < _NEAREST_NEIGHBOR_TIE_MARGIN:
-            return AssociationCandidate(
-                annotation_id=annotation.annotation_id,
+            return GeometryAssociation(
                 geometry_id=best_geom.geometry_id,
+                provider=GeometryProvider.PDF_VECTOR,
                 score=None,
-                evidence=[EvidenceItem(type="nearest_distance", value=best_distance)],
-                association_reason=[REASON_AMBIGUOUS_MULTIPLE_BEAMS],
-                review_status=REVIEW_NEEDS_REVIEW,
+                evidence=distance_evidence,
+                reason_codes=[REASON_AMBIGUOUS_MULTIPLE_BEAMS],
+                review_status=ReviewStatus.NEEDS_REVIEW,
             )
-    return AssociationCandidate(
-        annotation_id=annotation.annotation_id,
+    return GeometryAssociation(
         geometry_id=best_geom.geometry_id,
+        provider=GeometryProvider.PDF_VECTOR,
         score=None,  # deterministic distance, not a calibrated probability
-        evidence=[EvidenceItem(type="nearest_distance", value=best_distance)],
-        association_reason=[REASON_NEAREST_STRUCTURAL_CURVE],
-        review_status=REVIEW_PENDING,
+        evidence=distance_evidence,
+        reason_codes=[REASON_NEAREST_STRUCTURAL_CURVE],
+        review_status=ReviewStatus.PENDING,
     )
 
 
 def fuse_candidates(
-    ghx_candidate: Optional[AssociationCandidate],
-    pdf_candidate: Optional[AssociationCandidate],
-) -> List[AssociationCandidate]:
+    ghx_candidate: Optional[GeometryAssociation],
+    pdf_candidate: Optional[GeometryAssociation],
+) -> List[GeometryAssociation]:
     """Combine GHX and PDF-native association evidence (Section 36).
 
     - Only one candidate exists: pass it through as-is (still ``pending``).
@@ -147,20 +165,20 @@ def fuse_candidates(
         return []
 
     if ghx_candidate.geometry_id == pdf_candidate.geometry_id:
-        merged = AssociationCandidate(
-            annotation_id=ghx_candidate.annotation_id,
+        merged = GeometryAssociation(
             geometry_id=ghx_candidate.geometry_id,
-            score=0.96,
+            provider=ghx_candidate.provider,
+            score=ScoreValue(value=0.96, kind="deterministic"),
             evidence=ghx_candidate.evidence + pdf_candidate.evidence,
-            association_reason=list(dict.fromkeys(
-                ghx_candidate.association_reason + pdf_candidate.association_reason
+            reason_codes=list(dict.fromkeys(
+                ghx_candidate.reason_codes + pdf_candidate.reason_codes
             )),
-            review_status=REVIEW_PENDING,
+            review_status=ReviewStatus.PENDING,
         )
         return [merged]
 
     for c in (ghx_candidate, pdf_candidate):
-        c.review_status = REVIEW_NEEDS_REVIEW
-        if REASON_GHX_PDF_DISAGREEMENT not in c.association_reason:
-            c.association_reason.append(REASON_GHX_PDF_DISAGREEMENT)
+        c.review_status = ReviewStatus.NEEDS_REVIEW
+        if REASON_GHX_PDF_DISAGREEMENT not in c.reason_codes:
+            c.reason_codes.append(REASON_GHX_PDF_DISAGREEMENT)
     return [ghx_candidate, pdf_candidate]

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import unittest
 
+from services.semantic.models import GeometryProvider
 from services.semantic_preprocessor.geometry_evidence import (
     GrasshopperGeometryEvidenceProvider,
     NullGeometryEvidenceProvider,
@@ -64,9 +65,9 @@ class ProvenanceTests(unittest.TestCase):
         provider = GrasshopperGeometryEvidenceProvider(_capture())
         evidence = provider.extract_geometry({})
         for e in evidence:
-            self.assertEqual(e.source, "grasshopper")
+            self.assertEqual(e.provider, GeometryProvider.GRASSHOPPER)
             self.assertEqual(e.source_output, "RH_OUT:BeamCrv")
-            self.assertIn("rh_out", e.provenance)
+            self.assertIn("rh_out", e.metadata["provenance"])
 
 
 class MissingServiceTests(unittest.TestCase):

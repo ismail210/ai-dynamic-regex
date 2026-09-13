@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import re
 
-from services.semantic_preprocessor.models import StructuralParse
+from services.semantic.models import CATALOG_EXACT_MATCH, CATALOG_NOT_IN_CATALOG, StructuralParse
 
 # Families with a simple "PREFIX + depth + X + weight-or-size" grammar.
 _SIMPLE_FAMILY_RE = re.compile(
@@ -49,7 +49,7 @@ def is_architectural_dimension(text: str) -> bool:
 def parse_structural_label(text: str) -> StructuralParse:
     candidate = text.strip().upper()
     if not candidate or is_architectural_dimension(candidate):
-        return StructuralParse(is_structural=False, reason="architectural_or_empty")
+        return StructuralParse(is_structural=False, parser_reason="architectural_or_empty")
 
     m = _HSS_RECT_RE.match(candidate)
     if m:
@@ -116,15 +116,17 @@ def parse_structural_label(text: str) -> StructuralParse:
             family=bare.group("family"),
             grammar="incomplete",
             fields={"depth": bare.group("depth")},
-            catalog_exact_match=False,
-            reason="missing_weight_or_size",
+            catalog_status=CATALOG_NOT_IN_CATALOG,
+            parser_reason="missing_weight_or_size",
         )
 
-    return StructuralParse(is_structural=False, reason="no_known_grammar_matched")
+    return StructuralParse(is_structural=False, parser_reason="no_known_grammar_matched")
 
 
 def _finish(parse: StructuralParse, candidate: str) -> StructuralParse:
-    parse.catalog_exact_match = _catalog_has_exact(candidate)
+    parse.catalog_status = (
+        CATALOG_EXACT_MATCH if _catalog_has_exact(candidate) else CATALOG_NOT_IN_CATALOG
+    )
     return parse
 
 

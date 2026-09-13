@@ -1,23 +1,27 @@
 """Emit drawing_semantics.json from prediction payloads (Accuracy Track A8).
 
 Read-model only: projects existing first-run / analyze predictions through
-``project_semantic_annotation``. Does not change takeoff formulas, enable ML,
-or invent completions.
+``services.semantic.projection.project_semantic_annotation`` into the one
+canonical semantic model, then serializes it with
+``services.semantic.serialization``. Does not change takeoff formulas,
+enable ML, or invent completions.
+
+Schema v2 (this module previously emitted its own ad hoc row-list under
+``drawing_semantics_v1`` from the now-retired
+``services.prediction.semantic_contract`` Pydantic model; see
+``docs/architecture/unified_semantic_contract.md`` for the migration notes).
 """
 
 from __future__ import annotations
 
-import json
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any, Dict, Iterable, List, Optional, Union
 
-from services.prediction.semantic_contract import (
-    SEMANTIC_CONTRACT_VERSION,
-    project_semantic_annotation,
-)
+from services.semantic.models import SCHEMA_VERSION
+from services.semantic.projection import project_semantic_annotation
 
-DRAWING_SEMANTICS_SCHEMA = "drawing_semantics_v1"
+DRAWING_SEMANTICS_SCHEMA = "drawing_semantics_v2"
 
 
 def build_drawing_semantics(
@@ -44,7 +48,7 @@ def build_drawing_semantics(
 
     return {
         "schema": DRAWING_SEMANTICS_SCHEMA,
-        "semantic_contract_version": SEMANTIC_CONTRACT_VERSION,
+        "schema_version": SCHEMA_VERSION,
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "document_id": document_id,
         "source_file": source_file,
@@ -60,9 +64,11 @@ def build_drawing_semantics(
     }
 
 
-def write_drawing_semantics(path: str | Path, payload: Dict[str, Any]) -> Path:
+def write_drawing_semantics(path: Union[str, Path], payload: Dict[str, Any]) -> Path:
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
+    import json
+
     target.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     return target
 
@@ -83,8 +89,8 @@ def validate_drawing_semantics(payload: Dict[str, Any]) -> List[str]:
         if not isinstance(ann, dict):
             errors.append(f"annotation_{i}_not_object")
             continue
-        if "raw_text" not in ann:
-            errors.append(f"annotation_{i}_missing_raw_text")
+        if "original_text" not in ann:
+            errors.append(f"annotation_{i}_missing_original_text")
         if ann.get("original_text_preserved") is False:
             errors.append(f"annotation_{i}_raw_not_preserved")
     return errors

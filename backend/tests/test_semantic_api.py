@@ -74,14 +74,14 @@ class SemanticApiTests(IsolatedApiTestCase):
             json={"action": "accept"},
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["annotation"]["review_status"], "accepted")
+        self.assertEqual(response.json()["annotation"]["review_status"], "human_accepted")
 
         # Persisted -- a fresh GET reflects the change.
         refreshed = self.client.get(f"/api/documents/{document_id}/semantic").json()
         updated = next(
             a for a in refreshed["document"]["annotations"] if a["annotation_id"] == annotation_id
         )
-        self.assertEqual(updated["review_status"], "accepted")
+        self.assertEqual(updated["review_status"], "human_accepted")
 
     def test_reject_reverts_to_original_text(self):
         document_id = self._register()
@@ -96,7 +96,11 @@ class SemanticApiTests(IsolatedApiTestCase):
         self.assertEqual(response.status_code, 200)
         body = response.json()["annotation"]
         self.assertEqual(body["correction"]["canonical"], "W8")
-        self.assertEqual(body["review_status"], "needs_review")
+        # A human explicitly reviewed and rejected this -- distinct from
+        # "needs_review" (nobody has looked yet). The rejected proposal
+        # itself is preserved in `operations`, not deleted (Section 45).
+        self.assertEqual(body["review_status"], "human_rejected")
+        self.assertTrue(any(not o["accepted"] for o in body["operations"]))
 
     def test_review_unknown_annotation_is_404(self):
         document_id = self._register()

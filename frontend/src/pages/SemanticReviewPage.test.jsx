@@ -47,7 +47,7 @@ function baseAnnotation(overrides) {
     modifiers: [],
     grouping_reasons: [],
     structural_parse: { is_structural: true, family: "W", grammar: "depth_weight", fields: {}, catalog_exact_match: true },
-    correction: { operation: "none", original: "X", canonical: "X", reason_codes: [], evidence_ids: [], auto_accept: false, confidence: null },
+    correction: { operation: "keep", original: "X", canonical: "X", reason_codes: [], evidence_ids: [], auto_accept: false, confidence: null },
     geometry_associations: [],
     review_status: "pending",
     ...overrides,
@@ -79,7 +79,7 @@ function buildDocument() {
       baseAnnotation({
         annotation_id: "ann_bare_no_rule",
         primary_label: "W12",
-        correction: { operation: "none", original: "W12", canonical: "W12", reason_codes: [], evidence_ids: [], auto_accept: false, confidence: null },
+        correction: { operation: "keep", original: "W12", canonical: "W12", reason_codes: [], evidence_ids: [], auto_accept: false, confidence: null },
         review_status: "pending",
       }),
       baseAnnotation({
@@ -102,6 +102,21 @@ function buildDocument() {
         ],
         grouping_reasons: ["bracket_modifier_attachment"],
       }),
+      baseAnnotation({
+        annotation_id: "ann_multi_geom",
+        primary_label: "W16X26",
+        geometry_associations: [
+          {
+            geometry_id: "geom_pdf_1", provider: "pdf_vector",
+            score: { value: 0.7, kind: "association_distance", calibrated: false },
+            reason_codes: ["NEAREST_STRUCTURAL_CURVE"], verified: false, review_status: "pending",
+          },
+          {
+            geometry_id: "geom_ghx_1", provider: "grasshopper",
+            score: null, reason_codes: ["GHX_EXISTING_PAIR"], verified: false, review_status: "pending",
+          },
+        ],
+      }),
     ],
     drawing_language_rules: [
       {
@@ -111,7 +126,14 @@ function buildDocument() {
         confidence: 0.95,
       },
     ],
-    grasshopper_geometry: [],
+    geometry_evidence: [
+      { geometry_id: "geom_pdf_1", provider: "pdf_vector", geometry_type: "beam_curve" },
+      { geometry_id: "geom_ghx_1", provider: "grasshopper", geometry_type: "beam_curve", source_output: "RH_OUT:BeamCrv" },
+    ],
+    grasshopper_geometry: [
+      { geometry_id: "geom_pdf_1", provider: "pdf_vector", geometry_type: "beam_curve" },
+      { geometry_id: "geom_ghx_1", provider: "grasshopper", geometry_type: "beam_curve", source_output: "RH_OUT:BeamCrv" },
+    ],
     coordinate_frames: [],
     diagnostics: {},
     metrics: {},
@@ -142,10 +164,10 @@ describe("SemanticReviewPage", () => {
 
   it("loads the semantic fixture deterministically and renders overlays for the default page", async () => {
     const document = buildDocument();
-    getSemanticDocument.mockResolvedValue({ document, summary: { annotation_count: 5 } });
+    getSemanticDocument.mockResolvedValue({ document, summary: { annotation_count: 6 } });
     renderPage();
 
-    await waitFor(() => expect(screen.getByTestId("overlay-count")).toHaveTextContent("5"));
+    await waitFor(() => expect(screen.getByTestId("overlay-count")).toHaveTextContent("6"));
     expect(getSemanticDocument).toHaveBeenCalledWith("doc_test1234567890");
   });
 
@@ -212,6 +234,18 @@ describe("SemanticReviewPage", () => {
       const after = Number(screen.getByTestId("overlay-count").textContent);
       expect(after).toBeGreaterThan(before);
     });
+  });
+
+  it("multiple geometry candidates from different providers render side by side, neither implied as verified", async () => {
+    const document = buildDocument();
+    getSemanticDocument.mockResolvedValue({ document, summary: {} });
+    renderPage();
+
+    fireEvent.click(await screen.findByTestId("overlay-ann_multi_geom"));
+    expect(await inspector().findByText("geom_pdf_1")).toBeInTheDocument();
+    expect(inspector().getByText("geom_ghx_1")).toBeInTheDocument();
+    expect(inspector().getByText("Grasshopper candidate")).toBeInTheDocument();
+    expect(inspector().getByText("pdf_vector")).toBeInTheDocument();
   });
 
   it("needs-review-only filtering shows just the flagged annotation", async () => {

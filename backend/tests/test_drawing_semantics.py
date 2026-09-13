@@ -66,7 +66,7 @@ class DrawingSemanticsTests(unittest.TestCase):
             path = write_drawing_semantics(Path(tmp) / "drawing_semantics.json", payload)
             self.assertTrue(path.exists())
             text = path.read_text(encoding="utf-8")
-            self.assertIn("drawing_semantics_v1", text)
+            self.assertIn("drawing_semantics_v2", text)
 
 
 if __name__ == "__main__":

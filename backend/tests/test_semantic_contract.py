@@ -1,4 +1,10 @@
-"""Schema-only tests for the semantic annotation contract (Phase 2).
+"""Schema-only tests for the unified semantic annotation contract.
+
+Migrated from the old Pydantic ``services.prediction.semantic_contract``
+model onto the canonical ``services.semantic`` model (see
+``docs/architecture/unified_semantic_contract.md``). Every behavioral
+guarantee the old tests checked is preserved; field names changed because
+the domain model changed, not because the guarantee did.
 
 Does not exercise new normalization / repair / completion intelligence.
 """
@@ -7,18 +13,15 @@ from __future__ import annotations
 
 import unittest
 
-from pydantic import ValidationError
-
-from services.prediction.semantic_contract import (
-    CompletionStatus,
+from services.semantic.models import (
     EvidenceStrength,
     EvidenceType,
-    GeometryEvidence,
-    GeometryRelationship,
-    OperationRecord,
-    SemanticAnnotation,
-    SemanticEvidence,
-    SemanticOperationKind,
+    GeometryAssociation,
+    GeometryProvider,
+    OperationKind,
+    ReviewStatus,
+)
+from services.prediction.semantic_contract import (
     example_2l4x4_abstention,
     example_association_with_optional_gh,
     example_completion_candidate_w8,
@@ -32,79 +35,75 @@ from services.prediction.semantic_contract import (
 class SemanticContractSchemaTests(unittest.TestCase):
     def test_raw_text_preserved_when_normalized_differs(self) -> None:
         ann = example_normalization_w8x10()
-        self.assertEqual(ann.raw_text, "W8×10")
-        self.assertEqual(ann.normalized_text, "W8X10")
+        self.assertEqual(ann.original_text, "W8×10")
+        self.assertEqual(ann.effective_text, "W8X10")
         self.assertTrue(ann.original_text_preserved)
         payload = ann.to_dict()
-        self.assertEqual(payload["raw_text"], "W8×10")
-        self.assertNotEqual(payload["raw_text"], payload["normalized_text"])
+        self.assertEqual(payload["original_text"], "W8×10")
+        self.assertNotEqual(payload["original_text"], payload["effective_text"])
 
     def test_normalization_represented_separately(self) -> None:
         ann = example_normalization_w8x10()
         self.assertEqual(len(ann.operations), 1)
-        self.assertEqual(
-            ann.operations[0].operation, SemanticOperationKind.NORMALIZATION
-        )
-        self.assertNotEqual(
-            ann.operations[0].operation, SemanticOperationKind.REPAIR
-        )
-        self.assertNotEqual(
-            ann.operations[0].operation, SemanticOperationKind.COMPLETION
-        )
+        self.assertEqual(ann.operations[0].operation, OperationKind.NORMALIZATION)
+        self.assertNotEqual(ann.operations[0].operation, OperationKind.REPAIR)
+        self.assertNotEqual(ann.operations[0].operation, OperationKind.COMPLETION)
 
     def test_repair_represented_separately(self) -> None:
         ann = example_repair_corrupted_w8()
-        self.assertEqual(ann.operations[0].operation, SemanticOperationKind.REPAIR)
-        self.assertEqual(ann.raw_text, "W8XI0")
+        self.assertEqual(ann.operations[0].operation, OperationKind.REPAIR)
+        self.assertEqual(ann.original_text, "W8XI0")
         self.assertEqual(ann.operations[0].output_text, "W8X10")
 
     def test_completion_represented_separately(self) -> None:
         ann = example_completion_candidate_w8()
-        self.assertEqual(
-            ann.operations[0].operation, SemanticOperationKind.COMPLETION
-        )
-        self.assertEqual(ann.raw_text, "W8")
+        self.assertEqual(ann.operations[0].operation, OperationKind.COMPLETION)
+        self.assertEqual(ann.original_text, "W8")
         self.assertEqual(ann.operations[0].output_text, "W8X10")
+        self.assertTrue(ann.operations[0].semantic_information_added)
 
-    def test_association_represented_separately_and_preserves_text(self) -> None:
+    def test_association_is_not_a_text_operation(self) -> None:
+        """Section 13: association must never be representable as a text
+        transformation. In the unified model this is a structural guarantee
+        (GeometryAssociation has no output_text field at all), not a
+        runtime validator on a generic OperationRecord."""
+
         ann = example_association_with_optional_gh()
-        self.assertEqual(
-            ann.operations[0].operation, SemanticOperationKind.ASSOCIATION
-        )
-        self.assertEqual(ann.raw_text, "W12X26")
-        self.assertEqual(ann.operations[0].input_text, ann.operations[0].output_text)
-
-    def test_association_cannot_rewrite_semantic_text(self) -> None:
-        with self.assertRaises(ValidationError):
-            OperationRecord(
-                operation=SemanticOperationKind.ASSOCIATION,
-                input_text="W8",
-                output_text="W8X10",
-            )
+        self.assertEqual(ann.operations, [])
+        self.assertEqual(len(ann.geometry_associations), 1)
+        self.assertFalse(hasattr(ann.geometry_associations[0], "output_text"))
+        # The association evidence carries no text-changing capability.
+        self.assertEqual(ann.original_text, "W12X26")
+        self.assertEqual(ann.effective_text, "W12X26")
 
     def test_evidence_can_contain_multiple_sources(self) -> None:
+        from services.semantic.models import EvidenceRecord, SemanticAnnotation
+
         ann = SemanticAnnotation(
             annotation_id="multi_ev",
-            raw_text="W12X26",
-            normalized_text="W12X26",
+            original_text="W12X26",
+            primary_label="W12X26",
             evidence=[
-                SemanticEvidence(
+                EvidenceRecord(
+                    evidence_id="e1",
                     evidence_type=EvidenceType.PDF_TEXT,
-                    evidence_source="pdf_text",
-                    evidence_reference="W12X26",
-                    evidence_strength=EvidenceStrength.EXPLICIT,
+                    source="pdf_text",
+                    reference="W12X26",
+                    strength=EvidenceStrength.EXPLICIT,
                 ),
-                SemanticEvidence(
+                EvidenceRecord(
+                    evidence_id="e2",
                     evidence_type=EvidenceType.LEGEND,
-                    evidence_source="legend",
-                    evidence_reference="W12X26 TYP",
-                    evidence_strength=EvidenceStrength.EXPLICIT,
+                    source="legend",
+                    reference="W12X26 TYP",
+                    strength=EvidenceStrength.EXPLICIT,
                 ),
-                SemanticEvidence(
+                EvidenceRecord(
+                    evidence_id="e3",
                     evidence_type=EvidenceType.GRASSHOPPER_GEOMETRY,
-                    evidence_source="grasshopper",
-                    evidence_reference="optional",
-                    evidence_strength=EvidenceStrength.INFERRED,
+                    source="grasshopper",
+                    reference="optional",
+                    strength=EvidenceStrength.INFERRED,
                 ),
             ],
         )
@@ -113,45 +112,45 @@ class SemanticContractSchemaTests(unittest.TestCase):
         self.assertIn(EvidenceType.PDF_TEXT, types)
         self.assertIn(EvidenceType.GRASSHOPPER_GEOMETRY, types)
 
-    def test_geometry_evidence_can_be_absent(self) -> None:
+    def test_geometry_associations_can_be_absent(self) -> None:
         ann = example_normalization_w8x10()
-        self.assertIsNone(ann.geometry_evidence)
-        self.assertIsNone(ann.to_dict().get("geometry_evidence"))
+        self.assertEqual(ann.geometry_associations, [])
+        self.assertEqual(ann.to_dict()["geometry_associations"], [])
 
     def test_incomplete_l_abstention_representation(self) -> None:
         ann = example_l4x4_abstention()
-        self.assertEqual(ann.raw_text, "L4X4,")
-        self.assertEqual(ann.normalized_text, "L4X4")
-        self.assertEqual(ann.completion_status, CompletionStatus.MISSING_THICKNESS)
+        self.assertEqual(ann.original_text, "L4X4,")
+        self.assertEqual(ann.primary_label, "L4X4")
+        self.assertFalse(ann.is_complete)
         self.assertFalse(ann.takeoff_eligible)
-        self.assertTrue(ann.review_required)
+        self.assertEqual(ann.review_status, ReviewStatus.NEEDS_REVIEW)
+        # Still a real, visible semantic annotation -- not removed.
+        self.assertIsNotNone(ann.structural_parse)
+        self.assertTrue(ann.structural_parse.is_structural)
 
     def test_incomplete_2l_abstention_representation(self) -> None:
         ann = example_2l4x4_abstention()
-        self.assertEqual(ann.raw_text, "2L4X4")
-        self.assertEqual(ann.completion_status, CompletionStatus.MISSING_THICKNESS)
+        self.assertEqual(ann.original_text, "2L4X4")
+        self.assertFalse(ann.is_complete)
         self.assertFalse(ann.takeoff_eligible)
-        self.assertTrue(ann.review_required)
+        self.assertEqual(ann.review_status, ReviewStatus.NEEDS_REVIEW)
 
     def test_complete_label_can_be_eligible(self) -> None:
         ann = example_normalization_w8x10()
-        self.assertEqual(ann.completion_status, CompletionStatus.COMPLETE)
         self.assertTrue(ann.takeoff_eligible)
-        self.assertFalse(ann.review_required)
+        self.assertNotEqual(ann.review_status, ReviewStatus.NEEDS_REVIEW)
 
     def test_optional_gh_geometry_does_not_imply_completion(self) -> None:
         ann = example_association_with_optional_gh()
-        self.assertIsNotNone(ann.geometry_evidence)
-        assert ann.geometry_evidence is not None
-        self.assertTrue(ann.geometry_evidence.available)
-        self.assertEqual(ann.geometry_evidence.provider, "grasshopper")
-        # Association did not invent a different section string
-        self.assertEqual(ann.raw_text, "W12X26")
-        self.assertEqual(ann.normalized_text, "W12X26")
+        self.assertEqual(len(ann.geometry_associations), 1)
+        candidate = ann.geometry_associations[0]
+        self.assertEqual(candidate.provider, GeometryProvider.GRASSHOPPER)
+        self.assertFalse(candidate.verified)
+        # Association did not invent a different section string.
+        self.assertEqual(ann.original_text, "W12X26")
+        self.assertEqual(ann.effective_text, "W12X26")
         self.assertFalse(
-            ann.geometry_evidence.native_metadata.get(
-                "beam_txt_crv_index_assumed_equal"
-            )
+            candidate.evidence[0].details.get("beam_txt_crv_index_assumed_equal")
         )
 
     def test_project_from_prediction_preserves_raw_and_abstention(self) -> None:
@@ -170,31 +169,26 @@ class SemanticContractSchemaTests(unittest.TestCase):
             "confidence": {"overall": 0.4},
         }
         ann = project_semantic_annotation(payload)
-        self.assertEqual(ann.raw_text, "L4X4,")
-        self.assertEqual(ann.normalized_text, "L4X4")
-        self.assertEqual(ann.completion_status, CompletionStatus.MISSING_THICKNESS)
+        self.assertEqual(ann.original_text, "L4X4,")
+        self.assertEqual(ann.primary_label, "L4X4")
+        self.assertFalse(ann.is_complete)
         self.assertFalse(ann.takeoff_eligible)
-        self.assertTrue(ann.review_required)
+        self.assertEqual(ann.review_status, ReviewStatus.NEEDS_REVIEW)
         self.assertTrue(ann.original_text_preserved)
-        self.assertIsNone(ann.geometry_evidence)
+        self.assertEqual(ann.geometry_associations, [])
 
     def test_project_without_member_geometry_leaves_geometry_absent(self) -> None:
         ann = project_semantic_annotation(
             {"object_id": "t", "raw_text": "W12X26", "normalized_text": "W12X26"}
         )
-        self.assertIsNone(ann.geometry_evidence)
+        self.assertEqual(ann.geometry_associations, [])
 
-    def test_unavailable_geometry_evidence_is_valid(self) -> None:
-        ann = SemanticAnnotation(
-            annotation_id="no_geom",
-            raw_text="W8X10",
-            geometry_evidence=GeometryEvidence(
-                available=False,
-                relationship=GeometryRelationship.UNAVAILABLE,
-                provider="unavailable",
-            ),
-        )
-        self.assertFalse(ann.geometry_evidence.available)
+    def test_unavailable_geometry_is_an_empty_candidate_list(self) -> None:
+        from services.semantic.models import SemanticAnnotation
+
+        ann = SemanticAnnotation(annotation_id="no_geom", original_text="W8X10")
+        self.assertEqual(ann.geometry_associations, [])
+        self.assertIsNone(ann.primary_geometry_association)
 
 
 if __name__ == "__main__":

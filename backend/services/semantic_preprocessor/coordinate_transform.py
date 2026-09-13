@@ -21,7 +21,7 @@ import math
 from dataclasses import dataclass
 from typing import List, Tuple
 
-from services.semantic_preprocessor.models import CoordinateTransform
+from services.semantic.models import CoordinateTransform
 
 _MAX_ACCEPTABLE_RESIDUAL_P95 = 5.0  # PDF points; tune once real correspondences exist
 

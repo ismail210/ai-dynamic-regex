@@ -40,7 +40,7 @@ describe("getOperation / getOverlayStyle", () => {
   it("a genuine geometry conflict escalates to the error color", () => {
     const a = annotation({
       geometry_associations: [
-        { association_reason: ["GHX_PDF_DISAGREEMENT"] },
+        { reason_codes: ["GHX_PDF_DISAGREEMENT"] },
       ],
     });
     expect(hasGeometryConflict(a)).toBe(true);

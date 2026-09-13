@@ -9,17 +9,19 @@
  */
 
 export const OPERATION = {
-  NONE: "none",
+  NONE: "keep",
   NORMALIZATION: "normalization",
   REPAIR: "repair",
   COMPLETION: "completion",
 };
 
 export const REVIEW_STATUS = {
-  ACCEPTED: "accepted",
+  HUMAN_ACCEPTED: "human_accepted",
+  HUMAN_REJECTED: "human_rejected",
   AUTO_ACCEPTED: "auto_accepted",
   NEEDS_REVIEW: "needs_review",
   PENDING: "pending",
+  UNRESOLVED: "unresolved",
 };
 
 const OPERATION_META = {
@@ -59,7 +61,7 @@ export function getOperationMeta(operation) {
 
 export function hasGeometryConflict(annotation) {
   return (annotation?.geometry_associations || []).some((candidate) =>
-    (candidate.association_reason || []).some((reason) =>
+    (candidate.reason_codes || []).some((reason) =>
       reason === "GHX_PDF_DISAGREEMENT" || reason === "AMBIGUOUS_MULTIPLE_BEAMS",
     ),
   );
@@ -82,14 +84,15 @@ export function getOverlayStyle(annotation) {
   const conflict = hasGeometryConflict(annotation);
   const needsReview = annotation?.review_status === REVIEW_STATUS.NEEDS_REVIEW;
 
-  let colorKey = OPERATION_META[operation].colorKey;
+  const meta = getOperationMeta(operation);
+  let colorKey = meta.colorKey;
   if (conflict) colorKey = "error";
   else if (needsReview) colorKey = "warning";
 
   return {
     colorKey,
     dashed: needsReview || conflict,
-    badge: OPERATION_META[operation].short,
+    badge: meta.short,
   };
 }
 
@@ -124,7 +127,8 @@ export function evidenceRulesFor(document, annotation) {
 export function primaryGeometryAssociation(annotation) {
   const list = annotation?.geometry_associations || [];
   if (!list.length) return null;
-  return [...list].sort((a, b) => (b.score ?? -1) - (a.score ?? -1))[0];
+  const scoreOf = (c) => c.score?.value ?? -1;
+  return [...list].sort((a, b) => scoreOf(b) - scoreOf(a))[0];
 }
 
 export function geometryForId(document, geometryId) {
