@@ -16,13 +16,37 @@ const processSemanticDocument = vi.fn();
 const reviewSemanticAnnotation = vi.fn().mockResolvedValue({ annotation: {} });
 const getBenchmarkContext = vi.fn().mockResolvedValue(null);
 const getAnnotationOracle = vi.fn().mockResolvedValue({ oracle: null });
+const downloadCorrectedSemanticPdf = vi.fn().mockResolvedValue({ filename: "x_corrected.pdf" });
+const acceptAllSemanticCorrections = vi.fn().mockResolvedValue({
+  accepted_count: 1,
+  accepted_annotation_ids: ["ann_repair"],
+  document: null,
+  summary: {
+    accepted_correction_count: 1,
+    corrected_pdf: {
+      available: true,
+      revision: "abc123",
+      correction_count: 1,
+      url: "/api/documents/doc_test1234567890/semantic/corrected-pdf?v=abc123",
+    },
+  },
+  corrected_pdf: {
+    available: true,
+    revision: "abc123",
+    correction_count: 1,
+    url: "/api/documents/doc_test1234567890/semantic/corrected-pdf?v=abc123",
+  },
+});
 vi.mock("../api/client", () => ({
   documentPdfUrl: (id) => `/api/documents/${id}/pdf`,
+  correctedSemanticPdfUrl: (id, rev) => `/api/documents/${id}/semantic/corrected-pdf?v=${rev}`,
   getSemanticDocument: (...args) => getSemanticDocument(...args),
   processSemanticDocument: (...args) => processSemanticDocument(...args),
   reviewSemanticAnnotation: (...args) => reviewSemanticAnnotation(...args),
+  acceptAllSemanticCorrections: (...args) => acceptAllSemanticCorrections(...args),
   getBenchmarkContext: (...args) => getBenchmarkContext(...args),
   getAnnotationOracle: (...args) => getAnnotationOracle(...args),
+  downloadCorrectedSemanticPdf: (...args) => downloadCorrectedSemanticPdf(...args),
 }));
 
 // The real viewer needs a real PDF worker; here only the overlay/selection
@@ -87,6 +111,13 @@ function buildDocument() {
       baseAnnotation({
         annotation_id: "ann_bare_no_rule",
         primary_label: "W12",
+        structural_parse: {
+          is_structural: true,
+          family: "W",
+          grammar: "incomplete",
+          fields: {},
+          catalog_exact_match: false,
+        },
         correction: { operation: "keep", original: "W12", canonical: "W12", reason_codes: [], evidence_ids: [], auto_accept: false, confidence: null },
         review_status: "pending",
       }),
@@ -156,9 +187,8 @@ function renderPage() {
   );
 }
 
-// Several operation labels ("Normalized", "Completed", ...) also appear as
-// static DocumentSummaryBar stat labels, so assertions on the inspector's
-// own badge/content must be scoped to it rather than matching page-wide.
+// Operation labels also appear elsewhere on the page, so assertions on the
+// inspector's badge/content must be scoped to it rather than matching page-wide.
 function inspector() {
   return within(screen.getByTestId("annotation-inspector"));
 }
@@ -228,20 +258,34 @@ describe("SemanticReviewPage", () => {
     expect(inspector().queryByText("CANONICAL")).not.toBeInTheDocument();
   });
 
-  it("a grouped annotation exposes its source fragments when the toggle is enabled", async () => {
+  it("does not flood the viewer with every page token — only actionable overlays", async () => {
+    const document = buildDocument();
+    document.annotations.push(
+      baseAnnotation({
+        annotation_id: "ann_note_noise",
+        primary_label: "SEE DETAIL",
+        structural_parse: { is_structural: false, family: null, grammar: null, fields: {}, catalog_exact_match: false },
+        correction: { operation: "keep", original: "SEE DETAIL", canonical: "SEE DETAIL", reason_codes: [], evidence_ids: [], auto_accept: false, confidence: null },
+        review_status: "pending",
+      }),
+    );
+    getSemanticDocument.mockResolvedValue({ document, summary: {} });
+    renderPage();
+
+    await waitFor(() => expect(screen.getByTestId("overlay-count")).toHaveTextContent("6"));
+    expect(screen.queryByTestId("overlay-ann_note_noise")).not.toBeInTheDocument();
+    expect(screen.queryByText(/12205|Need Review|Annotations/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("tab", { name: /needs review/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /repair queue/i })).toBeInTheDocument();
+  });
+
+  it("an annotation with no geometry evidence renders without crashing", async () => {
     const document = buildDocument();
     getSemanticDocument.mockResolvedValue({ document, summary: {} });
     renderPage();
 
-    await screen.findByTestId("overlay-count");
-    const before = Number(screen.getByTestId("overlay-count").textContent);
-
-    fireEvent.click(screen.getByRole("switch", { name: /source fragments/i }));
-
-    await waitFor(() => {
-      const after = Number(screen.getByTestId("overlay-count").textContent);
-      expect(after).toBeGreaterThan(before);
-    });
+    fireEvent.click(await screen.findByTestId("overlay-ann_norm"));
+    expect(await screen.findByText(/no geometry evidence/i)).toBeInTheDocument();
   });
 
   it("multiple geometry candidates from different providers render side by side, neither implied as verified", async () => {
@@ -256,26 +300,6 @@ describe("SemanticReviewPage", () => {
     expect(inspector().getByText("pdf_vector")).toBeInTheDocument();
   });
 
-  it("needs-review-only filtering shows just the flagged annotation", async () => {
-    const document = buildDocument();
-    getSemanticDocument.mockResolvedValue({ document, summary: {} });
-    renderPage();
-
-    await screen.findByTestId("overlay-count");
-    fireEvent.click(screen.getByRole("switch", { name: /needs review only/i }));
-
-    await waitFor(() => expect(screen.getByTestId("overlay-count")).toHaveTextContent("1"));
-  });
-
-  it("an annotation with no geometry evidence renders without crashing", async () => {
-    const document = buildDocument();
-    getSemanticDocument.mockResolvedValue({ document, summary: {} });
-    renderPage();
-
-    fireEvent.click(await screen.findByTestId("overlay-ann_norm"));
-    expect(await screen.findByText(/no geometry evidence/i)).toBeInTheDocument();
-  });
-
   it("shows a process button and an empty state when nothing has been processed yet", async () => {
     getSemanticDocument.mockResolvedValue({
       document: null,
@@ -284,8 +308,38 @@ describe("SemanticReviewPage", () => {
     });
     renderPage();
 
-    expect(await screen.findByText(/no semantic result yet/i)).toBeInTheDocument();
+    expect(await screen.findByText(/process this drawing to unlock review/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /process drawing/i })).toBeInTheDocument();
+  });
+
+  it("Accept All calls the bulk endpoint and keeps Accept All visible", async () => {
+    const document = buildDocument();
+    getSemanticDocument.mockResolvedValue({ document, summary: {} });
+    acceptAllSemanticCorrections.mockResolvedValue({
+      accepted_count: 1,
+      accepted_annotation_ids: ["ann_repair"],
+      document,
+      summary: {
+        accepted_correction_count: 1,
+        corrected_pdf: {
+          available: true,
+          revision: "rev9",
+          correction_count: 1,
+          url: "/api/documents/doc_test1234567890/semantic/corrected-pdf?v=rev9",
+        },
+      },
+      corrected_pdf: {
+        available: true,
+        revision: "rev9",
+        correction_count: 1,
+        url: "/api/documents/doc_test1234567890/semantic/corrected-pdf?v=rev9",
+      },
+    });
+    renderPage();
+    await screen.findByTestId("overlay-count");
+    fireEvent.click(screen.getByTestId("accept-all-corrections"));
+    await waitFor(() => expect(acceptAllSemanticCorrections).toHaveBeenCalledWith("doc_test1234567890"));
+    expect(await screen.findByText(/accepted 1 correction/i)).toBeInTheDocument();
   });
 
   it("loads the damage-corpus navigator for SEMANTIC_DAMAGE_TEST uploads and keeps expected separate", async () => {
@@ -316,9 +370,12 @@ describe("SemanticReviewPage", () => {
     expect(await screen.findByTestId("damage-corpus-banner")).toBeInTheDocument();
     expect(screen.getByTestId("damage-case-bar")).toBeInTheDocument();
     fireEvent.click(screen.getByTestId("damage-case-next"));
-    expect(screen.getByTestId("damage-case-position").textContent).toMatch(/Case \d+ \/ \d+/);
+    expect(screen.getByTestId("damage-case-position").textContent).toMatch(/\d+\/\d+/);
     expect(screen.getByTestId("expected-vs-actual")).toBeInTheDocument();
-    expect(screen.getByText(/test-corpus metadata/i)).toBeInTheDocument();
+    expect(within(screen.getByTestId("expected-vs-actual")).getByText(/test metadata/i)).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /all cases \(27\)/i })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: /all cases/i }));
+    expect(screen.getByTestId("review-queue-table").querySelectorAll("tbody tr")).toHaveLength(27);
     analysisDocument.source_file = "demo.pdf";
   });
 });

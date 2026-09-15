@@ -13,11 +13,19 @@ no new storage mechanism was introduced.
 from __future__ import annotations
 
 import re
+from datetime import datetime, timezone
 from typing import Any, Optional
 
 from services.artifact_store import read_artifact, write_artifact
 from services.document_registry import document_source
 from services.pdf_parser import extract_document_structure
+from services.semantic.corrected_pdf import (
+    build_corrected_pdf,
+    corrected_pdf_download_name,
+    describe_corrected_pdf,
+    list_accepted_text_corrections,
+    sync_corrected_pdf,
+)
 from services.semantic.models import OperationKind, OperationRecord, ReviewStatus
 from services.semantic.repair_shadow import attach_repair_shadow
 from services.semantic.serialization import load_semantic_document, to_dict
@@ -130,9 +138,9 @@ def apply_review_action(
     ``candidate_text`` is how "Accept proposal" and "Choose alternate"
     (repair-trace sprint, Section 18) share one action: it names which
     ``repair_candidates`` entry (or already-pending proposal operation) the
-    human is accepting. Omit it to accept whatever is already the current
-    effective text unchanged (the pre-existing normalization/completion
-    accept flow -- unaffected by this parameter).
+    human is accepting. When omitted, Accept applies the pending REPAIR
+    proposal or the top ``repair_candidates`` entry when one exists; otherwise
+    it only records human acceptance of the current effective text.
 
     Session/file-scoped persistence: this writes back to the same
     per-document artifact the pipeline itself produces, via the existing
@@ -151,38 +159,10 @@ def apply_review_action(
     if annotation is None:
         raise LookupError(f"Annotation {annotation_id!r} not found")
 
+    prior_effective = annotation.effective_text
+
     if action == "accept":
-        if candidate_text:
-            # Reuse an already-pending (unaccepted) proposal for this exact
-            # text if one exists -- e.g. the shadow-attached rank-1 proposal
-            # -- rather than appending a duplicate. "Choose alternate" (a
-            # candidate_text that has no pending operation yet) synthesizes
-            # one from the matching RepairCandidate's own evidence/score, so
-            # the accepted operation is never a bare, unexplained value.
-            target_op = next(
-                (o for o in reversed(annotation.operations) if not o.accepted and o.output_text == candidate_text),
-                None,
-            )
-            if target_op is None:
-                candidate = next(
-                    (c for c in annotation.repair_candidates if c.candidate_text == candidate_text), None
-                )
-                if candidate is None:
-                    raise ValueError(f"{candidate_text!r} is not a known repair candidate for this annotation")
-                target_op = OperationRecord(
-                    operation=OperationKind.REPAIR,
-                    input_text=annotation.effective_text,
-                    output_text=candidate_text,
-                    reason_codes=list(candidate.reason_codes) + ["human_chose_alternate_candidate"],
-                    evidence=list(candidate.evidence),
-                    score=(candidate.scores[0] if candidate.scores else None),
-                    deterministic=False,
-                    provenance="human_reviewed_label_reconstruction",
-                    accepted=False,
-                )
-                annotation.operations.append(target_op)
-            target_op.accepted = True
-        annotation.review.status = ReviewStatus.HUMAN_ACCEPTED
+        _apply_accept_to_annotation(annotation, candidate_text)
     elif action == "reject":
         # Preserve every proposal -- never mutate the annotation as though
         # it never existed (Section 45). Un-accept every REPAIR operation
@@ -204,21 +184,32 @@ def apply_review_action(
     elif action == "edit":
         if not edited_text:
             raise ValueError("edited_text is required for the 'edit' action")
-        prior = annotation.current_operation
         annotation.operations.append(
             OperationRecord(
-                operation=prior.operation if prior else OperationKind.KEEP,
+                operation=OperationKind.REPAIR,
                 input_text=annotation.effective_text,
                 output_text=edited_text,
+                reason_codes=["human_manual_edit"],
                 deterministic=False,
-                provenance="human",
+                provenance="human_manual_edit",
+                accepted=True,
             )
         )
         annotation.review.status = ReviewStatus.HUMAN_ACCEPTED
     else:
         raise ValueError(f"Unknown review action: {action!r}")
 
-    annotation.review.history.append({"action": action, "edited_text": edited_text})
+    annotation.review.history.append(
+        {
+            "action": action,
+            "edited_text": edited_text,
+            "candidate_text": candidate_text,
+            "from_text": prior_effective,
+            "to_text": annotation.effective_text,
+            "page": annotation.page,
+            "at": datetime.now(timezone.utc).isoformat(),
+        }
+    )
 
     payload = document.to_dict()
     write_artifact(document_id, _ARTIFACT_NAME, payload)
@@ -235,7 +226,110 @@ def list_review_queue(document_id: str) -> list[dict]:
     ]
 
 
-def document_summary(document: dict[str, Any]) -> dict[str, Any]:
+def _annotation_eligible_for_accept_all(annotation) -> bool:
+    """Eligible = has a pending repair proposal or repair_candidates, not already decided."""
+    status = annotation.review.status
+    if status in (ReviewStatus.HUMAN_ACCEPTED, ReviewStatus.HUMAN_REJECTED, ReviewStatus.AUTO_ACCEPTED):
+        return False
+    if any(
+        (not op.accepted and op.operation == OperationKind.REPAIR and op.output_text)
+        for op in annotation.operations
+    ):
+        return True
+    return bool(annotation.repair_candidates)
+
+
+def _apply_accept_to_annotation(annotation, candidate_text: Optional[str] = None) -> None:
+    """Mutate annotation in-place with the same Accept semantics as apply_review_action."""
+    resolved_candidate = candidate_text
+    if not resolved_candidate:
+        pending = next(
+            (
+                o
+                for o in reversed(annotation.operations)
+                if (not o.accepted and o.operation == OperationKind.REPAIR and o.output_text)
+            ),
+            None,
+        )
+        if pending is not None:
+            resolved_candidate = pending.output_text
+        elif annotation.repair_candidates:
+            resolved_candidate = annotation.repair_candidates[0].candidate_text
+
+    if resolved_candidate:
+        target_op = next(
+            (
+                o
+                for o in reversed(annotation.operations)
+                if not o.accepted and o.output_text == resolved_candidate
+            ),
+            None,
+        )
+        if target_op is None:
+            candidate = next(
+                (c for c in annotation.repair_candidates if c.candidate_text == resolved_candidate),
+                None,
+            )
+            if candidate is None:
+                raise ValueError(
+                    f"{resolved_candidate!r} is not a known repair candidate for this annotation"
+                )
+            target_op = OperationRecord(
+                operation=OperationKind.REPAIR,
+                input_text=annotation.effective_text,
+                output_text=resolved_candidate,
+                reason_codes=list(candidate.reason_codes) + ["human_chose_alternate_candidate"],
+                evidence=list(candidate.evidence),
+                score=(candidate.scores[0] if candidate.scores else None),
+                deterministic=False,
+                provenance="human_reviewed_label_reconstruction",
+                accepted=False,
+            )
+            annotation.operations.append(target_op)
+        target_op.accepted = True
+    annotation.review.status = ReviewStatus.HUMAN_ACCEPTED
+
+
+def accept_all_eligible_corrections(document_id: str) -> dict:
+    """Accept every eligible repair proposal, persist once, regenerate corrected PDF once."""
+    document_dict = get_cached_semantic_document(document_id)
+    if document_dict is None:
+        raise KeyError(f"No semantic document cached for {document_id!r}")
+
+    document = load_semantic_document(document_dict)
+    accepted_ids: list[str] = []
+    for annotation in document.annotations:
+        if not _annotation_eligible_for_accept_all(annotation):
+            continue
+        prior_effective = annotation.effective_text
+        _apply_accept_to_annotation(annotation)
+        annotation.review.history.append(
+            {
+                "action": "accept",
+                "edited_text": None,
+                "candidate_text": None,
+                "from_text": prior_effective,
+                "to_text": annotation.effective_text,
+                "page": annotation.page,
+                "at": datetime.now(timezone.utc).isoformat(),
+                "bulk": "accept_all",
+            }
+        )
+        accepted_ids.append(annotation.annotation_id)
+
+    payload = document.to_dict()
+    write_artifact(document_id, _ARTIFACT_NAME, payload)
+    corrected = sync_corrected_pdf(document_id, payload)
+    return {
+        "accepted_annotation_ids": accepted_ids,
+        "accepted_count": len(accepted_ids),
+        "document": payload,
+        "summary": document_summary(payload, document_id=document_id),
+        "corrected_pdf": corrected,
+    }
+
+
+def document_summary(document: dict[str, Any], document_id: Optional[str] = None) -> dict[str, Any]:
     """Only-real-numbers summary for the top document bar (Section 8)."""
     annotations = document.get("annotations", [])
     op_counts = {"normalization": 0, "repair": 0, "completion": 0, "keep": 0}
@@ -248,7 +342,7 @@ def document_summary(document: dict[str, Any]) -> dict[str, Any]:
             needs_review += 1
         if a.get("geometry_associations"):
             geometry_linked += 1
-    return {
+    summary = {
         "annotation_count": len(annotations),
         "normalized_count": op_counts["normalization"],
         "repaired_count": op_counts["repair"],
@@ -257,7 +351,11 @@ def document_summary(document: dict[str, Any]) -> dict[str, Any]:
         "needs_review_count": needs_review,
         "geometry_linked_count": geometry_linked,
         "drawing_rule_count": len(document.get("drawing_language_rules", [])),
+        "accepted_correction_count": len(list_accepted_text_corrections(document)),
     }
+    if document_id:
+        summary["corrected_pdf"] = describe_corrected_pdf(document_id, document)
+    return summary
 
 
 def get_benchmark_context(document_id: str) -> Optional[dict]:
@@ -331,3 +429,24 @@ def get_annotation_oracle(document_id: str, annotation_id: str) -> Optional[dict
         "clean_text": record["clean_text"],
         "human_decision_matches_truth": annotation.get("effective_text") == record["clean_text"],
     }
+
+
+def export_corrected_pdf(document_id: str) -> tuple[Path, str, int]:
+    """Build (or rebuild) the corrected PDF from original + accepted edits.
+
+    Returns ``(path, download_filename, correction_count)``.
+    """
+    from pathlib import Path
+
+    document = get_cached_semantic_document(document_id)
+    if document is None:
+        raise KeyError(f"No semantic document cached for {document_id!r}")
+    corrections = list_accepted_text_corrections(document)
+    if not corrections:
+        raise ValueError("No accepted corrections to export")
+    path = build_corrected_pdf(document_id, document)
+    try:
+        original_name = Path(document_source(document_id)).name
+    except (FileNotFoundError, ValueError):
+        original_name = document_id
+    return path, corrected_pdf_download_name(document_id, original_name), len(corrections)

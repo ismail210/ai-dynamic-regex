@@ -106,6 +106,40 @@ export function needsReviewAnnotations(document) {
   return document.annotations.filter((a) => a.review_status === REVIEW_STATUS.NEEDS_REVIEW);
 }
 
+/**
+ * Overlays worth drawing on the PDF. Excludes the thousands of note/date/grid
+ * tokens that otherwise render as useless orange dots.
+ */
+export function isReviewOverlayCandidate(annotation) {
+  if (!annotation?.semantic_bbox) return false;
+  const parse = annotation.structural_parse;
+  if (parse && parse.is_structural === false) return false;
+  const op = getOperation(annotation);
+  if (op !== OPERATION.NONE) return true;
+  if ((annotation.repair_candidates || []).length > 0) return true;
+  if (
+    annotation.review_status === REVIEW_STATUS.HUMAN_ACCEPTED
+    || annotation.review_status === REVIEW_STATUS.HUMAN_REJECTED
+  ) {
+    return true;
+  }
+  if (parse?.grammar === "incomplete") return true;
+  if ((annotation.geometry_associations || []).length > 0) return true;
+  if ((annotation.modifiers || []).length > 0) return true;
+  return false;
+}
+
+/** Structural designations with a real repair/completion action — not notes. */
+export function structuralActionQueue(document) {
+  if (!document?.annotations) return [];
+  return document.annotations.filter((annotation) => {
+    if (!annotation.structural_parse?.is_structural) return false;
+    if ((annotation.repair_candidates || []).length > 0) return true;
+    const op = getOperation(annotation);
+    return op === OPERATION.REPAIR || op === OPERATION.COMPLETION;
+  });
+}
+
 /** Every distinct source-verified drawing rule referenced by any annotation,
  * for the Document Intelligence panel. */
 export function drawingRules(document) {
@@ -149,6 +183,32 @@ export function getPendingProposalOperation(annotation) {
     if (ops[i].operation === OPERATION.REPAIR && !ops[i].accepted) return ops[i];
   }
   return null;
+}
+
+/**
+ * Text Accept should write into effective_text / the corrected PDF.
+ * Prefer a pending proposal, then the top repair candidate, then a
+ * non-keep canonical, then (damage corpus only) the expected designation.
+ */
+export function getAcceptTargetText(annotation, damageCase = null) {
+  const pending = getPendingProposalOperation(annotation);
+  if (pending?.output_text) return pending.output_text;
+  const top = getRepairCandidates(annotation)[0]?.candidate_text;
+  if (top) return top;
+  const original = annotation?.original_text || annotation?.correction?.original || "";
+  const canonical = annotation?.correction?.canonical;
+  const op = getOperation(annotation);
+  if (canonical && canonical !== original && op !== OPERATION.NONE) return canonical;
+  const expected = damageCase?.intended_semantic_result || damageCase?.expected_normalized;
+  if (expected && expected !== original) return expected;
+  return null;
+}
+
+/** True when Accept can use the repair-candidate API path (vs manual edit). */
+export function isKnownAcceptCandidate(annotation, text) {
+  if (!text) return false;
+  if (getPendingProposalOperation(annotation)?.output_text === text) return true;
+  return getRepairCandidates(annotation).some((c) => c.candidate_text === text);
 }
 
 /**

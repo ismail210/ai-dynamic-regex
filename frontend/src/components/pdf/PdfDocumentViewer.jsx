@@ -435,6 +435,7 @@ export default function PdfDocumentViewer({
           </Alert>
         )}
         <Document
+          key={fileUrl}
           file={fileUrl}
           loading={
             // react-pdf clones/wraps this element internally (via its Message
@@ -554,6 +555,7 @@ export default function PdfDocumentViewer({
                           dashed={overlay.dashed}
                           badge={overlay.badge}
                           badgeTitle={overlay.badgeTitle}
+                          labelText={overlay.labelText || null}
                           onClick={overlay.onClick}
                         />
                       ))

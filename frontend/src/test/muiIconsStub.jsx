@@ -5,6 +5,7 @@ function IconStub(props) {
   return createElement("span", { "data-mui-icon-stub": "true", ...props });
 }
 
+export const DownloadOutlined = IconStub;
 export const PlayArrowOutlined = IconStub;
 export const RefreshOutlined = IconStub;
 export const ScienceOutlined = IconStub;

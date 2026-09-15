@@ -150,6 +150,38 @@ export async function reviewSemanticAnnotation(documentId, annotationId, action,
   return data;
 }
 
+/** Accept every eligible repair proposal in one request; regenerates corrected PDF once. */
+export async function acceptAllSemanticCorrections(documentId) {
+  const { data } = await client.post(
+    `/api/documents/${encodeURIComponent(documentId)}/semantic/corrections/accept-all`,
+  );
+  return data;
+}
+
+/** Same-origin URL for the corrected PDF (revision query busts browser/pdf.js cache). */
+export function correctedSemanticPdfUrl(documentId, revision) {
+  if (!documentId || !revision || revision === "none") return null;
+  return `${baseURL}/api/documents/${encodeURIComponent(documentId)}/semantic/corrected-pdf?v=${encodeURIComponent(revision)}`;
+}
+
+/** Download original PDF + all accepted semantic corrections as a derived file. */
+export async function downloadCorrectedSemanticPdf(documentId) {
+  const response = await client.get(
+    `/api/documents/${encodeURIComponent(documentId)}/semantic/corrected-pdf`,
+    { params: { download: true }, responseType: "blob" },
+  );
+  const disposition = response.headers["content-disposition"] || "";
+  const match = /filename="?([^"]+)"?/i.exec(disposition);
+  const filename = match?.[1] || `${documentId}_corrected.pdf`;
+  const url = URL.createObjectURL(response.data);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+  return { filename };
+}
+
 /** Dev/demo only: non-null only when `documentId` is a registered copy of a
  * PDF-attack-benchmark attacked file (Section 20/34/35). */
 export async function getBenchmarkContext(documentId) {

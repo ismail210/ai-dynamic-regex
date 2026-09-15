@@ -26,10 +26,12 @@ import BenchmarkTruthPanel from "./BenchmarkTruthPanel";
 import ExpectedVsActualPanel from "./ExpectedVsActualPanel";
 import {
   evidenceRulesFor,
+  getAcceptTargetText,
   getOperation,
   getOperationMeta,
   getRepairCandidates,
   isDemoSynthetic,
+  isKnownAcceptCandidate,
   OPERATION,
 } from "../../lib/semanticContract";
 import { compareExpectedVsActual } from "../../lib/semanticDamageManifest";
@@ -81,6 +83,100 @@ function ReasonList({ annotation }) {
   return null;
 }
 
+function ReviewActions({
+  annotation,
+  acceptTarget,
+  busy,
+  editing,
+  editValue,
+  setEditValue,
+  setEditing,
+  onReview,
+}) {
+  return (
+    <Box data-testid="review-actions">
+      {editing ? (
+        <Stack spacing={1}>
+          <Typography variant="caption" color="text.secondary">
+            Manual edit is pending until you Accept. Cancel discards the draft.
+          </Typography>
+          <TextField
+            size="small"
+            label="New value"
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            autoFocus
+            inputProps={{ "data-testid": "manual-edit-input" }}
+          />
+          <Stack direction="row" spacing={1}>
+            <Button
+              size="small"
+              variant="contained"
+              color="success"
+              disabled={busy || !editValue.trim()}
+              onClick={() => onReview("edit", editValue.trim())}
+              data-testid="manual-edit-accept"
+            >
+              Accept
+            </Button>
+            <Button size="small" onClick={() => setEditing(false)} data-testid="manual-edit-cancel">
+              Cancel
+            </Button>
+          </Stack>
+        </Stack>
+      ) : (
+        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+          <Button
+            size="small"
+            variant="contained"
+            color="success"
+            startIcon={<CheckCircleOutlined fontSize="small" />}
+            disabled={busy}
+            onClick={() => {
+              if (!acceptTarget) {
+                onReview("accept", null, null);
+                return;
+              }
+              if (isKnownAcceptCandidate(annotation, acceptTarget)) {
+                onReview("accept", null, acceptTarget);
+                return;
+              }
+              onReview("edit", acceptTarget);
+            }}
+            data-testid="review-accept"
+          >
+            Accept{acceptTarget ? ` (${acceptTarget})` : ""}
+          </Button>
+          <Button
+            size="small"
+            variant="outlined"
+            color="error"
+            startIcon={<HighlightOffOutlined fontSize="small" />}
+            disabled={busy}
+            onClick={() => onReview("reject")}
+            data-testid="review-reject"
+          >
+            Reject
+          </Button>
+          <Button
+            size="small"
+            variant="outlined"
+            startIcon={<EditOutlined fontSize="small" />}
+            disabled={busy}
+            onClick={() => setEditing(true)}
+            data-testid="review-manual-edit"
+          >
+            Manual edit
+          </Button>
+        </Stack>
+      )}
+      <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.75 }}>
+        Status: <b>{annotation.review_status.replace("_", " ")}</b>
+      </Typography>
+    </Box>
+  );
+}
+
 export default function AnnotationInspector({
   document,
   annotation,
@@ -110,8 +206,8 @@ export default function AnnotationInspector({
         <Paper variant="outlined" sx={{ p: 3, textAlign: "center" }}>
           <Typography color="text.secondary">
             {damageCase
-              ? "This controlled case has no matched semantic annotation yet. Process the drawing, or use Next/Previous to browse cases."
-              : "Select an annotation on the drawing to inspect it."}
+              ? "No matched annotation for this case yet. Process the drawing, or browse with Next/Previous."
+              : "Select a highlight on the drawing to inspect it."}
           </Typography>
         </Paper>
       </Stack>
@@ -124,45 +220,36 @@ export default function AnnotationInspector({
   const changed = correction.canonical && correction.canonical !== correction.original;
   const rules = evidenceRulesFor(document, annotation);
   const synthetic = isDemoSynthetic(annotation);
-
   const candidates = getRepairCandidates(annotation);
+  const acceptTarget = getAcceptTargetText(annotation, damageCase);
 
   return (
-    <Stack spacing={1.5}>
+    <Stack spacing={1.25}>
       {damageComparison && <ExpectedVsActualPanel comparison={damageComparison} />}
 
-      <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+      <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
         <OperationBadge operation={operation} />
+        <Typography variant="caption" color="text.secondary">
+          p{annotation.page} · {annotation?.structural_parse?.family || "—"}
+        </Typography>
         {synthetic && (
-          <Tooltip title="Injected to demonstrate the repair path — this string does not appear on the real drawing. See docs/upstream_semantic_preprocessor.md.">
+          <Tooltip title="Injected to demonstrate the repair path — this string does not appear on the real drawing.">
             <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, color: "text.secondary" }}>
               <ScienceOutlined fontSize="small" />
               <Typography variant="caption">Demo case</Typography>
             </Box>
           </Tooltip>
         )}
-        {benchmarkContext && (
-          <Tooltip title={`Attacked from real project: ${benchmarkContext.source_pdf}`}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, color: "text.secondary" }}>
-              <ScienceOutlined fontSize="small" />
-              <Typography variant="caption">Attack Benchmark</Typography>
-            </Box>
-          </Tooltip>
-        )}
       </Stack>
 
-      <ProcessTimeline annotation={annotation} />
-
-      <Paper variant="outlined" sx={{ p: 1.5 }}>
-        <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+      <Paper variant="outlined" sx={{ p: 1.25 }}>
+        <Stack direction="row" spacing={2}>
           <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Typography variant="caption" color="text.secondary">
-              RAW
-            </Typography>
+            <Typography variant="caption" color="text.secondary">ORIGINAL</Typography>
             <Typography
               sx={{
                 fontFamily: "monospace",
-                fontSize: 17,
+                fontSize: 16,
                 textDecoration: changed ? "line-through" : "none",
                 color: changed ? "text.secondary" : "text.primary",
               }}
@@ -170,39 +257,42 @@ export default function AnnotationInspector({
               {correction.original || annotation.original_text}
             </Typography>
           </Box>
-          {changed && (
-            <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Typography variant="caption" color="text.secondary">
-                {operation === OPERATION.NORMALIZATION ? "NORMALIZED" : "CANONICAL"}
-              </Typography>
-              <Typography sx={{ fontFamily: "monospace", fontSize: 17, fontWeight: 700, color: `${meta.colorKey}.main` }}>
-                {correction.canonical}
-              </Typography>
-            </Box>
-          )}
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Typography variant="caption" color="text.secondary">
+              {operation === OPERATION.NORMALIZATION ? "NORMALIZED" : "CURRENT"}
+            </Typography>
+            <Typography sx={{ fontFamily: "monospace", fontSize: 16, fontWeight: 700, color: `${meta.colorKey}.main` }}>
+              {annotation.effective_text || correction.canonical || annotation.primary_label}
+            </Typography>
+          </Box>
         </Stack>
-        <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
-          FAMILY {annotation?.structural_parse?.family || "—"} · OPERATION {meta.label.toUpperCase()} · STATUS{" "}
-          {annotation.review_status.replace(/_/g, " ")}
-        </Typography>
-        {annotation.modifiers?.length > 0 && (
-          <>
-            <Divider sx={{ my: 1 }} />
-            <Typography variant="caption" color="text.secondary">MODIFIER</Typography>
-            {annotation.modifiers.map((m) => (
-              <Typography key={m.raw_text} sx={{ fontFamily: "monospace", fontSize: 14 }}>
-                {m.raw_text} <Typography component="span" variant="caption" color="text.secondary">({m.type.replace("_", " ")})</Typography>
-              </Typography>
-            ))}
-          </>
+        {acceptTarget
+          && acceptTarget !== (annotation.effective_text || correction.canonical || annotation.primary_label)
+          && (
+          <Box sx={{ mt: 1 }}>
+            <Typography variant="caption" color="text.secondary">PROPOSED</Typography>
+            <Typography sx={{ fontFamily: "monospace", fontSize: 15, fontWeight: 700 }}>
+              {acceptTarget}
+            </Typography>
+          </Box>
         )}
       </Paper>
 
+      <ReviewActions
+        annotation={annotation}
+        acceptTarget={acceptTarget}
+        busy={busy}
+        editing={editing}
+        editValue={editValue}
+        setEditValue={setEditValue}
+        setEditing={setEditing}
+        onReview={onReview}
+      />
+
+      {!damageCase && <ProcessTimeline annotation={annotation} />}
+
       <Box>
-        <Typography variant="overline" sx={{ fontWeight: 700, letterSpacing: 0.4 }}>
-          Why
-        </Typography>
-        <Typography variant="body2" sx={{ mb: 1 }}>{meta.explanation}</Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>{meta.explanation}</Typography>
         <ReasonList annotation={annotation} />
       </Box>
 
@@ -215,103 +305,20 @@ export default function AnnotationInspector({
       )}
 
       {rules.length > 0 && (
-        <Box>
-          <Typography variant="overline" sx={{ fontWeight: 700, letterSpacing: 0.4 }}>
-            Evidence
-          </Typography>
-          <Stack spacing={1} sx={{ mt: 0.5 }}>
-            {rules.map((rule) => (
-              <DrawingRuleCard key={rule.rule_id} rule={rule} onViewSource={onViewSource} />
-            ))}
-          </Stack>
-        </Box>
+        <Stack spacing={1}>
+          {rules.map((rule) => (
+            <DrawingRuleCard key={rule.rule_id} rule={rule} onViewSource={onViewSource} />
+          ))}
+        </Stack>
       )}
-
-      <Box>
-        <Typography variant="overline" sx={{ fontWeight: 700, letterSpacing: 0.4 }}>
-          Geometry
-        </Typography>
-        <Box sx={{ mt: 0.5 }}>
-          <GeometryEvidenceCard document={document} annotation={annotation} />
-        </Box>
-      </Box>
-
-      <Box>
-        <Typography variant="overline" sx={{ fontWeight: 700, letterSpacing: 0.4 }}>
-          Location
-        </Typography>
-        <Typography variant="body2">
-          Page {annotation.page} · <Typography component="span" sx={{ fontFamily: "monospace" }}>{annotation.annotation_id}</Typography>
-        </Typography>
-      </Box>
 
       <Divider />
 
-      <Box>
-        <Typography variant="overline" sx={{ fontWeight: 700, letterSpacing: 0.4, display: "block", mb: 1 }}>
-          Review
-        </Typography>
-        {editing ? (
-          <Stack spacing={1}>
-            <TextField
-              size="small"
-              value={editValue}
-              onChange={(e) => setEditValue(e.target.value)}
-              autoFocus
-            />
-            <Stack direction="row" spacing={1}>
-              <Button
-                size="small"
-                variant="contained"
-                disabled={busy || !editValue.trim()}
-                onClick={() => onReview("edit", editValue.trim())}
-              >
-                Save
-              </Button>
-              <Button size="small" onClick={() => setEditing(false)}>Cancel</Button>
-            </Stack>
-          </Stack>
-        ) : (
-          <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-            <Button
-              size="small"
-              variant="contained"
-              color="success"
-              startIcon={<CheckCircleOutlined fontSize="small" />}
-              disabled={busy}
-              onClick={() => onReview("accept", null, candidates[0]?.candidate_text)}
-            >
-              Accept{candidates.length > 0 ? ` proposal (${candidates[0].candidate_text})` : ""}
-            </Button>
-            <Button
-              size="small"
-              variant="outlined"
-              color="error"
-              startIcon={<HighlightOffOutlined fontSize="small" />}
-              disabled={busy}
-              onClick={() => onReview("reject")}
-            >
-              Reject
-            </Button>
-            <Button
-              size="small"
-              variant="outlined"
-              startIcon={<EditOutlined fontSize="small" />}
-              disabled={busy}
-              onClick={() => setEditing(true)}
-            >
-              Edit text
-            </Button>
-          </Stack>
-        )}
-        <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.75 }}>
-          Status: <b>{annotation.review_status.replace("_", " ")}</b>
-        </Typography>
-      </Box>
+      <GeometryEvidenceCard document={document} annotation={annotation} />
 
       {benchmarkContext && documentId && (
         <Box>
-          <Typography variant="overline" sx={{ fontWeight: 700, letterSpacing: 0.4, display: "block", mb: 0.5 }}>
+          <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 0.5 }}>
             Benchmark (dev only)
           </Typography>
           <BenchmarkTruthPanel documentId={documentId} annotationId={annotation.annotation_id} />

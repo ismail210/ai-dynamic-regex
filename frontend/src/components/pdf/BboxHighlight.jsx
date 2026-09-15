@@ -33,6 +33,7 @@ export default function BboxHighlight({
   dashed = false,
   badge = null,
   badgeTitle = null,
+  labelText = null,
   onClick = null,
 }) {
   if (
@@ -65,80 +66,108 @@ export default function BboxHighlight({
       : inferred
         ? (active ? "info.main" : "info.light")
         : (active ? "error.main" : "warning.main");
-  const bgcolor = semantic
-    ? semantic.bg
-    : member
-      ? (active ? "rgba(46, 125, 50, 0.14)" : "rgba(46, 125, 50, 0.08)")
-      : inferred
-        ? (active ? "rgba(2, 136, 209, 0.16)" : "rgba(2, 136, 209, 0.08)")
-        : (active ? "rgba(211, 47, 47, 0.18)" : "rgba(237, 108, 2, 0.12)");
+  const bgcolor = labelText
+    ? "#ffffff"
+    : semantic
+      ? semantic.bg
+      : member
+        ? (active ? "rgba(46, 125, 50, 0.14)" : "rgba(46, 125, 50, 0.08)")
+        : inferred
+          ? (active ? "rgba(2, 136, 209, 0.16)" : "rgba(2, 136, 209, 0.08)")
+          : (active ? "rgba(211, 47, 47, 0.18)" : "rgba(237, 108, 2, 0.12)");
   const borderStyle = semantic ? (dashed ? "dashed" : "solid") : (inferred ? "dashed" : "solid");
 
   return (
     <Box
       data-bbox-highlight={active ? "active" : "idle"}
       data-bbox-variant={variant}
+      data-bbox-label={labelText || undefined}
       onClick={onClick}
-      title={badgeTitle || undefined}
+      title={badgeTitle || labelText || undefined}
       sx={{
         position: "absolute",
-        left,
-        top,
-        width: Math.max(width, 2),
-        height: Math.max(height, 2),
-        border: active ? 2 : 1.5,
-        borderStyle,
-        borderColor,
+        left: labelText ? left - 1 : left,
+        top: labelText ? top - 1 : top,
+        width: Math.max(width, labelText ? 28 : 2) + (labelText ? 2 : 0),
+        height: Math.max(height, labelText ? 14 : 2) + (labelText ? 2 : 0),
+        border: labelText ? 1 : (active ? 2 : 1.5),
+        borderStyle: labelText ? "solid" : borderStyle,
+        borderColor: labelText ? "success.main" : borderColor,
         bgcolor,
-        borderRadius: 0.5,
+        borderRadius: 0.25,
         pointerEvents: onClick ? "auto" : "none",
         cursor: onClick ? "pointer" : undefined,
-        boxShadow: active
-          ? semantic
-            ? "0 0 0 2px rgba(37,99,235,0.35)"
-            : member
-              ? "0 0 0 2px rgba(46, 125, 50, 0.3)"
-              : inferred
-                ? "0 0 0 2px rgba(2, 136, 209, 0.3)"
-                : "0 0 0 2px rgba(211, 47, 47, 0.35)"
-          : "none",
+        boxShadow: labelText
+          ? "0 1px 2px rgba(15,23,42,0.12)"
+          : active
+            ? semantic
+              ? "0 0 0 2px rgba(37,99,235,0.35)"
+              : member
+                ? "0 0 0 2px rgba(46, 125, 50, 0.3)"
+                : inferred
+                  ? "0 0 0 2px rgba(2, 136, 209, 0.3)"
+                  : "0 0 0 2px rgba(211, 47, 47, 0.35)"
+            : "none",
         zIndex: member ? 1 : active ? 3 : 2,
+        display: labelText ? "flex" : undefined,
+        alignItems: labelText ? "center" : undefined,
+        px: labelText ? 0.4 : undefined,
+        overflow: labelText ? "hidden" : undefined,
         "&:hover": onClick ? { boxShadow: "0 0 0 2px rgba(37,99,235,0.45)" } : undefined,
-        "&::after": inferred || (semantic && badge)
-          ? {
-              content: inferred ? '"Inferred"' : `"${badge}"`,
-              position: "absolute",
-              top: -16,
-              left: -1,
-              fontSize: 9,
-              fontWeight: 700,
-              letterSpacing: 0.3,
-              color: "#fff",
-              bgcolor: semantic ? semantic.strong : "info.main",
-              px: 0.5,
-              borderRadius: 0.5,
-              lineHeight: 1.5,
-              whiteSpace: "nowrap",
-              display: active ? "block" : "none",
-            }
-          : member
+        "&::after": labelText
+          ? undefined
+          : inferred || (semantic && badge)
             ? {
-                content: '"Member"',
+                content: inferred ? '"Inferred"' : `"${badge}"`,
                 position: "absolute",
-                top: -18,
-                left: 0,
-                fontSize: 10,
+                top: -16,
+                left: -1,
+                fontSize: 9,
                 fontWeight: 700,
                 letterSpacing: 0.3,
-                color: "success.main",
-                bgcolor: "background.paper",
+                color: "#fff",
+                bgcolor: semantic ? semantic.strong : "info.main",
                 px: 0.5,
                 borderRadius: 0.5,
-                lineHeight: 1.4,
+                lineHeight: 1.5,
+                whiteSpace: "nowrap",
+                display: active ? "block" : "none",
               }
-            : undefined,
+            : member
+              ? {
+                  content: '"Member"',
+                  position: "absolute",
+                  top: -18,
+                  left: 0,
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: 0.3,
+                  color: "success.main",
+                  bgcolor: "background.paper",
+                  px: 0.5,
+                  borderRadius: 0.5,
+                  lineHeight: 1.4,
+                }
+              : undefined,
       }}
-    />
+    >
+      {labelText ? (
+        <Box
+          component="span"
+          sx={{
+            fontFamily: "Helvetica, Arial, sans-serif",
+            fontSize: Math.max(9, Math.min(13, height * 0.85)),
+            fontWeight: 600,
+            color: "#111",
+            lineHeight: 1,
+            whiteSpace: "nowrap",
+            letterSpacing: 0.2,
+          }}
+        >
+          {labelText}
+        </Box>
+      ) : null}
+    </Box>
   );
 }
 
