@@ -29,6 +29,7 @@ import DocumentSummaryBar from "../components/semantic/DocumentSummaryBar";
 import AnnotationInspector from "../components/semantic/AnnotationInspector";
 import ReviewQueue from "../components/semantic/ReviewQueue";
 import DocumentIntelligencePanel from "../components/semantic/DocumentIntelligencePanel";
+import DamageCaseBar from "../components/semantic/DamageCaseBar";
 import EmptyState from "../components/ui/EmptyState";
 import PageHeader from "../components/ui/PageHeader";
 import {
@@ -36,13 +37,15 @@ import {
   getOverlayStyle,
   needsReviewAnnotations,
 } from "../lib/semanticContract";
+import {
+  caseMatchesFilter,
+  damageCorpusSummary,
+  pairCasesWithAnnotations,
+  resolveDamageManifest,
+} from "../lib/semanticDamageManifest";
 
-// Falls back to the precomputed demo drawing when no document is active in
-// this session yet (Section 26: reliability over live processing for the
-// stakeholder demo) -- this is real, captured pipeline output, not
-// invented data; see backend/scripts/generate_demo_semantic_fixture.py.
+// Prefer the active analysis document. Demo fallback remains for empty sessions.
 const DEMO_DOCUMENT_ID = "doc_47dc7ef27f6e5d7e";
-const DEFAULT_PAGE = 5;
 
 export default function SemanticReviewPage() {
   const { document: activeDocument } = useAnalysis();
@@ -58,21 +61,53 @@ export default function SemanticReviewPage() {
 
   const [selectedAnnotationId, setSelectedAnnotationId] = useState(null);
   const [viewerOverride, setViewerOverride] = useState(null); // {page, boundingBox} from "View source"
-  const [currentPage, setCurrentPage] = useState(DEFAULT_PAGE);
+  const [currentPage, setCurrentPage] = useState(1);
   const [tab, setTab] = useState("review");
   const [reviewBusy, setReviewBusy] = useState(false);
 
   const [showFragments, setShowFragments] = useState(false);
   const [needsReviewOnly, setNeedsReviewOnly] = useState(false);
+  const [damageFilter, setDamageFilter] = useState("all");
+  const [damageCaseIndex, setDamageCaseIndex] = useState(0);
+
+  const drawingLabel =
+    activeDocument?.original_filename ||
+    activeDocument?.source_file ||
+    documentId;
+
+  const damageManifest = useMemo(
+    () => resolveDamageManifest(drawingLabel),
+    [drawingLabel],
+  );
+
+  const damagePairs = useMemo(
+    () => (damageManifest ? pairCasesWithAnnotations(damageManifest, semanticDoc) : []),
+    [damageManifest, semanticDoc],
+  );
+
+  const filteredDamagePairs = useMemo(
+    () => damagePairs.filter((pair) => caseMatchesFilter(pair, damageFilter)),
+    [damagePairs, damageFilter],
+  );
+
+  const damageSummary = useMemo(
+    () => (damagePairs.length ? damageCorpusSummary(damagePairs) : null),
+    [damagePairs],
+  );
+
+  const activeDamagePair = filteredDamagePairs[damageCaseIndex] || null;
+  const activeDamageCase = activeDamagePair?.testCase || null;
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const result = await getSemanticDocument(documentId);
-      setSemanticDoc(result.document);
-      setSummary(result.summary);
+      // Backend returns 200 + document:null when not processed yet (not 404).
+      setSemanticDoc(result?.document ?? null);
+      setSummary(result?.summary ?? null);
     } catch (err) {
+      // Legacy 404 (older servers) and unknown-document 404 both mean empty.
       if (err.response?.status === 404) {
         setSemanticDoc(null);
         setSummary(null);
@@ -87,6 +122,30 @@ export default function SemanticReviewPage() {
   useEffect(() => {
     load();
   }, [load]);
+
+  // When a result arrives, focus a page that actually has annotations.
+  // Hard-coded page 5/58 made short controlled-test PDFs render blank/black.
+  useEffect(() => {
+    if (!semanticDoc?.annotations?.length) return;
+    setCurrentPage((prev) => {
+      if (annotationsForPage(semanticDoc, prev).length > 0) return prev;
+      const needs = needsReviewAnnotations(semanticDoc);
+      const target = needs[0] || semanticDoc.annotations[0];
+      const page = Number(target?.page);
+      return Number.isFinite(page) && page >= 1 ? page : 1;
+    });
+  }, [semanticDoc]);
+
+  // Keep case index in range when the filter changes.
+  useEffect(() => {
+    setDamageCaseIndex(0);
+  }, [damageFilter, damageManifest?.output_pdf]);
+
+  useEffect(() => {
+    if (damageCaseIndex >= filteredDamagePairs.length && filteredDamagePairs.length > 0) {
+      setDamageCaseIndex(0);
+    }
+  }, [filteredDamagePairs.length, damageCaseIndex]);
 
   // Dev/demo only (Section 34/35): silently no-ops (null) for any ordinary
   // document -- this must never affect or delay normal Semantic Review use.
@@ -153,6 +212,44 @@ export default function SemanticReviewPage() {
     setViewerOverride({ page, boundingBox: null });
   }, []);
 
+  const focusDamageCase = useCallback((pair) => {
+    if (!pair?.testCase) return;
+    const { testCase, annotation } = pair;
+    const page = Number(testCase.source_page) || 1;
+    setCurrentPage(page);
+    if (annotation) {
+      setSelectedAnnotationId(annotation.annotation_id);
+      setViewerOverride(null);
+      return;
+    }
+    setSelectedAnnotationId(null);
+    const bbox = testCase.modified_bbox || testCase.original_bbox || null;
+    setViewerOverride({ page, boundingBox: bbox });
+  }, []);
+
+  const handleDamagePrev = useCallback(() => {
+    if (!filteredDamagePairs.length) return;
+    const next = (damageCaseIndex - 1 + filteredDamagePairs.length) % filteredDamagePairs.length;
+    setDamageCaseIndex(next);
+    focusDamageCase(filteredDamagePairs[next]);
+  }, [damageCaseIndex, filteredDamagePairs, focusDamageCase]);
+
+  const handleDamageNext = useCallback(() => {
+    if (!filteredDamagePairs.length) return;
+    const next = (damageCaseIndex + 1) % filteredDamagePairs.length;
+    setDamageCaseIndex(next);
+    focusDamageCase(filteredDamagePairs[next]);
+  }, [damageCaseIndex, filteredDamagePairs, focusDamageCase]);
+
+  // When user picks an overlay annotation, sync the damage case index if it matches.
+  useEffect(() => {
+    if (!selectedAnnotationId || !filteredDamagePairs.length) return;
+    const idx = filteredDamagePairs.findIndex(
+      (pair) => pair.annotation?.annotation_id === selectedAnnotationId,
+    );
+    if (idx >= 0 && idx !== damageCaseIndex) setDamageCaseIndex(idx);
+  }, [selectedAnnotationId, filteredDamagePairs, damageCaseIndex]);
+
   const handleReview = async (action, editedText, candidateText) => {
     if (!selectedAnnotation) return;
     setReviewBusy(true);
@@ -204,8 +301,37 @@ export default function SemanticReviewPage() {
         }
       }
     }
+    // Manifest bbox fallback when the controlled case is not yet matched.
+    if (
+      activeDamageCase
+      && !activeDamagePair?.annotation
+      && Number(activeDamageCase.source_page) === Number(currentPage)
+    ) {
+      const bbox = activeDamageCase.modified_bbox || activeDamageCase.original_bbox;
+      if (bbox) {
+        built.push({
+          key: `damage-${activeDamageCase.test_case_id}`,
+          pageNumber: activeDamageCase.source_page,
+          boundingBox: bbox,
+          variant: "warning",
+          dashed: true,
+          badge: "T",
+          badgeTitle: `${activeDamageCase.test_text} (test case)`,
+          onClick: () => focusDamageCase(activeDamagePair),
+        });
+      }
+    }
     return built;
-  }, [pageAnnotations, showFragments, needsReviewOnly, handleSelectAnnotation]);
+  }, [
+    pageAnnotations,
+    showFragments,
+    needsReviewOnly,
+    handleSelectAnnotation,
+    activeDamageCase,
+    activeDamagePair,
+    currentPage,
+    focusDamageCase,
+  ]);
 
   // This document is dozens of full-size sheets mounted at once (see
   // PdfDocumentViewer's own note on `zoomFillRatio`/`zoomMaxMultiplier`) --
@@ -234,12 +360,68 @@ export default function SemanticReviewPage() {
         ...GENTLE_ZOOM,
       };
     }
+    if (activeDamageCase?.modified_bbox || activeDamageCase?.original_bbox) {
+      return {
+        key: `damage-${activeDamageCase.test_case_id}`,
+        pageNumber: activeDamageCase.source_page,
+        boundingBox: activeDamageCase.modified_bbox || activeDamageCase.original_bbox,
+        variant: "warning",
+        ...GENTLE_ZOOM,
+      };
+    }
     return null;
-  }, [viewerOverride, selectedAnnotation]);
+  }, [viewerOverride, selectedAnnotation, activeDamageCase]);
 
   const reviewQueue = useMemo(
     () => (semanticDoc ? needsReviewAnnotations(semanticDoc) : []),
     [semanticDoc],
+  );
+
+  const jumpPages = useMemo(() => {
+    if (damageManifest?.changed_pages?.length) {
+      return [...damageManifest.changed_pages].sort((a, b) => a - b).slice(0, 8);
+    }
+    if (!semanticDoc?.annotations?.length) return [1];
+    const pages = [...new Set(semanticDoc.annotations.map((a) => Number(a.page)).filter((p) => p >= 1))];
+    pages.sort((a, b) => a - b);
+    // Prefer a short strip: first, a mid needs-review page, last.
+    if (pages.length <= 4) return pages;
+    const needsPages = [
+      ...new Set(reviewQueue.map((a) => Number(a.page)).filter((p) => p >= 1)),
+    ].sort((a, b) => a - b);
+    const pick = new Set([pages[0], pages[pages.length - 1]]);
+    if (needsPages[0]) pick.add(needsPages[0]);
+    if (needsPages[Math.floor(needsPages.length / 2)]) {
+      pick.add(needsPages[Math.floor(needsPages.length / 2)]);
+    }
+    return [...pick].sort((a, b) => a - b);
+  }, [semanticDoc, reviewQueue, damageManifest]);
+
+  const pdfViewer = (
+    <Paper
+      variant="outlined"
+      sx={{
+        flex: 1,
+        minHeight: 0,
+        height: "100%",
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+        p: 1,
+        bgcolor: "background.paper",
+      }}
+    >
+      <Typography variant="caption" color="text.secondary" sx={{ px: 0.5, pb: 0.75 }}>
+        {drawingLabel}
+      </Typography>
+      <Box sx={{ flex: 1, minHeight: 0 }}>
+        <PdfDocumentViewer
+          fileUrl={pdfUrl}
+          selection={viewerSelection}
+          overlays={overlays}
+        />
+      </Box>
+    </Paper>
   );
 
   return (
@@ -251,22 +433,47 @@ export default function SemanticReviewPage() {
 
       {error && <Alert severity="warning" onClose={() => setError(null)}>{error}</Alert>}
 
-      {!loading && !semanticDoc && (
-        <EmptyState
-          icon={PlayArrowOutlined}
-          title="No semantic result yet"
-          subtitle="Run the semantic preprocessor against this drawing to extract, group, normalize, repair, and complete its structural labels."
-          action={
-            <Button
-              variant="contained"
-              startIcon={processing ? <CircularProgress size={16} color="inherit" /> : <PlayArrowOutlined />}
-              onClick={() => handleProcess(false)}
-              disabled={processing}
-            >
-              {processing ? "Processing…" : "Process drawing"}
-            </Button>
-          }
+      {damageManifest && (
+        <Alert severity="info" icon={<ScienceOutlined fontSize="small" />} data-testid="damage-corpus-banner">
+          Controlled damage test PDF ({damageManifest.project}). In-place mutations on real drawing
+          callouts — not a customer document. Expected values in the inspector are test metadata only.
+        </Alert>
+      )}
+
+      {damageSummary && (
+        <DamageCaseBar
+          summary={damageSummary}
+          filterId={damageFilter}
+          onFilterChange={setDamageFilter}
+          caseIndex={Math.min(damageCaseIndex, Math.max(filteredDamagePairs.length - 1, 0))}
+          caseCount={filteredDamagePairs.length}
+          currentCase={activeDamageCase}
+          onPrev={handleDamagePrev}
+          onNext={handleDamageNext}
         />
+      )}
+
+      {!loading && !semanticDoc && (
+        <Stack spacing={2}>
+          <EmptyState
+            icon={PlayArrowOutlined}
+            title="No semantic result yet"
+            subtitle="Run the semantic preprocessor against this drawing to extract, group, normalize, repair, and complete its structural labels."
+            action={
+              <Button
+                variant="contained"
+                startIcon={processing ? <CircularProgress size={16} color="inherit" /> : <PlayArrowOutlined />}
+                onClick={() => handleProcess(false)}
+                disabled={processing}
+              >
+                {processing ? "Processing…" : "Process drawing"}
+              </Button>
+            }
+          />
+          <Box sx={{ height: "52vh", minHeight: 360, display: "flex", flexDirection: "column" }}>
+            {pdfViewer}
+          </Box>
+        </Stack>
       )}
 
       {loading && (
@@ -297,17 +504,6 @@ export default function SemanticReviewPage() {
               feedback loop (reproduced during this session's demo QA). See
               DrawingReviewPage's identical `calc(100vh - Npx)` pattern. */}
           <Grid container spacing={2} sx={{ height: "68vh", minHeight: 560 }}>
-            {/* minHeight: 0 is load-bearing, not redundant with the inner
-                Box's own minHeight: 0 -- this Grid item is itself a flex
-                item of the (height-bounded) Grid container above, and a
-                flex item's default `min-height: auto` lets its OWN box grow
-                to fit its content's natural size, overriding the stretched
-                cross-axis height the container tried to give it. Without
-                this, the PDF viewer (and everything below it on the page)
-                inherits the full un-clipped height of all 81 rendered
-                sheets -- reproduced and root-caused during this session's
-                browser QA (see PdfDocumentViewer's own zoomFillRatio note
-                for the matching render-cost half of this problem). */}
             <Grid size={{ xs: 12, md: 8 }} sx={{ display: "flex", flexDirection: "column", minHeight: 0, height: "100%" }}>
               <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap" sx={{ mb: 1 }}>
                 <FormControlLabel
@@ -319,7 +515,7 @@ export default function SemanticReviewPage() {
                   label={<Typography variant="body2">Needs review only</Typography>}
                 />
                 <ButtonGroup size="small" sx={{ ml: "auto" }}>
-                  {[DEFAULT_PAGE, 58].map((p) => (
+                  {jumpPages.map((p) => (
                     <Button
                       key={p}
                       variant={currentPage === p ? "contained" : "outlined"}
@@ -338,17 +534,11 @@ export default function SemanticReviewPage() {
                   Reprocess
                 </Button>
               </Stack>
-              <Box sx={{ flex: 1, minHeight: 0 }}>
-                <PdfDocumentViewer
-                  fileUrl={pdfUrl}
-                  selection={viewerSelection}
-                  overlays={overlays}
-                />
-              </Box>
+              {pdfViewer}
               <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
                 Showing annotations for page {currentPage} ({pageAnnotations.length}
                 {needsReviewOnly ? " needing review" : ""}). Use the page buttons above,
-                or click an annotation, to change focus.
+                case navigator, or click an annotation to change focus.
               </Typography>
             </Grid>
 
@@ -360,12 +550,13 @@ export default function SemanticReviewPage() {
               >
                 <AnnotationInspector
                   document={semanticDoc}
-                  annotation={selectedAnnotation}
+                  annotation={selectedAnnotation || activeDamagePair?.annotation || null}
                   onViewSource={handleViewSource}
                   onReview={handleReview}
                   busy={reviewBusy}
                   documentId={documentId}
                   benchmarkContext={benchmarkContext}
+                  damageCase={activeDamageCase}
                 />
               </Paper>
             </Grid>

@@ -132,7 +132,9 @@ export async function processSemanticDocument(documentId, force = false) {
   });
 }
 
-/** Cached semantic result, or throws (404) if not processed yet. */
+/** Cached semantic result. Unprocessed docs return HTTP 200 with
+ * `{ document: null, summary: null, status: "not_ready" }` (not 404), so the
+ * Semantic Review empty state does not spam the browser console. */
 export async function getSemanticDocument(documentId) {
   const { data } = await client.get(
     `/api/documents/${encodeURIComponent(documentId)}/semantic`,

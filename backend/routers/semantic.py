@@ -39,10 +39,25 @@ def process_semantic(document_id: str, force: bool = Query(False)):
 
 @router.get("/documents/{document_id}/semantic")
 def get_semantic(document_id: str):
+    """Return the cached semantic result, or a quiet not-ready payload.
+
+    Unprocessed-but-registered documents must NOT 404: the Semantic Review
+    page always GETs on mount, and a 404 floods the browser console even
+    though "not processed yet" is the normal empty state. Unknown document
+    ids still 404 via ``document_source``.
+    """
+    try:
+        document_source(document_id)
+    except (FileNotFoundError, ValueError) as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
     document = get_cached_semantic_document(document_id)
     if document is None:
-        raise HTTPException(status_code=404, detail="No semantic result cached for this document yet")
-    return {"document": document, "summary": document_summary(document)}
+        return {"document": None, "summary": None, "status": "not_ready"}
+    return {
+        "document": document,
+        "summary": document_summary(document),
+        "status": "ready",
+    }
 
 
 @router.get("/documents/{document_id}/semantic/review-queue")

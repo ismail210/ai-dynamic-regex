@@ -1,5 +1,9 @@
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Long analysis requests must not be cut off by the dev proxy.
 const PROXY_TIMEOUT_MS = 15 * 60 * 1000;
@@ -31,6 +35,11 @@ export default defineConfig(({ mode }) => {
       environment: "jsdom",
       globals: true,
       setupFiles: ["./src/test/setup.js"],
+      // Named icon imports otherwise resolve the full MUI icons package and
+      // hit EMFILE on constrained macOS file-descriptor limits.
+      alias: {
+        "@mui/icons-material": path.resolve(__dirname, "./src/test/muiIconsStub.jsx"),
+      },
     },
     server: {
       port: 5173,

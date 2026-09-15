@@ -58,9 +58,22 @@ class SemanticApiTests(IsolatedApiTestCase):
         self.assertEqual(w8["correction"]["operation"], "completion")
         self.assertEqual(w8["correction"]["canonical"], "W8X10")
 
-    def test_unprocessed_document_returns_404(self):
+    def test_unprocessed_document_returns_not_ready(self):
+        """Empty cache is a normal state — must be HTTP 200, not 404.
+
+        Semantic Review GETs on every page load; a 404 here only spams the
+        browser console and looks like a failure to the user.
+        """
         document_id = self._register()
         response = self.client.get(f"/api/documents/{document_id}/semantic")
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertIsNone(body["document"])
+        self.assertIsNone(body["summary"])
+        self.assertEqual(body["status"], "not_ready")
+
+    def test_unknown_document_semantic_get_is_404(self):
+        response = self.client.get("/api/documents/doc_doesnotexist00000000/semantic")
         self.assertEqual(response.status_code, 404)
 
     def test_review_accept_updates_status(self):

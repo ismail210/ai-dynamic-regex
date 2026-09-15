@@ -3,8 +3,12 @@ import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import SemanticReviewPage from "./SemanticReviewPage";
 
+const { analysisDocument } = vi.hoisted(() => ({
+  analysisDocument: { document_id: "doc_test1234567890", source_file: "demo.pdf" },
+}));
+
 vi.mock("../context/AnalysisContext", () => ({
-  useAnalysis: () => ({ document: { document_id: "doc_test1234567890" } }),
+  useAnalysis: () => ({ document: analysisDocument }),
 }));
 
 const getSemanticDocument = vi.fn();
@@ -273,10 +277,48 @@ describe("SemanticReviewPage", () => {
   });
 
   it("shows a process button and an empty state when nothing has been processed yet", async () => {
-    getSemanticDocument.mockRejectedValue({ response: { status: 404 } });
+    getSemanticDocument.mockResolvedValue({
+      document: null,
+      summary: null,
+      status: "not_ready",
+    });
     renderPage();
 
     expect(await screen.findByText(/no semantic result yet/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /process drawing/i })).toBeInTheDocument();
+  });
+
+  it("loads the damage-corpus navigator for SEMANTIC_DAMAGE_TEST uploads and keeps expected separate", async () => {
+    analysisDocument.source_file = "burrville_SEMANTIC_DAMAGE_TEST.pdf";
+    const document = buildDocument();
+    // Place a repair annotation on a known Burrville case page/text so matching works.
+    document.annotations.push(
+      baseAnnotation({
+        annotation_id: "ann_damage_match",
+        page: 10,
+        semantic_bbox: [1704.99, 730.32, 1717.58, 770.16],
+        primary_label: "W18X40",
+        correction: {
+          operation: "keep",
+          original: "W18X40",
+          canonical: "W18X40",
+          reason_codes: [],
+          evidence_ids: [],
+          auto_accept: true,
+          confidence: null,
+        },
+        review_status: "auto_accepted",
+      }),
+    );
+    getSemanticDocument.mockResolvedValue({ document, summary: { annotation_count: 7 } });
+    renderPage();
+
+    expect(await screen.findByTestId("damage-corpus-banner")).toBeInTheDocument();
+    expect(screen.getByTestId("damage-case-bar")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("damage-case-next"));
+    expect(screen.getByTestId("damage-case-position").textContent).toMatch(/Case \d+ \/ \d+/);
+    expect(screen.getByTestId("expected-vs-actual")).toBeInTheDocument();
+    expect(screen.getByText(/test-corpus metadata/i)).toBeInTheDocument();
+    analysisDocument.source_file = "demo.pdf";
   });
 });

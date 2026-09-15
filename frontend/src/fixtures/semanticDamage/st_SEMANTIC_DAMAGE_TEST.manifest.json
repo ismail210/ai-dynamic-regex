@@ -1,0 +1,748 @@
+{
+  "demo": true,
+  "source_type": "in_place_controlled_corruption",
+  "project": "ST",
+  "source_pdf": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/ST__0bfc2d61245d.pdf",
+  "output_pdf": "/Users/hibareda/Desktop/ai-dynamic-regex/validation/semantic_test_pdfs/st_SEMANTIC_DAMAGE_TEST.pdf",
+  "seed": 20260915,
+  "page_count": 23,
+  "source_page_count": 23,
+  "page_count_preserved": true,
+  "page_size_first": [
+    0.0,
+    0.0,
+    3024.0,
+    2160.0
+  ],
+  "page_size_match_first": true,
+  "original_pdf_modified": false,
+  "case_count": 27,
+  "changed_pages": [
+    7,
+    8,
+    12,
+    17,
+    22,
+    23
+  ],
+  "category_counts": {
+    "deletion": 3,
+    "insertion": 3,
+    "spacing": 4,
+    "char_corruption": 5,
+    "clean_control": 4,
+    "incomplete": 4,
+    "decimal_fraction": 4
+  },
+  "cases": [
+    {
+      "test_case_id": "st_SEMANTIC_DAMAGE_TEST__c07_deletion",
+      "category": "deletion",
+      "corruption_type": "char_deletion_trailing",
+      "source_page": 7,
+      "original_text": "W8x58",
+      "test_text": "W8X5",
+      "intended_semantic_result": "W8X58",
+      "expected_operation": "repair",
+      "expected_status": "needs_review",
+      "expected_normalized": "W8X58",
+      "expected_abstention": false,
+      "original_bbox": [
+        501.95977783203125,
+        220.87391662597656,
+        531.3349609375,
+        230.32582092285156
+      ],
+      "modified_bbox": [
+        501.95977783203125,
+        220.87391662597656,
+        525.6383103133151,
+        230.32582092285156
+      ],
+      "fontsize": 9.451915740966797
+    },
+    {
+      "test_case_id": "st_SEMANTIC_DAMAGE_TEST__c11_insertion",
+      "category": "insertion",
+      "corruption_type": "char_insertion_duplicate_2",
+      "source_page": 8,
+      "original_text": "W8x24",
+      "test_text": "W8X224",
+      "intended_semantic_result": "W8X24",
+      "expected_operation": "repair",
+      "expected_status": "needs_review",
+      "expected_normalized": "W8X24",
+      "expected_abstention": false,
+      "original_bbox": [
+        501.95977783203125,
+        140.71388244628906,
+        531.3349609375,
+        150.16578674316406
+      ],
+      "modified_bbox": [
+        501.95977783203125,
+        140.71388244628906,
+        532.9349609374999,
+        150.16578674316406
+      ],
+      "fontsize": 9.451915740966797
+    },
+    {
+      "test_case_id": "st_SEMANTIC_DAMAGE_TEST__c19_spacing",
+      "category": "spacing",
+      "corruption_type": "spacing_around_fields",
+      "source_page": 8,
+      "original_text": "W8x40",
+      "test_text": "W 8 X 40",
+      "intended_semantic_result": "W8X40",
+      "expected_operation": "normalization",
+      "expected_status": "normalized",
+      "expected_normalized": "W8X40",
+      "expected_abstention": false,
+      "original_bbox": [
+        501.95977783203125,
+        204.43397521972656,
+        531.3349609375,
+        213.88587951660156
+      ],
+      "modified_bbox": [
+        501.95977783203125,
+        204.43397521972656,
+        532.9349609374999,
+        213.88587951660156
+      ],
+      "fontsize": 9.451915740966797
+    },
+    {
+      "test_case_id": "st_SEMANTIC_DAMAGE_TEST__c10_insertion",
+      "category": "insertion",
+      "corruption_type": "char_insertion_duplicate_X",
+      "source_page": 8,
+      "original_text": "W18x46",
+      "test_text": "W18XX46",
+      "intended_semantic_result": "W18X46",
+      "expected_operation": "repair",
+      "expected_status": "needs_review",
+      "expected_normalized": "W18X46",
+      "expected_abstention": false,
+      "original_bbox": [
+        1080.93212890625,
+        882.0853271484375,
+        1090.512939453125,
+        917.400390625
+      ],
+      "modified_bbox": [
+        1080.93212890625,
+        882.0853271484375,
+        1103.442128777504,
+        917.400390625
+      ],
+      "fontsize": 9.58077335357666
+    },
+    {
+      "test_case_id": "st_SEMANTIC_DAMAGE_TEST__c09_deletion",
+      "category": "deletion",
+      "corruption_type": "char_deletion_trailing",
+      "source_page": 8,
+      "original_text": "W18x46",
+      "test_text": "W18X4",
+      "intended_semantic_result": "W18X46",
+      "expected_operation": "repair",
+      "expected_status": "needs_review",
+      "expected_normalized": "W18X46",
+      "expected_abstention": false,
+      "original_bbox": [
+        765.4523315429688,
+        882.08544921875,
+        775.0330810546875,
+        917.4005126953125
+      ],
+      "modified_bbox": [
+        765.4523315429688,
+        882.08544921875,
+        781.8473314642906,
+        917.4005126953125
+      ],
+      "fontsize": 9.58077335357666
+    },
+    {
+      "test_case_id": "st_SEMANTIC_DAMAGE_TEST__c08_deletion",
+      "category": "deletion",
+      "corruption_type": "char_deletion_trailing",
+      "source_page": 8,
+      "original_text": "W18x46",
+      "test_text": "W18X4",
+      "intended_semantic_result": "W18X46",
+      "expected_operation": "repair",
+      "expected_status": "needs_review",
+      "expected_normalized": "W18X46",
+      "expected_abstention": false,
+      "original_bbox": [
+        635.6124267578125,
+        1078.4049072265625,
+        645.1931762695312,
+        1113.719970703125
+      ],
+      "modified_bbox": [
+        635.6124267578125,
+        1078.4049072265625,
+        652.0074266791344,
+        1113.719970703125
+      ],
+      "fontsize": 9.58077335357666
+    },
+    {
+      "test_case_id": "st_SEMANTIC_DAMAGE_TEST__c01_char_corruption",
+      "category": "char_corruption",
+      "corruption_type": "ocr_swap_8_to_B",
+      "source_page": 8,
+      "original_text": "W18x46",
+      "test_text": "W1BX46",
+      "intended_semantic_result": "W18X46",
+      "expected_operation": "repair",
+      "expected_status": "needs_review",
+      "expected_normalized": "W18X46",
+      "expected_abstention": false,
+      "original_bbox": [
+        746.6123046875,
+        1301.724853515625,
+        756.1930541992188,
+        1337.040283203125
+      ],
+      "modified_bbox": [
+        746.6123046875,
+        1301.724853515625,
+        766.3423045873642,
+        1337.040283203125
+      ],
+      "fontsize": 9.58077335357666
+    },
+    {
+      "test_case_id": "st_SEMANTIC_DAMAGE_TEST__c26_clean_control",
+      "category": "clean_control",
+      "corruption_type": "none",
+      "source_page": 8,
+      "original_text": "W18x46",
+      "test_text": "W18x46",
+      "intended_semantic_result": "W18X46",
+      "expected_operation": "keep",
+      "expected_status": "clean_control",
+      "expected_normalized": "W18X46",
+      "expected_abstention": false,
+      "original_bbox": [
+        765.4523315429688,
+        1301.724853515625,
+        775.0330810546875,
+        1337.040283203125
+      ],
+      "modified_bbox": [
+        765.4523315429688,
+        1301.724853515625,
+        775.0330810546875,
+        1337.040283203125
+      ],
+      "fontsize": 9.58077335357666
+    },
+    {
+      "test_case_id": "st_SEMANTIC_DAMAGE_TEST__c05_char_corruption",
+      "category": "char_corruption",
+      "corruption_type": "ocr_swap_6_to_G",
+      "source_page": 8,
+      "original_text": "W18x46",
+      "test_text": "W18X4G",
+      "intended_semantic_result": "W18X46",
+      "expected_operation": "repair",
+      "expected_status": "needs_review",
+      "expected_normalized": "W18X46",
+      "expected_abstention": false,
+      "original_bbox": [
+        821.6122436523438,
+        1301.724853515625,
+        831.1929931640625,
+        1337.040283203125
+      ],
+      "modified_bbox": [
+        821.6122436523438,
+        1301.724853515625,
+        841.8972435593605,
+        1337.040283203125
+      ],
+      "fontsize": 9.58077335357666
+    },
+    {
+      "test_case_id": "st_SEMANTIC_DAMAGE_TEST__c18_spacing",
+      "category": "spacing",
+      "corruption_type": "spacing_around_fields",
+      "source_page": 8,
+      "original_text": "W18x46",
+      "test_text": "W 18 X 46",
+      "intended_semantic_result": "W18X46",
+      "expected_operation": "normalization",
+      "expected_status": "normalized",
+      "expected_normalized": "W18X46",
+      "expected_abstention": false,
+      "original_bbox": [
+        971.6122436523438,
+        1301.724853515625,
+        981.1929931640625,
+        1337.0400390625
+      ],
+      "modified_bbox": [
+        971.6122436523438,
+        1301.724853515625,
+        994.95724350214,
+        1337.0400390625
+      ],
+      "fontsize": 9.58077335357666
+    },
+    {
+      "test_case_id": "st_SEMANTIC_DAMAGE_TEST__c02_char_corruption",
+      "category": "char_corruption",
+      "corruption_type": "ocr_swap_8_to_B",
+      "source_page": 8,
+      "original_text": "W18x46",
+      "test_text": "W1BX46",
+      "intended_semantic_result": "W18X46",
+      "expected_operation": "repair",
+      "expected_status": "needs_review",
+      "expected_normalized": "W18X46",
+      "expected_abstention": false,
+      "original_bbox": [
+        998.252197265625,
+        1525.0450439453125,
+        1007.8329467773438,
+        1560.3603515625
+      ],
+      "modified_bbox": [
+        998.252197265625,
+        1525.0450439453125,
+        1017.9821971654892,
+        1560.3603515625
+      ],
+      "fontsize": 9.58077335357666
+    },
+    {
+      "test_case_id": "st_SEMANTIC_DAMAGE_TEST__c25_clean_control",
+      "category": "clean_control",
+      "corruption_type": "none",
+      "source_page": 12,
+      "original_text": "W16x45",
+      "test_text": "W16x45",
+      "intended_semantic_result": "W16X45",
+      "expected_operation": "keep",
+      "expected_status": "clean_control",
+      "expected_normalized": "W16X45",
+      "expected_abstention": false,
+      "original_bbox": [
+        1758.8392333984375,
+        867.5731811523438,
+        1794.154296875,
+        877.1539306640625
+      ],
+      "modified_bbox": [
+        1758.8392333984375,
+        867.5731811523438,
+        1794.154296875,
+        877.1539306640625
+      ],
+      "fontsize": 9.58077335357666
+    },
+    {
+      "test_case_id": "st_SEMANTIC_DAMAGE_TEST__c06_char_corruption",
+      "category": "char_corruption",
+      "corruption_type": "ocr_swap_5_to_S",
+      "source_page": 12,
+      "original_text": "W16x45",
+      "test_text": "W16X4S",
+      "intended_semantic_result": "W16X45",
+      "expected_operation": "repair",
+      "expected_status": "needs_review",
+      "expected_normalized": "W16X45",
+      "expected_abstention": false,
+      "original_bbox": [
+        734.848876953125,
+        888.5602416992188,
+        744.43408203125,
+        923.8804931640625
+      ],
+      "modified_bbox": [
+        734.848876953125,
+        888.5602416992188,
+        754.5788768529892,
+        923.8804931640625
+      ],
+      "fontsize": 9.585223197937012
+    },
+    {
+      "test_case_id": "st_SEMANTIC_DAMAGE_TEST__c27_clean_control",
+      "category": "clean_control",
+      "corruption_type": "none",
+      "source_page": 12,
+      "original_text": "W24x68",
+      "test_text": "W24x68",
+      "intended_semantic_result": "W24X68",
+      "expected_operation": "keep",
+      "expected_status": "clean_control",
+      "expected_normalized": "W24X68",
+      "expected_abstention": false,
+      "original_bbox": [
+        735.5997314453125,
+        979.1731567382812,
+        770.9150390625,
+        988.75390625
+      ],
+      "modified_bbox": [
+        735.5997314453125,
+        979.1731567382812,
+        770.9150390625,
+        988.75390625
+      ],
+      "fontsize": 9.58077335357666
+    },
+    {
+      "test_case_id": "st_SEMANTIC_DAMAGE_TEST__c04_char_corruption",
+      "category": "char_corruption",
+      "corruption_type": "ocr_swap_6_to_G",
+      "source_page": 12,
+      "original_text": "W16x45",
+      "test_text": "W1GX45",
+      "intended_semantic_result": "W16X45",
+      "expected_operation": "repair",
+      "expected_status": "needs_review",
+      "expected_normalized": "W16X45",
+      "expected_abstention": false,
+      "original_bbox": [
+        2181.47900390625,
+        1032.8131103515625,
+        2216.794189453125,
+        1042.3939208984375
+      ],
+      "modified_bbox": [
+        2181.47900390625,
+        1032.8131103515625,
+        2217.238804259911,
+        1042.3939208984375
+      ],
+      "fontsize": 9.58077335357666
+    },
+    {
+      "test_case_id": "st_SEMANTIC_DAMAGE_TEST__c20_spacing",
+      "category": "spacing",
+      "corruption_type": "spacing_around_fields",
+      "source_page": 12,
+      "original_text": "W24x68",
+      "test_text": "W 24 X 68",
+      "intended_semantic_result": "W24X68",
+      "expected_operation": "normalization",
+      "expected_status": "normalized",
+      "expected_normalized": "W24X68",
+      "expected_abstention": false,
+      "original_bbox": [
+        722.8790893554688,
+        1325.7330322265625,
+        758.1943969726562,
+        1335.3138427734375
+      ],
+      "modified_bbox": [
+        722.8790893554688,
+        1325.7330322265625,
+        759.7943969726562,
+        1335.3138427734375
+      ],
+      "fontsize": 9.58077335357666
+    },
+    {
+      "test_case_id": "st_SEMANTIC_DAMAGE_TEST__c28_clean_control",
+      "category": "clean_control",
+      "corruption_type": "none",
+      "source_page": 12,
+      "original_text": "W14x22",
+      "test_text": "W14x22",
+      "intended_semantic_result": "W14X22",
+      "expected_operation": "keep",
+      "expected_status": "clean_control",
+      "expected_normalized": "W14X22",
+      "expected_abstention": false,
+      "original_bbox": [
+        2055.928466796875,
+        1468.5208740234375,
+        2065.51318359375,
+        1503.84033203125
+      ],
+      "modified_bbox": [
+        2055.928466796875,
+        1468.5208740234375,
+        2065.51318359375,
+        1503.84033203125
+      ],
+      "fontsize": 9.584742546081543
+    },
+    {
+      "test_case_id": "st_SEMANTIC_DAMAGE_TEST__c17_spacing",
+      "category": "spacing",
+      "corruption_type": "spacing_around_fields",
+      "source_page": 12,
+      "original_text": "W16x45",
+      "test_text": "W 16 X 45",
+      "intended_semantic_result": "W16X45",
+      "expected_operation": "normalization",
+      "expected_status": "normalized",
+      "expected_normalized": "W16X45",
+      "expected_abstention": false,
+      "original_bbox": [
+        2121.119140625,
+        1520.6129150390625,
+        2156.434326171875,
+        1530.1937255859375
+      ],
+      "modified_bbox": [
+        2121.119140625,
+        1520.6129150390625,
+        2158.0343261718754,
+        1530.1937255859375
+      ],
+      "fontsize": 9.58077335357666
+    },
+    {
+      "test_case_id": "st_SEMANTIC_DAMAGE_TEST__c23_incomplete",
+      "category": "incomplete",
+      "corruption_type": "strip_thickness_for_abstention",
+      "source_page": 17,
+      "original_text": "L2x2x1/4",
+      "test_text": "L2X2",
+      "intended_semantic_result": "L2X2",
+      "expected_operation": "abstention",
+      "expected_status": "incomplete_missing_thickness",
+      "expected_normalized": "L2X2",
+      "expected_abstention": true,
+      "original_bbox": [
+        2480.51904296875,
+        642.9240112304688,
+        2519.206298828125,
+        652.5164794921875
+      ],
+      "modified_bbox": [
+        2480.51904296875,
+        642.9240112304688,
+        2501.1255830992086,
+        652.5164794921875
+      ],
+      "fontsize": 9.59249210357666
+    },
+    {
+      "test_case_id": "st_SEMANTIC_DAMAGE_TEST__c22_incomplete",
+      "category": "incomplete",
+      "corruption_type": "strip_thickness_for_abstention",
+      "source_page": 17,
+      "original_text": "L3x3x1/4",
+      "test_text": "L3X3",
+      "intended_semantic_result": "L3X3",
+      "expected_operation": "abstention",
+      "expected_status": "incomplete_missing_thickness",
+      "expected_normalized": "L3X3",
+      "expected_abstention": true,
+      "original_bbox": [
+        2480.51904296875,
+        662.2439575195312,
+        2519.206298828125,
+        671.83642578125
+      ],
+      "modified_bbox": [
+        2480.51904296875,
+        662.2439575195312,
+        2501.1255830992086,
+        671.83642578125
+      ],
+      "fontsize": 9.59249210357666
+    },
+    {
+      "test_case_id": "st_SEMANTIC_DAMAGE_TEST__c24_incomplete",
+      "category": "incomplete",
+      "corruption_type": "strip_thickness_for_abstention",
+      "source_page": 17,
+      "original_text": "L4x4x1/4",
+      "test_text": "L4X4",
+      "intended_semantic_result": "L4X4",
+      "expected_operation": "abstention",
+      "expected_status": "incomplete_missing_thickness",
+      "expected_normalized": "L4X4",
+      "expected_abstention": true,
+      "original_bbox": [
+        2480.51904296875,
+        680.8439331054688,
+        2519.206298828125,
+        690.4364013671875
+      ],
+      "modified_bbox": [
+        2480.51904296875,
+        680.8439331054688,
+        2501.1255830992086,
+        690.4364013671875
+      ],
+      "fontsize": 9.59249210357666
+    },
+    {
+      "test_case_id": "st_SEMANTIC_DAMAGE_TEST__c21_incomplete",
+      "category": "incomplete",
+      "corruption_type": "strip_thickness_for_abstention",
+      "source_page": 17,
+      "original_text": "L5x5x5/16",
+      "test_text": "L5X5",
+      "intended_semantic_result": "L5X5",
+      "expected_operation": "abstention",
+      "expected_status": "incomplete_missing_thickness",
+      "expected_normalized": "L5X5",
+      "expected_abstention": true,
+      "original_bbox": [
+        2477.879150390625,
+        699.4439086914062,
+        2521.84619140625,
+        709.036376953125
+      ],
+      "modified_bbox": [
+        2477.879150390625,
+        699.4439086914062,
+        2498.4856905210836,
+        709.036376953125
+      ],
+      "fontsize": 9.59249210357666
+    },
+    {
+      "test_case_id": "st_SEMANTIC_DAMAGE_TEST__c16_decimal_fraction",
+      "category": "decimal_fraction",
+      "corruption_type": "fraction_to_decimal_display",
+      "source_page": 22,
+      "original_text": "HSS8x8x1/2",
+      "test_text": "HSS8X8X0.500",
+      "intended_semantic_result": "HSS8X8X1/2",
+      "expected_operation": "normalization",
+      "expected_status": "normalized",
+      "expected_normalized": "HSS8X8X1/2",
+      "expected_abstention": false,
+      "original_bbox": [
+        1615.6793212890625,
+        267.10333251953125,
+        1668.860595703125,
+        276.67138671875
+      ],
+      "modified_bbox": [
+        1615.6793212890625,
+        267.10333251953125,
+        1670.460595703125,
+        276.67138671875
+      ],
+      "fontsize": 9.568077087402344
+    },
+    {
+      "test_case_id": "st_SEMANTIC_DAMAGE_TEST__c15_decimal_fraction",
+      "category": "decimal_fraction",
+      "corruption_type": "fraction_to_decimal_display",
+      "source_page": 22,
+      "original_text": "HSS8x6x1/2",
+      "test_text": "HSS8X6X0.500",
+      "intended_semantic_result": "HSS8X6X1/2",
+      "expected_operation": "normalization",
+      "expected_status": "normalized",
+      "expected_normalized": "HSS8X6X1/2",
+      "expected_abstention": false,
+      "original_bbox": [
+        1313.8795166015625,
+        599.2433471679688,
+        1366.968505859375,
+        608.8367919921875
+      ],
+      "modified_bbox": [
+        1313.8795166015625,
+        599.2433471679688,
+        1368.568505859375,
+        608.8367919921875
+      ],
+      "fontsize": 9.593453407287598
+    },
+    {
+      "test_case_id": "st_SEMANTIC_DAMAGE_TEST__c14_decimal_fraction",
+      "category": "decimal_fraction",
+      "corruption_type": "fraction_to_decimal_display",
+      "source_page": 22,
+      "original_text": "HSS8x6x1/2",
+      "test_text": "HSS8X6X0.500",
+      "intended_semantic_result": "HSS8X6X1/2",
+      "expected_operation": "normalization",
+      "expected_status": "normalized",
+      "expected_normalized": "HSS8X6X1/2",
+      "expected_abstention": false,
+      "original_bbox": [
+        1313.8795166015625,
+        929.2432250976562,
+        1366.968505859375,
+        938.836669921875
+      ],
+      "modified_bbox": [
+        1313.8795166015625,
+        929.2432250976562,
+        1368.568505859375,
+        938.836669921875
+      ],
+      "fontsize": 9.593453407287598
+    },
+    {
+      "test_case_id": "st_SEMANTIC_DAMAGE_TEST__c13_decimal_fraction",
+      "category": "decimal_fraction",
+      "corruption_type": "fraction_to_decimal_display",
+      "source_page": 22,
+      "original_text": "HSS8x8x1/2",
+      "test_text": "HSS8X8X0.500",
+      "intended_semantic_result": "HSS8X8X1/2",
+      "expected_operation": "normalization",
+      "expected_status": "normalized",
+      "expected_normalized": "HSS8X8X1/2",
+      "expected_abstention": false,
+      "original_bbox": [
+        1626.71923828125,
+        940.0432739257812,
+        1679.9283447265625,
+        949.63671875
+      ],
+      "modified_bbox": [
+        1626.71923828125,
+        940.0432739257812,
+        1681.5283447265624,
+        949.63671875
+      ],
+      "fontsize": 9.593453407287598
+    },
+    {
+      "test_case_id": "st_SEMANTIC_DAMAGE_TEST__c12_insertion",
+      "category": "insertion",
+      "corruption_type": "char_insertion_duplicate_X",
+      "source_page": 23,
+      "original_text": "W8x58",
+      "test_text": "W8XX58",
+      "intended_semantic_result": "W8X58",
+      "expected_operation": "repair",
+      "expected_status": "needs_review",
+      "expected_normalized": "W8X58",
+      "expected_abstention": false,
+      "original_bbox": [
+        2667.96240234375,
+        155.23390197753906,
+        2697.33837890625,
+        164.68580627441406
+      ],
+      "modified_bbox": [
+        2667.96240234375,
+        155.23390197753906,
+        2698.9383789062504,
+        164.68580627441406
+      ],
+      "fontsize": 9.451915740966797
+    }
+  ],
+  "notes": [
+    "Controlled corruptions replace selected real callouts in-place.",
+    "No test table / legend panel is drawn on the PDF.",
+    "Expected fields are test metadata only \u2014 not model outputs.",
+    "Incomplete angle cases strip thickness to exercise abstention.",
+    "Decimal cases rewrite fraction thickness to decimal form to exercise normalization."
+  ]
+}

@@ -23,6 +23,7 @@ import GeometryEvidenceCard from "./GeometryEvidenceCard";
 import ProcessTimeline from "./ProcessTimeline";
 import RepairCandidatesPanel from "./RepairCandidatesPanel";
 import BenchmarkTruthPanel from "./BenchmarkTruthPanel";
+import ExpectedVsActualPanel from "./ExpectedVsActualPanel";
 import {
   evidenceRulesFor,
   getOperation,
@@ -31,6 +32,7 @@ import {
   isDemoSynthetic,
   OPERATION,
 } from "../../lib/semanticContract";
+import { compareExpectedVsActual } from "../../lib/semanticDamageManifest";
 
 const REPAIR_REASON_LABELS = {
   single_char_ocr_confusion_candidate: "Single-character OCR-confusion candidate, gated to an exact catalog match",
@@ -87,6 +89,7 @@ export default function AnnotationInspector({
   busy = false,
   documentId = null,
   benchmarkContext = null,
+  damageCase = null,
 }) {
   const [editValue, setEditValue] = useState("");
   const [editing, setEditing] = useState(false);
@@ -96,13 +99,22 @@ export default function AnnotationInspector({
     setEditValue(annotation?.correction?.canonical || annotation?.primary_label || "");
   }, [annotation?.annotation_id]);
 
+  const damageComparison = damageCase
+    ? compareExpectedVsActual(damageCase, annotation)
+    : null;
+
   if (!annotation) {
     return (
-      <Paper variant="outlined" sx={{ p: 3, textAlign: "center" }}>
-        <Typography color="text.secondary">
-          Select an annotation on the drawing to inspect it.
-        </Typography>
-      </Paper>
+      <Stack spacing={1.5}>
+        {damageComparison && <ExpectedVsActualPanel comparison={damageComparison} />}
+        <Paper variant="outlined" sx={{ p: 3, textAlign: "center" }}>
+          <Typography color="text.secondary">
+            {damageCase
+              ? "This controlled case has no matched semantic annotation yet. Process the drawing, or use Next/Previous to browse cases."
+              : "Select an annotation on the drawing to inspect it."}
+          </Typography>
+        </Paper>
+      </Stack>
     );
   }
 
@@ -117,6 +129,8 @@ export default function AnnotationInspector({
 
   return (
     <Stack spacing={1.5}>
+      {damageComparison && <ExpectedVsActualPanel comparison={damageComparison} />}
+
       <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
         <OperationBadge operation={operation} />
         {synthetic && (
@@ -143,7 +157,7 @@ export default function AnnotationInspector({
         <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <Typography variant="caption" color="text.secondary">
-              ORIGINAL
+              RAW
             </Typography>
             <Typography
               sx={{
@@ -159,7 +173,7 @@ export default function AnnotationInspector({
           {changed && (
             <Box sx={{ flex: 1, minWidth: 0 }}>
               <Typography variant="caption" color="text.secondary">
-                CANONICAL
+                {operation === OPERATION.NORMALIZATION ? "NORMALIZED" : "CANONICAL"}
               </Typography>
               <Typography sx={{ fontFamily: "monospace", fontSize: 17, fontWeight: 700, color: `${meta.colorKey}.main` }}>
                 {correction.canonical}
@@ -167,6 +181,10 @@ export default function AnnotationInspector({
             </Box>
           )}
         </Stack>
+        <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
+          FAMILY {annotation?.structural_parse?.family || "—"} · OPERATION {meta.label.toUpperCase()} · STATUS{" "}
+          {annotation.review_status.replace(/_/g, " ")}
+        </Typography>
         {annotation.modifiers?.length > 0 && (
           <>
             <Divider sx={{ my: 1 }} />

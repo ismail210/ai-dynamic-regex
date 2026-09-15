@@ -225,6 +225,10 @@ export default function PdfDocumentViewer({
       return undefined;
     }
     const pageNumber = Number(selection.pageNumber);
+    if (!Number.isFinite(pageNumber) || pageNumber < 1) return undefined;
+    // Stale Semantic Review state can still point at page 5/58 after a short
+    // controlled-test PDF loads — ignore until a real in-range page is chosen.
+    if (numPages > 0 && pageNumber > numPages) return undefined;
     const size = pageSizes[pageNumber];
     if (!size?.width) return undefined; // not loaded yet; retry when pageSizes updates
 
@@ -302,7 +306,7 @@ export default function PdfDocumentViewer({
     // navigate-only branch above always checks against the current value,
     // not a stale closure -- the lastHandledSelectionKeyRef guard above
     // still limits actual work to once per selection.key.
-  }, [selection?.key, selection?.pageNumber, selection?.boundingBox, pageSizes, scrollToSelection, pageWidth]);
+  }, [selection?.key, selection?.pageNumber, selection?.boundingBox, pageSizes, scrollToSelection, pageWidth, numPages]);
 
   // Manual zoom: same page, no mode fighting -- just scales pageWidth from
   // wherever it currently is, and does a best-effort job of keeping the
@@ -342,6 +346,14 @@ export default function PdfDocumentViewer({
   const onDocumentLoadSuccess = useCallback(({ numPages: next }) => {
     setNumPages(next);
     setLoadError(null);
+    // Semantic Review used to jump to a hard-coded page 5/58. On short
+    // controlled-test PDFs that left Fit Page waiting forever on a page that
+    // does not exist → blank/black canvas. Clamp to a real page.
+    setCurrentPage((prev) => {
+      if (!next) return 1;
+      if (prev < 1 || prev > next) return 1;
+      return prev;
+    });
   }, []);
 
   const pages = useMemo(

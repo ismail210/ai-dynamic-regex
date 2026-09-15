@@ -1,0 +1,32 @@
+[
+  {
+    "stem": "burrville_SEMANTIC_DAMAGE_TEST",
+    "project": "Burrville ES - ST",
+    "case_count": 27,
+    "manifest": "burrville_SEMANTIC_DAMAGE_TEST.manifest.json",
+    "match_filename_substrings": [
+      "burrville_SEMANTIC_DAMAGE_TEST",
+      "burrville_SEMANTIC_DAMAGE_TEST.pdf"
+    ]
+  },
+  {
+    "stem": "st_SEMANTIC_DAMAGE_TEST",
+    "project": "ST",
+    "case_count": 27,
+    "manifest": "st_SEMANTIC_DAMAGE_TEST.manifest.json",
+    "match_filename_substrings": [
+      "st_SEMANTIC_DAMAGE_TEST",
+      "st_SEMANTIC_DAMAGE_TEST.pdf"
+    ]
+  },
+  {
+    "stem": "structure_SEMANTIC_DAMAGE_TEST",
+    "project": "Structure - Copy",
+    "case_count": 24,
+    "manifest": "structure_SEMANTIC_DAMAGE_TEST.manifest.json",
+    "match_filename_substrings": [
+      "structure_SEMANTIC_DAMAGE_TEST",
+      "structure_SEMANTIC_DAMAGE_TEST.pdf"
+    ]
+  }
+]
