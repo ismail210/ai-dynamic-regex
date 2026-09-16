@@ -7,25 +7,41 @@ from __future__ import annotations
 
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from services.document_registry import document_source
 from services.semantic_document_service import (
+    accept_all_eligible_corrections,
     apply_review_action,
     document_summary,
+    export_corrected_pdf,
     get_annotation_oracle,
     get_benchmark_context,
     get_cached_semantic_document,
     list_review_queue,
     run_semantic_pipeline,
 )
+from services.semantic.corrected_pdf import list_accepted_text_corrections, sync_corrected_pdf
 
 router = APIRouter()
 
 
+def _sync_corrected_pdf_safe(document_id: str, document: dict) -> None:
+    """Background rebuild — never raise into the ASGI worker."""
+    try:
+        sync_corrected_pdf(document_id, document)
+    except Exception:
+        pass
+
+
 @router.post("/documents/{document_id}/semantic")
-def process_semantic(document_id: str, force: bool = Query(False)):
+def process_semantic(
+    document_id: str,
+    background_tasks: BackgroundTasks,
+    force: bool = Query(False),
+):
     try:
         document_source(document_id)
     except (FileNotFoundError, ValueError) as exc:
@@ -34,7 +50,13 @@ def process_semantic(document_id: str, force: bool = Query(False)):
         document = run_semantic_pipeline(document_id, force=force)
     except Exception as exc:  # pragma: no cover - defensive: surface as 500, not a crash
         raise HTTPException(status_code=500, detail=f"Semantic processing failed: {exc}") from exc
-    return {"document": document, "summary": document_summary(document)}
+    # Do not block Process on a full corrected-PDF rebuild (multi-page sets
+    # with many auto-normalizations can take minutes). Overlays show accepted
+    # text immediately; warm the derived PDF in the background when needed.
+    summary = document_summary(document, document_id=document_id)
+    if list_accepted_text_corrections(document):
+        background_tasks.add_task(_sync_corrected_pdf_safe, document_id, document)
+    return {"document": document, "summary": summary}
 
 
 @router.get("/documents/{document_id}/semantic")
@@ -55,7 +77,7 @@ def get_semantic(document_id: str):
         return {"document": None, "summary": None, "status": "not_ready"}
     return {
         "document": document,
-        "summary": document_summary(document),
+        "summary": document_summary(document, document_id=document_id),
         "status": "ready",
     }
 
@@ -100,4 +122,73 @@ def review_annotation(document_id: str, annotation_id: str, body: ReviewActionRe
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    return {"annotation": annotation}
+    document = get_cached_semantic_document(document_id)
+    corrected = sync_corrected_pdf(document_id, document) if document else {
+        "available": False,
+        "revision": "none",
+        "correction_count": 0,
+        "url": None,
+    }
+    summary = document_summary(document, document_id=document_id) if document else None
+    if summary is not None:
+        summary["corrected_pdf"] = corrected
+    return {
+        "annotation": annotation,
+        "summary": summary,
+        "corrected_pdf": corrected,
+    }
+
+
+@router.post("/documents/{document_id}/semantic/corrections/accept-all")
+def accept_all_corrections(document_id: str):
+    """Accept every eligible repair proposal, persist once, rebuild corrected PDF once."""
+    try:
+        document_source(document_id)
+    except (FileNotFoundError, ValueError) as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    try:
+        result = accept_all_eligible_corrections(document_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return result
+
+
+@router.get("/documents/{document_id}/semantic/corrected-pdf")
+def download_corrected_pdf(
+    document_id: str,
+    v: Optional[str] = Query(None, description="Cache-bust revision from summary.corrected_pdf"),
+    download: bool = Query(False, description="If true, Content-Disposition: attachment"),
+):
+    """Serve the derived PDF = original + all accepted semantic corrections.
+
+    Always rebuilds from the persisted semantic state so the bytes match
+    the latest Accept decisions. Never overwrites the uploaded original.
+    ``v`` is ignored for lookup but required by the viewer for cache busting.
+    """
+    del v  # used only as a cache-busting query param by the frontend
+    try:
+        document_source(document_id)
+    except (FileNotFoundError, ValueError) as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    try:
+        path, filename, _count = export_corrected_pdf(document_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except Exception as exc:  # pragma: no cover
+        raise HTTPException(status_code=500, detail=f"Corrected PDF generation failed: {exc}") from exc
+    return FileResponse(
+        path,
+        media_type="application/pdf",
+        filename=filename,
+        content_disposition_type="attachment" if download else "inline",
+        headers={
+            "Cache-Control": "no-store, no-cache, must-revalidate",
+            "Pragma": "no-cache",
+        },
+    )

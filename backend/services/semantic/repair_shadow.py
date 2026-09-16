@@ -24,7 +24,9 @@ COMPLETION concern, not a repair one -- see ``drawing_language_profile.py``).
 """
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
+from os import cpu_count
 from typing import Dict, List, Optional
 
 from services.label_reconstruction.candidates import (
@@ -52,6 +54,9 @@ from services.semantic.models import (
 )
 
 MAX_CANDIDATES_ATTACHED = 5
+# Parallel reconstruct() calls — Burrville-scale docs evaluate ~2–3k labels;
+# sequential shadow was ~225s wall time on one profiled run.
+_SHADOW_WORKERS = max(4, min(8, (cpu_count() or 4)))
 
 _GENERATION_REASON_LABELS: Dict[str, str] = {
     "exact_match": "Exact catalog match",
@@ -100,16 +105,6 @@ def needs_repair_shadow(annotation: SemanticAnnotation) -> bool:
     normalized = conservative_normalize(text)
     if ineligible_for_section_reconstruction(text, normalized):
         return False
-    # Second, narrower guard: real designations either start with a
-    # recognized family prefix OR contain an "X" field separator (every
-    # grammar this catalog covers -- WxD, HSSxAxBxT, LxAxBxT, PLxTxW,
-    # BPxLxWxT -- uses one, PIPE aside, which is covered by the prefix
-    # check). Load/unit callouts like "35K" (kips) have neither and pass
-    # `ineligible_for_section_reconstruction` unfiltered (that function's
-    # own eligibility boundary is about dimension ambiguity, not load
-    # notation) -- confirmed empirically: without this, a revision-date
-    # style plain token like a kip callout returned an unrelated angle-iron
-    # fuzzy match.
     if family_of(normalized) not in MODERN_FAMILY_CODES and "X" not in normalized:
         return False
     return True
@@ -134,10 +129,6 @@ def _score_from_ranked_pairs(
                 )]
         return []
     if is_fallback_broadened:
-        # Model unavailable/unscored for this broadened query (Section 26:
-        # SequenceMatcher is the last-resort ordering, never the primary
-        # one) -- a real similarity ratio, honestly labeled as such, never
-        # captioned as a model score.
         from difflib import SequenceMatcher
 
         ratio = SequenceMatcher(None, conservative_normalize(query), candidate_text).ratio()
@@ -206,6 +197,68 @@ class RepairShadowSummary:
     already_clean_skipped: int = 0
 
 
+@dataclass
+class _ShadowResult:
+    annotation_id: str
+    candidates: List[RepairCandidate]
+    candidate_source: str
+    query: str
+    top: Optional[RepairCandidate]
+    model_version: Optional[str]
+    is_broadened: bool
+
+
+def _evaluate_shadow_annotation(
+    annotation: SemanticAnnotation,
+    model_version: Optional[str],
+) -> Optional[_ShadowResult]:
+    """Pure per-annotation reconstruct work (safe to run on a worker thread)."""
+    query = annotation.primary_label or annotation.original_text
+    if not query:
+        return None
+    result = reconstruct(query, force_shadow_score=True)
+    family = annotation.structural_parse.family if annotation.structural_parse else None
+    is_broadened = result.is_fallback_broadened
+    candidate_source = (
+        "label_reconstruction_broadened_ranker" if (is_broadened and result.ranked_pairs) else
+        "label_reconstruction_broadened_similarity" if is_broadened else
+        "label_reconstruction_ranker" if result.ranked_pairs else
+        "label_reconstruction_deterministic"
+    )
+    candidates: List[RepairCandidate] = [
+        _build_candidate(
+            rank=i + 1,
+            candidate_text=label,
+            query=query,
+            family=family,
+            reasons=result.generation_reasons.get(label, []),
+            ranked_pairs=result.ranked_pairs,
+            model_version=model_version,
+            source=candidate_source,
+            is_fallback_broadened=is_broadened,
+        )
+        for i, label in enumerate(result.candidate_labels[:MAX_CANDIDATES_ATTACHED])
+    ]
+    if result.ranked_pairs:
+        order = {label: i for i, (label, _score) in enumerate(result.ranked_pairs)}
+        candidates.sort(key=lambda c: order.get(c.candidate_text, len(order)))
+        for i, c in enumerate(candidates):
+            c.rank = i + 1
+    elif is_broadened:
+        candidates.sort(key=lambda c: -(c.scores[0].value if c.scores else 0.0))
+        for i, c in enumerate(candidates):
+            c.rank = i + 1
+    return _ShadowResult(
+        annotation_id=annotation.annotation_id,
+        candidates=candidates,
+        candidate_source=candidate_source,
+        query=query,
+        top=(candidates[0] if candidates else None),
+        model_version=model_version,
+        is_broadened=is_broadened,
+    )
+
+
 def attach_repair_shadow(document: SemanticDocument) -> RepairShadowSummary:
     """Mutates ``document.annotations`` in place: attaches
     ``repair_candidates`` and an unaccepted REPAIR proposal operation to
@@ -213,89 +266,55 @@ def attach_repair_shadow(document: SemanticDocument) -> RepairShadowSummary:
     ``effective_text`` by itself (Section 2: shadow/proposal mode only).
     """
     summary = RepairShadowSummary()
-    ranker = get_active_ranker()  # None is a valid, handled outcome (no model promoted/loadable)
+    ranker = get_active_ranker()
     model_version = ranker.version_id if ranker is not None else None
 
+    targets: List[SemanticAnnotation] = []
     for annotation in document.annotations:
         if not needs_repair_shadow(annotation):
             summary.already_clean_skipped += 1
             continue
-        query = annotation.primary_label or annotation.original_text
-        if not query:
+        targets.append(annotation)
+
+    if not targets:
+        return summary
+
+    by_id = {a.annotation_id: a for a in targets}
+
+    with ThreadPoolExecutor(max_workers=_SHADOW_WORKERS) as pool:
+        results = list(pool.map(
+            lambda ann: _evaluate_shadow_annotation(ann, model_version),
+            targets,
+        ))
+
+    for shadow in results:
+        if shadow is None:
+            continue
+        annotation = by_id.get(shadow.annotation_id)
+        if annotation is None:
             continue
         summary.evaluated += 1
-
-        # Broadening (deletion/insertion fallback) now lives entirely inside
-        # reconstruct() itself (services.label_reconstruction.shadow), which
-        # tries the standard generator first and only widens to the fuzzy-
-        # similarity pool -- ranked by the real XGBRanker when one supports
-        # schema v5, else left for the SequenceMatcher fallback below -- when
-        # the standard path abstained with zero candidates AND
-        # is_broadened_fallback_query agrees this query's fields looked
-        # "reliable" despite a length change. Nothing here re-implements
-        # that eligibility check.
-        result = reconstruct(query, force_shadow_score=True)
-        family = annotation.structural_parse.family if annotation.structural_parse else None
-        is_broadened = result.is_fallback_broadened
-        candidate_source = (
-            "label_reconstruction_broadened_ranker" if (is_broadened and result.ranked_pairs) else
-            "label_reconstruction_broadened_similarity" if is_broadened else
-            "label_reconstruction_ranker" if result.ranked_pairs else
-            "label_reconstruction_deterministic"
-        )
-
-        candidates: List[RepairCandidate] = [
-            _build_candidate(
-                rank=i + 1,
-                candidate_text=label,
-                query=query,
-                family=family,
-                reasons=result.generation_reasons.get(label, []),
-                ranked_pairs=result.ranked_pairs,
-                model_version=model_version,
-                source=candidate_source,
-                is_fallback_broadened=is_broadened,
-            )
-            for i, label in enumerate(result.candidate_labels[:MAX_CANDIDATES_ATTACHED])
-        ]
-        # Ranked pairs may reorder relative to the deterministic list (that
-        # IS the point of the ranker) -- re-sort by score when available so
-        # rank 1 is genuinely the ranker's top pick, not just generation order.
-        if result.ranked_pairs:
-            order = {label: i for i, (label, _score) in enumerate(result.ranked_pairs)}
-            candidates.sort(key=lambda c: order.get(c.candidate_text, len(order)))
-            for i, c in enumerate(candidates):
-                c.rank = i + 1
-        elif is_broadened:
-            # No ranker score available for this broadened query -- order by
-            # the SequenceMatcher similarity score just computed per
-            # candidate (Section 26: last resort only, never primary).
-            candidates.sort(key=lambda c: -(c.scores[0].value if c.scores else 0.0))
-            for i, c in enumerate(candidates):
-                c.rank = i + 1
-
-        annotation.repair_candidates = candidates
-
-        if candidates:
+        annotation.repair_candidates = shadow.candidates
+        if shadow.top is not None:
             summary.candidates_found += 1
-            top = candidates[0]
+            top = shadow.top
             annotation.operations.append(OperationRecord(
                 operation=OperationKind.REPAIR,
-                input_text=query,
+                input_text=shadow.query,
                 output_text=top.candidate_text,
                 reason_codes=list(top.reason_codes) + ["label_reconstruction_shadow_proposal"],
                 evidence=list(top.evidence),
                 score=(top.scores[0] if top.scores else None),
-                deterministic=(model_version is None and not is_broadened),
+                deterministic=(shadow.model_version is None and not shadow.is_broadened),
                 semantic_information_added=False,
                 provenance=top.source,
-                accepted=False,  # SHADOW MODE: never changes effective_text by itself
+                accepted=False,
             ))
             annotation.review.status = ReviewStatus.NEEDS_REVIEW
             if not annotation.review.reason:
                 annotation.review.reason = (
                     "ambiguous_low_confidence_candidates"
-                    if candidate_source == "label_reconstruction_broadened_similarity"
+                    if shadow.candidate_source == "label_reconstruction_broadened_similarity"
                     else "repair_candidate_available"
                 )
         else:

@@ -17,9 +17,8 @@ export const DAMAGE_FILTERS = [
   { id: "all", label: "All" },
   { id: "repair", label: "Damaged / Repair" },
   { id: "normalization", label: "Normalization" },
-  { id: "incomplete", label: "Incomplete / Abstained" },
-  { id: "clean", label: "Clean Controls" },
-  { id: "needs_review", label: "Needs Review" },
+  { id: "incomplete", label: "Incomplete" },
+  { id: "clean", label: "Clean" },
   { id: "reviewed", label: "Reviewed" },
 ];
 
@@ -133,8 +132,6 @@ export function caseMatchesFilter(pair, filterId) {
       return cat === "incomplete";
     case "clean":
       return cat === "clean_control";
-    case "needs_review":
-      return annotation?.review_status === "needs_review";
     case "reviewed":
       return ["human_accepted", "human_rejected", "auto_accepted"].includes(
         annotation?.review_status,

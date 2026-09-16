@@ -1,4 +1,4 @@
-import { Alert, Box, Paper, Stack, Typography } from "@mui/material";
+import { Box, Paper, Stack, Typography } from "@mui/material";
 
 /**
  * Explicitly separates TEST METADATA (expected) from live backend output (actual).
@@ -19,15 +19,12 @@ export default function ExpectedVsActualPanel({ comparison }) {
         borderColor: tone === "neutral" ? "divider" : `${tone}.main`,
       }}
     >
-      <Stack spacing={1}>
-        <Stack
-          direction="row"
-          spacing={1}
-          alignItems="center"
-          sx={{ justifyContent: "space-between" }}
-        >
-          <Typography variant="overline" sx={{ fontWeight: 700, letterSpacing: 0.4 }}>
-            Expected vs actual
+      <Stack spacing={0.75}>
+        <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
+          <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+            {expected?.normalized || expected?.intended || "—"}
+            <Box component="span" sx={{ color: "text.secondary", fontWeight: 500, mx: 0.75 }}>→</Box>
+            {actual?.normalized || "—"}
           </Typography>
           <Typography
             variant="caption"
@@ -41,43 +38,12 @@ export default function ExpectedVsActualPanel({ comparison }) {
           </Typography>
         </Stack>
 
-        <Alert severity="info" sx={{ py: 0 }}>
-          Expected values are test-corpus metadata. They are not model output and are not fed into the pipeline.
-        </Alert>
-
-        <Box>
-          <Typography variant="caption" color="text.secondary">
-            EXPECTED TEST RESULT
-          </Typography>
-          <Typography sx={{ fontFamily: "monospace", fontSize: 14 }}>
-            {expected?.normalized || expected?.intended || "—"}
-          </Typography>
-          <Typography variant="caption" color="text.secondary" display="block">
-            operation={expected?.operation || "—"} · status={expected?.status || "—"}
-            {expected?.abstention ? " · abstain" : ""}
-          </Typography>
-        </Box>
-
-        <Box>
-          <Typography variant="caption" color="text.secondary">
-            ACTUAL MODEL RESULT
-          </Typography>
-          {actual ? (
-            <>
-              <Typography sx={{ fontFamily: "monospace", fontSize: 14 }}>
-                raw={actual.raw || "—"} → {actual.normalized || "—"}
-              </Typography>
-              <Typography variant="caption" color="text.secondary" display="block">
-                operation={actual.operation || "—"} · review={actual.review_status || "—"}
-                {actual.family ? ` · family=${actual.family}` : ""}
-              </Typography>
-            </>
-          ) : (
-            <Typography variant="body2" color="text.secondary">
-              —
-            </Typography>
-          )}
-        </Box>
+        <Typography variant="caption" color="text.secondary">
+          Expected is test metadata · actual is live model
+          {expected?.operation ? ` · expected ${expected.operation}` : ""}
+          {actual?.operation ? ` · got ${actual.operation}` : ""}
+          {expected?.abstention ? " · abstain" : ""}
+        </Typography>
 
         {detail && (
           <Typography variant="caption" color="text.secondary">

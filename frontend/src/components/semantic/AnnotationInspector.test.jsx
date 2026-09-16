@@ -117,7 +117,7 @@ describe("AnnotationInspector -- repair trace", () => {
   it("Accept proposal calls onReview with the top candidate's text", () => {
     const onReview = vi.fn();
     render(<AnnotationInspector document={emptyDocument} annotation={suspiciousAnnotation()} onReview={onReview} />);
-    fireEvent.click(screen.getByRole("button", { name: /Accept proposal/i }));
+    fireEvent.click(screen.getByTestId("review-accept"));
     expect(onReview).toHaveBeenCalledWith("accept", null, "W18X40");
   });
 

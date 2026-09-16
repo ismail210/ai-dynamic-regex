@@ -57,7 +57,6 @@ describe("semanticDamageManifest", () => {
     expect(pairs.filter((p) => caseMatchesFilter(p, "normalization"))).toHaveLength(1);
     expect(pairs.filter((p) => caseMatchesFilter(p, "incomplete"))).toHaveLength(1);
     expect(pairs.filter((p) => caseMatchesFilter(p, "clean"))).toHaveLength(1);
-    expect(pairs.filter((p) => caseMatchesFilter(p, "needs_review"))).toHaveLength(1);
     expect(pairs.filter((p) => caseMatchesFilter(p, "reviewed"))).toHaveLength(1);
   });
 

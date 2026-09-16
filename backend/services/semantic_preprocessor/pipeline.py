@@ -66,7 +66,9 @@ def _evidence_for_rule_ids(evidence_ids: List[str]) -> List[EvidenceRecord]:
 
 
 def _apply_correction(annotation: SemanticAnnotation, drawing_language_rules: List[Dict[str, Any]]) -> None:
-    label = annotation.primary_label or ""
+    # Prefer original_text so spacing visible on the PDF ("W 18 X 46") is
+    # normalized; primary_label may already be compact from grouping.
+    label = annotation.original_text or annotation.primary_label or ""
     result = normalization.canonicalize(label)
     annotation.structural_parse = result.parse
     annotation.operations.append(result.operation)

@@ -29,6 +29,13 @@ _HSS_RECT_RE = re.compile(
     r"^HSS(?P<a>\d+(?:\.\d+)?)X(?P<b>\d+(?:\.\d+)?)X(?P<t>[\d./]+)$"
 )
 
+# Equal/unequal angles with thickness: LaXbXt / 2LaXbXt (third field = thickness).
+# Must be matched BEFORE the two-field depth_weight pattern, which would
+# otherwise only consume LaXb and leave the thickness unparsed.
+_ANGLE_RE = re.compile(
+    r"^(?P<family>2?L)(?P<a>\d+(?:\.\d+)?)X(?P<b>\d+(?:\.\d+)?)X(?P<t>[\d./]+)$"
+)
+
 # Round HSS / Pipe: two numeric fields, OD x wall thickness, both decimal.
 _HSS_ROUND_RE = re.compile(r"^HSS(?P<od>\d+\.\d+)X(?P<t>\d+\.\d+)$")
 _PIPE_RE = re.compile(r"^PIPE(?P<size>[\d./]+)(?P<sched>STD|XS|XXS)?$")
@@ -57,6 +64,15 @@ def parse_structural_label(text: str) -> StructuralParse:
             is_structural=True,
             family="HSS",
             grammar="hss_rectangular",
+            fields={"a": m.group("a"), "b": m.group("b"), "t": m.group("t")},
+        ), candidate)
+
+    m = _ANGLE_RE.match(candidate)
+    if m:
+        return _finish(StructuralParse(
+            is_structural=True,
+            family=m.group("family"),
+            grammar="angle",
             fields={"a": m.group("a"), "b": m.group("b"), "t": m.group("t")},
         ), candidate)
 

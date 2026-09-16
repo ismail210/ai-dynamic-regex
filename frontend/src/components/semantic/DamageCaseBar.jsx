@@ -23,26 +23,30 @@ export default function DamageCaseBar({
   if (!summary || summary.total === 0) return null;
 
   return (
-    <Paper variant="outlined" sx={{ p: 1.5 }} data-testid="damage-case-bar">
-      <Stack spacing={1.25}>
-        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap alignItems="center">
+    <Paper variant="outlined" sx={{ px: 1.5, py: 1 }} data-testid="damage-case-bar">
+      <Stack
+        direction={{ xs: "column", md: "row" }}
+        spacing={1}
+        alignItems={{ md: "center" }}
+        useFlexGap
+        flexWrap="wrap"
+      >
+        <Stack direction="row" spacing={0.75} alignItems="center" useFlexGap flexWrap="wrap">
           <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-            Controlled damage corpus
+            Test cases
           </Typography>
-          <Chip size="small" label={`${summary.total} cases`} />
-          <Chip size="small" variant="outlined" label={`${summary.repair} repairs`} />
-          <Chip size="small" variant="outlined" label={`${summary.normalization} norms`} />
-          <Chip size="small" variant="outlined" label={`${summary.incomplete} incomplete`} />
-          <Chip size="small" variant="outlined" label={`${summary.clean} clean`} />
-          <Chip size="small" color="warning" variant="outlined" label={`${summary.needs_review} need review`} />
+          <Chip size="small" label={`${summary.total}`} />
+          <Typography variant="caption" color="text.secondary">
+            {summary.repair} repair · {summary.normalization} norm · {summary.incomplete} incomplete · {summary.clean} clean
+          </Typography>
         </Stack>
 
-        <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap>
+        <Stack direction="row" spacing={0.5} useFlexGap flexWrap="wrap" sx={{ flex: 1 }}>
           {DAMAGE_FILTERS.map((f) => (
             <Button
               key={f.id}
               size="small"
-              variant={filterId === f.id ? "contained" : "outlined"}
+              variant={filterId === f.id ? "contained" : "text"}
               onClick={() => onFilterChange(f.id)}
               data-testid={`damage-filter-${f.id}`}
             >
@@ -51,34 +55,24 @@ export default function DamageCaseBar({
           ))}
         </Stack>
 
-        <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
-          <Typography variant="body2" data-testid="damage-case-position">
-            Case {caseCount ? caseIndex + 1 : 0} / {caseCount}
+        <Stack direction="row" spacing={1} alignItems="center" sx={{ ml: { md: "auto" } }}>
+          <Typography variant="body2" data-testid="damage-case-position" sx={{ whiteSpace: "nowrap" }}>
+            {caseCount ? caseIndex + 1 : 0}/{caseCount}
           </Typography>
           {currentCase && (
             <Typography variant="body2" sx={{ fontFamily: "monospace" }} data-testid="damage-case-text">
               {currentCase.original_text} → {currentCase.test_text}
-              <Box component="span" sx={{ color: "text.secondary", ml: 1 }}>
-                ({currentCase.category} · p{currentCase.source_page})
+              <Box component="span" sx={{ color: "text.secondary", ml: 0.75 }}>
+                {currentCase.category} · p{currentCase.source_page}
               </Box>
             </Typography>
           )}
-          <ButtonGroup size="small" sx={{ ml: "auto" }}>
-            <Button
-              startIcon={<ChevronLeft fontSize="small" />}
-              onClick={onPrev}
-              disabled={caseCount === 0}
-              data-testid="damage-case-prev"
-            >
-              Previous
+          <ButtonGroup size="small">
+            <Button onClick={onPrev} disabled={caseCount === 0} data-testid="damage-case-prev">
+              <ChevronLeft fontSize="small" />
             </Button>
-            <Button
-              endIcon={<ChevronRight fontSize="small" />}
-              onClick={onNext}
-              disabled={caseCount === 0}
-              data-testid="damage-case-next"
-            >
-              Next
+            <Button onClick={onNext} disabled={caseCount === 0} data-testid="damage-case-next">
+              <ChevronRight fontSize="small" />
             </Button>
           </ButtonGroup>
         </Stack>

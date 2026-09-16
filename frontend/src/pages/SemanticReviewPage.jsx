@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Alert,
   Box,
@@ -6,18 +6,19 @@ import {
   ButtonGroup,
   CircularProgress,
   Divider,
-  FormControlLabel,
   Grid,
   Paper,
   Stack,
-  Switch,
   Tab,
   Tabs,
   Typography,
 } from "@mui/material";
-import { PlayArrowOutlined, RefreshOutlined, ScienceOutlined } from "@mui/icons-material";
+import { DownloadOutlined, PlayArrowOutlined, RefreshOutlined, ScienceOutlined } from "@mui/icons-material";
 import {
+  acceptAllSemanticCorrections,
+  correctedSemanticPdfUrl,
   documentPdfUrl,
+  downloadCorrectedSemanticPdf,
   getBenchmarkContext,
   getSemanticDocument,
   processSemanticDocument,
@@ -25,17 +26,19 @@ import {
 } from "../api/client";
 import { useAnalysis } from "../context/AnalysisContext";
 import PdfDocumentViewer from "../components/pdf/PdfDocumentViewer";
-import DocumentSummaryBar from "../components/semantic/DocumentSummaryBar";
 import AnnotationInspector from "../components/semantic/AnnotationInspector";
 import ReviewQueue from "../components/semantic/ReviewQueue";
 import DocumentIntelligencePanel from "../components/semantic/DocumentIntelligencePanel";
 import DamageCaseBar from "../components/semantic/DamageCaseBar";
+import CorrectionHistoryPanel from "../components/semantic/CorrectionHistoryPanel";
 import EmptyState from "../components/ui/EmptyState";
 import PageHeader from "../components/ui/PageHeader";
 import {
   annotationsForPage,
+  getAcceptTargetText,
   getOverlayStyle,
-  needsReviewAnnotations,
+  isReviewOverlayCandidate,
+  structuralActionQueue,
 } from "../lib/semanticContract";
 import {
   caseMatchesFilter,
@@ -50,7 +53,7 @@ const DEMO_DOCUMENT_ID = "doc_47dc7ef27f6e5d7e";
 export default function SemanticReviewPage() {
   const { document: activeDocument } = useAnalysis();
   const documentId = activeDocument?.document_id || DEMO_DOCUMENT_ID;
-  const pdfUrl = documentPdfUrl(documentId);
+  const originalPdfUrl = documentPdfUrl(documentId);
 
   const [semanticDoc, setSemanticDoc] = useState(null);
   const [summary, setSummary] = useState(null);
@@ -65,10 +68,22 @@ export default function SemanticReviewPage() {
   const [tab, setTab] = useState("review");
   const [reviewBusy, setReviewBusy] = useState(false);
 
-  const [showFragments, setShowFragments] = useState(false);
-  const [needsReviewOnly, setNeedsReviewOnly] = useState(false);
   const [damageFilter, setDamageFilter] = useState("all");
   const [damageCaseIndex, setDamageCaseIndex] = useState(0);
+  const [saveStatus, setSaveStatus] = useState(null); // null | "saving" | "saved" | "error"
+  const [downloadBusy, setDownloadBusy] = useState(false);
+  const [downloadMessage, setDownloadMessage] = useState(null);
+  const [pdfRevision, setPdfRevision] = useState(null);
+  const autoProcessedRef = useRef(null);
+
+  const correctedMeta = summary?.corrected_pdf;
+  const pdfUrl = useMemo(() => {
+    const revision = pdfRevision || correctedMeta?.revision;
+    if (correctedMeta?.available && revision && revision !== "none") {
+      return correctedSemanticPdfUrl(documentId, revision);
+    }
+    return originalPdfUrl;
+  }, [documentId, originalPdfUrl, correctedMeta?.available, correctedMeta?.revision, pdfRevision]);
 
   const drawingLabel =
     activeDocument?.original_filename ||
@@ -106,6 +121,8 @@ export default function SemanticReviewPage() {
       // Backend returns 200 + document:null when not processed yet (not 404).
       setSemanticDoc(result?.document ?? null);
       setSummary(result?.summary ?? null);
+      const rev = result?.summary?.corrected_pdf;
+      setPdfRevision(rev?.available ? rev.revision : null);
     } catch (err) {
       // Legacy 404 (older servers) and unknown-document 404 both mean empty.
       if (err.response?.status === 404) {
@@ -123,14 +140,21 @@ export default function SemanticReviewPage() {
     load();
   }, [load]);
 
+  useEffect(() => {
+    setPdfRevision(null);
+  }, [documentId]);
+
   // When a result arrives, focus a page that actually has annotations.
   // Hard-coded page 5/58 made short controlled-test PDFs render blank/black.
   useEffect(() => {
     if (!semanticDoc?.annotations?.length) return;
     setCurrentPage((prev) => {
       if (annotationsForPage(semanticDoc, prev).length > 0) return prev;
-      const needs = needsReviewAnnotations(semanticDoc);
-      const target = needs[0] || semanticDoc.annotations[0];
+      const actions = structuralActionQueue(semanticDoc);
+      const target =
+        actions[0]
+        || semanticDoc.annotations.find(isReviewOverlayCandidate)
+        || semanticDoc.annotations[0];
       const page = Number(target?.page);
       return Number.isFinite(page) && page >= 1 ? page : 1;
     });
@@ -170,12 +194,43 @@ export default function SemanticReviewPage() {
       const result = await processSemanticDocument(documentId, force);
       setSemanticDoc(result.document);
       setSummary(result.summary);
-    } catch (err) {
-      setError(err.friendlyMessage || "Semantic processing failed.");
-    } finally {
+      const rev = result?.summary?.corrected_pdf;
+      setPdfRevision(rev?.available ? rev.revision : null);
       setProcessing(false);
+      // Corrected PDF may still be warming in the background. Soft-swap when ready
+      // without keeping the "Processing…" spinner up.
+      if (!rev?.available && (result?.summary?.accepted_correction_count || 0) > 0) {
+        for (let i = 0; i < 8; i += 1) {
+          await new Promise((r) => setTimeout(r, 1500));
+          try {
+            const again = await getSemanticDocument(documentId);
+            const next = again?.summary?.corrected_pdf;
+            if (next?.available) {
+              setSummary(again.summary);
+              setPdfRevision(next.revision);
+              break;
+            }
+          } catch {
+            break;
+          }
+        }
+      }
+    } catch (err) {
+      setProcessing(false);
+      setError(err.friendlyMessage || "Semantic processing failed.");
     }
   };
+
+  // Damage-test PDFs: run Process automatically once so Accept / Reject /
+  // Download corrected PDF appear without an extra click.
+  useEffect(() => {
+    if (loading || processing || semanticDoc) return;
+    if (!damageManifest) return;
+    if (autoProcessedRef.current === documentId) return;
+    autoProcessedRef.current = documentId;
+    handleProcess(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once per damage doc when empty
+  }, [loading, processing, semanticDoc, damageManifest, documentId]);
 
   const selectedAnnotation = useMemo(
     () => semanticDoc?.annotations?.find((a) => a.annotation_id === selectedAnnotationId) || null,
@@ -250,18 +305,126 @@ export default function SemanticReviewPage() {
     if (idx >= 0 && idx !== damageCaseIndex) setDamageCaseIndex(idx);
   }, [selectedAnnotationId, filteredDamagePairs, damageCaseIndex]);
 
+  const applyCorrectedPdfMeta = useCallback((meta, nextSummary) => {
+    if (nextSummary) setSummary(nextSummary);
+    const revision = meta?.revision || nextSummary?.corrected_pdf?.revision || null;
+    setPdfRevision(meta?.available ? revision : null);
+  }, []);
+
   const handleReview = async (action, editedText, candidateText) => {
-    if (!selectedAnnotation) return;
+    const target = selectedAnnotation || activeDamagePair?.annotation;
+    if (!target) return;
     setReviewBusy(true);
+    setSaveStatus("saving");
+    setError(null);
+
+    // Paint the corrected label on the PDF immediately — do not wait for the
+    // corrected-PDF rebuild (that can take seconds on multi-page sheets).
+    const priorDoc = semanticDoc;
+    let optimisticText = null;
+    if (action === "edit" && editedText) {
+      optimisticText = editedText;
+    } else if (action === "accept") {
+      optimisticText = candidateText
+        || getAcceptTargetText(target, activeDamageCase)
+        || target.effective_text;
+    } else if (action === "reject") {
+      optimisticText = target.original_text || target.correction?.original || target.primary_label;
+    }
+    if (priorDoc && optimisticText) {
+      const optimisticStatus = action === "reject" ? "human_rejected" : "human_accepted";
+      setSemanticDoc({
+        ...priorDoc,
+        annotations: priorDoc.annotations.map((a) => (
+          a.annotation_id === target.annotation_id
+            ? {
+              ...a,
+              effective_text: optimisticText,
+              review_status: optimisticStatus,
+              correction: {
+                ...(a.correction || {}),
+                original: a.original_text || a.correction?.original,
+                canonical: optimisticText,
+                operation: action === "reject" ? (a.correction?.operation || "keep") : "repair",
+              },
+            }
+            : a
+        )),
+      });
+    }
+
     try {
-      await reviewSemanticAnnotation(documentId, selectedAnnotation.annotation_id, action, editedText, candidateText);
-      await load();
+      const result = await reviewSemanticAnnotation(
+        documentId,
+        target.annotation_id,
+        action,
+        editedText,
+        candidateText,
+      );
+      const updated = result?.annotation;
+      if (updated && semanticDoc) {
+        setSemanticDoc((doc) => {
+          const base = doc || priorDoc;
+          if (!base) return doc;
+          return {
+            ...base,
+            annotations: base.annotations.map((a) =>
+              (a.annotation_id === updated.annotation_id ? updated : a),
+            ),
+          };
+        });
+        setSelectedAnnotationId(updated.annotation_id);
+      }
+      applyCorrectedPdfMeta(result?.corrected_pdf, result?.summary);
+      setSaveStatus("saved");
+      if (result?.corrected_pdf?.available) {
+        setDownloadMessage(`Corrected PDF updated (rev ${result.corrected_pdf.revision})`);
+      }
     } catch (err) {
+      if (priorDoc) setSemanticDoc(priorDoc);
+      setSaveStatus("error");
       setError(err.friendlyMessage || "Could not save the review action.");
     } finally {
       setReviewBusy(false);
     }
   };
+
+  const handleAcceptAll = async () => {
+    setReviewBusy(true);
+    setSaveStatus("saving");
+    setError(null);
+    try {
+      const result = await acceptAllSemanticCorrections(documentId);
+      if (result?.document) setSemanticDoc(result.document);
+      applyCorrectedPdfMeta(result?.corrected_pdf, result?.summary);
+      setSaveStatus("saved");
+      setDownloadMessage(
+        `Accepted ${result?.accepted_count ?? 0} correction(s); corrected PDF regenerated.`,
+      );
+    } catch (err) {
+      setSaveStatus("error");
+      setError(err.friendlyMessage || "Accept All failed.");
+    } finally {
+      setReviewBusy(false);
+    }
+  };
+
+  const handleDownloadCorrectedPdf = async () => {
+    setDownloadBusy(true);
+    setDownloadMessage("Generating corrected PDF…");
+    setError(null);
+    try {
+      const { filename } = await downloadCorrectedSemanticPdf(documentId);
+      setDownloadMessage(`Corrected PDF ready (${filename})`);
+    } catch (err) {
+      setDownloadMessage(null);
+      setError(err.friendlyMessage || "Could not download the corrected PDF.");
+    } finally {
+      setDownloadBusy(false);
+    }
+  };
+
+  const acceptedCorrectionCount = summary?.accepted_correction_count ?? 0;
 
   const pageAnnotations = useMemo(
     () => (semanticDoc ? annotationsForPage(semanticDoc, currentPage) : []),
@@ -269,37 +432,59 @@ export default function SemanticReviewPage() {
   );
 
   const overlays = useMemo(() => {
-    const list = needsReviewOnly
-      ? pageAnnotations.filter((a) => a.review_status === "needs_review")
-      : pageAnnotations;
+    // Never paint every token on the sheet — that floods the viewer with
+    // orange dots. Damage PDFs: only matched test cases + selection.
+    // Ordinary docs: only structural corrections / geometry / incomplete.
+    let list;
+    if (damageManifest) {
+      const damageIds = new Set(
+        damagePairs
+          .filter(
+            (pair) =>
+              pair.annotation
+              && Number(pair.testCase.source_page) === Number(currentPage),
+          )
+          .map((pair) => pair.annotation.annotation_id),
+      );
+      list = pageAnnotations.filter(
+        (annotation) =>
+          annotation.annotation_id === selectedAnnotationId
+          || damageIds.has(annotation.annotation_id),
+      );
+    } else {
+      list = pageAnnotations.filter(isReviewOverlayCandidate);
+      if (
+        selectedAnnotation
+        && Number(selectedAnnotation.page) === Number(currentPage)
+        && !list.some((a) => a.annotation_id === selectedAnnotationId)
+      ) {
+        list = [...list, selectedAnnotation];
+      }
+    }
+
     const built = [];
     for (const annotation of list) {
       if (!annotation.semantic_bbox) continue;
       const style = getOverlayStyle(annotation);
+      const effective = annotation.effective_text || annotation.primary_label;
+      const original = annotation.original_text || annotation.correction?.original;
+      const showCorrectedLabel = (
+        ["human_accepted", "auto_accepted"].includes(annotation.review_status)
+        && effective
+        && original
+        && effective !== original
+      );
       built.push({
         key: annotation.annotation_id,
         pageNumber: annotation.page,
         boundingBox: annotation.semantic_bbox,
-        variant: style.colorKey,
-        dashed: style.dashed,
-        badge: style.badge,
-        badgeTitle: `${annotation.primary_label} — ${annotation.correction.operation}`,
+        variant: showCorrectedLabel ? "success" : style.colorKey,
+        dashed: showCorrectedLabel ? false : style.dashed,
+        badge: showCorrectedLabel ? null : style.badge,
+        badgeTitle: `${effective} — ${annotation.correction.operation}`,
+        labelText: showCorrectedLabel ? effective : null,
         onClick: () => handleSelectAnnotation(annotation),
       });
-      if (showFragments) {
-        for (const fragment of annotation.source_fragments || []) {
-          built.push({
-            key: `${annotation.annotation_id}-frag-${fragment.primitive_id}`,
-            pageNumber: annotation.page,
-            boundingBox: fragment.bbox,
-            variant: "neutral",
-            dashed: true,
-            badge: null,
-            badgeTitle: fragment.text,
-            onClick: () => handleSelectAnnotation(annotation),
-          });
-        }
-      }
     }
     // Manifest bbox fallback when the controlled case is not yet matched.
     if (
@@ -324,8 +509,10 @@ export default function SemanticReviewPage() {
     return built;
   }, [
     pageAnnotations,
-    showFragments,
-    needsReviewOnly,
+    damageManifest,
+    damagePairs,
+    selectedAnnotationId,
+    selectedAnnotation,
     handleSelectAnnotation,
     activeDamageCase,
     activeDamagePair,
@@ -372,10 +559,42 @@ export default function SemanticReviewPage() {
     return null;
   }, [viewerOverride, selectedAnnotation, activeDamageCase]);
 
-  const reviewQueue = useMemo(
-    () => (semanticDoc ? needsReviewAnnotations(semanticDoc) : []),
+  const actionQueue = useMemo(
+    () => (semanticDoc ? structuralActionQueue(semanticDoc) : []),
     [semanticDoc],
   );
+
+  const caseTableItems = useMemo(() => {
+    if (damageManifest && filteredDamagePairs.length) {
+      return filteredDamagePairs.map((pair) => {
+        const ann = pair.annotation;
+        const testCase = pair.testCase;
+        const original = ann?.correction?.original || testCase.test_text || testCase.original_text;
+        const proposed = (
+          (ann && getAcceptTargetText(ann, testCase))
+          || testCase.intended_semantic_result
+          || testCase.expected_normalized
+          || ann?.correction?.canonical
+          || null
+        );
+        return {
+          annotation_id: ann?.annotation_id || testCase.test_case_id,
+          row_key: testCase.test_case_id,
+          page: testCase.source_page,
+          correction: {
+            original,
+            canonical: proposed && proposed !== original ? proposed : (ann?.correction?.canonical || original),
+            operation: ann ? (ann.correction?.operation || "keep") : "keep",
+          },
+          repair_candidates: ann?.repair_candidates || [],
+          geometry_associations: ann?.geometry_associations || [],
+          review_status: ann?.review_status || "pending",
+          _damagePair: pair,
+        };
+      });
+    }
+    return actionQueue;
+  }, [damageManifest, filteredDamagePairs, actionQueue]);
 
   const jumpPages = useMemo(() => {
     if (damageManifest?.changed_pages?.length) {
@@ -384,18 +603,17 @@ export default function SemanticReviewPage() {
     if (!semanticDoc?.annotations?.length) return [1];
     const pages = [...new Set(semanticDoc.annotations.map((a) => Number(a.page)).filter((p) => p >= 1))];
     pages.sort((a, b) => a - b);
-    // Prefer a short strip: first, a mid needs-review page, last.
     if (pages.length <= 4) return pages;
-    const needsPages = [
-      ...new Set(reviewQueue.map((a) => Number(a.page)).filter((p) => p >= 1)),
+    const actionPages = [
+      ...new Set(actionQueue.map((a) => Number(a.page)).filter((p) => p >= 1)),
     ].sort((a, b) => a - b);
     const pick = new Set([pages[0], pages[pages.length - 1]]);
-    if (needsPages[0]) pick.add(needsPages[0]);
-    if (needsPages[Math.floor(needsPages.length / 2)]) {
-      pick.add(needsPages[Math.floor(needsPages.length / 2)]);
+    if (actionPages[0]) pick.add(actionPages[0]);
+    if (actionPages[Math.floor(actionPages.length / 2)]) {
+      pick.add(actionPages[Math.floor(actionPages.length / 2)]);
     }
     return [...pick].sort((a, b) => a - b);
-  }, [semanticDoc, reviewQueue, damageManifest]);
+  }, [semanticDoc, actionQueue, damageManifest]);
 
   const pdfViewer = (
     <Paper
@@ -411,14 +629,13 @@ export default function SemanticReviewPage() {
         bgcolor: "background.paper",
       }}
     >
-      <Typography variant="caption" color="text.secondary" sx={{ px: 0.5, pb: 0.75 }}>
-        {drawingLabel}
-      </Typography>
       <Box sx={{ flex: 1, minHeight: 0 }}>
         <PdfDocumentViewer
           fileUrl={pdfUrl}
           selection={viewerSelection}
           overlays={overlays}
+          pageWindow={1}
+          zoomOnSelect={false}
         />
       </Box>
     </Paper>
@@ -428,7 +645,48 @@ export default function SemanticReviewPage() {
     <Stack spacing={2}>
       <PageHeader
         title="Semantic Review"
-        subtitle="What this annotation means, why it changed, and what evidence supports it — upstream of the Rhino/Grasshopper takeoff workflow."
+        subtitle={drawingLabel}
+        actions={(
+            <Stack direction="row" spacing={1} alignItems="center">
+              {saveStatus === "saving" && (
+                <Typography variant="caption" color="text.secondary">Saving…</Typography>
+              )}
+              {saveStatus === "saved" && (
+                <Typography variant="caption" color="success.main" data-testid="save-status-saved">
+                  ✓ Correction saved
+                </Typography>
+              )}
+              {saveStatus === "error" && (
+                <Typography variant="caption" color="warning.main">⚠ Could not save correction</Typography>
+              )}
+              <Button
+                variant="outlined"
+                size="small"
+                disabled={reviewBusy || !semanticDoc}
+                onClick={handleAcceptAll}
+                data-testid="accept-all-corrections"
+              >
+                Accept All
+              </Button>
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={downloadBusy ? <CircularProgress size={14} color="inherit" /> : <DownloadOutlined />}
+                disabled={downloadBusy || acceptedCorrectionCount < 1}
+                onClick={handleDownloadCorrectedPdf}
+                data-testid="download-corrected-pdf"
+                title={
+                  !semanticDoc
+                    ? "Process the drawing, then Accept corrections to enable download"
+                    : acceptedCorrectionCount < 1
+                      ? "Accept at least one correction first"
+                      : "Download original PDF + all accepted corrections"
+                }
+              >
+                Download corrected PDF
+              </Button>
+            </Stack>
+          )}
       />
 
       {error && <Alert severity="warning" onClose={() => setError(null)}>{error}</Alert>}
@@ -437,6 +695,8 @@ export default function SemanticReviewPage() {
         <Alert severity="info" icon={<ScienceOutlined fontSize="small" />} data-testid="damage-corpus-banner">
           Controlled damage test PDF ({damageManifest.project}). In-place mutations on real drawing
           callouts — not a customer document. Expected values in the inspector are test metadata only.
+          {!semanticDoc && !processing && " Click Process drawing (or wait — damage PDFs auto-start processing)."}
+          {processing && " Processing now… Accept / Reject appear when finished."}
         </Alert>
       )}
 
@@ -457,14 +717,19 @@ export default function SemanticReviewPage() {
         <Stack spacing={2}>
           <EmptyState
             icon={PlayArrowOutlined}
-            title="No semantic result yet"
-            subtitle="Run the semantic preprocessor against this drawing to extract, group, normalize, repair, and complete its structural labels."
+            title={processing ? "Processing drawing…" : "Process this drawing to unlock review"}
+            subtitle={
+              processing
+                ? "Extracting labels, normalizing, and attaching repair proposals. Accept / Reject / Manual edit and Download corrected PDF appear when this finishes."
+                : "Step 1: Process drawing. Step 2: Accept / Reject / Manual edit in the inspector. Step 3: Download corrected PDF. The PDF preview below is the original until you Accept corrections."
+            }
             action={
               <Button
                 variant="contained"
                 startIcon={processing ? <CircularProgress size={16} color="inherit" /> : <PlayArrowOutlined />}
                 onClick={() => handleProcess(false)}
                 disabled={processing}
+                data-testid="process-drawing"
               >
                 {processing ? "Processing…" : "Process drawing"}
               </Button>
@@ -484,7 +749,11 @@ export default function SemanticReviewPage() {
 
       {semanticDoc && (
         <>
-          <DocumentSummaryBar summary={summary} />
+          {downloadMessage && (
+            <Alert severity="success" onClose={() => setDownloadMessage(null)} data-testid="download-ready">
+              {downloadMessage}
+            </Alert>
+          )}
 
           {benchmarkContext && (
             <Alert severity="info" icon={<ScienceOutlined fontSize="small" />} data-testid="benchmark-banner">
@@ -503,18 +772,10 @@ export default function SemanticReviewPage() {
               "available height" -- ballooning the canvas further in a
               feedback loop (reproduced during this session's demo QA). See
               DrawingReviewPage's identical `calc(100vh - Npx)` pattern. */}
-          <Grid container spacing={2} sx={{ height: "68vh", minHeight: 560 }}>
+          <Grid container spacing={2} sx={{ height: "70vh", minHeight: 560 }}>
             <Grid size={{ xs: 12, md: 8 }} sx={{ display: "flex", flexDirection: "column", minHeight: 0, height: "100%" }}>
-              <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap" sx={{ mb: 1 }}>
-                <FormControlLabel
-                  control={<Switch size="small" checked={showFragments} onChange={(e) => setShowFragments(e.target.checked)} />}
-                  label={<Typography variant="body2">Source fragments</Typography>}
-                />
-                <FormControlLabel
-                  control={<Switch size="small" checked={needsReviewOnly} onChange={(e) => setNeedsReviewOnly(e.target.checked)} />}
-                  label={<Typography variant="body2">Needs review only</Typography>}
-                />
-                <ButtonGroup size="small" sx={{ ml: "auto" }}>
+              <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap sx={{ mb: 1 }}>
+                <ButtonGroup size="small">
                   {jumpPages.map((p) => (
                     <Button
                       key={p}
@@ -530,23 +791,26 @@ export default function SemanticReviewPage() {
                   startIcon={<RefreshOutlined fontSize="small" />}
                   onClick={() => handleProcess(true)}
                   disabled={processing}
+                  sx={{ ml: "auto" }}
                 >
                   Reprocess
                 </Button>
               </Stack>
               {pdfViewer}
               <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-                Showing annotations for page {currentPage} ({pageAnnotations.length}
-                {needsReviewOnly ? " needing review" : ""}). Use the page buttons above,
-                case navigator, or click an annotation to change focus.
+                {correctedMeta?.available
+                  ? `Viewing corrected PDF (rev ${correctedMeta.revision}) — ${correctedMeta.correction_count} applied correction(s)`
+                  : overlays.length
+                    ? `${overlays.length} highlight${overlays.length === 1 ? "" : "s"} on page ${currentPage}`
+                    : `Page ${currentPage} — use case navigator or repair queue to focus a label`}
               </Typography>
             </Grid>
 
-            <Grid size={{ xs: 12, md: 4 }}>
+            <Grid size={{ xs: 12, md: 4 }} sx={{ minHeight: 0, height: "100%" }}>
               <Paper
                 variant="outlined"
                 data-testid="annotation-inspector"
-                sx={{ p: 2, height: "100%", overflowY: "auto" }}
+                sx={{ p: 1.5, height: "100%", overflowY: "auto" }}
               >
                 <AnnotationInspector
                   document={semanticDoc}
@@ -565,15 +829,33 @@ export default function SemanticReviewPage() {
           <Divider />
 
           <Tabs value={tab} onChange={(_, value) => setTab(value)}>
-            <Tab value="review" label={`Needs review (${reviewQueue.length})`} />
+            <Tab
+              value="review"
+              label={damageManifest
+                ? `All cases (${caseTableItems.length})`
+                : `Repair queue (${actionQueue.length})`}
+            />
+            <Tab value="history" label="Correction history" />
             <Tab value="intelligence" label="Document intelligence" />
           </Tabs>
           {tab === "review" ? (
             <ReviewQueue
-              items={reviewQueue}
-              selectedId={selectedAnnotationId}
-              onSelect={handleSelectAnnotation}
+              items={caseTableItems}
+              selectedId={selectedAnnotationId || activeDamageCase?.test_case_id}
+              onSelect={(item) => {
+                if (item._damagePair) {
+                  const idx = filteredDamagePairs.findIndex(
+                    (p) => p.testCase.test_case_id === item._damagePair.testCase.test_case_id,
+                  );
+                  if (idx >= 0) setDamageCaseIndex(idx);
+                  focusDamageCase(item._damagePair);
+                  return;
+                }
+                handleSelectAnnotation(item);
+              }}
             />
+          ) : tab === "history" ? (
+            <CorrectionHistoryPanel document={semanticDoc} />
           ) : (
             <DocumentIntelligencePanel document={semanticDoc} onViewSource={handleViewSource} />
           )}

@@ -3,6 +3,7 @@ import {
   annotationsForPage,
   describeScore,
   evidenceRulesFor,
+  getAcceptTargetText,
   getOperation,
   getOverlayStyle,
   getPendingProposalOperation,
@@ -10,9 +11,11 @@ import {
   getRepairCandidates,
   hasGeometryConflict,
   isDemoSynthetic,
+  isReviewOverlayCandidate,
   needsReviewAnnotations,
   OPERATION,
   REVIEW_STATUS,
+  structuralActionQueue,
 } from "./semanticContract";
 
 function annotation(overrides = {}) {
@@ -85,6 +88,60 @@ describe("annotationsForPage / needsReviewAnnotations", () => {
   it("returns an empty array for a missing document", () => {
     expect(annotationsForPage(null, 1)).toEqual([]);
     expect(needsReviewAnnotations(undefined)).toEqual([]);
+  });
+});
+
+describe("getAcceptTargetText", () => {
+  it("prefers pending repair then top candidate", () => {
+    const pending = annotation({
+      operations: [{ operation: OPERATION.REPAIR, output_text: "W8X10", accepted: false }],
+      repair_candidates: [{ candidate_text: "W8X12" }],
+      correction: { operation: OPERATION.NONE, original: "W8XI0", canonical: "W8XI0" },
+      original_text: "W8XI0",
+    });
+    expect(getAcceptTargetText(pending)).toBe("W8X10");
+    expect(getAcceptTargetText(annotation({
+      repair_candidates: [{ candidate_text: "W18X40" }],
+      original_text: "W18X4O",
+      correction: { operation: OPERATION.NONE, original: "W18X4O", canonical: "W18X4O" },
+    }))).toBe("W18X40");
+  });
+});
+
+describe("isReviewOverlayCandidate / structuralActionQueue", () => {
+  it("skips non-structural note noise", () => {
+    expect(
+      isReviewOverlayCandidate(
+        annotation({
+          semantic_bbox: [0, 0, 1, 1],
+          structural_parse: { is_structural: false },
+          correction: { operation: OPERATION.NONE },
+        }),
+      ),
+    ).toBe(false);
+  });
+
+  it("keeps repairs and completions in the action queue", () => {
+    const document = {
+      annotations: [
+        annotation({
+          annotation_id: "r",
+          structural_parse: { is_structural: true },
+          correction: { operation: OPERATION.REPAIR },
+        }),
+        annotation({
+          annotation_id: "n",
+          structural_parse: { is_structural: true },
+          correction: { operation: OPERATION.NORMALIZATION },
+        }),
+        annotation({
+          annotation_id: "k",
+          structural_parse: { is_structural: true },
+          correction: { operation: OPERATION.NONE },
+        }),
+      ],
+    };
+    expect(structuralActionQueue(document).map((a) => a.annotation_id)).toEqual(["r"]);
   });
 });
 
