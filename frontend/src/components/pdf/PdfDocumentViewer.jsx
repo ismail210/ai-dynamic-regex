@@ -12,7 +12,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 ).toString();
 
 const MIN_PAGE_WIDTH = 240;
-const ZOOM_STEP = 1.5;
+const ZOOM_STEP = 1.25;
 // Below this delta, treat two widths as "the same" -- without this,
 // float-precision/scrollbar-driven jitter of a fraction of a pixel would
 // re-set `pageWidth` to an "already there" value forever, re-triggering a
@@ -48,6 +48,14 @@ export default function PdfDocumentViewer({
   // annotation overlay layer. Left empty/undefined, the viewer behaves
   // exactly as before (Drawing Review's single-selection use).
   overlays = null,
+  // When set (e.g. 1), only mount currentPage ± N (plus selection page).
+  // Semantic Review passes this to avoid re-rasterizing every sheet on
+  // zoom/select. Drawing Review leaves it null (render all pages).
+  pageWindow = null,
+  // When false, selection only navigates + scrolls — no pageWidth change.
+  // Semantic Review uses this so clicking labels stays snappy; Drawing Review
+  // keeps the default zoom-to-label behavior.
+  zoomOnSelect = true,
 }) {
   const containerRef = useRef(null);
   const pageRefs = useRef({});
@@ -61,6 +69,12 @@ export default function PdfDocumentViewer({
   // on a different page -- and ONLY there. Zooming (in/out or back to Fit
   // Page) must never touch this.
   const [currentPage, setCurrentPage] = useState(1);
+  // Soft file swap: keep showing the last successfully loaded PDF while a
+  // corrected-PDF revision fetches, so Accept does not blank the viewer.
+  const [displayFileUrl, setDisplayFileUrl] = useState(fileUrl);
+  const [fileUpdating, setFileUpdating] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
+  const hasLoadedRef = useRef(false);
   // { key, pageNumber, width } for a selection whose scroll-into-view is
   // waiting on react-pdf to finish (re)rendering the target page's canvas
   // at the new zoomed width -- see the onRenderSuccess handler below.
@@ -78,6 +92,16 @@ export default function PdfDocumentViewer({
   // triggers zoom-to-label exactly once, not every time unrelated state
   // (e.g. another page finishing its own load) re-runs this effect.
   const lastHandledSelectionKeyRef = useRef(null);
+
+  useEffect(() => {
+    if (!fileUrl || fileUrl === displayFileUrl) return undefined;
+    if (!hasLoadedRef.current) {
+      setDisplayFileUrl(fileUrl);
+      return undefined;
+    }
+    setFileUpdating(true);
+    return undefined;
+  }, [fileUrl, displayFileUrl]);
 
   useEffect(() => {
     const node = containerRef.current;
@@ -246,9 +270,14 @@ export default function PdfDocumentViewer({
     // tells onRenderSuccess to scroll once THIS page finishes rendering
     // at whatever that turns out to be, without this effect needing to
     // predict the value.
-    if (!selection.boundingBox) {
+    //
+    // zoomOnSelect=false (Semantic Review) uses the same path even when a
+    // bbox exists — scroll to the highlight without re-rasterizing pages.
+    if (!selection.boundingBox || !zoomOnSelect) {
       setCurrentPage(pageNumber);
-      setMode("fit-page");
+      if (!selection.boundingBox) {
+        setMode("fit-page");
+      }
       if (Math.abs(pageWidth - (renderedWidthsRef.current[pageNumber] ?? -1)) < WIDTH_EPSILON) {
         pendingScrollRef.current = null;
         const raf = window.requestAnimationFrame(() => scrollToSelection(pageNumber));
@@ -306,7 +335,7 @@ export default function PdfDocumentViewer({
     // navigate-only branch above always checks against the current value,
     // not a stale closure -- the lastHandledSelectionKeyRef guard above
     // still limits actual work to once per selection.key.
-  }, [selection?.key, selection?.pageNumber, selection?.boundingBox, pageSizes, scrollToSelection, pageWidth, numPages]);
+  }, [selection?.key, selection?.pageNumber, selection?.boundingBox, pageSizes, scrollToSelection, pageWidth, numPages, zoomOnSelect]);
 
   // Manual zoom: same page, no mode fighting -- just scales pageWidth from
   // wherever it currently is, and does a best-effort job of keeping the
@@ -346,6 +375,8 @@ export default function PdfDocumentViewer({
   const onDocumentLoadSuccess = useCallback(({ numPages: next }) => {
     setNumPages(next);
     setLoadError(null);
+    hasLoadedRef.current = true;
+    setHasLoaded(true);
     // Semantic Review used to jump to a hard-coded page 5/58. On short
     // controlled-test PDFs that left Fit Page waiting forever on a page that
     // does not exist → blank/black canvas. Clamp to a real page.
@@ -356,10 +387,37 @@ export default function PdfDocumentViewer({
     });
   }, []);
 
-  const pages = useMemo(
-    () => Array.from({ length: numPages }, (_, index) => index + 1),
-    [numPages],
-  );
+  const onPendingFileLoadSuccess = useCallback(({ numPages: next }) => {
+    // Swap in the corrected PDF only after it has loaded, so Accept never
+    // blanks the viewer with "Loading drawing…".
+    if (fileUrl && fileUrl !== displayFileUrl) {
+      setDisplayFileUrl(fileUrl);
+      setNumPages(next);
+      setFileUpdating(false);
+      // Keep page sizes for matching paper sizes; clear rendered widths so
+      // scroll/zoom re-sync against the new canvases.
+      renderedWidthsRef.current = {};
+      lastHandledSelectionKeyRef.current = null;
+    }
+  }, [fileUrl, displayFileUrl]);
+
+  const pages = useMemo(() => {
+    if (!numPages) return [];
+    if (pageWindow == null || pageWindow < 0) {
+      return Array.from({ length: numPages }, (_, index) => index + 1);
+    }
+    const focus = Number(selection?.pageNumber) || currentPage || 1;
+    const lo = Math.max(1, focus - pageWindow);
+    const hi = Math.min(numPages, focus + pageWindow);
+    const set = new Set();
+    for (let p = lo; p <= hi; p += 1) set.add(p);
+    set.add(Math.min(Math.max(currentPage || 1, 1), numPages));
+    if (selection?.pageNumber) {
+      const sel = Number(selection.pageNumber);
+      if (sel >= 1 && sel <= numPages) set.add(sel);
+    }
+    return [...set].sort((a, b) => a - b);
+  }, [numPages, pageWindow, currentPage, selection?.pageNumber]);
 
   // Grouped once per `overlays` change, not recomputed per page per render --
   // keeps annotation-heavy documents (thousands of annotations total) cheap
@@ -434,16 +492,34 @@ export default function PdfDocumentViewer({
             {loadError}
           </Alert>
         )}
+        {fileUpdating && (
+          <Alert severity="info" sx={{ mb: 1, py: 0 }} data-testid="pdf-updating-banner">
+            Updating corrected drawing…
+          </Alert>
+        )}
+        {/* Preload the next corrected-PDF revision off-screen so Accept can
+            swap without unmounting the visible Document. */}
+        {fileUpdating && fileUrl && fileUrl !== displayFileUrl ? (
+          <Box sx={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }} aria-hidden>
+            <Document
+              file={fileUrl}
+              loading={null}
+              onLoadSuccess={onPendingFileLoadSuccess}
+              onLoadError={() => {
+                setFileUpdating(false);
+                setLoadError("Could not load the corrected drawing PDF.");
+              }}
+            >
+              <Page pageNumber={1} width={1} renderTextLayer={false} renderAnnotationLayer={false} />
+            </Document>
+          </Box>
+        ) : null}
         <Document
-          key={fileUrl}
-          file={fileUrl}
+          file={displayFileUrl}
           loading={
-            // react-pdf clones/wraps this element internally (via its Message
-            // component) rather than rendering it as an ordinary child, which
-            // dropped MUI's Stack-specific prop handling and forwarded
-            // `alignItems` straight through to a DOM node. sx-based styling
-            // compiles to CSS at build time, so there is no component prop
-            // left for that wrapping to strip.
+            hasLoaded
+              ? null
+              : (
             <Box
               sx={{
                 display: "flex",
@@ -458,6 +534,7 @@ export default function PdfDocumentViewer({
                 Loading drawing…
               </Typography>
             </Box>
+              )
           }
           onLoadSuccess={onDocumentLoadSuccess}
           onLoadError={(error) => {

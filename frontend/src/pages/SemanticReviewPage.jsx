@@ -196,10 +196,28 @@ export default function SemanticReviewPage() {
       setSummary(result.summary);
       const rev = result?.summary?.corrected_pdf;
       setPdfRevision(rev?.available ? rev.revision : null);
-    } catch (err) {
-      setError(err.friendlyMessage || "Semantic processing failed.");
-    } finally {
       setProcessing(false);
+      // Corrected PDF may still be warming in the background. Soft-swap when ready
+      // without keeping the "Processing…" spinner up.
+      if (!rev?.available && (result?.summary?.accepted_correction_count || 0) > 0) {
+        for (let i = 0; i < 8; i += 1) {
+          await new Promise((r) => setTimeout(r, 1500));
+          try {
+            const again = await getSemanticDocument(documentId);
+            const next = again?.summary?.corrected_pdf;
+            if (next?.available) {
+              setSummary(again.summary);
+              setPdfRevision(next.revision);
+              break;
+            }
+          } catch {
+            break;
+          }
+        }
+      }
+    } catch (err) {
+      setProcessing(false);
+      setError(err.friendlyMessage || "Semantic processing failed.");
     }
   };
 
@@ -299,6 +317,42 @@ export default function SemanticReviewPage() {
     setReviewBusy(true);
     setSaveStatus("saving");
     setError(null);
+
+    // Paint the corrected label on the PDF immediately — do not wait for the
+    // corrected-PDF rebuild (that can take seconds on multi-page sheets).
+    const priorDoc = semanticDoc;
+    let optimisticText = null;
+    if (action === "edit" && editedText) {
+      optimisticText = editedText;
+    } else if (action === "accept") {
+      optimisticText = candidateText
+        || getAcceptTargetText(target, activeDamageCase)
+        || target.effective_text;
+    } else if (action === "reject") {
+      optimisticText = target.original_text || target.correction?.original || target.primary_label;
+    }
+    if (priorDoc && optimisticText) {
+      const optimisticStatus = action === "reject" ? "human_rejected" : "human_accepted";
+      setSemanticDoc({
+        ...priorDoc,
+        annotations: priorDoc.annotations.map((a) => (
+          a.annotation_id === target.annotation_id
+            ? {
+              ...a,
+              effective_text: optimisticText,
+              review_status: optimisticStatus,
+              correction: {
+                ...(a.correction || {}),
+                original: a.original_text || a.correction?.original,
+                canonical: optimisticText,
+                operation: action === "reject" ? (a.correction?.operation || "keep") : "repair",
+              },
+            }
+            : a
+        )),
+      });
+    }
+
     try {
       const result = await reviewSemanticAnnotation(
         documentId,
@@ -309,11 +363,15 @@ export default function SemanticReviewPage() {
       );
       const updated = result?.annotation;
       if (updated && semanticDoc) {
-        setSemanticDoc({
-          ...semanticDoc,
-          annotations: semanticDoc.annotations.map((a) =>
-            (a.annotation_id === updated.annotation_id ? updated : a),
-          ),
+        setSemanticDoc((doc) => {
+          const base = doc || priorDoc;
+          if (!base) return doc;
+          return {
+            ...base,
+            annotations: base.annotations.map((a) =>
+              (a.annotation_id === updated.annotation_id ? updated : a),
+            ),
+          };
         });
         setSelectedAnnotationId(updated.annotation_id);
       }
@@ -323,6 +381,7 @@ export default function SemanticReviewPage() {
         setDownloadMessage(`Corrected PDF updated (rev ${result.corrected_pdf.revision})`);
       }
     } catch (err) {
+      if (priorDoc) setSemanticDoc(priorDoc);
       setSaveStatus("error");
       setError(err.friendlyMessage || "Could not save the review action.");
     } finally {
@@ -410,8 +469,7 @@ export default function SemanticReviewPage() {
       const effective = annotation.effective_text || annotation.primary_label;
       const original = annotation.original_text || annotation.correction?.original;
       const showCorrectedLabel = (
-        !(correctedMeta?.available)
-        && ["human_accepted", "auto_accepted"].includes(annotation.review_status)
+        ["human_accepted", "auto_accepted"].includes(annotation.review_status)
         && effective
         && original
         && effective !== original
@@ -460,7 +518,6 @@ export default function SemanticReviewPage() {
     activeDamagePair,
     currentPage,
     focusDamageCase,
-    correctedMeta?.available,
   ]);
 
   // This document is dozens of full-size sheets mounted at once (see
@@ -577,6 +634,8 @@ export default function SemanticReviewPage() {
           fileUrl={pdfUrl}
           selection={viewerSelection}
           overlays={overlays}
+          pageWindow={1}
+          zoomOnSelect={false}
         />
       </Box>
     </Paper>

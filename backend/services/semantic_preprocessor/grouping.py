@@ -27,10 +27,29 @@ _INCOMPLETE_HSS_RE = re.compile(r"^HSS\d+(?:\.\d+)?X\d+(?:\.\d+)?$")
 _BARE_FRACTION_OR_DECIMAL_RE = re.compile(r"^[\d./]+$")
 
 _SAME_LINE_GAP_MULTIPLE = 1.5  # gap tolerance, in units of font size
+# Gaps above this fraction of font size are treated as intentional spaces
+# (damage "W 18 X 46"); tighter gaps are glyph splits ("W"+"8"+"X"+"10").
+_VISUAL_SPACE_GAP_FRACTION = 0.2
 
 
 def _font_size_or_default(primitive: TextPrimitive) -> float:
     return primitive.font_size or 10.0
+
+
+def _visual_text_for_chain(chain: List[TextPrimitive]) -> str:
+    """Join chain text, inserting spaces only for clearly spaced glyphs."""
+    if not chain:
+        return ""
+    if len(chain) == 1:
+        return chain[0].text
+    parts: List[str] = [chain[0].text]
+    for prev, cur in zip(chain, chain[1:]):
+        gap = _horizontal_gap(prev, cur)
+        threshold = _font_size_or_default(prev) * _VISUAL_SPACE_GAP_FRACTION
+        if gap > threshold:
+            parts.append(" ")
+        parts.append(cur.text)
+    return "".join(parts)
 
 
 def _union_bbox(boxes: List[List[float]]) -> List[float]:
@@ -108,6 +127,9 @@ def group_primitives(
             j += 1
 
         combined_text = "".join(p.text for p in chain)
+        # Preserve intentional PDF spacing (wide gaps) in original_text so
+        # NORMALIZATION can rewrite the drawing; keep primary_label compact.
+        visual_text = _visual_text_for_chain(chain)
         reasons = ["same_baseline_merge"] if len(chain) > 1 else []
         source_ids = [p.primitive_id for p in chain]
         bbox = _union_bbox([p.bbox for p in chain])
@@ -158,12 +180,13 @@ def group_primitives(
                 # The line break stands in for the missing "X" separator
                 # between the incomplete "HSSaXb" and its thickness field.
                 combined_text = combined_text + "X" + continuation.text
+                visual_text = visual_text + "X" + continuation.text
                 source_ids.append(continuation.primitive_id)
                 bbox = _union_bbox([bbox, continuation.bbox])
                 reasons.append("split_structural_label_merge")
                 used.add(continuation.primitive_id)
 
-        raw_text = combined_text + ("".join(f" {m.raw_text}" for m in modifiers) if modifiers else "")
+        raw_text = visual_text + ("".join(f" {m.raw_text}" for m in modifiers) if modifiers else "")
         source_fragments = [
             SourceFragment(primitive_id=pid, text=by_id[pid].text, bbox=list(by_id[pid].bbox))
             for pid in source_ids

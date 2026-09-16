@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { Alert, Stack } from "@mui/material";
-import { FactCheckOutlined, PictureAsPdfOutlined } from "@mui/icons-material";
 import StatsCards from "./StatsCards";
 import Charts from "./Charts";
 import DownloadButtons from "./DownloadButtons";
@@ -39,7 +38,6 @@ export default function ResultsBody({ data }) {
           component={Link}
           to="/review-drawing"
           variant="contained"
-          startIcon={<PictureAsPdfOutlined />}
         >
           Review on drawing
         </TipButton>
@@ -47,7 +45,6 @@ export default function ResultsBody({ data }) {
           component={Link}
           to="/validation"
           variant="outlined"
-          startIcon={<FactCheckOutlined />}
         >
           Review validation
         </TipButton>

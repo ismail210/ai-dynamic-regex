@@ -27,6 +27,7 @@ from services.semantic.corrected_pdf import (
     sync_corrected_pdf,
 )
 from services.semantic.models import OperationKind, OperationRecord, ReviewStatus
+from services.semantic_preprocessor.normalization import format_designation_for_pdf
 from services.semantic.repair_shadow import attach_repair_shadow
 from services.semantic.serialization import load_semantic_document, to_dict
 from services.semantic_preprocessor.extraction import build_text_primitives
@@ -188,7 +189,7 @@ def apply_review_action(
             OperationRecord(
                 operation=OperationKind.REPAIR,
                 input_text=annotation.effective_text,
-                output_text=edited_text,
+                output_text=format_designation_for_pdf(edited_text),
                 reason_codes=["human_manual_edit"],
                 deterministic=False,
                 provenance="human_manual_edit",
@@ -277,7 +278,7 @@ def _apply_accept_to_annotation(annotation, candidate_text: Optional[str] = None
             target_op = OperationRecord(
                 operation=OperationKind.REPAIR,
                 input_text=annotation.effective_text,
-                output_text=resolved_candidate,
+                output_text=format_designation_for_pdf(resolved_candidate),
                 reason_codes=list(candidate.reason_codes) + ["human_chose_alternate_candidate"],
                 evidence=list(candidate.evidence),
                 score=(candidate.scores[0] if candidate.scores else None),
@@ -286,6 +287,12 @@ def _apply_accept_to_annotation(annotation, candidate_text: Optional[str] = None
                 accepted=False,
             )
             annotation.operations.append(target_op)
+        else:
+            # Format in place when accepting an existing pending proposal that
+            # still carries a decimal thickness (e.g. L4X4X0.375 → L4X4X3/8).
+            formatted = format_designation_for_pdf(target_op.output_text or resolved_candidate)
+            if formatted and formatted != target_op.output_text:
+                target_op.output_text = formatted
         target_op.accepted = True
     annotation.review.status = ReviewStatus.HUMAN_ACCEPTED
 

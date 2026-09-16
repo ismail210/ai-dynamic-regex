@@ -6,7 +6,7 @@ from __future__ import annotations
 import unittest
 
 from services.semantic.models import OperationKind
-from services.semantic_preprocessor.normalization import canonicalize
+from services.semantic_preprocessor.normalization import canonicalize, format_designation_for_pdf
 
 
 class HssRectangularFractionConversionTests(unittest.TestCase):
@@ -88,6 +88,35 @@ class CompletionBoundaryTests(unittest.TestCase):
         self.assertEqual(result.parse.grammar, "incomplete")
         self.assertEqual(result.operation.operation, OperationKind.KEEP)
         self.assertEqual(result.operation.output_text, "W8")
+
+
+class AngleFractionConversionTests(unittest.TestCase):
+    def test_decimal_third_dimension_converts_to_fraction(self):
+        result = canonicalize("L4X4X0.375")
+        self.assertEqual(result.parse.grammar, "angle")
+        self.assertEqual(result.operation.output_text, "L4X4X3/8")
+        self.assertEqual(format_designation_for_pdf("L4X4X0.375"), "L4X4X3/8")
+
+    def test_common_angle_thicknesses(self):
+        cases = {
+            "L4X4X0.25": "L4X4X1/4",
+            "L3X3X0.3125": "L3X3X5/16",
+            "L5X3X0.5": "L5X3X1/2",
+            "2L4X4X0.375": "2L4X4X3/8",
+        }
+        for raw, expected in cases.items():
+            with self.subTest(raw=raw):
+                self.assertEqual(format_designation_for_pdf(raw), expected)
+
+    def test_incomplete_angle_is_not_completed(self):
+        # L4X4 parses as depth_weight (two-field L); never invent thickness.
+        result = canonicalize("L4X4")
+        self.assertEqual(result.operation.output_text, "L4X4")
+        self.assertNotIn("1/4", result.operation.output_text or "")
+        self.assertEqual(format_designation_for_pdf("L4X4"), "L4X4")
+
+    def test_already_fractional_angle_unchanged(self):
+        self.assertEqual(format_designation_for_pdf("L4X4X3/8"), "L4X4X3/8")
 
 
 if __name__ == "__main__":

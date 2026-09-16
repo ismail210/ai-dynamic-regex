@@ -216,3 +216,147 @@ class CorrectedPdfExportTests(IsolatedApiTestCase):
         self.assertNotEqual(rev1, rev2)
         text = fitz.open(corrected_pdf_path(document_id))[0].get_text()
         self.assertIn("W18X50", text)
+
+
+class CorrectedPdfFractionAndPlacementTests(IsolatedApiTestCase):
+    def test_list_accepted_includes_spacing_normalization(self):
+        corrections = list_accepted_text_corrections(
+            {
+                "annotations": [
+                    {
+                        "annotation_id": "a_space",
+                        "page": 1,
+                        "original_text": "W 18 X 46",
+                        "effective_text": "W18X46",
+                        "review_status": "auto_accepted",
+                        "semantic_bbox": [72.0, 120.0, 200.0, 134.0],
+                    }
+                ]
+            }
+        )
+        self.assertEqual(len(corrections), 1)
+        self.assertEqual(corrections[0]["effective_text"], "W18X46")
+        self.assertEqual(corrections[0]["original_text"], "W 18 X 46")
+
+    def test_process_writes_spacing_into_corrected_pdf(self):
+        path = config.settings.uploads_dir / "spacing_norm.pdf"
+        document = fitz.open()
+        page = document.new_page(width=612, height=792)
+        page.insert_text((100, 200), "W 18 X 46", fontsize=12)
+        page.insert_text((100, 240), "W12X26", fontsize=12)
+        document.save(path)
+        document.close()
+
+        manifest = register_document(path, original_name="spacing_norm.pdf")
+        document_id = manifest["document_id"]
+        processed = self.client.post(f"/api/documents/{document_id}/semantic")
+        self.assertEqual(processed.status_code, 200)
+        body = processed.json()
+        # Process must not block on PDF rebuild; accepted spacing is counted.
+        self.assertGreaterEqual(body["summary"]["accepted_correction_count"], 1)
+
+        # Download/export builds the derived PDF on demand (and TestClient
+        # may also have flushed the background warm task).
+        response = self.client.get(f"/api/documents/{document_id}/semantic/corrected-pdf")
+        self.assertEqual(response.status_code, 200)
+        out_path = corrected_pdf_path(document_id)
+        self.assertTrue(out_path.exists())
+        text = fitz.open(out_path)[0].get_text()
+        self.assertIn("W18X46", text)
+        source = document_source(document_id)
+        self.assertNotEqual(_sha256(out_path), _sha256(source))
+        self.assertIn("W 18 X 46", fitz.open(source)[0].get_text())
+
+    def test_list_accepted_formats_decimal_third_dimension(self):
+        corrections = list_accepted_text_corrections(
+            {
+                "annotations": [
+                    {
+                        "annotation_id": "a_angle",
+                        "page": 1,
+                        "original_text": "L4X4X0.375",
+                        "effective_text": "L4X4X0.375",
+                        "review_status": "human_accepted",
+                        "semantic_bbox": [72.0, 120.0, 160.0, 134.0],
+                    }
+                ]
+            }
+        )
+        self.assertEqual(len(corrections), 1)
+        self.assertEqual(corrections[0]["effective_text"], "L4X4X3/8")
+
+    def test_accept_writes_fractional_third_dimension_not_decimal(self):
+        path = config.settings.uploads_dir / "angle_decimal.pdf"
+        document = fitz.open()
+        page = document.new_page(width=612, height=792)
+        page.insert_text((100, 200), "L4X4X0.375", fontsize=12)
+        page.insert_text((100, 240), "W12X26", fontsize=12)
+        document.save(path)
+        document.close()
+
+        manifest = register_document(path, original_name="angle_decimal.pdf")
+        document_id = manifest["document_id"]
+        self.client.post(f"/api/documents/{document_id}/semantic")
+
+        body = self.client.get(f"/api/documents/{document_id}/semantic").json()
+        ann = next(a for a in body["document"]["annotations"] if a["original_text"] == "L4X4X0.375")
+
+        # Force human accept with decimal input — PDF must store the fraction.
+        accept = self.client.patch(
+            f"/api/documents/{document_id}/semantic/annotations/{ann['annotation_id']}/review",
+            json={"action": "edit", "edited_text": "L4X4X0.375"},
+        )
+        self.assertEqual(accept.status_code, 200)
+        self.assertEqual(accept.json()["annotation"]["effective_text"], "L4X4X3/8")
+
+        source = document_source(document_id)
+        original_hash = _sha256(source)
+        out_path = corrected_pdf_path(document_id)
+        self.assertTrue(out_path.exists())
+        text = fitz.open(out_path)[0].get_text()
+        self.assertIn("L4X4X3/8", text)
+        # Authoritative written correction is fractional (list_accepted formats too).
+        applied = list_accepted_text_corrections(
+            self.client.get(f"/api/documents/{document_id}/semantic").json()["document"]
+        )
+        self.assertTrue(any(c["effective_text"] == "L4X4X3/8" for c in applied))
+        self.assertFalse(any("0.375" in (c["effective_text"] or "") for c in applied))
+        self.assertEqual(_sha256(source), original_hash)
+
+    def test_replacement_cover_tracks_measured_text_width(self):
+        """Shorter corrected text must not leave a large empty white pad."""
+        from services.semantic.corrected_pdf import _fit_font_size, _replace_label
+
+        doc = fitz.open()
+        page = doc.new_page(width=400, height=200)
+        bbox = [50.0, 80.0, 150.0, 94.0]
+        page.insert_text((50, 92), "W18X4O", fontsize=11)
+        original_w = bbox[2] - bbox[0]
+        fs, text_w = _fit_font_size("W18X40", original_w, bbox[3] - bbox[1])
+        self.assertLessEqual(text_w, original_w + 1.0)
+        _replace_label(page, bbox, "W18X40")
+        text = page.get_text()
+        self.assertIn("W18X40", text)
+        self.assertGreater(fs, 4.0)
+        doc.close()
+
+    def test_incomplete_l4x4_accept_does_not_invent_thickness_in_pdf(self):
+        path = config.settings.uploads_dir / "incomplete_l.pdf"
+        document = fitz.open()
+        page = document.new_page(width=612, height=792)
+        page.insert_text((72, 120), "L4X4", fontsize=12)
+        document.save(path)
+        document.close()
+
+        manifest = register_document(path, original_name="incomplete_l.pdf")
+        document_id = manifest["document_id"]
+        self.client.post(f"/api/documents/{document_id}/semantic")
+        body = self.client.get(f"/api/documents/{document_id}/semantic").json()
+        ann = next(a for a in body["document"]["annotations"] if a["original_text"] == "L4X4")
+        edit = self.client.patch(
+            f"/api/documents/{document_id}/semantic/annotations/{ann['annotation_id']}/review",
+            json={"action": "edit", "edited_text": "L4X4"},
+        )
+        self.assertEqual(edit.status_code, 200)
+        self.assertEqual(edit.json()["annotation"]["effective_text"], "L4X4")
+        self.assertFalse(edit.json()["corrected_pdf"]["available"])

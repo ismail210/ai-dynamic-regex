@@ -58,8 +58,22 @@ class SameBaselineChainMergeTests(unittest.TestCase):
         self.assertEqual(len(annotations), 1)
         ann = annotations[0]
         self.assertEqual(ann.primary_label, "W8X10")
+        # Adjacent glyph splits (near-zero gap) stay compact in original_text.
+        self.assertEqual(ann.original_text, "W8X10")
         self.assertIn("same_baseline_merge", ann.grouping_reasons)
         self.assertEqual(len(ann.source_fragment_ids), 4)
+
+    def test_intentionally_spaced_words_keep_spaces_in_original(self):
+        primitives = [
+            _prim("p1", "W", [100, 100, 108, 110]),
+            _prim("p2", "8", [112, 100, 118, 110]),   # gap 4pt > 0.2*10
+            _prim("p3", "X", [122, 100, 130, 110]),
+            _prim("p4", "10", [134, 100, 146, 110]),
+        ]
+        ann = group_primitives(primitives, page=1)[0]
+        self.assertEqual(ann.primary_label, "W8X10")
+        self.assertEqual(ann.original_text, "W 8 X 10")
+        self.assertIn("same_baseline_merge", ann.grouping_reasons)
 
     def test_semantic_bbox_is_union_not_a_replacement(self):
         primitives = [

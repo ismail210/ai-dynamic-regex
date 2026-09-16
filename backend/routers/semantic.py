@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
@@ -23,13 +23,25 @@ from services.semantic_document_service import (
     list_review_queue,
     run_semantic_pipeline,
 )
-from services.semantic.corrected_pdf import sync_corrected_pdf
+from services.semantic.corrected_pdf import list_accepted_text_corrections, sync_corrected_pdf
 
 router = APIRouter()
 
 
+def _sync_corrected_pdf_safe(document_id: str, document: dict) -> None:
+    """Background rebuild — never raise into the ASGI worker."""
+    try:
+        sync_corrected_pdf(document_id, document)
+    except Exception:
+        pass
+
+
 @router.post("/documents/{document_id}/semantic")
-def process_semantic(document_id: str, force: bool = Query(False)):
+def process_semantic(
+    document_id: str,
+    background_tasks: BackgroundTasks,
+    force: bool = Query(False),
+):
     try:
         document_source(document_id)
     except (FileNotFoundError, ValueError) as exc:
@@ -38,7 +50,13 @@ def process_semantic(document_id: str, force: bool = Query(False)):
         document = run_semantic_pipeline(document_id, force=force)
     except Exception as exc:  # pragma: no cover - defensive: surface as 500, not a crash
         raise HTTPException(status_code=500, detail=f"Semantic processing failed: {exc}") from exc
-    return {"document": document, "summary": document_summary(document, document_id=document_id)}
+    # Do not block Process on a full corrected-PDF rebuild (multi-page sets
+    # with many auto-normalizations can take minutes). Overlays show accepted
+    # text immediately; warm the derived PDF in the background when needed.
+    summary = document_summary(document, document_id=document_id)
+    if list_accepted_text_corrections(document):
+        background_tasks.add_task(_sync_corrected_pdf_safe, document_id, document)
+    return {"document": document, "summary": summary}
 
 
 @router.get("/documents/{document_id}/semantic")

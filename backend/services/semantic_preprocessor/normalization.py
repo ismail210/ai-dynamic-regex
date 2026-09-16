@@ -82,6 +82,13 @@ def _reassemble(parse: StructuralParse) -> Optional[str]:
         fraction = _to_fraction_string(t)
         canonical_t = fraction if fraction is not None else t
         return f"HSS{fields['a']}X{fields['b']}X{canonical_t}"
+    if parse.grammar == "angle":
+        # Same thickness fraction rule as rectangular HSS. Never invent a
+        # missing thickness — incomplete LaXb stays outside this grammar.
+        t = fields["t"]
+        fraction = _to_fraction_string(t)
+        canonical_t = fraction if fraction is not None else t
+        return f"{family}{fields['a']}X{fields['b']}X{canonical_t}"
     if parse.grammar == "hss_round":
         # Round HSS/Pipe stays decimal, verbatim -- never fraction-converted.
         return f"HSS{fields['od']}X{fields['t']}"
@@ -98,6 +105,19 @@ def _reassemble(parse: StructuralParse) -> Optional[str]:
         base = f"BP{fields['length']}X{fields['width']}"
         return base + (f"X{t}" if t else "")
     return None
+
+
+def format_designation_for_pdf(text: str) -> str:
+    """Deterministic designation form for PDF write / Accept (fractions, etc.).
+
+    Reuses ``canonicalize`` so Results and Semantic Review share one formatter.
+    Never invents missing thickness or otherwise weakens safety gates.
+    """
+    if not text or not str(text).strip():
+        return text
+    result = canonicalize(str(text).strip())
+    out = (result.operation.output_text or "").strip()
+    return out or str(text).strip()
 
 
 def canonicalize(raw_text: str) -> CanonicalizationResult:
