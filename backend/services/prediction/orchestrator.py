@@ -706,7 +706,20 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
                 document_prior,
                 token_text=normalized or raw_text,
             )
-        corrected_text = corrections[0].corrected if corrections else normalized
+        # A protected exact section (see above) already names the trusted
+        # designation from the source text alone -- the fuzzy corrector below
+        # scores candidates by text/geometry/graph similarity and can rank a
+        # DIFFERENT, wrong catalog row above the correct one (confirmed: for
+        # "HSS14X0.5", suggest_token_corrections ranks "HSS16X0.5" at 0.75
+        # above the actually-correct "HSS14.000X0.500" at 0.68). Once a
+        # section is locked, the displayed "corrected" text must never
+        # contradict it, so skip the fuzzy suggestion entirely and use the
+        # conservative, source-style normalized text instead.
+        corrected_text = (
+            normalized
+            if protected_exact_section
+            else (corrections[0].corrected if corrections else normalized)
+        )
         if (
             missing_thickness_needs_review
             or incomplete_angle_needs_review

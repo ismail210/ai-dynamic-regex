@@ -228,6 +228,46 @@ export function getMatchStatus(result = {}) {
   return getCanonicalPrediction(result).comparison.match_status || "unresolved";
 }
 
+/**
+ * Small last-resort classifier, used ONLY when a served prediction has no
+ * `status_tags` at all (a legacy/stale cached response from before this
+ * field existed). Backend tags remain authoritative and are always
+ * preferred — this exists so such a row still lands in a sane filter
+ * bucket instead of only ever showing under "All", without duplicating
+ * services.prediction.status_classification.classify_prediction_status's
+ * full rule set here.
+ */
+function fallbackStatusTags(result) {
+  const status = getMatchStatus(result);
+  const tags = new Set();
+  if (isHumanReviewed(result)) tags.add("human_reviewed");
+  if (status === "exact_match") tags.add("perfect_match");
+  else if (status === "normalized_match") tags.add("formatting_only");
+  else if (status === "project_rule_resolved") tags.add("project_rule");
+  else {
+    tags.add("needs_review");
+    if (status === "unresolved" || status === "source_text_not_found") tags.add("unresolved");
+  }
+  if (result.needs_review) tags.add("needs_review");
+  return tags;
+}
+
+/**
+ * Canonical result-category tags for the Analysis/Results filter system
+ * (services.prediction.status_classification.classify_prediction_status,
+ * attached server-side as `status_tags` on every served prediction). Read
+ * directly — never reverse-engineered from display strings or match_status
+ * here, so the filter bar and the table badges can never disagree about
+ * what a row is.
+ *
+ * Falls back to a small locally-derived set (see `fallbackStatusTags`) only
+ * when the field is entirely absent — never overrides real backend tags.
+ */
+export function getStatusTags(result = {}) {
+  if (Array.isArray(result.status_tags)) return new Set(result.status_tags);
+  return fallbackStatusTags(result);
+}
+
 function getAnnotationRecord(result = {}) {
   return (
     result.annotation_interpretation?.annotation
@@ -300,6 +340,25 @@ export function getDisplayFamily(result = {}) {
   return getFamily(result) || "";
 }
 
+// AISC catalogs round HSS/pipe with a fixed 3-decimal spelling
+// ("HSS14.000X0.500") while a drawing writes the same designation as
+// "HSS14X0.5" — a pure formatting difference, not a different member (see
+// backend/services/database_loader.py's `_ROUND_SHORTHAND` on the other
+// side of this same equivalence). The catalog spelling stays the real,
+// internal `section`/`final_label` value everywhere else (validation,
+// takeoff, GT matching) — this only reformats what the SECTION column
+// displays, so it can never disagree with `corrected_text`/`normalized`,
+// which already show the clean source-style form.
+const _ROUND_HSS_CATALOG_FORM = /^(HSS|PIPE)(\d+\.\d{3})X(\d+\.\d{3})$/;
+
+export function cleanRoundHssDisplay(value) {
+  const text = String(value || "").toUpperCase();
+  const match = _ROUND_HSS_CATALOG_FORM.exec(text);
+  if (!match) return value;
+  const [, family, diameter, wall] = match;
+  return `${family}${parseFloat(diameter)}X${parseFloat(wall)}`;
+}
+
 export function getDisplaySection(result = {}) {
   if (isConfirmedPlateAnnotation(result)) {
     return {
@@ -312,7 +371,7 @@ export function getDisplaySection(result = {}) {
   if (isHumanReviewed(result)) {
     const { prediction } = getCanonicalPrediction(result);
     return {
-      value: prediction.final_label || getSection(result) || null,
+      value: cleanRoundHssDisplay(prediction.final_label || getSection(result) || null),
       reviewRequired: false,
       reason: null,
       hasCandidates: false,
@@ -335,7 +394,7 @@ export function getDisplaySection(result = {}) {
     };
   }
   return {
-    value: prediction.final_label || getSection(result) || null,
+    value: cleanRoundHssDisplay(prediction.final_label || getSection(result) || null),
     reviewRequired: false,
     reason: null,
     hasCandidates: false,

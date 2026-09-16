@@ -29,6 +29,7 @@ import {
   VisibilityOutlined,
 } from "@mui/icons-material";
 import PredictionDetailModal from "./PredictionDetailModal";
+import ResultsFilterBar, { matchesSelectedFilters } from "./ResultsFilterBar";
 import EmptyState from "./ui/EmptyState";
 import MatchStatusBadge, { matchStatusLabel } from "./ui/MatchStatusBadge";
 import { TipIconButton } from "./ui/ActionButtons";
@@ -40,6 +41,7 @@ import {
   getCandidateSections,
   getSemanticCandidates,
   getMatchStatus,
+  getStatusTags,
   getPredictionLocation,
   isHumanReviewed,
   isLegacyPrediction,
@@ -61,6 +63,31 @@ export default function TokensTable({ results = [] }) {
   const [sorting, setSorting] = useState([]);
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(15);
+  const [statusFilters, setStatusFilters] = useState(() => new Set());
+
+  const toggleStatusFilter = (key) => {
+    setStatusFilters((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+    setPageIndex(0);
+  };
+  const clearStatusFilters = () => {
+    setStatusFilters(new Set());
+    setPageIndex(0);
+  };
+
+  // Status-tag filtering happens here, before react-table's own text
+  // globalFilter — so search and filter chips combine with AND (task
+  // Section 22), and counts (computed by ResultsFilterBar from the
+  // untouched `results` prop) never shift when the search box narrows what
+  // is visible.
+  const statusFiltered = useMemo(
+    () => results.filter((row) => matchesSelectedFilters(row, statusFilters)),
+    [results, statusFilters]
+  );
 
   const columns = useMemo(
     () => [
@@ -183,7 +210,11 @@ export default function TokensTable({ results = [] }) {
         accessorFn: (row) =>
           isHumanReviewed(row)
             ? ""
-            : matchStatusLabel(getMatchStatus(row), isLegacyPrediction(row)),
+            : matchStatusLabel(
+                getMatchStatus(row),
+                isLegacyPrediction(row),
+                getStatusTags(row).has("llm_assisted")
+              ),
         cell: ({ row }) =>
           isHumanReviewed(row.original) ? (
             <Typography color="text.secondary">—</Typography>
@@ -191,6 +222,7 @@ export default function TokensTable({ results = [] }) {
             <MatchStatusBadge
               matchStatus={getMatchStatus(row.original)}
               isLegacy={isLegacyPrediction(row.original)}
+              llmAssisted={getStatusTags(row.original).has("llm_assisted")}
             />
           ),
       },
@@ -259,7 +291,7 @@ export default function TokensTable({ results = [] }) {
     : null;
 
   const table = useReactTable({
-    data: results,
+    data: statusFiltered,
     columns,
     state: {
       globalFilter: filter,
@@ -289,17 +321,31 @@ export default function TokensTable({ results = [] }) {
     <>
       <Paper variant="outlined" sx={{ overflow: "hidden" }}>
         <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
-          <TextField
-            size="small"
-            placeholder="Search tokens…"
-            value={filter}
-            onChange={(e) => {
-              setFilter(e.target.value);
-              setPageIndex(0);
-            }}
-            fullWidth
-          />
+          <Stack spacing={1.5}>
+            <ResultsFilterBar
+              results={results}
+              selected={statusFilters}
+              onToggle={toggleStatusFilter}
+              onClear={clearStatusFilters}
+            />
+            <TextField
+              size="small"
+              placeholder="Search tokens…"
+              value={filter}
+              onChange={(e) => {
+                setFilter(e.target.value);
+                setPageIndex(0);
+              }}
+              fullWidth
+            />
+          </Stack>
         </Box>
+        {statusFiltered.length === 0 ? (
+          <EmptyState
+            title="No results match the current filters"
+            subtitle="Try clearing filters or choosing a different combination."
+          />
+        ) : (
         <TableContainer sx={{ maxHeight: "60vh", overflowX: "auto" }}>
           <Table size="medium" stickyHeader>
             <TableHead>
@@ -348,6 +394,8 @@ export default function TokensTable({ results = [] }) {
             </TableBody>
           </Table>
         </TableContainer>
+        )}
+        {statusFiltered.length > 0 && (
         <TablePagination
           component="div"
           count={table.getFilteredRowModel().rows.length}
@@ -360,6 +408,7 @@ export default function TokensTable({ results = [] }) {
           }}
           rowsPerPageOptions={[10, 15, 25, 50]}
         />
+        )}
       </Paper>
       <PredictionDetailModal result={selected} onClose={() => setSelectedId(null)} />
     </>

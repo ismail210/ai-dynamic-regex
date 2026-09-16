@@ -5,5 +5,17 @@
       "selected_at": "2026-09-04T08:40:51.791959+00:00",
       "notes": "Reviewer selected HSS3X3X1/4 for HSS3X3"
     }
+  },
+  "doc_47dc7ef27f6e5d7e": {
+    "token_p51_3026": {
+      "section": "HSS8X6X3/16",
+      "selected_at": "2026-09-15T10:30:16.193915+00:00",
+      "notes": "Reviewer selected HSS8X6X3/16 for HSS8X6"
+    },
+    "token_p76_3964": {
+      "section": "HSS14X14X1",
+      "selected_at": "2026-09-15T10:59:24.793815+00:00",
+      "notes": "Reviewer selected HSS14X14X1 for HSS14X14"
+    }
   }
 }

@@ -37,11 +37,22 @@ describe("MatchStatusBadge", () => {
     expect(screen.queryByText("Unresolved — Review Required")).not.toBeInTheDocument();
   });
 
-  it("renders a distinct 'Project Legend Match' label for project_rule_resolved, not exact_match or unresolved", () => {
+  it("renders a distinct 'Project Rule' label for project_rule_resolved, not exact_match or unresolved", () => {
     render(<MatchStatusBadge matchStatus="project_rule_resolved" />);
-    expect(screen.getByText("Project Legend Match")).toBeInTheDocument();
+    expect(screen.getByText("Project Rule")).toBeInTheDocument();
     expect(screen.queryByText("Exact PDF Match")).not.toBeInTheDocument();
     expect(screen.queryByText("Unresolved — Review Required")).not.toBeInTheDocument();
+  });
+
+  it("prefixes 'LLM-Assisted' only when the project rule came from a validated LLM extraction", () => {
+    render(<MatchStatusBadge matchStatus="project_rule_resolved" llmAssisted />);
+    expect(screen.getByText("LLM-Assisted · Project Rule")).toBeInTheDocument();
+  });
+
+  it("never shows the LLM-Assisted prefix for a deterministic project rule", () => {
+    render(<MatchStatusBadge matchStatus="project_rule_resolved" llmAssisted={false} />);
+    expect(screen.getByText("Project Rule")).toBeInTheDocument();
+    expect(screen.queryByText(/LLM-Assisted/)).not.toBeInTheDocument();
   });
 
   it("falls back to unresolved for an unknown status", () => {

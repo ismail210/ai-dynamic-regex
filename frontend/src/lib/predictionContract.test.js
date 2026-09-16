@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  cleanRoundHssDisplay,
   formatCandidateLabel,
   getCanonicalPrediction,
   getDisplayConfidence,
@@ -202,6 +203,64 @@ describe("getDisplaySection — missing-thickness HSS never shows a guess as fin
     expect(display.reviewRequired).toBe(true);
     expect(display.value).toBeNull();
     expect(display.hasCandidates).toBe(false);
+  });
+});
+
+describe("cleanRoundHssDisplay — round-HSS catalog spelling shown as the clean source form", () => {
+  it("strips the AISC catalog's 3-decimal padding for a round HSS section", () => {
+    expect(cleanRoundHssDisplay("HSS14.000X0.500")).toBe("HSS14X0.5");
+  });
+
+  it("strips padding for a PIPE section the same way", () => {
+    expect(cleanRoundHssDisplay("PIPE10.000X0.365")).toBe("PIPE10X0.365");
+  });
+
+  it("leaves a rectangular/non-round section untouched", () => {
+    expect(cleanRoundHssDisplay("HSS8X8X1/2")).toBe("HSS8X8X1/2");
+    expect(cleanRoundHssDisplay("W18X35")).toBe("W18X35");
+  });
+
+  it("leaves an already-clean round HSS value untouched", () => {
+    expect(cleanRoundHssDisplay("HSS14X0.5")).toBe("HSS14X0.5");
+  });
+
+  it("passes through null/empty unchanged", () => {
+    expect(cleanRoundHssDisplay(null)).toBeNull();
+  });
+});
+
+describe("getDisplaySection — round HSS displays the clean source-equivalent form, never a different diameter", () => {
+  it("HSS14.000X0.500 (catalog canonical) displays as HSS14X0.5, matching the source", () => {
+    const result = {
+      canonical: {
+        prediction: { final_label: "HSS14.000X0.500" },
+        comparison: { match_status: "exact_match" },
+        needs_review: false,
+      },
+      original_token: "HSS14x0.5",
+      corrected_token: "HSS14X0.5",
+      section: "HSS14.000X0.500",
+    };
+    const display = getDisplaySection(result);
+    expect(display.value).toBe("HSS14X0.5");
+    // Regression: the displayed section must never contradict corrected_token
+    // by naming a different diameter (the real bug was "HSS16X0.5").
+    expect(display.value).not.toMatch(/16/);
+    expect(display.value).toBe(result.corrected_token);
+  });
+
+  it("a human-reviewed round HSS selection also displays in the clean source form", () => {
+    const result = {
+      canonical: {
+        prediction: { final_label: "HSS16.000X0.500" },
+        comparison: { match_status: "human_resolved" },
+        needs_review: false,
+      },
+      decision_source: "human_review",
+      section: "HSS16.000X0.500",
+    };
+    const display = getDisplaySection(result);
+    expect(display.value).toBe("HSS16X0.5");
   });
 });
 

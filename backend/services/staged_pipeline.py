@@ -28,6 +28,7 @@ from services.multimodal.pipeline import PIPELINE_VERSION, run_multimodal_pipeli
 from services.prediction.hss_review_enrichment import (
     enrich_missing_thickness_hss_predictions,
 )
+from services.prediction.status_classification import status_tags_list
 
 logger = logging.getLogger("takeoff.stages")
 
@@ -124,10 +125,12 @@ def analysis_response(result: Dict[str, Any]) -> Dict[str, Any]:
     """
 
     def _project(items: list) -> list:
-        return [
-            {key: value for key, value in item.items() if key != "features"}
-            for item in enrich_missing_thickness_hss_predictions(items)
-        ]
+        projected = []
+        for item in enrich_missing_thickness_hss_predictions(items):
+            row = {key: value for key, value in item.items() if key != "features"}
+            row["status_tags"] = status_tags_list(row)
+            projected.append(row)
+        return projected
 
     # run_multimodal_pipeline / load_cached_analysis have already split
     # legend-definition predictions off into result["context_definitions"];
@@ -246,16 +249,63 @@ def _apply_project_rule_resolution(
         resolved["needs_review"] = False
         resolved["review_reason"] = None
         resolved["project_rule_resolution"] = decision
+        # Clear stale missing-thickness/ambiguity state left by
+        # enrich_missing_thickness_hss_predictions (which runs first): a
+        # verified project rule resolves the ambiguity completely, so a
+        # leftover multi-candidate list must not keep the section-review
+        # picker eligible (frontend/src/lib/predictionContract.js
+        # ``isSectionReviewEligible`` triggers on ``candidate_sections``
+        # alone, independent of ``needs_review``).
+        resolved["candidate_sections"] = []
+        resolved.pop("completion_status", None)
+        resolved.pop("known_dimensions", None)
+
+        # Semantic confidence (task Section 10): a verified project rule is
+        # High/Verified by construction (source-grounded + catalog-checked +
+        # conflict-free), never the leftover statistical-fusion score from
+        # before the rule was consulted -- that stale number (often near 0,
+        # since fusion itself abstained) would otherwise still drive the
+        # Confidence column and review_status.
+        resolved["confidence"] = 1.0
+        resolved["confidence_basis"] = "verified_project_rule"
+        resolved["review_status"] = "auto_accepted"
+
+        # Replace the stale statistical-fusion explanation with the real
+        # reasoning (task Section 29): a project-rule resolution's evidence
+        # is the source rule, catalog validation and conflict-freedom, never
+        # a fused/ranked score -- the "Why selected" panel must say so
+        # instead of repeating whatever text/geometry/graph fusion produced
+        # before the rule was ever consulted.
+        method_label = "LLM-assisted project rule" if decision.get("extraction_method") == "llm_assisted" else "Verified project rule"
+        rule_reasons = [
+            f"{method_label}: \"{decision.get('lhs')}\" = \"{decision.get('rhs')}\" "
+            f"(source: p. {decision.get('source_page')})",
+            f"Destination {decision.get('rhs')} verified against the AISC catalog",
+            "No conflicting project rule found for this label",
+            "Human review not required -- the rule uniquely resolves this label",
+        ]
+        explanation = dict(resolved.get("explanation") or {})
+        explanation["why_selected"] = rule_reasons
+        explanation["reasons"] = rule_reasons
+        explanation["decision_source"] = decision.get("decision_source")
+        resolved["explanation"] = explanation
 
         def _patch(container: Dict[str, Any]) -> Dict[str, Any]:
             patched = dict(container)
             comp = dict(patched.get("comparison") or {})
             comp["match_status"] = "project_rule_resolved"
             comp["prediction_required"] = False
+            comp["exact_match"] = False
+            comp["normalized_match"] = False
             patched["comparison"] = comp
             pred = dict(patched.get("prediction") or {})
             pred["final_label"] = label
+            pred["final_confidence"] = 1.0
+            pred["confidence_is_calibrated"] = True
+            pred["confidence_basis"] = "verified_project_rule"
             patched["prediction"] = pred
+            patched["needs_review"] = False
+            patched["review_reason"] = None
             return patched
 
         # Frontend reads `canonical.comparison.match_status` first, then the
@@ -268,6 +318,66 @@ def _apply_project_rule_resolution(
         applied.append({"object_id": object_id, **decision})
 
     return out, applied
+
+
+def _sync_validation_with_rule_resolutions(
+    validation: Optional[Dict[str, Any]],
+    predictions: list[Dict[str, Any]],
+    rule_resolutions: list[Dict[str, Any]],
+) -> Optional[Dict[str, Any]]:
+    """The whole-document validation pass (services.engineering.
+    validation_engine) runs on the ORIGINAL fusion output and is not
+    recomputed by the project-rule overlay above, so a resolved
+    prediction's `validation.tokens` entry would otherwise still show the
+    pre-resolution FAIL (stale confidence/geometry/graph issues, a
+    "suggested correction" the rule has already superseded) even though the
+    served row itself is now fully resolved and verified. Patch just the
+    resolved objects' validation entries so PASS/FAIL agrees with what the
+    Analysis table actually displays.
+    """
+
+    if not validation or not rule_resolutions:
+        return validation
+
+    component_by_object = {
+        p.get("object_id"): p.get("component_id") for p in predictions
+    }
+    resolved_component_ids = {
+        component_by_object.get(r.get("object_id"))
+        for r in rule_resolutions
+        if component_by_object.get(r.get("object_id"))
+    }
+    if not resolved_component_ids:
+        return validation
+
+    tokens = validation.get("tokens")
+    if not isinstance(tokens, list):
+        return validation
+
+    resolution_by_object = {r.get("object_id"): r for r in rule_resolutions}
+    object_by_component = {v: k for k, v in component_by_object.items()}
+
+    patched_tokens = []
+    for token in tokens:
+        component_id = token.get("component_id")
+        if component_id not in resolved_component_ids:
+            patched_tokens.append(token)
+            continue
+        decision = resolution_by_object.get(object_by_component.get(component_id)) or {}
+        label = decision.get("resolved_designation")
+        patched = dict(token)
+        patched["status"] = "PASS"
+        patched["confidence"] = 1.0
+        if label:
+            patched["section"] = label
+            patched["predicted_shape"] = label
+        patched["detected_issues"] = []
+        patched["issues"] = []
+        patched["reasons"] = []
+        patched["correction_suggestions"] = []
+        patched_tokens.append(patched)
+
+    return {**validation, "tokens": patched_tokens}
 
 
 def _apply_human_selections(
@@ -338,6 +448,9 @@ def load_cached_analysis(document_id: str) -> Optional[Dict[str, Any]]:
         reviewed_ids,
     )
     predictions = _apply_human_selections(document_id, predictions)
+    validation = _sync_validation_with_rule_resolutions(
+        validation, predictions, rule_resolutions
+    )
     return {
         **metadata,
         "extraction": extraction,
@@ -429,7 +542,18 @@ def run_analysis_stage(
         cached = load_cached_analysis(document_id)
         if cached is not None:
             update_document(document_id, stage="analyzed")
-            return cached
+            # Route through the same API projection the GET .../analysis
+            # endpoint uses (services.staged_pipeline.analysis_response) --
+            # it is the single place status_tags gets attached
+            # (classify_prediction_status, run on the FINAL served
+            # prediction, after project-rule resolution and human-selection
+            # overlay have already run inside load_cached_analysis). Returning
+            # `cached` directly here skipped that step, so every /analyze
+            # call that hit this cache-hit branch (the only call the
+            # frontend actually makes) served predictions with no
+            # status_tags at all, even though the resolved section/
+            # match_status were already correct.
+            return analysis_response(cached)
 
     source = document_source(document_id)
     reuse_stage_artifacts = not force and not stale_extraction
@@ -506,7 +630,22 @@ def run_analysis_stage(
         served, rule_resolutions = _apply_project_rule_resolution(
             served, (document or {}).get("legend_profile"), reviewed_ids
         )
+        # status_tags was computed inside analysis_response() above, BEFORE
+        # project-rule resolution ran -- a resolved row's tags must reflect
+        # the FINAL state (task Section 3: classify after all enrichment),
+        # not the pre-resolution snapshot it would otherwise still carry.
+        if rule_resolutions:
+            resolved_ids = {r.get("object_id") for r in rule_resolutions}
+            served = [
+                {**p, "status_tags": status_tags_list(p)}
+                if p.get("object_id") in resolved_ids
+                else p
+                for p in served
+            ]
         response["predictions"] = served
+        response["validation"] = _sync_validation_with_rule_resolutions(
+            response.get("validation"), served, rule_resolutions
+        )
         response["project_rule_resolutions"] = rule_resolutions
         return response
     except Exception as exc:
