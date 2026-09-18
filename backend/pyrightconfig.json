@@ -1,0 +1,13 @@
+{
+  "include": ["."],
+  "exclude": [
+    "**/__pycache__",
+    "**/node_modules",
+    "training",
+    "database",
+    "uploads",
+    "catboost_info"
+  ],
+  "pythonVersion": "3.12",
+  "typeCheckingMode": "basic"
+}

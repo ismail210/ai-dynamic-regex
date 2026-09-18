@@ -87,4 +87,8 @@ backend/training/ml_association/real_project_pilot/
 # =========================
 .claude/settings.local.json
 .claude/scheduled_tasks.lock
+.claude/config-backups/
 CLAUDE.local.md
+
+# Claude Code / Playwright MCP — local session recordings
+frontend/.playwright-mcp/

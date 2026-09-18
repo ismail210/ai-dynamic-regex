@@ -3,6 +3,16 @@
   "hooks": {
     "PreToolUse": [
       {
+        "matcher": "Read|Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/secret_file_guard.py\"",
+            "timeout": 10
+          }
+        ]
+      },
+      {
         "matcher": "Edit|Write|MultiEdit|NotebookEdit",
         "hooks": [
           {
@@ -20,6 +30,11 @@
             "if": "Bash(git commit *)",
             "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/precommit_guard.py\"",
             "timeout": 20
+          },
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/git_destructive_guard.py\"",
+            "timeout": 10
           }
         ]
       }
