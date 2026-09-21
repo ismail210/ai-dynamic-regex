@@ -256,7 +256,14 @@ were audited normally); the 3 dirty auxiliary worktrees (`ai-dynamic-regex`, `ai
   Badge/chip trio: implemented, measured at **+30 LOC**, reverted — see `refactor-opportunities.md` §2 for the
   full reasoning. Net actual: **-8 LOC**, not the originally estimated -130. Commit
   `refactor(frontend): reuse KPI card presentation`.
-- **Phases 2-6, 8-10** — not started.
+- **Phase 8 (test-fixture/helper cleanup)** — DONE. `IsolatedApiTestCase`/`_REDIRECTED_SETTINGS` centralized
+  to `backend/tests/helpers/isolated_api.py` (5 real consumers migrated, +11 LOC, organizational only — see
+  `refactor-opportunities.md` §5). Geometry-merge duplicate builder centralized to
+  `backend/tests/helpers/geometry_fixtures.py` (-5 LOC net, all 8 tests kept — see §6). Targeted (252/1/0) and
+  full (1282/9-known/3) suites verified unaffected; all 3 preserved training-drift files' SHA256 fingerprints
+  confirmed unchanged before/after. Commits `test(api): centralize isolated API test setup`,
+  `test(geometry): deduplicate fragment merge setup`.
+- **Phases 2-6, 9-10** — not started.
 
 ---
 

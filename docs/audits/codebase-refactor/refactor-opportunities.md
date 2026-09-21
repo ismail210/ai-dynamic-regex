@@ -141,7 +141,24 @@ consolidation because collapsing them would violate a named invariant:
 - **Recommended implementation order**: late (Phase 6), after the shim migration above establishes a safe
   pattern for this kind of adapter consolidation.
 
-## 5. Backend tests: shared fixture with no `conftest.py`
+## 5. Backend tests: shared fixture with no `conftest.py` — **IMPLEMENTED**
+
+> **Result** (commit `test(api): centralize isolated API test setup`): `IsolatedApiTestCase` and
+> `_REDIRECTED_SETTINGS` moved verbatim (identical setUp/tearDown order, identical redirected-path list,
+> identical addCleanup/patch semantics) to new `backend/tests/helpers/isolated_api.py`. A plain module under
+> `tests/helpers/` was chosen over `conftest.py`, per this audit's own Phase-1 guidance: the existing pattern
+> is unittest.TestCase **subclassing** (`class Foo(IsolatedApiTestCase)`), not pytest fixture injection —
+> `conftest.py` fixtures would have required rewriting every consumer's class structure, a much larger and
+> riskier change than "centralize the shared setup." 5 real consumers found and migrated (not the 4 initially
+> visible from grepping only `IsolatedApiTestCase` imports — `test_test_isolation.py` separately imports
+> `_REDIRECTED_SETTINGS` directly, and has its own static guard test (`DocumentsApiRedirectListTests`)
+> asserting specific entries stay in that list, protecting against a real historical training-data leak bug).
+> `test_documents_api.py` now contains only its own 3 test classes and its own local `_drawing()` fixture
+> builder. All 76 tests across the 6 directly-affected files pass; full targeted (252/1/0) and full suite
+> (1282/9-known/3, identical to baseline) both verified. Net LOC: +11 across the 5 touched files (73 lines
+> moved out of `test_documents_api.py`, 89 lines in the new standalone module with its own complete docstring)
+> — this phase was about ownership/discoverability, not size; there was only ever one copy of this code, just
+> an awkward location, not true duplication.
 
 - **Affected files**: `backend/tests/test_documents_api.py` (defines `IsolatedApiTestCase` +
   `_REDIRECTED_SETTINGS`), imported by `test_human_review_selection_api.py`, `test_semantic_api.py`,
@@ -159,7 +176,23 @@ consolidation because collapsing them would violate a named invariant:
 - **Recommended implementation order**: Phase 8 of the roadmap (test-fixture cleanup) — independent of the
   production-code phases, can happen any time.
 
-## 6. Backend tests: near-duplicate geometry-merge test pair
+## 6. Backend tests: near-duplicate geometry-merge test pair — **IMPLEMENTED (setup only, as scoped)**
+
+> **Result** (commit `test(geometry): deduplicate fragment merge setup`): the byte-identical private `_line()`
+> fragment-builder defined independently in both files was extracted to
+> `backend/tests/helpers/geometry_fixtures.py` as `line_fragment()`, imported back under the original `_line`
+> alias in both files (`from tests.helpers.geometry_fixtures import line_fragment as _line`) to keep every
+> call site unchanged. **All 8 tests in both files were kept — none merged or removed.** Confirmed each covers
+> a genuinely distinct scenario: `test_geometry_fragment_merge.py` (5 tests) covers ordinary short-chain
+> merging, non-collinear/non-line-kind exclusion, scale-derived tolerance (a different function,
+> `fragment_gap_pdf_points`), and PDF-integration via `extract_geometry`; `test_merge_collinear_fragments_
+> transitive_growth.py` (3 tests) is a diagnostic-only regression file (per its own docstring, tied to
+> `docs/validation/phase_d2_merge_forensics.md`) proving union-find transitive closure has no cap on cluster
+> size, using exactly-at-tolerance gaps rather than the other file's small margins. No two tests share
+> equivalent inputs+assertions, so per this document's own removal criteria, none qualified for merging.
+> Net LOC: -12 and -12 on the two test files (-24 total, real duplication removed), +19 for the new shared
+> helper — **-5 net**, close to the low end of the original ~20-40 estimate once the "genuinely shared" bar
+> was applied strictly (only the builder was shared; nothing else was).
 
 - **Affected files**: `backend/tests/test_geometry_fragment_merge.py`,
   `backend/tests/test_merge_collinear_fragments_transitive_growth.py` — both exercise

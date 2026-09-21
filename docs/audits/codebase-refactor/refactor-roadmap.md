@@ -149,19 +149,31 @@ from any future product change (none proposed here).
   (`refactor(frontend): reuse KPI card presentation`); no badge/chip commit was created since that work was
   reverted before staging.
 
-### Phase 8 — Test-fixture and helper cleanup
-- **Scope**: extract `IsolatedApiTestCase` + `_REDIRECTED_SETTINGS` from `test_documents_api.py` into a new
-  `backend/tests/conftest.py`; reduce setup duplication between `test_geometry_fragment_merge.py` and
-  `test_merge_collinear_fragments_transitive_growth.py`.
+### Phase 8 — Test-fixture and helper cleanup — **DONE**
+- **Scope**: extract `IsolatedApiTestCase` + `_REDIRECTED_SETTINGS` from `test_documents_api.py`; reduce setup
+  duplication between `test_geometry_fragment_merge.py` and `test_merge_collinear_fragments_transitive_growth.py`.
 - **Exact candidate files**: see `refactor-opportunities.md` items 5-6.
-- **Expected benefit**: discoverable shared test infrastructure; less duplicated fixture-construction code.
-- **Estimated LOC change**: near-zero net (organizational), minus ~20-40 LOC of duplicated setup.
-- **Required tests**: the 6 files touched by the conftest extraction; the 2 geometry-merge test files.
-- **Rollback point**: tag before this phase.
-- **Risk level**: low.
+- **Actual location chosen**: `backend/tests/helpers/isolated_api.py` and
+  `backend/tests/helpers/geometry_fixtures.py` — a plain module, **not** `conftest.py`. `IsolatedApiTestCase`
+  is a subclassing base class (5 real consumers do `class Foo(IsolatedApiTestCase)`), which is a fundamentally
+  different pattern from pytest fixture injection; moving it into `conftest.py` would have forced a much
+  larger rewrite of all 5 consumers for no isolation-guarantee benefit.
+- **Actual benefit**: discoverable shared test infrastructure (no test file importing from another test file
+  anymore); real duplication removed from the geometry pair (single `line_fragment()` builder, was defined
+  twice, byte-identical).
+- **Actual LOC change**: +11 across the 5 IsolatedApiTestCase-related files (organizational, as estimated —
+  there was only ever one copy of that code, so no reduction was ever available there); **-5** for the
+  geometry pair (real duplication removed, close to the low end of the ~20-40 estimate once "genuinely
+  shared" was applied strictly — only the builder function qualified, not any test logic).
+- **Required tests**: all 6 IsolatedApiTestCase-related files (76 tests) + both geometry files (8 tests) — all
+  run, all green. Targeted suite (252/1/0) and full suite (1282/9-known/3, all 9 failures pre-existing and
+  identically reproduced) also verified unaffected.
+- **Rollback point**: pre-phase `main` tip (`6aa5ee8`).
+- **Risk level**: low, realized as low — zero test-count change, zero assertion change, isolation guarantee
+  proven intact via file-fingerprint comparison before/after.
 - **Behavior changes**: none.
-- **Recommended commit boundaries**: conftest extraction as one commit, geometry-merge setup dedup as another
-  — independent of each other.
+- **Commit boundaries used**: `test(api): centralize isolated API test setup`,
+  `test(geometry): deduplicate fragment merge setup`, `docs(refactor): record backend test cleanup`.
 
 ### Phase 9 — Configuration consolidation
 - **Scope**: audit `.env.example` against actual `config.py` `Settings` fields for completeness (no gaps
