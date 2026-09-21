@@ -247,8 +247,19 @@ were audited normally); the 3 dirty auxiliary worktrees (`ai-dynamic-regex`, `ai
 8. **`skills-lock.json` gap**: add entries for the `scikit-learn` and `task-observer` skills (Phase 9), or is
    that lockfile intentionally scoped to only the two `vercel-labs` skills?
 
+## Implementation status (updated as roadmap phases land)
+
+- **Phase 1 (documentation organization)** — DONE. 10 files moved into `docs/{reports,demos,history,architecture}/`,
+  `docs/README.md` index created, `runtime-generated-drift.md` added. Commits `85b38ff`, `0c3d292` (fixture
+  relocation).
+- **Phase 7 (frontend consolidation)** — DONE, partially. `StatsCards`→`KpiCard`: implemented, **-8 LOC**.
+  Badge/chip trio: implemented, measured at **+30 LOC**, reverted — see `refactor-opportunities.md` §2 for the
+  full reasoning. Net actual: **-8 LOC**, not the originally estimated -130. Commit
+  `refactor(frontend): reuse KPI card presentation`.
+- **Phases 2-6, 8-10** — not started.
+
 ---
 
 Full artifacts: `file-inventory.csv`, `dependency-and-entrypoint-map.md`, `unused-candidates.md`,
 `refactor-opportunities.md`, `documentation-reorganization-plan.md`, `proposed-repository-structure.md`,
-`refactor-roadmap.md` — all under `docs/audits/codebase-refactor/`.
+`refactor-roadmap.md`, `runtime-generated-drift.md` — all under `docs/audits/codebase-refactor/`.

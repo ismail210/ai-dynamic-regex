@@ -23,7 +23,17 @@ consolidation because collapsing them would violate a named invariant:
   not a refactor. Reconciling them changes model-selection behavior and is out of scope for a
   behavior-preserving cleanup; flagged for a separate, explicitly-scoped decision, not bundled here.
 
-## 1. Frontend: `StatsCards.jsx` → compose `ui/KpiCard.jsx`
+## 1. Frontend: `StatsCards.jsx` → compose `ui/KpiCard.jsx` — **IMPLEMENTED**
+
+> **Result** (commit `refactor(frontend): reuse KPI card presentation`): `StatsCards.jsx` now composes
+> `<KpiCard>` per stat instead of inline `Card`/`CardContent`/`Typography` markup. Actual: 35 → 27 LOC
+> (**-8**, not the estimated ~55 — the original estimate assumed more Card-layout boilerplate than the
+> component actually had). `KpiCard.jsx` needed zero changes. Its one consumer (`ResultsBody.jsx`) required
+> no changes — `StatsCards`' external prop signature (`{data}`) is unchanged. Data/label computation logic is
+> byte-for-byte unchanged. `StatsCards` has zero dedicated test coverage (it is explicitly mocked to `null` in
+> `AnalysisResultsPage.test.jsx`), so there was no pixel-level snapshot to preserve; its 5 stat values/labels
+> and Grid responsive breakpoints (`{xs:6, sm:4, md:2.4}`, `spacing={1.5}`) were preserved exactly. Full
+> 217/217 frontend suite and production build verified green after the change.
 
 - **Affected files**: `frontend/src/components/StatsCards.jsx`, `frontend/src/components/ui/KpiCard.jsx`.
 - **Current approx LOC**: StatsCards ~90 (inline Card/Typography markup for 5 stats), KpiCard ~55.
@@ -44,7 +54,25 @@ consolidation because collapsing them would violate a named invariant:
 - **Recommended implementation order**: early (Phase 7 of the roadmap) — small, isolated, good pilot for the
   frontend-consolidation phase.
 
-## 2. Frontend: badge/chip trio → shared primitive
+## 2. Frontend: badge/chip trio → shared primitive — **EVALUATED, NOT IMPLEMENTED (reverted after measurement)**
+
+> **Result**: implemented, measured, then deliberately reverted. `EntityTypeChip.jsx` was left separate as
+> planned (custom theme-mode-aware alpha-blended `sx` palette, no MUI `color`/`variant` theming — materially
+> different styling mechanism from the other two). A shared `MetaChip.jsx` primitive (31 LOC) was built and
+> wired into `OperationBadge.jsx` (40→39 LOC) and `MatchStatusBadge.jsx` (70→70 LOC, net neutral — its
+> Chip-wrapping boilerplate was replaced but a new `resolvedTooltip` line was added). All 13
+> `MatchStatusBadge.test.jsx` assertions (including the `aria-label` check) and all other consumer tests
+> passed. **Measured net LOC for this piece: 110 → 140, i.e. +30, an increase, not a reduction.** Both
+> `OperationBadge` and `MatchStatusBadge` were already lean — each had only ~5-8 lines of actual Chip/Tooltip
+> boilerplate — so `MetaChip`'s own necessary overhead (imports, prop documentation, conditional tooltip
+> logic) cost more than the two call sites saved. Per this document's own instruction ("do not force a
+> consolidation to meet the LOC estimate") and the refactor task's explicit LOC-measurement requirement, the
+> `MetaChip` extraction was reverted in the same session it was built — `OperationBadge.jsx` and
+> `MatchStatusBadge.jsx` are back to their original, unmodified form. **Conclusion: none of the three
+> badge/chip components should be consolidated.** They are already appropriately separate, minimal
+> implementations; the apparent "same shape" (enum → meta lookup → styled Chip) does not translate into
+> reusable boilerplate once each component's actual icon/tooltip/accessibility/theming differences are
+> accounted for.
 
 - **Affected files**: `frontend/src/components/semantic/OperationBadge.jsx`,
   `frontend/src/components/ui/MatchStatusBadge.jsx`, `frontend/src/components/ui/EntityTypeChip.jsx`.

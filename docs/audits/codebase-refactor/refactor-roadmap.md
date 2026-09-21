@@ -123,20 +123,31 @@ from any future product change (none proposed here).
 - **Recommended commit boundaries**: fixture move as its own commit (small, mechanical); fusion_engine.py
   decision as a separate commit only after the manual review concludes.
 
-### Phase 7 — Frontend component/hook consolidation
+### Phase 7 — Frontend component/hook consolidation — **DONE (partially; see result)**
 - **Scope**: `StatsCards.jsx` → compose `KpiCard.jsx`; badge/chip trio → shared `ChipWithMeta` primitive.
 - **Exact candidate files**: see `refactor-opportunities.md` items 1-2.
-- **Expected benefit**: ~130 LOC net reduction, one fewer place to keep 3 visually-similar chip styles in sync.
-- **Estimated LOC change**: -55 (StatsCards), -75 (badge/chip trio) ≈ -130 total.
-- **Required tests**: existing/added component tests for all 5 affected files (`StatsCards`, `KpiCard`,
+- **Expected benefit** (original estimate): ~130 LOC net reduction, one fewer place to keep 3
+  visually-similar chip styles in sync.
+- **Estimated LOC change** (original estimate): -55 (StatsCards), -75 (badge/chip trio) ≈ -130 total.
+- **Actual result**: `StatsCards.jsx` implemented and kept, **-8 LOC** (35→27). Badge/chip trio implemented,
+  measured at **+30 LOC** (not a reduction — `MetaChip`'s own overhead exceeded what 2 already-lean call
+  sites saved), and **reverted** in the same pass; `EntityTypeChip` was correctly identified up front as
+  needing to stay separate (custom theming mechanism). See `refactor-opportunities.md` items 1-2 for full
+  detail and the measured-vs-estimated reasoning. **Net actual LOC for this phase: -8, not -130.**
+- **Required tests**: existing component tests for all 5 affected files (`StatsCards`, `KpiCard`,
   `OperationBadge`, `MatchStatusBadge`, `EntityTypeChip`) plus the frontend full suite (217 tests) and the
-  4 pages that render them (Dashboard, ModelPage, SemanticReviewPage, wherever MatchStatusBadge renders).
-- **Rollback point**: tag before this phase.
+  4 pages that render them (Dashboard, ModelPage, SemanticReviewPage, wherever MatchStatusBadge renders) —
+  all run, all green, both during implementation and after the badge/chip revert.
+- **Rollback point**: the pre-phase commit (`0c3d292`, tag-equivalent since it's the prior pushed `main` tip).
 - **Risk level**: low, with one exception — `MatchStatusBadge` mirrors
-  `canonical_contract.py::MatchStatus`; verify the shared primitive doesn't alter that mapping's rendered
-  output (colors/labels), not just its code structure.
-- **Behavior changes**: none intended (pure visual-output-preserving extraction).
-- **Recommended commit boundaries**: StatsCards/KpiCard as one commit, badge/chip trio as a second.
+  `canonical_contract.py::MatchStatus`; the shared-primitive attempt was verified against all 13
+  `MatchStatusBadge.test.jsx` assertions (including `aria-label`) before being reverted for LOC reasons, not
+  a correctness reason.
+- **Behavior changes**: none — `StatsCards`' data/label logic and Grid layout are byte-identical to before;
+  the reverted badge/chip files are byte-identical to their pre-phase state.
+- **Commit boundaries actually used**: one commit for `StatsCards`/`KpiCard`
+  (`refactor(frontend): reuse KPI card presentation`); no badge/chip commit was created since that work was
+  reverted before staging.
 
 ### Phase 8 — Test-fixture and helper cleanup
 - **Scope**: extract `IsolatedApiTestCase` + `_REDIRECTED_SETTINGS` from `test_documents_api.py` into a new
