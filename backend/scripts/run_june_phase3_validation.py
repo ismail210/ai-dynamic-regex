@@ -57,10 +57,8 @@ from services.multimodal.pipeline import run_multimodal_pipeline  # noqa: E402
 from services.prediction.label_ranker_hook import (  # noqa: E402
     is_incomplete_angle_missing_thickness,
 )
-from services.prediction.semantic_contract import (  # noqa: E402
-    SemanticOperationKind,
-    project_semantic_annotation,
-)
+from services.semantic.models import OperationKind as SemanticOperationKind  # noqa: E402
+from services.semantic.projection import project_semantic_annotation  # noqa: E402
 
 OUT_DIR = BACKEND_DIR / "training" / "eval_cache_backups" / "june_phase3"
 EXTRACT_DIR = OUT_DIR / "page_extracts"

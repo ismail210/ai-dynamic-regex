@@ -1,60 +1,26 @@
-"""DEPRECATED shim for the semantic annotation domain model.
+"""Extraction-stage text-primitive types for the semantic preprocessor
+pipeline.
 
-The canonical model now lives in ``services.semantic.models`` (see
-``docs/architecture/unified_semantic_contract.md``). Everything re-exported
-below is the SAME class as ``services.semantic.models`` -- there is exactly
-one definition, never a copy.
+This module used to also re-export the semantic annotation domain model
+(now canonical in ``services.semantic.models`` -- see
+``docs/architecture/unified_semantic_contract.md``) plus a set of legacy
+string/alias constants derived from it. That re-export block had zero
+remaining internal callers (every consumer of this module only ever used
+``TextPrimitive`` and the page-quality constants below) and was removed.
+Import the domain model directly from ``services.semantic.models`` if
+needed.
 
-``TextPrimitive`` and the page-quality classification constants are the one
-thing that stays here: they are an extraction-stage *working* type this
-pipeline uses before grouping ever produces a semantic annotation, and the
-partner model never had an equivalent concept, so they were never part of
-the duplicated architecture this consolidation removes.
+``TextPrimitive`` and the page-quality classification constants are an
+extraction-stage *working* type this pipeline uses before grouping ever
+produces a semantic annotation, and the partner model never had an
+equivalent concept, so they were never part of the duplicated architecture
+that consolidation removed.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
-
-from services.semantic.models import (  # noqa: F401
-    CoordinateTransform,
-    DrawingLanguageRule,
-    EvidenceRecord as EvidenceItem,
-    GeometryAssociation as AssociationCandidate,
-    GeometryEvidence,
-    GeometryProvider,
-    Modifier,
-    OperationKind,
-    OperationRecord,
-    ReviewState,
-    ReviewStatus,
-    ScoreValue,
-    SemanticAnnotation,
-    SemanticDocument,
-    SourceFragment,
-    StructuralParse,
-    derive_annotation_id,
-)
-from services.semantic.models import SCHEMA_VERSION as SCHEMA_VERSION  # noqa: F401
-
-# Legacy plain-string operation/review constants -- old call sites that only
-# need the string value (not the enum) keep working.
-OP_NONE = OperationKind.KEEP.value
-OP_NORMALIZATION = OperationKind.NORMALIZATION.value
-OP_REPAIR = OperationKind.REPAIR.value
-OP_COMPLETION = OperationKind.COMPLETION.value
-
-REVIEW_ACCEPTED = ReviewStatus.HUMAN_ACCEPTED.value
-REVIEW_AUTO_ACCEPTED = ReviewStatus.AUTO_ACCEPTED.value
-REVIEW_NEEDS_REVIEW = ReviewStatus.NEEDS_REVIEW.value
-REVIEW_PENDING = ReviewStatus.PENDING.value
-
-# Legacy dataclass alias -- Correction is gone (Section 12/45: a single
-# mutable "correction" field can't hold history); nothing in this package
-# constructs it anymore. Kept only in case an external caller still imports
-# the name.
-Correction = OperationRecord
 
 
 # ---------------------------------------------------------------------------

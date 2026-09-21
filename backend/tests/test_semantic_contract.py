@@ -21,6 +21,7 @@ from services.semantic.models import (
     OperationKind,
     ReviewStatus,
 )
+from services.semantic.projection import project_semantic_annotation
 from services.prediction.semantic_contract import (
     example_2l4x4_abstention,
     example_association_with_optional_gh,
@@ -28,7 +29,6 @@ from services.prediction.semantic_contract import (
     example_l4x4_abstention,
     example_normalization_w8x10,
     example_repair_corrupted_w8,
-    project_semantic_annotation,
 )
 
 

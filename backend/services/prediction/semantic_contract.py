@@ -3,29 +3,32 @@
 for why this module and ``services.semantic_preprocessor.models`` were
 unified into one domain model).
 
-Kept only so existing imports (``from services.prediction.semantic_contract
-import SemanticAnnotation``) keep working. There is exactly ONE
-``SemanticAnnotation``/``OperationRecord``/``GeometryEvidence`` class
-definition, in ``services.semantic.models`` -- everything below is a
-re-export or a thin legacy-name alias, never a second definition.
+Kept for two things only, neither of which has a canonical replacement:
+(1) the ``example_*`` schema-demonstration functions below, referenced by
+``tests/test_semantic_contract.py``; (2) the two legacy
+``COMPLETION_STATUS_*`` string constants. Every class this module still
+imports (``SemanticAnnotation``, ``EvidenceType``, ``EvidenceStrength``,
+``ReviewStatus``, ``GeometryProvider``) is used only internally by the
+functions below -- there is exactly ONE definition of each, in
+``services.semantic.models``, never a second one; see
+``tests/test_deprecated_import_compatibility.py`` for the identity proof.
+All previously re-exported symbols with no remaining caller
+(``SEMANTIC_CONTRACT_VERSION``, ``SemanticEvidence``, ``GeometryAssociation``,
+``SemanticOperationKind``, ``OperationRecord``, ``SemanticDocument``,
+``project_semantic_annotation``) were removed from this module -- import
+them from ``services.semantic.models`` / ``services.semantic.projection``
+directly.
 """
 
 from __future__ import annotations
 
-from services.semantic.models import (  # noqa: F401
-    SCHEMA_VERSION as SEMANTIC_CONTRACT_VERSION,
-    EvidenceRecord as SemanticEvidence,
+from services.semantic.models import (
     EvidenceStrength,
     EvidenceType,
-    GeometryAssociation,
     GeometryProvider,
-    OperationKind as SemanticOperationKind,
-    OperationRecord,
     ReviewStatus,
     SemanticAnnotation,
-    SemanticDocument,
 )
-from services.semantic.projection import project_semantic_annotation  # noqa: F401
 
 # Legacy enum aliases -- old names for concepts the unified model expresses
 # differently now. CompletionStatus / GeometryRelationship no longer exist
