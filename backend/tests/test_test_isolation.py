@@ -29,7 +29,7 @@ from unittest.mock import patch
 import fitz
 
 from services.multimodal.pipeline import run_multimodal_pipeline
-from tests.test_documents_api import _REDIRECTED_SETTINGS
+from tests.helpers.isolated_api import _REDIRECTED_SETTINGS
 
 
 def _drawing(path: Path) -> None:
