@@ -273,7 +273,19 @@ were audited normally); the 3 dirty auxiliary worktrees (`ai-dynamic-regex`, `ai
   filename-based pattern exists). One pre-existing discrepancy flagged for your decision, not fixed: the live
   `exact_section_model.joblib` alias doesn't byte-match any of the 4 registered snapshot versions, including
   the current `active_version`.
-- **Phases 3-6, 9-10** — not started.
+- **Phase 5 (deprecated shim migration)** — DONE. Full forensic pass at
+  `semantic-shim-and-fusion-review.md`. 2 of 3 shims (`prediction/semantic_contract.py`,
+  `semantic_preprocessor/models.py`) turned out to house genuinely original content and can never be deleted
+  — only their dead re-export tails (zero remaining callers, verified) were trimmed. The 3rd
+  (`semantic_preprocessor/serialization.py`) was a pure re-export with no other content — migrated its 2
+  callers and deleted it. Symbol identity locked with a new characterization test
+  (`test_deprecated_import_compatibility.py`, 6 tests). All 32 tracked binary artifacts scanned for embedded
+  shim-path strings — zero hits. Production/script LOC -44, test LOC +63. Targeted (252/1/0) and full
+  (1282+6/9-known/3) suites unchanged.
+- **Phase 6 (fusion-engine review)** — DONE, no code change. `fusion_engine.py` and `modular_fusion.py` proven
+  to have zero functional overlap (adapter vs. algorithm, connected through `orchestrator.py`, not competing)
+  — both required, neither touched.
+- **Phases 3-4, 9-10** — not started.
 
 ---
 

@@ -117,13 +117,17 @@ not a trivial, move).
 
 ## Duplicated / overlapping implementations found (see `refactor-opportunities.md` for full detail)
 
-- Backend: `multimodal/fusion_engine.py` (thin adapter, per `.claude/rules/backend.md`) vs the real fusion logic
-  in `multimodal/modular_fusion.py`; three explicit `DEPRECATED` shim modules
-  (`prediction/semantic_contract.py`, `semantic_preprocessor/models.py`, `semantic_preprocessor/serialization.py`)
-  superseded by `services/semantic/{models,serialization}.py` but **still actively imported** — do not delete
-  without a migration pass; `services/dataset_builder.py` self-labeled "Legacy compatibility adapter... prefer
+- **Update (resolved in a later phase, see `semantic-shim-and-fusion-review.md`)**: `multimodal/fusion_engine.py`
+  vs `multimodal/modular_fusion.py` was traced exactly and found to have **zero functional overlap** — a
+  3-layer chain (`pipeline.py` → `fusion_engine` adapter → `orchestrator` → `modular_fusion` algorithm), not a
+  duplicate pair; neither file changed. Of the three `DEPRECATED` shim modules, two
+  (`prediction/semantic_contract.py`, `semantic_preprocessor/models.py`) turned out to house genuinely
+  original content and were only trimmed of their dead re-export tails, never deleted; the third
+  (`semantic_preprocessor/serialization.py`, canonical target `services/semantic/serialization.py`) was a pure
+  re-export with zero non-re-export content, had its 2 callers migrated, and **was deleted**.
+  `services/dataset_builder.py` self-labeled "Legacy compatibility adapter... prefer
   `services.training_pipeline.dataset_builder`"; `services/model_versioning.py` self-labeled "Compatibility
-  wrapper over the continuous-learning model registry".
+  wrapper over the continuous-learning model registry" — both still unresolved, out of scope for this phase.
 - Backend training: two parallel training/promotion systems, **explicitly documented as disagreeing with each
   other** in `docs/ml_integration/partner_vs_local_comparison.md` (not an inference of this audit) —
   `backend/training/{train_model.py, build_dataset.py, build_augmented_dataset.py}` (pre-existing

@@ -98,7 +98,33 @@ consolidation because collapsing them would violate a named invariant:
   `canonical_contract.py::MatchStatus` before merging, but the change itself is a pure render-shell extraction.
 - **Recommended implementation order**: after item 1, same phase.
 
-## 3. Backend: three `DEPRECATED` shim modules still actively imported
+## 3. Backend: three `DEPRECATED` shim modules still actively imported — **IMPLEMENTED (2 kept, 1 deleted)**
+
+> **Result**: full forensic pass, every claim below re-verified against the current tree (imports, `git grep`,
+> a 32-file binary/JSON artifact scan for embedded module-path strings, and a new characterization test suite
+> locking symbol identity). **Two premises were wrong**: `services/prediction/semantic_contract.py` and
+> `services/semantic_preprocessor/models.py` are **not** pure re-export shims — each houses genuinely original,
+> irreplaceable content (`semantic_contract.py`: 6 `example_*` schema-demonstration functions used by
+> `tests/test_semantic_contract.py`, plus 2 legacy `COMPLETION_STATUS_*` constants; `semantic_preprocessor/
+> models.py`: the `TextPrimitive` dataclass and page-quality classification constants, an extraction-stage
+> working type with no canonical counterpart). **Neither can ever be deleted.** What *could* safely be removed
+> from each was their **dead re-export tail** — the portion of each file that re-exported canonical symbols for
+> external callers, verified to have **zero remaining callers** after migrating the 5 real consumers found
+> (2 report-generation scripts, 1 test file, plus the file's own internal use). That dead tail was trimmed from
+> both files (not deleted — the files themselves stay, permanently).
+> `services/semantic_preprocessor/serialization.py` **was** a pure 2-symbol re-export shim with no other
+> content — its 2 real callers (1 script, 1 test) were migrated to `services/semantic/serialization.py`
+> directly, confirmed zero remaining references (code, tests, docs, and a full binary-artifact SHA-string scan
+> came back clean), and it was **deleted**.
+> Production/script LOC: **-44** (dead re-export tails trimmed, 1 shim file removed). Test LOC: **+63** (one
+> new characterization test file, `tests/test_deprecated_import_compatibility.py`, locking `old is canonical`
+> identity for every symbol either remaining shim still re-exports — nothing else needed new tests, since no
+> implementation changed, only import sources). All existing semantic/fusion/HSS/human-review tests, the
+> targeted suite (252/1/0), and the full suite (1282+6 new passed/9 known-pre-existing failures/3 skipped) are
+> unchanged. See `docs/audits/codebase-refactor/semantic-shim-and-fusion-review.md` for the full per-shim
+> caller table and evidence.
+
+Original findings (superseded by the result above, kept for history):
 
 - **Affected files**: `backend/services/prediction/semantic_contract.py`,
   `backend/services/semantic_preprocessor/models.py`, `backend/services/semantic_preprocessor/serialization.py`
@@ -128,16 +154,24 @@ consolidation because collapsing them would violate a named invariant:
 - **Risk level**: medium — touches a protected contract; sequence carefully, small commits, test after each.
 - **Recommended implementation order**: mid-roadmap (Phase 5), after simpler wins are proven safe.
 
-## 4. Backend: `fusion_engine.py` thin-adapter vs `modular_fusion.py`
+## 4. Backend: `fusion_engine.py` thin-adapter vs `modular_fusion.py` — **RESOLVED, NO OVERLAP, NO CHANGE**
 
-- **Affected files**: `backend/services/multimodal/fusion_engine.py`, `backend/services/multimodal/modular_fusion.py`.
-- **Duplication evidence**: `fusion_engine.py` is self-documented (per `.claude/rules/backend.md`) as a thin
-  adapter over the real fusion logic in `modular_fusion.py`.
-- **Proposed design**: not a merge candidate as-is (the adapter may exist deliberately for a narrower call
-  contract) — flagged as `manual decision required`; the first step is confirming with `.claude/rules/backend.md`
-  and orchestrator.py's actual call sites whether the adapter layer is still earning its keep, before any code
-  change.
-- **Risk level**: medium (touches the fusion stage of the prediction pipeline).
+> **Result**: traced exactly via `orchestrator.py`'s own imports and every caller of both files.
+> `orchestrator.py` (the sole production inference entrypoint) calls
+> `modular_fusion.py::unified_multimodal_fusion.predict(...)` directly (line 769) — this is the real
+> attention-weighted, MLP-learned fusion algorithm. `fusion_engine.py`'s `WeightedFusionEngine.predict()` does
+> **not** call `modular_fusion.py` at all — it calls `orchestrator.py::predict_from_context(...)` and reshapes
+> the dict result into the older `MultiModalPrediction` dataclass contract that
+> `services/multimodal/pipeline.py` (the real caller — confirmed at `pipeline.py:253`) expects. Both files'
+> guard status was independently confirmed: `fusion_engine.py` is explicitly named in both
+> `test_label_reconstruction_not_wired_into_production.py`'s and
+> `test_ml_association_not_wired_into_production.py`'s hardcoded `_PRODUCTION_MODULES` lists — the codebase's
+> own tests already recognize it as genuine production code, not a removable adapter. **The two files have
+> zero functional overlap** — one is a type/shape adapter, the other is the scoring algorithm, connected
+> through (not competing with) `orchestrator.py`. This is a 3-layer chain
+> (`pipeline.py` → `fusion_engine` adapter → `orchestrator` → `modular_fusion` algorithm), not two
+> implementations of the same thing. **No consolidation performed; no code changed.** See
+> `docs/audits/codebase-refactor/semantic-shim-and-fusion-review.md` for the full reachability matrix.
 - **Recommended implementation order**: late (Phase 6), after the shim migration above establishes a safe
   pattern for this kind of adapter consolidation.
 

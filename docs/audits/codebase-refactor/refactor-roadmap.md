@@ -90,45 +90,48 @@ from any future product change (none proposed here).
 - **Behavior changes**: none.
 - **Recommended commit boundaries**: one commit per subsystem the tool flags, not one giant commit.
 
-### Phase 5 — Duplicate utility consolidation
+### Phase 5 — Duplicate utility consolidation — **DONE**
 - **Scope**: the 3 `DEPRECATED` shim modules (`prediction/semantic_contract.py`,
   `semantic_preprocessor/{models,serialization}.py`) — migrate internal callers to `services/semantic/
   {models,serialization}.py`, then shrink or remove the shims.
-- **Exact candidate files**: see `refactor-opportunities.md` item 3 for the full plan.
-- **Expected benefit**: removes 3 deprecated code paths once callers are migrated; reduces risk of new code
-  accidentally depending on the deprecated shape.
-- **Estimated LOC change**: not estimated until caller enumeration is done (first step of this phase).
-- **Required tests**: the semantic-contract-shape tests CLAUDE.md's architecture-invariants section names
-  (Review Queue / Validation / Prediction Details rendering) — must pass identically before and after each
-  caller migration.
-- **Rollback point**: tag before this phase; migrate one caller at a time so a bad migration is a one-file
-  revert, not a phase-wide one.
-- **Risk level**: medium — this is CLAUDE.md-protected contract-adjacent code.
-- **Behavior changes**: none intended; this is the phase most likely to reveal a hidden behavior difference
-  between old and new contract shapes, so treat any test change as a stop-and-investigate signal, not a test
-  update.
-- **Recommended commit boundaries**: one commit per caller migrated, final commit removes/shrinks the shim only
-  after zero internal callers remain.
+- **Actual result**: full forensic pass
+  (`docs/audits/codebase-refactor/semantic-shim-and-fusion-review.md`). Two of the three shims turned out to
+  house genuinely original, irreplaceable content (`semantic_contract.py`'s `example_*` functions;
+  `semantic_preprocessor/models.py`'s `TextPrimitive`) and **can never be deleted** — only their dead
+  re-export tails were trimmed once every real caller (5 files) was migrated to the canonical
+  `services.semantic.*` modules. The third shim, `semantic_preprocessor/serialization.py`, was a pure 2-symbol
+  re-export with zero non-re-export content — its 2 callers were migrated and it was deleted.
+- **Symbol identity verified**, not assumed: new `tests/test_deprecated_import_compatibility.py` asserts
+  `old_shim.Symbol is canonical.Symbol` for every symbol either remaining shim still re-exports (5 assertions,
+  all pass).
+- **Artifact/pickle compatibility**: all 32 tracked binary model files scanned byte-for-byte for the 3 shims'
+  module-path strings — zero hits. One JSON report field found referencing the old path descriptively (never
+  read back programmatically) — left untouched as a preserved historical report.
+- **Production/script LOC**: **-44**. **Test LOC**: **+63** (one new characterization file only).
+- **Required tests**: all semantic/fusion/HSS/human-review/orchestrator-adjacent tests (263 in the combined
+  relevant set), the targeted suite (252/1/0), and the full suite (1282+6 new/9 known-pre-existing/3 skipped)
+  — all run, all green, both after the migration and after the deletion.
+- **Rollback point**: pre-phase `main` tip (`339429f`).
+- **Risk level**: realized as low — no behavior changed anywhere; only import sources and dead-code removal.
+- **Commit boundaries used**: characterization tests, import migration, shim deletion, and documentation as
+  4 separate commits (see the phase's own commit list).
 
-### Phase 6 — Backend module-boundary cleanup
+### Phase 6 — Backend module-boundary cleanup — **PARTIALLY DONE**
 - **Scope**: `fusion_engine.py` vs `modular_fusion.py` review (confirm/resolve the thin-adapter question);
   the coordinated `validation/semantic_test_pdfs/` → `backend/tests/fixtures/semantic_test_pdfs/` move and its
   4 reference updates.
-- **Exact candidate files**: `backend/services/multimodal/fusion_engine.py`,
-  `backend/services/multimodal/modular_fusion.py`; `validation/semantic_test_pdfs/**` and its 4 referencing
-  files (`test_semantic_damage_manifests.py`, `test_semantic_precedence_task_regression.py`,
-  `build_semantic_damage_test_pdfs.py`, `validate_demo_correction_flow.py`).
-- **Expected benefit**: clearer module ownership; fixture in its conventional location.
-- **Estimated LOC change**: path-string changes only for the fixture move (~4-8 lines across 4 files); the
-  fusion_engine review's LOC impact depends on its outcome (manual decision required, not pre-committed here).
-- **Required tests**: the 2 directly-affected test files, plus a full backend run to catch any other
-  path-relative assumption this audit's grep missed.
-- **Rollback point**: tag before this phase.
-- **Risk level**: medium (touches the prediction pipeline's fusion stage and a path used by both backend and
-  frontend fixtures).
-- **Behavior changes**: none intended.
-- **Recommended commit boundaries**: fixture move as its own commit (small, mechanical); fusion_engine.py
-  decision as a separate commit only after the manual review concludes.
+- **Fixture move**: already completed in an earlier phase (`test(fixtures): relocate semantic PDF fixtures`,
+  commit `0c3d292`) — not repeated here.
+- **`fusion_engine.py` vs `modular_fusion.py` — resolved, no code change**: traced exactly via
+  `orchestrator.py`'s own imports. `orchestrator.py` calls `modular_fusion.py::unified_multimodal_fusion.predict()`
+  directly; `fusion_engine.py`'s `WeightedFusionEngine.predict()` calls `orchestrator.py::predict_from_context()`
+  (not `modular_fusion.py`) and reshapes its result into an older dataclass contract that
+  `services/multimodal/pipeline.py` (the real caller) expects. **Zero functional overlap** — a 3-layer chain,
+  not two competing implementations. Both files are independently required; both are already explicitly
+  recognized as production code in the `_PRODUCTION_MODULES` guard-test lists. No consolidation performed, no
+  differential testing applicable (the two functions do not accept comparable inputs). See the full
+  reachability matrix in `semantic-shim-and-fusion-review.md`.
+- **Risk level**: realized as zero (no code changed).
 
 ### Phase 7 — Frontend component/hook consolidation — **DONE (partially; see result)**
 - **Scope**: `StatsCards.jsx` → compose `KpiCard.jsx`; badge/chip trio → shared `ChipWithMeta` primitive.
