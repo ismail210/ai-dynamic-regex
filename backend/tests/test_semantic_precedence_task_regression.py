@@ -218,12 +218,12 @@ class MissingDimensionHssTests(unittest.TestCase):
 
 class RealDamageCorpusIncompleteLabelTests(unittest.TestCase):
     """Uses the actual manifests just merged from the partner's commit
-    (validation/semantic_test_pdfs/*.manifest.json) -- real, non-synthetic
+    (backend/tests/fixtures/semantic_test_pdfs/*.manifest.json) -- real, non-synthetic
     "incomplete" cases (missing thickness on an Angle), confirmed here against
     the live parser rather than assumed."""
 
     def test_real_incomplete_angle_cases_are_not_catalog_valid(self):
-        manifest_path = REPO_ROOT / "validation" / "semantic_test_pdfs" / "burrville_SEMANTIC_DAMAGE_TEST.manifest.json"
+        manifest_path = REPO_ROOT / "backend" / "tests" / "fixtures" / "semantic_test_pdfs" / "burrville_SEMANTIC_DAMAGE_TEST.manifest.json"
         with open(manifest_path, encoding="utf-8") as f:
             manifest = json.load(f)
         incomplete_cases = [c for c in manifest["cases"] if c["category"] == "incomplete"]

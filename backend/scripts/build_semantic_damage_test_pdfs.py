@@ -25,7 +25,7 @@ import fitz
 
 ROOT = Path(__file__).resolve().parents[2]
 UPLOADS = ROOT / "backend" / "uploads"
-DEFAULT_OUT = ROOT / "validation" / "semantic_test_pdfs"
+DEFAULT_OUT = ROOT / "backend" / "tests" / "fixtures" / "semantic_test_pdfs"
 FRONTEND_FIXTURES = ROOT / "frontend" / "src" / "fixtures" / "semanticDamage"
 
 # Compact AISC-like designation (single PDF word / span).

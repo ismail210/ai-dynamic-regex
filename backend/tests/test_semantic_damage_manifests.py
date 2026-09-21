@@ -11,7 +11,7 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-CORPUS = ROOT / "validation" / "semantic_test_pdfs"
+CORPUS = ROOT / "backend" / "tests" / "fixtures" / "semantic_test_pdfs"
 UPLOADS = ROOT / "backend" / "uploads"
 
 REQUIRED_CASE_KEYS = {

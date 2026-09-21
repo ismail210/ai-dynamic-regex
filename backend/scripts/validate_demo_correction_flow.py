@@ -17,7 +17,7 @@ import httpx
 BASE = "http://127.0.0.1:8000"
 ROOT = Path(__file__).resolve().parents[1]
 UPLOADS = ROOT / "uploads"
-VALIDATION_PDFS = ROOT.parent / "validation" / "semantic_test_pdfs"
+VALIDATION_PDFS = ROOT / "tests" / "fixtures" / "semantic_test_pdfs"
 
 
 def sha256(path: Path) -> str:
