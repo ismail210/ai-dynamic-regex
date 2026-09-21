@@ -24,22 +24,29 @@ from any future product change (none proposed here).
 - **Recommended commit boundaries**: one commit for the `docs/reports/*` moves, one for `demos/`+`history/`,
   one for the `SEMANTIC_CONTRACT.md` move (separate because it needs the content-diff decision first).
 
-### Phase 2 — Generated/artifact cleanup and gitignore corrections
-- **Scope**: resolve the `*_20260826_*` orphan snapshot directories across the 5 model families (archive or
-  document why they're intentionally kept off-registry); resolve the ~150MB of near-duplicate binaries between
-  flat live-aliases and versioned snapshots (either gitignore the versioned copies if the flat alias is truly
-  sufficient, or document why both must stay tracked).
-- **Exact candidate files**: `backend/training/models/{exact_section,family_classifier,fusion,geometry,graph}/
-  *_20260826_*/**`; `backend/training/{best_model.pkl,label_encoder.pkl,vectorizer.pkl,
-  preprocessing_pipeline.pkl,exact_section_model.joblib}` vs. their versioned-snapshot counterparts.
-- **Expected benefit**: meaningfully smaller repo, less confusion about which model artifact is "live."
-- **Estimated LOC change**: N/A (binary/data cleanup, not code) — could remove tens of MB from the tracked tree.
-- **Required tests**: full backend suite (to confirm nothing silently depended on an orphan snapshot path) +
-  manual verification that `config.py`'s `settings.*_path` fields still resolve correctly after any change.
-- **Rollback point**: tag before this phase; this is the highest-value-per-risk phase but touches binary
-  artifacts, so a clean rollback tag matters more here than in Phase 1.
-- **Risk level**: low-medium (binary artifacts are easy to accidentally need later; verify `fusion`/`geometry`/
-  `graph`'s null-`active_version` loader behavior **before** removing anything from those 3 families
+### Phase 2 — Generated/artifact cleanup and gitignore corrections — **DONE (forensic pass; no deletions)**
+- **Scope**: resolve the `*_20260826_*` orphan snapshot directories across the 5 model families; resolve the
+  originally-estimated ~150MB of near-duplicate binaries.
+- **Actual result**: full retention audit performed
+  (`docs/audits/codebase-refactor/model-artifact-retention-audit.md`), every claim re-verified with actual
+  SHA256 hashes and static loader-tracing (not just registry-recorded checksums). **Two premises were wrong**:
+  the "orphan" snapshots contain genuinely unique, non-duplicate, checksummed model data (never-promoted
+  "candidate" training runs — real historical evidence), and real verified duplicate bytes total 11.3 MiB, not
+  ~150MB (`exact_section`'s 4 copies, the bulk of the original estimate, are each a distinct trained model).
+  The `fusion`/`geometry`/`graph` null-`active_version` question is fully resolved: `get_active_model()` is
+  never called for these 3 families anywhere in the codebase, and their promotion mapping is a literal empty
+  dict — null means "nothing downstream ever reads this," not a fallback of any kind. **Zero files met the
+  DELETE_NOW bar. Zero files deleted.** No `.gitignore` change made (no safe pattern exists that
+  distinguishes promoted from unpromoted snapshots by filename alone — see the audit's Phase 9 section for
+  the recommended process-level policy instead).
+- **Exact candidate files evaluated**: `backend/training/models/{exact_section,family_classifier,fusion,
+  geometry,graph}/*_20260826_*/**`; `backend/training/{best_model.pkl,label_encoder.pkl,vectorizer.pkl,
+  preprocessing_pipeline.pkl,exact_section_model.joblib}` vs. their versioned-snapshot counterparts — all 93
+  tracked model-related files inventoried.
+- **Required tests**: `test_continuous_learning_pipeline.py` (10/10, isolated registry probe), targeted suite
+  (252/1/0, unchanged), full suite (1282/9-known/3, unchanged) — all run, all green.
+- **Rollback point**: N/A — no destructive action taken.
+- **Risk level**: realized as zero (no changes made to any model artifact, registry, or loader).
   specifically — flagged explicitly in `unused-candidates.md` §7 as unresolved).
 - **Behavior changes**: none, if the loader-behavior verification above is done first; do not proceed on those
   3 families without it.

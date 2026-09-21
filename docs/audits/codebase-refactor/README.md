@@ -263,7 +263,17 @@ were audited normally); the 3 dirty auxiliary worktrees (`ai-dynamic-regex`, `ai
   full (1282/9-known/3) suites verified unaffected; all 3 preserved training-drift files' SHA256 fingerprints
   confirmed unchanged before/after. Commits `test(api): centralize isolated API test setup`,
   `test(geometry): deduplicate fragment merge setup`.
-- **Phases 2-6, 9-10** — not started.
+- **Phase 2 (generated-artifact cleanup)** — DONE, forensic pass, **zero deletions**. Full retention audit at
+  `model-artifact-retention-audit.md`: all 93 tracked model-related files inventoried and SHA256-verified.
+  The original "~150MB duplicate" and "orphan snapshot" premises were both found to be wrong on inspection —
+  real verified duplicate bytes = 11.3 MiB, and every `*_20260826_*` "orphan" contains genuinely unique,
+  never-promoted candidate model data (historical evidence, not litter). The `fusion`/`geometry`/`graph`
+  null-`active_version` question is fully resolved: nothing downstream ever reads these 3 families'
+  registries at all (not a fallback — a permanent, by-design dead end). No `.gitignore` change made (no safe
+  filename-based pattern exists). One pre-existing discrepancy flagged for your decision, not fixed: the live
+  `exact_section_model.joblib` alias doesn't byte-match any of the 4 registered snapshot versions, including
+  the current `active_version`.
+- **Phases 3-6, 9-10** — not started.
 
 ---
 

@@ -206,13 +206,15 @@ consolidation because collapsing them would violate a named invariant:
 - **Risk level**: low.
 - **Recommended implementation order**: Phase 8, alongside item 5.
 
-## 7. Backend training: duplicate/superseded generations (data-file consolidation, not code)
+## 7. Backend training: duplicate/superseded generations (data-file consolidation, not code) — **RESOLVED, NOTHING DELETED**
 
-Already detailed in `unused-candidates.md` §7 — the `*_20260826_*` orphan snapshot across all 5 model families,
-and the ~150MB of near-duplicate binaries between flat live-aliases and versioned snapshots. This is a
-**generated-artifact cleanup**, not a code refactor; tracked separately in `refactor-roadmap.md` Phase 2, not
-bundled with the code-duplication items above since the risk profile and reversal method (re-download/re-train
-vs. `git revert`) are completely different.
+Full forensic pass in `docs/audits/codebase-refactor/model-artifact-retention-audit.md`. Real byte-verified
+duplicate total: **11.3 MiB**, not the ~150MB originally estimated — `exact_section`'s 4 snapshot copies
+(the bulk of the estimate) turned out to each be a genuinely distinct trained model (different SHA256), not
+duplicates. The `*_20260826_*` "orphan" snapshots across all 5 families contain unique, checksummed,
+never-promoted "candidate" model/feature data — real historical evidence, not litter — and were retained.
+Zero files deleted. See `unused-candidates.md` §7 for the updated summary and the retention audit for full
+per-file detail.
 
 ## Summary table
 

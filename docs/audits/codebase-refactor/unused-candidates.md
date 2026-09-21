@@ -71,7 +71,27 @@ point-in-time reports rather than living docs). Key items:
   versioned contract module (`services/prediction/semantic_contract.py`, `SEMANTIC_CONTRACT_VERSION=1.0`), not
   a dated snapshot.
 
-## 7. Generated artifacts (superseded training snapshots — data, not code)
+## 7. Generated artifacts (superseded training snapshots — data, not code) — **RESOLVED, NOTHING DELETED**
+
+> **Result** (`docs/audits/codebase-refactor/model-artifact-retention-audit.md`, full forensic pass): every
+> claim below was re-verified with actual SHA256 hashes (not just registry-recorded ones) and static
+> loader-tracing, and **two premises turned out to be wrong**. (1) The `*_20260826_*` "orphan" snapshots
+> contain **genuinely unique, non-duplicate model weights** for `exact_section` and `family_classifier` (each
+> file has a distinct SHA256) — they are not accidental duplicates, they are complete, checksummed,
+> never-promoted "candidate" training runs, i.e. real historical evidence, not litter. (2) The "~150MB of
+> near-duplicate binaries" estimate is **false** — real, byte-verified duplicate bytes total **11.3 MiB**, not
+> 150MB, because `exact_section`'s 4 copies (the bulk of the estimated size) are each a distinct model, not
+> duplicates of each other or of the flat "live" alias (which itself doesn't byte-match any of the 4 registered
+> snapshots — a pre-existing production-state discrepancy, flagged for your decision, not fixed here since
+> fixing it would mean changing which model is actually served). The `fusion`/`geometry`/`graph` null-
+> `active_version` question was fully resolved: `get_active_model()` is **never called** for these 3 families
+> anywhere in the codebase, and `promote_to_live_paths()`'s own mapping table is a literal empty dict for all
+> three — confirmed by reading `services/training_pipeline/trainers.py`'s `train_geometry_model`/
+> `train_graph_model`/`train_fusion_model`, each of which calls `mark_rejected(...)` immediately after
+> archiving every candidate, by design (own code comment: *"Do not promote placeholder geometry models over
+> production text stack"*). Null `active_version` here means "nothing downstream ever asks," not any kind of
+> fallback. **No artifact met the DELETE_NOW bar in the full retention audit — zero files deleted.** See the
+> retention audit for the complete per-file classification, duplicate-group accounting, and reasoning.
 
 Cross-checked via `config.py` Settings-path tracing and every `registry.json` in `backend/training/models/`:
 
