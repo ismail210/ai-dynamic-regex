@@ -1,8 +1,13 @@
 # Semantic Annotation Contract (Phase 2 — schema only)
 
+> **Superseded**: `backend/services/prediction/semantic_contract.py` is now a thin re-export shim over the
+> canonical schema in `backend/services/semantic/models.py`. See [`unified_semantic_contract.md`](unified_semantic_contract.md)
+> (schema v2.0) for the current, live model. This document is kept as the historical design record for the
+> original v1.0 schema-only proposal described below; it is not the current authoritative contract.
+
 **Module:** `backend/services/prediction/semantic_contract.py`  
 **Version:** `1.0` (`SEMANTIC_CONTRACT_VERSION`)  
-**Status:** Contract / schema only — **no new semantic intelligence**
+**Status:** Contract / schema only — **no new semantic intelligence** (historical; see notice above)
 
 ---
 

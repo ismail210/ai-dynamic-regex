@@ -2,7 +2,7 @@
 
 Spoken scripts for a live manager demo. Keep claims aligned with current product behavior only.
 
-Related reference: `docs/ESTIMA3D_MANAGER_DEMO_FLOW.md`
+Related reference: `docs/demos/ESTIMA3D_MANAGER_DEMO_FLOW.md`
 
 ---
 
@@ -353,7 +353,7 @@ Verified in controlled API and unit testing: original PDF immutability, correcte
 
 ## Final Section — Current Validation Status
 
-Based on `docs/ESTIMA3D_MANAGER_DEMO_FLOW.md` and `backend/training/eval_cache_backups/final_demo_validation_report.json`.
+Based on `docs/demos/ESTIMA3D_MANAGER_DEMO_FLOW.md` and `backend/training/eval_cache_backups/final_demo_validation_report.json`.
 
 | Area | Current Status | Evidence | Limitation |
 |------|----------------|----------|------------|

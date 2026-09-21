@@ -26,7 +26,7 @@ ISMAIL_COMMIT                = e36fb1b  "feat: restore AI multimodal pipeline an
 
 **Stated uncertainty:** no commit is explicitly tagged as a demo, and no presentation/demo document exists in the repository to confirm this independently. If the actual demo happened at a different point (e.g. mid-way through `ef6f71b`'s changes, or even earlier at the Initial commit `b9a9268`), the "before" state described below would need adjustment — but `ef6f71b` is the closest defensible inflection point the repository itself provides.
 
-The repository's Initial commit (`b9a9268`, 2026-07-31, also authored by Ismail/Hiba Reda) already contained a working multimodal fusion architecture (see `docs/MIGRATION_NOTES_v5.2.md`, "v5.2.0 AI-First Platform" — AISC catalog demoted to "verification only," fusion of text/geometry/graph/rules already scoring predictions). That architecture is the actual starting point for everything described below; it predates both Bassam's and Ismail's post-Initial-commit work.
+The repository's Initial commit (`b9a9268`, 2026-07-31, also authored by Ismail/Hiba Reda) already contained a working multimodal fusion architecture (see `docs/history/MIGRATION_NOTES_v5.2.md`, "v5.2.0 AI-First Platform" — AISC catalog demoted to "verification only," fusion of text/geometry/graph/rules already scoring predictions). That architecture is the actual starting point for everything described below; it predates both Bassam's and Ismail's post-Initial-commit work.
 
 ---
 
