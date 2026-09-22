@@ -44,7 +44,11 @@ from services.engineering.drawing_scale import (
     real_inches_from_pdf_points,
     resolve_page_scale,
 )
-from services.engineering.geometry_normalizer import merge_collinear_fragments
+from services.engineering.geometry_normalizer import (
+    _length_of_segments,
+    _orientation_deg,
+    merge_collinear_fragments,
+)
 from services.engineering.models import GeometryKind
 
 _DIGIT_RE = re.compile(r"\d+(\.\d+)?")
@@ -162,23 +166,6 @@ def _bbox_from_points(points: Sequence[Sequence[float]]) -> List[float]:
     xs = [float(p[0]) for p in points]
     ys = [float(p[1]) for p in points]
     return _round([min(xs), min(ys), max(xs), max(ys)])
-
-
-def _length_of_segments(points: Sequence[Sequence[float]]) -> float:
-    total = 0.0
-    for i in range(1, len(points)):
-        total += math.hypot(
-            float(points[i][0]) - float(points[i - 1][0]),
-            float(points[i][1]) - float(points[i - 1][1]),
-        )
-    return round(total, 3)
-
-
-def _orientation_deg(p0: Sequence[float], p1: Sequence[float]) -> float:
-    return round(
-        math.degrees(math.atan2(float(p1[1]) - float(p0[1]), float(p1[0]) - float(p0[0]))),
-        2,
-    )
 
 
 def _attach_nearest_objects(

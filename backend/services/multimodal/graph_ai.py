@@ -9,6 +9,7 @@ from typing import Any, Dict, Iterable, List, Optional
 import numpy as np
 
 from config import settings
+from services.multimodal.torch_runtime import load_torch as _torch
 
 
 NODE_KINDS = (
@@ -60,12 +61,6 @@ _LEGACY_EDGE_RELATIONS = {
 }
 _LOCK = threading.RLock()
 _RUNTIME: Optional[tuple[Any, Any, Dict[str, Any]]] = None
-
-
-def _torch():
-    from services.multimodal.torch_runtime import load_torch
-
-    return load_torch()
 
 
 class _GraphSAGEModel:

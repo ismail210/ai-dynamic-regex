@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
 
 from config import settings
+from services.multimodal.torch_runtime import load_torch as _torch
 
 
 SCORE_ORDER = (
@@ -19,12 +20,6 @@ SCORE_ORDER = (
 )
 _LOCK = threading.RLock()
 _RUNTIME: Optional[tuple[Any, Any, Dict[str, Any]]] = None
-
-
-def _torch():
-    from services.multimodal.torch_runtime import load_torch
-
-    return load_torch()
 
 
 def _create_model(input_dim: int, hidden_dim: int):
