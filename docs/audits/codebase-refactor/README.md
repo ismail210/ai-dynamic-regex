@@ -66,14 +66,16 @@ entrypoints + no static/dynamic refs + absent from build/test/tooling config + n
 runtime discovery mechanism + not a framework-convention file + git history reveals no current manual
 purpose). This is a real, checked negative result — see `unused-candidates.md` §1.
 
-## G. High-confidence unused candidates
+## G. High-confidence unused candidates — RESOLVED
 
 4 backend modules, all with only test-file references and no production caller (grep-verified across the
 whole `backend/` tree, with one automation false-positive caught and corrected before being reported):
 `services/engineering/matching_engine.py`, `services/engineering/object_confidence.py`,
-`services/engineering/suggestion_engine.py`, `services/engineering/takeoff_interface.py`. All marked
-`proposed_action = manual decision required`, none marked delete-candidate. Full evidence in
-`unused-candidates.md` §2.
+`services/engineering/suggestion_engine.py`, `services/engineering/takeoff_interface.py`. At the time this
+audit was written, all four were marked `proposed_action = manual decision required` (none marked
+delete-candidate), since a file with any test coverage didn't meet this audit's own "confirmed unused" bar.
+A dedicated follow-up phase re-derived the standard and deleted all four — see `unused-candidates.md` §2 and
+`dead-module-reachability-review.md` for the full evidence and final disposition.
 
 ## H. Files requiring manual review
 
@@ -234,9 +236,9 @@ were audited normally); the 3 dirty auxiliary worktrees (`ai-dynamic-regex`, `ai
    `family_classifier` look safely archivable, but `fusion`/`geometry`/`graph` have no `active_version` field
    at all in their registries — do you want the loader-selection behavior verified (a small, scoped
    investigation) before any of those 3 families' snapshots are touched?
-4. **4 high-confidence-unused backend modules**: approve proceeding to the Phase 3/4 verification-then-delete
-   sequence, or do any of these (`matching_engine.py`, `object_confidence.py`, `suggestion_engine.py`,
-   `takeoff_interface.py`) have a known future purpose that should keep them as-is?
+4. **4 high-confidence-unused backend modules** — **RESOLVED**: proceeded with the Phase 3 verification-then-
+   delete sequence; all four (`matching_engine.py`, `object_confidence.py`, `suggestion_engine.py`,
+   `takeoff_interface.py`) confirmed `CONFIRMED_UNUSED` and deleted. See `dead-module-reachability-review.md`.
 5. **3 DEPRECATED shim modules**: approve the caller-migration plan (Phase 5), given it touches
    CLAUDE.md-protected contract-adjacent code?
 6. **Two disagreeing training/promotion systems**: this audit deliberately did not propose reconciling them
