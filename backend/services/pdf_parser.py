@@ -33,8 +33,11 @@ import fitz
 
 
 _ENGINEERING_PAGE_RE = re.compile(
-    r"\b(?:W|WF|WT|HSS|TS|PIPE|HP|MC|C|L|2L|PL)\s*[-_]?\s*"
+    # C and L need at least one X so bare marks (L1, C1) are not steel hits.
+    r"\b(?:W|WF|WT|HSS|TS|PIPE|HP|MC|2L|PL)\s*[-_]?\s*"
     r"\d+(?:\.\d+)?(?:\s*[X×]\s*(?:\d+(?:\.\d+)?|\d+/\d+)){0,3}\b"
+    r"|\b(?:C|L)\s*[-_]?\s*"
+    r"\d+(?:\.\d+)?(?:\s*[X×]\s*(?:\d+(?:\.\d+)?|\d+/\d+)){1,3}\b"
     r"|\b(?:A|F)\d{3,4}M?\b"
     r"|\b(?:BEAM|COLUMN|BRACE|STEEL|MEMBER)\s+SCHEDULE\b",
     re.IGNORECASE,

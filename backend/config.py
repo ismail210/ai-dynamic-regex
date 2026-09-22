@@ -97,6 +97,31 @@ class Settings:
         .lower()
         in ("1", "true", "yes", "on")
     )
+    # Schedule MARK|SIZE|PLATE grouping from existing PDF words. The grid is a
+    # side artifact. mark_map merges into document_prior only for catalog-valid
+    # printed SIZE values (never an incomplete L, never Excel).
+    schedule_grid_enabled: bool = field(
+        default_factory=lambda: os.getenv("SCHEDULE_GRID_ENABLED", "true")
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
+    schedule_mark_map_enabled: bool = field(
+        default_factory=lambda: os.getenv("SCHEDULE_MARK_MAP_ENABLED", "true")
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
+    # When true, skip geometry objects and per-token predict on legend
+    # context pages. Default off until a recall check promotes it.
+    shadow_context_page_gate_enabled: bool = field(
+        default_factory=lambda: os.getenv(
+            "SHADOW_CONTEXT_PAGE_GATE_ENABLED", "false"
+        )
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
     # Compatibility file read by older deployments and existing API code.
     legacy_model_meta_path: Path = BASE_DIR / "training" / "model_meta.json"
     # Immutable AISC-derived dataset — never overwrite at runtime.

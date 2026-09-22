@@ -306,9 +306,12 @@ export default function SemanticReviewPage() {
   }, [selectedAnnotationId, filteredDamagePairs, damageCaseIndex]);
 
   const applyCorrectedPdfMeta = useCallback((meta, nextSummary) => {
-    if (nextSummary) setSummary(nextSummary);
+    setSummary((prev) => {
+      const base = nextSummary || prev || {};
+      return meta ? { ...base, corrected_pdf: meta } : (nextSummary || prev);
+    });
     const revision = meta?.revision || nextSummary?.corrected_pdf?.revision || null;
-    setPdfRevision(meta?.available ? revision : null);
+    setPdfRevision(meta?.available && revision && revision !== "none" ? revision : null);
   }, []);
 
   const handleReview = async (action, editedText, candidateText) => {
@@ -343,7 +346,7 @@ export default function SemanticReviewPage() {
               review_status: optimisticStatus,
               correction: {
                 ...(a.correction || {}),
-                original: a.original_text || a.correction?.original,
+                original: a.original_text || a.correction?.original || a.primary_label,
                 canonical: optimisticText,
                 operation: action === "reject" ? (a.correction?.operation || "keep") : "repair",
               },
@@ -362,7 +365,7 @@ export default function SemanticReviewPage() {
         candidateText,
       );
       const updated = result?.annotation;
-      if (updated && semanticDoc) {
+      if (updated) {
         setSemanticDoc((doc) => {
           const base = doc || priorDoc;
           if (!base) return doc;
@@ -470,9 +473,9 @@ export default function SemanticReviewPage() {
       const original = annotation.original_text || annotation.correction?.original;
       const showCorrectedLabel = (
         ["human_accepted", "auto_accepted"].includes(annotation.review_status)
-        && effective
-        && original
-        && effective !== original
+        && Boolean(effective)
+        && Boolean(original)
+        && String(effective).trim() !== String(original).trim()
       );
       built.push({
         key: annotation.annotation_id,
@@ -481,7 +484,7 @@ export default function SemanticReviewPage() {
         variant: showCorrectedLabel ? "success" : style.colorKey,
         dashed: showCorrectedLabel ? false : style.dashed,
         badge: showCorrectedLabel ? null : style.badge,
-        badgeTitle: `${effective} — ${annotation.correction.operation}`,
+        badgeTitle: `${effective} — ${annotation.correction?.operation || "correction"}`,
         labelText: showCorrectedLabel ? effective : null,
         onClick: () => handleSelectAnnotation(annotation),
       });

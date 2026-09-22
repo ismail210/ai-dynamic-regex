@@ -538,11 +538,13 @@ def apply_prior_to_candidates(
         explicit_local = normalize_engineering_token(next(iter(local_sections)))
 
     mark_hit: Optional[str] = None
+    best_len = -1
     if not explicit_local:
         for mark, section in mark_map.items():
             if mark == token_compact or token_compact.startswith(mark):
-                mark_hit = section
-                break
+                if len(mark) > best_len:
+                    best_len = len(mark)
+                    mark_hit = section
         if mark_hit and local_sections and mark_hit not in local_sections:
             mark_hit = None
 
@@ -583,7 +585,21 @@ def apply_prior_to_candidates(
 def attach_document_prior(document: Dict[str, Any]) -> Dict[str, Any]:
     """Detect legend pages and store ``document_prior`` on the document."""
 
+    from config import settings
+
     prior = build_document_prior(document)
+    if settings.schedule_mark_map_enabled:
+        extra = document.get("schedule_mark_map") or {}
+        if isinstance(extra, dict) and extra:
+            merged = dict(prior.get("mark_map") or {})
+            for mark, section in extra.items():
+                merged.setdefault(str(mark).upper(), section)
+            prior["mark_map"] = merged
+            prior["schedule_mark_map"] = {
+                str(mark).upper(): section for mark, section in extra.items()
+            }
+            if merged:
+                prior["enabled"] = True
     document["document_prior"] = prior
     return prior
 

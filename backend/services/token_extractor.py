@@ -28,13 +28,29 @@ _FAB_LENGTH = (
     r")?"
 )
 
+# Inch-style angles require the word ANGLE (or a leading L/2L, matched below).
+# Bare 4x4x1/4 stays an anonymous plate/gusset dimension.
+_INCH_ANGLE_PATTERN = (
+    rf"\b{_ANGLE_LEG}\s*\"?\s*[xX×]\s*{_ANGLE_LEG}\s*\"?\s*[xX×]\s*"
+    rf"{_ANGLE_THICKNESS}\s*\"?"
+    rf"{_FAB_LENGTH}"
+    rf"(?:\s+LONG)?"
+    rf"\s+(?:CONTINUOUS\s+)?ANGLES?\b"
+)
+# Dim-first bent plates: 1/4"x2" WIDE BENT PLATE, 12"x4"x3/8" CONTINUOUS BENT PLATE.
+_DIM_BENT_PATTERN = (
+    r"\b(?:\d+/\d+|\d+(?:\.\d+)?)\"?"
+    r"(?:\s*[xX×]\s*(?:\d+/\d+|\d+(?:\.\d+)?)\"?){1,3}"
+    r"\s+(?:WIDE\s+|CONTINUOUS\s+)?BENT\s*PL(?:ATE)?\b"
+)
+
 TOKEN_PATTERNS = (
     r"\b(?:\d+(?:\.\d+)?|\d+/\d+)\"?\s*BENT\s*PL(?:ATE)?\b[^|\n]{0,40}",
     r"\b(?:\d+(?:\.\d+)?|\d+/\d+)\"?\s*BENT\s*PL(?:ATE)?\b",
     r"\bBENT\s*PL(?:ATE)?\s*(?:\d+(?:\.\d+)?|\d+/\d+)\"?\b",
     r"\b(?:W|WT|S|M|HP|C|MC)\s*\d+(?:\.\d+)?\s*[X×]\s*\d+(?:\.\d+)?\b",
-    r"\bHSS\s*\d+(?:\.\d+)?\s*[X×]\s*\d+(?:\.\d+)?"
-    r"(?:\s*[X×]\s*(?:\d+/\d+|\d+(?:\.\d+)?))?\b",
+    r"\bHSS\s*\d+(?:\.\d+)?\"?\s*[X×]\s*\d+(?:\.\d+)?\"?"
+    r"(?:\s*[X×]\s*(?:\d+/\d+|\d+(?:\.\d+)?)\"?)?(?!\w)",
     rf"\b(?:2L|L)\s*{_ANGLE_LEG}\s*[X×]\s*{_ANGLE_LEG}"
     rf"(?:\s*[X×]\s*{_ANGLE_THICKNESS})?"
     rf"{_FAB_LENGTH}",
@@ -43,6 +59,8 @@ TOKEN_PATTERNS = (
     r"(?:\s*[X×]\s*(?:\d+(?:\.\d+)?|\d+/\d+)){0,2}\b",
     r"\bS-\d+\b",
     r"\b(?:A|F)\d{3,4}M?\b",
+    # Schedule marks on plans (C1, L1, L1A). Not L4X4 / C12X20 (those need X).
+    r"\b(?:L|C)\d+[A-Z]?\b",
 )
 # Anonymous dimension patterns (no PL/L/BP prefix) — evaluated after explicit callouts.
 ANONYMOUS_DIM_PATTERNS = (
@@ -60,6 +78,8 @@ _COMBINED = re.compile(
     "|".join(
         f"(?:{pattern})"
         for pattern in (
+            _INCH_ANGLE_PATTERN,  # 2"x2"x1/4" ANGLE -> L…
+            _DIM_BENT_PATTERN,  # dim-first bent plate
             TOKEN_PATTERNS[0],  # bent plate extended callout
             TOKEN_PATTERNS[1],  # bent plate thickness-first
             TOKEN_PATTERNS[2],  # bent plate head-first
@@ -70,6 +90,7 @@ _COMBINED = re.compile(
             TOKEN_PATTERNS[3],  # W / WT / S / M / HP / C / MC
             TOKEN_PATTERNS[8],  # sheet reference
             TOKEN_PATTERNS[9],  # material grade
+            TOKEN_PATTERNS[10],  # schedule marks C1 / L1
         )
     ),
     re.IGNORECASE,
@@ -99,12 +120,56 @@ def normalize_engineering_token(text: str) -> str:
     return normalized
 
 
+def _leg_token(raw: str) -> str:
+    """Strip inch marks and restore a hyphen in CAD-compact mixed numbers."""
+
+    value = str(raw or "").replace('"', "").replace("″", "")
+    mixed = re.fullmatch(r"(\d)(\d+/\d+)", value)
+    if mixed:
+        return f"{mixed.group(1)}-{mixed.group(2)}"
+    return value
+
+
+def _inch_angle_canonical(compact: str) -> Optional[str]:
+    """Rewrite ``2"X2"X1/4"ANGLE`` to ``L2X2X1/4``. None when ANGLE is absent."""
+
+    if "ANGLE" not in compact:
+        return None
+    head = compact.split("ANGLE", 1)[0]
+    head = re.sub(r"(?:LONG|CONTINUOUS|KICKER|SEAT|FRAME)$", "", head)
+    parts = [part for part in head.split("X") if part]
+    if len(parts) < 3:
+        return None
+    leg1, leg2, thickness = (_leg_token(part) for part in parts[:3])
+    if not leg1 or not leg2 or not thickness:
+        return None
+    return f"L{leg1}X{leg2}X{thickness}"
+
+
+def canonical_extracted_token(text: str) -> str:
+    """Normalize a match. Inch+ANGLE becomes an L designation; HSS drops quotes."""
+
+    compact = normalize_engineering_token(text)
+    inch = _inch_angle_canonical(compact)
+    if inch:
+        return inch
+    if compact.startswith("HSS") and ('"' in compact or "″" in compact):
+        return compact.replace('"', "").replace("″", "")
+    return compact
+
+
 def core_section_token(text: str) -> str:
     """Catalog core of a token, stripping an optional shop-cut length suffix."""
 
     compact = normalize_engineering_token(text).replace("'", "").replace("’", "")
+    inch = _inch_angle_canonical(compact)
+    if inch:
+        return inch
     stripped = _FAB_TAIL_RE.sub("", compact)
-    return stripped or compact
+    core = stripped or compact
+    if core.startswith("HSS"):
+        return core.replace('"', "").replace("″", "")
+    return core
 
 
 def _starts_label_window(text: str) -> bool:
@@ -343,7 +408,7 @@ def extract_engineering_tokens(text: str) -> List[str]:
 
     return sorted(
         {
-            normalize_engineering_token(match.group(0))
+            canonical_extracted_token(match.group(0))
             for match in _matches(text)
         }
     )

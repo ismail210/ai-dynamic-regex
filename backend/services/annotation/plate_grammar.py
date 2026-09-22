@@ -32,6 +32,12 @@ THICKNESS_FIRST_PLATE_COMPACT = re.compile(
     rf"^{THICKNESS_TOKEN}\"?(?:CAP|CONN(?:ECTION)?)?PL(?:ATE)?",
     re.I,
 )
+# 1/4"x2" WIDE BENT PLATE, 12"x4"x3/8" CONTINUOUS BENT PLATE.
+DIM_FIRST_BENT_PLATE = re.compile(
+    rf"(?:{THICKNESS_TOKEN}\"?\s*[xX×]\s*){{1,3}}{THICKNESS_TOKEN}\"?"
+    r"(?:\s+WIDE)?(?:\s+CONTINUOUS)?\s+BENT\s*PL(?:ATE)?\b",
+    re.I,
+)
 
 
 def starts_with_plate_head(text: str) -> bool:
@@ -39,6 +45,12 @@ def starts_with_plate_head(text: str) -> bool:
 
     value = str(text or "").strip()
     return bool(PLATE_HEAD.match(value) or PLATE_HEAD_COMPACT.match(value))
+
+
+def is_dim_first_bent_plate(text: str) -> bool:
+    """True for dimension-first bent-plate callouts, including WIDE/CONTINUOUS."""
+
+    return bool(DIM_FIRST_BENT_PLATE.search(str(text or "")))
 
 
 def is_thickness_first_plate(normalized: str, compact: str) -> bool:

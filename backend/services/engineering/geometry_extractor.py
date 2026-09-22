@@ -30,8 +30,10 @@ from __future__ import annotations
 
 import hashlib
 import math
+import re
 from pathlib import Path
 from collections import defaultdict
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import fitz
 
@@ -44,6 +46,13 @@ from services.engineering.drawing_scale import (
 )
 from services.engineering.geometry_normalizer import merge_collinear_fragments
 from services.engineering.models import GeometryKind
+
+_DIGIT_RE = re.compile(r"\d+(\.\d+)?")
+_BARE_LOAD_RE = re.compile(r"^\s*\d+(\.\d+)?\s*K\s*$", re.I)
+_MEMBER_TOKEN_RE = re.compile(
+    r"^((?:W|WT|HSS|C|MC)\d+(?:X\d+(?:X[\d/]+)?)?|L\d+X\d+X[\d/]+)",
+    re.I,
+)
 
 
 def _drawing_bbox_area(item: dict) -> float:
@@ -291,21 +300,125 @@ def _looks_like_dimension(kind: GeometryKind, length: float, nearby_text: str) -
     if length < 12.0:
         return False
     # Numeric callouts near the stroke strongly suggest a dimension
-    import re
-
-    return bool(re.search(r"\d+(\.\d+)?", nearby_text or ""))
+    return bool(_DIGIT_RE.search(nearby_text or ""))
 
 
-def _nearby_text(
+def _strip_digits(text: str) -> str:
+    return _DIGIT_RE.sub("", text or "")
+
+
+def _member_designation_token(text: str) -> str:
+    """Extract a structural designation token from an annotation line, if present."""
+    t = (text or "").strip()
+    if not t or _BARE_LOAD_RE.match(t):
+        return ""
+    m = _MEMBER_TOKEN_RE.match(t)
+    if not m:
+        return ""
+    return re.sub(r"\s+", "", m.group(1).upper())
+
+
+def identify_own_label_lines(
+    lines: Sequence[Dict[str, Any]],
+    *,
+    label_bbox: Sequence[float],
+    label_text: str,
+    page_number: int,
+) -> List[Dict[str, Any]]:
+    """Mark document lines that belong to the candidate member annotation.
+
+    Ownership is demonstrated by:
+    1. line text contains the designation token, or
+    2. label center lies inside the line bbox AND the line frames the label bbox.
+
+    Bare load/reaction callouts (e.g. ``17K``) are never treated as own-label.
+    Ported from the approved E3 shadow contract — proximity alone is not ownership.
+    """
+    own: List[Dict[str, Any]] = []
+    label_norm = re.sub(r"\s+", "", (label_text or "").upper())
+    cx = (float(label_bbox[0]) + float(label_bbox[2])) / 2.0
+    cy = (float(label_bbox[1]) + float(label_bbox[3])) / 2.0
+    for line in lines:
+        if int(line.get("page_number") or 0) != page_number:
+            continue
+        lb = line.get("bbox")
+        if not lb or len(lb) < 4:
+            continue
+        text = str(line.get("text") or "")
+        text_norm = re.sub(r"\s+", "", text.upper())
+        if _BARE_LOAD_RE.match(text.strip()):
+            continue
+        text_match = bool(label_norm) and label_norm in text_norm
+        center_in_line = (
+            float(lb[0]) <= cx <= float(lb[2]) and float(lb[1]) <= cy <= float(lb[3])
+        )
+        gold_inside = (
+            float(lb[0]) <= float(label_bbox[0]) + 1.0
+            and float(lb[1]) <= float(label_bbox[1]) + 1.0
+            and float(lb[2]) >= float(label_bbox[2]) - 1.0
+            and float(lb[3]) >= float(label_bbox[3]) - 1.0
+        )
+        if text_match or (center_in_line and (text_match or gold_inside)):
+            own.append(line)
+        elif gold_inside and label_norm:
+            if label_norm[:4] in text_norm or label_norm in text_norm:
+                own.append(line)
+    seen = set()
+    uniq: List[Dict[str, Any]] = []
+    for line in own:
+        if id(line) in seen:
+            continue
+        seen.add(id(line))
+        uniq.append(line)
+    return uniq
+
+
+def _nearby_text_for_dimension(
+    *,
+    nearby_text: str,
+    nearby_line: Optional[Dict[str, Any]],
+    page_number: int,
+    document_structure: Optional[dict],
+) -> str:
+    """Strip digits from nearby text only when own-label ownership is proven.
+
+    If ownership cannot be established, return ``nearby_text`` unchanged.
+    """
+    text = nearby_text or ""
+    if not text or nearby_line is None or not document_structure:
+        return text
+    token = _member_designation_token(text)
+    if not token:
+        return text
+    lb = nearby_line.get("bbox")
+    if not lb or len(lb) < 4:
+        return text
+    lines = document_structure.get("lines") or []
+    own = identify_own_label_lines(
+        lines,
+        label_bbox=lb,
+        label_text=token,
+        page_number=page_number,
+    )
+    own_ids = {id(x) for x in own}
+    if id(nearby_line) in own_ids or any(
+        str(o.get("text") or "") == text for o in own
+    ):
+        return _strip_digits(text)
+    return text
+
+
+def _nearby_text_and_line(
     center: List[float],
     page_number: int,
     document_structure: Optional[dict],
     radius: float = 48.0,
     line_grid: Optional[Dict[tuple[int, int], List[dict]]] = None,
-) -> str:
+) -> Tuple[str, Optional[Dict[str, Any]]]:
     if not document_structure:
-        return ""
+        return "", None
     best = ""
+    best_line: Optional[Dict[str, Any]] = None
     best_d = radius
     if line_grid is not None:
         cx = int(center[0] // radius)
@@ -326,7 +439,25 @@ def _nearby_text(
         if d < best_d:
             best_d = d
             best = str(line.get("text") or "")
-    return best
+            best_line = line
+    return best, best_line
+
+
+def _nearby_text(
+    center: List[float],
+    page_number: int,
+    document_structure: Optional[dict],
+    radius: float = 48.0,
+    line_grid: Optional[Dict[tuple[int, int], List[dict]]] = None,
+) -> str:
+    text, _line = _nearby_text_and_line(
+        center,
+        page_number,
+        document_structure,
+        radius=radius,
+        line_grid=line_grid,
+    )
+    return text
 
 
 # Framing plans are dense; 250 starved member strokes, but 1200 made Burrville
@@ -623,17 +754,23 @@ def extract_geometry(
                 orientation = (
                     _orientation_deg(points[0], points[-1]) if len(points) >= 2 else 0.0
                 )
-                nearby = _nearby_text(
+                nearby, nearby_line = _nearby_text_and_line(
                     center,
                     page_number,
                     document_structure,
                     radius=nearby_radius,
                     line_grid=line_grid,
                 )
+                nearby_for_dimension = _nearby_text_for_dimension(
+                    nearby_text=nearby,
+                    nearby_line=nearby_line,
+                    page_number=page_number,
+                    document_structure=document_structure,
+                )
 
                 if _looks_like_leader(kind, length, bbox):
                     kind = GeometryKind.LEADER
-                elif _looks_like_dimension(kind, length, nearby):
+                elif _looks_like_dimension(kind, length, nearby_for_dimension):
                     kind = GeometryKind.DIMENSION
 
                 leader_endpoints: Optional[Dict[str, List[float]]] = None

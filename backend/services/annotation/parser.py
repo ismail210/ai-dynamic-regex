@@ -54,9 +54,11 @@ _RANGE = re.compile(
     re.I,
 )
 _MEMBER_MARK = re.compile(
-    r"^(?:BM|BEAM|COL|COLUMN|BR|BRACE|GIRDER|JOIST|JST|PPN|MK|P)[-_ ]?\d+[A-Z]?$",
+    r"^(?:(?:BM|BEAM|COL|COLUMN|BR|BRACE|GIRDER|JOIST|JST|PPN|MK|P)[-_ ]?\d+[A-Z]?"
+    r"|(?:L|C)\d+[A-Z]?)$",
     re.I,
 )
+_SCHEDULE_MARK = re.compile(r"^(?:L|C)\d+[A-Z]?$", re.I)
 _GRID = re.compile(r"^(?:GRID|GR)\s*[A-Z0-9.-]+$", re.I)
 _SCHEDULE = re.compile(r"^(?:SCH|SCHEDULE|TYP|SEE)\b", re.I)
 _CORRUPT = re.compile(r"[?¿*#]|[^\x20-\x7E]")
@@ -221,6 +223,13 @@ def interpret_annotation(
         unit=unit,
         wildcard=has_wildcards(raw) or has_wildcards(normalized),
     )
+
+    # Bare L1 / C1 / L1A are schedule marks, never angle or channel families.
+    if _SCHEDULE_MARK.fullmatch(compact):
+        result.annotation_type = AnnotationType.MEMBER_MARK.value
+        result.subtype = "column" if compact.upper().startswith("C") else "lintel"
+        result.structure_confirmed = True
+        return result
 
     # --- STANDARD_SECTION -------------------------------------------------
     section_match = _SECTION_HEAD.match(compact)
