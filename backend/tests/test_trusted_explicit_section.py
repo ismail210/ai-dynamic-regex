@@ -187,6 +187,51 @@ class HumanOverrideTests(unittest.TestCase):
         self.assertEqual(corrected["raw_text"], "W18X35")
 
 
+class LateAnnotationReclassificationTests(unittest.TestCase):
+    """Orchestrator decomposition readiness (2026-09-22): characterizes an
+    undocumented interaction discovered while mapping predict_from_context
+    for docs/audits/codebase-refactor/orchestrator-decomposition-readiness.md.
+
+    A trusted explicit section (a locked exact catalog match) is computed
+    from the token's OWN text early in predict_from_context. Multimodal
+    fusion and the label ranker cannot override it (see the classes above).
+    But a *later* annotation-taxonomy interpretation
+    (interpret_token_annotation) that confidently reclassifies the same
+    token as a confirmed plate/bent-plate annotation currently CAN clear
+    the locked section and route the token to plate handling instead --
+    the code has no explicit guard checking "was this already a locked
+    exact match" before applying a late plate reclassification.
+
+    This is characterization, not a claimed defect: interpret_token_annotation
+    generally will not classify literal rolled-shape catalog text (e.g.
+    "W18X35") as a plate/bent-plate with real geometry/graph/context inputs
+    -- plate-grammar and rolled-shape-catalog text patterns are largely
+    disjoint by construction, and this test bypasses interpret_token_annotation
+    entirely to force the interaction. It exists to lock in today's actual
+    behavior before any future orchestrator extraction touches this area,
+    not to assert it is correct or incorrect."""
+
+    def test_confirmed_late_plate_annotation_can_clear_a_locked_section(self):
+        fake_annotation_pack = {
+            "annotation": {
+                "annotation_type": "BENT_PLATE",
+                "structure_confirmed": True,
+            },
+            "understandability": {"status": "UNDERSTOOD", "reasons": []},
+            "abstain_for_review": False,
+        }
+        with patch(
+            "services.prediction.orchestrator.interpret_token_annotation",
+            return_value=fake_annotation_pack,
+        ):
+            r = predict_token("W18X35", queue_unknown=False, persist_learning=False)
+
+        self.assertEqual(r["section"], "")
+        self.assertEqual(r["category"], "plate")
+        self.assertTrue(r["needs_review"])
+        self.assertEqual(r["review_status"], "pending_review")
+
+
 class ContextScopeIndependenceTests(unittest.TestCase):
     """Section 20: a trusted explicit label on a legend/notes/definition token
     keeps its section identity but is NOT auto-counted in the takeoff."""
