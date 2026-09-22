@@ -246,7 +246,7 @@ from any future product change (none proposed here).
   unchanged throughout.
 - **Risk level**: realized as low — zero behavior change, zero public API/schema/route/env-var change.
 
-### Phase 12 — Orchestrator decomposition readiness gate — **DONE (mapping only; zero production change)**
+### Phase 12 — Orchestrator decomposition readiness gate — **DONE (mapping phase); first extraction now implemented (see below)**
 - **Scope**: read-only mapping/characterization of `services/prediction/orchestrator.py` to evaluate the
   hypothesis that `predict_token`'s "exact-match/database-verification branch" is a safe first extraction.
 - **Actual result**: full pass at `orchestrator-decomposition-readiness.md`. **The hypothesis was false** —
@@ -265,6 +265,14 @@ from any future product change (none proposed here).
   added (+45 test LOC, 0 production LOC). Full suite (1297/9-known/3, delta of exactly 1 new test from the
   1296 baseline) and targeted suites verified unchanged; drift fingerprints confirmed unchanged throughout.
 - **Risk level**: N/A (read-only phase, no code changed).
+- **Follow-up (implemented)**: the proposed `_build_encoder_input` extraction was implemented in a
+  dedicated follow-up phase — see the "Implementation Result" section appended to
+  `orchestrator-decomposition-readiness.md`. Net production LOC was **+9, not the estimated -25 to -30**
+  (the estimate didn't account for the helper's own definition cost) — reported as a genuine measured
+  discrepancy, not compressed to fit. Duplication is still genuinely removed (one canonical definition
+  instead of two near-identical inline blocks). The characterized late plate-reclassification behavior was
+  deliberately left untouched and is recommended as the next phase's subject (a semantic investigation, not
+  another extraction).
 
 ---
 

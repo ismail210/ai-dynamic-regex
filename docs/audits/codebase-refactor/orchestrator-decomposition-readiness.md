@@ -387,6 +387,171 @@ production file. No extraction implemented. No fix attempted for the late-plate-
   file is empty).
 - Test LOC changed: **+45** (`tests/test_trusted_explicit_section.py`, one new test class/method).
 
-## Final SHA
+## Final SHA (readiness phase)
 
-See final report below for the exact commit SHAs and push confirmation.
+Readiness-phase final SHA: `492b61225a2150ea8a2f419e75e3fdceb387d178`. See the implementation-result section
+below for the extraction that followed.
+
+---
+
+# Implementation Result: `_build_encoder_input` Extraction (2026-09-22)
+
+**This section records a separate, later phase that implemented the boundary proposed above. It does not
+alter the mapping/readiness conclusions recorded above it.**
+
+- **Starting SHA**: `492b61225a2150ea8a2f419e75e3fdceb387d178`.
+- **Selected boundary**: exactly as proposed above — the duplicated `encoder_registry.encode_all(...)`
+  input-payload assembly, present at the two call sites inside `predict_from_context`. No other part of
+  `predict_from_context` was touched. `predict_token` was not modified.
+
+## Helper signature
+
+```python
+def _build_encoder_input(
+    *,
+    normalized: str,
+    raw_text: str,
+    corrected_text: str,
+    extraction_confidence: float,
+    token_record: Dict[str, Any],
+    geometry: Dict[str, Any],
+    graph: Dict[str, Any],
+    provisional_rules: Any,
+    model_probability: float,
+    candidates: List[Any],
+) -> Dict[str, Any]:
+```
+
+Placed immediately after `_text_locked_section` and before `predict_from_context`, matching the file's
+existing pattern of private pure helpers. Returns the identical 6-key nested dict
+(`text`/`ocr`/`layout`/`geometry`/`graph`/`engineering_rules`, in that exact order) both call sites
+previously built inline. Only `model_probability` and `candidates` vary by caller — every other field
+(`ocr`, `layout`, `geometry`, `graph`, `engineering_rules`) is copied verbatim, same key spelling, same key
+order, same expressions, same `token_record.get(...)` calls, same `or []`/`or {}` fallbacks. No new type,
+class, dataclass, enum, or wrapper was introduced — the return value is the same plain `dict` the call sites
+always built directly.
+
+## Behavior-preservation proof
+
+Reviewed the full `git diff` by hand: exactly one helper added, exactly two inline blocks removed, exactly
+two calls to the helper added in their place. No branch, condition, or call was added, removed, or moved
+across the extraction boundary. No new module-level state. No import cycle (helper lives in the same file).
+`encoder_registry.encode_all` is still called exactly once per branch, with an argument that is
+key-for-key, value-for-value, order-for-order identical to before. No exception handling was added, so
+propagation timing is unchanged.
+
+**Rigorous equivalence test**: the characterization tests below (see below) were written and run against the
+**original, unmodified inline implementation first** (the production diff was temporarily set aside via
+`git diff` → save patch → `git restore --source=HEAD` → run tests → confirm pass → re-`git apply` the
+extraction → run tests again → confirm still pass, byte-identical assertions both times). Both passed
+identically before and after, with no test changes required between the two runs.
+
+## Characterization coverage
+
+No existing test asserted the literal dict `predict_from_context` passes to `encoder_registry.encode_all` —
+the only existing reference to `encode_all` (`tests/test_modular_multimodal_fusion.py`) tests the encoder
+registry's own behavior with a hand-built input, not what the orchestrator constructs. A gap, so new tests
+were added (Step 2 of this phase's task): `tests/test_prediction_orchestrator.py::EncoderInputContractTests`
+(2 tests), spying on the real `encoder_registry.encode_all` via `patch.object(..., side_effect=spy)` — the
+real implementation still runs; only its argument is captured, so no behavior is faked.
+
+- `test_exact_match_branch_contract` (`predict_token("W18X35", ...)`, the non-`skip_section_fusion` branch):
+  asserts exact top-level key order, exact `text` sub-dict key order, `token=="W18X35"`,
+  `extraction_confidence==0.5`, `regex_confidence==0.0`, non-empty `candidates` containing a `shape=="W18X35"`
+  entry, `model_probability == candidates[0].confidence` (the structural invariant, not a hardcoded score, so
+  the test stays valid if the underlying model's exact score changes), the full `ocr` dict by exact equality,
+  `layout`'s exact key order plus representative `None`/`[]` values, and that `geometry`/`graph`/
+  `engineering_rules` each carry their single expected wrapper key.
+- `test_plate_annotation_branch_contract` (`predict_token("PL 1/2 X 8", ...)`, the `skip_section_fusion`
+  branch): asserts the full `text` dict by exact equality — `{"token": "PL1/2X8", "model_probability": 0.0,
+  "extraction_confidence": 0.5, "regex_confidence": 0.0, "candidates": []}` — fully deterministic since every
+  field in this branch is a fixed literal.
+
+Both tests also assert `encoder_registry.encode_all` is called **exactly once** per `predict_token` call
+(dependency call-count preservation).
+
+## Files changed
+
+- `backend/services/prediction/orchestrator.py` (production).
+- `backend/tests/test_prediction_orchestrator.py` (new `EncoderInputContractTests` class, 2 tests).
+
+## LOC measurement — differs from the readiness-phase estimate
+
+| | Before | After | Delta |
+|---|---|---|---|
+| `orchestrator.py` physical LOC | 2,068 | 2,077 | **+9** |
+| Helper (`_build_encoder_input`) | — | 50 (incl. docstring, blank lines) | +50 |
+| Removed inline block 1 (`skip_section_fusion` branch) | 32 | — | -32 |
+| Removed inline block 2 (normal branch) | 35 | — | -35 |
+| Replacement call site 1 | — | 12 | +12 |
+| Replacement call site 2 | — | 14 | +14 |
+| **Net production LOC** | | | **+9** |
+| `test_prediction_orchestrator.py` | 110 | 194 | **+84** |
+
+**This is a genuine, measured discrepancy from the readiness phase's ~-25 to -30 estimate — not compressed
+or forced to match it, per this phase's explicit instruction not to compress readable code to hit an
+estimate.** Root cause: the readiness-phase estimate treated the helper's own definition as free (implicitly
+assuming "delete one duplicate block, add one call" without an equivalent line cost for defining the helper
+itself). In reality the helper must fully restate the shared dict structure exactly once (50 lines, including
+its docstring and blank-line separation, consistent with the file's own style for the other 8 private
+helpers) — and that one restatement is *smaller* than the two original inline copies combined (67 lines) but
+*larger* than one of them alone, while the two call sites (26 lines combined) are shorter than either
+original inline block but still non-trivial once every keyword argument is written on its own line for
+readability. Net effect: **duplication is genuinely removed** (there is now exactly one place, not two, that
+defines how the encoder input is shaped — a real maintainability improvement matching this phase's own
+"materially clearer ownership" alternative success criterion) **but raw line count increased slightly**
+rather than decreased. No code was compressed, no line-wrapping was tightened, and no readability was
+sacrificed to chase the original estimate.
+
+## Test results
+
+- Both `EncoderInputContractTests` tests: pass against the original inline code (verified before applying the
+  extraction) and pass identically against the extracted code (verified after) — 4/4 in
+  `test_prediction_orchestrator.py` overall.
+- `test_trusted_explicit_section.py::LateAnnotationReclassificationTests` (the characterized late
+  plate-reclassification test from the readiness phase): **unchanged, not touched, still passes** — 10/10 in
+  that file.
+- Broader targeted set (16 files: orchestrator, trusted-explicit-section, canonical contract, HSS
+  missing-thickness, incomplete-angle, protected-exact-label, resolution-contract, label-ranker-evidence,
+  self-learning-safety, round-HSS-display, HSS-review-enrichment, HSS-completion, human-selections,
+  multimodal-pipeline, modular-multimodal-fusion, documents-api): **184 passed, 0 failed, 99 subtests
+  passed.**
+- Collection: **1311 tests** (1309 baseline + 2 new, justified characterization tests), **zero collection
+  errors**.
+- `import app`: succeeds, **15 routes** (unchanged).
+- Full backend suite: **1299 passed, 9 failed, 3 skipped, 349 subtests passed** (1311 collected total; 1297
+  baseline + 2 new tests = 1299 — confirmed by running the suite, not projected; 9 failures byte-identical by
+  name and message to the established pre-existing set — `test_a2_a7_human_review.py` × 8,
+  `test_repeated_detail_linker.py` × 1 — confirmed unrelated, neither imports anything touched by this
+  extraction). **Zero new failures.**
+- Drift fingerprints (`9da44ace...`, `76d66bc7...`, `a07d4220...`) confirmed identical before, during, and
+  after every test run.
+
+## Confirmation of behavior preservation
+
+Exact-match locking, HSS completion (missing-thickness detection, candidate constraint, review-forcing),
+LLM-supplied HSS completion (in `hss_review_enrichment.py`, untouched), human-review precedence (in
+`member_resolution.py`/`human_selections.py`, untouched), fusion/ranker diagnostic order, database
+verification timing, confidence/provenance construction, review-reason generation, output schemas, API
+contracts, and serialized structures are all unchanged — none of that code was touched; only the
+`encoder_registry.encode_all` input-dict *construction* (not its content, order, or the call site's position)
+was factored into a helper.
+
+**The late plate-reclassification behavior characterized in the readiness phase remains exactly as
+characterized — neither fixed, weakened, nor expanded in this phase.** It remains an open, unresolved
+semantic-risk item requiring its own dedicated investigation (see Recommended Next Phase).
+
+## Final SHA (implementation phase)
+
+See the final report for this phase's exact commit SHAs and push confirmation.
+
+## Recommended next phase
+
+Per this phase's own explicit instruction: **do not** default to proposing another mechanical extraction.
+Recommend a **dedicated semantic investigation** of the late plate/bent-plate annotation reclassification
+path characterized in the readiness phase (`LateAnnotationReclassificationTests`) — clearing a genuinely
+locked exact catalog match via a later annotation-taxonomy signal appears inconsistent with this repository's
+own authoritative exact-match rule ("a unique, valid exact OCR/normalized/canonical steel-section match locks
+immediately... may not override, demote, reinterpret, or send [it] to human review"), and deserves its own
+scoped investigation — real-world reachability, intended-vs-accidental status, and any product decision this
+implies — as a separate phase from any further mechanical orchestrator decomposition.
