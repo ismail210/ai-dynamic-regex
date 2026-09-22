@@ -15,29 +15,16 @@ complete — i.e. ``model_used_for_evaluation == model_fitted_on_allowed_trainin
 
 from __future__ import annotations
 
-import importlib.util
-import sys
 import unittest
-from pathlib import Path
 from unittest.mock import patch
 
 import pandas as pd
 
-BACKEND_DIR = Path(__file__).resolve().parent.parent
-SCRIPT_PATH = BACKEND_DIR / "scripts" / "evaluate_pipeline.py"
+from tests.helpers.script_loader import load_script_module
 
-
-def _load_evaluate_pipeline_module():
-    spec = importlib.util.spec_from_file_location(
-        "test_evaluate_pipeline_module", SCRIPT_PATH
-    )
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = module
-    spec.loader.exec_module(module)
-    return module
-
-
-evaluate_pipeline = _load_evaluate_pipeline_module()
+evaluate_pipeline = load_script_module(
+    "evaluate_pipeline.py", "test_evaluate_pipeline_module"
+)
 
 
 def _fake_approved_frame() -> pd.DataFrame:

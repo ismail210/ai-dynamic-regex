@@ -2,31 +2,11 @@
 
 from __future__ import annotations
 
-import importlib.util
-import sys
 import unittest
-from pathlib import Path
 
-
-def _load_resolver():
-    module_path = (
-        Path(__file__).resolve().parents[1]
-        / "services"
-        / "annotation"
-        / "anonymous_dimension_resolver.py"
-    )
-    spec = importlib.util.spec_from_file_location(
-        "anonymous_dimension_resolver_under_test", module_path
-    )
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = module
-    assert spec.loader is not None
-    spec.loader.exec_module(module)
-    return module
-
-
-_resolver = _load_resolver()
-resolve_anonymous_dimension = _resolver.resolve_anonymous_dimension
+from services.annotation.anonymous_dimension_resolver import (
+    resolve_anonymous_dimension,
+)
 
 
 def _evidence(**overrides):

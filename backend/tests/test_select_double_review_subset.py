@@ -6,16 +6,13 @@ touches the real, git-ignored pilot data.
 
 from __future__ import annotations
 
-import importlib.util
-import sys
 import unittest
-from pathlib import Path
 
-_MODULE_PATH = Path(__file__).resolve().parents[1] / "scripts" / "select_double_review_subset.py"
-_spec = importlib.util.spec_from_file_location("select_double_review_subset", _MODULE_PATH)
-selector = importlib.util.module_from_spec(_spec)
-sys.modules[_spec.name] = selector
-_spec.loader.exec_module(selector)  # type: ignore[union-attr]
+from tests.helpers.script_loader import load_script_module
+
+selector = load_script_module(
+    "select_double_review_subset.py", "select_double_review_subset"
+)
 
 
 def _row(group_id, project_id, page_number, label, page_type, candidate_count=10, leader=False):

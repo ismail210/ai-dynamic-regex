@@ -7,7 +7,6 @@ accept/reject/skip paths and the feature-flag gate.
 
 from __future__ import annotations
 
-import importlib.util
 import json
 import sys
 import unittest
@@ -21,12 +20,9 @@ from config import settings  # noqa: E402
 from services.ml_association import outcome_store  # noqa: E402
 from services.ml_association.candidate_dataset import build_label_groups  # noqa: E402
 from services.ml_association.review_export import build_export_payload  # noqa: E402
+from tests.helpers.script_loader import load_script_module  # noqa: E402
 
-_MODULE_PATH = Path(__file__).resolve().parents[1] / "scripts" / "import_review_decisions.py"
-_spec = importlib.util.spec_from_file_location("import_review_decisions", _MODULE_PATH)
-importer = importlib.util.module_from_spec(_spec)
-sys.modules[_spec.name] = importer
-_spec.loader.exec_module(importer)  # type: ignore[union-attr]
+importer = load_script_module("import_review_decisions.py", "import_review_decisions")
 
 
 def _token(token_id: str, text: str, page: int, x: float, y: float, w: float = 40, h: float = 12):
