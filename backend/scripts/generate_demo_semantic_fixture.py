@@ -42,7 +42,7 @@ from services.semantic_document_service import extract_abbreviation_note_rules  
 from services.semantic_preprocessor.extraction import build_text_primitives  # noqa: E402
 from services.semantic_preprocessor.models import TextPrimitive  # noqa: E402
 from services.semantic_preprocessor.pipeline import process_primitives  # noqa: E402
-from services.semantic_preprocessor.serialization import to_dict  # noqa: E402
+from services.semantic.serialization import to_dict  # noqa: E402
 
 DOCUMENT_ID = "doc_47dc7ef27f6e5d7e"  # GCDC Building 4 - ST1
 

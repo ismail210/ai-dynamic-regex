@@ -219,4 +219,4 @@ Obtain Mike’s Estima Grasshopper definition (`.gh` / `.ghx`) **and** a machine
 
 ## Appendix B — Experimental JSON
 
-See `backend/ghx_real_drawings_phase0d_evidence.json` — blocked stub only (empty `grasshopper_output`; no fabricated pairs).
+See `docs/reports/ghx/ghx_real_drawings_phase0d_evidence.json` — blocked stub only (empty `grasshopper_output`; no fabricated pairs).

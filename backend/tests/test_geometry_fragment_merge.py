@@ -14,19 +14,7 @@ from services.engineering.drawing_scale import (
 )
 from services.engineering.geometry_extractor import extract_geometry
 from services.engineering.geometry_normalizer import merge_collinear_fragments
-
-
-def _line(page: int, x0: float, y0: float, x1: float, y1: float, gid: str) -> dict:
-    return {
-        "geometry_id": gid,
-        "kind": "line",
-        "page_number": page,
-        "page": page,
-        "bbox": [min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1)],
-        "points": [[x0, y0], [x1, y1]],
-        "orientation": 0.0,
-        "length": abs(x1 - x0) + abs(y1 - y0),
-    }
+from tests.helpers.geometry_fixtures import line_fragment as _line
 
 
 class FragmentMergeTests(unittest.TestCase):

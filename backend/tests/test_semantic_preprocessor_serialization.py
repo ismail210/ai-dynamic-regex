@@ -6,7 +6,7 @@ import unittest
 
 from services.semantic_preprocessor.models import TextPrimitive
 from services.semantic_preprocessor.pipeline import process_primitives
-from services.semantic_preprocessor.serialization import to_dict, to_json
+from services.semantic.serialization import to_dict, to_json
 
 
 class RoundTripTests(unittest.TestCase):

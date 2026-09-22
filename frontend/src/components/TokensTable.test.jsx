@@ -225,3 +225,142 @@ describe("TokensTable — direct Review on drawing link", () => {
     );
   });
 });
+
+// --- Analysis/Results status-tag filter bar (task Sections 18-23) ---------
+
+function tagged(overrides = {}) {
+  const raw = overrides.raw || "W18X35";
+  return {
+    object_id: overrides.object_id || `obj_${Math.random()}`,
+    original_token: raw,
+    // Distinct from `raw` so the "corrected" column doesn't repeat the same
+    // text a second time in the row — keeps each fixture token
+    // unique-per-row for the getByText assertions below.
+    corrected_token: `${raw}_N`,
+    family: "W",
+    section: raw,
+    comparison: { match_status: overrides.match_status || "exact_match" },
+    needs_review: overrides.needs_review || false,
+    status_tags: overrides.status_tags || ["perfect_match"],
+    ...overrides,
+  };
+}
+
+const PERFECT = tagged({ object_id: "perfect_1", raw: "W18X35", status_tags: ["perfect_match"] });
+const FORMATTING = tagged({
+  object_id: "fmt_1",
+  raw: "w18x35",
+  match_status: "normalized_match",
+  status_tags: ["formatting_only"],
+});
+const PROJECT_RULE = tagged({
+  object_id: "rule_1",
+  raw: "HSS8X4",
+  match_status: "project_rule_resolved",
+  status_tags: ["project_rule"],
+});
+const NEEDS_REVIEW = tagged({
+  object_id: "review_1",
+  raw: "HSS8X8",
+  match_status: "missing_dimension_field",
+  needs_review: true,
+  status_tags: ["needs_review", "missing_dimension"],
+});
+
+const FILTER_TEST_ROWS = [PERFECT, FORMATTING, PROJECT_RULE, NEEDS_REVIEW];
+
+function present(text) {
+  return screen.queryAllByText(text).length > 0;
+}
+
+describe("TokensTable status filter bar", () => {
+  it("shows All by default and every row", () => {
+    renderTable(FILTER_TEST_ROWS);
+    expect(screen.getByText(`All (${FILTER_TEST_ROWS.length})`)).toBeInTheDocument();
+    expect(present("W18X35")).toBe(true);
+    expect(present("HSS8X4")).toBe(true);
+  });
+
+  it("computes chip counts from the full result set, not the visible page", () => {
+    renderTable(FILTER_TEST_ROWS);
+    expect(screen.getByText("Perfect (1)")).toBeInTheDocument();
+    expect(screen.getByText("Formatting (1)")).toBeInTheDocument();
+    expect(screen.getByText("Project rule (1)")).toBeInTheDocument();
+    expect(screen.getByText("Needs review (1)")).toBeInTheDocument();
+  });
+
+  it("filters to only Perfect rows when the Perfect chip is clicked", () => {
+    renderTable(FILTER_TEST_ROWS);
+    fireEvent.click(screen.getByText("Perfect (1)"));
+    expect(present("W18X35")).toBe(true);
+    expect(present("HSS8X4")).toBe(false);
+    expect(present("HSS8X8")).toBe(false);
+  });
+
+  it("'Needs attention' shows every non-perfect row", () => {
+    renderTable(FILTER_TEST_ROWS);
+    fireEvent.click(screen.getByText(/Needs attention/));
+    expect(present("W18X35")).toBe(false);
+    expect(present("w18x35")).toBe(true);
+    expect(present("HSS8X4")).toBe(true);
+    expect(present("HSS8X8")).toBe(true);
+  });
+
+  it("multi-select combines chips with OR", () => {
+    renderTable(FILTER_TEST_ROWS);
+    fireEvent.click(screen.getByText("Project rule (1)"));
+    fireEvent.click(screen.getByText(/^Needs review/));
+    expect(present("HSS8X4")).toBe(true);
+    expect(present("HSS8X8")).toBe(true);
+    expect(present("W18X35")).toBe(false);
+    expect(present("w18x35")).toBe(false);
+  });
+
+  it("Clear filters returns to All", () => {
+    renderTable(FILTER_TEST_ROWS);
+    fireEvent.click(screen.getByText("Perfect (1)"));
+    expect(present("HSS8X4")).toBe(false);
+    fireEvent.click(screen.getByText("Clear filters"));
+    expect(present("HSS8X4")).toBe(true);
+    expect(present("W18X35")).toBe(true);
+  });
+
+  it("combines the text search with the active filter using AND", () => {
+    renderTable(FILTER_TEST_ROWS);
+    fireEvent.click(screen.getByText(/Needs attention/));
+    fireEvent.change(screen.getByPlaceholderText("Search tokens…"), {
+      target: { value: "HSS8X4" },
+    });
+    expect(present("HSS8X4")).toBe(true);
+    expect(present("HSS8X8")).toBe(false);
+  });
+
+  it("shows an empty state when no row matches the active filters", () => {
+    renderTable([PERFECT]);
+    fireEvent.click(screen.getByText(/Needs attention/));
+    expect(screen.getByText("No results match the current filters")).toBeInTheDocument();
+  });
+
+  it("renders the HSS8X4 project-rule row with the Project Rule badge, not Missing Dimension/FAIL", () => {
+    renderTable([PROJECT_RULE]);
+    expect(screen.getByText("Project Rule")).toBeInTheDocument();
+    expect(screen.queryByText(/Missing Dimension/)).not.toBeInTheDocument();
+  });
+
+  it("shows the LLM-Assisted prefix only when the row's status_tags include llm_assisted", () => {
+    const llmRow = tagged({
+      object_id: "llm_1",
+      raw: "HSS8X4",
+      match_status: "project_rule_resolved",
+      status_tags: ["project_rule", "llm_assisted"],
+    });
+    renderTable([llmRow]);
+    expect(screen.getByText("LLM-Assisted · Project Rule")).toBeInTheDocument();
+  });
+
+  it("never shows a review control (candidate picker) for a verified, resolved project rule", () => {
+    renderTable([PROJECT_RULE]);
+    expect(screen.queryByText(/Select section/)).not.toBeInTheDocument();
+    expect(screen.queryByText("Review required")).not.toBeInTheDocument();
+  });
+});

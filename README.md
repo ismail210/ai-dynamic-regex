@@ -63,4 +63,9 @@ Before deployment, set the public CORS origin and ensure
 - [Training and continuous learning](docs/TRAINING.md)
 - [API](docs/API.md)
 - [Frontend](docs/FRONTEND.md)
+- [Engineering validation](docs/ENGINEERING_VALIDATION.md)
 - [Production deployment](docs/DEPLOYMENT.md)
+- [Unified semantic contract (schema v2.0)](docs/architecture/unified_semantic_contract.md)
+
+See [`docs/README.md`](docs/README.md) for the full documentation index (reports, research, decisions, and
+archive material).

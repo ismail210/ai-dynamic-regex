@@ -5,7 +5,8 @@ human review → continuous learning → takeoff generation for structural-steel
 
 Authoritative docs (read on demand, do not copy their content here):
 `docs/ARCHITECTURE.md` · `docs/FOLDERS.md` · `docs/SERVICES.md` · `docs/TRAINING.md` ·
-`docs/API.md` · `docs/FRONTEND.md` · `docs/ENGINEERING_VALIDATION.md` · `README.md`.
+`docs/API.md` · `docs/FRONTEND.md` · `docs/ENGINEERING_VALIDATION.md` ·
+`docs/architecture/unified_semantic_contract.md` · `README.md`.
 
 ## Architecture invariants (do not break without explicit intent)
 

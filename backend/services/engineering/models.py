@@ -4,9 +4,9 @@ Shared dataclasses and typed models for the engineering validation domain.
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, List, Optional
 
 
 class GeometryKind(str, Enum):
@@ -67,18 +67,6 @@ class RelationKind(str, Enum):
     SAME_TAG = "same_tag"
 
 
-class MatchStatus(str, Enum):
-    PERFECT_MATCH = "perfect_match"
-    MISSING_LABEL = "missing_label"
-    WRONG_LABEL = "wrong_label"
-    MISSING_GEOMETRY = "missing_geometry"
-    EXTRA_GEOMETRY = "extra_geometry"
-    EXTRA_LABEL = "extra_label"
-    COUNT_MISMATCH = "count_mismatch"
-    LENGTH_MISMATCH = "length_mismatch"
-    WIDTH_MISMATCH = "width_mismatch"
-
-
 def to_dict(obj: Any) -> Any:
     """Recursively convert dataclasses / enums to JSON-safe structures."""
 
@@ -124,43 +112,3 @@ class BBox:
     @property
     def center(self) -> List[float]:
         return [round((self.x0 + self.x1) / 2.0, 2), round((self.y0 + self.y1) / 2.0, 2)]
-
-
-@dataclass
-class ObjectConfidence:
-    text_confidence: float = 0.0
-    geometry_confidence: float = 0.0
-    matching_confidence: float = 0.0
-    overall: float = 0.0
-    level: str = "Low"
-    reasons: List[str] = field(default_factory=list)
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "text_confidence": round(self.text_confidence, 4),
-            "geometry_confidence": round(self.geometry_confidence, 4),
-            "matching_confidence": round(self.matching_confidence, 4),
-            "overall": round(self.overall, 4),
-            "level": self.level,
-            "reasons": list(self.reasons),
-        }
-
-
-@dataclass
-class Suggestion:
-    object_id: str
-    expected_label: str
-    expected_type: str
-    confidence: float
-    reason: str
-    features: Dict[str, Any] = field(default_factory=dict)
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "object_id": self.object_id,
-            "expected_label": self.expected_label,
-            "expected_type": self.expected_type,
-            "confidence": round(self.confidence, 4),
-            "reason": self.reason,
-            "features": self.features,
-        }

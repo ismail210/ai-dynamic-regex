@@ -293,6 +293,29 @@ class Settings:
         .lower()
         in ("1", "true", "yes", "on")
     )
+    # GHX-inspired geometry-association SHADOW layer (Phase B/C of the
+    # additive geometry-association work -- see
+    # services.semantic_preprocessor.geometry_route_association). Enabling
+    # this only allows the shadow engine to RUN and be compared against the
+    # existing association; it never changes takeoff output on its own.
+    # Promotion is a SEPARATE flag, default False, and is not wired to
+    # anything yet -- there is no production code path that reads it.
+    ghx_inspired_association_enabled: bool = field(
+        default_factory=lambda: os.getenv(
+            "GHX_INSPIRED_ASSOCIATION_ENABLED", "false"
+        )
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
+    ghx_inspired_association_promote: bool = field(
+        default_factory=lambda: os.getenv(
+            "GHX_INSPIRED_ASSOCIATION_PROMOTE", "false"
+        )
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
     legend_llm_provider: str = field(
         default_factory=lambda: os.getenv(
             "LEGEND_LLM_PROVIDER", "ollama"

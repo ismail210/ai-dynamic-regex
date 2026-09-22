@@ -32,19 +32,15 @@ _QTY_RE = re.compile(
 _TRAILING_QTY_RE = re.compile(r"\b(\d{1,3})\s*$")
 
 
-def _norm(text: str) -> str:
-    return normalize_engineering_token(text)
-
-
 def _existing_shapes(tokens: Iterable[dict]) -> Set[str]:
     shapes: Set[str] = set()
     for token in tokens:
         text = str(token.get("text") or token.get("raw_text") or "").strip()
         if not text:
             continue
-        shapes.add(_norm(text))
+        shapes.add(normalize_engineering_token(text))
         for match in _SHAPE_TOKEN_RE.finditer(text):
-            shapes.add(_norm(match.group(0)))
+            shapes.add(normalize_engineering_token(match.group(0)))
     return shapes
 
 
@@ -52,7 +48,7 @@ def _extract_shape(line: str) -> Optional[str]:
     match = _SHAPE_TOKEN_RE.search(line)
     if not match:
         return None
-    shape = _norm(match.group(0))
+    shape = normalize_engineering_token(match.group(0))
     if not parse_section(shape):
         return None
     return shape

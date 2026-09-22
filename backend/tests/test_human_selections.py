@@ -9,8 +9,8 @@ touching original_token/normalized_text -- the behavior "refreshing the
 results page must still show the human-selected section" depends on.
 
 Isolates config.settings.human_selections_path to a temp file for every
-test (same pattern as tests.test_documents_api.IsolatedApiTestCase) so this
-suite never writes to real repository data.
+test (same pattern as tests.helpers.isolated_api.IsolatedApiTestCase) so
+this suite never writes to real repository data.
 """
 
 from __future__ import annotations

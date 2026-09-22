@@ -35,10 +35,8 @@ from scripts.run_june_phase3_validation import (  # noqa: E402
     _verify_flags,
 )
 from services.artifact_store import read_artifact  # noqa: E402
-from services.prediction.semantic_contract import (  # noqa: E402
-    SemanticOperationKind,
-    project_semantic_annotation,
-)
+from services.semantic.models import OperationKind as SemanticOperationKind  # noqa: E402
+from services.semantic.projection import project_semantic_annotation  # noqa: E402
 
 
 def main() -> int:

@@ -138,10 +138,29 @@ def _drawing_ref_hints(text: str) -> List[str]:
     return ordered
 
 
-def _span_rotation(span: dict) -> float:
-    """Derive rotation degrees from span direction vector when present."""
+def _span_rotation(span: dict, *, line_dir: Optional[Sequence[float]] = None) -> float:
+    """Derive rotation degrees from the text direction vector.
 
-    direction = span.get("dir")
+    PyMuPDF's ``get_text("dict")`` puts the ``(dx, dy)`` direction vector on
+    the enclosing LINE object, never on the individual span -- verified
+    directly against real extracted PDFs (every span dict lacks "dir"; every
+    line dict has it as a 2-tuple). The previous version of this function
+    read ``span.get("dir")``, which is always absent, so it always fell
+    through to the 0.0 default -- silently and permanently, for every span,
+    in every document. ``line_dir`` is the caller-supplied, authoritative
+    source; ``span.get("dir")`` is still tried first only in case a future
+    PyMuPDF version starts populating it directly on spans too.
+
+    Returns 0.0 (the pre-existing safe default) when no direction is
+    available at all -- this function does not fabricate an orientation.
+    Callers that need to distinguish "measured as truly horizontal" from
+    "direction unavailable" should treat an exact 0.0/180.0 reading as
+    unreliable-by-default rather than confidently horizontal (see
+    ``services.semantic_preprocessor.geometry_route_association.is_text_orientation_reliable``,
+    which already implements exactly that rule for this reason).
+    """
+
+    direction = span.get("dir") or line_dir
     if not direction or len(direction) < 2:
         return 0.0
     dx, dy = float(direction[0]), float(direction[1])
@@ -217,7 +236,7 @@ def _extract_page_text_objects(
                     continue
                 span_bbox = _round_bbox(span.get("bbox") or line_bbox)
                 size = float(span.get("size") or 0.0)
-                rot = _span_rotation(span)
+                rot = _span_rotation(span, line_dir=line.get("dir"))
                 font_sizes.append(size)
                 rotations.append(rot)
                 line_text_parts.append(span_text)

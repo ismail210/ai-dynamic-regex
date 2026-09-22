@@ -19,7 +19,7 @@ from pathlib import Path
 
 import fitz
 
-from tests.test_documents_api import IsolatedApiTestCase
+from tests.helpers.isolated_api import IsolatedApiTestCase
 
 
 def _hss_drawing(path: Path) -> None:

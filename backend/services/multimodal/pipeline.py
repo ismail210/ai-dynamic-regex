@@ -2,22 +2,9 @@
 
 from __future__ import annotations
 
-import os
 import time
 from pathlib import Path
 from typing import Any, Dict, Optional
-
-
-def _ablate(name: str) -> bool:
-    """Evaluation-harness modality ablation (see feature_providers._ablation_active).
-    ``ABLATE_GEOMETRY`` / ``ABLATE_GRAPH`` also skip the geometry/graph-derived
-    synthetic prediction tokens and embedding enrichment here, so the modality
-    is genuinely absent from the decision pipeline, not just down-weighted.
-    The structural graph itself is still built from geometry topology because
-    the deterministic rule engine consumes it -- that residual coupling is
-    documented in the ablation report."""
-
-    return os.getenv(name, "").strip().lower() in ("1", "true", "yes", "on")
 
 from config import settings
 from services.artifact_store import prune_documents, write_artifact
@@ -42,6 +29,7 @@ from services.engineering.shadow_page_gate import (
 from services.engineering.structural_graph import build_structural_graph
 from services.extraction_engine import extract_engineering_document
 from services.multimodal.duplicate_detector import merge_duplicate_predictions
+from services.multimodal.feature_providers import _ablation_active as _ablate
 from services.multimodal.fusion_engine import fusion_engine
 from services.multimodal.geometry_ai import (
     enrich_geometry_embeddings,

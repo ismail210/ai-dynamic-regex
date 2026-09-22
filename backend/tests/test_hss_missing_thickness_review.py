@@ -157,7 +157,7 @@ class HumanSelectionTests(unittest.TestCase):
     approval counter and can trigger a real retrain.
 
     Redirects engineering_corrections_path to a temp file for the duration
-    of the test (same pattern as tests.test_documents_api
+    of the test (same pattern as tests.helpers.isolated_api
     .IsolatedApiTestCase) so this never writes to the real, 900+-entry
     production training/engineering_corrections.jsonl.
     """

@@ -42,3 +42,22 @@ See `docs/TRAINING.md` first.
 - `label_reconstruction` and `ml_association` stay shadow-only — not wired into production.
 - Compare a claimed improvement against the correct existing baseline with the same holdout and
   metric definitions; run `ml-audit` before declaring it real.
+
+## Domain-specific accuracy rules
+
+- **Exact semantic match**: when normalized OCR/text uniquely and exactly matches one valid AISC
+  section designation, that label is locked. Geometry, graph context, ranking, and legend
+  evidence may *associate* it with geometry but must never demote or replace an exact match.
+  Only use completion/ranking when the label is genuinely incomplete or ambiguous.
+- **Baseline before complexity**: a deterministic/rules baseline must exist and be beaten before
+  tabular ML is justified, before graph features are justified, before a GNN/DL model is
+  justified. Complexity earns its place with a measured gain over the step before it, not by
+  being technically more sophisticated.
+- **Report by slice, not just aggregate**: extraction accuracy, semantic label accuracy, geometry
+  association accuracy, and quantity/takeoff accuracy are separate metrics — do not collapse
+  them into one number. Break results down by project, section family, and error class; a good
+  global accuracy can hide a minority-family failure (see `ml-audit` step 13 for the
+  effect-size check this feeds).
+- **Reproducibility record**: for a meaningful training/eval experiment, record dataset version,
+  split definition, random seed, feature schema version, model params, pipeline version, and the
+  exact evaluation command — not just the resulting number.

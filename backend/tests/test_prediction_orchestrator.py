@@ -7,7 +7,6 @@ from unittest.mock import patch
 
 from services.prediction.contract import to_token_prediction
 from services.prediction.orchestrator import predict_token
-from services.engineering.suggestion_engine import suggest_for_text_node
 
 
 class ContractSerializerTests(unittest.TestCase):
@@ -104,27 +103,6 @@ class OrchestratorPolicyTests(unittest.TestCase):
             result["explanation"]["prediction"]["section"], "W18X35"
         )
         self.assertFalse(result["database_decides_prediction"])
-
-
-class SuggestionEnginePolicyTests(unittest.TestCase):
-    def test_suggestion_uses_ai_not_database_shape(self):
-        with patch(
-            "services.prediction.orchestrator.predict_token",
-            return_value={
-                "section": "W18X35",
-                "family": "W",
-                "prediction": "W18X35",
-                "confidence": {"overall": 0.88, "level": "High"},
-                "database_match": True,
-            },
-        ):
-            suggestion = suggest_for_text_node(
-                {"text": "W18X35", "node_id": "n1", "source_id": "s1"},
-                graph={"edges": []},
-            )
-        self.assertEqual(suggestion.expected_label, "W18X35")
-        self.assertIn("AI prediction", suggestion.reason)
-        self.assertNotIn("Exact AISC database match", suggestion.reason)
 
 
 if __name__ == "__main__":

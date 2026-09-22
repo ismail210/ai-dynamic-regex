@@ -37,6 +37,7 @@ from services.multimodal.feature_providers import (
 from services.multimodal.modular_fusion import FeatureFusion, unified_multimodal_fusion
 from services.takeoff.ground_truth_excel import parse_ground_truth_excel
 from services.takeoff.paired_dataset_builder import list_training_pairs
+from services.takeoff.takeoff_validation import normalize_takeoff_label as _norm
 
 
 logger = logging.getLogger("takeoff.neural_dataset")
@@ -46,9 +47,6 @@ GEOMETRY_DIR = NEURAL_DATASET_DIR / "geometry"
 GRAPH_DIR = NEURAL_DATASET_DIR / "graph"
 FUSION_DIR = NEURAL_DATASET_DIR / "fusion"
 CROPS_DIR = GEOMETRY_DIR / "crops"
-
-def _norm(token: str) -> str:
-    return str(token or "").upper().replace(" ", "").replace("-", "")
 
 
 def _family(section: str) -> str:

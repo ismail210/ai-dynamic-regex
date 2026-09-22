@@ -1,7 +1,8 @@
 """HTTP-level tests for the semantic preprocessor API (routers/semantic.py).
 
-Reuses ``IsolatedApiTestCase`` from ``test_documents_api`` so this suite
-never touches real repository data (uploads/artifacts/document registry).
+Reuses ``IsolatedApiTestCase`` from ``tests.helpers.isolated_api`` so this
+suite never touches real repository data (uploads/artifacts/document
+registry).
 """
 from __future__ import annotations
 
@@ -9,7 +10,7 @@ import fitz
 
 import config
 from services.document_registry import register_document
-from tests.test_documents_api import IsolatedApiTestCase
+from tests.helpers.isolated_api import IsolatedApiTestCase
 
 
 def _demo_drawing(path) -> None:

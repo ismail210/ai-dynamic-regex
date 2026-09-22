@@ -14,10 +14,6 @@ from services.engineering.correction_dataset import build_training_sample, recor
 from services.engineering.excel_loader import load_engineering_excel
 from services.engineering.geometry_extractor import extract_geometry
 from services.engineering.graph_builder import build_graph
-from services.engineering.matching_engine import match_extraction_to_excel
-from services.engineering.object_confidence import build_object_confidences, score_object_bundle
-from services.engineering.suggestion_engine import generate_suggestions
-from services.engineering.takeoff_interface import build_takeoff_preview
 from services.engineering.validation_engine import validate_extraction
 from services.pdf_parser import extract_document_structure, extract_text_from_pdf
 
@@ -104,7 +100,7 @@ class EngineeringPipelineUnitTests(unittest.TestCase):
         self.assertIn("nodes", self.graph)
         self.assertIn("edges", self.graph)
 
-    def test_excel_loader_and_matching(self) -> None:
+    def test_excel_loader(self) -> None:
         excel_path = Path(self.tmp.name) / "schedule.xlsx"
         import pandas as pd
 
@@ -119,52 +115,14 @@ class EngineeringPipelineUnitTests(unittest.TestCase):
         self.assertEqual(excel_json["item_count"], 2)
         self.assertIn("W18X35", excel_json["summary"]["by_shape"])
 
-        match = match_extraction_to_excel(
-            document_structure=self.document,
-            geometry=self.geometry,
-            graph=self.graph,
-            excel_json=excel_json,
-        )
-        self.assertIn("findings", match)
-        self.assertIn("summary", match)
-
-    def test_validation_confidence_suggestions_takeoff(self) -> None:
-        match = match_extraction_to_excel(
-            document_structure=self.document,
-            geometry=self.geometry,
-            graph=self.graph,
-            excel_json={"items": [], "summary": {}},
-        )
-        confidences = build_object_confidences(
-            document_structure=self.document,
-            geometry=self.geometry,
-            graph=self.graph,
-            match_report=match,
-        )
-        self.assertGreater(len(confidences), 0)
+    def test_validation_report(self) -> None:
         report = validate_extraction(
             document_structure=self.document,
             geometry=self.geometry,
             graph=self.graph,
-            object_confidences=confidences,
         )
         self.assertIn("issues", report)
         self.assertIn("quality_score", report)
-
-        suggestions = generate_suggestions(
-            document_structure=self.document,
-            geometry=self.geometry,
-            graph=self.graph,
-            match_report=match,
-        )
-        self.assertIn("suggestions", suggestions)
-
-        preview = build_takeoff_preview(graph=self.graph)
-        self.assertEqual(preview["status"], "preview_only")
-        self.assertFalse(preview["export_ready"])
-
-        bundle = score_object_bundle(0.8, 0.7, 0.6)
-        self.assertIn(bundle.level, {"High", "Medium", "Low"})
 
     def test_correction_sample(self) -> None:
         sample = build_training_sample(

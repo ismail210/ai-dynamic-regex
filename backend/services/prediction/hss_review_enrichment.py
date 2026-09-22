@@ -31,6 +31,20 @@ def enrich_missing_thickness_hss_predictions(
         if item.get("human_selected_section") or item.get("decision_source") == "human_review":
             enriched.append(item)
             continue
+        # A verified project-rule resolution (services.engineering.
+        # project_rule_resolver, applied by staged_pipeline._apply_project_
+        # rule_resolution) already fully resolved this ambiguity -- this
+        # function runs BEFORE that overlay on a fresh analysis, but
+        # analysis_response() also re-projects an already-resolved cached
+        # result through here a second time. Without this check, a resolved
+        # prediction's now-empty candidate_sections looks exactly like an
+        # unenriched one and gets re-derived from raw/normalized text,
+        # silently reverting the resolution back to "missing thickness".
+        if item.get("project_rule_resolution") or (
+            item.get("comparison") or {}
+        ).get("match_status") == "project_rule_resolved":
+            enriched.append(item)
+            continue
 
         existing = item.get("candidate_sections") or []
         if len(existing) > 1:

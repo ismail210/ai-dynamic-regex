@@ -182,9 +182,15 @@ shapes and always returns today's `SemanticDocument`:
 
 Nothing downstream ever sees the old shapes — conversion happens once, on
 load. `services/prediction/semantic_contract.py` and
-`services/semantic_preprocessor/models.py` are both re-export shims (one
-definition, two import paths); `services/semantic_preprocessor/serialization.py`
-delegates to `services/semantic/serialization.py`.
+`services/semantic_preprocessor/models.py` each still re-export a subset of
+this module's symbols for a few remaining callers, but neither is a pure
+shim: `semantic_contract.py` also holds the `example_*` schema-demonstration
+functions, and `semantic_preprocessor/models.py` also holds `TextPrimitive`,
+an extraction-stage type this module never had an equivalent for.
+`services/semantic_preprocessor/serialization.py` **was** a pure re-export
+delegating to `services/semantic/serialization.py` — it has been removed
+(2026-09-22 codebase-refactor cleanup); import `to_dict`/`to_json` from
+`services/semantic/serialization.py` directly.
 
 `services/prediction/drawing_semantics.py`'s sidecar schema bumped
 `drawing_semantics_v1` → `drawing_semantics_v2` (field names changed:

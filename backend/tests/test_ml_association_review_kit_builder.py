@@ -10,16 +10,13 @@ panel is present but not shown by default.
 
 from __future__ import annotations
 
-import importlib.util
-import sys
 import unittest
-from pathlib import Path
 
-_MODULE_PATH = Path(__file__).resolve().parents[1] / "scripts" / "build_ml_association_review_kit.py"
-_spec = importlib.util.spec_from_file_location("build_ml_association_review_kit", _MODULE_PATH)
-kit = importlib.util.module_from_spec(_spec)
-sys.modules[_spec.name] = kit
-_spec.loader.exec_module(kit)  # type: ignore[union-attr]
+from tests.helpers.script_loader import load_script_module
+
+kit = load_script_module(
+    "build_ml_association_review_kit.py", "build_ml_association_review_kit"
+)
 
 
 def _synthetic_payload():

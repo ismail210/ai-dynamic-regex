@@ -1,8 +1,8 @@
 """HTTP-level tests for the repair-trace review flow (Accept / Reject /
 Choose alternate) added to routers/semantic.py's review-action endpoint.
 
-Reuses ``IsolatedApiTestCase`` (see test_semantic_api.py) so this suite
-never touches real repository data.
+Reuses ``IsolatedApiTestCase`` (see tests/helpers/isolated_api.py) so this
+suite never touches real repository data.
 """
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ import fitz
 
 import config
 from services.document_registry import register_document
-from tests.test_documents_api import IsolatedApiTestCase
+from tests.helpers.isolated_api import IsolatedApiTestCase
 
 
 def _drawing_with_corrupted_label(path) -> None:

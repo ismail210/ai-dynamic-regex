@@ -12,7 +12,7 @@ from services.semantic.corrected_pdf import (
     corrected_pdf_path,
     list_accepted_text_corrections,
 )
-from tests.test_documents_api import IsolatedApiTestCase
+from tests.helpers.isolated_api import IsolatedApiTestCase
 
 
 def _drawing(path) -> None:
