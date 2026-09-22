@@ -5,6 +5,7 @@ from __future__ import annotations
 import unittest
 from unittest.mock import patch
 
+from services.multimodal.encoder_registry import encoder_registry
 from services.prediction.contract import to_token_prediction
 from services.prediction.orchestrator import predict_token
 
@@ -103,6 +104,89 @@ class OrchestratorPolicyTests(unittest.TestCase):
             result["explanation"]["prediction"]["section"], "W18X35"
         )
         self.assertFalse(result["database_decides_prediction"])
+
+
+class EncoderInputContractTests(unittest.TestCase):
+    """Locks the exact encoder_registry.encode_all() input contract before
+    extracting its construction into orchestrator._build_encoder_input --
+    see docs/audits/codebase-refactor/orchestrator-decomposition-readiness.md.
+    Spies on the real encode_all (via ``wraps``) so behavior is unaffected;
+    only the argument it was called with is captured."""
+
+    def _capture_encoder_input(self, token: str) -> dict:
+        captured: list = []
+        real_encode_all = encoder_registry.encode_all
+
+        def spy(contexts):
+            captured.append(contexts)
+            return real_encode_all(contexts)
+
+        with patch.object(encoder_registry, "encode_all", side_effect=spy):
+            predict_token(token, queue_unknown=False, persist_learning=False)
+
+        self.assertEqual(len(captured), 1, "encode_all must be called exactly once")
+        return captured[0]
+
+    def test_exact_match_branch_contract(self):
+        contexts = self._capture_encoder_input("W18X35")
+
+        self.assertEqual(
+            list(contexts.keys()),
+            ["text", "ocr", "layout", "geometry", "graph", "engineering_rules"],
+        )
+        text = contexts["text"]
+        self.assertEqual(
+            list(text.keys()),
+            ["token", "model_probability", "extraction_confidence",
+             "regex_confidence", "candidates"],
+        )
+        self.assertEqual(text["token"], "W18X35")
+        self.assertEqual(text["extraction_confidence"], 0.5)
+        self.assertEqual(text["regex_confidence"], 0.0)
+        self.assertTrue(text["candidates"])
+        self.assertEqual(text["candidates"][0].shape, "W18X35")
+        # model_probability is the top exact candidate's own confidence.
+        self.assertEqual(
+            text["model_probability"], float(text["candidates"][0].confidence)
+        )
+
+        self.assertEqual(
+            contexts["ocr"],
+            {
+                "original": "W18X35",
+                "corrected": "W18X35",
+                "confidence": 0.5,
+                "repairs": [],
+            },
+        )
+        self.assertEqual(
+            list(contexts["layout"].keys()),
+            ["bbox", "page", "reading_order", "font_size", "rotation",
+             "member_role", "neighbors"],
+        )
+        self.assertIsNone(contexts["layout"]["bbox"])
+        self.assertEqual(contexts["layout"]["neighbors"], [])
+        self.assertEqual(list(contexts["geometry"].keys()), ["geometry"])
+        self.assertEqual(list(contexts["graph"].keys()), ["graph"])
+        self.assertEqual(list(contexts["engineering_rules"].keys()), ["rules"])
+
+    def test_plate_annotation_branch_contract(self):
+        contexts = self._capture_encoder_input("PL 1/2 X 8")
+
+        self.assertEqual(
+            list(contexts.keys()),
+            ["text", "ocr", "layout", "geometry", "graph", "engineering_rules"],
+        )
+        self.assertEqual(
+            contexts["text"],
+            {
+                "token": "PL1/2X8",
+                "model_probability": 0.0,
+                "extraction_confidence": 0.5,
+                "regex_confidence": 0.0,
+                "candidates": [],
+            },
+        )
 
 
 if __name__ == "__main__":
