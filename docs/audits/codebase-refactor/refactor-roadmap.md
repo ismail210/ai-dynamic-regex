@@ -223,6 +223,29 @@ from any future product change (none proposed here).
 - **Recommended commit boundaries**: no new commits; this is a CI/manual verification pass over the
   accumulated Phase 1-9 commits before requesting final review.
 
+### Phase 11 — Pre-orchestrator utility/config consolidation — **DONE**
+- **Scope**: final consolidation pass before any `prediction/orchestrator.py` decomposition work — genuinely
+  duplicated utilities/parsing/formatting/configuration-reading, plus the dynamic test-loader count from
+  `unused-candidates.md` §9.
+- **Actual result**: full pass at `pre-orchestrator-consolidation-review.md`. All prior recorded opportunities
+  were already closed (nothing left to re-evaluate); a fresh scoped search found exactly 3 genuine production
+  duplications, all implemented: a byte-identical boolean env-var parser
+  (`multimodal/feature_providers.py::_ablation_active` / `multimodal/pipeline.py::_ablate`, consolidated onto
+  `feature_providers.py`), two trivial wrapper functions around an already-directly-imported canonical
+  normalizer (`multimodal/schedule_ingestion.py`/`spatial_association.py::_norm`, both removed), and a
+  byte-identical label-normalization helper duplicated across the runtime/training boundary
+  (`takeoff/takeoff_validation.py`/`training_pipeline/neural_dataset.py::_norm`, consolidated onto a new
+  public `takeoff_validation.normalize_takeoff_label`). The dynamic-test-loader count was corrected from the
+  audit's claimed 7 to a verified 5; one (`test_anonymous_dimension_resolver_context.py`) had no isolation
+  purpose and was migrated to a normal package import; the other 4 (all loading non-package `scripts/*.py`
+  files, which genuinely have no other way to be imported) were consolidated onto one new shared
+  `tests/helpers/script_loader.py` helper. 9 new characterization tests added (zero prior coverage existed
+  for either consolidated production function). Net: production LOC **-18**, test LOC **+42** (net new
+  regression coverage, not organizational bloat). Targeted (224/1/0/40-subtests) and full suite both verified
+  unchanged in known-failure set; all 3 preserved training-drift files' SHA256 fingerprints confirmed
+  unchanged throughout.
+- **Risk level**: realized as low — zero behavior change, zero public API/schema/route/env-var change.
+
 ---
 
 ## Cross-phase notes

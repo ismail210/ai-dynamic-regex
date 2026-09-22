@@ -325,7 +325,18 @@ were audited normally); the 3 dirty auxiliary worktrees (`ai-dynamic-regex`, `ai
   terminated; the unrelated, legitimately-running `pyright-langserver` IDE processes were left untouched.
   Commits: `test(validation): restore ground-truth evaluator test collection`,
   `docs(refactor): record generic module reachability results`.
-- **Phases 9-10** — not started.
+- **Phase 11 (pre-orchestrator utility/config consolidation)** — DONE. Full pass at
+  `pre-orchestrator-consolidation-review.md`. All prior recorded consolidation opportunities were already
+  closed; a fresh scoped search found and implemented 3 genuine production duplications (a boolean
+  env-var-parsing helper, two trivial normalization wrappers, and a runtime/training-boundary label
+  normalizer — each with a clear canonical owner and, where none existed before, new characterization tests)
+  plus a dynamic-test-loader cleanup (corrected the audit's "7 loaders" claim to a verified 5; migrated 1 to
+  a normal import, consolidated the other 4 onto one new shared `tests/helpers/script_loader.py` helper).
+  **Production LOC -18, test LOC +42** (real new regression coverage, not organizational). Zero behavior,
+  API, schema, route, or environment-variable changes. Targeted (224/1/0/40-subtests) and full suite verified
+  unchanged in known-failure set; drift fingerprints confirmed unchanged throughout.
+- **Phases 9-10** — Phase 9 (unrelated `.env.example`/`skills-lock.json` metadata task) and Phase 10 (final
+  deployment-verification gate) not started.
 
 ---
 
