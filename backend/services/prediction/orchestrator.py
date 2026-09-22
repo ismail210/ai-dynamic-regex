@@ -378,6 +378,13 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         if settings.document_prior_enabled
         else {}
     )
+    if settings.schedule_mark_map_enabled and not protected_exact_section:
+        from services.engineering.schedule_grid import resolve_schedule_mark
+
+        mapped = resolve_schedule_mark(normalized or raw_text, document)
+        if mapped:
+            protected_exact_section = mapped
+            token_record["schedule_mark_resolved"] = mapped
     confirmed_plate_type = _early_confirmed_plate_type(
         token_record,
         geometry=geometry,
@@ -450,6 +457,8 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     incomplete_angle_needs_review = False
     non_catalog_angle_needs_review = False
     angle_catalog_abstain = False
+    unresolved_schedule_mark = False
+    block_fuzzy_catalog = False
 
     if skip_section_fusion:
         provisional_rules = evaluate_engineering_rules(
@@ -547,6 +556,15 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         angle_catalog_abstain = bool(
             incomplete_angle_needs_review or non_catalog_angle_needs_review
         )
+        from services.engineering.schedule_grid import is_bare_schedule_mark
+
+        unresolved_schedule_mark = bool(
+            is_bare_schedule_mark(normalized or raw_text)
+            and not protected_exact_section
+        )
+        block_fuzzy_catalog = bool(
+            angle_catalog_abstain or unresolved_schedule_mark
+        )
 
         family_prediction = predict_with_confidence(normalized)
         family_label = family_prediction.label
@@ -577,9 +595,10 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
 
         # Single exact-section AI call with multimodal rerank (Priority 1).
         exact_candidates = []
-        if angle_catalog_abstain:
+        if block_fuzzy_catalog:
             # Do not run fuzzy catalog retrieval — it invents thickness /
-            # nearest-neighbor catalog rows for incomplete or non-catalog L/2L.
+            # nearest-neighbor catalog rows for incomplete or non-catalog L/2L
+            # and for schedule marks (L1, C1) that have no printed SIZE.
             exact_candidates = []
         elif hss_completions:
             exact_candidates = predict_exact_sections_for_labels(
@@ -607,7 +626,7 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
             )
         if (
             not exact_candidates
-            and not angle_catalog_abstain
+            and not block_fuzzy_catalog
             and _is_structural_family(family_label)
         ):
             exact_candidates = predict_exact_sections(
@@ -621,7 +640,7 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         if (
             document_prior.get("enabled")
             and not protected_exact_section
-            and not angle_catalog_abstain
+            and not block_fuzzy_catalog
         ):
             exact_candidates = apply_prior_to_candidates(
                 exact_candidates,
@@ -632,10 +651,10 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         expected_family = (
             str(family_label) if _is_structural_family(family_label) else None
         )
-        if angle_catalog_abstain:
+        if block_fuzzy_catalog:
             # Corrections/search_similar can inject complete catalog angles
             # (or even other families). Keep the printed incomplete/non-catalog
-            # core only.
+            # core only. Unresolved schedule marks invent no size at all.
             corrections = []
         else:
             corrections = suggest_token_corrections(
@@ -699,7 +718,7 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         if (
             document_prior.get("enabled")
             and not protected_exact_section
-            and not angle_catalog_abstain
+            and not block_fuzzy_catalog
         ):
             fusion_candidates = apply_prior_to_candidates(
                 fusion_candidates,
@@ -810,11 +829,16 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
             section = preserved
             retrieval_gate_failed = True
 
+        if unresolved_schedule_mark:
+            printed_mark = re.sub(r"\s+", "", str(normalized or raw_text)).upper()
+            section = printed_mark
+            retrieval_gate_failed = True
+
         ranker_applied_effective = (
             bool(label_ranker_meta.get("applied"))
             and not explicit_section_context_disagreement
             and not protected_label_conflict
-            and not angle_catalog_abstain
+            and not block_fuzzy_catalog
         )
 
     ai_reasons = list(unified_fusion.reasons)
@@ -830,6 +854,16 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     elif retrieval_gate_failed:
         ai_reasons.append(
             "Exact-section retrieval gate failed; abstaining for human review."
+        )
+        if unresolved_schedule_mark:
+            ai_reasons.append(
+                "Schedule mark has no catalog-valid SIZE in this document; "
+                "a section was not invented."
+            )
+    if token_record.get("schedule_mark_resolved"):
+        ai_reasons.append(
+            f"Mark resolved to {token_record['schedule_mark_resolved']} "
+            "from this document's schedule SIZE."
         )
     if not confirmed_plate_type and label_ranker_meta.get("applied"):
         ai_reasons.append(
@@ -907,6 +941,10 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         if not protected_exact_section:
             retrieval_gate_failed = True
 
+    if unresolved_schedule_mark:
+        section = re.sub(r"\s+", "", str(normalized or raw_text)).upper()
+        retrieval_gate_failed = True
+
     if missing_thickness_needs_review:
         retrieval_gate_failed = True
         ai_reasons.append(
@@ -960,6 +998,7 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         and not token_record.get("missing_label")
         and not token_record.get("schedule_sourced")
         and not token_record.get("spatial_association")
+        and not token_record.get("schedule_mark_resolved")
         and not str(token_record.get("token_id") or "").startswith(
             ("geom_assoc", "geom_", "schedule_", "spatial_")
         )
@@ -971,6 +1010,16 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         and not retrieval_gate_failed
         and not confirmed_plate_type
         and not missing_thickness_needs_review
+    )
+    # Document schedule MARK→SIZE join (C1→HSS…). Trusted project rule, not
+    # a fuzzy remap of the printed characters.
+    schedule_mark_locked = bool(
+        token_record.get("schedule_mark_resolved")
+        and protected_exact_section
+        and section == protected_exact_section
+        and not retrieval_gate_failed
+        and not confirmed_plate_type
+        and not unresolved_schedule_mark
     )
 
     if explicit_section_context_disagreement:
@@ -991,6 +1040,8 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         # Section identity is deterministic (explicit catalog-valid text), not
         # a learned probability. Report it as fully supported so review policy
         # and the UI treat it as resolved, not as a low-confidence guess.
+        model_probability = 1.0
+    elif schedule_mark_locked:
         model_probability = 1.0
     elif protected_exact_section and not retrieval_gate_failed:
         # A clean catalog-valid exact text match is itself strong evidence;
@@ -1231,7 +1282,13 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         (raw_text or normalized)
         if confirmed_plate_type
         else (
-            section if (learned_disagreement or ranker_applied_effective) else corrected_text
+            section
+            if (
+                schedule_mark_locked
+                or learned_disagreement
+                or ranker_applied_effective
+            )
+            else corrected_text
         )
     )
     # Contribution scores are normalized attention shares, not raw
@@ -1586,14 +1643,20 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         confidence_basis=(
             "explicit_catalog_exact"
             if section_text_locked
+            else "schedule_mark_map"
+            if schedule_mark_locked
             else "extraction_confidence"
             if confirmed_plate_type or resolved_semantic_annotation
             else None
         ),
         section_resolution=(
-            "explicit_catalog_exact" if section_text_locked else "inferred"
+            "explicit_catalog_exact"
+            if section_text_locked
+            else "schedule_mark_map"
+            if schedule_mark_locked
+            else "inferred"
         ),
-        inference_required=not section_text_locked,
+        inference_required=not (section_text_locked or schedule_mark_locked),
         used_needs_context=needs_context_review,
     )
 
@@ -1693,6 +1756,8 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
             if confirmed_plate_type
             else "Explicit catalog match"
             if section_text_locked
+            else "Schedule mark map"
+            if schedule_mark_locked
             else (
                 "Correction"
                 if final_correction and output_corrected_text != normalized
@@ -1706,12 +1771,19 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         # not from any inference. Consumed by member_resolution, the
         # validation engine, and the Prediction Details / Ranked Candidates UI.
         "section_resolution": (
-            "explicit_catalog_exact" if section_text_locked else "inferred"
+            "explicit_catalog_exact"
+            if section_text_locked
+            else "schedule_mark_map"
+            if schedule_mark_locked
+            else "inferred"
         ),
-        "inference_required": not section_text_locked,
+        "inference_required": not (section_text_locked or schedule_mark_locked),
         "section_confidence_type": (
-            "deterministic" if section_text_locked else "inferred"
+            "deterministic"
+            if section_text_locked or schedule_mark_locked
+            else "inferred"
         ),
+        "schedule_mark_resolved": token_record.get("schedule_mark_resolved"),
         "context_modality_disagreement": bool(explicit_section_context_disagreement),
         "section_prediction_not_applicable": bool(confirmed_plate_type),
         "plate_annotation_type": confirmed_plate_type,

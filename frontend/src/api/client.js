@@ -161,7 +161,9 @@ export async function acceptAllSemanticCorrections(documentId) {
 /** Same-origin URL for the corrected PDF (revision query busts browser/pdf.js cache). */
 export function correctedSemanticPdfUrl(documentId, revision) {
   if (!documentId || !revision || revision === "none") return null;
-  return `${baseURL}/api/documents/${encodeURIComponent(documentId)}/semantic/corrected-pdf?v=${encodeURIComponent(revision)}`;
+  // Include both `v` (API cache-bust) and a unique fragment so pdf.js range
+  // requests cannot reuse a prior corrected-PDF body after Accept.
+  return `${baseURL}/api/documents/${encodeURIComponent(documentId)}/semantic/corrected-pdf?v=${encodeURIComponent(revision)}&rev=${encodeURIComponent(revision)}`;
 }
 
 /** Download original PDF + all accepted semantic corrections as a derived file. */

@@ -172,6 +172,7 @@ def determine_comparison(
     annotation_type: Optional[str] = None,
     used_needs_context: bool = False,
     trusted_explicit: bool = False,
+    schedule_mark_resolved: bool = False,
 ) -> Comparison:
     """
     Decide exact / normalized / corrected / incomplete / geometry-only /
@@ -258,6 +259,16 @@ def determine_comparison(
             normalized_match=True,
             prediction_required=False,
             match_status=MatchStatus.NORMALIZED_MATCH,
+        )
+
+    if schedule_mark_resolved:
+        # Printed mark (C1 / L1) looked up against this document's schedule
+        # SIZE. Intentional mark→section join, not a fuzzy OCR remap.
+        return Comparison(
+            exact_match=False,
+            normalized_match=False,
+            prediction_required=False,
+            match_status=MatchStatus.PROJECT_RULE_RESOLVED,
         )
 
     if (
@@ -473,6 +484,7 @@ def build_canonical_prediction(
         annotation_type=annotation_type,
         used_needs_context=used_needs_context,
         trusted_explicit=(section_resolution == "explicit_catalog_exact"),
+        schedule_mark_resolved=(section_resolution == "schedule_mark_map"),
     )
     # ``final_label`` is the canonical, automatically-accepted answer -- it
     # must never carry a fuzzy-retrieved or learned-corrected guess dressed

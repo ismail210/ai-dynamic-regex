@@ -440,6 +440,7 @@ export default function DrawingReviewPage() {
           <Box sx={{ flex: 1, minHeight: 0 }}>
             <PdfDocumentViewer
               fileUrl={pdfUrl}
+              pageWindow={1}
               selection={
                 selection?.location?.hasLocation
                   ? {

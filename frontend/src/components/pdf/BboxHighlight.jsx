@@ -108,7 +108,7 @@ export default function BboxHighlight({
                   ? "0 0 0 2px rgba(2, 136, 209, 0.3)"
                   : "0 0 0 2px rgba(211, 47, 47, 0.35)"
             : "none",
-        zIndex: member ? 1 : active ? 3 : 2,
+        zIndex: labelText ? 5 : member ? 1 : active ? 3 : 2,
         display: labelText ? "flex" : undefined,
         alignItems: labelText ? "center" : undefined,
         px: labelText ? 0.4 : undefined,

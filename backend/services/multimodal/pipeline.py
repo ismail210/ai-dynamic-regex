@@ -34,6 +34,11 @@ from services.engineering.geometry_adapters import (
     geometry_capabilities,
 )
 from services.engineering.rule_engine import evaluate_document_rules
+from services.engineering.shadow_page_gate import (
+    filter_context_page_objects,
+    filter_context_page_tokens,
+    shadow_context_report,
+)
 from services.engineering.structural_graph import build_structural_graph
 from services.extraction_engine import extract_engineering_document
 from services.multimodal.duplicate_detector import merge_duplicate_predictions
@@ -220,6 +225,12 @@ def run_multimodal_pipeline(
         else round((time.perf_counter() - stage_started) * 1000, 2)
     )
 
+    shadow_report = shadow_context_report(document, geometry)
+    if settings.shadow_context_page_gate_enabled:
+        geometry = filter_context_page_objects(document, geometry)
+        shadow_report["applied"] = True
+    document["shadow_page_gate"] = shadow_report
+
     stage_started = time.perf_counter()
     if settings.detail_regions_enabled:
         assign_detail_regions(document, geometry)
@@ -249,6 +260,14 @@ def run_multimodal_pipeline(
         document["spatial_association_tokens_added"] = len(spatial_tokens)
     if not (_ablate("ABLATE_GEOMETRY") or _ablate("ABLATE_GRAPH")):
         prediction_tokens.extend(_missing_label_tokens(geometry, graph))
+    gate = document.setdefault("shadow_page_gate", {})
+    gate["prediction_tokens_total"] = len(prediction_tokens)
+    gate["prediction_tokens_on_context_pages"] = shadow_context_report(
+        document, tokens=prediction_tokens
+    )["prediction_tokens_on_context_pages"]
+    if settings.shadow_context_page_gate_enabled:
+        prediction_tokens = filter_context_page_tokens(document, prediction_tokens)
+        gate["applied"] = True
     for token in prediction_tokens:
         prediction = fusion_engine.predict(
             {

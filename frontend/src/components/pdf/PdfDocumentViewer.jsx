@@ -49,8 +49,9 @@ export default function PdfDocumentViewer({
   // exactly as before (Drawing Review's single-selection use).
   overlays = null,
   // When set (e.g. 1), only mount currentPage ± N (plus selection page).
-  // Semantic Review passes this to avoid re-rasterizing every sheet on
-  // zoom/select. Drawing Review leaves it null (render all pages).
+  // Drawing Review and Semantic Review both pass this so large sets
+  // (Struct.pdf-scale sheets) do not rasterize every page at once — that
+  // path stalls the tab and leaves a black canvas.
   pageWindow = null,
   // When false, selection only navigates + scrolls — no pageWidth change.
   // Semantic Review uses this so clicking labels stays snappy; Drawing Review
@@ -99,8 +100,18 @@ export default function PdfDocumentViewer({
       setDisplayFileUrl(fileUrl);
       return undefined;
     }
+    // Soft-swap: keep showing the current PDF while the new revision loads,
+    // but never get stuck — force the swap after a short timeout if preload
+    // does not finish (Accept must always refresh the drawing).
     setFileUpdating(true);
-    return undefined;
+    setLoadError(null);
+    const fallback = window.setTimeout(() => {
+      setDisplayFileUrl(fileUrl);
+      setFileUpdating(false);
+      renderedWidthsRef.current = {};
+      lastHandledSelectionKeyRef.current = null;
+    }, 1200);
+    return () => window.clearTimeout(fallback);
   }, [fileUrl, displayFileUrl]);
 
   useEffect(() => {
@@ -253,6 +264,9 @@ export default function PdfDocumentViewer({
     // Stale Semantic Review state can still point at page 5/58 after a short
     // controlled-test PDF loads — ignore until a real in-range page is chosen.
     if (numPages > 0 && pageNumber > numPages) return undefined;
+    // Move the window to the target page immediately so pageWindow can mount
+    // it. Zoom/scroll wait for intrinsic size below.
+    setCurrentPage((prev) => (prev === pageNumber ? prev : pageNumber));
     const size = pageSizes[pageNumber];
     if (!size?.width) return undefined; // not loaded yet; retry when pageSizes updates
 
@@ -515,6 +529,7 @@ export default function PdfDocumentViewer({
           </Box>
         ) : null}
         <Document
+          key={displayFileUrl || "pdf"}
           file={displayFileUrl}
           loading={
             hasLoaded

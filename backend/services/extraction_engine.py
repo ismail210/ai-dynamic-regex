@@ -10,6 +10,7 @@ from services.document_intelligence import build_extraction_diagnostics
 from services.annotation.fragment_grouper import group_annotation_fragments
 from services.engineering.context_scope import annotate_takeoff_scope
 from services.engineering.document_prior import attach_document_prior
+from services.engineering.schedule_grid import attach_schedule_grid
 from services.engineering.legend_profile_hook import attach_legend_profile
 from services.engineering_object_filter import filter_engineering_objects
 from services.pdf_parser import extract_document_structure
@@ -17,7 +18,7 @@ from services.pdf_parser import extract_document_structure
 
 # Bumped whenever extraction output changes, so cached documents are rebuilt
 # instead of replaying stale artifacts.
-EXTRACTION_VERSION = "3.10-context-definition-scope"
+EXTRACTION_VERSION = "3.12-schedule-marks"
 
 
 def extract_engineering_document(
@@ -33,6 +34,7 @@ def extract_engineering_document(
     document = extract_document_structure(str(path))
     if document_id:
         document["document_id"] = document_id
+    attach_schedule_grid(document)
     attach_document_prior(document)
     # Read-only, informational, document-scoped legend/notes summary --
     # attached alongside document_prior but never consumed by anything

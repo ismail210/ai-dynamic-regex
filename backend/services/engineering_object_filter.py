@@ -25,7 +25,8 @@ _PLATE = re.compile(
     re.IGNORECASE,
 )
 _MEMBER_MARK = re.compile(
-    r"^(?:BM|BEAM|COL|COLUMN|BR|BRACE|GIRDER|JOIST|JST)[-_ ]?\d+[A-Z]?$",
+    r"^(?:(?:BM|BEAM|COL|COLUMN|BR|BRACE|GIRDER|JOIST|JST)[-_ ]?\d+[A-Z]?"
+    r"|(?:L|C)\d+[A-Z]?)$",
     re.IGNORECASE,
 )
 _CONNECTION = re.compile(
@@ -78,7 +79,7 @@ def _section_object_type(text: str, context: str) -> str:
 
 def _member_mark_object_type(text: str) -> str:
     upper = text.upper()
-    if upper.startswith(("COL", "COLUMN")):
+    if upper.startswith(("COL", "COLUMN")) or re.fullmatch(r"C\d+[A-Z]?", upper):
         return "column"
     if upper.startswith(("BR", "BRACE")):
         return "brace"
