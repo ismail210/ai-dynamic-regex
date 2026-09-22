@@ -246,6 +246,26 @@ from any future product change (none proposed here).
   unchanged throughout.
 - **Risk level**: realized as low — zero behavior change, zero public API/schema/route/env-var change.
 
+### Phase 12 — Orchestrator decomposition readiness gate — **DONE (mapping only; zero production change)**
+- **Scope**: read-only mapping/characterization of `services/prediction/orchestrator.py` to evaluate the
+  hypothesis that `predict_token`'s "exact-match/database-verification branch" is a safe first extraction.
+- **Actual result**: full pass at `orchestrator-decomposition-readiness.md`. **The hypothesis was false** —
+  `predict_token` (147 LOC) is a thin wrapper with no matching logic of its own; all exact-match locking and
+  database verification lives inside `predict_from_context`, a single 1,598-line function where the "locked
+  exact match" flag is threaded through ~30 points, not a contiguous branch (`NOT_READY` for that boundary).
+  A genuinely ready, narrower, **different** boundary was found instead: a near-duplicate
+  `encoder_registry.encode_all(...)` input-assembly block present twice (471-504, 730-768), identical in 5
+  of 7 keys — a same-file, pure-function extraction (`_build_encoder_input`) with zero exact-match/HSS/review
+  entanglement, already-adequate test coverage of both branches, and an estimated -25 to -30 net LOC
+  (`READY_WITH_DIFFERENT_BOUNDARY`, proposed but not implemented). One real, previously-undocumented
+  behavior was found and characterized (not fixed): a late annotation-taxonomy plate/bent-plate
+  reclassification can clear an already-locked exact match — proven reachable via a targeted test, judged
+  very unlikely with real (unmocked) inputs given disjoint text-grammar patterns, and left as characterized
+  current behavior per this phase's explicit no-production-edit constraint. 1 new characterization test
+  added (+45 test LOC, 0 production LOC). Full suite (1297/9-known/3, delta of exactly 1 new test from the
+  1296 baseline) and targeted suites verified unchanged; drift fingerprints confirmed unchanged throughout.
+- **Risk level**: N/A (read-only phase, no code changed).
+
 ---
 
 ## Cross-phase notes
