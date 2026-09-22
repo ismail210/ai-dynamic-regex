@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import os
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 import fitz
 
@@ -15,6 +17,7 @@ from services.engineering.geometry_adapters import (
     geometry_capabilities,
 )
 from services.multimodal.correction_engine import suggest_token_corrections
+from services.multimodal.feature_providers import _ablation_active
 from services.multimodal.pipeline import run_multimodal_pipeline
 from services.pdf_parser import extract_document_structure
 from services.token_extractor import (
@@ -182,6 +185,37 @@ class MultimodalPipelineTests(unittest.TestCase):
             self.assertIn("explanation", prediction)
             self.assertIn("geometry_preview", prediction)
             self.assertIn("graph_preview", prediction)
+
+
+class AblationFlagParsingTests(unittest.TestCase):
+    """Characterizes the evaluation-harness ablation-flag parser before its
+    duplicate definition in pipeline.py is consolidated onto this one
+    (services.multimodal.feature_providers._ablation_active)."""
+
+    def test_unset_is_off(self) -> None:
+        with patch.dict("os.environ", {}, clear=False):
+            os.environ.pop("ABLATE_GEOMETRY", None)
+            self.assertFalse(_ablation_active("ABLATE_GEOMETRY"))
+
+    def test_truthy_values_case_insensitive(self) -> None:
+        for value in ("1", "true", "TRUE", "True", "yes", "YES", "on", "On"):
+            with patch.dict("os.environ", {"ABLATE_GEOMETRY": value}):
+                self.assertTrue(_ablation_active("ABLATE_GEOMETRY"), value)
+
+    def test_falsy_and_garbage_values(self) -> None:
+        for value in ("0", "false", "no", "off", "", "  ", "banana"):
+            with patch.dict("os.environ", {"ABLATE_GEOMETRY": value}):
+                self.assertFalse(_ablation_active("ABLATE_GEOMETRY"), value)
+
+    def test_whitespace_is_stripped(self) -> None:
+        with patch.dict("os.environ", {"ABLATE_GRAPH": "  true  "}):
+            self.assertTrue(_ablation_active("ABLATE_GRAPH"))
+
+    def test_reads_named_variable_only(self) -> None:
+        with patch.dict("os.environ", {"ABLATE_GEOMETRY": "1"}, clear=False):
+            os.environ.pop("ABLATE_GRAPH", None)
+            self.assertTrue(_ablation_active("ABLATE_GEOMETRY"))
+            self.assertFalse(_ablation_active("ABLATE_GRAPH"))
 
 
 if __name__ == "__main__":
