@@ -34,14 +34,10 @@ _STEEL_LABEL_KINDS = {
 }
 
 
-def _norm(text: str) -> str:
-    return normalize_engineering_token(text)
-
-
 def _section_from_label(text: str) -> Optional[str]:
     """Trusted catalog designation only — never a sheet-common default."""
 
-    return catalog_valid_exact_section(_norm(text) or text)
+    return catalog_valid_exact_section(normalize_engineering_token(text) or text)
 
 
 def _center_from_bbox(bbox: List[float]) -> List[float]:
