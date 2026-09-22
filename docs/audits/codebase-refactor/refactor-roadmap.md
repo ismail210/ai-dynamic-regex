@@ -71,26 +71,30 @@ from any future product change (none proposed here).
   modules — were removed as directly related dead symbols. No caller migration was needed (none had a real
   non-test caller). Full evidence, commit references, and LOC accounting in that review doc.
 
-### Phase 4 — Unused symbol and import cleanup
-- **Scope**: run a real static import-graph tool (`pyflakes`, `modulegraph`, or an AST-based checker — not
-  installed in this environment; see `README.md`'s optional-tooling note) across `backend/` to replace this
-  audit's textual stem-co-occurrence heuristic with verified results, specifically for the 14 rows marked
+### Phase 4 — Unused symbol and import cleanup — **DONE (14 generic-stem modules); 7 dynamically-loaded test targets not addressed**
+- **Scope**: run a real static import-graph tool across `backend/` to replace this audit's textual
+  stem-co-occurrence heuristic with verified results, specifically for the 14 rows marked
   `unknown/manual-review required` / generic-stem modules (`models`, `parser`, `pipeline`, `contracts`,
   `schemas`, `validation`, `service`, `normalization`) and the 7 dynamically-loaded test targets.
-- **Exact candidate files**: the 14 rows flagged in `unused-candidates.md` §9; cross-reference against
-  `file-inventory.csv`'s `confidence_level` column for exact list.
-- **Expected benefit**: converts "medium confidence" findings to verified ones before Phase 5/6 rely on them.
-- **Estimated LOC change**: 0 (this phase is tooling + verification, not code changes) beyond whatever unused
-  imports the tool itself surfaces (typically small, single-line removals).
-- **Required tests**: full backend suite after any import removal.
-- **Rollback point**: tag before this phase.
-- **Risk level**: low (tooling-driven, verifiable).
+- **Actual result**: full forensic pass (`docs/audits/codebase-refactor/generic-module-reachability-review.md`).
+  A single reusable, temporary standard-library AST script (not a repo dependency, per this phase's own "do
+  not install a new global dependency" constraint) built one whole-backend import graph and queried it for
+  all 14 candidates. Every one of the 14 has a proven current importer — 11 `ACTIVE_RUNTIME` (direct imports
+  from `orchestrator.py`, `fusion_engine.py`, `staged_pipeline.py`, `routers/learning.py`, and others), 3
+  `ACTIVE_OPERATIONAL` (`services/ml_association/{schemas,service,validation}.py` — deliberately unwired
+  shadow work per `CLAUDE.md`'s own architecture invariant, protected by
+  `test_ml_association_not_wired_into_production.py` and a feature flag disabled by default). **Zero
+  deletions, zero caller migrations, zero production LOC changes.** A companion investigation resolved the
+  pre-existing `test_ground_truth_evaluator_repair.py` collection error (`ImportError: length_to_feet`) —
+  proven via git history to be a deliberate removal (merge `88222e6` consolidated two ground-truth-evaluation
+  implementations into `canonical_takeoff_eval.py`, dropping the old imperial-length/tonnage schema this test
+  targeted), with superseding coverage already in `test_canonical_takeoff_eval.py` (12/12 passing against
+  real Burrville/GCDC workbooks) — the obsolete test file was removed (commit `230decb`), restoring full test
+  collection (1299 tests, no `--ignore` needed). The 7 `importlib.util.spec_from_file_location`
+  dynamically-loaded test targets were not part of this phase's scope (they load scripts by file path, not
+  the 14 module candidates) and remain a follow-up item if ever prioritized.
+- **Risk level**: low (tooling-driven, verifiable) — realized as expected; no regressions.
 - **Behavior changes**: none.
-- **Recommended commit boundaries**: one commit per subsystem the tool flags, not one giant commit.
-- **Note**: Phase 3 above was completed via a dedicated hand-built AST script (not a repo dependency) scoped
-  to its own 4 candidates, rather than waiting on this phase's general-purpose tooling — the two phases'
-  scopes don't overlap (this phase covers the 14 generic-stem/dynamically-loaded rows, not the 4 engineering
-  modules).
 
 ### Phase 5 — Duplicate utility consolidation — **DONE**
 - **Scope**: the 3 `DEPRECATED` shim modules (`prediction/semantic_contract.py`,
@@ -224,8 +228,9 @@ from any future product change (none proposed here).
 ## Cross-phase notes
 
 - Phases 1, 2, 9 have no code-behavior risk and can be done in any order, first.
-- Phase 3 is done (see above) — it used its own dedicated AST script rather than waiting on Phase 4's
-  general-purpose tooling, since its 4-module scope didn't overlap Phase 4's.
+- Phases 3 and 4 are both done (see above) — each used its own dedicated, disjoint-scope AST script rather
+  than a shared general-purpose tool; Phase 3 found 4 confirmed-unused modules and deleted them, Phase 4
+  found all 14 of its candidates still genuinely reachable and deleted none.
 - Phases 5, 6 are the highest-risk (contract-adjacent, prediction-pipeline-adjacent) — do them after 1-4 have
   built confidence in the process, and land them in the smallest possible commits.
 - Phases 7, 8 are independent of everything else and of each other — can be parallelized across sessions/PRs.

@@ -305,7 +305,27 @@ were audited normally); the 3 dirty auxiliary worktrees (`ai-dynamic-regex`, `ai
   Commits: `test(backend): trim engineering-scaffolding test coverage`,
   `refactor(backend): remove unused engineering scaffolding modules`,
   `docs(refactor): record dead-module reachability results`.
-- **Phases 4, 9-10** — not started.
+- **Phase 4 (generic-stem module reachability + collection-error repair)** — DONE. Full forensic pass at
+  `generic-module-reachability-review.md`. All 14 "medium-confidence generic-stem" modules
+  (`unused-candidates.md` §9) re-verified with one reusable AST-based whole-backend import graph — every one
+  has a proven current importer (11 `ACTIVE_RUNTIME`, including direct imports from `orchestrator.py`,
+  `fusion_engine.py`, `staged_pipeline.py`, `routers/learning.py`; 3 `ACTIVE_OPERATIONAL` —
+  `services/ml_association/{schemas,service,validation}.py`, deliberately unwired shadow work per
+  `CLAUDE.md`'s own architecture invariant, protected by `test_ml_association_not_wired_into_production.py`
+  and a feature flag disabled by default). **Zero deletions, zero caller migrations, zero production LOC
+  change** — a real negative result, not a shortcut (the CSV's own preliminary `keep in place`/`keep but
+  document` calls for 13 of the 14 were directionally correct; this phase converted that into a verified
+  conclusion). Also resolved the pre-existing `test_ground_truth_evaluator_repair.py` collection error
+  flagged in Phase 3: git history proved the `length_to_feet` import targeted an implementation deliberately
+  removed by merge `88222e6` (ground-truth evaluation consolidated into `canonical_takeoff_eval.py`), with
+  superseding coverage already in `test_canonical_takeoff_eval.py` (12/12 passing against the real
+  Burrville/GCDC workbooks present in this environment) — the obsolete file was removed, restoring full test
+  collection (1299 tests, no `--ignore` needed). Two stuck background `pyright --outputjson` processes from
+  the prior phase (running ~4 days, 3.5 GB RAM) were identified by exact PID/command-line match and
+  terminated; the unrelated, legitimately-running `pyright-langserver` IDE processes were left untouched.
+  Commits: `test(validation): restore ground-truth evaluator test collection`,
+  `docs(refactor): record generic module reachability results`.
+- **Phases 9-10** — not started.
 
 ---
 

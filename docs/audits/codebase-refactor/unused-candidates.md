@@ -140,7 +140,7 @@ duplicating content between documents:
   a de facto shared fixture (`IsolatedApiTestCase` in `test_documents_api.py`) imported by 5 other test files
   with no `conftest.py` anywhere in `backend/tests/` to hold it properly.
 
-## 9. Unknown due to dynamic behavior
+## 9. Unknown due to dynamic behavior — RESOLVED (generic-stem modules)
 
 14 rows across the inventory are marked `classification=unknown/manual-review required` or
 `proposed_action=manual decision required` for reasons other than the dead-code candidates above — mostly
@@ -151,3 +151,14 @@ loading instead of static imports (their true target was read from the loader bl
 static `import` line, and is marked `medium` confidence accordingly). A real static import-graph tool (e.g.
 `pyflakes`, `modulegraph`, or an AST-based checker) is recommended before acting on any "manual decision
 required" row — see `refactor-roadmap.md` Phase 4.
+
+**Status: the 14 generic-stem modules were re-verified with a real AST-based import graph — full evidence in
+`generic-module-reachability-review.md`. Zero deletions.** Every one of the 14 has a proven, current
+production or explicitly-documented operational importer (11 `ACTIVE_RUNTIME` — including direct imports from
+`orchestrator.py`, `fusion_engine.py`, `staged_pipeline.py`, and `routers/learning.py`; the 3
+`services/ml_association/*` modules `ACTIVE_OPERATIONAL` — deliberately unwired shadow work per `CLAUDE.md`'s
+own architecture invariant, protected by `test_ml_association_not_wired_into_production.py` and a
+feature flag disabled by default). The CSV's own preliminary calls (`keep in place` / `keep but document` for
+13 of the 14) were directionally correct; this phase converted that into a verified, evidence-backed
+conclusion. The 7 `importlib.util.spec_from_file_location` dynamically-loaded test files were not part of
+this phase's scope (they load scripts by file path, not the 14 module candidates) and remain unaddressed.
