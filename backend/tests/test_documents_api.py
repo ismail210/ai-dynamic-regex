@@ -87,9 +87,7 @@ class DocumentWorkflowApiTests(IsolatedApiTestCase):
 
     def test_takeoff_generate_succeeds_after_analysis(self):
         # Regression coverage for the live exporter (services/takeoff/
-        # takeoff_exporter.py) wired to this endpoint — see Phase 12 of the
-        # reliability upgrade: services/engineering/takeoff_interface.py is
-        # a separate, intentionally-unimplemented future stub with no route.
+        # takeoff_exporter.py) wired to this endpoint.
         document = self._upload_document()
         document_id = document["document_id"]
         self.client.post(f"/api/documents/{document_id}/extract")
