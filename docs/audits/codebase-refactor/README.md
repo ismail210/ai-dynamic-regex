@@ -335,8 +335,21 @@ were audited normally); the 3 dirty auxiliary worktrees (`ai-dynamic-regex`, `ai
   **Production LOC -18, test LOC +42** (real new regression coverage, not organizational). Zero behavior,
   API, schema, route, or environment-variable changes. Targeted (224/1/0/40-subtests) and full suite verified
   unchanged in known-failure set; drift fingerprints confirmed unchanged throughout.
-- **Phases 9-10** — Phase 9 (unrelated `.env.example`/`skills-lock.json` metadata task) and Phase 10 (final
-  deployment-verification gate) not started.
+- **Phase 9** — unrelated `.env.example`/`skills-lock.json` metadata task, not started (low priority, no
+  code-behavior risk, never blocked any later phase).
+- **Phase 13 (final reconciliation, exact-match fix, closing sweep)** — DONE. Full pass at
+  `final-refactor-and-verification.md`. Reconciled the unpushed orchestrator encoder-input-extraction
+  commits with concurrent partner work (schedule-mark map, inch angles, review-viewer windowing) via a clean
+  automatic merge — zero manual conflicts. Fixed the exact-match late-reclassification defect the readiness
+  phase had characterized but not fixed (a 1-line guard, test-first). Final repository-wide duplicate scan
+  found and removed 2 more genuine exact-duplicate private helpers (-23 LOC), correctly rejected a
+  look-alike duplicate with divergent default parameters, and correctly deferred the rest with documented
+  reasons rather than forcing unsafe or low-value changes. All 13 registered frontend routes verified live
+  via Playwright (zero console/network errors); full backend suite (1324/9-known/4-skipped) and frontend
+  suite (217/217) both green; production build clean. **This concludes the codebase-refactor engagement** —
+  see `final-refactor-and-verification.md` for the full verification record and the remaining genuinely
+  high-risk architectural item (further `predict_from_context` decomposition, deferred with reasons, not a
+  routine cleanup recommendation).
 
 ---
 

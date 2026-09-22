@@ -274,6 +274,28 @@ from any future product change (none proposed here).
   deliberately left untouched and is recommended as the next phase's subject (a semantic investigation, not
   another extraction).
 
+### Phase 13 — Final reconciliation, exact-match fix, and closing refactor sweep — **DONE (final phase)**
+- **Scope**: reconcile the unpushed encoder-input-extraction commits with partner work that landed on
+  `origin/main` in the meantime; fix the exact-match late-reclassification defect the readiness phase
+  characterized; run one final bounded repository-wide refactor sweep; verify backend, frontend, and live UI
+  routes end to end.
+- **Actual result**: full pass at `final-refactor-and-verification.md`. Clean automatic `git merge` (zero
+  manual conflicts — the two histories touch disjoint regions of `orchestrator.py`). Fixed the exact-match
+  defect with a 1-line guard (`if not confirmed_plate_type and not protected_exact_section:`), test-first,
+  matching the neighboring branch's existing pattern. Final sweep found and implemented 2 more genuine exact
+  duplicate private-helper removals (`_torch()` lazy-loader ×2 files, `_length_of_segments`/
+  `_orientation_deg` ×1 file, net -23 LOC), correctly rejected 1 false-positive duplicate (`_bbox_overlap` —
+  different default parameter values), and correctly deferred the rest (a shadow-module internal duplicate,
+  one more too-small orchestrator ternary duplicate, no forced frontend consolidation). All 13 registered
+  frontend routes verified via live Playwright navigation: zero console errors, zero failed network requests.
+  One pre-existing, unrelated responsive-layout issue found and documented (sidebar doesn't collapse at
+  narrow viewport) — not fixed, out of scope, confirmed untouched by any commit in this engagement. Full
+  backend suite: 1324 passed, 9 known pre-existing failures (unchanged), 4 skipped. Frontend: 217/217, build
+  clean. This is the final phase of the codebase-refactor engagement.
+- **Risk level**: realized as low — the one intentional semantic change (the exact-match fix) was
+  test-first, minimal, and preserves every other invariant; the merge was conflict-free; both duplicate-
+  removal consolidations are mechanical and independently verified.
+
 ---
 
 ## Cross-phase notes
