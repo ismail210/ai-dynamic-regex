@@ -23,7 +23,11 @@ from services.takeoff.ground_truth_evaluation import (
 from services.takeoff.ground_truth_excel import parse_ground_truth_excel
 
 
-def _norm(value: str) -> str:
+def normalize_takeoff_label(value: str) -> str:
+    """Cheap case/whitespace/hyphen-folded identity key for comparing a
+    predicted label to a ground-truth label -- not catalog canonicalization
+    (see canonical_takeoff_eval.canonical_section for that)."""
+
     return str(value or "").upper().replace(" ", "").replace("-", "")
 
 
@@ -119,7 +123,7 @@ def validate_takeoff(
 
     pred_rows: List[dict] = []
     for result in predictions:
-        label = _norm(
+        label = normalize_takeoff_label(
             result.get("section")
             or result.get("predicted_shape")
             or result.get("prediction")

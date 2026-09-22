@@ -22,6 +22,7 @@ from services.takeoff.paired_dataset_builder import build_pair_rows, list_traini
 from services.takeoff.takeoff_exporter import build_takeoff_rows
 from services.takeoff.takeoff_validation import (
     _register_uploaded_pair,
+    normalize_takeoff_label,
     validate_takeoff,
 )
 
@@ -359,6 +360,25 @@ class TakeoffExporterTests(unittest.TestCase):
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]["Quantity"], 2)
         self.assertEqual(rows[0]["Quantity Method"], "labeled_callout")
+
+
+class NormalizeTakeoffLabelTests(unittest.TestCase):
+    """Characterizes the shared predicted-vs-ground-truth label identity key
+    (also used, via an aliased import, as training_pipeline.neural_dataset._norm)."""
+
+    def test_case_and_whitespace_folded(self) -> None:
+        self.assertEqual(normalize_takeoff_label("w18 x 35"), "W18X35")
+        self.assertEqual(normalize_takeoff_label("  W18X35  "), "W18X35")
+
+    def test_hyphens_stripped(self) -> None:
+        self.assertEqual(normalize_takeoff_label("L4X3-1/2X3/8"), "L4X31/2X3/8")
+
+    def test_already_canonical_is_unchanged(self) -> None:
+        self.assertEqual(normalize_takeoff_label("HSS6X6X3/8"), "HSS6X6X3/8")
+
+    def test_empty_and_none(self) -> None:
+        self.assertEqual(normalize_takeoff_label(""), "")
+        self.assertEqual(normalize_takeoff_label(None), "")
 
 
 if __name__ == "__main__":
