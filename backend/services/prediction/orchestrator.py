@@ -319,6 +319,56 @@ def _text_locked_section(text: str, fusion_section: str) -> str:
     return resolved
 
 
+def _build_encoder_input(
+    *,
+    normalized: str,
+    raw_text: str,
+    corrected_text: str,
+    extraction_confidence: float,
+    token_record: Dict[str, Any],
+    geometry: Dict[str, Any],
+    graph: Dict[str, Any],
+    provisional_rules: Any,
+    model_probability: float,
+    candidates: List[Any],
+) -> Dict[str, Any]:
+    """Assemble the encoder_registry.encode_all() input payload for one
+    token. The only two values that vary by caller are model_probability
+    and candidates; everything else is identical for every call site."""
+
+    return {
+        "text": {
+            "token": normalized,
+            "model_probability": model_probability,
+            "extraction_confidence": extraction_confidence,
+            "regex_confidence": 0.0,
+            "candidates": candidates,
+        },
+        "ocr": {
+            "original": raw_text,
+            "corrected": corrected_text,
+            "confidence": extraction_confidence,
+            "repairs": (
+                (token_record.get("diagnostics") or {}).get("ocr_repairs") or []
+            ),
+        },
+        "layout": {
+            "bbox": token_record.get("bbox"),
+            "page": token_record.get("page"),
+            "reading_order": token_record.get("reading_order"),
+            "font_size": token_record.get("font_size"),
+            "rotation": token_record.get("rotation"),
+            "member_role": token_record.get("engineering_object_type"),
+            "neighbors": (
+                (token_record.get("context") or {}).get("neighbor_text") or []
+            ),
+        },
+        "geometry": {"geometry": geometry},
+        "graph": {"graph": graph},
+        "engineering_rules": {"rules": provisional_rules.to_dict()},
+    }
+
+
 def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     """
     Full multimodal prediction for one token context.
@@ -469,38 +519,18 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         )
         unified_fusion = _skipped_section_fusion_result(skip_reason)
         encodings = encoder_registry.encode_all(
-            {
-                "text": {
-                    "token": normalized,
-                    "model_probability": 0.0,
-                    "extraction_confidence": extraction_confidence,
-                    "regex_confidence": 0.0,
-                    "candidates": [],
-                },
-                "ocr": {
-                    "original": raw_text,
-                    "corrected": corrected_text,
-                    "confidence": extraction_confidence,
-                    "repairs": (
-                        (token_record.get("diagnostics") or {}).get("ocr_repairs")
-                        or []
-                    ),
-                },
-                "layout": {
-                    "bbox": token_record.get("bbox"),
-                    "page": token_record.get("page"),
-                    "reading_order": token_record.get("reading_order"),
-                    "font_size": token_record.get("font_size"),
-                    "rotation": token_record.get("rotation"),
-                    "member_role": token_record.get("engineering_object_type"),
-                    "neighbors": (
-                        (token_record.get("context") or {}).get("neighbor_text") or []
-                    ),
-                },
-                "geometry": {"geometry": geometry},
-                "graph": {"graph": graph},
-                "engineering_rules": {"rules": provisional_rules.to_dict()},
-            }
+            _build_encoder_input(
+                normalized=normalized,
+                raw_text=raw_text,
+                corrected_text=corrected_text,
+                extraction_confidence=extraction_confidence,
+                token_record=token_record,
+                geometry=geometry,
+                graph=graph,
+                provisional_rules=provisional_rules,
+                model_probability=0.0,
+                candidates=[],
+            )
         )
     else:
         # MISSING-THICKNESS HSS PATH: "HSS10X10" does not uniquely identify a
@@ -728,43 +758,22 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
             corrected_text = normalized
 
         encodings = encoder_registry.encode_all(
-            {
-                "text": {
-                    "token": normalized,
-                    "model_probability": (
-                        float(exact_candidates[0].confidence)
-                        if exact_candidates
-                        else family_probability
-                    ),
-                    "extraction_confidence": extraction_confidence,
-                    "regex_confidence": 0.0,
-                    "candidates": exact_candidates,
-                },
-                "ocr": {
-                    "original": raw_text,
-                    "corrected": corrected_text,
-                    "confidence": extraction_confidence,
-                    "repairs": (
-                        (token_record.get("diagnostics") or {}).get("ocr_repairs")
-                        or []
-                    ),
-                },
-                "layout": {
-                    "bbox": token_record.get("bbox"),
-                    "page": token_record.get("page"),
-                    "reading_order": token_record.get("reading_order"),
-                    "font_size": token_record.get("font_size"),
-                    "rotation": token_record.get("rotation"),
-                    "member_role": token_record.get("engineering_object_type"),
-                    "neighbors": (
-                        (token_record.get("context") or {}).get("neighbor_text")
-                        or []
-                    ),
-                },
-                "geometry": {"geometry": geometry},
-                "graph": {"graph": graph},
-                "engineering_rules": {"rules": provisional_rules.to_dict()},
-            }
+            _build_encoder_input(
+                normalized=normalized,
+                raw_text=raw_text,
+                corrected_text=corrected_text,
+                extraction_confidence=extraction_confidence,
+                token_record=token_record,
+                geometry=geometry,
+                graph=graph,
+                provisional_rules=provisional_rules,
+                model_probability=(
+                    float(exact_candidates[0].confidence)
+                    if exact_candidates
+                    else family_probability
+                ),
+                candidates=exact_candidates,
+            )
         )
         unified_fusion = unified_multimodal_fusion.predict(
             encodings=encodings,
