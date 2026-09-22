@@ -53,25 +53,23 @@ from any future product change (none proposed here).
 - **Recommended commit boundaries**: one commit per model family, so a bad assumption about one family doesn't
   block the other four.
 
-### Phase 3 — Confirmed dead-file removal
-- **Scope**: per `unused-candidates.md`, **nothing currently qualifies** as confirmed-unused. This phase is a
-  placeholder that only activates if a deeper, AST-based import-graph pass (recommended in Phase 4 below)
-  upgrades one of the 4 `legacy/dead-code candidate` backend modules from "high-confidence unused" to
-  "confirmed unused."
-- **Exact candidate files**: `backend/services/engineering/{matching_engine.py, object_confidence.py,
-  suggestion_engine.py, takeoff_interface.py}` — pending the Phase 4 verification, not pre-approved for
-  deletion here.
-- **Expected benefit**: ~4 files, low LOC impact; the value here is clarity, not size.
-- **Estimated LOC change**: unknown until each file's actual size is confirmed at decision time.
-- **Required tests**: each file's owning test(s) must be explicitly deleted or re-targeted in the same commit
-  as the source file — never leave a test importing a deleted module.
-- **Rollback point**: tag before this phase.
-- **Risk level**: low individually, but gated on Phase 4's tooling result — do not skip the verification step.
-- **Behavior changes**: none expected (these are confirmed to have zero production callers), but
-  `suggestion_engine.py` specifically needs the orchestrator.py cross-check called out in
-  `unused-candidates.md` before deletion, since it may be a classical-ML fallback path.
-- **Recommended commit boundaries**: one file per commit (4 commits), each removing the source file and its
-  dedicated test together.
+### Phase 3 — Confirmed dead-file removal — **DONE**
+- **Scope**: per `unused-candidates.md`, re-verify the 4 `legacy/dead-code candidate` backend modules
+  (`matching_engine.py`, `object_confidence.py`, `suggestion_engine.py`, `takeoff_interface.py`) against a
+  full AST-based import graph + dynamic/config/CI reference search + artifact byte-scan, then delete those
+  that reach `CONFIRMED_UNUSED`.
+- **Actual result**: full forensic pass (`docs/audits/codebase-refactor/dead-module-reachability-review.md`).
+  All four passed every point of the 15-point `CONFIRMED_UNUSED` standard — zero production callers, zero
+  dynamic/CI/Docker/artifact references, no package re-exports, no unresolved git-history reason to retain.
+  All four deleted (870 LOC total). Their sole test-only references were trimmed or removed: 2 test methods
+  narrowed to drop the deleted-module assertions while keeping their still-live coverage
+  (`load_engineering_excel`, `validate_extraction`), and one sole-purpose test class
+  (`SuggestionEnginePolicyTests`) removed outright since the invariant it exercised
+  (AISC database never overrides the AI-selected section) is independently covered by
+  `OrchestratorPolicyTests::test_database_hit_does_not_override_ai_section`. `services/engineering/models.py`'s
+  `MatchStatus`/`ObjectConfidence`/`Suggestion` classes — each imported exclusively by one of the four deleted
+  modules — were removed as directly related dead symbols. No caller migration was needed (none had a real
+  non-test caller). Full evidence, commit references, and LOC accounting in that review doc.
 
 ### Phase 4 — Unused symbol and import cleanup
 - **Scope**: run a real static import-graph tool (`pyflakes`, `modulegraph`, or an AST-based checker — not
@@ -81,7 +79,7 @@ from any future product change (none proposed here).
   `schemas`, `validation`, `service`, `normalization`) and the 7 dynamically-loaded test targets.
 - **Exact candidate files**: the 14 rows flagged in `unused-candidates.md` §9; cross-reference against
   `file-inventory.csv`'s `confidence_level` column for exact list.
-- **Expected benefit**: converts "medium confidence" findings to verified ones before Phase 3/5/6 rely on them.
+- **Expected benefit**: converts "medium confidence" findings to verified ones before Phase 5/6 rely on them.
 - **Estimated LOC change**: 0 (this phase is tooling + verification, not code changes) beyond whatever unused
   imports the tool itself surfaces (typically small, single-line removals).
 - **Required tests**: full backend suite after any import removal.
@@ -89,6 +87,10 @@ from any future product change (none proposed here).
 - **Risk level**: low (tooling-driven, verifiable).
 - **Behavior changes**: none.
 - **Recommended commit boundaries**: one commit per subsystem the tool flags, not one giant commit.
+- **Note**: Phase 3 above was completed via a dedicated hand-built AST script (not a repo dependency) scoped
+  to its own 4 candidates, rather than waiting on this phase's general-purpose tooling — the two phases'
+  scopes don't overlap (this phase covers the 14 generic-stem/dynamically-loaded rows, not the 4 engineering
+  modules).
 
 ### Phase 5 — Duplicate utility consolidation — **DONE**
 - **Scope**: the 3 `DEPRECATED` shim modules (`prediction/semantic_contract.py`,
@@ -222,8 +224,8 @@ from any future product change (none proposed here).
 ## Cross-phase notes
 
 - Phases 1, 2, 9 have no code-behavior risk and can be done in any order, first.
-- Phases 3, 4 must happen in that relative order (4 before 3) since Phase 3 is gated on Phase 4's tooling
-  verification.
+- Phase 3 is done (see above) — it used its own dedicated AST script rather than waiting on Phase 4's
+  general-purpose tooling, since its 4-module scope didn't overlap Phase 4's.
 - Phases 5, 6 are the highest-risk (contract-adjacent, prediction-pipeline-adjacent) — do them after 1-4 have
   built confidence in the process, and land them in the smallest possible commits.
 - Phases 7, 8 are independent of everything else and of each other — can be parallelized across sessions/PRs.

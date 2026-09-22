@@ -12,22 +12,28 @@ git history reveals no current manual purpose). Everything found is at most **hi
 **None.** No file in the 908-file inventory met the full evidentiary bar. This is a meaningful negative result,
 not a shortcut — see the specific searches below for why each near-candidate was excluded from this tier.
 
-## 2. High-confidence unused (backend runtime core)
+## 2. High-confidence unused (backend runtime core) — RESOLVED
 
-All four grep-verified: only a dedicated test file imports the module anywhere in `backend/`; no router, no
-other service, no script references it.
+**Status: all four deleted.** A dedicated follow-up phase (see
+`dead-module-reachability-review.md`) re-verified each candidate against the full 15-point
+`CONFIRMED_UNUSED` standard (AST import graph, dynamic/config/CI/Docker reference search,
+binary-artifact and manifest byte-scan, git-history intent review, test-reference
+interpretation) before deleting. All four passed every point; none required caller migration
+since none had a real (non-test) caller. Full details, evidence, and commit references are in
+`dead-module-reachability-review.md`.
 
-| Path | Evidence | Deletion risk | Tests required before deletion | Confidence | Recommended treatment |
-|---|---|---|---|---|---|
-| `backend/services/engineering/matching_engine.py` | Only `tests/test_engineering_pipeline.py` imports it anywhere in `backend/`. No production caller found. | Low-medium — isolated module, but confirm it isn't a planned extension point before removing. | Run `test_engineering_pipeline.py`; check whether removing it changes that test's assertions or just its imports. | High | manual decision required |
-| `backend/services/engineering/object_confidence.py` | Only its own test imports `build_object_confidences`/`score_object_bundle`. An apparent hit in `validation_engine.py` was checked and is a **false positive** — a parameter named `object_confidences`, not an import of this module. | Low-medium | Run the owning test; confirm no dynamic/reflective call site (none found). | High | manual decision required |
-| `backend/services/engineering/suggestion_engine.py` | Referenced by 2 test files only. Own docstring: "Classical ML... Does NOT use an LLM" — reads as a superseded path now that LLM-based suggestion/legend providers exist (`legend_llm_provider.py`). | Medium — verify against `orchestrator.py` before deleting; a classical fallback path being silently dropped would be a real behavior change, not just cleanup. | Run its 2 tests; grep `orchestrator.py` and callers one more time at decision time (this audit's grep was scoped to the 204-file backend-runtime-core set, not a full-repo AST pass). | Medium-high | manual decision required |
-| `backend/services/engineering/takeoff_interface.py` | Self-labeled "(Future) — Architecture stubs" in its own docstring. Test-only references. | Low | Confirm no other module type-imports it as a stub interface. | High | manual decision required |
+| Path | Final disposition |
+|---|---|
+| `backend/services/engineering/matching_engine.py` | **Deleted.** No canonical replacement — no live "extraction vs. Excel diff" path exists; `rule_engine.py` is a distinct fusion-evidence signal, not a duplicate. |
+| `backend/services/engineering/object_confidence.py` | **Deleted.** Its own docstring: "Runtime prediction confidence is owned by multimodal fusion" — self-documented as superseded. |
+| `backend/services/engineering/suggestion_engine.py` | **Deleted.** The one product invariant it exercised (AISC database never overrides the AI-selected section) is independently covered by `tests/test_prediction_orchestrator.py::OrchestratorPolicyTests::test_database_hit_does_not_override_ai_section`, which tests `orchestrator.predict_token` directly — no coverage gap. |
+| `backend/services/engineering/takeoff_interface.py` | **Deleted.** Its own docstring already self-documented it as a non-live stub; canonical exporter is `services/takeoff/takeoff_exporter.py`. |
 
-All four are classified `legacy/dead-code candidate` in the inventory CSV with `proposed_action = manual decision
-required` (never `delete candidate`) — per this audit's own instruction, a file with *any* test coverage does not
-meet "confirmed unused," and per the task's explicit exclusion list, "scripts without imports" and similar are
-never auto-removable.
+Superseded by the note above: this section previously classified all four as `manual decision
+required` because a file with *any* test coverage didn't meet this audit's "confirmed unused"
+bar. The follow-up phase re-derived the standard (test-only references were interpreted per
+Phase 8 of that review, distinguishing sole-purpose dead-code tests from tests protecting a
+still-required invariant) and reached a final, evidence-backed deletion decision.
 
 ## 3. Possibly unused (documentation, zero inbound references)
 

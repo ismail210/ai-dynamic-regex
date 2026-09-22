@@ -285,7 +285,25 @@ were audited normally); the 3 dirty auxiliary worktrees (`ai-dynamic-regex`, `ai
 - **Phase 6 (fusion-engine review)** — DONE, no code change. `fusion_engine.py` and `modular_fusion.py` proven
   to have zero functional overlap (adapter vs. algorithm, connected through `orchestrator.py`, not competing)
   — both required, neither touched.
-- **Phases 3-4, 9-10** — not started.
+- **Phase 3 (confirmed dead-file removal)** — DONE. Full forensic pass at
+  `dead-module-reachability-review.md`. All 4 `services/engineering/` scaffolding modules
+  (`matching_engine.py`, `object_confidence.py`, `suggestion_engine.py`, `takeoff_interface.py`) re-verified
+  against a 15-point `CONFIRMED_UNUSED` standard (AST import graph, dynamic/CI/Docker reference search,
+  43-binary + JSON artifact byte-scan, git-history intent review) — all passed, all deleted (-870 production
+  LOC). Two independent prior audits (`docs/geometry_graph_audit/`, `docs/ml_association_phase/`) had already
+  reached the same "dead in production" conclusion by their own grep passes. No caller migration needed (zero
+  real callers). Sole test-only references trimmed/removed (-91 test LOC across 3 files); the one genuine
+  product invariant a test exercised (AISC database never overrides the AI-selected section) has independent
+  canonical coverage and was not lost. `services/engineering/models.py`'s `MatchStatus`/`ObjectConfidence`/
+  `Suggestion` removed as directly related dead symbols (each exclusively used by one deleted module).
+  Targeted suite (19/19) and full suite (1287/9-known/3, delta of exactly 1 intentionally-removed sole-purpose
+  test from the prior 1288 baseline) verified; all 3 preserved training-drift files' SHA256 fingerprints
+  confirmed unchanged before/after. One pre-existing, unrelated collection error flagged, not fixed:
+  `tests/test_ground_truth_evaluator_repair.py` fails to import `length_to_feet` even at unmodified `HEAD`.
+  Commits: `test(backend): trim engineering-scaffolding test coverage`,
+  `refactor(backend): remove unused engineering scaffolding modules`,
+  `docs(refactor): record dead-module reachability results`.
+- **Phases 4, 9-10** — not started.
 
 ---
 
