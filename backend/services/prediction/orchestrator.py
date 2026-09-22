@@ -911,7 +911,13 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         document_prior=document_prior if document_prior.get("enabled") else None,
     )
     annotation = annotation_pack.get("annotation") or {}
-    if not confirmed_plate_type:
+    if not confirmed_plate_type and not protected_exact_section:
+        # A protected exact section (see above) already names the trusted
+        # designation from the source text alone -- a late annotation-
+        # taxonomy classification is diagnostic evidence (still visible via
+        # annotation_interpretation below), never grounds to clear, demote,
+        # or reinterpret a locked identity. Same guard, same reasoning, as
+        # the neighboring requires_review branch below.
         late_plate_type = annotation_type_value(annotation.get("annotation_type"))
         if (
             late_plate_type
