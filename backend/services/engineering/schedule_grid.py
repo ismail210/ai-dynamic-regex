@@ -11,6 +11,7 @@ from __future__ import annotations
 import re
 from typing import Any, Callable, Dict, Iterable, List, Optional
 
+from services.engineering.drawing_intelligence import _DEMO_RE, _EXISTING_RE, _NEW_RE
 from services.engineering.member_geometry import _union_bbox as _union_boxes
 from services.token_extractor import extract_engineering_tokens
 
@@ -55,15 +56,26 @@ def section_from_size_text(text: str, catalog_fn: CatalogFn) -> Optional[str]:
     return None
 
 
-def schedule_mark_map(grids: Iterable[Dict[str, Any]]) -> Dict[str, str]:
-    """Mark → catalog section. Non-steel SIZE cells (precast, notes) are omitted."""
+def schedule_mark_map(
+    grids: Iterable[Dict[str, Any]], *, drop_conflicts: bool = False
+) -> Dict[str, str]:
+    """Mark → catalog section. Non-steel SIZE cells (precast, notes) are omitted.
 
-    mapping: Dict[str, str] = {}
+    Legacy: a duplicated mark keeps its first row. ``drop_conflicts`` makes a
+    mark with two different sections resolve to nothing, independent of row
+    order (SCHEDULE_MARK_CONFLICT_GUARD_ENABLED).
+    """
+
+    sections: Dict[str, List[str]] = {}
     for grid in grids:
         for row in grid.get("rows") or []:
             if row.get("catalog_valid") and row.get("section") and row.get("mark"):
-                mapping.setdefault(str(row["mark"]).upper(), str(row["section"]))
-    return mapping
+                sections.setdefault(str(row["mark"]).upper(), []).append(str(row["section"]))
+    return {
+        mark: found[0]
+        for mark, found in sections.items()
+        if not (drop_conflicts and len(set(found)) > 1)
+    }
 
 
 def build_schedule_grids(
@@ -111,7 +123,9 @@ def attach_schedule_grid(document: Dict[str, Any]) -> Dict[str, Any]:
         return document
     grids = build_schedule_grids(document.get("words") or [])
     document["schedule_grid"] = grids
-    document["schedule_mark_map"] = schedule_mark_map(grids)
+    document["schedule_mark_map"] = schedule_mark_map(
+        grids, drop_conflicts=settings.schedule_mark_conflict_guard_enabled
+    )
     if settings.schedule_evidence_shadow_enabled:
         document["schedule_evidence_shadow"] = build_schedule_evidence(
             document.get("words") or [],
@@ -347,11 +361,17 @@ SCHEDULE_EVIDENCE_SCHEMA_VERSION = "1.0"
 # cell of a validated row; the family always comes from the SIZE cell.
 _WIDE_MARK_RE = re.compile(r"^[A-Z]{1,3}-?\d{1,3}[A-Z]?$", re.IGNORECASE)
 _SEGMENT_REACH = 300.0
-# The SIZE cell names the host member, not the mark's identity (H5 RI-1).
-_HOST_MEMBER_TITLE_RE = re.compile(r"\bREINF", re.IGNORECASE)
 # Fabricated-component schedules: no rolled section is expected.
 _COMPONENT_KINDS = frozenset({"bearing_plate"})
 _KIND_ROLES = frozenset({"lintel", "column", "bearing_plate"})
+# Lifecycle only when the schedule title prints it (first match wins).
+# Existing / new / demolition reuse drawing_intelligence's patterns.
+_LIFECYCLE_TITLE_RES = (
+    (_DEMO_RE, "demolition"),
+    (re.compile(r"\bREINF", re.IGNORECASE), "reinforcing"),
+    (_EXISTING_RE, "existing"),
+    (_NEW_RE, "new"),
+)
 
 
 def build_schedule_evidence(
@@ -381,26 +401,17 @@ def build_schedule_evidence(
                     regions.append(segment["region"])
                     records.extend(segment["records"])
                 rejections.extend(segment["rejections"])
-    conflicts = _mark_conflicts(records)
+    definitions, conflicts = _definitions(records)
     return {
         "schema_version": SCHEDULE_EVIDENCE_SCHEMA_VERSION,
         "discovery": discovery,
         "regions": regions,
         "records": records,
         "rejections": rejections,
+        "definitions": definitions,
         "conflicts": sorted(conflicts),
-        "mark_map": schedule_mark_map_from_evidence(records),
+        "mark_map": {d["mark_normalized"]: d["primary_section"] for d in definitions},
     }
-
-
-def schedule_mark_map_from_evidence(records: Iterable[Dict[str, Any]]) -> Dict[str, str]:
-    """Legacy MARK -> section, from resolved (non-conflicting) records only."""
-
-    mapping: Dict[str, str] = {}
-    for record in records:
-        if record["resolution_status"] == "resolved":
-            mapping.setdefault(record["mark_normalized"], record["primary_section"])
-    return mapping
 
 
 def _header_segments(words: List[dict]) -> List[tuple]:
@@ -485,7 +496,10 @@ def _evidence_row(words, bands, kind, plate_role, title, mark_re, accept) -> Opt
         components.append({"role": plate_role, "text": plate_text, "quantity": None})
     if kind in _COMPONENT_KINDS and size_text:
         components.append({"role": kind, "text": size_text, "quantity": None})
-    if _HOST_MEMBER_TITLE_RE.search(title):
+    lifecycle = _lifecycle(title)
+    # A reinforcing schedule's SIZE cell names the host member, not the
+    # mark's identity (H5 RI-1).
+    if lifecycle == "reinforcing":
         status, reason, section = "rejected", "host_member_schedule", None
     elif kind in _COMPONENT_KINDS and not section:
         status, reason = "rejected", "component_schedule"
@@ -514,22 +528,75 @@ def _evidence_row(words, bands, kind, plate_role, title, mark_re, accept) -> Opt
         "countable_occurrence": False,
         "resolution_status": status,
         "rejection_reason": reason,
+        "lifecycle_status": lifecycle,
     }
 
 
-def _mark_conflicts(records: List[dict]) -> set:
-    """Same mark, different resolved sections -> every such row goes to review."""
+def _lifecycle(title: str) -> str:
+    """Lifecycle printed in the schedule title; never inferred otherwise."""
 
-    sections: Dict[str, set] = {}
+    for pattern, status in _LIFECYCLE_TITLE_RES:
+        if pattern.search(title):
+            return status
+    return "unknown"
+
+
+def _definitions(records: List[dict]) -> tuple:
+    """Group resolved rows by mark, independent of row order.
+
+    Same section + lifecycle -> one definition keeping every source row;
+    different section or lifecycle -> every such row becomes a conflict and
+    the mark resolves to nothing. Same section with different component text
+    keeps the section (contracts carry the section only) but is flagged for
+    review rather than silently picking one component.
+    """
+
+    by_mark: Dict[str, List[dict]] = {}
     for record in records:
         if record["resolution_status"] == "resolved":
-            sections.setdefault(record["mark_normalized"], set()).add(record["primary_section"])
-    conflicted = {mark for mark, found in sections.items() if len(found) > 1}
-    for record in records:
-        if record["mark_normalized"] in conflicted and record["resolution_status"] == "resolved":
-            record["resolution_status"] = "conflict"
-            record["rejection_reason"] = "conflicting_duplicate_mark"
-    return conflicted
+            by_mark.setdefault(record["mark_normalized"], []).append(record)
+    definitions: List[dict] = []
+    conflicts = set()
+    for mark in sorted(by_mark):
+        rows = by_mark[mark]
+        if len({r["primary_section"] for r in rows}) > 1:
+            reason = "conflicting_duplicate_mark"
+        elif len({r["lifecycle_status"] for r in rows}) > 1:
+            reason = "conflicting_lifecycle"
+        else:
+            reason = None
+        if reason:
+            conflicts.add(mark)
+            for row in rows:
+                row["resolution_status"] = "conflict"
+                row["rejection_reason"] = reason
+            continue
+        components = sorted(
+            {(c["role"], c["text"]) for r in rows for c in r["components"]}
+        )
+        component_sets = {
+            tuple(sorted((c["role"], c["text"]) for c in r["components"])) for r in rows
+        }
+        attribute_conflicts = ["components"] if len(component_sets) > 1 else []
+        definitions.append({
+            "duplicate_group_id": f"{mark}|{rows[0]['primary_section']}|{rows[0]['lifecycle_status']}",
+            "mark_normalized": mark,
+            "primary_section": rows[0]["primary_section"],
+            "lifecycle_status": rows[0]["lifecycle_status"],
+            "role_tags": sorted({tag for r in rows for tag in r["role_tags"]}),
+            "components": [{"role": role, "text": text, "quantity": None} for role, text in components],
+            "attribute_conflicts": attribute_conflicts,
+            "review_required": bool(attribute_conflicts),
+            "countable_occurrence": False,
+            "sources": sorted(
+                (
+                    {"page_number": r["page_number"], "region_id": r["region_id"], "row_bbox": r["row_bbox"]}
+                    for r in rows
+                ),
+                key=lambda s: (str(s["page_number"]), s["region_id"], s["row_bbox"] or []),
+            ),
+        })
+    return definitions, conflicts
 
 
 def _union_bbox(words: Iterable[dict]) -> Optional[List[float]]:

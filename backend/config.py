@@ -123,6 +123,40 @@ class Settings:
         .lower()
         in ("1", "true", "yes", "on")
     )
+    # Legacy schedule_mark_map keeps the first row of a duplicated mark. When
+    # on, a mark defined with two different catalog sections resolves to
+    # nothing (review) instead. Default off until reviewed.
+    schedule_mark_conflict_guard_enabled: bool = field(
+        default_factory=lambda: os.getenv(
+            "SCHEDULE_MARK_CONFLICT_GUARD_ENABLED", "false"
+        )
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
+    # When on, the project-rule overlay passes each occurrence's real page
+    # role (legend_profile.context_pages) instead of "UNKNOWN". Context-page
+    # labels may resolve identity as explicit evidence-only definitions, but
+    # are forced non-countable and non-takeoff-eligible.
+    project_rule_page_role_enabled: bool = field(
+        default_factory=lambda: os.getenv(
+            "PROJECT_RULE_PAGE_ROLE_ENABLED", "false"
+        )
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
+    # When on, a separated leading count stays a quantity: the tokenizer no
+    # longer glues "2" + "L1x1x1/4" into the 2L family, and the exact lock
+    # strips "2 " / "(2) " before matching ("2-L..." is left unlocked).
+    quantity_prefix_guard_enabled: bool = field(
+        default_factory=lambda: os.getenv(
+            "QUANTITY_PREFIX_GUARD_ENABLED", "false"
+        )
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
     schedule_evidence_shadow_widened: bool = field(
         default_factory=lambda: os.getenv(
             "SCHEDULE_EVIDENCE_SHADOW_WIDENED", "false"
