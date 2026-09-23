@@ -25,8 +25,7 @@ CatalogFn = Callable[[str], bool]
 def is_bare_schedule_mark(text: str) -> bool:
     """True for lintel/column marks such as ``L1``, ``C1``, ``L1A`` — not ``L4X4``."""
 
-    compact = re.sub(r"\s+", "", str(text or "")).upper()
-    return bool(_MARK_RE.fullmatch(compact))
+    return bool(_MARK_RE.fullmatch(_compact_mark(text)))
 
 
 def member_plate_roles(text: str) -> List[str]:
@@ -120,7 +119,7 @@ def resolve_schedule_mark(text: str, document: Optional[Dict[str, Any]]) -> str:
 
     if not document or not is_bare_schedule_mark(text):
         return ""
-    mark = re.sub(r"\s+", "", str(text or "")).upper()
+    mark = _compact_mark(text)
     grid_map = document.get("schedule_mark_map") or {}
     prior = document.get("document_prior") or {}
     prior_map = prior.get("mark_map") or {}
@@ -156,7 +155,7 @@ def _grids_on_page(
         if not bands or "mark" not in bands or "size" not in bands:
             index += 1
             continue
-        kind, plate_role = _schedule_kind(rows, index)
+        kind, plate_role, _ = _schedule_kind(rows, index)
         body: List[dict] = []
         last_y = rows[index]["y"]
         index += 1
@@ -225,18 +224,11 @@ def _header_bands(words: List[dict]) -> Dict[str, float]:
     return bands
 
 
-def _schedule_kind(rows: List[dict], header_index: int) -> tuple:
-    header_y = rows[header_index]["y"]
-    header_labels = " ".join(
-        str(word.get("text") or "") for word in rows[header_index]["words"]
-    ).upper()
-    blob_parts = [header_labels]
-    for row in rows[: header_index + 1]:
-        if header_y - _HEADER_LOOKBACK <= row["y"] <= header_y:
-            blob_parts.append(
-                " ".join(str(word.get("text") or "") for word in row["words"])
-            )
-    blob = " ".join(blob_parts).upper()
+def _schedule_kind(
+    rows: List[dict], header_index: int, span: Optional[tuple] = None
+) -> tuple:
+    blob = _title_blob(rows, header_index, span)
+    header_labels = _text(_in_span(rows[header_index]["words"], span)).upper()
     if "BEARING" in header_labels:
         plate_role = "bearing_plate"
     elif "BASE" in header_labels:
@@ -244,12 +236,33 @@ def _schedule_kind(rows: List[dict], header_index: int) -> tuple:
     else:
         plate_role = "plate"
     if "LINTEL" in blob:
-        return "lintel", plate_role
+        return "lintel", plate_role, blob
     if "COLUMN" in blob:
-        return "column", plate_role
+        return "column", plate_role, blob
     if "BEARING PLATE" in blob:
-        return "bearing_plate", plate_role
-    return "schedule", plate_role
+        return "bearing_plate", plate_role, blob
+    return "schedule", plate_role, blob
+
+
+def _in_span(words: List[dict], span: Optional[tuple]) -> List[dict]:
+    if span is None:
+        return words
+    left, right = span
+    return [word for word in words if left <= float(word["bbox"][0]) < right]
+
+
+def _title_blob(rows: List[dict], header_index: int, span: Optional[tuple] = None) -> str:
+    """Header row plus rows up to ``_HEADER_LOOKBACK`` above it."""
+
+    def text(row: dict) -> str:
+        return _text(_in_span(row["words"], span))
+
+    header_y = rows[header_index]["y"]
+    parts = [text(rows[header_index])]
+    for row in rows[: header_index + 1]:
+        if header_y - _HEADER_LOOKBACK <= row["y"] <= header_y:
+            parts.append(text(row))
+    return " ".join(parts).upper()
 
 
 def _column_for(x: float, bands: Dict[str, float]) -> str:
@@ -260,6 +273,36 @@ def _column_for(x: float, bands: Dict[str, float]) -> str:
     return chosen
 
 
+def _text(words: Iterable[dict]) -> str:
+    return " ".join(str(word.get("text") or "") for word in words)
+
+
+def _compact_mark(text: Any) -> str:
+    return re.sub(r"\s+", "", str(text or "")).upper()
+
+
+def _split_row(
+    words: List[dict], bands: Dict[str, float], mark_re: "re.Pattern[str]"
+) -> Optional[tuple]:
+    """``(cells, mark_word, size_words)`` in x order, or ``None`` without a mark.
+
+    Leftover MARK-cell words (a SIZE that drifted left) join the SIZE cell.
+    """
+
+    cells: Dict[str, List[dict]] = {name: [] for name in bands}
+    for word in sorted(words, key=lambda word: float(word["bbox"][0])):
+        cells.setdefault(_column_for(float(word["bbox"][0]), bands), []).append(word)
+    mark_cell = cells.get("mark") or []
+    mark_word = next(
+        (word for word in mark_cell if mark_re.fullmatch(_compact_mark(word.get("text")))),
+        None,
+    )
+    if mark_word is None:
+        return None
+    size_words = [word for word in mark_cell if word is not mark_word] + (cells.get("size") or [])
+    return cells, mark_word, size_words
+
+
 def _parse_body_row(
     words: List[dict],
     bands: Dict[str, float],
@@ -267,27 +310,16 @@ def _parse_body_row(
     plate_role: str,
     catalog_fn: CatalogFn,
 ) -> Optional[dict]:
-    cells: Dict[str, List[str]] = {name: [] for name in bands}
-    ordered = sorted(words, key=lambda word: float(word["bbox"][0]))
-    for word in ordered:
-        column = _column_for(float(word["bbox"][0]), bands)
-        cells.setdefault(column, []).append(str(word.get("text") or ""))
-    mark = ""
-    mark_rest: List[str] = []
-    for piece in cells.get("mark") or []:
-        compact = re.sub(r"\s+", "", piece).upper()
-        if not mark and _MARK_RE.fullmatch(compact):
-            mark = compact
-        else:
-            mark_rest.append(piece)
-    if not mark:
+    split = _split_row(words, bands, _MARK_RE)
+    if split is None:
         return None
-    size_text = " ".join(mark_rest + (cells.get("size") or [])).strip()
-    plate_text = " ".join(cells.get("plate") or []).strip()
-    row_text = " ".join(str(word.get("text") or "") for word in ordered)
+    cells, mark_word, size_words = split
+    size_text = _text(size_words).strip()
+    plate_text = _text(cells.get("plate") or []).strip()
+    row_text = _text(sorted(words, key=lambda word: float(word["bbox"][0])))
     section = section_from_size_text(size_text or row_text, catalog_fn)
     return {
-        "mark": mark,
+        "mark": _compact_mark(mark_word.get("text")),
         "size_text": size_text,
         "section": section,
         "catalog_valid": bool(section),
@@ -295,3 +327,4 @@ def _parse_body_row(
         "plate_role": plate_role if plate_text else None,
         "member_plate_roles": member_plate_roles(row_text),
     }
+
