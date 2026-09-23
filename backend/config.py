@@ -112,6 +112,17 @@ class Settings:
         .lower()
         in ("1", "true", "yes", "on")
     )
+    # Shadow-only structured schedule rows (row/cell provenance, conflicts,
+    # rejection reasons) stored as ``schedule_evidence_shadow``. Nothing in
+    # prediction reads it.
+    schedule_evidence_shadow_enabled: bool = field(
+        default_factory=lambda: os.getenv(
+            "SCHEDULE_EVIDENCE_SHADOW_ENABLED", "false"
+        )
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
     # When true, skip geometry objects and per-token predict on legend
     # context pages. Default off until a recall check promotes it.
     shadow_context_page_gate_enabled: bool = field(

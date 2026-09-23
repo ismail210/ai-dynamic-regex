@@ -1,6 +1,7 @@
 """Read-only benchmark for project-rule / schedule-mark resolution.
 
-Runs the *current* schedule-grid path (``baseline``) over a versioned gold
+Runs the *current* schedule-grid path (``baseline``) and the
+shadow structured-evidence path (``shadow``) over a versioned gold
 manifest, then scores discovery, row/cell relationships, mark->section
 resolution, components, abstention, provenance and safety gates.
 
@@ -170,8 +171,39 @@ def run_baseline(words: List[Dict[str, Any]]) -> Dict[str, Any]:
     }
 
 
+def run_shadow(words: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Shadow structured-evidence path (legacy mark grammar). Measurement only."""
+
+    evidence = schedule_grid.build_schedule_evidence(words)
+    rows = [
+        _row(
+            rec["page_number"],
+            rec["mark_normalized"],
+            rec["size_text_raw"],
+            rec["primary_section"],
+            rec["role_tags"],
+            [c["text"] for c in rec["components"]],
+            rec["row_bbox"],
+            rec["resolution_status"],
+            rec["countable_occurrence"],
+        )
+        for rec in evidence["records"]
+    ]
+    return {
+        "regions": [
+            {"page": r["page_number"], "kind": r["kind"], "bbox": r["region_bbox"]}
+            for r in evidence["regions"]
+        ],
+        "rows": rows,
+        "mark_map": dict(evidence["mark_map"]),
+        "conflicts": list(evidence["conflicts"]),
+        "rejections": list(evidence["rejections"]),
+    }
+
+
 PIPELINES: Dict[str, Callable[[List[Dict[str, Any]]], Dict[str, Any]]] = {
     "baseline": run_baseline,
+    "shadow": run_shadow,
 }
 
 
@@ -630,6 +662,7 @@ def _versions() -> Dict[str, Any]:
         "schedule_grid_enabled": settings.schedule_grid_enabled,
         "schedule_mark_map_enabled": settings.schedule_mark_map_enabled,
         "legend_profile_llm_enabled": settings.legend_profile_llm_enabled,
+        "schedule_evidence_version": schedule_grid.SCHEDULE_EVIDENCE_SCHEMA_VERSION,
     }
 
 

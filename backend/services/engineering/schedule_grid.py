@@ -11,6 +11,7 @@ from __future__ import annotations
 import re
 from typing import Any, Callable, Dict, Iterable, List, Optional
 
+from services.engineering.member_geometry import _union_bbox as _union_boxes
 from services.token_extractor import extract_engineering_tokens
 
 
@@ -111,6 +112,10 @@ def attach_schedule_grid(document: Dict[str, Any]) -> Dict[str, Any]:
     grids = build_schedule_grids(document.get("words") or [])
     document["schedule_grid"] = grids
     document["schedule_mark_map"] = schedule_mark_map(grids)
+    if settings.schedule_evidence_shadow_enabled:
+        document["schedule_evidence_shadow"] = build_schedule_evidence(
+            document.get("words") or []
+        )
     return document
 
 
@@ -328,3 +333,198 @@ def _parse_body_row(
         "member_plate_roles": member_plate_roles(row_text),
     }
 
+
+# --------------------------------------------------------------------------
+# Shadow structured evidence (SCHEDULE_EVIDENCE_SHADOW_ENABLED). Nothing in
+# prediction reads it. Each MARK header column opens its own table segment,
+# so side-by-side schedules (concrete PIER | steel COLUMN) do not bleed into
+# each other. A definition row is evidence, never a physical occurrence.
+# --------------------------------------------------------------------------
+
+SCHEDULE_EVIDENCE_SCHEMA_VERSION = "1.0"
+_SEGMENT_REACH = 300.0
+# The SIZE cell names the host member, not the mark's identity (H5 RI-1).
+_HOST_MEMBER_TITLE_RE = re.compile(r"\bREINF", re.IGNORECASE)
+# Fabricated-component schedules: no rolled section is expected.
+_COMPONENT_KINDS = frozenset({"bearing_plate"})
+_KIND_ROLES = frozenset({"lintel", "column", "bearing_plate"})
+
+
+def build_schedule_evidence(
+    words: Iterable[Dict[str, Any]],
+    *,
+    catalog_fn: Optional[CatalogFn] = None,
+) -> Dict[str, Any]:
+    """Structured schedule rows with provenance (legacy L/C mark grammar)."""
+
+    mark_re = _MARK_RE
+    accept = catalog_fn or _catalog_accepts
+    by_page: Dict[Any, List[dict]] = {}
+    for word in words:
+        by_page.setdefault(word.get("page_number", word.get("page", 0)), []).append(word)
+    regions: List[dict] = []
+    records: List[dict] = []
+    rejections: List[dict] = []
+    for page, page_words in by_page.items():
+        if not _page_has_mark_size_headers(page_words):
+            continue
+        rows = _cluster_rows(page_words)
+        for index, row in enumerate(rows):
+            for bands, span in _header_segments(row["words"]):
+                segment = _segment_evidence(rows, index, page, bands, span, mark_re, accept)
+                if segment["records"]:
+                    regions.append(segment["region"])
+                    records.extend(segment["records"])
+                rejections.extend(segment["rejections"])
+    conflicts = _mark_conflicts(records)
+    return {
+        "schema_version": SCHEDULE_EVIDENCE_SCHEMA_VERSION,
+        "regions": regions,
+        "records": records,
+        "rejections": rejections,
+        "conflicts": sorted(conflicts),
+        "mark_map": schedule_mark_map_from_evidence(records),
+    }
+
+
+def schedule_mark_map_from_evidence(records: Iterable[Dict[str, Any]]) -> Dict[str, str]:
+    """Legacy MARK -> section, from resolved (non-conflicting) records only."""
+
+    mapping: Dict[str, str] = {}
+    for record in records:
+        if record["resolution_status"] == "resolved":
+            mapping.setdefault(record["mark_normalized"], record["primary_section"])
+    return mapping
+
+
+def _header_segments(words: List[dict]) -> List[tuple]:
+    """One ``(bands, (left, right))`` per MARK word that has a SIZE to its right."""
+
+    ordered = sorted(words, key=lambda word: float(word["bbox"][0]))
+    marks = [float(w["bbox"][0]) for w in ordered if str(w.get("text") or "").upper() == "MARK"]
+    segments = []
+    for position, mark_x in enumerate(marks):
+        right = marks[position + 1] if position + 1 < len(marks) else float("inf")
+        bands = _header_bands([w for w in ordered if mark_x <= float(w["bbox"][0]) < right])
+        if bands.get("size", mark_x) <= mark_x:
+            continue
+        right = min(right, max(bands.values()) + _SEGMENT_REACH)
+        segments.append((bands, (mark_x - 8.0, right)))
+    return segments
+
+
+def _segment_evidence(rows, header_index, page, bands, span, mark_re, accept) -> dict:
+    kind, plate_role, title = _schedule_kind(rows, header_index, span)
+    region_id = f"p{page}-y{int(rows[header_index]['y'])}-x{int(span[0])}"
+    region_words = list(_in_span(rows[header_index]["words"], span))
+    records: List[dict] = []
+    rejections: List[dict] = []
+    last_y = rows[header_index]["y"]
+    for row in rows[header_index + 1:]:
+        if row["y"] - last_y > _ROW_GAP:
+            break
+        cell_words = _in_span(row["words"], span)
+        if not cell_words:
+            continue
+        if "MARK" in {str(w.get("text") or "").upper() for w in cell_words}:
+            break
+        last_y = row["y"]
+        region_words.extend(cell_words)
+        record = _evidence_row(cell_words, bands, kind, plate_role, title, mark_re, accept)
+        if record is None:
+            rejections.append({
+                "page_number": page,
+                "region_id": region_id,
+                "text": _text(cell_words),
+                "reason": "mark_not_recognized",
+            })
+            continue
+        records.append(record)
+    region_bbox = _union_bbox(region_words)
+    for record in records:
+        record.update({
+            "schema_version": SCHEDULE_EVIDENCE_SCHEMA_VERSION,
+            "page_number": page,
+            "region_id": region_id,
+            "region_bbox": region_bbox,
+        })
+    return {
+        "region": {
+            "region_id": region_id,
+            "page_number": page,
+            "kind": kind,
+            "region_bbox": region_bbox,
+            "header_bands": dict(bands),
+        },
+        "records": records,
+        "rejections": rejections,
+    }
+
+
+def _evidence_row(words, bands, kind, plate_role, title, mark_re, accept) -> Optional[dict]:
+    split = _split_row(words, bands, mark_re)
+    if split is None:
+        return None
+    cells, mark_word, size_words = split
+    mark_raw = str(mark_word.get("text") or "")
+    size_text = _text(size_words).strip()
+    plate_text = _text(cells.get("plate") or []).strip()
+    row_text = _text(words)
+    # SIZE cell only: unlike the legacy row, never fall back to the whole row.
+    section = section_from_size_text(size_text, accept) if size_text else None
+    roles = ([kind] if kind in _KIND_ROLES else []) + member_plate_roles(row_text)
+    components = []
+    if plate_text:
+        roles.append(plate_role)
+        components.append({"role": plate_role, "text": plate_text, "quantity": None})
+    if kind in _COMPONENT_KINDS and size_text:
+        components.append({"role": kind, "text": size_text, "quantity": None})
+    if _HOST_MEMBER_TITLE_RE.search(title):
+        status, reason, section = "rejected", "host_member_schedule", None
+    elif kind in _COMPONENT_KINDS and not section:
+        status, reason = "rejected", "component_schedule"
+    elif not section:
+        status, reason = "rejected", "size_not_catalog_valid"
+    else:
+        status, reason = "resolved", None
+    return {
+        "mark_raw": mark_raw,
+        "mark_normalized": _compact_mark(mark_raw),
+        "size_text_raw": size_text,
+        "primary_section": section,
+        "catalog_valid": bool(section),
+        "role_tags": list(dict.fromkeys(roles)),
+        "components": components,
+        "row_bbox": _union_bbox(words),
+        "source_cells": [
+            {
+                "column": name,
+                "text": _text(cell),
+                "bbox": _union_bbox(cell),
+            }
+            for name, cell in cells.items()
+            if cell
+        ],
+        "countable_occurrence": False,
+        "resolution_status": status,
+        "rejection_reason": reason,
+    }
+
+
+def _mark_conflicts(records: List[dict]) -> set:
+    """Same mark, different resolved sections -> every such row goes to review."""
+
+    sections: Dict[str, set] = {}
+    for record in records:
+        if record["resolution_status"] == "resolved":
+            sections.setdefault(record["mark_normalized"], set()).add(record["primary_section"])
+    conflicted = {mark for mark, found in sections.items() if len(found) > 1}
+    for record in records:
+        if record["mark_normalized"] in conflicted and record["resolution_status"] == "resolved":
+            record["resolution_status"] = "conflict"
+            record["rejection_reason"] = "conflicting_duplicate_mark"
+    return conflicted
+
+
+def _union_bbox(words: Iterable[dict]) -> Optional[List[float]]:
+    return _union_boxes([word.get("bbox") or [] for word in words])
