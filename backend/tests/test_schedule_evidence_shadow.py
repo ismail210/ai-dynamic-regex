@@ -149,6 +149,9 @@ class FlagAndWiringTests(unittest.TestCase):
         pattern = re.compile(r"schedule_evidence_shadow|build_schedule_evidence")
         allowed = {
             _BACKEND / "services" / "engineering" / "schedule_grid.py",
+            # Separate default-off shadow classifier reuses the structured
+            # regions but never feeds production prediction or quantity.
+            _BACKEND / "services" / "engineering" / "schedule_region_quarantine.py",
             _BACKEND / "config.py",
         }
         offenders = [

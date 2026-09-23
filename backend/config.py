@@ -157,6 +157,17 @@ class Settings:
         .lower()
         in ("1", "true", "yes", "on")
     )
+    # Shadow-only: classify exact section tokens inside confidently bounded
+    # schedule regions as evidence definitions. The live engineering-token
+    # list is never mutated, and the flag remains off by default.
+    schedule_region_quarantine_enabled: bool = field(
+        default_factory=lambda: os.getenv(
+            "SCHEDULE_REGION_QUARANTINE_ENABLED", "false"
+        )
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
     schedule_evidence_shadow_widened: bool = field(
         default_factory=lambda: os.getenv(
             "SCHEDULE_EVIDENCE_SHADOW_WIDENED", "false"

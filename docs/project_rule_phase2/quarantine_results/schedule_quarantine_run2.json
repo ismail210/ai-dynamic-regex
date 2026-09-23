@@ -1,0 +1,1337 @@
+{
+  "benchmark": "schedule_region_quarantine_shadow_discovery",
+  "evidence_class": "unlabelled_real_corpus_discovery",
+  "accuracy_claim": false,
+  "reviewer_approved_gold": false,
+  "documents": [
+    {
+      "project": "Burrville",
+      "document_id": "REAL-Burrville",
+      "pages": {
+        "28": "development"
+      },
+      "parsing_runtime_ms": 3338.889,
+      "region_runtime_ms": 208.542,
+      "confident_regions": [
+        {
+          "region_id": "p28-matrix-2",
+          "page_number": 28,
+          "region_bbox": [
+            266.95,
+            950.14,
+            2516.86,
+            1504.59
+          ],
+          "source_document_id": "REAL-Burrville",
+          "boundary_status": "confident",
+          "region_source": "column_matrix_geometry",
+          "evidence": [
+            "column_locations_header",
+            "regular_vertical_grid",
+            "level_datum_axis",
+            "catalog_label_density"
+          ],
+          "exact_label_count": 30
+        },
+        {
+          "region_id": "p28-matrix-1",
+          "page_number": 28,
+          "region_bbox": [
+            267.79,
+            153.58,
+            2517.34,
+            708.15
+          ],
+          "source_document_id": "REAL-Burrville",
+          "boundary_status": "confident",
+          "region_source": "column_matrix_geometry",
+          "evidence": [
+            "column_locations_header",
+            "regular_vertical_grid",
+            "level_datum_axis",
+            "catalog_label_density"
+          ],
+          "exact_label_count": 31
+        }
+      ],
+      "ambiguous_regions": [],
+      "baseline_countable_section_tokens": 61,
+      "shadow_quarantined_tokens": 61,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -61,
+      "safety": {
+        "semantic_lock_overrides": 0,
+        "invalid_catalog_auto_accepts": 0,
+        "definition_rows_counted_in_shadow": 0,
+        "cross_document_leaks": 0,
+        "unquarantined_token_changes": 0,
+        "default_off_production_changes": 0,
+        "live_token_mutations": 0
+      }
+    },
+    {
+      "project": "GCDC",
+      "document_id": "REAL-GCDC",
+      "pages": {
+        "77": "development"
+      },
+      "parsing_runtime_ms": 8776.406,
+      "region_runtime_ms": 222.27,
+      "confident_regions": [
+        {
+          "region_id": "p77-matrix-1",
+          "page_number": 77,
+          "region_bbox": [
+            197.04,
+            317.47,
+            2595.15,
+            1346.05
+          ],
+          "source_document_id": "REAL-GCDC",
+          "boundary_status": "confident",
+          "region_source": "column_matrix_geometry",
+          "evidence": [
+            "column_locations_header",
+            "regular_vertical_grid",
+            "level_datum_axis",
+            "catalog_label_density"
+          ],
+          "exact_label_count": 102
+        }
+      ],
+      "ambiguous_regions": [],
+      "baseline_countable_section_tokens": 102,
+      "shadow_quarantined_tokens": 102,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -102,
+      "safety": {
+        "semantic_lock_overrides": 0,
+        "invalid_catalog_auto_accepts": 0,
+        "definition_rows_counted_in_shadow": 0,
+        "cross_document_leaks": 0,
+        "unquarantined_token_changes": 0,
+        "default_off_production_changes": 0,
+        "live_token_mutations": 0
+      }
+    },
+    {
+      "project": "Springhill",
+      "document_id": "REAL-Springhill",
+      "pages": {
+        "26": "development"
+      },
+      "parsing_runtime_ms": 4575.237,
+      "region_runtime_ms": 130.334,
+      "confident_regions": [
+        {
+          "region_id": "p26-matrix-2",
+          "page_number": 26,
+          "region_bbox": [
+            279.66,
+            743.86,
+            2528.26,
+            1149.87
+          ],
+          "source_document_id": "REAL-Springhill",
+          "boundary_status": "confident",
+          "region_source": "column_matrix_geometry",
+          "evidence": [
+            "column_locations_header",
+            "regular_vertical_grid",
+            "level_datum_axis",
+            "catalog_label_density"
+          ],
+          "exact_label_count": 32
+        },
+        {
+          "region_id": "p26-matrix-1",
+          "page_number": 26,
+          "region_bbox": [
+            277.26,
+            131.86,
+            2528.74,
+            537.87
+          ],
+          "source_document_id": "REAL-Springhill",
+          "boundary_status": "confident",
+          "region_source": "column_matrix_geometry",
+          "evidence": [
+            "column_locations_header",
+            "regular_vertical_grid",
+            "level_datum_axis",
+            "catalog_label_density"
+          ],
+          "exact_label_count": 32
+        }
+      ],
+      "ambiguous_regions": [],
+      "baseline_countable_section_tokens": 64,
+      "shadow_quarantined_tokens": 64,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -64,
+      "safety": {
+        "semantic_lock_overrides": 0,
+        "invalid_catalog_auto_accepts": 0,
+        "definition_rows_counted_in_shadow": 0,
+        "cross_document_leaks": 0,
+        "unquarantined_token_changes": 0,
+        "default_off_production_changes": 0,
+        "live_token_mutations": 0
+      }
+    },
+    {
+      "project": "Ketcham",
+      "document_id": "REAL-Ketcham",
+      "pages": {
+        "4": "held_out"
+      },
+      "parsing_runtime_ms": 2291.06,
+      "region_runtime_ms": 512.805,
+      "confident_regions": [],
+      "ambiguous_regions": [],
+      "baseline_countable_section_tokens": 0,
+      "shadow_quarantined_tokens": 0,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": 0,
+      "safety": {
+        "semantic_lock_overrides": 0,
+        "invalid_catalog_auto_accepts": 0,
+        "definition_rows_counted_in_shadow": 0,
+        "cross_document_leaks": 0,
+        "unquarantined_token_changes": 0,
+        "default_off_production_changes": 0,
+        "live_token_mutations": 0
+      }
+    },
+    {
+      "project": "Sidwell",
+      "document_id": "REAL-Sidwell",
+      "pages": {
+        "43": "held_out"
+      },
+      "parsing_runtime_ms": 5333.025,
+      "region_runtime_ms": 572.154,
+      "confident_regions": [
+        {
+          "region_id": "p43-matrix-2",
+          "page_number": 43,
+          "region_bbox": [
+            279.7,
+            1166.14,
+            1448.25,
+            1798.95
+          ],
+          "source_document_id": "REAL-Sidwell",
+          "boundary_status": "confident",
+          "region_source": "column_matrix_geometry",
+          "evidence": [
+            "column_locations_header",
+            "regular_vertical_grid",
+            "level_datum_axis",
+            "catalog_label_density"
+          ],
+          "exact_label_count": 33
+        },
+        {
+          "region_id": "p43-matrix-1",
+          "page_number": 43,
+          "region_bbox": [
+            279.7,
+            291.34,
+            2528.25,
+            924.15
+          ],
+          "source_document_id": "REAL-Sidwell",
+          "boundary_status": "confident",
+          "region_source": "column_matrix_geometry",
+          "evidence": [
+            "column_locations_header",
+            "regular_vertical_grid",
+            "level_datum_axis",
+            "catalog_label_density"
+          ],
+          "exact_label_count": 49
+        }
+      ],
+      "ambiguous_regions": [],
+      "baseline_countable_section_tokens": 82,
+      "shadow_quarantined_tokens": 82,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -82,
+      "safety": {
+        "semantic_lock_overrides": 0,
+        "invalid_catalog_auto_accepts": 0,
+        "definition_rows_counted_in_shadow": 0,
+        "cross_document_leaks": 0,
+        "unquarantined_token_changes": 0,
+        "default_off_production_changes": 0,
+        "live_token_mutations": 0
+      }
+    },
+    {
+      "project": "H5 Herndon",
+      "document_id": "REAL-H5",
+      "pages": {
+        "7": "existing_control",
+        "8": "existing_control",
+        "23": "reinforcing_control"
+      },
+      "parsing_runtime_ms": 2470.598,
+      "region_runtime_ms": 63.173,
+      "confident_regions": [
+        {
+          "region_id": "p7-y64-x381",
+          "page_number": 7,
+          "kind": "column",
+          "region_bbox": [
+            389.04,
+            64.54,
+            549.28,
+            263.33
+          ],
+          "header_bands": {
+            "mark": 389.04,
+            "size": 528.0
+          },
+          "source_document_id": "REAL-H5",
+          "boundary_status": "confident",
+          "region_source": "structured_schedule_evidence",
+          "evidence": [
+            "validated_mark_size_region"
+          ]
+        },
+        {
+          "region_id": "p8-y64-x381",
+          "page_number": 8,
+          "kind": "column",
+          "region_bbox": [
+            389.04,
+            64.54,
+            549.28,
+            263.33
+          ],
+          "header_bands": {
+            "mark": 389.04,
+            "size": 528.0
+          },
+          "source_document_id": "REAL-H5",
+          "boundary_status": "confident",
+          "region_source": "structured_schedule_evidence",
+          "evidence": [
+            "validated_mark_size_region"
+          ]
+        },
+        {
+          "region_id": "p23-y184-x1297",
+          "page_number": 23,
+          "kind": "column",
+          "region_bbox": [
+            1305.24,
+            184.65,
+            1983.75,
+            333.31
+          ],
+          "header_bands": {
+            "mark": 1305.24,
+            "plate": 1351.08,
+            "size": 1793.88
+          },
+          "source_document_id": "REAL-H5",
+          "boundary_status": "confident",
+          "region_source": "structured_schedule_evidence",
+          "evidence": [
+            "validated_mark_size_region"
+          ]
+        },
+        {
+          "region_id": "p23-y88-x2433",
+          "page_number": 23,
+          "kind": "column",
+          "region_bbox": [
+            2441.64,
+            88.89,
+            2980.0,
+            321.72
+          ],
+          "header_bands": {
+            "mark": 2441.64,
+            "plate": 2490.96,
+            "size": 2693.88
+          },
+          "source_document_id": "REAL-H5",
+          "boundary_status": "confident",
+          "region_source": "structured_schedule_evidence",
+          "evidence": [
+            "validated_mark_size_region"
+          ]
+        }
+      ],
+      "ambiguous_regions": [],
+      "baseline_countable_section_tokens": 92,
+      "shadow_quarantined_tokens": 12,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -12,
+      "safety": {
+        "semantic_lock_overrides": 0,
+        "invalid_catalog_auto_accepts": 0,
+        "definition_rows_counted_in_shadow": 0,
+        "cross_document_leaks": 0,
+        "unquarantined_token_changes": 0,
+        "default_off_production_changes": 0,
+        "live_token_mutations": 0
+      }
+    },
+    {
+      "project": "1200 K",
+      "document_id": "REAL-1200K",
+      "pages": {
+        "32": "fabricated_component_control"
+      },
+      "parsing_runtime_ms": 6470.079,
+      "region_runtime_ms": 114.188,
+      "confident_regions": [],
+      "ambiguous_regions": [],
+      "baseline_countable_section_tokens": 0,
+      "shadow_quarantined_tokens": 0,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": 0,
+      "safety": {
+        "semantic_lock_overrides": 0,
+        "invalid_catalog_auto_accepts": 0,
+        "definition_rows_counted_in_shadow": 0,
+        "cross_document_leaks": 0,
+        "unquarantined_token_changes": 0,
+        "default_off_production_changes": 0,
+        "live_token_mutations": 0
+      }
+    }
+  ],
+  "by_project_page_section": [
+    {
+      "project": "Burrville",
+      "document_id": "REAL-Burrville",
+      "page": 28,
+      "role": "development",
+      "section": "HSS10.000X0.500",
+      "baseline_countable_section_tokens": 1,
+      "tokens_inside_confident_schedule_regions": 1,
+      "shadow_quarantined_tokens": 1,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -1
+    },
+    {
+      "project": "Burrville",
+      "document_id": "REAL-Burrville",
+      "page": 28,
+      "role": "development",
+      "section": "HSS10.000X0.625",
+      "baseline_countable_section_tokens": 1,
+      "tokens_inside_confident_schedule_regions": 1,
+      "shadow_quarantined_tokens": 1,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -1
+    },
+    {
+      "project": "Burrville",
+      "document_id": "REAL-Burrville",
+      "page": 28,
+      "role": "development",
+      "section": "W10X33",
+      "baseline_countable_section_tokens": 36,
+      "tokens_inside_confident_schedule_regions": 36,
+      "shadow_quarantined_tokens": 36,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -36
+    },
+    {
+      "project": "Burrville",
+      "document_id": "REAL-Burrville",
+      "page": 28,
+      "role": "development",
+      "section": "W10X39",
+      "baseline_countable_section_tokens": 3,
+      "tokens_inside_confident_schedule_regions": 3,
+      "shadow_quarantined_tokens": 3,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -3
+    },
+    {
+      "project": "Burrville",
+      "document_id": "REAL-Burrville",
+      "page": 28,
+      "role": "development",
+      "section": "W10X45",
+      "baseline_countable_section_tokens": 8,
+      "tokens_inside_confident_schedule_regions": 8,
+      "shadow_quarantined_tokens": 8,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -8
+    },
+    {
+      "project": "Burrville",
+      "document_id": "REAL-Burrville",
+      "page": 28,
+      "role": "development",
+      "section": "W10X49",
+      "baseline_countable_section_tokens": 3,
+      "tokens_inside_confident_schedule_regions": 3,
+      "shadow_quarantined_tokens": 3,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -3
+    },
+    {
+      "project": "Burrville",
+      "document_id": "REAL-Burrville",
+      "page": 28,
+      "role": "development",
+      "section": "W10X54",
+      "baseline_countable_section_tokens": 7,
+      "tokens_inside_confident_schedule_regions": 7,
+      "shadow_quarantined_tokens": 7,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -7
+    },
+    {
+      "project": "Burrville",
+      "document_id": "REAL-Burrville",
+      "page": 28,
+      "role": "development",
+      "section": "W10X60",
+      "baseline_countable_section_tokens": 2,
+      "tokens_inside_confident_schedule_regions": 2,
+      "shadow_quarantined_tokens": 2,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -2
+    },
+    {
+      "project": "GCDC",
+      "document_id": "REAL-GCDC",
+      "page": 77,
+      "role": "development",
+      "section": "HSS10X10X3/8",
+      "baseline_countable_section_tokens": 1,
+      "tokens_inside_confident_schedule_regions": 1,
+      "shadow_quarantined_tokens": 1,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -1
+    },
+    {
+      "project": "GCDC",
+      "document_id": "REAL-GCDC",
+      "page": 77,
+      "role": "development",
+      "section": "HSS12X12X1/2",
+      "baseline_countable_section_tokens": 2,
+      "tokens_inside_confident_schedule_regions": 2,
+      "shadow_quarantined_tokens": 2,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -2
+    },
+    {
+      "project": "GCDC",
+      "document_id": "REAL-GCDC",
+      "page": 77,
+      "role": "development",
+      "section": "W12X106",
+      "baseline_countable_section_tokens": 5,
+      "tokens_inside_confident_schedule_regions": 5,
+      "shadow_quarantined_tokens": 5,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -5
+    },
+    {
+      "project": "GCDC",
+      "document_id": "REAL-GCDC",
+      "page": 77,
+      "role": "development",
+      "section": "W12X120",
+      "baseline_countable_section_tokens": 2,
+      "tokens_inside_confident_schedule_regions": 2,
+      "shadow_quarantined_tokens": 2,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -2
+    },
+    {
+      "project": "GCDC",
+      "document_id": "REAL-GCDC",
+      "page": 77,
+      "role": "development",
+      "section": "W12X152",
+      "baseline_countable_section_tokens": 2,
+      "tokens_inside_confident_schedule_regions": 2,
+      "shadow_quarantined_tokens": 2,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -2
+    },
+    {
+      "project": "GCDC",
+      "document_id": "REAL-GCDC",
+      "page": 77,
+      "role": "development",
+      "section": "W12X53",
+      "baseline_countable_section_tokens": 5,
+      "tokens_inside_confident_schedule_regions": 5,
+      "shadow_quarantined_tokens": 5,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -5
+    },
+    {
+      "project": "GCDC",
+      "document_id": "REAL-GCDC",
+      "page": 77,
+      "role": "development",
+      "section": "W12X65",
+      "baseline_countable_section_tokens": 3,
+      "tokens_inside_confident_schedule_regions": 3,
+      "shadow_quarantined_tokens": 3,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -3
+    },
+    {
+      "project": "GCDC",
+      "document_id": "REAL-GCDC",
+      "page": 77,
+      "role": "development",
+      "section": "W12X72",
+      "baseline_countable_section_tokens": 3,
+      "tokens_inside_confident_schedule_regions": 3,
+      "shadow_quarantined_tokens": 3,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -3
+    },
+    {
+      "project": "GCDC",
+      "document_id": "REAL-GCDC",
+      "page": 77,
+      "role": "development",
+      "section": "W14X109",
+      "baseline_countable_section_tokens": 2,
+      "tokens_inside_confident_schedule_regions": 2,
+      "shadow_quarantined_tokens": 2,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -2
+    },
+    {
+      "project": "GCDC",
+      "document_id": "REAL-GCDC",
+      "page": 77,
+      "role": "development",
+      "section": "W14X132",
+      "baseline_countable_section_tokens": 1,
+      "tokens_inside_confident_schedule_regions": 1,
+      "shadow_quarantined_tokens": 1,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -1
+    },
+    {
+      "project": "GCDC",
+      "document_id": "REAL-GCDC",
+      "page": 77,
+      "role": "development",
+      "section": "W14X145",
+      "baseline_countable_section_tokens": 2,
+      "tokens_inside_confident_schedule_regions": 2,
+      "shadow_quarantined_tokens": 2,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -2
+    },
+    {
+      "project": "GCDC",
+      "document_id": "REAL-GCDC",
+      "page": 77,
+      "role": "development",
+      "section": "W14X159",
+      "baseline_countable_section_tokens": 14,
+      "tokens_inside_confident_schedule_regions": 14,
+      "shadow_quarantined_tokens": 14,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -14
+    },
+    {
+      "project": "GCDC",
+      "document_id": "REAL-GCDC",
+      "page": 77,
+      "role": "development",
+      "section": "W14X176",
+      "baseline_countable_section_tokens": 9,
+      "tokens_inside_confident_schedule_regions": 9,
+      "shadow_quarantined_tokens": 9,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -9
+    },
+    {
+      "project": "GCDC",
+      "document_id": "REAL-GCDC",
+      "page": 77,
+      "role": "development",
+      "section": "W14X193",
+      "baseline_countable_section_tokens": 10,
+      "tokens_inside_confident_schedule_regions": 10,
+      "shadow_quarantined_tokens": 10,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -10
+    },
+    {
+      "project": "GCDC",
+      "document_id": "REAL-GCDC",
+      "page": 77,
+      "role": "development",
+      "section": "W14X211",
+      "baseline_countable_section_tokens": 7,
+      "tokens_inside_confident_schedule_regions": 7,
+      "shadow_quarantined_tokens": 7,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -7
+    },
+    {
+      "project": "GCDC",
+      "document_id": "REAL-GCDC",
+      "page": 77,
+      "role": "development",
+      "section": "W14X257",
+      "baseline_countable_section_tokens": 4,
+      "tokens_inside_confident_schedule_regions": 4,
+      "shadow_quarantined_tokens": 4,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -4
+    },
+    {
+      "project": "GCDC",
+      "document_id": "REAL-GCDC",
+      "page": 77,
+      "role": "development",
+      "section": "W14X283",
+      "baseline_countable_section_tokens": 4,
+      "tokens_inside_confident_schedule_regions": 4,
+      "shadow_quarantined_tokens": 4,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -4
+    },
+    {
+      "project": "GCDC",
+      "document_id": "REAL-GCDC",
+      "page": 77,
+      "role": "development",
+      "section": "W14X82",
+      "baseline_countable_section_tokens": 2,
+      "tokens_inside_confident_schedule_regions": 2,
+      "shadow_quarantined_tokens": 2,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -2
+    },
+    {
+      "project": "GCDC",
+      "document_id": "REAL-GCDC",
+      "page": 77,
+      "role": "development",
+      "section": "W14X90",
+      "baseline_countable_section_tokens": 12,
+      "tokens_inside_confident_schedule_regions": 12,
+      "shadow_quarantined_tokens": 12,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -12
+    },
+    {
+      "project": "GCDC",
+      "document_id": "REAL-GCDC",
+      "page": 77,
+      "role": "development",
+      "section": "W18X311",
+      "baseline_countable_section_tokens": 12,
+      "tokens_inside_confident_schedule_regions": 12,
+      "shadow_quarantined_tokens": 12,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -12
+    },
+    {
+      "project": "Springhill",
+      "document_id": "REAL-Springhill",
+      "page": 26,
+      "role": "development",
+      "section": "HSS10.000X0.500",
+      "baseline_countable_section_tokens": 1,
+      "tokens_inside_confident_schedule_regions": 1,
+      "shadow_quarantined_tokens": 1,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -1
+    },
+    {
+      "project": "Springhill",
+      "document_id": "REAL-Springhill",
+      "page": 26,
+      "role": "development",
+      "section": "HSS12.750X0.375",
+      "baseline_countable_section_tokens": 2,
+      "tokens_inside_confident_schedule_regions": 2,
+      "shadow_quarantined_tokens": 2,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -2
+    },
+    {
+      "project": "Springhill",
+      "document_id": "REAL-Springhill",
+      "page": 26,
+      "role": "development",
+      "section": "HSS18.000X0.375",
+      "baseline_countable_section_tokens": 1,
+      "tokens_inside_confident_schedule_regions": 1,
+      "shadow_quarantined_tokens": 1,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -1
+    },
+    {
+      "project": "Springhill",
+      "document_id": "REAL-Springhill",
+      "page": 26,
+      "role": "development",
+      "section": "HSS18.000X0.500",
+      "baseline_countable_section_tokens": 4,
+      "tokens_inside_confident_schedule_regions": 4,
+      "shadow_quarantined_tokens": 4,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -4
+    },
+    {
+      "project": "Springhill",
+      "document_id": "REAL-Springhill",
+      "page": 26,
+      "role": "development",
+      "section": "W10X33",
+      "baseline_countable_section_tokens": 15,
+      "tokens_inside_confident_schedule_regions": 15,
+      "shadow_quarantined_tokens": 15,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -15
+    },
+    {
+      "project": "Springhill",
+      "document_id": "REAL-Springhill",
+      "page": 26,
+      "role": "development",
+      "section": "W10X39",
+      "baseline_countable_section_tokens": 8,
+      "tokens_inside_confident_schedule_regions": 8,
+      "shadow_quarantined_tokens": 8,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -8
+    },
+    {
+      "project": "Springhill",
+      "document_id": "REAL-Springhill",
+      "page": 26,
+      "role": "development",
+      "section": "W10X45",
+      "baseline_countable_section_tokens": 17,
+      "tokens_inside_confident_schedule_regions": 17,
+      "shadow_quarantined_tokens": 17,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -17
+    },
+    {
+      "project": "Springhill",
+      "document_id": "REAL-Springhill",
+      "page": 26,
+      "role": "development",
+      "section": "W10X49",
+      "baseline_countable_section_tokens": 6,
+      "tokens_inside_confident_schedule_regions": 6,
+      "shadow_quarantined_tokens": 6,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -6
+    },
+    {
+      "project": "Springhill",
+      "document_id": "REAL-Springhill",
+      "page": 26,
+      "role": "development",
+      "section": "W10X54",
+      "baseline_countable_section_tokens": 1,
+      "tokens_inside_confident_schedule_regions": 1,
+      "shadow_quarantined_tokens": 1,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -1
+    },
+    {
+      "project": "Springhill",
+      "document_id": "REAL-Springhill",
+      "page": 26,
+      "role": "development",
+      "section": "W12X65",
+      "baseline_countable_section_tokens": 9,
+      "tokens_inside_confident_schedule_regions": 9,
+      "shadow_quarantined_tokens": 9,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -9
+    },
+    {
+      "project": "Ketcham",
+      "document_id": "REAL-Ketcham",
+      "page": 4,
+      "role": "held_out",
+      "section": "(none)",
+      "baseline_countable_section_tokens": 0,
+      "tokens_inside_confident_schedule_regions": 0,
+      "shadow_quarantined_tokens": 0,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": 0
+    },
+    {
+      "project": "Sidwell",
+      "document_id": "REAL-Sidwell",
+      "page": 43,
+      "role": "held_out",
+      "section": "HSS10.000X0.500",
+      "baseline_countable_section_tokens": 2,
+      "tokens_inside_confident_schedule_regions": 2,
+      "shadow_quarantined_tokens": 2,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -2
+    },
+    {
+      "project": "Sidwell",
+      "document_id": "REAL-Sidwell",
+      "page": 43,
+      "role": "held_out",
+      "section": "HSS8X8X1/2",
+      "baseline_countable_section_tokens": 2,
+      "tokens_inside_confident_schedule_regions": 2,
+      "shadow_quarantined_tokens": 2,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -2
+    },
+    {
+      "project": "Sidwell",
+      "document_id": "REAL-Sidwell",
+      "page": 43,
+      "role": "held_out",
+      "section": "W10X33",
+      "baseline_countable_section_tokens": 2,
+      "tokens_inside_confident_schedule_regions": 2,
+      "shadow_quarantined_tokens": 2,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -2
+    },
+    {
+      "project": "Sidwell",
+      "document_id": "REAL-Sidwell",
+      "page": 43,
+      "role": "held_out",
+      "section": "W10X45",
+      "baseline_countable_section_tokens": 14,
+      "tokens_inside_confident_schedule_regions": 14,
+      "shadow_quarantined_tokens": 14,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -14
+    },
+    {
+      "project": "Sidwell",
+      "document_id": "REAL-Sidwell",
+      "page": 43,
+      "role": "held_out",
+      "section": "W10X49",
+      "baseline_countable_section_tokens": 6,
+      "tokens_inside_confident_schedule_regions": 6,
+      "shadow_quarantined_tokens": 6,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -6
+    },
+    {
+      "project": "Sidwell",
+      "document_id": "REAL-Sidwell",
+      "page": 43,
+      "role": "held_out",
+      "section": "W10X54",
+      "baseline_countable_section_tokens": 5,
+      "tokens_inside_confident_schedule_regions": 5,
+      "shadow_quarantined_tokens": 5,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -5
+    },
+    {
+      "project": "Sidwell",
+      "document_id": "REAL-Sidwell",
+      "page": 43,
+      "role": "held_out",
+      "section": "W10X60",
+      "baseline_countable_section_tokens": 3,
+      "tokens_inside_confident_schedule_regions": 3,
+      "shadow_quarantined_tokens": 3,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -3
+    },
+    {
+      "project": "Sidwell",
+      "document_id": "REAL-Sidwell",
+      "page": 43,
+      "role": "held_out",
+      "section": "W10X68",
+      "baseline_countable_section_tokens": 2,
+      "tokens_inside_confident_schedule_regions": 2,
+      "shadow_quarantined_tokens": 2,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -2
+    },
+    {
+      "project": "Sidwell",
+      "document_id": "REAL-Sidwell",
+      "page": 43,
+      "role": "held_out",
+      "section": "W10X77",
+      "baseline_countable_section_tokens": 2,
+      "tokens_inside_confident_schedule_regions": 2,
+      "shadow_quarantined_tokens": 2,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -2
+    },
+    {
+      "project": "Sidwell",
+      "document_id": "REAL-Sidwell",
+      "page": 43,
+      "role": "held_out",
+      "section": "W12X50",
+      "baseline_countable_section_tokens": 1,
+      "tokens_inside_confident_schedule_regions": 1,
+      "shadow_quarantined_tokens": 1,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -1
+    },
+    {
+      "project": "Sidwell",
+      "document_id": "REAL-Sidwell",
+      "page": 43,
+      "role": "held_out",
+      "section": "W12X65",
+      "baseline_countable_section_tokens": 18,
+      "tokens_inside_confident_schedule_regions": 18,
+      "shadow_quarantined_tokens": 18,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -18
+    },
+    {
+      "project": "Sidwell",
+      "document_id": "REAL-Sidwell",
+      "page": 43,
+      "role": "held_out",
+      "section": "W14X132",
+      "baseline_countable_section_tokens": 4,
+      "tokens_inside_confident_schedule_regions": 4,
+      "shadow_quarantined_tokens": 4,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -4
+    },
+    {
+      "project": "Sidwell",
+      "document_id": "REAL-Sidwell",
+      "page": 43,
+      "role": "held_out",
+      "section": "W14X68",
+      "baseline_countable_section_tokens": 3,
+      "tokens_inside_confident_schedule_regions": 3,
+      "shadow_quarantined_tokens": 3,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -3
+    },
+    {
+      "project": "Sidwell",
+      "document_id": "REAL-Sidwell",
+      "page": 43,
+      "role": "held_out",
+      "section": "W8X31",
+      "baseline_countable_section_tokens": 16,
+      "tokens_inside_confident_schedule_regions": 16,
+      "shadow_quarantined_tokens": 16,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -16
+    },
+    {
+      "project": "Sidwell",
+      "document_id": "REAL-Sidwell",
+      "page": 43,
+      "role": "held_out",
+      "section": "W8X35",
+      "baseline_countable_section_tokens": 1,
+      "tokens_inside_confident_schedule_regions": 1,
+      "shadow_quarantined_tokens": 1,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -1
+    },
+    {
+      "project": "Sidwell",
+      "document_id": "REAL-Sidwell",
+      "page": 43,
+      "role": "held_out",
+      "section": "W8X40",
+      "baseline_countable_section_tokens": 1,
+      "tokens_inside_confident_schedule_regions": 1,
+      "shadow_quarantined_tokens": 1,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -1
+    },
+    {
+      "project": "H5 Herndon",
+      "document_id": "REAL-H5",
+      "page": 7,
+      "role": "existing_control",
+      "section": "W8X31",
+      "baseline_countable_section_tokens": 1,
+      "tokens_inside_confident_schedule_regions": 1,
+      "shadow_quarantined_tokens": 1,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -1
+    },
+    {
+      "project": "H5 Herndon",
+      "document_id": "REAL-H5",
+      "page": 7,
+      "role": "existing_control",
+      "section": "W8X40",
+      "baseline_countable_section_tokens": 3,
+      "tokens_inside_confident_schedule_regions": 0,
+      "shadow_quarantined_tokens": 0,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": 0
+    },
+    {
+      "project": "H5 Herndon",
+      "document_id": "REAL-H5",
+      "page": 8,
+      "role": "existing_control",
+      "section": "W10X12",
+      "baseline_countable_section_tokens": 1,
+      "tokens_inside_confident_schedule_regions": 0,
+      "shadow_quarantined_tokens": 0,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": 0
+    },
+    {
+      "project": "H5 Herndon",
+      "document_id": "REAL-H5",
+      "page": 8,
+      "role": "existing_control",
+      "section": "W12X22",
+      "baseline_countable_section_tokens": 2,
+      "tokens_inside_confident_schedule_regions": 0,
+      "shadow_quarantined_tokens": 0,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": 0
+    },
+    {
+      "project": "H5 Herndon",
+      "document_id": "REAL-H5",
+      "page": 8,
+      "role": "existing_control",
+      "section": "W16X31",
+      "baseline_countable_section_tokens": 9,
+      "tokens_inside_confident_schedule_regions": 0,
+      "shadow_quarantined_tokens": 0,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": 0
+    },
+    {
+      "project": "H5 Herndon",
+      "document_id": "REAL-H5",
+      "page": 8,
+      "role": "existing_control",
+      "section": "W18X35",
+      "baseline_countable_section_tokens": 19,
+      "tokens_inside_confident_schedule_regions": 0,
+      "shadow_quarantined_tokens": 0,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": 0
+    },
+    {
+      "project": "H5 Herndon",
+      "document_id": "REAL-H5",
+      "page": 8,
+      "role": "existing_control",
+      "section": "W18X46",
+      "baseline_countable_section_tokens": 3,
+      "tokens_inside_confident_schedule_regions": 0,
+      "shadow_quarantined_tokens": 0,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": 0
+    },
+    {
+      "project": "H5 Herndon",
+      "document_id": "REAL-H5",
+      "page": 8,
+      "role": "existing_control",
+      "section": "W21X44",
+      "baseline_countable_section_tokens": 10,
+      "tokens_inside_confident_schedule_regions": 0,
+      "shadow_quarantined_tokens": 0,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": 0
+    },
+    {
+      "project": "H5 Herndon",
+      "document_id": "REAL-H5",
+      "page": 8,
+      "role": "existing_control",
+      "section": "W21X50",
+      "baseline_countable_section_tokens": 1,
+      "tokens_inside_confident_schedule_regions": 0,
+      "shadow_quarantined_tokens": 0,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": 0
+    },
+    {
+      "project": "H5 Herndon",
+      "document_id": "REAL-H5",
+      "page": 8,
+      "role": "existing_control",
+      "section": "W24X55",
+      "baseline_countable_section_tokens": 12,
+      "tokens_inside_confident_schedule_regions": 0,
+      "shadow_quarantined_tokens": 0,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": 0
+    },
+    {
+      "project": "H5 Herndon",
+      "document_id": "REAL-H5",
+      "page": 8,
+      "role": "existing_control",
+      "section": "W8X10",
+      "baseline_countable_section_tokens": 10,
+      "tokens_inside_confident_schedule_regions": 0,
+      "shadow_quarantined_tokens": 0,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": 0
+    },
+    {
+      "project": "H5 Herndon",
+      "document_id": "REAL-H5",
+      "page": 8,
+      "role": "existing_control",
+      "section": "W8X31",
+      "baseline_countable_section_tokens": 1,
+      "tokens_inside_confident_schedule_regions": 1,
+      "shadow_quarantined_tokens": 1,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -1
+    },
+    {
+      "project": "H5 Herndon",
+      "document_id": "REAL-H5",
+      "page": 8,
+      "role": "existing_control",
+      "section": "WT16.5X59",
+      "baseline_countable_section_tokens": 9,
+      "tokens_inside_confident_schedule_regions": 0,
+      "shadow_quarantined_tokens": 0,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": 0
+    },
+    {
+      "project": "H5 Herndon",
+      "document_id": "REAL-H5",
+      "page": 23,
+      "role": "reinforcing_control",
+      "section": "HSS3X3X1/4",
+      "baseline_countable_section_tokens": 1,
+      "tokens_inside_confident_schedule_regions": 0,
+      "shadow_quarantined_tokens": 0,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": 0
+    },
+    {
+      "project": "H5 Herndon",
+      "document_id": "REAL-H5",
+      "page": 23,
+      "role": "reinforcing_control",
+      "section": "W8X24",
+      "baseline_countable_section_tokens": 2,
+      "tokens_inside_confident_schedule_regions": 2,
+      "shadow_quarantined_tokens": 2,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -2
+    },
+    {
+      "project": "H5 Herndon",
+      "document_id": "REAL-H5",
+      "page": 23,
+      "role": "reinforcing_control",
+      "section": "W8X28",
+      "baseline_countable_section_tokens": 1,
+      "tokens_inside_confident_schedule_regions": 1,
+      "shadow_quarantined_tokens": 1,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -1
+    },
+    {
+      "project": "H5 Herndon",
+      "document_id": "REAL-H5",
+      "page": 23,
+      "role": "reinforcing_control",
+      "section": "W8X31",
+      "baseline_countable_section_tokens": 4,
+      "tokens_inside_confident_schedule_regions": 4,
+      "shadow_quarantined_tokens": 4,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -4
+    },
+    {
+      "project": "H5 Herndon",
+      "document_id": "REAL-H5",
+      "page": 23,
+      "role": "reinforcing_control",
+      "section": "W8X35",
+      "baseline_countable_section_tokens": 1,
+      "tokens_inside_confident_schedule_regions": 1,
+      "shadow_quarantined_tokens": 1,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -1
+    },
+    {
+      "project": "H5 Herndon",
+      "document_id": "REAL-H5",
+      "page": 23,
+      "role": "reinforcing_control",
+      "section": "W8X40",
+      "baseline_countable_section_tokens": 1,
+      "tokens_inside_confident_schedule_regions": 1,
+      "shadow_quarantined_tokens": 1,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -1
+    },
+    {
+      "project": "H5 Herndon",
+      "document_id": "REAL-H5",
+      "page": 23,
+      "role": "reinforcing_control",
+      "section": "W8X58",
+      "baseline_countable_section_tokens": 1,
+      "tokens_inside_confident_schedule_regions": 1,
+      "shadow_quarantined_tokens": 1,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": -1
+    },
+    {
+      "project": "1200 K",
+      "document_id": "REAL-1200K",
+      "page": 32,
+      "role": "fabricated_component_control",
+      "section": "(none)",
+      "baseline_countable_section_tokens": 0,
+      "tokens_inside_confident_schedule_regions": 0,
+      "shadow_quarantined_tokens": 0,
+      "ambiguous_tokens_left_unchanged": 0,
+      "eligible_token_delta": 0
+    }
+  ],
+  "exclusion_control_quarantines": 12,
+  "hard_gates": {
+    "cross_document_leaks": 0,
+    "default_off_production_changes": 0,
+    "definition_rows_counted_in_shadow": 0,
+    "invalid_catalog_auto_accepts": 0,
+    "live_token_mutations": 0,
+    "semantic_lock_overrides": 0,
+    "unquarantined_token_changes": 0
+  },
+  "total_parsing_runtime_ms": 33255.294,
+  "total_region_runtime_ms": 1823.466,
+  "revit_ground_truth": "no_project_page_scoped_revit_ground_truth_identified_without_inference",
+  "run_to_run_deterministic": true
+}
