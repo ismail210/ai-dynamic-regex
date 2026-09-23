@@ -1,0 +1,29 @@
+document_id,project_id,template_family,source_type,pipeline,row_id,page,mark,family,expected_status,expected_section,predicted_section,row_found,status_ok,cell_ok,roles_ok,has_components,components_ok,has_quantity,quantity_ok,provenance_ok,outcome,note
+SYN-A-conventional,SYN-A,T1-conventional-schedule,synthetic,baseline,A-L1,2,L1,W,resolved,W8X21,W8X21,True,True,True,True,True,True,False,True,False,pass,"case 1: L1 -> W8X21, WITH BOTTOM PLATE kept as role evidence"
+SYN-A-conventional,SYN-A,T1-conventional-schedule,synthetic,baseline,A-L2,2,L2,W,resolved,W8X28,W8X28,True,True,True,True,False,True,False,True,False,pass,
+SYN-A-conventional,SYN-A,T1-conventional-schedule,synthetic,baseline,A-L3,2,L3,NONE,abstain,,,True,True,True,True,False,True,False,True,False,pass,non-steel SIZE must not resolve
+SYN-A-conventional,SYN-A,T1-conventional-schedule,synthetic,baseline,A-C1,2,C1,HSS,resolved,HSS6X6X1/2,HSS6X6X1/2,True,True,True,True,True,True,False,True,False,pass,case 2: C1 -> catalog-valid HSS
+SYN-B-embedded,SYN-B,T2-embedded-plan-schedule,synthetic,baseline,B-LB1,3,LB-1,W,resolved,W8X21,,False,False,False,False,False,False,False,True,False,expected_unsupported,case 3: LB-1 is a non-current convention
+SYN-B-embedded,SYN-B,T2-embedded-plan-schedule,synthetic,baseline,B-LB2,3,LB-2,L,resolved,L4X4X1/4,,False,False,False,False,False,False,False,True,False,expected_unsupported,
+SYN-B-embedded,SYN-B,T2-embedded-plan-schedule,synthetic,baseline,B-C1,3,C-1,W,resolved,W8X24,,False,False,False,False,False,False,False,True,False,expected_unsupported,real H5 convention; C-1 is not a channel
+SYN-B-embedded,SYN-B,T2-embedded-plan-schedule,synthetic,baseline,B-C2,3,C-2,W,resolved,W8X24,,False,False,False,False,False,False,False,True,False,expected_unsupported,
+SYN-B-embedded,SYN-B,T2-embedded-plan-schedule,synthetic,baseline,B-P1,3,P-1,NONE,abstain,,,False,True,False,False,False,False,False,True,False,pass,concrete pier mark must not resolve
+SYN-C-negative,SYN-C,T2-embedded-plan-schedule,synthetic,baseline,C-RI1,5,RI-1,NONE,abstain,,,False,True,False,False,False,False,False,True,False,pass,reinforcing schedule must never map RI-1 -> W8X31
+SYN-C-negative,SYN-C,T2-embedded-plan-schedule,synthetic,baseline,C-BP1,5,BP1,NONE,abstain,,,False,True,False,False,True,False,False,True,False,pass,"case 10 analogue: plate component, not a rolled section"
+SYN-D-conflict,SYN-D,T1-conventional-schedule,synthetic,baseline,D-L1-p1,1,L1,NONE,review,,W8X21,True,False,False,True,False,True,False,True,False,expected_unsupported,case 14: conflicting duplicate mark; baseline silently keeps first row
+SYN-D-conflict,SYN-D,T1-conventional-schedule,synthetic,baseline,D-L1-p2,2,L1,NONE,review,,W8X21,True,False,False,True,False,True,False,True,False,expected_unsupported,
+SYN-D-conflict,SYN-D,T1-conventional-schedule,synthetic,baseline,D-L4,2,L4,W,resolved,W8X21,W8X21,True,True,True,True,False,True,False,True,False,pass,
+SYN-A-conventional,SYN-A,T1-conventional-schedule,synthetic,shadow,A-L1,2,L1,W,resolved,W8X21,W8X21,True,True,True,True,True,True,False,True,True,pass,"case 1: L1 -> W8X21, WITH BOTTOM PLATE kept as role evidence"
+SYN-A-conventional,SYN-A,T1-conventional-schedule,synthetic,shadow,A-L2,2,L2,W,resolved,W8X28,W8X28,True,True,True,True,False,True,False,True,True,pass,
+SYN-A-conventional,SYN-A,T1-conventional-schedule,synthetic,shadow,A-L3,2,L3,NONE,abstain,,,True,True,True,True,False,True,False,True,True,pass,non-steel SIZE must not resolve
+SYN-A-conventional,SYN-A,T1-conventional-schedule,synthetic,shadow,A-C1,2,C1,HSS,resolved,HSS6X6X1/2,HSS6X6X1/2,True,True,True,True,True,True,False,True,True,pass,case 2: C1 -> catalog-valid HSS
+SYN-B-embedded,SYN-B,T2-embedded-plan-schedule,synthetic,shadow,B-LB1,3,LB-1,W,resolved,W8X21,W8X21,True,True,True,True,False,True,False,True,True,pass,case 3: LB-1 is a non-current convention
+SYN-B-embedded,SYN-B,T2-embedded-plan-schedule,synthetic,shadow,B-LB2,3,LB-2,L,resolved,L4X4X1/4,L4X4X1/4,True,True,True,True,False,True,False,True,True,pass,
+SYN-B-embedded,SYN-B,T2-embedded-plan-schedule,synthetic,shadow,B-C1,3,C-1,W,resolved,W8X24,W8X24,True,True,True,True,False,True,False,True,True,pass,real H5 convention; C-1 is not a channel
+SYN-B-embedded,SYN-B,T2-embedded-plan-schedule,synthetic,shadow,B-C2,3,C-2,W,resolved,W8X24,W8X24,True,True,True,True,False,True,False,True,True,pass,
+SYN-B-embedded,SYN-B,T2-embedded-plan-schedule,synthetic,shadow,B-P1,3,P-1,NONE,abstain,,,False,True,False,False,False,False,False,True,False,pass,concrete pier mark must not resolve
+SYN-C-negative,SYN-C,T2-embedded-plan-schedule,synthetic,shadow,C-RI1,5,RI-1,NONE,abstain,,,True,True,True,True,False,True,False,True,True,pass,reinforcing schedule must never map RI-1 -> W8X31
+SYN-C-negative,SYN-C,T2-embedded-plan-schedule,synthetic,shadow,C-BP1,5,BP1,NONE,abstain,,,True,True,True,True,True,True,False,True,True,pass,"case 10 analogue: plate component, not a rolled section"
+SYN-D-conflict,SYN-D,T1-conventional-schedule,synthetic,shadow,D-L1-p1,1,L1,NONE,review,,,True,True,False,True,False,True,False,True,True,pass,case 14: conflicting duplicate mark; baseline silently keeps first row
+SYN-D-conflict,SYN-D,T1-conventional-schedule,synthetic,shadow,D-L1-p2,2,L1,NONE,review,,,True,True,False,True,False,True,False,True,True,pass,
+SYN-D-conflict,SYN-D,T1-conventional-schedule,synthetic,shadow,D-L4,2,L4,W,resolved,W8X21,W8X21,True,True,True,True,False,True,False,True,True,pass,

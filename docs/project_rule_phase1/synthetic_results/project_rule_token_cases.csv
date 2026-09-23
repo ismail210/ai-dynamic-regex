@@ -1,0 +1,15 @@
+case_id,text,expect,expected_section,decoy_section,section,match_status,confidence,needs_review,takeoff_eligible,auto_accepted,semantic_lock_violation,wrong_auto_accept,latency_ms,passed,outcome,note
+T01,W10X33,locked,W10X33,W12X26,W10X33,exact_match,1.0,False,True,True,False,False,245.18,True,pass,case 5: exact label under conflicting context
+T02,HSS8X4,not_auto_accepted,,HSS8X4X1/2,HSS8X4X1/2,missing_dimension_field,0.0,True,False,False,False,False,40.39,True,pass,case 6: incomplete HSS needs thickness
+T03,L4X4X1/4,locked,L4X4X1/4,L4X4X3/8,L4X4X1/4,exact_match,1.0,False,True,True,False,False,51.54,True,pass,case 7: exact angle
+T04,L1,rule_resolved,W8X21,L4X4X1/4,W8X21,project_rule_resolved,0.95,False,True,True,False,False,26.54,True,pass,"case 7: L1 is a mark, resolved via schedule"
+T05,L1,not_auto_accepted,,L4X4X1/4,L1,exact_match,0.0,True,False,False,False,False,1.73,True,pass,mark without schedule is never an angle
+T06,ANGLE 4X4X1/4,not_auto_accepted,,L4X4X3/8,L4X4X3/8,corrected_prediction,0.0,True,False,False,False,False,48.38,True,pass,"case 8: prefix ANGLE cue unsupported today; safe outcome is review, never the decoy"
+T07,4X4X1/4 ANGLE,locked,L4X4X1/4,L4X4X3/8,L4X4X1/4,normalized_match,1.0,False,True,True,False,False,42.58,True,pass,case 8: suffix ANGLE cue
+T08,4X4X1/4,not_auto_accepted,,L4X4X1/4,L4X4X1/4,corrected_prediction,0.0,True,False,False,False,False,48.05,True,pass,case 8: bare dims stay unresolved
+T09,CHANNEL,not_auto_accepted,,C8X11.5,C8X11.5,corrected_prediction,0.0,True,False,False,False,False,21.99,True,pass,case 9: CHANNEL alone does not pick C/MC
+T10,BENT PLATE 12X4X3/8,component_not_rolled,,L4X4X3/8,,confirmed_annotation,0.5,True,True,False,False,False,31.94,True,pass,"case 10: bent plate is a component, not a rolled L"
+T11,2L4X4X1/2,locked,2L4X4X1/2,L4X4X1/2,2L4X4X1/2,exact_match,1.0,False,True,True,False,False,62.63,True,pass,case 11: double angle
+T12,2 L4X4X1/2,locked,L4X4X1/2,L4X4X3/8,2L4X4X1/2,normalized_match,1.0,False,True,True,False,True,12.08,False,expected_known_defect,case 11: quantity 2 of L4X4X1/2; resolve_trusted_explicit_section collapses to 2L family
+T13,L1,not_auto_accepted,,L4X4X1/4,L1,exact_match,0.0,True,False,False,False,False,2.21,True,pass,no cross-document resolution: SYN-B has no L1
+T14,LB-1,not_auto_accepted,,W8X21,W8X21,corrected_prediction,0.0,True,False,False,False,False,29.75,True,pass,production path unchanged: LB-1 is only resolved in shadow records

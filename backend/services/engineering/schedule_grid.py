@@ -114,7 +114,8 @@ def attach_schedule_grid(document: Dict[str, Any]) -> Dict[str, Any]:
     document["schedule_mark_map"] = schedule_mark_map(grids)
     if settings.schedule_evidence_shadow_enabled:
         document["schedule_evidence_shadow"] = build_schedule_evidence(
-            document.get("words") or []
+            document.get("words") or [],
+            discovery="widened" if settings.schedule_evidence_shadow_widened else "current",
         )
     return document
 
@@ -342,6 +343,9 @@ def _parse_body_row(
 # --------------------------------------------------------------------------
 
 SCHEDULE_EVIDENCE_SCHEMA_VERSION = "1.0"
+# Hyphen / multi-letter marks (C-1, LB-1, BP1). Accepted only as the MARK
+# cell of a validated row; the family always comes from the SIZE cell.
+_WIDE_MARK_RE = re.compile(r"^[A-Z]{1,3}-?\d{1,3}[A-Z]?$", re.IGNORECASE)
 _SEGMENT_REACH = 300.0
 # The SIZE cell names the host member, not the mark's identity (H5 RI-1).
 _HOST_MEMBER_TITLE_RE = re.compile(r"\bREINF", re.IGNORECASE)
@@ -353,11 +357,12 @@ _KIND_ROLES = frozenset({"lintel", "column", "bearing_plate"})
 def build_schedule_evidence(
     words: Iterable[Dict[str, Any]],
     *,
+    discovery: str = "current",
     catalog_fn: Optional[CatalogFn] = None,
 ) -> Dict[str, Any]:
-    """Structured schedule rows with provenance (legacy L/C mark grammar)."""
+    """Structured schedule rows with provenance. ``current`` = legacy marks."""
 
-    mark_re = _MARK_RE
+    mark_re = _WIDE_MARK_RE if discovery == "widened" else _MARK_RE
     accept = catalog_fn or _catalog_accepts
     by_page: Dict[Any, List[dict]] = {}
     for word in words:
@@ -379,6 +384,7 @@ def build_schedule_evidence(
     conflicts = _mark_conflicts(records)
     return {
         "schema_version": SCHEDULE_EVIDENCE_SCHEMA_VERSION,
+        "discovery": discovery,
         "regions": regions,
         "records": records,
         "rejections": rejections,

@@ -172,9 +172,9 @@ def run_baseline(words: List[Dict[str, Any]]) -> Dict[str, Any]:
 
 
 def run_shadow(words: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """Shadow structured-evidence path (legacy mark grammar). Measurement only."""
+    """Shadow structured-evidence path (widened discovery). Measurement only."""
 
-    evidence = schedule_grid.build_schedule_evidence(words)
+    evidence = schedule_grid.build_schedule_evidence(words, discovery="widened")
     rows = [
         _row(
             rec["page_number"],

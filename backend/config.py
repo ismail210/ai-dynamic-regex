@@ -114,10 +114,18 @@ class Settings:
     )
     # Shadow-only structured schedule rows (row/cell provenance, conflicts,
     # rejection reasons) stored as ``schedule_evidence_shadow``. Nothing in
-    # prediction reads it.
+    # prediction reads it. WIDENED adds hyphen/prefix marks (C-1, LB-1).
     schedule_evidence_shadow_enabled: bool = field(
         default_factory=lambda: os.getenv(
             "SCHEDULE_EVIDENCE_SHADOW_ENABLED", "false"
+        )
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
+    schedule_evidence_shadow_widened: bool = field(
+        default_factory=lambda: os.getenv(
+            "SCHEDULE_EVIDENCE_SHADOW_WIDENED", "false"
         )
         .strip()
         .lower()

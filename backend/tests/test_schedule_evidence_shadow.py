@@ -48,6 +48,13 @@ class CompatibilityTests(unittest.TestCase):
         self.assertEqual(shadow["mark_map"], legacy)
         self.assertEqual(shadow["mark_map"]["L1"], "W8X21")
 
+    def test_widened_keeps_legacy_marks(self) -> None:
+        words = _struct_schedule_words()
+        legacy = schedule_mark_map(build_schedule_grids(words, catalog_fn=_accept_catalog))
+        widened = build_schedule_evidence(words, discovery="widened", catalog_fn=_accept_catalog)
+        for mark, section in legacy.items():
+            self.assertEqual(widened["mark_map"][mark], section)
+
     def test_l1_record_keeps_plate_evidence_and_provenance(self) -> None:
         records = build_schedule_evidence(_struct_schedule_words(), catalog_fn=_accept_catalog)["records"]
         l1 = next(r for r in records if r["mark_normalized"] == "L1")
@@ -61,7 +68,33 @@ class CompatibilityTests(unittest.TestCase):
         self.assertTrue(l1["row_bbox"] and l1["region_bbox"] and l1["source_cells"])
 
 
-class ConflictTests(unittest.TestCase):
+class WidenedDiscoveryTests(unittest.TestCase):
+    def _side_by_side(self) -> list:
+        return _rows(
+            (884, [(100, "PIER"), (160, "SCHEDULE"), (400, "COLUMN"), (460, "SCHEDULE")]),
+            (900, [(100, "PIER"), (140, "TYPE"), (200, "SIZE"), (400, "MARK"), (500, "SIZE")]),
+            (918, [(100, "P-1"), (200, "1'-4\""), (400, "C-1"), (500, "W8x24")]),
+        )
+
+    def test_hyphen_mark_only_in_widened_mode(self) -> None:
+        words = self._side_by_side()
+        catalog = lambda token: token == "W8X24"  # noqa: E731
+        self.assertEqual(build_schedule_evidence(words, catalog_fn=catalog)["mark_map"], {})
+        widened = build_schedule_evidence(words, discovery="widened", catalog_fn=catalog)
+        self.assertEqual(widened["mark_map"], {"C-1": "W8X24"})
+        self.assertNotIn("P-1", widened["mark_map"])
+        self.assertEqual(widened["records"][0]["role_tags"], ["column"])
+
+    def test_mark_letter_never_sets_family(self) -> None:
+        words = _rows(
+            (100, [(100, "LINTEL"), (160, "SCHEDULE")]),
+            (116, [(100, "MARK"), (200, "SIZE")]),
+            (134, [(100, "L-2"), (200, "4X4X1/4")]),
+        )
+        widened = build_schedule_evidence(words, discovery="widened")
+        self.assertEqual(widened["mark_map"], {})
+        self.assertEqual(widened["records"][0]["rejection_reason"], "size_not_catalog_valid")
+
     def test_conflicting_duplicate_mark_goes_to_review(self) -> None:
         words = _rows(
             (100, [(100, "MARK"), (200, "SIZE")]),
@@ -76,12 +109,25 @@ class ConflictTests(unittest.TestCase):
         self.assertEqual(shadow["conflicts"], ["L1"])
         self.assertTrue(all(r["resolution_status"] == "conflict" for r in shadow["records"]))
 
+    def test_reinforcing_schedule_rejects_host_section(self) -> None:
+        words = _rows(
+            (80, [(100, "COLUMN"), (160, "REINFORCING"), (240, "SCHEDULE")]),
+            (96, [(100, "MARK"), (160, "PLATE"), (300, "SIZE")]),
+            (114, [(100, "RI-1"), (160, "9\""), (300, "W8x31")]),
+        )
+        shadow = build_schedule_evidence(words, discovery="widened", catalog_fn=lambda t: t == "W8X31")
+        self.assertEqual(shadow["mark_map"], {})
+        self.assertEqual(shadow["records"][0]["rejection_reason"], "host_member_schedule")
+
+
 class FlagAndWiringTests(unittest.TestCase):
     def test_flags_default_off(self) -> None:
         with patch.dict(os.environ, {}, clear=False):
             os.environ.pop("SCHEDULE_EVIDENCE_SHADOW_ENABLED", None)
+            os.environ.pop("SCHEDULE_EVIDENCE_SHADOW_WIDENED", None)
             fresh = Settings()
         self.assertFalse(fresh.schedule_evidence_shadow_enabled)
+        self.assertFalse(fresh.schedule_evidence_shadow_widened)
 
     def test_attach_is_unchanged_when_flag_off(self) -> None:
         document: dict = {"words": _struct_schedule_words()}
@@ -91,10 +137,12 @@ class FlagAndWiringTests(unittest.TestCase):
 
     def test_attach_stores_side_artifact_when_flag_on(self) -> None:
         document: dict = {"words": _struct_schedule_words()}
-        with _flags(schedule_evidence_shadow_enabled=True), patch.object(schedule_grid, "_catalog_accepts", side_effect=_accept_catalog):
+        with _flags(
+            schedule_evidence_shadow_enabled=True, schedule_evidence_shadow_widened=True
+        ), patch.object(schedule_grid, "_catalog_accepts", side_effect=_accept_catalog):
             attach_schedule_grid(document)
         shadow = document["schedule_evidence_shadow"]
-        self.assertEqual(shadow["mark_map"]["L1"], "W8X21")
+        self.assertEqual(shadow["discovery"], "widened")
         self.assertEqual(document["schedule_mark_map"]["L1"], "W8X21")
 
     def test_shadow_artifact_not_read_by_production(self) -> None:
