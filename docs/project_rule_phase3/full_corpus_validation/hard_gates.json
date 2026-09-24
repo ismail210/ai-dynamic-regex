@@ -1,0 +1,779 @@
+{
+ "evidence_class": "measured per document; nonzero hits listed individually",
+ "nonzero": [
+  {
+   "doc_id": "DOC-001",
+   "gate": "default_off_production_differences",
+   "relative_path": "ST.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-004",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/00 - Yellow Spring/ST1.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-006",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/03 - The Field School/05 Structural - Combined File - Copy.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-007",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/04 - Thomas ES/Structural.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-009",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/06 - Tempelton/Structural1.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-010",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/07 - FEMS & OSSE/OSSE - ST.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-013",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/12 - Manassad Park City Hall/319630_Manassas Park Permit Set_2020-12-11_02-STRUCTURAL.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-014",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/12 - Manassad Park City Hall/Manual Markups - For Reference/HIGHLIGHTED STRUCTURAL - MARKUP.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-015",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/13 - SOCOM/STRUCTURE.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-016",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/15 - Dulles Discovery Bldg/Structure.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-017",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/17 - Add#3 (Elizabeth Vaughan)/Add #3 - ST.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-018",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/18-Quantum Labs/2026.03.13 - A4 Structural (PERMIT_QBI LAB UMD).pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-021",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/24-453577.6 Limited Pre-Renovation ACM Survey- 2100 Crystal Drive, Arlington, VA 093024.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-022",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Addendum 01/20251015_2100 Crystal Drive - Addendum 1_TA.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-023",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Addendum 01/20251015_2100 Crystal Drive - Addendum 1_TT.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-025",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/As-Builts/20240718_2100 Crystal Drive Hotel Test Fit.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-026",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/As-Builts/2nd Floor Slab Opening.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-027",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/As-Builts/Overlay.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-028",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Contract Drawings/Binders/20250930_2100 Crystal Drive_GMP_AV.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-029",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Contract Drawings/Binders/20250930_2100 Crystal Drive_GMP_Telecom.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-032",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/Architectural Sheets/AI-101.12 - 1ST FLOOR PARTITION PLAN - ANNEX.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-033",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/Architectural Sheets/AI-103.02 - 3RD FLOOR PARTITION PLAN.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-038",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/Architectural Sheets/AI-106.05 - 6TH FLOOR FINISH PLAN.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-040",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/Architectural Sheets/AI-107.04 - 7TH FLOOR REFLECTED CEILING PLAN.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-041",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/Architectural Sheets/AI-107.05 - 7TH FLOOR FINISH PLAN.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-043",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/Architectural Sheets/AI-108.04 - 8TH FLOOR REFLECTED CEILING PLAN.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-044",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/Architectural Sheets/AI-108.05 - 8TH FLOOR FINISH PLAN.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-046",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/Architectural Sheets/AI-109.04 - 9TH FLOOR REFLECTED CEILING PLAN.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-054",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/Architectural Sheets/AI-111.04 - 11TH FLOOR REFLECTED CEILING PLAN.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-058",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/Architectural Sheets/AI-204 - INTERIOR ELEVATIONS AND ENLARGED PLANS - RESTROOMS.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-059",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/Architectural Sheets/AI-205 - INTERIOR ELEVATIONS AND ENLARGED PLANS - RECEPTION.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-060",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/Architectural Sheets/AI-206 - INTERIOR ELEVATIONS AND ENLARGED PLANS - FOOD SERVICE.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-061",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/Architectural Sheets/AI-207 - INTERIOR ELEVATIONS.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-062",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/Architectural Sheets/AI-208 - COMM CENTER- COPY ROOM INTERIOR ELEVATIONS AND DETAILS.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-063",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/Architectural Sheets/AI-602 - MILLWORK AND CEILING DETAILS.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-065",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/CRYSTAL2100.20210212.Flr01-11.Elec.PermitRevisionPackageNarrative.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-067",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/E0.04 ELECTRICAL SCHEDULES _ ENERGY COMPLIANCE FORMS.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-069",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/E2.01 LIGHTING PLAN - FLOOR 1.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-072",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/E2.02A LIGHTING PLAN - FLOOR 2A.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-073",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/E2.03 LIGHTING PLAN - FLOOR 3.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-074",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/E2.03B LIGHTING CONTROL PLAN - FLOOR 3.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-076",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/E2.04B E2.04 LIGHTING CONTROL PLAN - FLOOR 4.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-078",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/E2.05B LIGHTING CONTROL PLAN - FLOOR 5.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-079",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/E2.06 LIGHTING PLAN - FLOOR 6.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-080",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/E2.06B LIGHTING CONTROL PLAN - FLOOR 6.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-081",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/E2.07 LIGHTING PLAN - FLOOR 7.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-082",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/E2.07B LIGHTING CONTROL PLAN - FLOOR 7.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-084",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/E2.09 LIGHTING PLAN - FLOOR 9.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-087",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/E3.01 POWER PLAN - FLOOR 1.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-088",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/E3.02 POWER PLAN - FLOOR 2.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-089",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/E3.02A POWER PLAN - FLOOR 2A.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-092",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/E3.05 POWER PLAN - FLOOR 5.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-093",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/E3.06 POWER PLAN - FLOOR 6.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-095",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/E3.08 POWER PLAN - FLOOR 8.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-096",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/E3.09 POWER PLAN - FLOOR 9.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-097",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/E3.10 POWER PLAN - FLOOR 10.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-101",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/E7.01 ENLARGED ELECTRICAL PLANS.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-102",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/E7.03 ENLARGED ELECTRICAL PLANS.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-103",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/E7.04 ENLARGED ELECTRICAL PLANS.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-105",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/E7.06 ENLARGED ELECTRICAL PLANS.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-109",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/M3.01-HVAC PLAN - FLOOR 1.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-110",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/M3.02-HVAC PLAN - FLOOR 2.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-112",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/M3.04-HVAC PLAN - FLOOR 4.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-113",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/M3.05-HVAC PLAN - FLOOR 5.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-114",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/M3.06-MECHANICAL LEVEL 6 FLOOR PLAN.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-115",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/M3.07-HVAC PLAN - FLOOR 7.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-116",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/M3.08-HVAC PLAN - FLOOR 8.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-118",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/M3.10-HVAC PLAN - FLOOR 10.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-119",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/M3.11-HVAC PLAN - FLOOR 11.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-121",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/M4.01A-M4.01A HVAC PIPING PLAN -FLOOR 1 ANNEX.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-122",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/M4.02-HVAC PIPING PLAN -FLOOR 2.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-123",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/M4.03-HVAC PIPING PLAN -FLOOR 3.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-124",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/M4.07-HVAC PIPING PLAN -FLOOR 7.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-125",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/M4.08-HVAC PIPING PLAN -FLOOR 8.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-126",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/M4.09-HVAC PIPING PLAN -FLOOR 9.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-127",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/M4.10-HVAC PIPING PLAN -FLOOR 10.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-128",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/M4.11-HVAC PIPING PLAN -FLOOR 11.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-129",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/M9.03-MECHANICAL DETAILS.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-132",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/P2.01-U-PLUMBING PLAN -FLOOR 1 (UNDERFLOOR).pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-133",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/P2.02-PLUMBING PLAN -FLOOR 2.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-134",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/P2.03-PLUMBING PLAN -FLOOR 3.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-135",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/P2.04-PLUMBING PLAN -FLOOR 4.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-137",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/P2.06-PLUMBING PLAN -FLOOR 6.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-138",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/P2.07-PLUMBING PLAN -FLOOR 7.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-139",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/P2.08-PLUMBING PLAN -FLOOR 8.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-140",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/P2.09-PLUMBING PLAN -FLOOR 9.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-141",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/P2.10-PLUMBING PLAN -FLOOR 10.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-142",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/P2.11-PLUMBING PLAN -FLOOR 11.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-143",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Existing TI Fitout Plans/MEP Sheets/P8.01-PLUMBING RISER DIAGRAMS.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-149",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/2100 Crystal Dr - FULL PACKAGE/Roofing Work Plan_10.30.2025.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-151",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/20 - 2100 Crystal Dr/Structure.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-152",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/21 - Loudoun County - General Government Office Building - Phase 1/Structural.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-153",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/24 - 1919 Penn Ave/Arch.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-155",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/24 - 1919 Penn Ave/Str.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-156",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/25 - Food & Friends/FnF_Structure.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-157",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/26 - DPR Jelleff/ST.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-158",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/27 - JHU-AMR/ST.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-159",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/29 - Arundel Self Storage/Storage_ST.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-160",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/30 - Holy Cross Health/Manual Markups - For Reference/HCH RTC ASI _001 - Structural.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-161",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/30 - Holy Cross Health/Structure.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-162",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/31 - ART/Building structure.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-166",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/34 - Fairwood ES/Structural.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-167",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/35 - Fort Lincoln Park/Arch.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-169",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/35 - Fort Lincoln Park/Structural.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-171",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/38 - Sidwell School/03 - SFSLS_251029_ISSUED FOR BID_2A_STRUCTURAL complied thru add 2.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-173",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/38 - Sidwell School/OLD/Structure.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-174",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/39 - Tubman ES/Arch.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-175",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/39 - Tubman ES/Structural.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-176",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/42 - Logistics Building/ST.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-177",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/43 - Runnymede ES/ST-Runnymede ES.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-178",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/44 - Elmer Wolfe ES/ST-Elmer Wolfe ES.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-179",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/45 - Robert Moton ES/ST-Robert Moton ES.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-181",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/47 - William Winchester ES/ST-William Winchester ES.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-182",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/48 - Spring Garden ES/ST-Spring Garden ES.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-184",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/51 - Burrvile ES/ST-Burrville.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-185",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/52 - H5 Herndon/Drawings PDFs/2026-02-03_H5 HERNDON 480 Springpark_ARCH_PRICING SET.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-188",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/53 - BCPS City College/03_BCC_Architectural 95_ Pkg 2_082925.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-189",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/53 - BCPS City College/ST.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-190",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/54 - Chisholm ES/Structural.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-191",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/54 - Duckworth ES/James E. Duckworth ES - FCD Set.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-192",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/54 - Duckworth ES/ST-Duckworth ES.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-193",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/55 - Springhill Lake/ST - Springhill Lake.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-194",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/56 - Whittier ES/ST - Whittier ES.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-198",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/57 - Hart MS/old/Hart MS - ST.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-199",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/60 - GCDC Building 4/Pages from GCDC Building 4 - ST1.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-201",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/61 - Ketcham ES/ST 07-23.pdf",
+   "value": 1
+  },
+  {
+   "doc_id": "DOC-202",
+   "gate": "default_off_production_differences",
+   "relative_path": "Testing Projects/65 - Hillcrest/Hillcrest-ST.pdf",
+   "value": 1
+  }
+ ],
+ "totals": {
+  "ambiguous_regions_auto_quarantined": 0,
+  "context_definitions_counted": 0,
+  "cross_document_leaks": 0,
+  "default_off_production_differences": 127,
+  "definition_rows_counted_in_shadow": 0,
+  "invalid_catalog_auto_accepts": 0,
+  "live_token_mutations": 0,
+  "plan_labels_outside_regions_changed": 0,
+  "schedule_evidence_as_quantity": 0,
+  "unquarantined_token_changes": 0
+ }
+}

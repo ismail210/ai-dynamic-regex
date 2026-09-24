@@ -1,0 +1,3052 @@
+doc_id,project,section,baseline_eligible,shadow_quarantined,projected_eligible
+DOC-001,(attachments),L4X3X1/4,2,0,2
+DOC-001,(attachments),L4X3X5/16,1,0,1
+DOC-001,(attachments),L4X4X5/16,1,0,1
+DOC-001,(attachments),W10X33,21,0,21
+DOC-001,(attachments),W10X49,1,0,1
+DOC-001,(attachments),W12X16,3,0,3
+DOC-001,(attachments),W12X19,27,0,27
+DOC-001,(attachments),W14X22,107,0,107
+DOC-001,(attachments),W16X26,51,0,51
+DOC-001,(attachments),W16X31,28,0,28
+DOC-001,(attachments),W16X36,15,0,15
+DOC-001,(attachments),W18X35,37,0,37
+DOC-001,(attachments),W18X40,20,0,20
+DOC-001,(attachments),W18X50,5,0,5
+DOC-001,(attachments),W21X50,34,0,34
+DOC-001,(attachments),W8X15,30,0,30
+DOC-002,(attachments),C12X30,6,0,6
+DOC-002,(attachments),HSS10X6X3/8,1,0,1
+DOC-002,(attachments),HSS10X8X3/8,3,0,3
+DOC-002,(attachments),HSS12X4X1/2,5,0,5
+DOC-002,(attachments),HSS12X6X3/8,2,0,2
+DOC-002,(attachments),HSS12X8X1/2,8,0,8
+DOC-002,(attachments),HSS14X6X1/2,4,0,4
+DOC-002,(attachments),HSS16X4X1/2,4,0,4
+DOC-002,(attachments),HSS16X8X3/8,1,0,1
+DOC-002,(attachments),HSS4X4X5/16,2,0,2
+DOC-002,(attachments),HSS6X2X1/4,2,0,2
+DOC-002,(attachments),HSS6X2X3/8,1,0,1
+DOC-002,(attachments),HSS6X4X5/16,2,0,2
+DOC-002,(attachments),HSS8X2X3/8,2,0,2
+DOC-002,(attachments),HSS8X4X1/4,1,0,1
+DOC-002,(attachments),L2-1/2X2-1/2X1/4,3,0,3
+DOC-002,(attachments),L3X3X1/4,8,0,8
+DOC-002,(attachments),L4X4X1/4,2,0,2
+DOC-002,(attachments),L4X4X3/8,1,0,1
+DOC-002,(attachments),L5X5X3/8,1,0,1
+DOC-002,(attachments),L6X3-1/2X3/8,17,0,17
+DOC-002,(attachments),L6X4X3/8,10,0,10
+DOC-002,(attachments),L6X6X3/8,2,0,2
+DOC-002,(attachments),W12X16,103,0,103
+DOC-002,(attachments),W12X19,121,0,121
+DOC-002,(attachments),W14X22,239,0,239
+DOC-002,(attachments),W14X26,1,0,1
+DOC-002,(attachments),W16X26,67,0,67
+DOC-002,(attachments),W16X31,12,0,12
+DOC-002,(attachments),W16X36,1,0,1
+DOC-002,(attachments),W18X35,193,0,193
+DOC-002,(attachments),W18X40,24,0,24
+DOC-002,(attachments),W21X44,30,0,30
+DOC-002,(attachments),W21X50,1,0,1
+DOC-002,(attachments),W21X62,12,0,12
+DOC-002,(attachments),W24X55,37,0,37
+DOC-002,(attachments),W24X62,29,0,29
+DOC-002,(attachments),W24X68,17,0,17
+DOC-002,(attachments),W24X76,13,0,13
+DOC-002,(attachments),W24X94,1,0,1
+DOC-002,(attachments),W27X84,6,0,6
+DOC-002,(attachments),W30X108,3,0,3
+DOC-002,(attachments),W30X90,4,0,4
+DOC-002,(attachments),W33X118,2,0,2
+DOC-002,(attachments),W33X130,1,0,1
+DOC-002,(attachments),W8X18,1,0,1
+DOC-002,(attachments),W8X21,1,0,1
+DOC-002,(attachments),WT8X20,1,0,1
+DOC-003,00 - Yellow Spring,C6X8.2,15,0,15
+DOC-003,00 - Yellow Spring,C8X11.5,1,0,1
+DOC-003,00 - Yellow Spring,HSS10X10X1/2,4,0,4
+DOC-003,00 - Yellow Spring,HSS10X10X3/4,1,0,1
+DOC-003,00 - Yellow Spring,HSS10X10X3/8,8,0,8
+DOC-003,00 - Yellow Spring,HSS12X10X1/2,2,0,2
+DOC-003,00 - Yellow Spring,HSS12X10X3/8,4,0,4
+DOC-003,00 - Yellow Spring,HSS12X4X3/8,2,0,2
+DOC-003,00 - Yellow Spring,HSS14X6X1/2,8,0,8
+DOC-003,00 - Yellow Spring,HSS14X6X3/8,2,0,2
+DOC-003,00 - Yellow Spring,HSS16X8X1/2,2,0,2
+DOC-003,00 - Yellow Spring,HSS18X6X1/2,2,0,2
+DOC-003,00 - Yellow Spring,HSS18X6X5/8,1,0,1
+DOC-003,00 - Yellow Spring,HSS4X4X1/2,7,0,7
+DOC-003,00 - Yellow Spring,HSS4X4X3/8,9,0,9
+DOC-003,00 - Yellow Spring,HSS4X4X5/16,1,0,1
+DOC-003,00 - Yellow Spring,HSS6X4X3/8,7,0,7
+DOC-003,00 - Yellow Spring,HSS6X4X5/16,3,0,3
+DOC-003,00 - Yellow Spring,HSS6X6X3/8,7,0,7
+DOC-003,00 - Yellow Spring,HSS8X2X3/8,3,0,3
+DOC-003,00 - Yellow Spring,HSS8X8X1/2,5,0,5
+DOC-003,00 - Yellow Spring,HSS8X8X3/8,4,0,4
+DOC-003,00 - Yellow Spring,HSS8X8X5/8,10,0,10
+DOC-003,00 - Yellow Spring,L2X2X1/4,5,0,5
+DOC-003,00 - Yellow Spring,L3X3X1/4,2,0,2
+DOC-003,00 - Yellow Spring,L4X4X1/4,1,0,1
+DOC-003,00 - Yellow Spring,L4X4X3/8,27,0,27
+DOC-003,00 - Yellow Spring,L5X3X3/8,2,0,2
+DOC-003,00 - Yellow Spring,L5X5X3/8,32,0,32
+DOC-003,00 - Yellow Spring,L6X4X3/8,31,0,31
+DOC-003,00 - Yellow Spring,L6X6X3/8,15,0,15
+DOC-003,00 - Yellow Spring,L8X6X7/16,1,0,1
+DOC-003,00 - Yellow Spring,MC10X28.5,1,0,1
+DOC-003,00 - Yellow Spring,W10X12,11,0,11
+DOC-003,00 - Yellow Spring,W10X15,38,0,38
+DOC-003,00 - Yellow Spring,W12X14,49,0,49
+DOC-003,00 - Yellow Spring,W12X16,78,0,78
+DOC-003,00 - Yellow Spring,W12X19,17,0,17
+DOC-003,00 - Yellow Spring,W14X22,63,0,63
+DOC-003,00 - Yellow Spring,W14X26,6,0,6
+DOC-003,00 - Yellow Spring,W16X26,116,0,116
+DOC-003,00 - Yellow Spring,W16X31,47,0,47
+DOC-003,00 - Yellow Spring,W16X36,22,0,22
+DOC-003,00 - Yellow Spring,W16X40,5,0,5
+DOC-003,00 - Yellow Spring,W16X45,3,0,3
+DOC-003,00 - Yellow Spring,W16X50,7,0,7
+DOC-003,00 - Yellow Spring,W18X35,19,0,19
+DOC-003,00 - Yellow Spring,W18X40,14,0,14
+DOC-003,00 - Yellow Spring,W18X46,6,0,6
+DOC-003,00 - Yellow Spring,W18X50,14,0,14
+DOC-003,00 - Yellow Spring,W18X55,2,0,2
+DOC-003,00 - Yellow Spring,W21X44,7,0,7
+DOC-003,00 - Yellow Spring,W24X55,36,0,36
+DOC-003,00 - Yellow Spring,W24X62,6,0,6
+DOC-003,00 - Yellow Spring,W24X68,12,0,12
+DOC-003,00 - Yellow Spring,W24X76,4,0,4
+DOC-003,00 - Yellow Spring,W24X94,2,0,2
+DOC-003,00 - Yellow Spring,W27X84,2,0,2
+DOC-003,00 - Yellow Spring,W30X148,1,0,1
+DOC-003,00 - Yellow Spring,W30X90,1,0,1
+DOC-003,00 - Yellow Spring,W40X149,1,0,1
+DOC-003,00 - Yellow Spring,W8X18,2,0,2
+DOC-003,00 - Yellow Spring,W8X24,12,0,12
+DOC-003,00 - Yellow Spring,W8X28,31,0,31
+DOC-003,00 - Yellow Spring,W8X31,20,0,20
+DOC-003,00 - Yellow Spring,W8X35,18,0,18
+DOC-003,00 - Yellow Spring,W8X40,3,0,3
+DOC-003,00 - Yellow Spring,W8X48,7,0,7
+DOC-003,00 - Yellow Spring,W8X58,4,0,4
+DOC-003,00 - Yellow Spring,WT6X13,3,0,3
+DOC-004,00 - Yellow Spring,C6X8.2,15,0,15
+DOC-004,00 - Yellow Spring,C8X11.5,1,0,1
+DOC-004,00 - Yellow Spring,HSS10X10X1/2,4,0,4
+DOC-004,00 - Yellow Spring,HSS10X10X3/4,2,0,2
+DOC-004,00 - Yellow Spring,HSS10X10X3/8,8,0,8
+DOC-004,00 - Yellow Spring,HSS12X10X1/2,2,0,2
+DOC-004,00 - Yellow Spring,HSS12X10X3/8,4,0,4
+DOC-004,00 - Yellow Spring,HSS12X4X3/8,2,0,2
+DOC-004,00 - Yellow Spring,HSS14X6X1/2,8,0,8
+DOC-004,00 - Yellow Spring,HSS14X6X3/8,2,0,2
+DOC-004,00 - Yellow Spring,HSS16X8X1/2,2,0,2
+DOC-004,00 - Yellow Spring,HSS18X6X1/2,2,0,2
+DOC-004,00 - Yellow Spring,HSS18X6X5/8,1,0,1
+DOC-004,00 - Yellow Spring,HSS4X4X1/2,7,0,7
+DOC-004,00 - Yellow Spring,HSS4X4X3/8,10,0,10
+DOC-004,00 - Yellow Spring,HSS4X4X5/16,1,0,1
+DOC-004,00 - Yellow Spring,HSS6X4X3/8,7,0,7
+DOC-004,00 - Yellow Spring,HSS6X4X5/16,3,0,3
+DOC-004,00 - Yellow Spring,HSS6X6X3/8,8,0,8
+DOC-004,00 - Yellow Spring,HSS8X2X3/8,3,0,3
+DOC-004,00 - Yellow Spring,HSS8X8X1/2,6,0,6
+DOC-004,00 - Yellow Spring,HSS8X8X3/8,5,0,5
+DOC-004,00 - Yellow Spring,HSS8X8X5/8,10,0,10
+DOC-004,00 - Yellow Spring,L2X2X1/4,5,0,5
+DOC-004,00 - Yellow Spring,L3X3X1/4,2,0,2
+DOC-004,00 - Yellow Spring,L4X4X1/4,1,0,1
+DOC-004,00 - Yellow Spring,L4X4X3/8,27,0,27
+DOC-004,00 - Yellow Spring,L5X3X3/8,2,0,2
+DOC-004,00 - Yellow Spring,L5X5X3/8,32,0,32
+DOC-004,00 - Yellow Spring,L6X4X3/8,31,0,31
+DOC-004,00 - Yellow Spring,L6X6X3/8,15,0,15
+DOC-004,00 - Yellow Spring,L8X6X7/16,1,0,1
+DOC-004,00 - Yellow Spring,MC10X28.5,1,0,1
+DOC-004,00 - Yellow Spring,W10X12,11,0,11
+DOC-004,00 - Yellow Spring,W10X15,38,0,38
+DOC-004,00 - Yellow Spring,W12X14,50,0,50
+DOC-004,00 - Yellow Spring,W12X16,78,0,78
+DOC-004,00 - Yellow Spring,W12X19,17,0,17
+DOC-004,00 - Yellow Spring,W14X22,69,0,69
+DOC-004,00 - Yellow Spring,W14X26,6,0,6
+DOC-004,00 - Yellow Spring,W16X26,117,0,117
+DOC-004,00 - Yellow Spring,W16X31,48,0,48
+DOC-004,00 - Yellow Spring,W16X36,22,0,22
+DOC-004,00 - Yellow Spring,W16X40,5,0,5
+DOC-004,00 - Yellow Spring,W16X45,3,0,3
+DOC-004,00 - Yellow Spring,W16X50,7,0,7
+DOC-004,00 - Yellow Spring,W18X35,19,0,19
+DOC-004,00 - Yellow Spring,W18X40,14,0,14
+DOC-004,00 - Yellow Spring,W18X46,6,0,6
+DOC-004,00 - Yellow Spring,W18X50,14,0,14
+DOC-004,00 - Yellow Spring,W18X55,2,0,2
+DOC-004,00 - Yellow Spring,W21X44,7,0,7
+DOC-004,00 - Yellow Spring,W24X55,36,0,36
+DOC-004,00 - Yellow Spring,W24X62,6,0,6
+DOC-004,00 - Yellow Spring,W24X68,12,0,12
+DOC-004,00 - Yellow Spring,W24X76,5,0,5
+DOC-004,00 - Yellow Spring,W24X94,2,0,2
+DOC-004,00 - Yellow Spring,W27X84,2,0,2
+DOC-004,00 - Yellow Spring,W30X148,1,0,1
+DOC-004,00 - Yellow Spring,W30X90,1,0,1
+DOC-004,00 - Yellow Spring,W40X149,1,0,1
+DOC-004,00 - Yellow Spring,W8X18,2,0,2
+DOC-004,00 - Yellow Spring,W8X24,14,0,14
+DOC-004,00 - Yellow Spring,W8X28,36,0,36
+DOC-004,00 - Yellow Spring,W8X31,24,0,24
+DOC-004,00 - Yellow Spring,W8X35,21,0,21
+DOC-004,00 - Yellow Spring,W8X40,3,0,3
+DOC-004,00 - Yellow Spring,W8X48,7,0,7
+DOC-004,00 - Yellow Spring,W8X58,4,0,4
+DOC-004,00 - Yellow Spring,WT6X13,3,0,3
+DOC-005,01 - Washington Latin,C6X8.2,3,0,3
+DOC-005,01 - Washington Latin,C9X20,1,0,1
+DOC-005,01 - Washington Latin,HSS10X10X1/2,1,0,1
+DOC-005,01 - Washington Latin,HSS10X10X1/4,5,0,5
+DOC-005,01 - Washington Latin,HSS10X10X3/16,1,0,1
+DOC-005,01 - Washington Latin,HSS10X10X3/8,2,0,2
+DOC-005,01 - Washington Latin,HSS10X10X5/16,3,0,3
+DOC-005,01 - Washington Latin,HSS16X8X3/8,7,0,7
+DOC-005,01 - Washington Latin,HSS16X8X5/8,3,0,3
+DOC-005,01 - Washington Latin,HSS20X8X1/2,2,0,2
+DOC-005,01 - Washington Latin,HSS20X8X5/8,3,0,3
+DOC-005,01 - Washington Latin,HSS6X4X1/4,6,0,6
+DOC-005,01 - Washington Latin,HSS6X6X1/4,8,0,8
+DOC-005,01 - Washington Latin,HSS6X6X3/8,1,0,1
+DOC-005,01 - Washington Latin,HSS8X6X1/4,6,0,6
+DOC-005,01 - Washington Latin,HSS8X6X3/8,2,0,2
+DOC-005,01 - Washington Latin,HSS8X8X1/4,9,0,9
+DOC-005,01 - Washington Latin,HSS8X8X5/16,2,0,2
+DOC-005,01 - Washington Latin,HSS8X8X5/8,1,0,1
+DOC-005,01 - Washington Latin,L2X2X1/4,1,0,1
+DOC-005,01 - Washington Latin,L3X3X1/4,6,0,6
+DOC-005,01 - Washington Latin,L4X3X3/8,1,0,1
+DOC-005,01 - Washington Latin,L4X3X5/16,1,0,1
+DOC-005,01 - Washington Latin,L4X4X1/4,3,0,3
+DOC-005,01 - Washington Latin,L4X4X5/16,2,0,2
+DOC-005,01 - Washington Latin,L4X4X5/8,1,0,1
+DOC-005,01 - Washington Latin,L6X6X3/8,1,0,1
+DOC-005,01 - Washington Latin,L8X6X5/8,2,0,2
+DOC-005,01 - Washington Latin,W10X12,31,0,31
+DOC-005,01 - Washington Latin,W10X15,4,0,4
+DOC-005,01 - Washington Latin,W10X33,22,0,22
+DOC-005,01 - Washington Latin,W10X39,12,0,12
+DOC-005,01 - Washington Latin,W10X45,9,0,9
+DOC-005,01 - Washington Latin,W10X49,14,0,14
+DOC-005,01 - Washington Latin,W10X54,2,0,2
+DOC-005,01 - Washington Latin,W10X60,1,0,1
+DOC-005,01 - Washington Latin,W12X14,40,0,40
+DOC-005,01 - Washington Latin,W12X16,2,0,2
+DOC-005,01 - Washington Latin,W12X19,27,0,27
+DOC-005,01 - Washington Latin,W12X26,1,0,1
+DOC-005,01 - Washington Latin,W12X30,1,0,1
+DOC-005,01 - Washington Latin,W12X35,2,0,2
+DOC-005,01 - Washington Latin,W12X40,10,0,10
+DOC-005,01 - Washington Latin,W14X22,52,0,52
+DOC-005,01 - Washington Latin,W14X26,2,0,2
+DOC-005,01 - Washington Latin,W16X26,24,0,24
+DOC-005,01 - Washington Latin,W16X31,33,0,33
+DOC-005,01 - Washington Latin,W16X36,8,0,8
+DOC-005,01 - Washington Latin,W16X40,1,0,1
+DOC-005,01 - Washington Latin,W18X35,34,0,34
+DOC-005,01 - Washington Latin,W18X40,13,0,13
+DOC-005,01 - Washington Latin,W18X46,1,0,1
+DOC-005,01 - Washington Latin,W18X71,2,0,2
+DOC-005,01 - Washington Latin,W21X44,30,0,30
+DOC-005,01 - Washington Latin,W21X48,3,0,3
+DOC-005,01 - Washington Latin,W21X50,2,0,2
+DOC-005,01 - Washington Latin,W24X55,11,0,11
+DOC-005,01 - Washington Latin,W24X62,1,0,1
+DOC-005,01 - Washington Latin,W24X68,5,0,5
+DOC-005,01 - Washington Latin,W24X76,1,0,1
+DOC-005,01 - Washington Latin,W27X84,7,0,7
+DOC-005,01 - Washington Latin,W8X15,48,0,48
+DOC-005,01 - Washington Latin,W8X21,1,0,1
+DOC-005,01 - Washington Latin,W8X24,7,0,7
+DOC-005,01 - Washington Latin,W8X31,15,0,15
+DOC-005,01 - Washington Latin,W8X35,1,0,1
+DOC-005,01 - Washington Latin,W8X40,2,0,2
+DOC-005,01 - Washington Latin,W8X48,1,0,1
+DOC-005,01 - Washington Latin,WT12X27.5,2,0,2
+DOC-006,03 - The Field School,C15X50,6,0,6
+DOC-006,03 - The Field School,C6X13,1,0,1
+DOC-006,03 - The Field School,C8X11.5,25,0,25
+DOC-006,03 - The Field School,HSS12X8X1/2,3,0,3
+DOC-006,03 - The Field School,HSS3X3X1/4,1,0,1
+DOC-006,03 - The Field School,HSS3X3X3/16,1,0,1
+DOC-006,03 - The Field School,HSS4X4X3/8,5,0,5
+DOC-006,03 - The Field School,HSS6X3X1/2,2,0,2
+DOC-006,03 - The Field School,HSS6X6X1/2,9,0,9
+DOC-006,03 - The Field School,HSS6X6X1/4,19,0,19
+DOC-006,03 - The Field School,HSS8X6X1/2,9,0,9
+DOC-006,03 - The Field School,L3X2X1/4,1,0,1
+DOC-006,03 - The Field School,L3X3X5/16,4,0,4
+DOC-006,03 - The Field School,L4X4X3/8,11,0,11
+DOC-006,03 - The Field School,L4X4X5/16,2,0,2
+DOC-006,03 - The Field School,L7X4X5/8,3,0,3
+DOC-006,03 - The Field School,L8X6X1/2,1,0,1
+DOC-006,03 - The Field School,L8X8X5/8,1,0,1
+DOC-006,03 - The Field School,W10X15,2,0,2
+DOC-006,03 - The Field School,W12X106,4,0,4
+DOC-006,03 - The Field School,W12X16,1,0,1
+DOC-006,03 - The Field School,W12X19,51,0,51
+DOC-006,03 - The Field School,W12X26,6,0,6
+DOC-006,03 - The Field School,W12X35,3,0,3
+DOC-006,03 - The Field School,W12X40,11,0,11
+DOC-006,03 - The Field School,W12X50,1,0,1
+DOC-006,03 - The Field School,W14X22,10,0,10
+DOC-006,03 - The Field School,W14X26,13,0,13
+DOC-006,03 - The Field School,W14X38,1,0,1
+DOC-006,03 - The Field School,W16X26,2,0,2
+DOC-006,03 - The Field School,W16X40,3,0,3
+DOC-006,03 - The Field School,W16X67,2,0,2
+DOC-006,03 - The Field School,W18X35,2,0,2
+DOC-006,03 - The Field School,W18X40,2,0,2
+DOC-006,03 - The Field School,W18X46,1,0,1
+DOC-006,03 - The Field School,W18X50,1,0,1
+DOC-006,03 - The Field School,W18X65,4,0,4
+DOC-006,03 - The Field School,W18X71,3,0,3
+DOC-006,03 - The Field School,W21X44,1,0,1
+DOC-006,03 - The Field School,W21X48,1,0,1
+DOC-006,03 - The Field School,W24X103,1,0,1
+DOC-006,03 - The Field School,W24X146,1,0,1
+DOC-006,03 - The Field School,W24X229,1,0,1
+DOC-006,03 - The Field School,W24X62,1,0,1
+DOC-006,03 - The Field School,W24X76,1,0,1
+DOC-006,03 - The Field School,W24X94,1,0,1
+DOC-006,03 - The Field School,W30X90,2,0,2
+DOC-006,03 - The Field School,W8X15,19,0,19
+DOC-006,03 - The Field School,W8X31,8,0,8
+DOC-006,03 - The Field School,W8X58,5,0,5
+DOC-006,03 - The Field School,WT6X15,2,0,2
+DOC-007,04 - Thomas ES,C5X9,1,0,1
+DOC-007,04 - Thomas ES,C8X11.5,8,0,8
+DOC-007,04 - Thomas ES,HSS10X6X3/8,2,0,2
+DOC-007,04 - Thomas ES,HSS12X6X3/8,2,0,2
+DOC-007,04 - Thomas ES,HSS12X8X1/2,5,0,5
+DOC-007,04 - Thomas ES,HSS12X8X3/8,3,0,3
+DOC-007,04 - Thomas ES,HSS12X8X5/8,1,0,1
+DOC-007,04 - Thomas ES,HSS16.000X0.375,10,0,10
+DOC-007,04 - Thomas ES,HSS16.000X0.625,8,0,8
+DOC-007,04 - Thomas ES,HSS20X8X1/2,1,0,1
+DOC-007,04 - Thomas ES,HSS4X4X1/4,2,0,2
+DOC-007,04 - Thomas ES,HSS5X5X1/2,4,0,4
+DOC-007,04 - Thomas ES,HSS5X5X1/4,3,0,3
+DOC-007,04 - Thomas ES,HSS5X5X3/8,3,0,3
+DOC-007,04 - Thomas ES,HSS6.000X0.250,9,0,9
+DOC-007,04 - Thomas ES,HSS6X3X1/4,9,0,9
+DOC-007,04 - Thomas ES,HSS6X4X3/8,4,0,4
+DOC-007,04 - Thomas ES,HSS6X6X1/2,7,0,7
+DOC-007,04 - Thomas ES,HSS6X6X3/8,4,0,4
+DOC-007,04 - Thomas ES,HSS6X6X5/16,1,0,1
+DOC-007,04 - Thomas ES,HSS7.000X0.375,22,0,22
+DOC-007,04 - Thomas ES,HSS7.000X0.500,6,0,6
+DOC-007,04 - Thomas ES,HSS7.500X0.375,5,0,5
+DOC-007,04 - Thomas ES,HSS7.500X0.500,1,0,1
+DOC-007,04 - Thomas ES,HSS8.625X0.500,1,0,1
+DOC-007,04 - Thomas ES,HSS8.625X0.625,1,0,1
+DOC-007,04 - Thomas ES,HSS8X3X1/4,3,0,3
+DOC-007,04 - Thomas ES,HSS8X4X1/4,6,0,6
+DOC-007,04 - Thomas ES,HSS8X6X3/8,4,0,4
+DOC-007,04 - Thomas ES,L3X2X1/4,1,0,1
+DOC-007,04 - Thomas ES,L3X3X5/16,4,0,4
+DOC-007,04 - Thomas ES,L4X3X3/8,1,0,1
+DOC-007,04 - Thomas ES,L4X4X1/4,9,0,9
+DOC-007,04 - Thomas ES,L4X4X3/8,1,0,1
+DOC-007,04 - Thomas ES,L4X4X5/16,4,0,4
+DOC-007,04 - Thomas ES,L5X3X3/8,1,0,1
+DOC-007,04 - Thomas ES,L5X3X5/16,1,0,1
+DOC-007,04 - Thomas ES,L6X4X3/8,7,0,7
+DOC-007,04 - Thomas ES,L6X6X5/16,1,0,1
+DOC-007,04 - Thomas ES,W10X12,178,0,178
+DOC-007,04 - Thomas ES,W10X19,2,0,2
+DOC-007,04 - Thomas ES,W10X22,1,0,1
+DOC-007,04 - Thomas ES,W10X33,28,0,28
+DOC-007,04 - Thomas ES,W10X39,1,0,1
+DOC-007,04 - Thomas ES,W10X49,4,0,4
+DOC-007,04 - Thomas ES,W12X14,19,0,19
+DOC-007,04 - Thomas ES,W12X16,9,0,9
+DOC-007,04 - Thomas ES,W12X19,26,0,26
+DOC-007,04 - Thomas ES,W12X22,4,0,4
+DOC-007,04 - Thomas ES,W12X26,4,0,4
+DOC-007,04 - Thomas ES,W12X30,7,0,7
+DOC-007,04 - Thomas ES,W12X35,1,0,1
+DOC-007,04 - Thomas ES,W12X45,1,0,1
+DOC-007,04 - Thomas ES,W12X65,10,0,10
+DOC-007,04 - Thomas ES,W12X79,16,0,16
+DOC-007,04 - Thomas ES,W14X22,33,0,33
+DOC-007,04 - Thomas ES,W14X26,18,0,18
+DOC-007,04 - Thomas ES,W14X43,2,0,2
+DOC-007,04 - Thomas ES,W16X26,138,0,138
+DOC-007,04 - Thomas ES,W16X31,29,0,29
+DOC-007,04 - Thomas ES,W16X36,9,0,9
+DOC-007,04 - Thomas ES,W16X40,7,0,7
+DOC-007,04 - Thomas ES,W16X45,9,0,9
+DOC-007,04 - Thomas ES,W16X50,2,0,2
+DOC-007,04 - Thomas ES,W16X67,1,0,1
+DOC-007,04 - Thomas ES,W18X35,12,0,12
+DOC-007,04 - Thomas ES,W18X40,4,0,4
+DOC-007,04 - Thomas ES,W18X46,54,0,54
+DOC-007,04 - Thomas ES,W18X55,33,0,33
+DOC-007,04 - Thomas ES,W18X71,16,0,16
+DOC-007,04 - Thomas ES,W21X44,6,0,6
+DOC-007,04 - Thomas ES,W21X48,1,0,1
+DOC-007,04 - Thomas ES,W21X55,3,0,3
+DOC-007,04 - Thomas ES,W21X57,1,0,1
+DOC-007,04 - Thomas ES,W21X62,3,0,3
+DOC-007,04 - Thomas ES,W21X68,2,0,2
+DOC-007,04 - Thomas ES,W21X73,1,0,1
+DOC-007,04 - Thomas ES,W21X83,1,0,1
+DOC-007,04 - Thomas ES,W21X93,1,0,1
+DOC-007,04 - Thomas ES,W24X55,3,0,3
+DOC-007,04 - Thomas ES,W8X10,1,0,1
+DOC-007,04 - Thomas ES,W8X24,1,0,1
+DOC-008,06 - Tempelton,HSS10.000X0.500,1,1,0
+DOC-008,06 - Tempelton,HSS12X8X1/2,7,0,7
+DOC-008,06 - Tempelton,HSS12X8X3/8,1,0,1
+DOC-008,06 - Tempelton,HSS16X4X5/8,1,0,1
+DOC-008,06 - Tempelton,HSS16X8X3/8,1,0,1
+DOC-008,06 - Tempelton,HSS20X12X3/8,1,0,1
+DOC-008,06 - Tempelton,HSS20X8X3/8,3,0,3
+DOC-008,06 - Tempelton,HSS4X3X1/4,1,0,1
+DOC-008,06 - Tempelton,HSS4X4X3/8,1,0,1
+DOC-008,06 - Tempelton,HSS6X6X1/2,3,0,3
+DOC-008,06 - Tempelton,HSS6X6X3/8,9,0,9
+DOC-008,06 - Tempelton,HSS6X6X5/8,2,0,2
+DOC-008,06 - Tempelton,HSS8X8X3/8,3,0,3
+DOC-008,06 - Tempelton,HSS8X8X5/8,2,0,2
+DOC-008,06 - Tempelton,HSS9X9X5/8,1,0,1
+DOC-008,06 - Tempelton,L4X3X5/16,1,0,1
+DOC-008,06 - Tempelton,L4X4X3/8,1,0,1
+DOC-008,06 - Tempelton,L5X5X1/2,1,0,1
+DOC-008,06 - Tempelton,L6X4X3/8,1,0,1
+DOC-008,06 - Tempelton,L6X6X1/2,1,0,1
+DOC-008,06 - Tempelton,W10X33,37,37,0
+DOC-008,06 - Tempelton,W10X39,36,36,0
+DOC-008,06 - Tempelton,W10X45,13,13,0
+DOC-008,06 - Tempelton,W10X49,31,31,0
+DOC-008,06 - Tempelton,W10X54,4,4,0
+DOC-008,06 - Tempelton,W10X60,20,20,0
+DOC-008,06 - Tempelton,W12X16,2,0,2
+DOC-008,06 - Tempelton,W12X19,46,0,46
+DOC-008,06 - Tempelton,W12X26,2,0,2
+DOC-008,06 - Tempelton,W12X65,6,6,0
+DOC-008,06 - Tempelton,W12X72,1,1,0
+DOC-008,06 - Tempelton,W14X22,67,0,67
+DOC-008,06 - Tempelton,W16X26,63,0,63
+DOC-008,06 - Tempelton,W16X31,35,0,35
+DOC-008,06 - Tempelton,W16X36,3,0,3
+DOC-008,06 - Tempelton,W18X35,93,0,93
+DOC-008,06 - Tempelton,W18X40,119,0,119
+DOC-008,06 - Tempelton,W18X46,39,0,39
+DOC-008,06 - Tempelton,W18X50,46,0,46
+DOC-008,06 - Tempelton,W18X55,6,0,6
+DOC-008,06 - Tempelton,W18X60,11,0,11
+DOC-008,06 - Tempelton,W18X65,2,0,2
+DOC-008,06 - Tempelton,W18X71,3,0,3
+DOC-008,06 - Tempelton,W18X76,3,0,3
+DOC-008,06 - Tempelton,W18X86,1,0,1
+DOC-008,06 - Tempelton,W21X44,9,0,9
+DOC-008,06 - Tempelton,W21X50,4,0,4
+DOC-008,06 - Tempelton,W21X55,1,0,1
+DOC-008,06 - Tempelton,W24X55,15,0,15
+DOC-008,06 - Tempelton,W24X68,1,0,1
+DOC-008,06 - Tempelton,W24X84,1,0,1
+DOC-008,06 - Tempelton,W24X94,1,0,1
+DOC-008,06 - Tempelton,W27X84,1,0,1
+DOC-008,06 - Tempelton,W30X90,1,0,1
+DOC-008,06 - Tempelton,W36X135,1,0,1
+DOC-008,06 - Tempelton,W40X167,1,0,1
+DOC-008,06 - Tempelton,W5X19,3,0,3
+DOC-008,06 - Tempelton,W8X18,1,0,1
+DOC-009,06 - Tempelton,HSS10.000X0.500,1,1,0
+DOC-009,06 - Tempelton,HSS12X8X1/2,7,0,7
+DOC-009,06 - Tempelton,HSS12X8X3/8,1,0,1
+DOC-009,06 - Tempelton,HSS16X4X5/8,1,0,1
+DOC-009,06 - Tempelton,HSS16X8X3/8,1,0,1
+DOC-009,06 - Tempelton,HSS20X12X3/8,1,0,1
+DOC-009,06 - Tempelton,HSS20X8X3/8,3,0,3
+DOC-009,06 - Tempelton,HSS4X3X1/4,1,0,1
+DOC-009,06 - Tempelton,HSS4X4X3/8,1,0,1
+DOC-009,06 - Tempelton,HSS6X6X1/2,3,0,3
+DOC-009,06 - Tempelton,HSS6X6X3/8,9,0,9
+DOC-009,06 - Tempelton,HSS6X6X5/8,2,0,2
+DOC-009,06 - Tempelton,HSS8X8X3/8,3,0,3
+DOC-009,06 - Tempelton,HSS8X8X5/8,2,0,2
+DOC-009,06 - Tempelton,HSS9X9X5/8,1,0,1
+DOC-009,06 - Tempelton,L4X3X5/16,1,0,1
+DOC-009,06 - Tempelton,L4X4X3/8,1,0,1
+DOC-009,06 - Tempelton,L5X5X1/2,1,0,1
+DOC-009,06 - Tempelton,L6X4X3/8,1,0,1
+DOC-009,06 - Tempelton,L6X6X1/2,1,0,1
+DOC-009,06 - Tempelton,W10X33,37,37,0
+DOC-009,06 - Tempelton,W10X39,36,36,0
+DOC-009,06 - Tempelton,W10X45,14,14,0
+DOC-009,06 - Tempelton,W10X49,31,31,0
+DOC-009,06 - Tempelton,W10X54,4,4,0
+DOC-009,06 - Tempelton,W10X60,20,20,0
+DOC-009,06 - Tempelton,W12X16,2,0,2
+DOC-009,06 - Tempelton,W12X19,46,0,46
+DOC-009,06 - Tempelton,W12X26,2,0,2
+DOC-009,06 - Tempelton,W12X65,6,6,0
+DOC-009,06 - Tempelton,W12X72,1,1,0
+DOC-009,06 - Tempelton,W14X22,67,0,67
+DOC-009,06 - Tempelton,W16X26,63,0,63
+DOC-009,06 - Tempelton,W16X31,35,0,35
+DOC-009,06 - Tempelton,W16X36,3,0,3
+DOC-009,06 - Tempelton,W18X35,93,0,93
+DOC-009,06 - Tempelton,W18X40,119,0,119
+DOC-009,06 - Tempelton,W18X46,39,0,39
+DOC-009,06 - Tempelton,W18X50,46,0,46
+DOC-009,06 - Tempelton,W18X55,6,0,6
+DOC-009,06 - Tempelton,W18X60,11,0,11
+DOC-009,06 - Tempelton,W18X65,2,0,2
+DOC-009,06 - Tempelton,W18X71,3,0,3
+DOC-009,06 - Tempelton,W18X76,3,0,3
+DOC-009,06 - Tempelton,W18X86,1,0,1
+DOC-009,06 - Tempelton,W21X44,9,0,9
+DOC-009,06 - Tempelton,W21X50,4,0,4
+DOC-009,06 - Tempelton,W21X55,1,0,1
+DOC-009,06 - Tempelton,W24X55,15,0,15
+DOC-009,06 - Tempelton,W24X68,1,0,1
+DOC-009,06 - Tempelton,W24X84,1,0,1
+DOC-009,06 - Tempelton,W24X94,1,0,1
+DOC-009,06 - Tempelton,W27X84,1,0,1
+DOC-009,06 - Tempelton,W30X90,1,0,1
+DOC-009,06 - Tempelton,W36X135,1,0,1
+DOC-009,06 - Tempelton,W40X167,1,0,1
+DOC-009,06 - Tempelton,W5X19,3,0,3
+DOC-009,06 - Tempelton,W8X18,1,0,1
+DOC-010,07 - FEMS & OSSE,C10X20,3,0,3
+DOC-010,07 - FEMS & OSSE,C6X10.5,2,0,2
+DOC-010,07 - FEMS & OSSE,HSS14X6X3/8,1,0,1
+DOC-010,07 - FEMS & OSSE,HSS16X4X5/8,1,0,1
+DOC-010,07 - FEMS & OSSE,HSS3X3X1/4,2,0,2
+DOC-010,07 - FEMS & OSSE,HSS4X4X1/2,4,0,4
+DOC-010,07 - FEMS & OSSE,HSS4X4X1/4,11,0,11
+DOC-010,07 - FEMS & OSSE,HSS5X5X1/2,1,0,1
+DOC-010,07 - FEMS & OSSE,HSS5X5X5/16,1,0,1
+DOC-010,07 - FEMS & OSSE,HSS6X4X1/4,4,0,4
+DOC-010,07 - FEMS & OSSE,HSS6X4X3/8,14,0,14
+DOC-010,07 - FEMS & OSSE,HSS6X4X5/16,2,0,2
+DOC-010,07 - FEMS & OSSE,HSS6X5X5/16,5,0,5
+DOC-010,07 - FEMS & OSSE,HSS6X6X1/2,29,0,29
+DOC-010,07 - FEMS & OSSE,HSS6X6X1/4,1,0,1
+DOC-010,07 - FEMS & OSSE,HSS6X6X3/8,3,0,3
+DOC-010,07 - FEMS & OSSE,L3X3X1/4,5,0,5
+DOC-010,07 - FEMS & OSSE,L6X4X3/8,5,0,5
+DOC-010,07 - FEMS & OSSE,W10X15,6,0,6
+DOC-010,07 - FEMS & OSSE,W10X19,4,0,4
+DOC-010,07 - FEMS & OSSE,W10X33,5,5,0
+DOC-010,07 - FEMS & OSSE,W10X39,3,3,0
+DOC-010,07 - FEMS & OSSE,W10X49,8,8,0
+DOC-010,07 - FEMS & OSSE,W12X16,1,0,1
+DOC-010,07 - FEMS & OSSE,W12X19,19,0,19
+DOC-010,07 - FEMS & OSSE,W12X22,18,0,18
+DOC-010,07 - FEMS & OSSE,W12X53,6,6,0
+DOC-010,07 - FEMS & OSSE,W14X22,9,0,9
+DOC-010,07 - FEMS & OSSE,W14X26,3,0,3
+DOC-010,07 - FEMS & OSSE,W14X34,4,0,4
+DOC-010,07 - FEMS & OSSE,W16X26,12,0,12
+DOC-010,07 - FEMS & OSSE,W16X31,22,0,22
+DOC-010,07 - FEMS & OSSE,W16X36,1,0,1
+DOC-010,07 - FEMS & OSSE,W16X50,2,0,2
+DOC-010,07 - FEMS & OSSE,W18X35,8,0,8
+DOC-010,07 - FEMS & OSSE,W18X40,2,0,2
+DOC-010,07 - FEMS & OSSE,W18X46,2,0,2
+DOC-010,07 - FEMS & OSSE,W18X55,1,0,1
+DOC-010,07 - FEMS & OSSE,W21X44,8,0,8
+DOC-010,07 - FEMS & OSSE,W24X62,1,0,1
+DOC-010,07 - FEMS & OSSE,W24X68,4,0,4
+DOC-010,07 - FEMS & OSSE,W24X84,4,0,4
+DOC-010,07 - FEMS & OSSE,W27X84,4,0,4
+DOC-010,07 - FEMS & OSSE,W30X132,1,0,1
+DOC-010,07 - FEMS & OSSE,W30X90,2,0,2
+DOC-010,07 - FEMS & OSSE,W4X13,1,0,1
+DOC-010,07 - FEMS & OSSE,W8X15,9,0,9
+DOC-010,07 - FEMS & OSSE,W8X21,21,0,21
+DOC-010,07 - FEMS & OSSE,W8X24,1,0,1
+DOC-010,07 - FEMS & OSSE,W8X31,2,0,2
+DOC-011,08 - Fort Davis Community Center,C4X5.4,1,0,1
+DOC-011,08 - Fort Davis Community Center,C5X6.7,1,0,1
+DOC-011,08 - Fort Davis Community Center,C6X8.2,4,0,4
+DOC-011,08 - Fort Davis Community Center,HSS6X6X1/4,10,0,10
+DOC-011,08 - Fort Davis Community Center,L3-1/2X3-1/2X1/4,2,0,2
+DOC-011,08 - Fort Davis Community Center,L3X3X1/4,3,0,3
+DOC-011,08 - Fort Davis Community Center,L3X3X5/16,1,0,1
+DOC-011,08 - Fort Davis Community Center,L4X3X1/4,1,0,1
+DOC-011,08 - Fort Davis Community Center,L4X4X1/4,4,0,4
+DOC-011,08 - Fort Davis Community Center,L6X3-1/2X5/16,2,0,2
+DOC-011,08 - Fort Davis Community Center,W10X12,28,0,28
+DOC-011,08 - Fort Davis Community Center,W12X14,81,0,81
+DOC-011,08 - Fort Davis Community Center,W12X16,3,0,3
+DOC-011,08 - Fort Davis Community Center,W12X19,1,0,1
+DOC-011,08 - Fort Davis Community Center,W14X22,37,0,37
+DOC-011,08 - Fort Davis Community Center,W16X26,9,0,9
+DOC-011,08 - Fort Davis Community Center,W16X36,1,0,1
+DOC-011,08 - Fort Davis Community Center,W21X44,1,0,1
+DOC-011,08 - Fort Davis Community Center,W24X55,1,0,1
+DOC-011,08 - Fort Davis Community Center,W8X10,60,0,60
+DOC-011,08 - Fort Davis Community Center,W8X18,1,0,1
+DOC-011,08 - Fort Davis Community Center,W8X28,1,0,1
+DOC-011,08 - Fort Davis Community Center,W8X40,1,0,1
+DOC-012,09 - Brandywine,C15X40,1,0,1
+DOC-012,09 - Brandywine,HSS10X10X1/4,2,2,0
+DOC-012,09 - Brandywine,HSS10X10X3/8,1,1,0
+DOC-012,09 - Brandywine,HSS10X10X5/16,3,3,0
+DOC-012,09 - Brandywine,HSS12X12X3/8,1,1,0
+DOC-012,09 - Brandywine,HSS14X14X1/2,1,1,0
+DOC-012,09 - Brandywine,HSS4X4X1/2,3,3,0
+DOC-012,09 - Brandywine,HSS6X6X1/2,2,2,0
+DOC-012,09 - Brandywine,HSS6X6X1/4,1,1,0
+DOC-012,09 - Brandywine,HSS6X6X3/8,1,0,1
+DOC-012,09 - Brandywine,HSS6X6X5/16,6,6,0
+DOC-012,09 - Brandywine,HSS6X6X5/8,19,0,19
+DOC-012,09 - Brandywine,HSS8X8X3/8,71,0,71
+DOC-012,09 - Brandywine,L4X4X1/4,1,0,1
+DOC-012,09 - Brandywine,L8X8X1/2,1,0,1
+DOC-012,09 - Brandywine,W10X12,121,0,121
+DOC-012,09 - Brandywine,W10X22,4,0,4
+DOC-012,09 - Brandywine,W10X26,4,0,4
+DOC-012,09 - Brandywine,W10X33,8,6,2
+DOC-012,09 - Brandywine,W10X45,3,1,2
+DOC-012,09 - Brandywine,W10X49,3,3,0
+DOC-012,09 - Brandywine,W12X136,2,2,0
+DOC-012,09 - Brandywine,W12X14,29,0,29
+DOC-012,09 - Brandywine,W12X16,29,0,29
+DOC-012,09 - Brandywine,W12X19,23,0,23
+DOC-012,09 - Brandywine,W12X22,49,0,49
+DOC-012,09 - Brandywine,W12X26,144,0,144
+DOC-012,09 - Brandywine,W12X30,9,0,9
+DOC-012,09 - Brandywine,W12X40,18,14,4
+DOC-012,09 - Brandywine,W12X45,17,15,2
+DOC-012,09 - Brandywine,W12X50,8,8,0
+DOC-012,09 - Brandywine,W12X53,14,14,0
+DOC-012,09 - Brandywine,W12X58,2,2,0
+DOC-012,09 - Brandywine,W12X65,7,7,0
+DOC-012,09 - Brandywine,W12X87,2,2,0
+DOC-012,09 - Brandywine,W12X96,2,2,0
+DOC-012,09 - Brandywine,W14X22,39,0,39
+DOC-012,09 - Brandywine,W14X30,1,0,1
+DOC-012,09 - Brandywine,W14X34,1,0,1
+DOC-012,09 - Brandywine,W14X43,1,0,1
+DOC-012,09 - Brandywine,W14X48,7,7,0
+DOC-012,09 - Brandywine,W14X53,2,2,0
+DOC-012,09 - Brandywine,W14X61,1,1,0
+DOC-012,09 - Brandywine,W16X26,191,0,191
+DOC-012,09 - Brandywine,W16X31,54,0,54
+DOC-012,09 - Brandywine,W16X36,5,0,5
+DOC-012,09 - Brandywine,W16X40,1,0,1
+DOC-012,09 - Brandywine,W16X50,3,0,3
+DOC-012,09 - Brandywine,W18X35,122,0,122
+DOC-012,09 - Brandywine,W18X40,135,0,135
+DOC-012,09 - Brandywine,W18X50,4,0,4
+DOC-012,09 - Brandywine,W21X44,144,0,144
+DOC-012,09 - Brandywine,W21X48,37,0,37
+DOC-012,09 - Brandywine,W21X50,18,0,18
+DOC-012,09 - Brandywine,W21X55,8,0,8
+DOC-012,09 - Brandywine,W21X57,3,0,3
+DOC-012,09 - Brandywine,W21X62,2,0,2
+DOC-012,09 - Brandywine,W24X55,46,0,46
+DOC-012,09 - Brandywine,W24X62,15,0,15
+DOC-012,09 - Brandywine,W24X68,14,0,14
+DOC-012,09 - Brandywine,W24X76,11,0,11
+DOC-012,09 - Brandywine,W27X84,23,0,23
+DOC-012,09 - Brandywine,W30X108,3,0,3
+DOC-012,09 - Brandywine,W30X116,1,0,1
+DOC-012,09 - Brandywine,W30X90,8,0,8
+DOC-012,09 - Brandywine,W30X99,2,0,2
+DOC-012,09 - Brandywine,W33X118,3,0,3
+DOC-012,09 - Brandywine,W33X130,2,0,2
+DOC-012,09 - Brandywine,W33X201,1,0,1
+DOC-012,09 - Brandywine,W8X10,10,0,10
+DOC-012,09 - Brandywine,W8X13,2,0,2
+DOC-012,09 - Brandywine,W8X21,3,0,3
+DOC-012,09 - Brandywine,W8X28,2,0,2
+DOC-012,09 - Brandywine,W8X31,4,0,4
+DOC-013,12 - Manassad Park City Hall,HSS10X6X1/4,1,0,1
+DOC-013,12 - Manassad Park City Hall,HSS12X8X1/2,1,0,1
+DOC-013,12 - Manassad Park City Hall,HSS4X4X1/4,1,0,1
+DOC-013,12 - Manassad Park City Hall,HSS6X6X1/2,6,0,6
+DOC-013,12 - Manassad Park City Hall,HSS6X6X1/4,2,0,2
+DOC-013,12 - Manassad Park City Hall,HSS6X6X3/8,5,0,5
+DOC-013,12 - Manassad Park City Hall,HSS6X6X5/16,6,0,6
+DOC-013,12 - Manassad Park City Hall,HSS8X4X1/4,3,0,3
+DOC-013,12 - Manassad Park City Hall,HSS8X6X1/2,4,0,4
+DOC-013,12 - Manassad Park City Hall,HSS8X6X1/4,5,0,5
+DOC-013,12 - Manassad Park City Hall,HSS8X8X3/8,3,0,3
+DOC-013,12 - Manassad Park City Hall,L2X2X1/4,3,0,3
+DOC-013,12 - Manassad Park City Hall,L3X3X5/16,1,0,1
+DOC-013,12 - Manassad Park City Hall,L4X3X5/16,1,0,1
+DOC-013,12 - Manassad Park City Hall,L5X3X1/4,1,0,1
+DOC-013,12 - Manassad Park City Hall,L5X3X3/8,1,0,1
+DOC-013,12 - Manassad Park City Hall,L7X4X5/8,2,0,2
+DOC-013,12 - Manassad Park City Hall,MC6X15.1,1,0,1
+DOC-013,12 - Manassad Park City Hall,W10X100,6,3,3
+DOC-013,12 - Manassad Park City Hall,W10X19,9,0,9
+DOC-013,12 - Manassad Park City Hall,W10X88,7,6,1
+DOC-013,12 - Manassad Park City Hall,W12X19,69,0,69
+DOC-013,12 - Manassad Park City Hall,W12X26,9,0,9
+DOC-013,12 - Manassad Park City Hall,W14X22,25,0,25
+DOC-013,12 - Manassad Park City Hall,W16X26,38,0,38
+DOC-013,12 - Manassad Park City Hall,W16X31,75,0,75
+DOC-013,12 - Manassad Park City Hall,W16X40,6,0,6
+DOC-013,12 - Manassad Park City Hall,W16X45,3,0,3
+DOC-013,12 - Manassad Park City Hall,W18X106,1,0,1
+DOC-013,12 - Manassad Park City Hall,W18X35,22,0,22
+DOC-013,12 - Manassad Park City Hall,W18X40,17,0,17
+DOC-013,12 - Manassad Park City Hall,W18X65,1,0,1
+DOC-013,12 - Manassad Park City Hall,W18X71,1,0,1
+DOC-013,12 - Manassad Park City Hall,W18X97,1,0,1
+DOC-013,12 - Manassad Park City Hall,W21X101,3,0,3
+DOC-013,12 - Manassad Park City Hall,W21X44,21,0,21
+DOC-013,12 - Manassad Park City Hall,W21X48,6,0,6
+DOC-013,12 - Manassad Park City Hall,W21X55,7,0,7
+DOC-013,12 - Manassad Park City Hall,W21X62,5,0,5
+DOC-013,12 - Manassad Park City Hall,W21X68,3,0,3
+DOC-013,12 - Manassad Park City Hall,W21X73,4,0,4
+DOC-013,12 - Manassad Park City Hall,W21X83,2,0,2
+DOC-013,12 - Manassad Park City Hall,W21X93,2,0,2
+DOC-013,12 - Manassad Park City Hall,W24X103,4,0,4
+DOC-013,12 - Manassad Park City Hall,W24X131,1,0,1
+DOC-013,12 - Manassad Park City Hall,W24X55,6,0,6
+DOC-013,12 - Manassad Park City Hall,W24X76,2,0,2
+DOC-013,12 - Manassad Park City Hall,W24X84,2,0,2
+DOC-013,12 - Manassad Park City Hall,W24X94,4,0,4
+DOC-013,12 - Manassad Park City Hall,W27X84,1,0,1
+DOC-013,12 - Manassad Park City Hall,W8X24,1,1,0
+DOC-013,12 - Manassad Park City Hall,W8X31,11,6,5
+DOC-013,12 - Manassad Park City Hall,W8X40,16,15,1
+DOC-013,12 - Manassad Park City Hall,W8X58,8,7,1
+DOC-013,12 - Manassad Park City Hall,W8X67,21,14,7
+DOC-014,12 - Manassad Park City Hall,HSS10X6X1/4,1,0,1
+DOC-014,12 - Manassad Park City Hall,HSS12X8X1/2,1,0,1
+DOC-014,12 - Manassad Park City Hall,HSS4X4X1/4,1,0,1
+DOC-014,12 - Manassad Park City Hall,HSS6X6X1/2,6,0,6
+DOC-014,12 - Manassad Park City Hall,HSS6X6X1/4,1,0,1
+DOC-014,12 - Manassad Park City Hall,HSS6X6X3/8,5,0,5
+DOC-014,12 - Manassad Park City Hall,HSS6X6X5/16,6,0,6
+DOC-014,12 - Manassad Park City Hall,HSS8X4X1/4,3,0,3
+DOC-014,12 - Manassad Park City Hall,HSS8X6X1/2,4,0,4
+DOC-014,12 - Manassad Park City Hall,HSS8X6X1/4,5,0,5
+DOC-014,12 - Manassad Park City Hall,HSS8X8X3/8,3,0,3
+DOC-014,12 - Manassad Park City Hall,L2X2X1/4,3,0,3
+DOC-014,12 - Manassad Park City Hall,L3X3X5/16,1,0,1
+DOC-014,12 - Manassad Park City Hall,L4X3X5/16,1,0,1
+DOC-014,12 - Manassad Park City Hall,L5X3X1/4,1,0,1
+DOC-014,12 - Manassad Park City Hall,L5X3X3/8,1,0,1
+DOC-014,12 - Manassad Park City Hall,L7X4X5/8,2,0,2
+DOC-014,12 - Manassad Park City Hall,MC6X15.1,1,0,1
+DOC-014,12 - Manassad Park City Hall,W10X100,6,3,3
+DOC-014,12 - Manassad Park City Hall,W10X19,9,0,9
+DOC-014,12 - Manassad Park City Hall,W10X88,7,6,1
+DOC-014,12 - Manassad Park City Hall,W12X19,65,0,65
+DOC-014,12 - Manassad Park City Hall,W12X26,9,0,9
+DOC-014,12 - Manassad Park City Hall,W14X22,25,0,25
+DOC-014,12 - Manassad Park City Hall,W16X26,36,0,36
+DOC-014,12 - Manassad Park City Hall,W16X31,75,0,75
+DOC-014,12 - Manassad Park City Hall,W16X40,6,0,6
+DOC-014,12 - Manassad Park City Hall,W16X45,3,0,3
+DOC-014,12 - Manassad Park City Hall,W18X106,1,0,1
+DOC-014,12 - Manassad Park City Hall,W18X35,22,0,22
+DOC-014,12 - Manassad Park City Hall,W18X40,17,0,17
+DOC-014,12 - Manassad Park City Hall,W18X65,1,0,1
+DOC-014,12 - Manassad Park City Hall,W18X97,1,0,1
+DOC-014,12 - Manassad Park City Hall,W21X101,3,0,3
+DOC-014,12 - Manassad Park City Hall,W21X44,21,0,21
+DOC-014,12 - Manassad Park City Hall,W21X48,6,0,6
+DOC-014,12 - Manassad Park City Hall,W21X55,7,0,7
+DOC-014,12 - Manassad Park City Hall,W21X62,5,0,5
+DOC-014,12 - Manassad Park City Hall,W21X68,3,0,3
+DOC-014,12 - Manassad Park City Hall,W21X73,4,0,4
+DOC-014,12 - Manassad Park City Hall,W21X83,2,0,2
+DOC-014,12 - Manassad Park City Hall,W21X93,2,0,2
+DOC-014,12 - Manassad Park City Hall,W24X103,4,0,4
+DOC-014,12 - Manassad Park City Hall,W24X131,1,0,1
+DOC-014,12 - Manassad Park City Hall,W24X55,6,0,6
+DOC-014,12 - Manassad Park City Hall,W24X76,2,0,2
+DOC-014,12 - Manassad Park City Hall,W24X84,2,0,2
+DOC-014,12 - Manassad Park City Hall,W24X94,4,0,4
+DOC-014,12 - Manassad Park City Hall,W27X84,1,0,1
+DOC-014,12 - Manassad Park City Hall,W8X24,1,1,0
+DOC-014,12 - Manassad Park City Hall,W8X31,11,6,5
+DOC-014,12 - Manassad Park City Hall,W8X40,16,15,1
+DOC-014,12 - Manassad Park City Hall,W8X58,8,7,1
+DOC-014,12 - Manassad Park City Hall,W8X67,21,14,7
+DOC-015,13 - SOCOM,C15X33.9,11,0,11
+DOC-015,13 - SOCOM,C6X8.2,2,0,2
+DOC-015,13 - SOCOM,C8X11.5,5,0,5
+DOC-015,13 - SOCOM,HSS12X12X1/2,4,0,4
+DOC-015,13 - SOCOM,HSS12X4X5/16,1,0,1
+DOC-015,13 - SOCOM,HSS16X12X3/8,3,0,3
+DOC-015,13 - SOCOM,HSS20X8X3/8,11,0,11
+DOC-015,13 - SOCOM,HSS3X3X1/4,2,0,2
+DOC-015,13 - SOCOM,HSS4X4X1/4,28,0,28
+DOC-015,13 - SOCOM,HSS4X4X3/8,18,0,18
+DOC-015,13 - SOCOM,HSS6X6X1/4,1,0,1
+DOC-015,13 - SOCOM,HSS8X4X1/2,9,0,9
+DOC-015,13 - SOCOM,HSS8X4X1/4,6,0,6
+DOC-015,13 - SOCOM,HSS8X4X3/8,18,0,18
+DOC-015,13 - SOCOM,HSS8X8X3/8,31,0,31
+DOC-015,13 - SOCOM,L2-1/2X2-1/2X1/4,1,0,1
+DOC-015,13 - SOCOM,L2X2X1/4,2,0,2
+DOC-015,13 - SOCOM,L3X3X1/4,9,0,9
+DOC-015,13 - SOCOM,L4X4X1/4,10,0,10
+DOC-015,13 - SOCOM,L5X3X5/16,1,0,1
+DOC-015,13 - SOCOM,L5X5X3/8,1,0,1
+DOC-015,13 - SOCOM,L6X4X3/8,2,0,2
+DOC-015,13 - SOCOM,L6X4X5/16,2,0,2
+DOC-015,13 - SOCOM,L6X6X3/8,1,0,1
+DOC-015,13 - SOCOM,L8X4X1/2,1,0,1
+DOC-015,13 - SOCOM,L8X6X7/16,1,0,1
+DOC-015,13 - SOCOM,W10X12,4,0,4
+DOC-015,13 - SOCOM,W10X33,1,0,1
+DOC-015,13 - SOCOM,W12X19,30,0,30
+DOC-015,13 - SOCOM,W12X35,27,0,27
+DOC-015,13 - SOCOM,W12X40,59,0,59
+DOC-015,13 - SOCOM,W12X53,10,0,10
+DOC-015,13 - SOCOM,W14X22,22,0,22
+DOC-015,13 - SOCOM,W14X53,3,0,3
+DOC-015,13 - SOCOM,W14X68,4,0,4
+DOC-015,13 - SOCOM,W16X26,39,0,39
+DOC-015,13 - SOCOM,W16X31,15,0,15
+DOC-015,13 - SOCOM,W18X35,30,0,30
+DOC-015,13 - SOCOM,W18X40,12,0,12
+DOC-015,13 - SOCOM,W18X76,20,0,20
+DOC-015,13 - SOCOM,W18X97,26,0,26
+DOC-015,13 - SOCOM,W21X44,31,0,31
+DOC-015,13 - SOCOM,W21X50,1,0,1
+DOC-015,13 - SOCOM,W24X55,10,0,10
+DOC-015,13 - SOCOM,W24X62,3,0,3
+DOC-015,13 - SOCOM,W24X68,4,0,4
+DOC-015,13 - SOCOM,W24X76,2,0,2
+DOC-015,13 - SOCOM,W27X84,27,0,27
+DOC-015,13 - SOCOM,W27X94,2,0,2
+DOC-015,13 - SOCOM,W30X108,2,0,2
+DOC-015,13 - SOCOM,W30X99,13,0,13
+DOC-015,13 - SOCOM,W33X118,4,0,4
+DOC-015,13 - SOCOM,W36X135,2,0,2
+DOC-015,13 - SOCOM,W8X21,13,0,13
+DOC-016,15 - Dulles Discovery Bldg,C15X33.9,9,0,9
+DOC-016,15 - Dulles Discovery Bldg,C15X40,4,0,4
+DOC-016,15 - Dulles Discovery Bldg,C8X11.5,8,0,8
+DOC-016,15 - Dulles Discovery Bldg,HSS10X4X3/8,12,0,12
+DOC-016,15 - Dulles Discovery Bldg,HSS10X8X3/8,2,0,2
+DOC-016,15 - Dulles Discovery Bldg,HSS12X12X3/8,9,0,9
+DOC-016,15 - Dulles Discovery Bldg,HSS14X10X3/8,1,0,1
+DOC-016,15 - Dulles Discovery Bldg,HSS14X6X3/8,8,0,8
+DOC-016,15 - Dulles Discovery Bldg,HSS16X12X1/2,4,0,4
+DOC-016,15 - Dulles Discovery Bldg,HSS6X4X3/8,7,0,7
+DOC-016,15 - Dulles Discovery Bldg,HSS6X6X1/2,1,0,1
+DOC-016,15 - Dulles Discovery Bldg,HSS6X6X5/16,10,0,10
+DOC-016,15 - Dulles Discovery Bldg,HSS8X8X1/2,14,0,14
+DOC-016,15 - Dulles Discovery Bldg,HSS8X8X3/8,2,0,2
+DOC-016,15 - Dulles Discovery Bldg,L3X2X3/8,1,0,1
+DOC-016,15 - Dulles Discovery Bldg,L3X3X1/4,17,0,17
+DOC-016,15 - Dulles Discovery Bldg,L3X3X3/8,1,0,1
+DOC-016,15 - Dulles Discovery Bldg,L3X3X5/16,6,0,6
+DOC-016,15 - Dulles Discovery Bldg,L4X4X1/4,3,0,3
+DOC-016,15 - Dulles Discovery Bldg,L4X4X3/8,26,0,26
+DOC-016,15 - Dulles Discovery Bldg,L5X3X1/4,1,0,1
+DOC-016,15 - Dulles Discovery Bldg,L5X5X3/4,1,0,1
+DOC-016,15 - Dulles Discovery Bldg,L5X5X3/8,4,0,4
+DOC-016,15 - Dulles Discovery Bldg,L6X4X3/8,5,0,5
+DOC-016,15 - Dulles Discovery Bldg,MC18X42.7,19,0,19
+DOC-016,15 - Dulles Discovery Bldg,W10X19,7,0,7
+DOC-016,15 - Dulles Discovery Bldg,W10X22,3,0,3
+DOC-016,15 - Dulles Discovery Bldg,W10X33,1,0,1
+DOC-016,15 - Dulles Discovery Bldg,W10X45,2,2,0
+DOC-016,15 - Dulles Discovery Bldg,W12X120,1,0,1
+DOC-016,15 - Dulles Discovery Bldg,W12X26,27,0,27
+DOC-016,15 - Dulles Discovery Bldg,W12X40,4,0,4
+DOC-016,15 - Dulles Discovery Bldg,W12X58,39,39,0
+DOC-016,15 - Dulles Discovery Bldg,W12X65,42,16,26
+DOC-016,15 - Dulles Discovery Bldg,W12X72,1,1,0
+DOC-016,15 - Dulles Discovery Bldg,W12X79,1,1,0
+DOC-016,15 - Dulles Discovery Bldg,W12X87,2,2,0
+DOC-016,15 - Dulles Discovery Bldg,W12X96,2,0,2
+DOC-016,15 - Dulles Discovery Bldg,W14X109,10,10,0
+DOC-016,15 - Dulles Discovery Bldg,W14X145,1,0,1
+DOC-016,15 - Dulles Discovery Bldg,W14X257,1,0,1
+DOC-016,15 - Dulles Discovery Bldg,W14X26,19,0,19
+DOC-016,15 - Dulles Discovery Bldg,W14X426,1,0,1
+DOC-016,15 - Dulles Discovery Bldg,W14X43,2,0,2
+DOC-016,15 - Dulles Discovery Bldg,W14X455,1,0,1
+DOC-016,15 - Dulles Discovery Bldg,W14X90,18,17,1
+DOC-016,15 - Dulles Discovery Bldg,W14X99,1,1,0
+DOC-016,15 - Dulles Discovery Bldg,W16X26,34,0,34
+DOC-016,15 - Dulles Discovery Bldg,W16X31,27,0,27
+DOC-016,15 - Dulles Discovery Bldg,W16X36,8,0,8
+DOC-016,15 - Dulles Discovery Bldg,W16X40,6,0,6
+DOC-016,15 - Dulles Discovery Bldg,W16X50,10,0,10
+DOC-016,15 - Dulles Discovery Bldg,W16X57,1,0,1
+DOC-016,15 - Dulles Discovery Bldg,W16X77,2,0,2
+DOC-016,15 - Dulles Discovery Bldg,W18X106,1,0,1
+DOC-016,15 - Dulles Discovery Bldg,W18X35,10,0,10
+DOC-016,15 - Dulles Discovery Bldg,W18X40,120,0,120
+DOC-016,15 - Dulles Discovery Bldg,W18X46,15,0,15
+DOC-016,15 - Dulles Discovery Bldg,W18X55,108,0,108
+DOC-016,15 - Dulles Discovery Bldg,W18X60,8,0,8
+DOC-016,15 - Dulles Discovery Bldg,W18X65,30,0,30
+DOC-016,15 - Dulles Discovery Bldg,W18X76,4,0,4
+DOC-016,15 - Dulles Discovery Bldg,W18X86,26,0,26
+DOC-016,15 - Dulles Discovery Bldg,W18X97,1,0,1
+DOC-016,15 - Dulles Discovery Bldg,W21X101,1,0,1
+DOC-016,15 - Dulles Discovery Bldg,W21X111,1,0,1
+DOC-016,15 - Dulles Discovery Bldg,W21X122,2,0,2
+DOC-016,15 - Dulles Discovery Bldg,W21X132,1,0,1
+DOC-016,15 - Dulles Discovery Bldg,W21X44,21,0,21
+DOC-016,15 - Dulles Discovery Bldg,W21X50,17,0,17
+DOC-016,15 - Dulles Discovery Bldg,W21X55,2,0,2
+DOC-016,15 - Dulles Discovery Bldg,W21X62,12,0,12
+DOC-016,15 - Dulles Discovery Bldg,W21X68,3,0,3
+DOC-016,15 - Dulles Discovery Bldg,W21X73,1,0,1
+DOC-016,15 - Dulles Discovery Bldg,W21X83,14,0,14
+DOC-016,15 - Dulles Discovery Bldg,W21X93,15,0,15
+DOC-016,15 - Dulles Discovery Bldg,W24X117,1,0,1
+DOC-016,15 - Dulles Discovery Bldg,W24X146,2,0,2
+DOC-016,15 - Dulles Discovery Bldg,W24X55,4,0,4
+DOC-016,15 - Dulles Discovery Bldg,W24X62,10,0,10
+DOC-016,15 - Dulles Discovery Bldg,W24X68,1,0,1
+DOC-016,15 - Dulles Discovery Bldg,W24X76,5,0,5
+DOC-016,15 - Dulles Discovery Bldg,W24X84,4,0,4
+DOC-016,15 - Dulles Discovery Bldg,W24X94,16,0,16
+DOC-016,15 - Dulles Discovery Bldg,W27X146,1,0,1
+DOC-016,15 - Dulles Discovery Bldg,W27X178,1,0,1
+DOC-016,15 - Dulles Discovery Bldg,W27X194,1,0,1
+DOC-016,15 - Dulles Discovery Bldg,W27X84,2,0,2
+DOC-016,15 - Dulles Discovery Bldg,W30X90,2,0,2
+DOC-016,15 - Dulles Discovery Bldg,W33X130,1,0,1
+DOC-016,15 - Dulles Discovery Bldg,W33X141,1,0,1
+DOC-016,15 - Dulles Discovery Bldg,W36X135,5,0,5
+DOC-016,15 - Dulles Discovery Bldg,W40X149,16,0,16
+DOC-016,15 - Dulles Discovery Bldg,W40X235,4,0,4
+DOC-016,15 - Dulles Discovery Bldg,W44X230,20,0,20
+DOC-016,15 - Dulles Discovery Bldg,W44X290,3,0,3
+DOC-016,15 - Dulles Discovery Bldg,W44X335,10,0,10
+DOC-016,15 - Dulles Discovery Bldg,W6X15,8,0,8
+DOC-016,15 - Dulles Discovery Bldg,W8X10,2,0,2
+DOC-016,15 - Dulles Discovery Bldg,W8X24,23,0,23
+DOC-016,15 - Dulles Discovery Bldg,W8X28,2,0,2
+DOC-016,15 - Dulles Discovery Bldg,W8X31,1,0,1
+DOC-017,17 - Add#3 (Elizabeth Vaughan),C8X11.5,2,0,2
+DOC-017,17 - Add#3 (Elizabeth Vaughan),HSS10X2X3/16,1,0,1
+DOC-017,17 - Add#3 (Elizabeth Vaughan),HSS10X4X3/16,1,0,1
+DOC-017,17 - Add#3 (Elizabeth Vaughan),HSS16X4X1/4,1,0,1
+DOC-017,17 - Add#3 (Elizabeth Vaughan),HSS16X6X3/16,2,0,2
+DOC-017,17 - Add#3 (Elizabeth Vaughan),HSS4X4X3/8,3,0,3
+DOC-017,17 - Add#3 (Elizabeth Vaughan),HSS6X2X3/16,4,0,4
+DOC-017,17 - Add#3 (Elizabeth Vaughan),HSS6X6X1/2,1,0,1
+DOC-017,17 - Add#3 (Elizabeth Vaughan),HSS6X6X1/4,2,0,2
+DOC-017,17 - Add#3 (Elizabeth Vaughan),HSS6X6X3/8,2,0,2
+DOC-017,17 - Add#3 (Elizabeth Vaughan),HSS8X2X3/16,6,0,6
+DOC-017,17 - Add#3 (Elizabeth Vaughan),HSS8X3X3/16,2,0,2
+DOC-017,17 - Add#3 (Elizabeth Vaughan),HSS8X8X1/4,4,0,4
+DOC-017,17 - Add#3 (Elizabeth Vaughan),L3X3X1/4,7,0,7
+DOC-017,17 - Add#3 (Elizabeth Vaughan),L4X4X1/4,5,0,5
+DOC-017,17 - Add#3 (Elizabeth Vaughan),L4X4X3/8,1,0,1
+DOC-017,17 - Add#3 (Elizabeth Vaughan),L4X4X5/16,5,0,5
+DOC-017,17 - Add#3 (Elizabeth Vaughan),L5X3X1/4,1,0,1
+DOC-017,17 - Add#3 (Elizabeth Vaughan),L5X5X5/16,1,0,1
+DOC-017,17 - Add#3 (Elizabeth Vaughan),L6X4X3/8,1,0,1
+DOC-017,17 - Add#3 (Elizabeth Vaughan),L6X6X3/8,1,0,1
+DOC-017,17 - Add#3 (Elizabeth Vaughan),MC12X14.3,2,0,2
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W10X15,11,0,11
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W10X19,2,0,2
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W10X22,1,0,1
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W10X33,13,0,13
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W10X45,2,0,2
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W10X49,49,0,49
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W10X54,31,0,31
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W10X60,50,0,50
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W10X68,47,0,47
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W10X77,3,0,3
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W10X88,5,0,5
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W12X16,1,0,1
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W12X19,123,0,123
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W12X22,19,0,19
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W12X26,17,0,17
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W12X30,13,0,13
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W12X40,15,0,15
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W12X50,4,0,4
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W12X58,1,0,1
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W12X65,5,0,5
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W14X22,5,0,5
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W14X30,3,0,3
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W14X68,1,0,1
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W16X26,15,0,15
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W16X31,21,0,21
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W16X36,8,0,8
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W16X40,54,0,54
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W16X50,34,0,34
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W16X67,2,0,2
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W18X35,11,0,11
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W18X40,119,0,119
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W18X50,46,0,46
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W18X55,1,0,1
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W21X44,3,0,3
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W21X48,3,0,3
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W21X50,2,0,2
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W21X55,8,0,8
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W21X57,5,0,5
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W21X62,11,0,11
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W21X73,1,0,1
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W24X55,9,0,9
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W24X62,1,0,1
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W24X68,1,0,1
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W24X84,1,0,1
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W27X84,1,0,1
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W30X108,1,0,1
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W30X90,1,0,1
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W8X10,1,0,1
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W8X15,28,0,28
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W8X18,1,0,1
+DOC-017,17 - Add#3 (Elizabeth Vaughan),W8X31,2,0,2
+DOC-018,18-Quantum Labs,W10X22,1,0,1
+DOC-018,18-Quantum Labs,W10X30,3,0,3
+DOC-018,18-Quantum Labs,W12X16,19,0,19
+DOC-018,18-Quantum Labs,W12X26,17,0,17
+DOC-018,18-Quantum Labs,W12X35,1,0,1
+DOC-018,18-Quantum Labs,W12X40,15,0,15
+DOC-018,18-Quantum Labs,W16X26,29,0,29
+DOC-018,18-Quantum Labs,W16X31,18,0,18
+DOC-018,18-Quantum Labs,W18X35,20,0,20
+DOC-018,18-Quantum Labs,W18X40,5,0,5
+DOC-018,18-Quantum Labs,W18X46,1,0,1
+DOC-018,18-Quantum Labs,W21X44,4,0,4
+DOC-018,18-Quantum Labs,W21X50,2,0,2
+DOC-018,18-Quantum Labs,W21X57,8,0,8
+DOC-018,18-Quantum Labs,W8X10,25,0,25
+DOC-018,18-Quantum Labs,WT5X13,5,0,5
+DOC-018,18-Quantum Labs,WT5X22.5,4,0,4
+DOC-018,18-Quantum Labs,WT6X25,1,0,1
+DOC-018,18-Quantum Labs,WT6X32.5,1,0,1
+DOC-151,20 - 2100 Crystal Dr,HSS12X3X1/4,1,0,1
+DOC-151,20 - 2100 Crystal Dr,HSS12X6X3/8,2,0,2
+DOC-151,20 - 2100 Crystal Dr,HSS4X4X1/4,10,0,10
+DOC-151,20 - 2100 Crystal Dr,HSS5X5X3/8,3,0,3
+DOC-151,20 - 2100 Crystal Dr,HSS6X4X1/4,2,0,2
+DOC-151,20 - 2100 Crystal Dr,HSS6X6X1/4,2,0,2
+DOC-151,20 - 2100 Crystal Dr,HSS6X6X3/8,2,0,2
+DOC-151,20 - 2100 Crystal Dr,L2-1/2X2-1/2X1/4,1,0,1
+DOC-151,20 - 2100 Crystal Dr,L2X2X3/16,1,0,1
+DOC-151,20 - 2100 Crystal Dr,L3X3X1/4,6,0,6
+DOC-151,20 - 2100 Crystal Dr,L4X4X1/4,1,0,1
+DOC-151,20 - 2100 Crystal Dr,L4X4X3/8,3,0,3
+DOC-151,20 - 2100 Crystal Dr,L5X5X3/8,10,0,10
+DOC-151,20 - 2100 Crystal Dr,L6X6X3/8,1,0,1
+DOC-151,20 - 2100 Crystal Dr,L8X6X1/2,1,0,1
+DOC-151,20 - 2100 Crystal Dr,W10X12,21,0,21
+DOC-151,20 - 2100 Crystal Dr,W10X15,12,0,12
+DOC-151,20 - 2100 Crystal Dr,W10X22,15,0,15
+DOC-151,20 - 2100 Crystal Dr,W10X26,3,0,3
+DOC-151,20 - 2100 Crystal Dr,W12X14,25,0,25
+DOC-151,20 - 2100 Crystal Dr,W12X19,47,0,47
+DOC-151,20 - 2100 Crystal Dr,W12X22,10,0,10
+DOC-151,20 - 2100 Crystal Dr,W12X26,59,0,59
+DOC-151,20 - 2100 Crystal Dr,W12X35,12,0,12
+DOC-151,20 - 2100 Crystal Dr,W12X45,5,0,5
+DOC-151,20 - 2100 Crystal Dr,W12X58,10,0,10
+DOC-151,20 - 2100 Crystal Dr,W14X22,12,0,12
+DOC-151,20 - 2100 Crystal Dr,W14X30,19,0,19
+DOC-151,20 - 2100 Crystal Dr,W14X43,7,0,7
+DOC-151,20 - 2100 Crystal Dr,W16X26,9,0,9
+DOC-151,20 - 2100 Crystal Dr,W16X31,4,0,4
+DOC-151,20 - 2100 Crystal Dr,W16X40,2,0,2
+DOC-151,20 - 2100 Crystal Dr,W18X35,3,0,3
+DOC-151,20 - 2100 Crystal Dr,W21X44,2,0,2
+DOC-151,20 - 2100 Crystal Dr,W24X68,5,0,5
+DOC-151,20 - 2100 Crystal Dr,W33X130,2,0,2
+DOC-151,20 - 2100 Crystal Dr,W33X201,3,0,3
+DOC-151,20 - 2100 Crystal Dr,W6X9,8,0,8
+DOC-151,20 - 2100 Crystal Dr,W8X10,15,0,15
+DOC-151,20 - 2100 Crystal Dr,W8X31,7,0,7
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,2L4X4X3/8,4,0,4
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,2L6X6X1/2,6,0,6
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,C8X11.5,8,0,8
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,HSS10X10X1/2,3,0,3
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,HSS10X3X3/8,3,0,3
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,HSS10X6X3/8,16,0,16
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,HSS12X12X1/2,18,0,18
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,HSS12X4X3/8,18,0,18
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,HSS12X8X1/2,3,0,3
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,HSS4X4X1/4,2,0,2
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,HSS5X5X3/8,2,0,2
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,HSS6X6X3/8,44,0,44
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,HSS7X7X3/8,6,0,6
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,HSS8X8X1/2,18,0,18
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,HSS8X8X3/8,1,0,1
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,L3X3X5/16,1,0,1
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,L4X4X1/4,1,0,1
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,L6X4X3/8,3,0,3
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W10X33,1,0,1
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W12X120,1,0,1
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W12X19,113,0,113
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W12X26,3,0,3
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W12X40,1,0,1
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W12X45,13,13,0
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W12X53,33,33,0
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W12X58,9,9,0
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W12X65,3,3,0
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W12X87,11,11,0
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W14X145,1,0,1
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W14X22,54,0,54
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W14X257,1,0,1
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W14X426,1,0,1
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W14X43,1,0,1
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W14X455,1,0,1
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W14X90,26,9,17
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W14X99,4,0,4
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W16X26,20,0,20
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W16X31,70,0,70
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W18X35,45,0,45
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W18X40,19,0,19
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W21X44,121,0,121
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W21X48,4,0,4
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W21X50,53,0,53
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W21X55,26,0,26
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W21X62,1,0,1
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W24X55,108,0,108
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W24X62,4,0,4
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W24X68,6,0,6
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W24X76,33,0,33
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W24X84,3,0,3
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W24X94,1,0,1
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W27X84,7,0,7
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W30X108,1,0,1
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W30X116,4,0,4
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W30X132,2,0,2
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W30X211,1,0,1
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W30X90,19,0,19
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W30X99,4,0,4
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W8X24,1,0,1
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W8X28,2,0,2
+DOC-152,21 - Loudoun County - General Government Office Building - Phase 1,W8X31,1,0,1
+DOC-154,24 - 1919 Penn Ave,C8X11.5,4,0,4
+DOC-154,24 - 1919 Penn Ave,L4X4X3/8,2,0,2
+DOC-154,24 - 1919 Penn Ave,L6X4X3/8,1,0,1
+DOC-154,24 - 1919 Penn Ave,W10X15,7,0,7
+DOC-154,24 - 1919 Penn Ave,W12X106,1,0,1
+DOC-154,24 - 1919 Penn Ave,W12X120,3,0,3
+DOC-154,24 - 1919 Penn Ave,W12X136,1,0,1
+DOC-154,24 - 1919 Penn Ave,W12X152,1,0,1
+DOC-154,24 - 1919 Penn Ave,W12X170,1,0,1
+DOC-154,24 - 1919 Penn Ave,W12X19,45,0,45
+DOC-154,24 - 1919 Penn Ave,W12X190,1,0,1
+DOC-154,24 - 1919 Penn Ave,W12X22,4,0,4
+DOC-154,24 - 1919 Penn Ave,W12X26,10,0,10
+DOC-154,24 - 1919 Penn Ave,W12X30,6,0,6
+DOC-154,24 - 1919 Penn Ave,W12X35,4,0,4
+DOC-154,24 - 1919 Penn Ave,W12X40,3,0,3
+DOC-154,24 - 1919 Penn Ave,W12X45,2,0,2
+DOC-154,24 - 1919 Penn Ave,W12X50,2,0,2
+DOC-154,24 - 1919 Penn Ave,W12X53,3,0,3
+DOC-154,24 - 1919 Penn Ave,W12X58,77,0,77
+DOC-154,24 - 1919 Penn Ave,W12X72,4,0,4
+DOC-154,24 - 1919 Penn Ave,W12X79,1,0,1
+DOC-154,24 - 1919 Penn Ave,W12X87,1,0,1
+DOC-154,24 - 1919 Penn Ave,W12X96,3,0,3
+DOC-154,24 - 1919 Penn Ave,W14X120,2,0,2
+DOC-154,24 - 1919 Penn Ave,W14X145,1,0,1
+DOC-154,24 - 1919 Penn Ave,W14X22,14,0,14
+DOC-154,24 - 1919 Penn Ave,W14X26,2,0,2
+DOC-154,24 - 1919 Penn Ave,W16X26,78,0,78
+DOC-154,24 - 1919 Penn Ave,W16X31,13,0,13
+DOC-154,24 - 1919 Penn Ave,W16X45,5,0,5
+DOC-154,24 - 1919 Penn Ave,W16X67,3,0,3
+DOC-154,24 - 1919 Penn Ave,W18X35,3,0,3
+DOC-154,24 - 1919 Penn Ave,W18X40,8,0,8
+DOC-154,24 - 1919 Penn Ave,W24X68,6,0,6
+DOC-154,24 - 1919 Penn Ave,WT9X25,26,0,26
+DOC-155,24 - 1919 Penn Ave,C8X11.5,4,0,4
+DOC-155,24 - 1919 Penn Ave,L4X4X3/8,2,0,2
+DOC-155,24 - 1919 Penn Ave,L6X4X3/8,1,0,1
+DOC-155,24 - 1919 Penn Ave,W10X15,11,0,11
+DOC-155,24 - 1919 Penn Ave,W12X106,1,0,1
+DOC-155,24 - 1919 Penn Ave,W12X120,3,0,3
+DOC-155,24 - 1919 Penn Ave,W12X136,1,0,1
+DOC-155,24 - 1919 Penn Ave,W12X152,1,0,1
+DOC-155,24 - 1919 Penn Ave,W12X170,1,0,1
+DOC-155,24 - 1919 Penn Ave,W12X19,46,0,46
+DOC-155,24 - 1919 Penn Ave,W12X190,1,0,1
+DOC-155,24 - 1919 Penn Ave,W12X22,4,0,4
+DOC-155,24 - 1919 Penn Ave,W12X26,10,0,10
+DOC-155,24 - 1919 Penn Ave,W12X30,6,0,6
+DOC-155,24 - 1919 Penn Ave,W12X35,6,0,6
+DOC-155,24 - 1919 Penn Ave,W12X40,3,0,3
+DOC-155,24 - 1919 Penn Ave,W12X45,2,0,2
+DOC-155,24 - 1919 Penn Ave,W12X50,2,0,2
+DOC-155,24 - 1919 Penn Ave,W12X53,3,0,3
+DOC-155,24 - 1919 Penn Ave,W12X58,77,0,77
+DOC-155,24 - 1919 Penn Ave,W12X72,4,0,4
+DOC-155,24 - 1919 Penn Ave,W12X79,1,0,1
+DOC-155,24 - 1919 Penn Ave,W12X87,1,0,1
+DOC-155,24 - 1919 Penn Ave,W12X96,3,0,3
+DOC-155,24 - 1919 Penn Ave,W14X120,2,0,2
+DOC-155,24 - 1919 Penn Ave,W14X145,1,0,1
+DOC-155,24 - 1919 Penn Ave,W14X22,14,0,14
+DOC-155,24 - 1919 Penn Ave,W14X26,2,0,2
+DOC-155,24 - 1919 Penn Ave,W16X26,78,0,78
+DOC-155,24 - 1919 Penn Ave,W16X31,13,0,13
+DOC-155,24 - 1919 Penn Ave,W16X45,5,0,5
+DOC-155,24 - 1919 Penn Ave,W16X67,3,0,3
+DOC-155,24 - 1919 Penn Ave,W18X35,3,0,3
+DOC-155,24 - 1919 Penn Ave,W18X40,8,0,8
+DOC-155,24 - 1919 Penn Ave,W24X68,6,0,6
+DOC-155,24 - 1919 Penn Ave,WT9X25,26,0,26
+DOC-156,25 - Food & Friends,C6X10.5,1,0,1
+DOC-156,25 - Food & Friends,HSS18X6X1/2,1,0,1
+DOC-156,25 - Food & Friends,HSS4X4X5/16,3,0,3
+DOC-156,25 - Food & Friends,HSS5X5X1/4,1,0,1
+DOC-156,25 - Food & Friends,HSS5X5X3/8,3,0,3
+DOC-156,25 - Food & Friends,HSS6X2X1/4,1,0,1
+DOC-156,25 - Food & Friends,HSS6X6X1/2,1,0,1
+DOC-156,25 - Food & Friends,L3X3X1/4,8,0,8
+DOC-156,25 - Food & Friends,L3X3X5/16,3,0,3
+DOC-156,25 - Food & Friends,L4X4X1/4,1,0,1
+DOC-156,25 - Food & Friends,L4X4X3/8,1,0,1
+DOC-156,25 - Food & Friends,L5X5X5/16,1,0,1
+DOC-156,25 - Food & Friends,L6X6X3/8,1,0,1
+DOC-156,25 - Food & Friends,W10X15,4,0,4
+DOC-156,25 - Food & Friends,W10X30,3,0,3
+DOC-156,25 - Food & Friends,W10X33,5,0,5
+DOC-156,25 - Food & Friends,W10X39,3,0,3
+DOC-156,25 - Food & Friends,W10X45,4,0,4
+DOC-156,25 - Food & Friends,W10X49,12,0,12
+DOC-156,25 - Food & Friends,W12X14,4,0,4
+DOC-156,25 - Food & Friends,W12X19,2,0,2
+DOC-156,25 - Food & Friends,W12X22,1,0,1
+DOC-156,25 - Food & Friends,W14X22,15,0,15
+DOC-156,25 - Food & Friends,W14X26,2,0,2
+DOC-156,25 - Food & Friends,W14X30,1,0,1
+DOC-156,25 - Food & Friends,W16X26,6,0,6
+DOC-156,25 - Food & Friends,W16X31,5,0,5
+DOC-156,25 - Food & Friends,W16X36,3,0,3
+DOC-156,25 - Food & Friends,W18X35,2,0,2
+DOC-156,25 - Food & Friends,W18X40,5,0,5
+DOC-156,25 - Food & Friends,W21X44,17,0,17
+DOC-156,25 - Food & Friends,W21X48,4,0,4
+DOC-156,25 - Food & Friends,W21X50,1,0,1
+DOC-156,25 - Food & Friends,W21X55,3,0,3
+DOC-156,25 - Food & Friends,W21X62,1,0,1
+DOC-156,25 - Food & Friends,W24X55,7,0,7
+DOC-156,25 - Food & Friends,W24X62,3,0,3
+DOC-156,25 - Food & Friends,W24X68,6,0,6
+DOC-156,25 - Food & Friends,W24X76,3,0,3
+DOC-156,25 - Food & Friends,W24X84,11,0,11
+DOC-156,25 - Food & Friends,W27X84,1,0,1
+DOC-156,25 - Food & Friends,W8X15,3,0,3
+DOC-156,25 - Food & Friends,WT6X13,1,0,1
+DOC-157,26 - DPR Jelleff,C10X15.3,3,0,3
+DOC-157,26 - DPR Jelleff,C8X18.75,1,0,1
+DOC-157,26 - DPR Jelleff,HSS10X10X1/4,4,0,4
+DOC-157,26 - DPR Jelleff,HSS10X10X3/8,19,0,19
+DOC-157,26 - DPR Jelleff,HSS5X5X1/4,3,0,3
+DOC-157,26 - DPR Jelleff,HSS5X5X3/16,4,0,4
+DOC-157,26 - DPR Jelleff,HSS6X6X3/8,24,0,24
+DOC-157,26 - DPR Jelleff,HSS8X6X3/8,3,0,3
+DOC-157,26 - DPR Jelleff,HSS8X8X1/2,19,0,19
+DOC-157,26 - DPR Jelleff,HSS8X8X1/4,10,0,10
+DOC-157,26 - DPR Jelleff,HSS8X8X3/16,1,0,1
+DOC-157,26 - DPR Jelleff,HSS8X8X5/16,2,0,2
+DOC-157,26 - DPR Jelleff,L2X2X3/16,1,0,1
+DOC-157,26 - DPR Jelleff,L4X3X3/8,1,0,1
+DOC-157,26 - DPR Jelleff,L4X4X5/16,6,0,6
+DOC-157,26 - DPR Jelleff,L5X3X3/8,1,0,1
+DOC-157,26 - DPR Jelleff,L5X3X5/16,3,0,3
+DOC-157,26 - DPR Jelleff,L6X6X5/16,4,0,4
+DOC-157,26 - DPR Jelleff,L8X6X1/2,1,0,1
+DOC-157,26 - DPR Jelleff,MC12X31,2,0,2
+DOC-157,26 - DPR Jelleff,MC4X13.8,1,0,1
+DOC-157,26 - DPR Jelleff,MC8X22.8,3,0,3
+DOC-157,26 - DPR Jelleff,W10X12,18,0,18
+DOC-157,26 - DPR Jelleff,W10X15,3,0,3
+DOC-157,26 - DPR Jelleff,W10X19,2,0,2
+DOC-157,26 - DPR Jelleff,W10X22,1,0,1
+DOC-157,26 - DPR Jelleff,W10X33,2,0,2
+DOC-157,26 - DPR Jelleff,W10X39,1,0,1
+DOC-157,26 - DPR Jelleff,W10X45,1,0,1
+DOC-157,26 - DPR Jelleff,W12X14,15,0,15
+DOC-157,26 - DPR Jelleff,W12X16,11,0,11
+DOC-157,26 - DPR Jelleff,W12X19,1,0,1
+DOC-157,26 - DPR Jelleff,W12X22,1,0,1
+DOC-157,26 - DPR Jelleff,W12X65,2,0,2
+DOC-157,26 - DPR Jelleff,W12X72,1,0,1
+DOC-157,26 - DPR Jelleff,W14X22,16,0,16
+DOC-157,26 - DPR Jelleff,W14X26,3,0,3
+DOC-157,26 - DPR Jelleff,W14X34,1,0,1
+DOC-157,26 - DPR Jelleff,W16X26,5,0,5
+DOC-157,26 - DPR Jelleff,W16X31,2,0,2
+DOC-157,26 - DPR Jelleff,W16X36,2,0,2
+DOC-157,26 - DPR Jelleff,W16X45,1,0,1
+DOC-157,26 - DPR Jelleff,W18X35,1,0,1
+DOC-157,26 - DPR Jelleff,W18X40,1,0,1
+DOC-157,26 - DPR Jelleff,W18X50,2,0,2
+DOC-157,26 - DPR Jelleff,W18X76,1,0,1
+DOC-157,26 - DPR Jelleff,W21X44,24,0,24
+DOC-157,26 - DPR Jelleff,W21X48,1,0,1
+DOC-157,26 - DPR Jelleff,W21X55,1,0,1
+DOC-157,26 - DPR Jelleff,W21X62,1,0,1
+DOC-157,26 - DPR Jelleff,W24X55,2,0,2
+DOC-157,26 - DPR Jelleff,W24X76,1,0,1
+DOC-157,26 - DPR Jelleff,W24X94,2,0,2
+DOC-157,26 - DPR Jelleff,W30X132,1,0,1
+DOC-157,26 - DPR Jelleff,W30X90,1,0,1
+DOC-157,26 - DPR Jelleff,W33X118,1,0,1
+DOC-157,26 - DPR Jelleff,W8X10,2,0,2
+DOC-157,26 - DPR Jelleff,W8X15,9,0,9
+DOC-157,26 - DPR Jelleff,W8X18,3,0,3
+DOC-158,27 - JHU-AMR,C10X15.3,11,0,11
+DOC-158,27 - JHU-AMR,C8X11.5,2,0,2
+DOC-158,27 - JHU-AMR,HSS12X6X1/4,1,0,1
+DOC-158,27 - JHU-AMR,HSS12X8X3/8,1,0,1
+DOC-158,27 - JHU-AMR,HSS4.000X0.313,2,0,2
+DOC-158,27 - JHU-AMR,HSS4X2X1/4,8,0,8
+DOC-158,27 - JHU-AMR,HSS4X4X1/4,126,48,78
+DOC-158,27 - JHU-AMR,HSS5X5X3/8,30,6,24
+DOC-158,27 - JHU-AMR,HSS5X5X5/16,15,11,4
+DOC-158,27 - JHU-AMR,HSS6.000X0.375,2,0,2
+DOC-158,27 - JHU-AMR,HSS6X4X1/4,4,0,4
+DOC-158,27 - JHU-AMR,HSS6X4X3/8,51,0,51
+DOC-158,27 - JHU-AMR,HSS6X6X3/8,30,4,26
+DOC-158,27 - JHU-AMR,HSS6X6X5/16,6,6,0
+DOC-158,27 - JHU-AMR,HSS8X6X3/8,8,0,8
+DOC-158,27 - JHU-AMR,HSS8X8X3/8,2,0,2
+DOC-158,27 - JHU-AMR,L2X2X3/8,1,0,1
+DOC-158,27 - JHU-AMR,L3X3X1/4,12,0,12
+DOC-158,27 - JHU-AMR,L4X4X1/4,1,0,1
+DOC-158,27 - JHU-AMR,L4X4X5/16,2,0,2
+DOC-158,27 - JHU-AMR,L5X3X3/8,1,0,1
+DOC-158,27 - JHU-AMR,L5X5X3/8,5,0,5
+DOC-158,27 - JHU-AMR,L8X6X1/2,3,0,3
+DOC-158,27 - JHU-AMR,W12X16,8,0,8
+DOC-158,27 - JHU-AMR,W12X19,90,0,90
+DOC-158,27 - JHU-AMR,W12X22,36,0,36
+DOC-158,27 - JHU-AMR,W12X26,24,0,24
+DOC-158,27 - JHU-AMR,W12X35,5,0,5
+DOC-158,27 - JHU-AMR,W12X40,3,0,3
+DOC-158,27 - JHU-AMR,W14X22,1,0,1
+DOC-158,27 - JHU-AMR,W14X26,2,0,2
+DOC-158,27 - JHU-AMR,W16X26,1,0,1
+DOC-158,27 - JHU-AMR,W16X31,4,0,4
+DOC-158,27 - JHU-AMR,W18X35,2,0,2
+DOC-158,27 - JHU-AMR,W18X40,14,0,14
+DOC-158,27 - JHU-AMR,W18X46,4,0,4
+DOC-158,27 - JHU-AMR,W18X50,1,0,1
+DOC-158,27 - JHU-AMR,W18X55,2,0,2
+DOC-158,27 - JHU-AMR,W21X44,2,0,2
+DOC-158,27 - JHU-AMR,W21X48,1,0,1
+DOC-158,27 - JHU-AMR,W21X57,3,0,3
+DOC-158,27 - JHU-AMR,W21X68,7,0,7
+DOC-158,27 - JHU-AMR,W24X62,1,0,1
+DOC-158,27 - JHU-AMR,W24X68,1,0,1
+DOC-158,27 - JHU-AMR,W27X114,5,0,5
+DOC-158,27 - JHU-AMR,W8X15,110,0,110
+DOC-158,27 - JHU-AMR,W8X21,63,0,63
+DOC-158,27 - JHU-AMR,W8X67,2,0,2
+DOC-158,27 - JHU-AMR,WT3X12.5,1,0,1
+DOC-158,27 - JHU-AMR,WT5X15,1,0,1
+DOC-158,27 - JHU-AMR,WT6X11,1,0,1
+DOC-158,27 - JHU-AMR,WT6X8,1,0,1
+DOC-158,27 - JHU-AMR,WT8X15.5,1,0,1
+DOC-159,29 - Arundel Self Storage,C5X9,8,0,8
+DOC-159,29 - Arundel Self Storage,C8X11.5,23,0,23
+DOC-159,29 - Arundel Self Storage,HSS3X3X3/16,83,0,83
+DOC-159,29 - Arundel Self Storage,HSS4X4X1/4,46,0,46
+DOC-159,29 - Arundel Self Storage,HSS4X4X3/16,20,0,20
+DOC-159,29 - Arundel Self Storage,HSS4X4X3/8,2,0,2
+DOC-159,29 - Arundel Self Storage,HSS5X5X1/4,38,0,38
+DOC-159,29 - Arundel Self Storage,HSS5X5X3/16,54,0,54
+DOC-159,29 - Arundel Self Storage,HSS5X5X5/16,1,0,1
+DOC-159,29 - Arundel Self Storage,HSS6X4X3/16,2,0,2
+DOC-159,29 - Arundel Self Storage,HSS6X6X1/2,12,0,12
+DOC-159,29 - Arundel Self Storage,HSS6X6X1/4,31,0,31
+DOC-159,29 - Arundel Self Storage,HSS6X6X3/8,15,0,15
+DOC-159,29 - Arundel Self Storage,HSS6X6X5/16,24,0,24
+DOC-159,29 - Arundel Self Storage,HSS6X6X5/8,5,0,5
+DOC-159,29 - Arundel Self Storage,HSS7X7X1/2,1,0,1
+DOC-159,29 - Arundel Self Storage,HSS7X7X3/8,2,0,2
+DOC-159,29 - Arundel Self Storage,HSS8X8X3/8,1,0,1
+DOC-159,29 - Arundel Self Storage,L3X3X1/4,11,0,11
+DOC-159,29 - Arundel Self Storage,L3X3X3/8,4,0,4
+DOC-159,29 - Arundel Self Storage,L3X3X5/16,8,0,8
+DOC-159,29 - Arundel Self Storage,L4X3X1/4,7,0,7
+DOC-159,29 - Arundel Self Storage,L4X3X3/8,13,0,13
+DOC-159,29 - Arundel Self Storage,L5X3-1/2X3/8,10,0,10
+DOC-159,29 - Arundel Self Storage,L5X3-1/2X5/16,2,0,2
+DOC-159,29 - Arundel Self Storage,L5X3X3/8,19,0,19
+DOC-159,29 - Arundel Self Storage,L5X3X5/16,4,0,4
+DOC-159,29 - Arundel Self Storage,L5X5X3/8,1,0,1
+DOC-159,29 - Arundel Self Storage,L6X3-1/2X1/2,7,0,7
+DOC-159,29 - Arundel Self Storage,L6X3-1/2X3/8,12,0,12
+DOC-159,29 - Arundel Self Storage,L6X3-1/2X5/16,6,0,6
+DOC-159,29 - Arundel Self Storage,L7X4X3/8,3,0,3
+DOC-159,29 - Arundel Self Storage,W18X60,2,0,2
+DOC-159,29 - Arundel Self Storage,W24X68,1,0,1
+DOC-159,29 - Arundel Self Storage,W33X118,1,0,1
+DOC-159,29 - Arundel Self Storage,W36X135,1,0,1
+DOC-159,29 - Arundel Self Storage,W40X183,1,0,1
+DOC-159,29 - Arundel Self Storage,W8X10,676,0,676
+DOC-159,29 - Arundel Self Storage,W8X13,15,0,15
+DOC-159,29 - Arundel Self Storage,W8X15,25,0,25
+DOC-159,29 - Arundel Self Storage,W8X18,9,0,9
+DOC-159,29 - Arundel Self Storage,W8X21,6,0,6
+DOC-159,29 - Arundel Self Storage,W8X67,1,0,1
+DOC-160,30 - Holy Cross Health,C12X20.7,1,0,1
+DOC-160,30 - Holy Cross Health,HSS12X8X5/8,5,0,5
+DOC-160,30 - Holy Cross Health,HSS20X12X5/8,3,0,3
+DOC-160,30 - Holy Cross Health,HSS2X2X1/4,1,0,1
+DOC-160,30 - Holy Cross Health,HSS6.000X0.500,2,0,2
+DOC-160,30 - Holy Cross Health,HSS6X6X1/2,25,0,25
+DOC-160,30 - Holy Cross Health,HSS6X6X3/8,4,0,4
+DOC-160,30 - Holy Cross Health,HSS8X6X3/8,2,0,2
+DOC-160,30 - Holy Cross Health,L4X4X1/4,1,0,1
+DOC-160,30 - Holy Cross Health,W10X33,19,0,19
+DOC-160,30 - Holy Cross Health,W10X39,1,0,1
+DOC-160,30 - Holy Cross Health,W12X26,1,0,1
+DOC-160,30 - Holy Cross Health,W14X145,3,0,3
+DOC-160,30 - Holy Cross Health,W14X22,7,0,7
+DOC-160,30 - Holy Cross Health,W14X53,2,0,2
+DOC-160,30 - Holy Cross Health,W16X26,2,0,2
+DOC-160,30 - Holy Cross Health,W16X40,3,0,3
+DOC-160,30 - Holy Cross Health,W18X46,3,0,3
+DOC-160,30 - Holy Cross Health,W18X50,3,0,3
+DOC-160,30 - Holy Cross Health,W24X84,1,0,1
+DOC-161,30 - Holy Cross Health,HSS12X12X5/8,2,0,2
+DOC-161,30 - Holy Cross Health,HSS12X8X5/8,4,0,4
+DOC-161,30 - Holy Cross Health,HSS20X12X5/8,3,0,3
+DOC-161,30 - Holy Cross Health,HSS2X2X1/4,14,0,14
+DOC-161,30 - Holy Cross Health,HSS6X6X1/2,11,0,11
+DOC-161,30 - Holy Cross Health,HSS6X6X3/8,3,0,3
+DOC-161,30 - Holy Cross Health,HSS6X6X5/16,5,0,5
+DOC-161,30 - Holy Cross Health,HSS6X6X5/8,6,0,6
+DOC-161,30 - Holy Cross Health,HSS8X6X3/8,9,0,9
+DOC-161,30 - Holy Cross Health,HSS8X8X5/8,6,0,6
+DOC-161,30 - Holy Cross Health,L4X4X1/4,1,0,1
+DOC-161,30 - Holy Cross Health,W10X100,2,0,2
+DOC-161,30 - Holy Cross Health,W10X12,1,0,1
+DOC-161,30 - Holy Cross Health,W10X33,17,0,17
+DOC-161,30 - Holy Cross Health,W10X49,1,0,1
+DOC-161,30 - Holy Cross Health,W12X14,2,0,2
+DOC-161,30 - Holy Cross Health,W14X145,3,0,3
+DOC-161,30 - Holy Cross Health,W14X22,9,0,9
+DOC-161,30 - Holy Cross Health,W16X26,21,0,21
+DOC-161,30 - Holy Cross Health,W16X40,9,0,9
+DOC-161,30 - Holy Cross Health,W16X50,1,0,1
+DOC-161,30 - Holy Cross Health,W18X35,5,0,5
+DOC-161,30 - Holy Cross Health,W18X46,9,0,9
+DOC-161,30 - Holy Cross Health,W18X50,4,0,4
+DOC-161,30 - Holy Cross Health,W18X55,1,0,1
+DOC-161,30 - Holy Cross Health,W18X60,5,0,5
+DOC-161,30 - Holy Cross Health,W18X76,2,0,2
+DOC-161,30 - Holy Cross Health,W21X55,1,0,1
+DOC-161,30 - Holy Cross Health,W21X83,1,0,1
+DOC-161,30 - Holy Cross Health,W8X24,6,0,6
+DOC-161,30 - Holy Cross Health,W8X31,2,0,2
+DOC-161,30 - Holy Cross Health,W8X48,2,0,2
+DOC-161,30 - Holy Cross Health,W8X67,2,0,2
+DOC-162,31 - ART,C10X15.3,17,0,17
+DOC-162,31 - ART,C10X20,4,0,4
+DOC-162,31 - ART,C10X30,5,0,5
+DOC-162,31 - ART,C12X20.7,3,0,3
+DOC-162,31 - ART,C5X6.7,4,0,4
+DOC-162,31 - ART,C5X9,1,0,1
+DOC-162,31 - ART,HSS10X4X1/4,1,0,1
+DOC-162,31 - ART,HSS12X4X1/4,3,0,3
+DOC-162,31 - ART,HSS12X8X1/2,1,0,1
+DOC-162,31 - ART,HSS12X8X1/4,1,0,1
+DOC-162,31 - ART,HSS14X6X1/2,1,0,1
+DOC-162,31 - ART,HSS3X3X5/16,1,0,1
+DOC-162,31 - ART,HSS4X4X3/8,1,0,1
+DOC-162,31 - ART,HSS4X4X5/16,1,0,1
+DOC-162,31 - ART,HSS5X5X1/4,3,0,3
+DOC-162,31 - ART,HSS5X5X3/8,14,0,14
+DOC-162,31 - ART,HSS5X5X5/16,3,0,3
+DOC-162,31 - ART,HSS6X4X1/2,1,0,1
+DOC-162,31 - ART,HSS6X6X1/4,8,0,8
+DOC-162,31 - ART,HSS6X6X3/8,4,0,4
+DOC-162,31 - ART,HSS6X6X5/16,11,0,11
+DOC-162,31 - ART,HSS6X6X5/8,1,0,1
+DOC-162,31 - ART,HSS7X5X3/8,1,0,1
+DOC-162,31 - ART,HSS8X2X3/16,1,0,1
+DOC-162,31 - ART,HSS8X4X1/4,1,0,1
+DOC-162,31 - ART,HSS8X6X5/16,3,0,3
+DOC-162,31 - ART,L2X2X1/4,1,0,1
+DOC-162,31 - ART,L2X2X3/16,1,0,1
+DOC-162,31 - ART,L3X3X1/4,6,0,6
+DOC-162,31 - ART,L3X3X5/16,1,0,1
+DOC-162,31 - ART,L4X3X5/16,1,0,1
+DOC-162,31 - ART,L4X4X1/4,2,0,2
+DOC-162,31 - ART,L4X4X3/8,2,0,2
+DOC-162,31 - ART,L5X3X1/4,1,0,1
+DOC-162,31 - ART,L5X3X5/16,1,0,1
+DOC-162,31 - ART,L5X5X5/16,1,0,1
+DOC-162,31 - ART,L6X4X5/16,3,0,3
+DOC-162,31 - ART,L8X4X7/16,1,0,1
+DOC-162,31 - ART,MC12X10.6,2,0,2
+DOC-162,31 - ART,MC6X15.1,1,0,1
+DOC-162,31 - ART,W10X12,1,0,1
+DOC-162,31 - ART,W10X33,9,0,9
+DOC-162,31 - ART,W10X39,2,0,2
+DOC-162,31 - ART,W10X45,2,0,2
+DOC-162,31 - ART,W10X49,12,0,12
+DOC-162,31 - ART,W10X54,2,0,2
+DOC-162,31 - ART,W10X60,13,0,13
+DOC-162,31 - ART,W10X68,9,0,9
+DOC-162,31 - ART,W10X77,5,0,5
+DOC-162,31 - ART,W10X88,1,0,1
+DOC-162,31 - ART,W12X106,1,0,1
+DOC-162,31 - ART,W12X120,2,0,2
+DOC-162,31 - ART,W12X14,57,0,57
+DOC-162,31 - ART,W12X16,1,0,1
+DOC-162,31 - ART,W12X19,7,0,7
+DOC-162,31 - ART,W12X40,3,0,3
+DOC-162,31 - ART,W12X45,14,0,14
+DOC-162,31 - ART,W12X65,6,0,6
+DOC-162,31 - ART,W12X87,1,0,1
+DOC-162,31 - ART,W12X96,4,0,4
+DOC-162,31 - ART,W14X22,21,0,21
+DOC-162,31 - ART,W14X30,1,0,1
+DOC-162,31 - ART,W14X38,1,0,1
+DOC-162,31 - ART,W14X61,2,0,2
+DOC-162,31 - ART,W16X26,38,0,38
+DOC-162,31 - ART,W16X31,5,0,5
+DOC-162,31 - ART,W16X36,3,0,3
+DOC-162,31 - ART,W16X40,6,0,6
+DOC-162,31 - ART,W18X35,8,0,8
+DOC-162,31 - ART,W18X40,7,0,7
+DOC-162,31 - ART,W18X50,7,0,7
+DOC-162,31 - ART,W18X76,2,0,2
+DOC-162,31 - ART,W21X44,33,0,33
+DOC-162,31 - ART,W21X50,10,0,10
+DOC-162,31 - ART,W21X55,1,0,1
+DOC-162,31 - ART,W21X57,4,0,4
+DOC-162,31 - ART,W21X62,1,0,1
+DOC-162,31 - ART,W21X68,1,0,1
+DOC-162,31 - ART,W24X55,16,0,16
+DOC-162,31 - ART,W24X62,16,0,16
+DOC-162,31 - ART,W24X68,10,0,10
+DOC-162,31 - ART,W24X76,32,0,32
+DOC-162,31 - ART,W24X84,2,0,2
+DOC-162,31 - ART,W24X94,34,0,34
+DOC-162,31 - ART,W27X102,1,0,1
+DOC-162,31 - ART,W27X114,4,0,4
+DOC-162,31 - ART,W27X129,2,0,2
+DOC-162,31 - ART,W27X84,1,0,1
+DOC-162,31 - ART,W30X108,3,0,3
+DOC-162,31 - ART,W30X116,1,0,1
+DOC-162,31 - ART,W30X211,3,0,3
+DOC-162,31 - ART,W8X10,33,0,33
+DOC-162,31 - ART,W8X18,3,0,3
+DOC-162,31 - ART,WT6X13,1,0,1
+DOC-162,31 - ART,WT6X32.5,1,0,1
+DOC-164,32 - Wellness Center,C8X11.5,4,0,4
+DOC-164,32 - Wellness Center,HSS6X6X3/8,8,8,0
+DOC-164,32 - Wellness Center,HSS8X8X3/8,15,15,0
+DOC-164,32 - Wellness Center,L3X2X1/4,1,0,1
+DOC-164,32 - Wellness Center,L3X3X3/8,1,0,1
+DOC-164,32 - Wellness Center,L4X4X3/8,1,0,1
+DOC-164,32 - Wellness Center,W10X45,7,7,0
+DOC-164,32 - Wellness Center,W10X49,1,1,0
+DOC-164,32 - Wellness Center,W10X60,1,1,0
+DOC-164,32 - Wellness Center,W12X16,16,0,16
+DOC-164,32 - Wellness Center,W14X22,65,0,65
+DOC-164,32 - Wellness Center,W16X26,6,0,6
+DOC-164,32 - Wellness Center,W16X31,33,0,33
+DOC-164,32 - Wellness Center,W18X35,3,0,3
+DOC-164,32 - Wellness Center,W21X44,14,0,14
+DOC-164,32 - Wellness Center,W24X55,7,0,7
+DOC-164,32 - Wellness Center,W24X62,1,0,1
+DOC-164,32 - Wellness Center,W24X68,2,0,2
+DOC-164,32 - Wellness Center,W24X76,2,0,2
+DOC-164,32 - Wellness Center,W24X84,1,0,1
+DOC-164,32 - Wellness Center,W27X84,1,0,1
+DOC-164,32 - Wellness Center,W30X108,2,0,2
+DOC-164,32 - Wellness Center,W30X90,4,0,4
+DOC-164,32 - Wellness Center,W8X10,32,0,32
+DOC-165,34 - Fairwood ES,HSS10.750X0.375,2,2,0
+DOC-165,34 - Fairwood ES,HSS10.750X0.500,3,3,0
+DOC-165,34 - Fairwood ES,HSS12X6X1/2,1,0,1
+DOC-165,34 - Fairwood ES,HSS14X10X3/8,7,0,7
+DOC-165,34 - Fairwood ES,HSS16X8X3/8,1,0,1
+DOC-165,34 - Fairwood ES,HSS4X3X1/4,3,0,3
+DOC-165,34 - Fairwood ES,HSS4X4X5/16,4,0,4
+DOC-165,34 - Fairwood ES,HSS6X6X1/2,2,0,2
+DOC-165,34 - Fairwood ES,HSS6X6X3/8,15,0,15
+DOC-165,34 - Fairwood ES,HSS8.625X0.500,5,5,0
+DOC-165,34 - Fairwood ES,HSS8X6X1/2,1,0,1
+DOC-165,34 - Fairwood ES,HSS8X6X3/8,6,0,6
+DOC-165,34 - Fairwood ES,L3X3X1/4,3,0,3
+DOC-165,34 - Fairwood ES,L4X3-1/2X3/8,1,0,1
+DOC-165,34 - Fairwood ES,L4X3X5/16,1,0,1
+DOC-165,34 - Fairwood ES,L4X4X3/8,1,0,1
+DOC-165,34 - Fairwood ES,L5X5X1/2,3,0,3
+DOC-165,34 - Fairwood ES,W10X33,74,74,0
+DOC-165,34 - Fairwood ES,W10X39,17,17,0
+DOC-165,34 - Fairwood ES,W10X45,4,4,0
+DOC-165,34 - Fairwood ES,W10X49,4,4,0
+DOC-165,34 - Fairwood ES,W12X16,3,0,3
+DOC-165,34 - Fairwood ES,W12X19,7,0,7
+DOC-165,34 - Fairwood ES,W12X26,4,0,4
+DOC-165,34 - Fairwood ES,W12X40,5,0,5
+DOC-165,34 - Fairwood ES,W12X65,7,7,0
+DOC-165,34 - Fairwood ES,W14X22,75,0,75
+DOC-165,34 - Fairwood ES,W14X30,1,0,1
+DOC-165,34 - Fairwood ES,W16X26,69,0,69
+DOC-165,34 - Fairwood ES,W16X31,17,0,17
+DOC-165,34 - Fairwood ES,W16X36,2,0,2
+DOC-165,34 - Fairwood ES,W16X40,3,0,3
+DOC-165,34 - Fairwood ES,W16X45,2,0,2
+DOC-165,34 - Fairwood ES,W16X50,1,0,1
+DOC-165,34 - Fairwood ES,W18X35,89,0,89
+DOC-165,34 - Fairwood ES,W18X40,69,0,69
+DOC-165,34 - Fairwood ES,W18X46,19,0,19
+DOC-165,34 - Fairwood ES,W18X50,18,0,18
+DOC-165,34 - Fairwood ES,W18X55,3,0,3
+DOC-165,34 - Fairwood ES,W18X60,8,0,8
+DOC-165,34 - Fairwood ES,W18X65,3,0,3
+DOC-165,34 - Fairwood ES,W18X76,1,0,1
+DOC-165,34 - Fairwood ES,W21X44,9,0,9
+DOC-165,34 - Fairwood ES,W21X50,2,0,2
+DOC-165,34 - Fairwood ES,W21X55,3,0,3
+DOC-165,34 - Fairwood ES,W21X68,5,0,5
+DOC-165,34 - Fairwood ES,W24X55,15,0,15
+DOC-165,34 - Fairwood ES,W24X62,5,0,5
+DOC-165,34 - Fairwood ES,W24X68,4,0,4
+DOC-165,34 - Fairwood ES,W24X76,2,0,2
+DOC-165,34 - Fairwood ES,W24X84,2,0,2
+DOC-165,34 - Fairwood ES,W8X18,1,0,1
+DOC-165,34 - Fairwood ES,WT4X12,4,0,4
+DOC-166,34 - Fairwood ES,HSS10.750X0.375,2,2,0
+DOC-166,34 - Fairwood ES,HSS10.750X0.500,3,3,0
+DOC-166,34 - Fairwood ES,HSS12X6X1/2,1,0,1
+DOC-166,34 - Fairwood ES,HSS14X10X3/8,8,0,8
+DOC-166,34 - Fairwood ES,HSS16X8X3/8,1,0,1
+DOC-166,34 - Fairwood ES,HSS4X3X1/4,3,0,3
+DOC-166,34 - Fairwood ES,HSS4X4X5/16,4,0,4
+DOC-166,34 - Fairwood ES,HSS6X6X1/2,2,0,2
+DOC-166,34 - Fairwood ES,HSS6X6X3/8,20,0,20
+DOC-166,34 - Fairwood ES,HSS8.625X0.500,5,5,0
+DOC-166,34 - Fairwood ES,HSS8X6X1/2,2,0,2
+DOC-166,34 - Fairwood ES,HSS8X6X3/8,7,0,7
+DOC-166,34 - Fairwood ES,L3X3X1/4,3,0,3
+DOC-166,34 - Fairwood ES,L4X3-1/2X3/8,1,0,1
+DOC-166,34 - Fairwood ES,L4X3X5/16,1,0,1
+DOC-166,34 - Fairwood ES,L4X4X3/8,1,0,1
+DOC-166,34 - Fairwood ES,L5X5X1/2,3,0,3
+DOC-166,34 - Fairwood ES,W10X33,77,77,0
+DOC-166,34 - Fairwood ES,W10X39,17,17,0
+DOC-166,34 - Fairwood ES,W10X45,4,4,0
+DOC-166,34 - Fairwood ES,W10X49,4,4,0
+DOC-166,34 - Fairwood ES,W12X16,3,0,3
+DOC-166,34 - Fairwood ES,W12X19,8,0,8
+DOC-166,34 - Fairwood ES,W12X26,5,0,5
+DOC-166,34 - Fairwood ES,W12X40,5,0,5
+DOC-166,34 - Fairwood ES,W12X65,7,7,0
+DOC-166,34 - Fairwood ES,W14X22,84,0,84
+DOC-166,34 - Fairwood ES,W14X30,1,0,1
+DOC-166,34 - Fairwood ES,W16X26,72,0,72
+DOC-166,34 - Fairwood ES,W16X31,17,0,17
+DOC-166,34 - Fairwood ES,W16X36,2,0,2
+DOC-166,34 - Fairwood ES,W16X40,3,0,3
+DOC-166,34 - Fairwood ES,W16X45,2,0,2
+DOC-166,34 - Fairwood ES,W16X50,1,0,1
+DOC-166,34 - Fairwood ES,W18X35,94,0,94
+DOC-166,34 - Fairwood ES,W18X40,76,0,76
+DOC-166,34 - Fairwood ES,W18X46,21,0,21
+DOC-166,34 - Fairwood ES,W18X50,18,0,18
+DOC-166,34 - Fairwood ES,W18X55,4,0,4
+DOC-166,34 - Fairwood ES,W18X60,8,0,8
+DOC-166,34 - Fairwood ES,W18X65,3,0,3
+DOC-166,34 - Fairwood ES,W18X76,1,0,1
+DOC-166,34 - Fairwood ES,W21X44,10,0,10
+DOC-166,34 - Fairwood ES,W21X50,3,0,3
+DOC-166,34 - Fairwood ES,W21X55,3,0,3
+DOC-166,34 - Fairwood ES,W21X62,1,0,1
+DOC-166,34 - Fairwood ES,W21X68,5,0,5
+DOC-166,34 - Fairwood ES,W24X55,16,0,16
+DOC-166,34 - Fairwood ES,W24X62,6,0,6
+DOC-166,34 - Fairwood ES,W24X68,4,0,4
+DOC-166,34 - Fairwood ES,W24X76,2,0,2
+DOC-166,34 - Fairwood ES,W24X84,2,0,2
+DOC-166,34 - Fairwood ES,W8X18,1,0,1
+DOC-166,34 - Fairwood ES,WT4X12,4,0,4
+DOC-168,35 - Fort Lincoln Park,C10X20,1,0,1
+DOC-168,35 - Fort Lincoln Park,C5X9,3,0,3
+DOC-168,35 - Fort Lincoln Park,C8X11.5,6,0,6
+DOC-168,35 - Fort Lincoln Park,HSS14X10X5/8,1,0,1
+DOC-168,35 - Fort Lincoln Park,HSS3X3X3/8,1,0,1
+DOC-168,35 - Fort Lincoln Park,HSS4X4X1/4,6,0,6
+DOC-168,35 - Fort Lincoln Park,HSS5X3X1/4,2,0,2
+DOC-168,35 - Fort Lincoln Park,HSS5X5X1/4,15,0,15
+DOC-168,35 - Fort Lincoln Park,HSS5X5X3/8,1,0,1
+DOC-168,35 - Fort Lincoln Park,HSS6X5X1/4,1,0,1
+DOC-168,35 - Fort Lincoln Park,HSS6X6X1/4,8,0,8
+DOC-168,35 - Fort Lincoln Park,HSS6X6X5/16,2,0,2
+DOC-168,35 - Fort Lincoln Park,HSS8X8X3/8,2,0,2
+DOC-168,35 - Fort Lincoln Park,L2-1/2X2-1/2X3/16,1,0,1
+DOC-168,35 - Fort Lincoln Park,L3X3X1/4,8,0,8
+DOC-168,35 - Fort Lincoln Park,L4X3X3/8,4,0,4
+DOC-168,35 - Fort Lincoln Park,L4X4X1/2,2,0,2
+DOC-168,35 - Fort Lincoln Park,L4X4X1/4,3,0,3
+DOC-168,35 - Fort Lincoln Park,L4X4X3/8,4,0,4
+DOC-168,35 - Fort Lincoln Park,L4X4X5/16,3,0,3
+DOC-168,35 - Fort Lincoln Park,L7X4X7/16,1,0,1
+DOC-168,35 - Fort Lincoln Park,L8X6X7/16,1,0,1
+DOC-168,35 - Fort Lincoln Park,W10X12,17,0,17
+DOC-168,35 - Fort Lincoln Park,W10X17,7,0,7
+DOC-168,35 - Fort Lincoln Park,W10X33,39,0,39
+DOC-168,35 - Fort Lincoln Park,W10X45,1,0,1
+DOC-168,35 - Fort Lincoln Park,W10X49,1,0,1
+DOC-168,35 - Fort Lincoln Park,W12X14,12,0,12
+DOC-168,35 - Fort Lincoln Park,W12X16,2,0,2
+DOC-168,35 - Fort Lincoln Park,W12X19,7,0,7
+DOC-168,35 - Fort Lincoln Park,W12X26,4,0,4
+DOC-168,35 - Fort Lincoln Park,W12X35,1,0,1
+DOC-168,35 - Fort Lincoln Park,W12X40,1,0,1
+DOC-168,35 - Fort Lincoln Park,W12X58,7,0,7
+DOC-168,35 - Fort Lincoln Park,W12X65,33,0,33
+DOC-168,35 - Fort Lincoln Park,W12X96,6,0,6
+DOC-168,35 - Fort Lincoln Park,W14X22,7,0,7
+DOC-168,35 - Fort Lincoln Park,W14X26,8,0,8
+DOC-168,35 - Fort Lincoln Park,W14X30,2,0,2
+DOC-168,35 - Fort Lincoln Park,W16X26,26,0,26
+DOC-168,35 - Fort Lincoln Park,W16X31,23,0,23
+DOC-168,35 - Fort Lincoln Park,W16X36,41,0,41
+DOC-168,35 - Fort Lincoln Park,W16X45,20,0,20
+DOC-168,35 - Fort Lincoln Park,W16X57,1,0,1
+DOC-168,35 - Fort Lincoln Park,W16X67,1,0,1
+DOC-168,35 - Fort Lincoln Park,W18X35,9,0,9
+DOC-168,35 - Fort Lincoln Park,W18X40,2,0,2
+DOC-168,35 - Fort Lincoln Park,W18X46,3,0,3
+DOC-168,35 - Fort Lincoln Park,W18X50,1,0,1
+DOC-168,35 - Fort Lincoln Park,W21X44,25,0,25
+DOC-168,35 - Fort Lincoln Park,W21X48,6,0,6
+DOC-168,35 - Fort Lincoln Park,W21X50,5,0,5
+DOC-168,35 - Fort Lincoln Park,W21X55,1,0,1
+DOC-168,35 - Fort Lincoln Park,W24X103,2,0,2
+DOC-168,35 - Fort Lincoln Park,W24X55,5,0,5
+DOC-168,35 - Fort Lincoln Park,W24X68,45,0,45
+DOC-168,35 - Fort Lincoln Park,W24X94,2,0,2
+DOC-168,35 - Fort Lincoln Park,W27X178,1,0,1
+DOC-168,35 - Fort Lincoln Park,W30X90,3,0,3
+DOC-168,35 - Fort Lincoln Park,W8X10,35,0,35
+DOC-168,35 - Fort Lincoln Park,W8X13,133,0,133
+DOC-168,35 - Fort Lincoln Park,W8X15,2,0,2
+DOC-168,35 - Fort Lincoln Park,W8X18,1,0,1
+DOC-168,35 - Fort Lincoln Park,WT12X31,1,0,1
+DOC-168,35 - Fort Lincoln Park,WT6X20,2,0,2
+DOC-168,35 - Fort Lincoln Park,WT8X33.5,1,0,1
+DOC-169,35 - Fort Lincoln Park,C10X20,2,0,2
+DOC-169,35 - Fort Lincoln Park,C5X9,3,0,3
+DOC-169,35 - Fort Lincoln Park,C8X11.5,6,0,6
+DOC-169,35 - Fort Lincoln Park,HSS14X10X5/8,1,0,1
+DOC-169,35 - Fort Lincoln Park,HSS3X3X3/8,1,0,1
+DOC-169,35 - Fort Lincoln Park,HSS4X4X1/4,6,0,6
+DOC-169,35 - Fort Lincoln Park,HSS5X3X1/4,2,0,2
+DOC-169,35 - Fort Lincoln Park,HSS5X5X1/4,15,0,15
+DOC-169,35 - Fort Lincoln Park,HSS5X5X3/8,1,0,1
+DOC-169,35 - Fort Lincoln Park,HSS6X5X1/4,1,0,1
+DOC-169,35 - Fort Lincoln Park,HSS6X6X1/4,8,0,8
+DOC-169,35 - Fort Lincoln Park,HSS6X6X5/16,2,0,2
+DOC-169,35 - Fort Lincoln Park,HSS8X8X3/8,2,0,2
+DOC-169,35 - Fort Lincoln Park,L2-1/2X2-1/2X3/16,1,0,1
+DOC-169,35 - Fort Lincoln Park,L3X3X1/4,8,0,8
+DOC-169,35 - Fort Lincoln Park,L4X3X3/8,4,0,4
+DOC-169,35 - Fort Lincoln Park,L4X4X1/2,2,0,2
+DOC-169,35 - Fort Lincoln Park,L4X4X1/4,3,0,3
+DOC-169,35 - Fort Lincoln Park,L4X4X3/8,4,0,4
+DOC-169,35 - Fort Lincoln Park,L4X4X5/16,3,0,3
+DOC-169,35 - Fort Lincoln Park,L7X4X7/16,1,0,1
+DOC-169,35 - Fort Lincoln Park,L8X6X7/16,1,0,1
+DOC-169,35 - Fort Lincoln Park,W10X12,17,0,17
+DOC-169,35 - Fort Lincoln Park,W10X17,8,0,8
+DOC-169,35 - Fort Lincoln Park,W10X33,39,0,39
+DOC-169,35 - Fort Lincoln Park,W10X45,1,0,1
+DOC-169,35 - Fort Lincoln Park,W10X49,1,0,1
+DOC-169,35 - Fort Lincoln Park,W12X14,15,0,15
+DOC-169,35 - Fort Lincoln Park,W12X16,2,0,2
+DOC-169,35 - Fort Lincoln Park,W12X19,8,0,8
+DOC-169,35 - Fort Lincoln Park,W12X26,9,0,9
+DOC-169,35 - Fort Lincoln Park,W12X30,1,0,1
+DOC-169,35 - Fort Lincoln Park,W12X35,1,0,1
+DOC-169,35 - Fort Lincoln Park,W12X40,1,0,1
+DOC-169,35 - Fort Lincoln Park,W12X58,7,0,7
+DOC-169,35 - Fort Lincoln Park,W12X65,35,0,35
+DOC-169,35 - Fort Lincoln Park,W12X96,6,0,6
+DOC-169,35 - Fort Lincoln Park,W14X22,8,0,8
+DOC-169,35 - Fort Lincoln Park,W14X26,8,0,8
+DOC-169,35 - Fort Lincoln Park,W14X30,2,0,2
+DOC-169,35 - Fort Lincoln Park,W16X26,31,0,31
+DOC-169,35 - Fort Lincoln Park,W16X31,24,0,24
+DOC-169,35 - Fort Lincoln Park,W16X36,42,0,42
+DOC-169,35 - Fort Lincoln Park,W16X45,21,0,21
+DOC-169,35 - Fort Lincoln Park,W16X57,1,0,1
+DOC-169,35 - Fort Lincoln Park,W16X67,1,0,1
+DOC-169,35 - Fort Lincoln Park,W18X35,9,0,9
+DOC-169,35 - Fort Lincoln Park,W18X40,2,0,2
+DOC-169,35 - Fort Lincoln Park,W18X46,3,0,3
+DOC-169,35 - Fort Lincoln Park,W18X50,1,0,1
+DOC-169,35 - Fort Lincoln Park,W21X44,25,0,25
+DOC-169,35 - Fort Lincoln Park,W21X48,6,0,6
+DOC-169,35 - Fort Lincoln Park,W21X50,5,0,5
+DOC-169,35 - Fort Lincoln Park,W21X55,1,0,1
+DOC-169,35 - Fort Lincoln Park,W24X103,2,0,2
+DOC-169,35 - Fort Lincoln Park,W24X55,5,0,5
+DOC-169,35 - Fort Lincoln Park,W24X68,45,0,45
+DOC-169,35 - Fort Lincoln Park,W24X94,2,0,2
+DOC-169,35 - Fort Lincoln Park,W27X178,1,0,1
+DOC-169,35 - Fort Lincoln Park,W30X90,3,0,3
+DOC-169,35 - Fort Lincoln Park,W8X10,36,0,36
+DOC-169,35 - Fort Lincoln Park,W8X13,134,0,134
+DOC-169,35 - Fort Lincoln Park,W8X15,3,0,3
+DOC-169,35 - Fort Lincoln Park,W8X18,1,0,1
+DOC-169,35 - Fort Lincoln Park,WT12X31,1,0,1
+DOC-169,35 - Fort Lincoln Park,WT6X20,2,0,2
+DOC-169,35 - Fort Lincoln Park,WT8X33.5,1,0,1
+DOC-170,36 - Furley ES,C12X30,6,0,6
+DOC-170,36 - Furley ES,HSS10X6X3/8,1,0,1
+DOC-170,36 - Furley ES,HSS10X8X3/8,3,0,3
+DOC-170,36 - Furley ES,HSS12X4X1/2,5,0,5
+DOC-170,36 - Furley ES,HSS12X6X3/8,2,0,2
+DOC-170,36 - Furley ES,HSS12X8X1/2,8,0,8
+DOC-170,36 - Furley ES,HSS14X6X1/2,4,0,4
+DOC-170,36 - Furley ES,HSS16X4X1/2,4,0,4
+DOC-170,36 - Furley ES,HSS16X8X3/8,1,0,1
+DOC-170,36 - Furley ES,HSS4X4X5/16,2,0,2
+DOC-170,36 - Furley ES,HSS6X2X1/4,2,0,2
+DOC-170,36 - Furley ES,HSS6X2X3/8,1,0,1
+DOC-170,36 - Furley ES,HSS6X4X5/16,2,0,2
+DOC-170,36 - Furley ES,HSS8X2X3/8,2,0,2
+DOC-170,36 - Furley ES,HSS8X4X1/4,1,0,1
+DOC-170,36 - Furley ES,L2-1/2X2-1/2X1/4,3,0,3
+DOC-170,36 - Furley ES,L3X3X1/4,8,0,8
+DOC-170,36 - Furley ES,L4X4X1/4,2,0,2
+DOC-170,36 - Furley ES,L4X4X3/8,1,0,1
+DOC-170,36 - Furley ES,L5X5X3/8,1,0,1
+DOC-170,36 - Furley ES,L6X3-1/2X3/8,17,0,17
+DOC-170,36 - Furley ES,L6X4X3/8,10,0,10
+DOC-170,36 - Furley ES,L6X6X3/8,2,0,2
+DOC-170,36 - Furley ES,W12X16,103,0,103
+DOC-170,36 - Furley ES,W12X19,121,0,121
+DOC-170,36 - Furley ES,W14X22,239,0,239
+DOC-170,36 - Furley ES,W14X26,1,0,1
+DOC-170,36 - Furley ES,W16X26,67,0,67
+DOC-170,36 - Furley ES,W16X31,12,0,12
+DOC-170,36 - Furley ES,W16X36,1,0,1
+DOC-170,36 - Furley ES,W18X35,193,0,193
+DOC-170,36 - Furley ES,W18X40,24,0,24
+DOC-170,36 - Furley ES,W21X44,30,0,30
+DOC-170,36 - Furley ES,W21X50,1,0,1
+DOC-170,36 - Furley ES,W21X62,12,0,12
+DOC-170,36 - Furley ES,W24X55,37,0,37
+DOC-170,36 - Furley ES,W24X62,29,0,29
+DOC-170,36 - Furley ES,W24X68,17,0,17
+DOC-170,36 - Furley ES,W24X76,13,0,13
+DOC-170,36 - Furley ES,W24X94,1,0,1
+DOC-170,36 - Furley ES,W27X84,6,0,6
+DOC-170,36 - Furley ES,W30X108,3,0,3
+DOC-170,36 - Furley ES,W30X90,4,0,4
+DOC-170,36 - Furley ES,W33X118,2,0,2
+DOC-170,36 - Furley ES,W33X130,1,0,1
+DOC-170,36 - Furley ES,W8X18,1,0,1
+DOC-170,36 - Furley ES,W8X21,1,0,1
+DOC-170,36 - Furley ES,WT8X20,1,0,1
+DOC-171,38 - Sidwell School,HSS10.000X0.500,2,2,0
+DOC-171,38 - Sidwell School,HSS10X6X5/8,4,0,4
+DOC-171,38 - Sidwell School,HSS10X8X5/8,1,0,1
+DOC-171,38 - Sidwell School,HSS12X6X1/2,3,0,3
+DOC-171,38 - Sidwell School,HSS12X6X5/8,1,0,1
+DOC-171,38 - Sidwell School,HSS14X6X3/8,7,0,7
+DOC-171,38 - Sidwell School,HSS14X6X5/8,4,0,4
+DOC-171,38 - Sidwell School,HSS16X4X1/2,1,0,1
+DOC-171,38 - Sidwell School,HSS6X3X3/8,1,0,1
+DOC-171,38 - Sidwell School,HSS6X4X3/8,1,0,1
+DOC-171,38 - Sidwell School,HSS6X4X5/16,2,0,2
+DOC-171,38 - Sidwell School,HSS6X6X3/8,31,0,31
+DOC-171,38 - Sidwell School,HSS8X6X1/2,7,0,7
+DOC-171,38 - Sidwell School,HSS8X6X3/8,9,0,9
+DOC-171,38 - Sidwell School,HSS8X6X5/16,1,0,1
+DOC-171,38 - Sidwell School,HSS8X8X1/2,2,2,0
+DOC-171,38 - Sidwell School,HSS8X8X3/8,1,0,1
+DOC-171,38 - Sidwell School,L3X3X1/4,2,0,2
+DOC-171,38 - Sidwell School,L3X3X3/8,3,0,3
+DOC-171,38 - Sidwell School,L4X4X3/8,2,0,2
+DOC-171,38 - Sidwell School,W10X22,7,0,7
+DOC-171,38 - Sidwell School,W10X33,3,2,1
+DOC-171,38 - Sidwell School,W10X45,14,14,0
+DOC-171,38 - Sidwell School,W10X49,6,6,0
+DOC-171,38 - Sidwell School,W10X54,5,5,0
+DOC-171,38 - Sidwell School,W10X60,3,3,0
+DOC-171,38 - Sidwell School,W10X68,2,2,0
+DOC-171,38 - Sidwell School,W10X77,2,2,0
+DOC-171,38 - Sidwell School,W12X16,2,0,2
+DOC-171,38 - Sidwell School,W12X19,5,0,5
+DOC-171,38 - Sidwell School,W12X22,5,0,5
+DOC-171,38 - Sidwell School,W12X26,13,0,13
+DOC-171,38 - Sidwell School,W12X35,6,0,6
+DOC-171,38 - Sidwell School,W12X40,11,0,11
+DOC-171,38 - Sidwell School,W12X50,1,1,0
+DOC-171,38 - Sidwell School,W12X65,18,18,0
+DOC-171,38 - Sidwell School,W14X109,2,0,2
+DOC-171,38 - Sidwell School,W14X120,6,0,6
+DOC-171,38 - Sidwell School,W14X132,8,4,4
+DOC-171,38 - Sidwell School,W14X22,16,0,16
+DOC-171,38 - Sidwell School,W14X30,1,0,1
+DOC-171,38 - Sidwell School,W14X34,4,0,4
+DOC-171,38 - Sidwell School,W14X43,2,0,2
+DOC-171,38 - Sidwell School,W14X68,11,3,8
+DOC-171,38 - Sidwell School,W14X82,2,0,2
+DOC-171,38 - Sidwell School,W14X90,2,0,2
+DOC-171,38 - Sidwell School,W16X26,70,0,70
+DOC-171,38 - Sidwell School,W16X31,7,0,7
+DOC-171,38 - Sidwell School,W16X36,24,0,24
+DOC-171,38 - Sidwell School,W16X40,4,0,4
+DOC-171,38 - Sidwell School,W16X50,1,0,1
+DOC-171,38 - Sidwell School,W18X35,21,0,21
+DOC-171,38 - Sidwell School,W18X40,26,0,26
+DOC-171,38 - Sidwell School,W18X50,3,0,3
+DOC-171,38 - Sidwell School,W18X55,10,0,10
+DOC-171,38 - Sidwell School,W18X65,1,0,1
+DOC-171,38 - Sidwell School,W21X44,26,0,26
+DOC-171,38 - Sidwell School,W21X50,9,0,9
+DOC-171,38 - Sidwell School,W21X55,3,0,3
+DOC-171,38 - Sidwell School,W21X62,1,0,1
+DOC-171,38 - Sidwell School,W21X68,9,0,9
+DOC-171,38 - Sidwell School,W24X55,7,0,7
+DOC-171,38 - Sidwell School,W24X62,3,0,3
+DOC-171,38 - Sidwell School,W27X84,3,0,3
+DOC-171,38 - Sidwell School,W8X13,26,0,26
+DOC-171,38 - Sidwell School,W8X18,7,0,7
+DOC-171,38 - Sidwell School,W8X21,49,0,49
+DOC-171,38 - Sidwell School,W8X24,9,0,9
+DOC-171,38 - Sidwell School,W8X31,16,16,0
+DOC-171,38 - Sidwell School,W8X35,1,1,0
+DOC-171,38 - Sidwell School,W8X40,1,1,0
+DOC-171,38 - Sidwell School,W8X48,4,0,4
+DOC-171,38 - Sidwell School,WT4X14,1,0,1
+DOC-171,38 - Sidwell School,WT6X11,1,0,1
+DOC-172,38 - Sidwell School,HSS10.000X0.500,2,2,0
+DOC-172,38 - Sidwell School,HSS10X6X5/8,4,0,4
+DOC-172,38 - Sidwell School,HSS10X8X5/8,1,0,1
+DOC-172,38 - Sidwell School,HSS12X6X1/2,3,0,3
+DOC-172,38 - Sidwell School,HSS12X6X5/8,1,0,1
+DOC-172,38 - Sidwell School,HSS14X6X3/8,7,0,7
+DOC-172,38 - Sidwell School,HSS14X6X5/8,4,0,4
+DOC-172,38 - Sidwell School,HSS16X4X1/2,1,0,1
+DOC-172,38 - Sidwell School,HSS6X3X3/8,1,0,1
+DOC-172,38 - Sidwell School,HSS6X4X3/8,1,0,1
+DOC-172,38 - Sidwell School,HSS6X4X5/16,2,0,2
+DOC-172,38 - Sidwell School,HSS6X6X3/8,31,0,31
+DOC-172,38 - Sidwell School,HSS8X6X1/2,7,0,7
+DOC-172,38 - Sidwell School,HSS8X6X3/8,9,0,9
+DOC-172,38 - Sidwell School,HSS8X6X5/16,1,0,1
+DOC-172,38 - Sidwell School,HSS8X8X1/2,2,2,0
+DOC-172,38 - Sidwell School,HSS8X8X3/8,1,0,1
+DOC-172,38 - Sidwell School,L3X3X1/4,2,0,2
+DOC-172,38 - Sidwell School,L3X3X3/8,3,0,3
+DOC-172,38 - Sidwell School,L4X4X3/8,2,0,2
+DOC-172,38 - Sidwell School,W10X22,7,0,7
+DOC-172,38 - Sidwell School,W10X33,3,2,1
+DOC-172,38 - Sidwell School,W10X45,14,14,0
+DOC-172,38 - Sidwell School,W10X49,6,6,0
+DOC-172,38 - Sidwell School,W10X54,5,5,0
+DOC-172,38 - Sidwell School,W10X60,3,3,0
+DOC-172,38 - Sidwell School,W10X68,2,2,0
+DOC-172,38 - Sidwell School,W10X77,2,2,0
+DOC-172,38 - Sidwell School,W12X16,1,0,1
+DOC-172,38 - Sidwell School,W12X19,4,0,4
+DOC-172,38 - Sidwell School,W12X26,14,0,14
+DOC-172,38 - Sidwell School,W12X40,13,0,13
+DOC-172,38 - Sidwell School,W12X50,1,1,0
+DOC-172,38 - Sidwell School,W12X65,18,18,0
+DOC-172,38 - Sidwell School,W14X109,2,0,2
+DOC-172,38 - Sidwell School,W14X120,6,0,6
+DOC-172,38 - Sidwell School,W14X132,8,4,4
+DOC-172,38 - Sidwell School,W14X22,17,0,17
+DOC-172,38 - Sidwell School,W14X30,1,0,1
+DOC-172,38 - Sidwell School,W14X34,4,0,4
+DOC-172,38 - Sidwell School,W14X43,2,0,2
+DOC-172,38 - Sidwell School,W14X68,11,3,8
+DOC-172,38 - Sidwell School,W14X82,2,0,2
+DOC-172,38 - Sidwell School,W14X90,2,0,2
+DOC-172,38 - Sidwell School,W16X26,70,0,70
+DOC-172,38 - Sidwell School,W16X31,5,0,5
+DOC-172,38 - Sidwell School,W16X36,23,0,23
+DOC-172,38 - Sidwell School,W16X40,4,0,4
+DOC-172,38 - Sidwell School,W16X50,1,0,1
+DOC-172,38 - Sidwell School,W18X35,21,0,21
+DOC-172,38 - Sidwell School,W18X40,26,0,26
+DOC-172,38 - Sidwell School,W18X50,3,0,3
+DOC-172,38 - Sidwell School,W18X55,10,0,10
+DOC-172,38 - Sidwell School,W18X65,1,0,1
+DOC-172,38 - Sidwell School,W21X44,27,0,27
+DOC-172,38 - Sidwell School,W21X50,9,0,9
+DOC-172,38 - Sidwell School,W21X55,3,0,3
+DOC-172,38 - Sidwell School,W21X62,1,0,1
+DOC-172,38 - Sidwell School,W21X68,9,0,9
+DOC-172,38 - Sidwell School,W24X55,7,0,7
+DOC-172,38 - Sidwell School,W24X62,3,0,3
+DOC-172,38 - Sidwell School,W27X84,3,0,3
+DOC-172,38 - Sidwell School,W8X13,27,0,27
+DOC-172,38 - Sidwell School,W8X18,7,0,7
+DOC-172,38 - Sidwell School,W8X21,48,0,48
+DOC-172,38 - Sidwell School,W8X24,9,0,9
+DOC-172,38 - Sidwell School,W8X31,16,16,0
+DOC-172,38 - Sidwell School,W8X35,1,1,0
+DOC-172,38 - Sidwell School,W8X40,1,1,0
+DOC-172,38 - Sidwell School,W8X48,4,0,4
+DOC-172,38 - Sidwell School,WT4X14,1,0,1
+DOC-172,38 - Sidwell School,WT6X11,1,0,1
+DOC-173,38 - Sidwell School,HSS10.000X0.500,2,2,0
+DOC-173,38 - Sidwell School,HSS10X6X5/8,4,0,4
+DOC-173,38 - Sidwell School,HSS10X8X5/8,1,0,1
+DOC-173,38 - Sidwell School,HSS12X6X1/2,3,0,3
+DOC-173,38 - Sidwell School,HSS12X6X5/8,1,0,1
+DOC-173,38 - Sidwell School,HSS14X6X3/8,7,0,7
+DOC-173,38 - Sidwell School,HSS14X6X5/8,4,0,4
+DOC-173,38 - Sidwell School,HSS16X4X1/2,1,0,1
+DOC-173,38 - Sidwell School,HSS6X3X3/8,1,0,1
+DOC-173,38 - Sidwell School,HSS6X4X3/8,1,0,1
+DOC-173,38 - Sidwell School,HSS6X4X5/16,2,0,2
+DOC-173,38 - Sidwell School,HSS6X6X3/8,31,0,31
+DOC-173,38 - Sidwell School,HSS8X6X1/2,7,0,7
+DOC-173,38 - Sidwell School,HSS8X6X3/8,9,0,9
+DOC-173,38 - Sidwell School,HSS8X6X5/16,1,0,1
+DOC-173,38 - Sidwell School,HSS8X8X1/2,2,2,0
+DOC-173,38 - Sidwell School,HSS8X8X3/8,1,0,1
+DOC-173,38 - Sidwell School,L3X3X1/4,2,0,2
+DOC-173,38 - Sidwell School,L3X3X3/8,3,0,3
+DOC-173,38 - Sidwell School,L4X4X3/8,2,0,2
+DOC-173,38 - Sidwell School,W10X22,7,0,7
+DOC-173,38 - Sidwell School,W10X33,3,2,1
+DOC-173,38 - Sidwell School,W10X45,14,14,0
+DOC-173,38 - Sidwell School,W10X49,6,6,0
+DOC-173,38 - Sidwell School,W10X54,5,5,0
+DOC-173,38 - Sidwell School,W10X60,3,3,0
+DOC-173,38 - Sidwell School,W10X68,2,2,0
+DOC-173,38 - Sidwell School,W10X77,2,2,0
+DOC-173,38 - Sidwell School,W12X16,2,0,2
+DOC-173,38 - Sidwell School,W12X19,5,0,5
+DOC-173,38 - Sidwell School,W12X26,15,0,15
+DOC-173,38 - Sidwell School,W12X40,13,0,13
+DOC-173,38 - Sidwell School,W12X50,1,1,0
+DOC-173,38 - Sidwell School,W12X65,18,18,0
+DOC-173,38 - Sidwell School,W14X109,2,0,2
+DOC-173,38 - Sidwell School,W14X120,6,0,6
+DOC-173,38 - Sidwell School,W14X132,8,4,4
+DOC-173,38 - Sidwell School,W14X22,18,0,18
+DOC-173,38 - Sidwell School,W14X30,1,0,1
+DOC-173,38 - Sidwell School,W14X34,4,0,4
+DOC-173,38 - Sidwell School,W14X43,2,0,2
+DOC-173,38 - Sidwell School,W14X68,11,3,8
+DOC-173,38 - Sidwell School,W14X82,2,0,2
+DOC-173,38 - Sidwell School,W14X90,2,0,2
+DOC-173,38 - Sidwell School,W16X26,71,0,71
+DOC-173,38 - Sidwell School,W16X31,7,0,7
+DOC-173,38 - Sidwell School,W16X36,23,0,23
+DOC-173,38 - Sidwell School,W16X40,4,0,4
+DOC-173,38 - Sidwell School,W16X50,1,0,1
+DOC-173,38 - Sidwell School,W18X35,21,0,21
+DOC-173,38 - Sidwell School,W18X40,26,0,26
+DOC-173,38 - Sidwell School,W18X50,3,0,3
+DOC-173,38 - Sidwell School,W18X55,10,0,10
+DOC-173,38 - Sidwell School,W18X65,1,0,1
+DOC-173,38 - Sidwell School,W21X44,27,0,27
+DOC-173,38 - Sidwell School,W21X50,9,0,9
+DOC-173,38 - Sidwell School,W21X55,3,0,3
+DOC-173,38 - Sidwell School,W21X62,1,0,1
+DOC-173,38 - Sidwell School,W21X68,9,0,9
+DOC-173,38 - Sidwell School,W24X55,7,0,7
+DOC-173,38 - Sidwell School,W24X62,3,0,3
+DOC-173,38 - Sidwell School,W27X84,3,0,3
+DOC-173,38 - Sidwell School,W8X13,27,0,27
+DOC-173,38 - Sidwell School,W8X18,7,0,7
+DOC-173,38 - Sidwell School,W8X21,49,0,49
+DOC-173,38 - Sidwell School,W8X24,9,0,9
+DOC-173,38 - Sidwell School,W8X31,16,16,0
+DOC-173,38 - Sidwell School,W8X35,1,1,0
+DOC-173,38 - Sidwell School,W8X40,1,1,0
+DOC-173,38 - Sidwell School,W8X48,4,0,4
+DOC-173,38 - Sidwell School,WT4X14,1,0,1
+DOC-173,38 - Sidwell School,WT6X11,1,0,1
+DOC-175,39 - Tubman ES,HSS10X10X1/2,3,0,3
+DOC-175,39 - Tubman ES,HSS10X10X3/8,2,0,2
+DOC-175,39 - Tubman ES,HSS10X10X5/16,4,0,4
+DOC-175,39 - Tubman ES,HSS10X8X1/2,3,0,3
+DOC-175,39 - Tubman ES,HSS12X6X3/8,8,0,8
+DOC-175,39 - Tubman ES,HSS12X8X5/8,1,0,1
+DOC-175,39 - Tubman ES,HSS16X8X3/8,1,0,1
+DOC-175,39 - Tubman ES,HSS4X4X5/16,1,0,1
+DOC-175,39 - Tubman ES,HSS5X2X1/4,1,0,1
+DOC-175,39 - Tubman ES,HSS5X2X3/8,1,0,1
+DOC-175,39 - Tubman ES,HSS6X4X3/8,3,0,3
+DOC-175,39 - Tubman ES,HSS6X6X1/2,1,0,1
+DOC-175,39 - Tubman ES,HSS6X6X1/4,1,0,1
+DOC-175,39 - Tubman ES,HSS6X6X3/8,33,0,33
+DOC-175,39 - Tubman ES,HSS6X6X5/8,2,0,2
+DOC-175,39 - Tubman ES,HSS8X6X1/2,2,0,2
+DOC-175,39 - Tubman ES,HSS8X6X5/8,6,0,6
+DOC-175,39 - Tubman ES,HSS8X8X1/2,4,0,4
+DOC-175,39 - Tubman ES,L4X4X3/8,1,0,1
+DOC-175,39 - Tubman ES,L4X4X5/16,4,0,4
+DOC-175,39 - Tubman ES,L5X5X3/8,1,0,1
+DOC-175,39 - Tubman ES,W10X33,54,54,0
+DOC-175,39 - Tubman ES,W10X39,24,24,0
+DOC-175,39 - Tubman ES,W10X45,10,10,0
+DOC-175,39 - Tubman ES,W10X49,15,15,0
+DOC-175,39 - Tubman ES,W10X54,3,3,0
+DOC-175,39 - Tubman ES,W10X68,2,2,0
+DOC-175,39 - Tubman ES,W12X16,4,0,4
+DOC-175,39 - Tubman ES,W12X19,4,0,4
+DOC-175,39 - Tubman ES,W12X26,8,0,8
+DOC-175,39 - Tubman ES,W12X40,19,4,15
+DOC-175,39 - Tubman ES,W12X65,18,18,0
+DOC-175,39 - Tubman ES,W14X22,21,0,21
+DOC-175,39 - Tubman ES,W16X26,188,0,188
+DOC-175,39 - Tubman ES,W16X31,17,0,17
+DOC-175,39 - Tubman ES,W16X36,5,0,5
+DOC-175,39 - Tubman ES,W18X35,43,0,43
+DOC-175,39 - Tubman ES,W18X40,17,0,17
+DOC-175,39 - Tubman ES,W18X50,3,0,3
+DOC-175,39 - Tubman ES,W21X44,53,0,53
+DOC-175,39 - Tubman ES,W21X50,20,0,20
+DOC-175,39 - Tubman ES,W21X55,5,0,5
+DOC-175,39 - Tubman ES,W21X62,4,0,4
+DOC-175,39 - Tubman ES,W21X83,1,0,1
+DOC-175,39 - Tubman ES,W24X55,9,0,9
+DOC-175,39 - Tubman ES,W24X62,24,0,24
+DOC-175,39 - Tubman ES,W24X68,15,0,15
+DOC-175,39 - Tubman ES,W24X76,1,0,1
+DOC-175,39 - Tubman ES,W24X94,1,0,1
+DOC-175,39 - Tubman ES,W27X84,3,0,3
+DOC-175,39 - Tubman ES,W27X94,1,0,1
+DOC-175,39 - Tubman ES,W8X15,4,0,4
+DOC-175,39 - Tubman ES,W8X18,4,0,4
+DOC-175,39 - Tubman ES,W8X21,1,0,1
+DOC-176,42 - Logistics Building,HSS16X8X5/8,2,0,2
+DOC-176,42 - Logistics Building,HSS5X5X3/8,3,0,3
+DOC-176,42 - Logistics Building,HSS5X5X5/16,27,0,27
+DOC-176,42 - Logistics Building,HSS6X5X5/16,22,0,22
+DOC-176,42 - Logistics Building,HSS6X6X3/8,15,0,15
+DOC-176,42 - Logistics Building,HSS6X6X5/16,3,0,3
+DOC-176,42 - Logistics Building,HSS6X6X5/8,1,0,1
+DOC-176,42 - Logistics Building,HSS8X8X5/16,2,0,2
+DOC-176,42 - Logistics Building,L3X3X1/4,4,0,4
+DOC-176,42 - Logistics Building,L4X3X5/16,1,0,1
+DOC-176,42 - Logistics Building,W10X19,7,0,7
+DOC-176,42 - Logistics Building,W10X26,43,0,43
+DOC-176,42 - Logistics Building,W10X33,14,14,0
+DOC-176,42 - Logistics Building,W10X45,15,15,0
+DOC-176,42 - Logistics Building,W10X49,1,1,0
+DOC-176,42 - Logistics Building,W10X54,1,1,0
+DOC-176,42 - Logistics Building,W10X60,1,1,0
+DOC-176,42 - Logistics Building,W10X68,1,1,0
+DOC-176,42 - Logistics Building,W10X77,1,1,0
+DOC-176,42 - Logistics Building,W12X40,2,0,2
+DOC-176,42 - Logistics Building,W12X58,1,1,0
+DOC-176,42 - Logistics Building,W12X65,2,2,0
+DOC-176,42 - Logistics Building,W14X38,6,0,6
+DOC-176,42 - Logistics Building,W16X31,5,0,5
+DOC-176,42 - Logistics Building,W18X35,1,0,1
+DOC-176,42 - Logistics Building,W18X46,3,0,3
+DOC-176,42 - Logistics Building,W18X50,1,0,1
+DOC-176,42 - Logistics Building,W18X55,1,0,1
+DOC-176,42 - Logistics Building,W21X44,25,0,25
+DOC-176,42 - Logistics Building,W21X48,1,0,1
+DOC-176,42 - Logistics Building,W21X50,6,0,6
+DOC-176,42 - Logistics Building,W21X55,16,0,16
+DOC-176,42 - Logistics Building,W21X62,4,0,4
+DOC-176,42 - Logistics Building,W21X68,2,0,2
+DOC-176,42 - Logistics Building,W21X73,1,0,1
+DOC-176,42 - Logistics Building,W21X93,2,0,2
+DOC-176,42 - Logistics Building,W24X55,9,0,9
+DOC-176,42 - Logistics Building,W24X62,3,0,3
+DOC-176,42 - Logistics Building,W24X68,4,0,4
+DOC-176,42 - Logistics Building,W24X76,3,0,3
+DOC-176,42 - Logistics Building,W27X84,3,0,3
+DOC-176,42 - Logistics Building,W27X94,1,0,1
+DOC-176,42 - Logistics Building,W30X108,2,0,2
+DOC-176,42 - Logistics Building,W30X132,3,0,3
+DOC-176,42 - Logistics Building,W30X191,5,0,5
+DOC-176,42 - Logistics Building,W30X211,2,0,2
+DOC-176,42 - Logistics Building,W33X118,2,0,2
+DOC-176,42 - Logistics Building,W33X130,2,0,2
+DOC-176,42 - Logistics Building,W8X15,5,0,5
+DOC-176,42 - Logistics Building,W8X35,4,4,0
+DOC-176,42 - Logistics Building,W8X40,2,2,0
+DOC-177,43 - Runnymede ES,HSS5X5X5/16,1,1,0
+DOC-177,43 - Runnymede ES,HSS6X4X3/8,1,1,0
+DOC-177,43 - Runnymede ES,HSS6X6X3/8,1,1,0
+DOC-177,43 - Runnymede ES,L5X3X3/8,1,0,1
+DOC-177,43 - Runnymede ES,L6X6X3/8,5,0,5
+DOC-177,43 - Runnymede ES,W12X16,10,0,10
+DOC-177,43 - Runnymede ES,W14X22,5,0,5
+DOC-177,43 - Runnymede ES,W16X26,4,0,4
+DOC-177,43 - Runnymede ES,W16X31,3,0,3
+DOC-177,43 - Runnymede ES,W21X44,2,0,2
+DOC-177,43 - Runnymede ES,W21X68,1,0,1
+DOC-177,43 - Runnymede ES,W8X21,2,2,0
+DOC-177,43 - Runnymede ES,WT4X9,1,0,1
+DOC-178,44 - Elmer Wolfe ES,HSS5X5X3/8,1,1,0
+DOC-178,44 - Elmer Wolfe ES,HSS5X5X5/16,1,1,0
+DOC-178,44 - Elmer Wolfe ES,L5X3X3/8,1,0,1
+DOC-178,44 - Elmer Wolfe ES,L6X6X3/8,3,0,3
+DOC-178,44 - Elmer Wolfe ES,W12X16,2,0,2
+DOC-178,44 - Elmer Wolfe ES,W14X22,13,0,13
+DOC-178,44 - Elmer Wolfe ES,W16X31,1,1,0
+DOC-178,44 - Elmer Wolfe ES,W18X35,5,0,5
+DOC-178,44 - Elmer Wolfe ES,W18X40,2,0,2
+DOC-178,44 - Elmer Wolfe ES,W21X44,2,0,2
+DOC-178,44 - Elmer Wolfe ES,W21X48,2,0,2
+DOC-178,44 - Elmer Wolfe ES,W24X55,2,0,2
+DOC-178,44 - Elmer Wolfe ES,W24X68,2,0,2
+DOC-178,44 - Elmer Wolfe ES,W24X76,1,0,1
+DOC-178,44 - Elmer Wolfe ES,W27X84,1,0,1
+DOC-178,44 - Elmer Wolfe ES,W8X18,2,0,2
+DOC-178,44 - Elmer Wolfe ES,W8X21,1,1,0
+DOC-179,45 - Robert Moton ES,HSS5X5X5/16,1,1,0
+DOC-179,45 - Robert Moton ES,L3X3X1/4,1,0,1
+DOC-179,45 - Robert Moton ES,L5X3X3/8,1,0,1
+DOC-179,45 - Robert Moton ES,L6X6X3/8,4,0,4
+DOC-179,45 - Robert Moton ES,W12X16,8,0,8
+DOC-179,45 - Robert Moton ES,W14X22,18,0,18
+DOC-179,45 - Robert Moton ES,W16X26,6,0,6
+DOC-179,45 - Robert Moton ES,W16X31,2,0,2
+DOC-179,45 - Robert Moton ES,W18X35,6,0,6
+DOC-179,45 - Robert Moton ES,W18X40,2,0,2
+DOC-179,45 - Robert Moton ES,W21X44,2,0,2
+DOC-179,45 - Robert Moton ES,W24X62,2,0,2
+DOC-179,45 - Robert Moton ES,W8X21,2,2,0
+DOC-179,45 - Robert Moton ES,W8X28,1,1,0
+DOC-180,46 - Westminster ES,HSS4X4X1/4,1,1,0
+DOC-180,46 - Westminster ES,HSS5X5X5/16,1,1,0
+DOC-180,46 - Westminster ES,HSS6X6X3/8,1,1,0
+DOC-180,46 - Westminster ES,HSS9X5X5/8,1,1,0
+DOC-180,46 - Westminster ES,L5X3X3/8,1,0,1
+DOC-180,46 - Westminster ES,L6X6X3/8,5,0,5
+DOC-180,46 - Westminster ES,W12X16,11,0,11
+DOC-180,46 - Westminster ES,W14X22,15,0,15
+DOC-180,46 - Westminster ES,W16X26,3,0,3
+DOC-180,46 - Westminster ES,W16X31,1,0,1
+DOC-180,46 - Westminster ES,W16X36,1,0,1
+DOC-180,46 - Westminster ES,W18X40,3,0,3
+DOC-180,46 - Westminster ES,W21X44,3,0,3
+DOC-180,46 - Westminster ES,W24X68,1,0,1
+DOC-180,46 - Westminster ES,W27X94,1,0,1
+DOC-180,46 - Westminster ES,W8X10,2,0,2
+DOC-180,46 - Westminster ES,W8X21,2,2,0
+DOC-180,46 - Westminster ES,WT12X27.5,1,0,1
+DOC-181,47 - William Winchester ES,HSS5X5X5/16,1,1,0
+DOC-181,47 - William Winchester ES,HSS6X4X3/8,1,1,0
+DOC-181,47 - William Winchester ES,HSS6X6X3/8,1,1,0
+DOC-181,47 - William Winchester ES,L5X3X3/8,1,0,1
+DOC-181,47 - William Winchester ES,L6X6X3/8,4,0,4
+DOC-181,47 - William Winchester ES,W12X16,2,0,2
+DOC-181,47 - William Winchester ES,W12X30,1,0,1
+DOC-181,47 - William Winchester ES,W14X22,11,0,11
+DOC-181,47 - William Winchester ES,W16X36,1,1,0
+DOC-181,47 - William Winchester ES,W18X40,1,0,1
+DOC-181,47 - William Winchester ES,W21X44,3,0,3
+DOC-181,47 - William Winchester ES,W21X48,2,0,2
+DOC-181,47 - William Winchester ES,W8X21,1,1,0
+DOC-181,47 - William Winchester ES,W8X28,1,1,0
+DOC-182,48 - Spring Garden ES,HSS5X5X5/16,1,1,0
+DOC-182,48 - Spring Garden ES,HSS6X4X3/8,1,1,0
+DOC-182,48 - Spring Garden ES,HSS6X6X3/8,1,1,0
+DOC-182,48 - Spring Garden ES,L3X3X3/8,1,0,1
+DOC-182,48 - Spring Garden ES,L5X3X3/8,1,0,1
+DOC-182,48 - Spring Garden ES,L6X6X3/8,4,0,4
+DOC-182,48 - Spring Garden ES,W12X16,10,0,10
+DOC-182,48 - Spring Garden ES,W12X26,1,0,1
+DOC-182,48 - Spring Garden ES,W14X22,10,0,10
+DOC-182,48 - Spring Garden ES,W16X26,2,0,2
+DOC-182,48 - Spring Garden ES,W16X31,2,0,2
+DOC-182,48 - Spring Garden ES,W16X36,1,0,1
+DOC-182,48 - Spring Garden ES,W18X35,2,0,2
+DOC-182,48 - Spring Garden ES,W24X76,1,0,1
+DOC-182,48 - Spring Garden ES,W8X21,2,2,0
+DOC-182,48 - Spring Garden ES,WT8X18,1,0,1
+DOC-183,50 - Project Renegade,HSS10X6X5/16,28,0,28
+DOC-183,50 - Project Renegade,HSS10X8X5/16,33,0,33
+DOC-183,50 - Project Renegade,HSS6X6X3/8,8,0,8
+DOC-183,50 - Project Renegade,HSS8X6X5/16,34,0,34
+DOC-183,50 - Project Renegade,L3X3X1/4,1,0,1
+DOC-183,50 - Project Renegade,L4X4X5/16,1,0,1
+DOC-183,50 - Project Renegade,L6X4X5/16,1,0,1
+DOC-183,50 - Project Renegade,W10X12,16,0,16
+DOC-183,50 - Project Renegade,W10X49,4,0,4
+DOC-183,50 - Project Renegade,W10X54,5,0,5
+DOC-183,50 - Project Renegade,W10X60,28,0,28
+DOC-183,50 - Project Renegade,W10X68,2,0,2
+DOC-183,50 - Project Renegade,W12X14,186,0,186
+DOC-183,50 - Project Renegade,W12X16,190,0,190
+DOC-183,50 - Project Renegade,W12X19,2,0,2
+DOC-183,50 - Project Renegade,W12X35,192,0,192
+DOC-183,50 - Project Renegade,W12X40,22,0,22
+DOC-183,50 - Project Renegade,W12X53,26,0,26
+DOC-183,50 - Project Renegade,W12X65,43,0,43
+DOC-183,50 - Project Renegade,W14X109,16,0,16
+DOC-183,50 - Project Renegade,W14X120,18,0,18
+DOC-183,50 - Project Renegade,W14X132,13,0,13
+DOC-183,50 - Project Renegade,W14X145,13,0,13
+DOC-183,50 - Project Renegade,W14X159,24,0,24
+DOC-183,50 - Project Renegade,W14X176,2,0,2
+DOC-183,50 - Project Renegade,W14X193,2,0,2
+DOC-183,50 - Project Renegade,W14X22,251,0,251
+DOC-183,50 - Project Renegade,W14X550,2,0,2
+DOC-183,50 - Project Renegade,W14X61,2,0,2
+DOC-183,50 - Project Renegade,W14X90,23,0,23
+DOC-183,50 - Project Renegade,W14X99,2,0,2
+DOC-183,50 - Project Renegade,W16X26,67,0,67
+DOC-183,50 - Project Renegade,W16X31,216,0,216
+DOC-183,50 - Project Renegade,W16X40,18,0,18
+DOC-183,50 - Project Renegade,W18X35,199,0,199
+DOC-183,50 - Project Renegade,W18X40,40,0,40
+DOC-183,50 - Project Renegade,W18X55,2,0,2
+DOC-183,50 - Project Renegade,W21X44,2,0,2
+DOC-183,50 - Project Renegade,W21X48,34,0,34
+DOC-183,50 - Project Renegade,W21X50,1,0,1
+DOC-183,50 - Project Renegade,W21X68,192,0,192
+DOC-183,50 - Project Renegade,W24X55,396,0,396
+DOC-183,50 - Project Renegade,W24X62,92,0,92
+DOC-183,50 - Project Renegade,W24X68,70,0,70
+DOC-183,50 - Project Renegade,W24X76,39,0,39
+DOC-183,50 - Project Renegade,W27X84,143,0,143
+DOC-183,50 - Project Renegade,W27X94,67,0,67
+DOC-183,50 - Project Renegade,W30X108,3,0,3
+DOC-183,50 - Project Renegade,W30X116,4,0,4
+DOC-183,50 - Project Renegade,W30X124,2,0,2
+DOC-183,50 - Project Renegade,W30X132,36,0,36
+DOC-183,50 - Project Renegade,W30X90,42,0,42
+DOC-183,50 - Project Renegade,W30X99,110,0,110
+DOC-183,50 - Project Renegade,W33X118,3,0,3
+DOC-183,50 - Project Renegade,W33X130,3,0,3
+DOC-183,50 - Project Renegade,W36X150,2,0,2
+DOC-183,50 - Project Renegade,W40X149,2,0,2
+DOC-183,50 - Project Renegade,W40X167,4,0,4
+DOC-183,50 - Project Renegade,W40X199,2,0,2
+DOC-183,50 - Project Renegade,W40X211,2,0,2
+DOC-183,50 - Project Renegade,W44X262,2,0,2
+DOC-183,50 - Project Renegade,W44X335,12,0,12
+DOC-183,50 - Project Renegade,W8X28,143,0,143
+DOC-183,50 - Project Renegade,W8X48,25,0,25
+DOC-184,51 - Burrvile ES,2L4X4X3/8,1,0,1
+DOC-184,51 - Burrvile ES,HSS10.000X0.500,7,7,0
+DOC-184,51 - Burrvile ES,HSS10.000X0.625,1,1,0
+DOC-184,51 - Burrvile ES,HSS10X6X1/2,1,0,1
+DOC-184,51 - Burrvile ES,HSS10X6X3/8,3,0,3
+DOC-184,51 - Burrvile ES,HSS12X6X3/8,1,0,1
+DOC-184,51 - Burrvile ES,HSS12X8X1/2,5,0,5
+DOC-184,51 - Burrvile ES,HSS14X6X5/8,2,0,2
+DOC-184,51 - Burrvile ES,HSS20X8X1/2,2,0,2
+DOC-184,51 - Burrvile ES,HSS20X8X5/16,2,0,2
+DOC-184,51 - Burrvile ES,HSS6X6X3/8,49,0,49
+DOC-184,51 - Burrvile ES,HSS8X6X3/8,2,0,2
+DOC-184,51 - Burrvile ES,L3X3X3/8,1,0,1
+DOC-184,51 - Burrvile ES,L4X3-1/2X5/16,1,0,1
+DOC-184,51 - Burrvile ES,L4X4X1/4,2,0,2
+DOC-184,51 - Burrvile ES,L4X4X3/8,4,0,4
+DOC-184,51 - Burrvile ES,W10X15,42,0,42
+DOC-184,51 - Burrvile ES,W10X19,89,0,89
+DOC-184,51 - Burrvile ES,W10X22,14,0,14
+DOC-184,51 - Burrvile ES,W10X33,86,86,0
+DOC-184,51 - Burrvile ES,W10X39,4,4,0
+DOC-184,51 - Burrvile ES,W10X45,8,8,0
+DOC-184,51 - Burrvile ES,W10X49,5,5,0
+DOC-184,51 - Burrvile ES,W10X54,7,7,0
+DOC-184,51 - Burrvile ES,W10X60,2,2,0
+DOC-184,51 - Burrvile ES,W12X16,114,0,114
+DOC-184,51 - Burrvile ES,W12X19,34,0,34
+DOC-184,51 - Burrvile ES,W12X22,3,0,3
+DOC-184,51 - Burrvile ES,W12X26,20,0,20
+DOC-184,51 - Burrvile ES,W12X30,1,0,1
+DOC-184,51 - Burrvile ES,W14X22,62,0,62
+DOC-184,51 - Burrvile ES,W14X26,2,0,2
+DOC-184,51 - Burrvile ES,W16X26,88,0,88
+DOC-184,51 - Burrvile ES,W16X31,24,0,24
+DOC-184,51 - Burrvile ES,W16X36,9,0,9
+DOC-184,51 - Burrvile ES,W18X35,63,0,63
+DOC-184,51 - Burrvile ES,W18X40,39,0,39
+DOC-184,51 - Burrvile ES,W18X50,8,0,8
+DOC-184,51 - Burrvile ES,W18X60,1,0,1
+DOC-184,51 - Burrvile ES,W21X44,18,0,18
+DOC-184,51 - Burrvile ES,W21X48,3,0,3
+DOC-184,51 - Burrvile ES,W21X50,13,0,13
+DOC-184,51 - Burrvile ES,W24X55,5,0,5
+DOC-184,51 - Burrvile ES,W24X62,1,0,1
+DOC-184,51 - Burrvile ES,W24X68,5,0,5
+DOC-184,51 - Burrvile ES,W24X76,1,0,1
+DOC-184,51 - Burrvile ES,W24X84,3,0,3
+DOC-184,51 - Burrvile ES,W27X84,7,0,7
+DOC-184,51 - Burrvile ES,W27X94,2,0,2
+DOC-184,51 - Burrvile ES,W30X99,1,0,1
+DOC-184,51 - Burrvile ES,W33X130,1,0,1
+DOC-184,51 - Burrvile ES,W8X18,2,0,2
+DOC-187,52 - H5 Herndon,L2-1/2X2-1/2X1/4,4,0,4
+DOC-187,52 - H5 Herndon,W10X12,1,0,1
+DOC-187,52 - H5 Herndon,W12X22,2,0,2
+DOC-187,52 - H5 Herndon,W14X22,22,0,22
+DOC-187,52 - H5 Herndon,W16X26,304,0,304
+DOC-187,52 - H5 Herndon,W16X31,22,0,22
+DOC-187,52 - H5 Herndon,W16X36,31,0,31
+DOC-187,52 - H5 Herndon,W16X40,1,0,1
+DOC-187,52 - H5 Herndon,W16X67,34,0,34
+DOC-187,52 - H5 Herndon,W18X35,42,0,42
+DOC-187,52 - H5 Herndon,W18X40,4,0,4
+DOC-187,52 - H5 Herndon,W18X46,8,0,8
+DOC-187,52 - H5 Herndon,W21X44,13,0,13
+DOC-187,52 - H5 Herndon,W21X48,5,0,5
+DOC-187,52 - H5 Herndon,W21X50,7,0,7
+DOC-187,52 - H5 Herndon,W21X55,3,0,3
+DOC-187,52 - H5 Herndon,W24X55,30,0,30
+DOC-187,52 - H5 Herndon,W24X62,13,0,13
+DOC-187,52 - H5 Herndon,W27X84,9,0,9
+DOC-187,52 - H5 Herndon,W33X118,5,0,5
+DOC-187,52 - H5 Herndon,W36X135,1,0,1
+DOC-187,52 - H5 Herndon,W36X150,1,0,1
+DOC-187,52 - H5 Herndon,W8X10,9,0,9
+DOC-187,52 - H5 Herndon,W8X24,8,8,0
+DOC-187,52 - H5 Herndon,W8X28,5,5,0
+DOC-187,52 - H5 Herndon,W8X31,8,8,0
+DOC-187,52 - H5 Herndon,W8X35,3,3,0
+DOC-187,52 - H5 Herndon,W8X40,8,3,5
+DOC-187,52 - H5 Herndon,W8X48,2,2,0
+DOC-187,52 - H5 Herndon,W8X58,3,3,0
+DOC-189,53 - BCPS City College,C10X25,1,0,1
+DOC-189,53 - BCPS City College,C8X13.75,2,0,2
+DOC-189,53 - BCPS City College,HSS4X4X1/4,1,0,1
+DOC-189,53 - BCPS City College,HSS6X4X5/16,5,0,5
+DOC-189,53 - BCPS City College,HSS6X6X1/2,8,0,8
+DOC-189,53 - BCPS City College,L2X2X1/4,2,0,2
+DOC-189,53 - BCPS City College,L4X3X5/16,1,0,1
+DOC-189,53 - BCPS City College,L4X4X1/4,8,0,8
+DOC-189,53 - BCPS City College,L4X4X3/8,6,0,6
+DOC-189,53 - BCPS City College,L4X4X5/16,2,0,2
+DOC-189,53 - BCPS City College,L5X5X3/8,2,0,2
+DOC-189,53 - BCPS City College,L6X4X5/16,1,0,1
+DOC-189,53 - BCPS City College,L6X6X5/16,1,0,1
+DOC-189,53 - BCPS City College,L7X4X3/8,1,0,1
+DOC-189,53 - BCPS City College,L8X4X7/16,1,0,1
+DOC-189,53 - BCPS City College,W10X12,46,0,46
+DOC-189,53 - BCPS City College,W10X15,16,0,16
+DOC-189,53 - BCPS City College,W10X22,1,0,1
+DOC-189,53 - BCPS City College,W10X33,2,0,2
+DOC-189,53 - BCPS City College,W12X14,7,0,7
+DOC-189,53 - BCPS City College,W12X16,12,0,12
+DOC-189,53 - BCPS City College,W12X19,12,0,12
+DOC-189,53 - BCPS City College,W12X26,6,0,6
+DOC-189,53 - BCPS City College,W12X35,3,0,3
+DOC-189,53 - BCPS City College,W14X22,12,0,12
+DOC-189,53 - BCPS City College,W14X30,1,0,1
+DOC-189,53 - BCPS City College,W14X48,1,0,1
+DOC-189,53 - BCPS City College,W16X26,33,0,33
+DOC-189,53 - BCPS City College,W16X36,1,0,1
+DOC-189,53 - BCPS City College,W16X40,1,0,1
+DOC-189,53 - BCPS City College,W16X50,2,0,2
+DOC-189,53 - BCPS City College,W18X35,23,0,23
+DOC-189,53 - BCPS City College,W18X40,1,0,1
+DOC-189,53 - BCPS City College,W18X50,4,0,4
+DOC-189,53 - BCPS City College,W18X55,2,0,2
+DOC-189,53 - BCPS City College,W18X65,2,0,2
+DOC-189,53 - BCPS City College,W21X44,6,0,6
+DOC-189,53 - BCPS City College,W21X62,12,0,12
+DOC-189,53 - BCPS City College,W24X55,1,0,1
+DOC-189,53 - BCPS City College,W24X84,1,0,1
+DOC-189,53 - BCPS City College,W27X84,2,0,2
+DOC-189,53 - BCPS City College,W8X10,29,0,29
+DOC-189,53 - BCPS City College,W8X15,1,0,1
+DOC-189,53 - BCPS City College,W8X18,6,0,6
+DOC-189,53 - BCPS City College,W8X31,1,0,1
+DOC-189,53 - BCPS City College,W8X40,1,0,1
+DOC-190,54 - Chisholm ES,C5X6.7,2,0,2
+DOC-190,54 - Chisholm ES,HSS12X6X1/4,29,0,29
+DOC-190,54 - Chisholm ES,HSS4X2-1/2X1/4,3,0,3
+DOC-190,54 - Chisholm ES,HSS4X4X3/8,1,0,1
+DOC-190,54 - Chisholm ES,HSS5X5X1/4,67,0,67
+DOC-190,54 - Chisholm ES,HSS6X6X1/4,21,0,21
+DOC-190,54 - Chisholm ES,HSS6X6X3/8,1,0,1
+DOC-190,54 - Chisholm ES,HSS6X6X5/16,1,0,1
+DOC-190,54 - Chisholm ES,HSS7X7X5/16,1,0,1
+DOC-190,54 - Chisholm ES,HSS8X6X1/4,10,0,10
+DOC-190,54 - Chisholm ES,L3X3X1/4,3,0,3
+DOC-190,54 - Chisholm ES,L3X3X3/16,2,0,2
+DOC-190,54 - Chisholm ES,L3X3X3/8,1,0,1
+DOC-190,54 - Chisholm ES,L4X3X1/4,1,0,1
+DOC-190,54 - Chisholm ES,L4X4X1/4,5,0,5
+DOC-190,54 - Chisholm ES,L4X4X3/8,2,0,2
+DOC-190,54 - Chisholm ES,L6X4X3/8,1,0,1
+DOC-190,54 - Chisholm ES,L6X4X5/16,1,0,1
+DOC-190,54 - Chisholm ES,L6X6X3/8,1,0,1
+DOC-190,54 - Chisholm ES,L8X4X7/16,1,0,1
+DOC-190,54 - Chisholm ES,W10X12,14,0,14
+DOC-190,54 - Chisholm ES,W12X14,77,0,77
+DOC-190,54 - Chisholm ES,W12X16,2,0,2
+DOC-190,54 - Chisholm ES,W12X19,6,0,6
+DOC-190,54 - Chisholm ES,W14X22,105,0,105
+DOC-190,54 - Chisholm ES,W16X26,37,0,37
+DOC-190,54 - Chisholm ES,W16X31,27,0,27
+DOC-190,54 - Chisholm ES,W16X36,2,0,2
+DOC-190,54 - Chisholm ES,W18X35,30,0,30
+DOC-190,54 - Chisholm ES,W18X40,8,0,8
+DOC-190,54 - Chisholm ES,W18X50,3,0,3
+DOC-190,54 - Chisholm ES,W21X44,13,0,13
+DOC-190,54 - Chisholm ES,W21X50,1,0,1
+DOC-190,54 - Chisholm ES,W24X55,3,0,3
+DOC-190,54 - Chisholm ES,W24X62,1,0,1
+DOC-190,54 - Chisholm ES,W24X68,1,0,1
+DOC-190,54 - Chisholm ES,W8X10,58,0,58
+DOC-190,54 - Chisholm ES,W8X18,10,0,10
+DOC-190,54 - Chisholm ES,W8X24,1,0,1
+DOC-190,54 - Chisholm ES,W8X28,3,0,3
+DOC-190,54 - Chisholm ES,W8X31,2,0,2
+DOC-190,54 - Chisholm ES,W8X40,2,0,2
+DOC-191,54 - Duckworth ES,C6X8.2,1,0,1
+DOC-191,54 - Duckworth ES,HSS10.000X0.500,3,3,0
+DOC-191,54 - Duckworth ES,HSS10.000X0.625,1,1,0
+DOC-191,54 - Duckworth ES,HSS12X6X1/2,1,0,1
+DOC-191,54 - Duckworth ES,HSS12X8X3/8,3,0,3
+DOC-191,54 - Duckworth ES,HSS14X10X3/8,9,0,9
+DOC-191,54 - Duckworth ES,HSS16X4X1/2,1,0,1
+DOC-191,54 - Duckworth ES,HSS16X8X3/8,1,0,1
+DOC-191,54 - Duckworth ES,HSS18.000X0.500,5,5,0
+DOC-191,54 - Duckworth ES,HSS20X12X1/2,1,0,1
+DOC-191,54 - Duckworth ES,HSS6X6X1/2,3,0,3
+DOC-191,54 - Duckworth ES,HSS6X6X3/8,17,0,17
+DOC-191,54 - Duckworth ES,HSS8X6X1/2,2,0,2
+DOC-191,54 - Duckworth ES,HSS8X6X3/8,4,0,4
+DOC-191,54 - Duckworth ES,HSS8X8X3/8,5,0,5
+DOC-191,54 - Duckworth ES,L3-1/2X3-1/2X3/8,1,0,1
+DOC-191,54 - Duckworth ES,L4X3-1/2X5/16,1,0,1
+DOC-191,54 - Duckworth ES,L4X3X5/16,1,0,1
+DOC-191,54 - Duckworth ES,L4X4X1/4,2,0,2
+DOC-191,54 - Duckworth ES,L5X5X1/2,2,0,2
+DOC-191,54 - Duckworth ES,W10X17,2,0,2
+DOC-191,54 - Duckworth ES,W10X22,5,0,5
+DOC-191,54 - Duckworth ES,W10X33,34,34,0
+DOC-191,54 - Duckworth ES,W10X39,20,20,0
+DOC-191,54 - Duckworth ES,W10X45,33,33,0
+DOC-191,54 - Duckworth ES,W10X49,10,10,0
+DOC-191,54 - Duckworth ES,W12X16,2,0,2
+DOC-191,54 - Duckworth ES,W12X19,18,0,18
+DOC-191,54 - Duckworth ES,W12X22,5,0,5
+DOC-191,54 - Duckworth ES,W12X26,11,0,11
+DOC-191,54 - Duckworth ES,W12X65,9,9,0
+DOC-191,54 - Duckworth ES,W14X22,83,0,83
+DOC-191,54 - Duckworth ES,W14X26,1,0,1
+DOC-191,54 - Duckworth ES,W14X30,1,0,1
+DOC-191,54 - Duckworth ES,W16X26,89,0,89
+DOC-191,54 - Duckworth ES,W16X31,32,0,32
+DOC-191,54 - Duckworth ES,W16X36,7,0,7
+DOC-191,54 - Duckworth ES,W16X40,2,0,2
+DOC-191,54 - Duckworth ES,W16X57,1,0,1
+DOC-191,54 - Duckworth ES,W16X67,1,0,1
+DOC-191,54 - Duckworth ES,W18X35,79,0,79
+DOC-191,54 - Duckworth ES,W18X40,55,0,55
+DOC-191,54 - Duckworth ES,W18X46,16,0,16
+DOC-191,54 - Duckworth ES,W18X50,22,0,22
+DOC-191,54 - Duckworth ES,W18X55,4,0,4
+DOC-191,54 - Duckworth ES,W18X60,32,0,32
+DOC-191,54 - Duckworth ES,W18X65,11,0,11
+DOC-191,54 - Duckworth ES,W18X71,4,0,4
+DOC-191,54 - Duckworth ES,W18X76,2,0,2
+DOC-191,54 - Duckworth ES,W18X86,4,0,4
+DOC-191,54 - Duckworth ES,W18X97,1,0,1
+DOC-191,54 - Duckworth ES,W21X44,27,0,27
+DOC-191,54 - Duckworth ES,W21X48,2,0,2
+DOC-191,54 - Duckworth ES,W21X50,6,0,6
+DOC-191,54 - Duckworth ES,W21X55,4,0,4
+DOC-191,54 - Duckworth ES,W21X62,2,0,2
+DOC-191,54 - Duckworth ES,W21X68,6,0,6
+DOC-191,54 - Duckworth ES,W21X73,1,0,1
+DOC-191,54 - Duckworth ES,W21X83,2,0,2
+DOC-191,54 - Duckworth ES,W24X55,7,0,7
+DOC-191,54 - Duckworth ES,W24X62,1,0,1
+DOC-191,54 - Duckworth ES,W24X68,2,0,2
+DOC-191,54 - Duckworth ES,W24X94,1,0,1
+DOC-191,54 - Duckworth ES,W27X84,2,0,2
+DOC-191,54 - Duckworth ES,W27X94,2,0,2
+DOC-191,54 - Duckworth ES,W8X18,20,0,20
+DOC-191,54 - Duckworth ES,W8X24,13,0,13
+DOC-191,54 - Duckworth ES,WT3X8,1,0,1
+DOC-191,54 - Duckworth ES,WT4X12,2,0,2
+DOC-192,54 - Duckworth ES,C6X8.2,1,0,1
+DOC-192,54 - Duckworth ES,HSS10.000X0.500,3,3,0
+DOC-192,54 - Duckworth ES,HSS10.000X0.625,1,1,0
+DOC-192,54 - Duckworth ES,HSS12X6X1/2,1,0,1
+DOC-192,54 - Duckworth ES,HSS12X8X3/8,3,0,3
+DOC-192,54 - Duckworth ES,HSS14X10X3/8,9,0,9
+DOC-192,54 - Duckworth ES,HSS16X4X1/2,1,0,1
+DOC-192,54 - Duckworth ES,HSS16X8X3/8,1,0,1
+DOC-192,54 - Duckworth ES,HSS18.000X0.500,5,5,0
+DOC-192,54 - Duckworth ES,HSS20X12X1/2,1,0,1
+DOC-192,54 - Duckworth ES,HSS6X6X1/2,3,0,3
+DOC-192,54 - Duckworth ES,HSS6X6X3/8,17,0,17
+DOC-192,54 - Duckworth ES,HSS8X6X1/2,2,0,2
+DOC-192,54 - Duckworth ES,HSS8X6X3/8,4,0,4
+DOC-192,54 - Duckworth ES,HSS8X8X3/8,5,0,5
+DOC-192,54 - Duckworth ES,L3-1/2X3-1/2X3/8,1,0,1
+DOC-192,54 - Duckworth ES,L4X3-1/2X5/16,1,0,1
+DOC-192,54 - Duckworth ES,L4X3X5/16,1,0,1
+DOC-192,54 - Duckworth ES,L4X4X1/4,2,0,2
+DOC-192,54 - Duckworth ES,L5X5X1/2,2,0,2
+DOC-192,54 - Duckworth ES,W10X17,2,0,2
+DOC-192,54 - Duckworth ES,W10X22,5,0,5
+DOC-192,54 - Duckworth ES,W10X33,34,34,0
+DOC-192,54 - Duckworth ES,W10X39,20,20,0
+DOC-192,54 - Duckworth ES,W10X45,33,33,0
+DOC-192,54 - Duckworth ES,W10X49,10,10,0
+DOC-192,54 - Duckworth ES,W12X16,2,0,2
+DOC-192,54 - Duckworth ES,W12X19,18,0,18
+DOC-192,54 - Duckworth ES,W12X22,5,0,5
+DOC-192,54 - Duckworth ES,W12X26,11,0,11
+DOC-192,54 - Duckworth ES,W12X65,9,9,0
+DOC-192,54 - Duckworth ES,W14X22,83,0,83
+DOC-192,54 - Duckworth ES,W14X26,1,0,1
+DOC-192,54 - Duckworth ES,W14X30,1,0,1
+DOC-192,54 - Duckworth ES,W16X26,89,0,89
+DOC-192,54 - Duckworth ES,W16X31,32,0,32
+DOC-192,54 - Duckworth ES,W16X36,7,0,7
+DOC-192,54 - Duckworth ES,W16X40,2,0,2
+DOC-192,54 - Duckworth ES,W16X57,1,0,1
+DOC-192,54 - Duckworth ES,W16X67,1,0,1
+DOC-192,54 - Duckworth ES,W18X35,79,0,79
+DOC-192,54 - Duckworth ES,W18X40,55,0,55
+DOC-192,54 - Duckworth ES,W18X46,16,0,16
+DOC-192,54 - Duckworth ES,W18X50,22,0,22
+DOC-192,54 - Duckworth ES,W18X55,4,0,4
+DOC-192,54 - Duckworth ES,W18X60,32,0,32
+DOC-192,54 - Duckworth ES,W18X65,11,0,11
+DOC-192,54 - Duckworth ES,W18X71,4,0,4
+DOC-192,54 - Duckworth ES,W18X76,2,0,2
+DOC-192,54 - Duckworth ES,W18X86,4,0,4
+DOC-192,54 - Duckworth ES,W18X97,1,0,1
+DOC-192,54 - Duckworth ES,W21X44,27,0,27
+DOC-192,54 - Duckworth ES,W21X48,2,0,2
+DOC-192,54 - Duckworth ES,W21X50,6,0,6
+DOC-192,54 - Duckworth ES,W21X55,4,0,4
+DOC-192,54 - Duckworth ES,W21X62,2,0,2
+DOC-192,54 - Duckworth ES,W21X68,6,0,6
+DOC-192,54 - Duckworth ES,W21X73,1,0,1
+DOC-192,54 - Duckworth ES,W21X83,2,0,2
+DOC-192,54 - Duckworth ES,W24X55,7,0,7
+DOC-192,54 - Duckworth ES,W24X62,1,0,1
+DOC-192,54 - Duckworth ES,W24X68,2,0,2
+DOC-192,54 - Duckworth ES,W24X94,1,0,1
+DOC-192,54 - Duckworth ES,W27X84,2,0,2
+DOC-192,54 - Duckworth ES,W27X94,2,0,2
+DOC-192,54 - Duckworth ES,W8X18,20,0,20
+DOC-192,54 - Duckworth ES,W8X24,13,0,13
+DOC-192,54 - Duckworth ES,WT3X8,1,0,1
+DOC-192,54 - Duckworth ES,WT4X12,2,0,2
+DOC-193,55 - Springhill Lake,C8X11.5,1,0,1
+DOC-193,55 - Springhill Lake,HSS10.000X0.500,4,4,0
+DOC-193,55 - Springhill Lake,HSS10.000X0.625,1,1,0
+DOC-193,55 - Springhill Lake,HSS12.750X0.375,2,2,0
+DOC-193,55 - Springhill Lake,HSS14X10X3/8,8,0,8
+DOC-193,55 - Springhill Lake,HSS16X4X1/2,1,0,1
+DOC-193,55 - Springhill Lake,HSS16X8X3/8,1,0,1
+DOC-193,55 - Springhill Lake,HSS18.000X0.375,1,1,0
+DOC-193,55 - Springhill Lake,HSS18.000X0.500,4,4,0
+DOC-193,55 - Springhill Lake,HSS20X12X1/2,1,0,1
+DOC-193,55 - Springhill Lake,HSS6X6X1/2,5,0,5
+DOC-193,55 - Springhill Lake,HSS6X6X3/8,26,0,26
+DOC-193,55 - Springhill Lake,HSS6X6X5/8,2,0,2
+DOC-193,55 - Springhill Lake,HSS8X6X3/8,1,0,1
+DOC-193,55 - Springhill Lake,HSS8X8X3/8,3,0,3
+DOC-193,55 - Springhill Lake,L3X3X1/4,1,0,1
+DOC-193,55 - Springhill Lake,L4X3-1/2X3/8,1,0,1
+DOC-193,55 - Springhill Lake,L4X3-1/2X5/16,1,0,1
+DOC-193,55 - Springhill Lake,L4X3X5/16,1,0,1
+DOC-193,55 - Springhill Lake,L4X4X1/4,3,0,3
+DOC-193,55 - Springhill Lake,L4X4X3/8,1,0,1
+DOC-193,55 - Springhill Lake,L5X5X1/2,2,0,2
+DOC-193,55 - Springhill Lake,L6X4X5/16,1,0,1
+DOC-193,55 - Springhill Lake,W10X33,28,28,0
+DOC-193,55 - Springhill Lake,W10X39,17,17,0
+DOC-193,55 - Springhill Lake,W10X45,37,37,0
+DOC-193,55 - Springhill Lake,W10X49,16,16,0
+DOC-193,55 - Springhill Lake,W10X54,1,1,0
+DOC-193,55 - Springhill Lake,W12X16,2,0,2
+DOC-193,55 - Springhill Lake,W12X19,15,0,15
+DOC-193,55 - Springhill Lake,W12X26,11,0,11
+DOC-193,55 - Springhill Lake,W12X65,9,9,0
+DOC-193,55 - Springhill Lake,W14X22,77,0,77
+DOC-193,55 - Springhill Lake,W14X26,3,0,3
+DOC-193,55 - Springhill Lake,W14X30,6,0,6
+DOC-193,55 - Springhill Lake,W16X26,84,0,84
+DOC-193,55 - Springhill Lake,W16X31,16,0,16
+DOC-193,55 - Springhill Lake,W16X36,7,0,7
+DOC-193,55 - Springhill Lake,W16X40,1,0,1
+DOC-193,55 - Springhill Lake,W16X45,1,0,1
+DOC-193,55 - Springhill Lake,W16X50,1,0,1
+DOC-193,55 - Springhill Lake,W18X35,68,0,68
+DOC-193,55 - Springhill Lake,W18X40,46,0,46
+DOC-193,55 - Springhill Lake,W18X46,31,0,31
+DOC-193,55 - Springhill Lake,W18X50,58,0,58
+DOC-193,55 - Springhill Lake,W18X55,16,0,16
+DOC-193,55 - Springhill Lake,W18X60,32,0,32
+DOC-193,55 - Springhill Lake,W18X65,6,0,6
+DOC-193,55 - Springhill Lake,W18X71,6,0,6
+DOC-193,55 - Springhill Lake,W18X76,4,0,4
+DOC-193,55 - Springhill Lake,W18X86,3,0,3
+DOC-193,55 - Springhill Lake,W18X97,2,0,2
+DOC-193,55 - Springhill Lake,W21X44,22,0,22
+DOC-193,55 - Springhill Lake,W21X48,1,0,1
+DOC-193,55 - Springhill Lake,W21X50,11,0,11
+DOC-193,55 - Springhill Lake,W21X55,7,0,7
+DOC-193,55 - Springhill Lake,W21X62,5,0,5
+DOC-193,55 - Springhill Lake,W21X68,2,0,2
+DOC-193,55 - Springhill Lake,W21X73,2,0,2
+DOC-193,55 - Springhill Lake,W21X93,1,0,1
+DOC-193,55 - Springhill Lake,W24X55,6,0,6
+DOC-193,55 - Springhill Lake,W24X62,4,0,4
+DOC-193,55 - Springhill Lake,W24X68,6,0,6
+DOC-193,55 - Springhill Lake,W24X84,4,0,4
+DOC-193,55 - Springhill Lake,W24X94,2,0,2
+DOC-193,55 - Springhill Lake,W27X84,1,0,1
+DOC-193,55 - Springhill Lake,W27X94,1,0,1
+DOC-193,55 - Springhill Lake,W8X18,31,0,31
+DOC-193,55 - Springhill Lake,W8X24,19,0,19
+DOC-193,55 - Springhill Lake,WT7X19,1,0,1
+DOC-194,56 - Whittier ES,L3X3X1/4,1,0,1
+DOC-194,56 - Whittier ES,L4X4X3/8,1,0,1
+DOC-194,56 - Whittier ES,L4X4X5/16,1,0,1
+DOC-194,56 - Whittier ES,L5X3X5/16,1,0,1
+DOC-194,56 - Whittier ES,W10X45,2,0,2
+DOC-194,56 - Whittier ES,W12X14,4,0,4
+DOC-194,56 - Whittier ES,W12X26,5,0,5
+DOC-194,56 - Whittier ES,W14X22,2,0,2
+DOC-194,56 - Whittier ES,W14X30,4,0,4
+DOC-194,56 - Whittier ES,W16X50,5,0,5
+DOC-194,56 - Whittier ES,W18X50,11,0,11
+DOC-194,56 - Whittier ES,W21X55,3,0,3
+DOC-194,56 - Whittier ES,W21X62,2,0,2
+DOC-194,56 - Whittier ES,W24X84,2,0,2
+DOC-194,56 - Whittier ES,W27X178,2,0,2
+DOC-196,57 - Hart MS,C5X9,14,0,14
+DOC-196,57 - Hart MS,HSS4X4X1/4,12,0,12
+DOC-196,57 - Hart MS,HSS5X5X1/4,63,0,63
+DOC-196,57 - Hart MS,HSS6X4X1/4,1,0,1
+DOC-196,57 - Hart MS,HSS6X6X1/4,1,0,1
+DOC-196,57 - Hart MS,HSS8X6X1/4,5,0,5
+DOC-196,57 - Hart MS,HSS8X6X3/8,16,0,16
+DOC-196,57 - Hart MS,HSS8X8X1/2,1,0,1
+DOC-196,57 - Hart MS,HSS8X8X3/8,5,0,5
+DOC-196,57 - Hart MS,L3-1/2X3-1/2X1/4,1,0,1
+DOC-196,57 - Hart MS,L3X3X1/4,31,0,31
+DOC-196,57 - Hart MS,L4X4X1/4,13,0,13
+DOC-196,57 - Hart MS,L4X4X3/8,5,0,5
+DOC-196,57 - Hart MS,L4X4X5/16,2,0,2
+DOC-196,57 - Hart MS,L5X5X3/8,1,0,1
+DOC-196,57 - Hart MS,L6X4X5/16,6,0,6
+DOC-196,57 - Hart MS,L8X8X1/2,2,0,2
+DOC-196,57 - Hart MS,W10X12,68,0,68
+DOC-196,57 - Hart MS,W10X33,77,0,77
+DOC-196,57 - Hart MS,W10X39,13,0,13
+DOC-196,57 - Hart MS,W10X45,4,0,4
+DOC-196,57 - Hart MS,W10X49,18,0,18
+DOC-196,57 - Hart MS,W10X54,1,0,1
+DOC-196,57 - Hart MS,W10X60,2,0,2
+DOC-196,57 - Hart MS,W10X68,4,0,4
+DOC-196,57 - Hart MS,W12X14,254,0,254
+DOC-196,57 - Hart MS,W12X16,9,0,9
+DOC-196,57 - Hart MS,W12X19,31,0,31
+DOC-196,57 - Hart MS,W14X22,76,0,76
+DOC-196,57 - Hart MS,W14X30,1,0,1
+DOC-196,57 - Hart MS,W14X48,1,0,1
+DOC-196,57 - Hart MS,W16X26,109,0,109
+DOC-196,57 - Hart MS,W16X31,58,0,58
+DOC-196,57 - Hart MS,W16X36,2,0,2
+DOC-196,57 - Hart MS,W18X35,62,0,62
+DOC-196,57 - Hart MS,W18X40,14,0,14
+DOC-196,57 - Hart MS,W21X44,9,0,9
+DOC-196,57 - Hart MS,W21X48,3,0,3
+DOC-196,57 - Hart MS,W21X50,3,0,3
+DOC-196,57 - Hart MS,W24X55,6,0,6
+DOC-196,57 - Hart MS,W24X62,1,0,1
+DOC-196,57 - Hart MS,W24X68,5,0,5
+DOC-196,57 - Hart MS,W24X76,1,0,1
+DOC-196,57 - Hart MS,W30X90,3,0,3
+DOC-196,57 - Hart MS,W36X160,5,0,5
+DOC-196,57 - Hart MS,W40X167,6,0,6
+DOC-196,57 - Hart MS,W8X10,100,0,100
+DOC-196,57 - Hart MS,W8X24,1,0,1
+DOC-196,57 - Hart MS,W8X28,1,0,1
+DOC-196,57 - Hart MS,WT10.5X22,1,0,1
+DOC-196,57 - Hart MS,WT5X7.5,1,0,1
+DOC-196,57 - Hart MS,WT6X8,2,0,2
+DOC-197,57 - Hart MS,C5X6.7,1,0,1
+DOC-197,57 - Hart MS,HSS8X6X1/4,28,0,28
+DOC-197,57 - Hart MS,L3X3X1/4,11,0,11
+DOC-197,57 - Hart MS,L4X4X1/4,4,0,4
+DOC-197,57 - Hart MS,L4X4X3/8,2,0,2
+DOC-197,57 - Hart MS,L6X4X5/16,1,0,1
+DOC-197,57 - Hart MS,W10X12,69,0,69
+DOC-197,57 - Hart MS,W10X49,2,0,2
+DOC-197,57 - Hart MS,W10X54,1,0,1
+DOC-197,57 - Hart MS,W12X14,345,0,345
+DOC-197,57 - Hart MS,W12X16,11,0,11
+DOC-197,57 - Hart MS,W12X19,34,0,34
+DOC-197,57 - Hart MS,W12X22,1,0,1
+DOC-197,57 - Hart MS,W14X22,74,0,74
+DOC-197,57 - Hart MS,W16X26,96,0,96
+DOC-197,57 - Hart MS,W16X31,56,0,56
+DOC-197,57 - Hart MS,W18X35,57,0,57
+DOC-197,57 - Hart MS,W18X40,10,0,10
+DOC-197,57 - Hart MS,W21X44,9,0,9
+DOC-197,57 - Hart MS,W21X48,2,0,2
+DOC-197,57 - Hart MS,W21X50,3,0,3
+DOC-197,57 - Hart MS,W24X55,7,0,7
+DOC-197,57 - Hart MS,W24X62,1,0,1
+DOC-197,57 - Hart MS,W24X68,5,0,5
+DOC-197,57 - Hart MS,W24X76,1,0,1
+DOC-197,57 - Hart MS,W30X90,3,0,3
+DOC-197,57 - Hart MS,W36X160,5,0,5
+DOC-197,57 - Hart MS,W40X167,6,0,6
+DOC-197,57 - Hart MS,W8X10,90,0,90
+DOC-197,57 - Hart MS,W8X24,1,0,1
+DOC-197,57 - Hart MS,W8X28,1,0,1
+DOC-198,57 - Hart MS,C5X6.7,1,0,1
+DOC-198,57 - Hart MS,HSS8X6X1/4,28,0,28
+DOC-198,57 - Hart MS,L3X3X1/4,11,0,11
+DOC-198,57 - Hart MS,L4X4X1/4,4,0,4
+DOC-198,57 - Hart MS,L4X4X3/8,2,0,2
+DOC-198,57 - Hart MS,L6X4X5/16,1,0,1
+DOC-198,57 - Hart MS,W10X12,69,0,69
+DOC-198,57 - Hart MS,W10X49,2,0,2
+DOC-198,57 - Hart MS,W10X54,1,0,1
+DOC-198,57 - Hart MS,W12X14,345,0,345
+DOC-198,57 - Hart MS,W12X16,11,0,11
+DOC-198,57 - Hart MS,W12X19,34,0,34
+DOC-198,57 - Hart MS,W12X22,1,0,1
+DOC-198,57 - Hart MS,W14X22,74,0,74
+DOC-198,57 - Hart MS,W16X26,96,0,96
+DOC-198,57 - Hart MS,W16X31,56,0,56
+DOC-198,57 - Hart MS,W18X35,57,0,57
+DOC-198,57 - Hart MS,W18X40,10,0,10
+DOC-198,57 - Hart MS,W21X44,9,0,9
+DOC-198,57 - Hart MS,W21X48,2,0,2
+DOC-198,57 - Hart MS,W21X50,3,0,3
+DOC-198,57 - Hart MS,W24X55,7,0,7
+DOC-198,57 - Hart MS,W24X62,1,0,1
+DOC-198,57 - Hart MS,W24X68,5,0,5
+DOC-198,57 - Hart MS,W24X76,1,0,1
+DOC-198,57 - Hart MS,W30X90,3,0,3
+DOC-198,57 - Hart MS,W36X160,5,0,5
+DOC-198,57 - Hart MS,W40X167,6,0,6
+DOC-198,57 - Hart MS,W8X10,90,0,90
+DOC-198,57 - Hart MS,W8X24,1,0,1
+DOC-198,57 - Hart MS,W8X28,1,0,1
+DOC-199,60 - GCDC Building 4,2L4X4X3/8,1,0,1
+DOC-199,60 - GCDC Building 4,2L6X6X1/2,4,0,4
+DOC-199,60 - GCDC Building 4,2L8X8X5/8,2,0,2
+DOC-199,60 - GCDC Building 4,HSS10X10X1/2,2,0,2
+DOC-199,60 - GCDC Building 4,HSS10X10X3/8,23,1,22
+DOC-199,60 - GCDC Building 4,HSS12X12X1/2,21,4,17
+DOC-199,60 - GCDC Building 4,HSS12X12X3/8,6,0,6
+DOC-199,60 - GCDC Building 4,HSS12X6X1/2,1,0,1
+DOC-199,60 - GCDC Building 4,HSS14.000X0.500,5,0,5
+DOC-199,60 - GCDC Building 4,HSS14X14X1/2,10,0,10
+DOC-199,60 - GCDC Building 4,HSS14X14X3/8,1,0,1
+DOC-199,60 - GCDC Building 4,HSS14X6X5/8,6,0,6
+DOC-199,60 - GCDC Building 4,HSS16X4X1/4,1,0,1
+DOC-199,60 - GCDC Building 4,HSS16X8X1/2,1,0,1
+DOC-199,60 - GCDC Building 4,HSS16X8X3/8,3,0,3
+DOC-199,60 - GCDC Building 4,HSS18X6X3/8,6,0,6
+DOC-199,60 - GCDC Building 4,HSS20X12X1/2,2,0,2
+DOC-199,60 - GCDC Building 4,HSS20X8X1/2,4,0,4
+DOC-199,60 - GCDC Building 4,HSS24X12X1/2,1,0,1
+DOC-199,60 - GCDC Building 4,HSS24X12X5/8,1,0,1
+DOC-199,60 - GCDC Building 4,HSS8X4X1/2,3,0,3
+DOC-199,60 - GCDC Building 4,HSS8X8X1/2,3,0,3
+DOC-199,60 - GCDC Building 4,HSS8X8X3/8,3,0,3
+DOC-199,60 - GCDC Building 4,HSS8X8X5/8,3,0,3
+DOC-199,60 - GCDC Building 4,L5X5X1/2,1,0,1
+DOC-199,60 - GCDC Building 4,W10X12,1,0,1
+DOC-199,60 - GCDC Building 4,W10X22,9,0,9
+DOC-199,60 - GCDC Building 4,W10X33,8,0,8
+DOC-199,60 - GCDC Building 4,W12X106,8,8,0
+DOC-199,60 - GCDC Building 4,W12X120,6,6,0
+DOC-199,60 - GCDC Building 4,W12X136,2,2,0
+DOC-199,60 - GCDC Building 4,W12X152,2,2,0
+DOC-199,60 - GCDC Building 4,W12X19,88,0,88
+DOC-199,60 - GCDC Building 4,W12X26,95,0,95
+DOC-199,60 - GCDC Building 4,W12X30,8,0,8
+DOC-199,60 - GCDC Building 4,W12X40,4,4,0
+DOC-199,60 - GCDC Building 4,W12X45,2,1,1
+DOC-199,60 - GCDC Building 4,W12X53,5,5,0
+DOC-199,60 - GCDC Building 4,W12X58,2,2,0
+DOC-199,60 - GCDC Building 4,W12X65,10,10,0
+DOC-199,60 - GCDC Building 4,W12X72,8,8,0
+DOC-199,60 - GCDC Building 4,W12X79,5,5,0
+DOC-199,60 - GCDC Building 4,W12X87,6,6,0
+DOC-199,60 - GCDC Building 4,W12X96,2,2,0
+DOC-199,60 - GCDC Building 4,W14X109,2,2,0
+DOC-199,60 - GCDC Building 4,W14X132,1,1,0
+DOC-199,60 - GCDC Building 4,W14X145,8,8,0
+DOC-199,60 - GCDC Building 4,W14X159,16,16,0
+DOC-199,60 - GCDC Building 4,W14X176,69,69,0
+DOC-199,60 - GCDC Building 4,W14X193,32,32,0
+DOC-199,60 - GCDC Building 4,W14X211,15,15,0
+DOC-199,60 - GCDC Building 4,W14X22,13,0,13
+DOC-199,60 - GCDC Building 4,W14X257,8,8,0
+DOC-199,60 - GCDC Building 4,W14X283,16,16,0
+DOC-199,60 - GCDC Building 4,W14X43,1,0,1
+DOC-199,60 - GCDC Building 4,W14X61,3,0,3
+DOC-199,60 - GCDC Building 4,W14X82,2,2,0
+DOC-199,60 - GCDC Building 4,W14X90,32,32,0
+DOC-199,60 - GCDC Building 4,W16X26,58,0,58
+DOC-199,60 - GCDC Building 4,W16X31,49,0,49
+DOC-199,60 - GCDC Building 4,W16X36,2,0,2
+DOC-199,60 - GCDC Building 4,W16X40,2,0,2
+DOC-199,60 - GCDC Building 4,W16X57,1,0,1
+DOC-199,60 - GCDC Building 4,W18X311,60,30,30
+DOC-199,60 - GCDC Building 4,W18X35,43,0,43
+DOC-199,60 - GCDC Building 4,W18X40,47,0,47
+DOC-199,60 - GCDC Building 4,W18X50,13,0,13
+DOC-199,60 - GCDC Building 4,W18X60,15,0,15
+DOC-199,60 - GCDC Building 4,W18X65,2,0,2
+DOC-199,60 - GCDC Building 4,W18X71,1,0,1
+DOC-199,60 - GCDC Building 4,W18X86,1,0,1
+DOC-199,60 - GCDC Building 4,W18X97,6,0,6
+DOC-199,60 - GCDC Building 4,W21X44,101,0,101
+DOC-199,60 - GCDC Building 4,W21X48,22,0,22
+DOC-199,60 - GCDC Building 4,W21X50,3,0,3
+DOC-199,60 - GCDC Building 4,W21X55,7,0,7
+DOC-199,60 - GCDC Building 4,W21X62,8,0,8
+DOC-199,60 - GCDC Building 4,W21X73,1,0,1
+DOC-199,60 - GCDC Building 4,W24X117,2,0,2
+DOC-199,60 - GCDC Building 4,W24X55,21,0,21
+DOC-199,60 - GCDC Building 4,W24X62,21,0,21
+DOC-199,60 - GCDC Building 4,W24X68,176,0,176
+DOC-199,60 - GCDC Building 4,W24X76,12,0,12
+DOC-199,60 - GCDC Building 4,W24X84,13,0,13
+DOC-199,60 - GCDC Building 4,W24X94,1,0,1
+DOC-199,60 - GCDC Building 4,W27X102,6,0,6
+DOC-199,60 - GCDC Building 4,W27X114,5,0,5
+DOC-199,60 - GCDC Building 4,W27X84,53,0,53
+DOC-199,60 - GCDC Building 4,W27X94,13,0,13
+DOC-199,60 - GCDC Building 4,W30X108,9,0,9
+DOC-199,60 - GCDC Building 4,W30X116,95,0,95
+DOC-199,60 - GCDC Building 4,W30X124,13,0,13
+DOC-199,60 - GCDC Building 4,W30X148,1,0,1
+DOC-199,60 - GCDC Building 4,W30X90,14,0,14
+DOC-199,60 - GCDC Building 4,W30X99,126,0,126
+DOC-199,60 - GCDC Building 4,W33X118,72,0,72
+DOC-199,60 - GCDC Building 4,W33X130,44,0,44
+DOC-199,60 - GCDC Building 4,W33X141,5,0,5
+DOC-199,60 - GCDC Building 4,W33X152,5,0,5
+DOC-199,60 - GCDC Building 4,W33X201,3,0,3
+DOC-199,60 - GCDC Building 4,W36X135,33,0,33
+DOC-199,60 - GCDC Building 4,W36X150,12,0,12
+DOC-199,60 - GCDC Building 4,W36X160,3,0,3
+DOC-199,60 - GCDC Building 4,W36X170,35,0,35
+DOC-199,60 - GCDC Building 4,W36X182,38,0,38
+DOC-199,60 - GCDC Building 4,W36X194,2,0,2
+DOC-199,60 - GCDC Building 4,W36X210,14,0,14
+DOC-199,60 - GCDC Building 4,W36X231,3,0,3
+DOC-199,60 - GCDC Building 4,W36X247,27,0,27
+DOC-199,60 - GCDC Building 4,W36X262,1,0,1
+DOC-199,60 - GCDC Building 4,W36X487,1,0,1
+DOC-199,60 - GCDC Building 4,W40X183,1,0,1
+DOC-199,60 - GCDC Building 4,W8X10,1,0,1
+DOC-200,61 - Ketcham ES,HSS14X10X1/4,2,0,2
+DOC-200,61 - Ketcham ES,L2X2X1/4,1,0,1
+DOC-200,61 - Ketcham ES,L3X3X1/4,1,0,1
+DOC-200,61 - Ketcham ES,L4X3X3/8,1,0,1
+DOC-200,61 - Ketcham ES,L4X4X5/16,2,0,2
+DOC-200,61 - Ketcham ES,L5X3X5/16,1,0,1
+DOC-200,61 - Ketcham ES,W10X15,81,0,81
+DOC-200,61 - Ketcham ES,W10X33,7,0,7
+DOC-200,61 - Ketcham ES,W10X39,3,0,3
+DOC-200,61 - Ketcham ES,W12X14,7,0,7
+DOC-200,61 - Ketcham ES,W12X19,18,0,18
+DOC-200,61 - Ketcham ES,W12X22,10,0,10
+DOC-200,61 - Ketcham ES,W14X22,82,0,82
+DOC-200,61 - Ketcham ES,W16X26,22,0,22
+DOC-200,61 - Ketcham ES,W16X31,60,0,60
+DOC-200,61 - Ketcham ES,W16X36,1,0,1
+DOC-200,61 - Ketcham ES,W18X35,35,0,35
+DOC-200,61 - Ketcham ES,W18X40,4,0,4
+DOC-200,61 - Ketcham ES,W18X46,1,0,1
+DOC-200,61 - Ketcham ES,W21X44,77,0,77
+DOC-200,61 - Ketcham ES,W21X48,4,0,4
+DOC-200,61 - Ketcham ES,W21X55,11,0,11
+DOC-200,61 - Ketcham ES,W24X68,6,0,6
+DOC-200,61 - Ketcham ES,W24X76,2,0,2
+DOC-200,61 - Ketcham ES,W27X84,2,0,2
+DOC-200,61 - Ketcham ES,W30X108,1,0,1
+DOC-200,61 - Ketcham ES,W30X90,3,0,3
+DOC-200,61 - Ketcham ES,W8X15,17,0,17
+DOC-200,61 - Ketcham ES,WT3X4.5,1,0,1
+DOC-201,61 - Ketcham ES,C12X25,2,0,2
+DOC-201,61 - Ketcham ES,C5X9,6,0,6
+DOC-201,61 - Ketcham ES,C8X18.75,3,0,3
+DOC-201,61 - Ketcham ES,HSS12X8X5/8,2,0,2
+DOC-201,61 - Ketcham ES,HSS14X10X1/2,4,0,4
+DOC-201,61 - Ketcham ES,HSS16X12X1/2,7,0,7
+DOC-201,61 - Ketcham ES,HSS4X4X1/4,1,0,1
+DOC-201,61 - Ketcham ES,HSS6X6X1/4,14,0,14
+DOC-201,61 - Ketcham ES,HSS6X6X3/8,6,0,6
+DOC-201,61 - Ketcham ES,HSS6X6X5/16,1,0,1
+DOC-201,61 - Ketcham ES,HSS8X8X1/4,1,0,1
+DOC-201,61 - Ketcham ES,L3X3X1/4,3,0,3
+DOC-201,61 - Ketcham ES,L4X3X3/8,1,0,1
+DOC-201,61 - Ketcham ES,L4X4X1/4,9,0,9
+DOC-201,61 - Ketcham ES,L4X4X5/16,5,0,5
+DOC-201,61 - Ketcham ES,L5X3X1/2,1,0,1
+DOC-201,61 - Ketcham ES,L5X3X5/16,1,0,1
+DOC-201,61 - Ketcham ES,L6X4X3/8,1,0,1
+DOC-201,61 - Ketcham ES,W10X12,29,0,29
+DOC-201,61 - Ketcham ES,W10X15,50,0,50
+DOC-201,61 - Ketcham ES,W10X22,3,0,3
+DOC-201,61 - Ketcham ES,W10X26,14,0,14
+DOC-201,61 - Ketcham ES,W10X33,46,0,46
+DOC-201,61 - Ketcham ES,W10X39,2,0,2
+DOC-201,61 - Ketcham ES,W10X45,4,0,4
+DOC-201,61 - Ketcham ES,W10X49,1,0,1
+DOC-201,61 - Ketcham ES,W10X54,2,0,2
+DOC-201,61 - Ketcham ES,W12X14,28,0,28
+DOC-201,61 - Ketcham ES,W12X19,36,0,36
+DOC-201,61 - Ketcham ES,W14X22,48,0,48
+DOC-201,61 - Ketcham ES,W14X26,2,0,2
+DOC-201,61 - Ketcham ES,W14X30,6,0,6
+DOC-201,61 - Ketcham ES,W16X26,12,0,12
+DOC-201,61 - Ketcham ES,W16X31,59,0,59
+DOC-201,61 - Ketcham ES,W16X36,1,0,1
+DOC-201,61 - Ketcham ES,W18X35,10,0,10
+DOC-201,61 - Ketcham ES,W18X40,9,0,9
+DOC-201,61 - Ketcham ES,W18X46,1,0,1
+DOC-201,61 - Ketcham ES,W18X50,13,0,13
+DOC-201,61 - Ketcham ES,W21X44,69,0,69
+DOC-201,61 - Ketcham ES,W21X48,4,0,4
+DOC-201,61 - Ketcham ES,W21X50,2,0,2
+DOC-201,61 - Ketcham ES,W21X55,4,0,4
+DOC-201,61 - Ketcham ES,W24X55,2,0,2
+DOC-201,61 - Ketcham ES,W24X68,2,0,2
+DOC-201,61 - Ketcham ES,W24X76,3,0,3
+DOC-201,61 - Ketcham ES,W27X84,1,0,1
+DOC-201,61 - Ketcham ES,W30X108,1,0,1
+DOC-201,61 - Ketcham ES,W30X90,1,0,1
+DOC-201,61 - Ketcham ES,W8X10,1,0,1
+DOC-201,61 - Ketcham ES,W8X15,15,0,15
+DOC-202,65 - Hillcrest,HSS5X5X1/4,1,0,1
+DOC-202,65 - Hillcrest,HSS6X6X3/8,1,0,1
+DOC-202,65 - Hillcrest,L3-1/2X3-1/2X1/4,1,0,1
+DOC-202,65 - Hillcrest,L3X3X1/4,2,0,2
+DOC-202,65 - Hillcrest,L4X3X1/4,2,0,2
+DOC-202,65 - Hillcrest,L4X4X1/4,4,0,4
+DOC-202,65 - Hillcrest,L5X3-1/2X3/8,1,0,1
+DOC-202,65 - Hillcrest,W12X14,8,0,8
+DOC-202,65 - Hillcrest,W14X22,4,0,4
+DOC-202,65 - Hillcrest,W16X26,4,0,4
+DOC-202,65 - Hillcrest,W16X31,1,0,1
+DOC-202,65 - Hillcrest,W8X10,2,0,2
+DOC-202,65 - Hillcrest,W8X15,1,0,1
+DOC-202,65 - Hillcrest,W8X18,1,0,1
+DOC-202,65 - Hillcrest,W8X21,1,0,1
