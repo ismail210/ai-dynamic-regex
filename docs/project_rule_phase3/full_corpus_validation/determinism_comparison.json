@@ -1,0 +1,587 @@
+{
+ "differing": {
+  "DOC-001": [
+   ".production.digest"
+  ],
+  "DOC-008": [
+   ".production.digest"
+  ],
+  "DOC-009": [
+   ".production.digest"
+  ],
+  "DOC-010": [
+   ".production.digest"
+  ],
+  "DOC-013": [
+   ".production.digest"
+  ],
+  "DOC-014": [
+   ".production.digest"
+  ],
+  "DOC-018": [
+   ".production.digest"
+  ],
+  "DOC-019": [
+   ".production.digest"
+  ],
+  "DOC-020": [
+   ".production.digest"
+  ],
+  "DOC-021": [
+   ".production.digest"
+  ],
+  "DOC-025": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-026": [
+   ".production.digest"
+  ],
+  "DOC-027": [
+   ".production.digest"
+  ],
+  "DOC-029": [
+   ".production.digest"
+  ],
+  "DOC-030": [
+   ".production.digest"
+  ],
+  "DOC-031": [
+   ".production.digest"
+  ],
+  "DOC-032": [
+   ".production.digest"
+  ],
+  "DOC-033": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-034": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-035": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-036": [
+   ".production.digest"
+  ],
+  "DOC-037": [
+   ".production.digest"
+  ],
+  "DOC-038": [
+   ".production.digest"
+  ],
+  "DOC-039": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-040": [
+   ".production.digest"
+  ],
+  "DOC-041": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-042": [
+   ".production.digest"
+  ],
+  "DOC-043": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-044": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-045": [
+   ".production.digest"
+  ],
+  "DOC-046": [
+   ".production.digest"
+  ],
+  "DOC-047": [
+   ".production.digest"
+  ],
+  "DOC-048": [
+   ".production.digest"
+  ],
+  "DOC-049": [
+   ".production.digest"
+  ],
+  "DOC-050": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-051": [
+   ".production.digest"
+  ],
+  "DOC-052": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-053": [
+   ".production.digest"
+  ],
+  "DOC-054": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-055": [
+   ".production.digest"
+  ],
+  "DOC-056": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-057": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-058": [
+   ".production.digest"
+  ],
+  "DOC-059": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-060": [
+   ".production.digest"
+  ],
+  "DOC-061": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-062": [
+   ".production.digest"
+  ],
+  "DOC-063": [
+   ".production.digest"
+  ],
+  "DOC-064": [
+   ".production.digest"
+  ],
+  "DOC-065": [
+   ".production.digest"
+  ],
+  "DOC-066": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-067": [
+   ".production.digest"
+  ],
+  "DOC-068": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-069": [
+   ".production.digest"
+  ],
+  "DOC-070": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-071": [
+   ".production.digest"
+  ],
+  "DOC-072": [
+   ".production.digest"
+  ],
+  "DOC-073": [
+   ".production.digest"
+  ],
+  "DOC-074": [
+   ".production.digest"
+  ],
+  "DOC-075": [
+   ".production.digest"
+  ],
+  "DOC-076": [
+   ".production.digest"
+  ],
+  "DOC-077": [
+   ".production.digest"
+  ],
+  "DOC-078": [
+   ".production.digest"
+  ],
+  "DOC-079": [
+   ".production.digest"
+  ],
+  "DOC-080": [
+   ".production.digest"
+  ],
+  "DOC-081": [
+   ".production.digest"
+  ],
+  "DOC-082": [
+   ".production.digest"
+  ],
+  "DOC-083": [
+   ".production.digest"
+  ],
+  "DOC-084": [
+   ".production.digest"
+  ],
+  "DOC-085": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-086": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-087": [
+   ".production.digest"
+  ],
+  "DOC-088": [
+   ".production.digest"
+  ],
+  "DOC-089": [
+   ".production.digest"
+  ],
+  "DOC-090": [
+   ".production.digest"
+  ],
+  "DOC-091": [
+   ".production.digest"
+  ],
+  "DOC-092": [
+   ".production.digest"
+  ],
+  "DOC-093": [
+   ".production.digest"
+  ],
+  "DOC-094": [
+   ".production.digest"
+  ],
+  "DOC-095": [
+   ".production.digest"
+  ],
+  "DOC-096": [
+   ".production.digest"
+  ],
+  "DOC-097": [
+   ".production.digest"
+  ],
+  "DOC-098": [
+   ".production.digest"
+  ],
+  "DOC-099": [
+   ".production.digest"
+  ],
+  "DOC-100": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-101": [
+   ".production.digest"
+  ],
+  "DOC-102": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-103": [
+   ".production.digest"
+  ],
+  "DOC-104": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-105": [
+   ".production.digest"
+  ],
+  "DOC-106": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-107": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-108": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-109": [
+   ".production.digest"
+  ],
+  "DOC-110": [
+   ".production.digest"
+  ],
+  "DOC-111": [
+   ".production.digest"
+  ],
+  "DOC-112": [
+   ".production.digest"
+  ],
+  "DOC-113": [
+   ".production.digest"
+  ],
+  "DOC-114": [
+   ".production.digest"
+  ],
+  "DOC-115": [
+   ".production.digest"
+  ],
+  "DOC-116": [
+   ".production.digest"
+  ],
+  "DOC-117": [
+   ".production.digest"
+  ],
+  "DOC-118": [
+   ".production.digest"
+  ],
+  "DOC-119": [
+   ".production.digest"
+  ],
+  "DOC-120": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-121": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-122": [
+   ".production.digest"
+  ],
+  "DOC-123": [
+   ".production.digest"
+  ],
+  "DOC-124": [
+   ".production.digest"
+  ],
+  "DOC-125": [
+   ".production.digest"
+  ],
+  "DOC-126": [
+   ".production.digest"
+  ],
+  "DOC-127": [
+   ".production.digest"
+  ],
+  "DOC-128": [
+   ".production.digest"
+  ],
+  "DOC-129": [
+   ".production.digest"
+  ],
+  "DOC-130": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-131": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-132": [
+   ".production.digest"
+  ],
+  "DOC-133": [
+   ".production.digest"
+  ],
+  "DOC-134": [
+   ".production.digest"
+  ],
+  "DOC-135": [
+   ".production.digest"
+  ],
+  "DOC-136": [
+   ".production.digest"
+  ],
+  "DOC-137": [
+   ".production.digest"
+  ],
+  "DOC-138": [
+   ".production.digest"
+  ],
+  "DOC-139": [
+   ".production.digest"
+  ],
+  "DOC-140": [
+   ".production.digest"
+  ],
+  "DOC-141": [
+   ".production.digest"
+  ],
+  "DOC-142": [
+   ".production.digest"
+  ],
+  "DOC-143": [
+   ".production.digest"
+  ],
+  "DOC-144": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-145": [
+   ".production.digest"
+  ],
+  "DOC-146": [
+   ".production.digest"
+  ],
+  "DOC-147": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-148": [
+   ".production.digest"
+  ],
+  "DOC-149": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-150": [
+   ".production.digest"
+  ],
+  "DOC-155": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-156": [
+   ".production.digest"
+  ],
+  "DOC-159": [
+   ".production.digest"
+  ],
+  "DOC-160": [
+   ".production.digest"
+  ],
+  "DOC-164": [
+   ".production.digest"
+  ],
+  "DOC-165": [
+   ".production.digest"
+  ],
+  "DOC-166": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-168": [
+   ".production.digest"
+  ],
+  "DOC-169": [
+   ".production.digest"
+  ],
+  "DOC-172": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-175": [
+   ".production.digest"
+  ],
+  "DOC-176": [
+   ".production.digest"
+  ],
+  "DOC-177": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-178": [
+   ".production.digest"
+  ],
+  "DOC-179": [
+   ".production.digest"
+  ],
+  "DOC-180": [
+   ".production.digest"
+  ],
+  "DOC-181": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-182": [
+   ".production.digest"
+  ],
+  "DOC-184": [
+   ".production.digest"
+  ],
+  "DOC-185": [
+   ".production.digest"
+  ],
+  "DOC-186": [
+   ".production.digest"
+  ],
+  "DOC-187": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ],
+  "DOC-192": [
+   ".production.digest"
+  ],
+  "DOC-193": [
+   ".production.digest"
+  ],
+  "DOC-194": [
+   ".production.digest"
+  ],
+  "DOC-197": [
+   ".production.digest"
+  ],
+  "DOC-198": [
+   ".production.digest"
+  ],
+  "DOC-200": [
+   ".gates.default_off_production_differences",
+   ".production.digest",
+   ".production.reference_check.equal"
+  ]
+ },
+ "documents_compared": 202,
+ "identical": 39,
+ "normalized_fields": [
+  "built_at",
+  "head_parse_ms",
+  "parse_ms",
+  "prediction_ms",
+  "region_ms",
+  "region_runtime_ms",
+  "summary_llm_latency_ms",
+  "wall_ms",
+  "pdf_parser uuid4 12-hex id bodies (first-appearance order)",
+  "worker logging warnings list (diagnostic only)"
+ ]
+}

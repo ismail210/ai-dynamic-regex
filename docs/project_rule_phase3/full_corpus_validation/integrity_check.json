@@ -1,0 +1,43 @@
+{
+ "run_directories": "local only (outside the repository); outputs not committed",
+ "manifest": {
+  "pdf_references": 205,
+  "unique_pdfs": 202,
+  "excluded_encrypted_or_issue": 0,
+  "workbooks": 18,
+  "pairings": {
+   "confident": 11,
+   "ambiguous": 5
+  }
+ },
+ "run1": {
+  "documents": 202,
+  "status_ok": 202,
+  "doc_id_matches_filename": 202,
+  "with_predictions": 11,
+  "flags_all_false": 202,
+  "provenance": "145 outputs written 2026-09-24 ~02:32 by an earlier pass (earlier harness revision, earlier manifest), 57 by a resume completed 11:07"
+ },
+ "run2": {
+  "documents": 202,
+  "status_ok": 202,
+  "doc_id_matches_filename": 202,
+  "with_predictions": 11,
+  "flags_all_false": 202,
+  "provenance": "single pass completed 2026-09-24 13:23"
+ },
+ "manifest_consistency": "earlier and final manifests have identical doc_id->sha256 mapping and identical GT pairing; only local_path differs (corpus copied to a local folder)",
+ "exit_codes": {
+  "run1": 0,
+  "run2": 0
+ },
+ "flags_recorded": [
+  "schedule_region_quarantine_enabled",
+  "schedule_evidence_shadow_enabled",
+  "schedule_evidence_shadow_widened",
+  "legend_profile_llm_enabled"
+ ],
+ "flags_not_recorded": [
+  "drawing_summary_llm_enabled (production default true; source of digest nondeterminism)"
+ ]
+}

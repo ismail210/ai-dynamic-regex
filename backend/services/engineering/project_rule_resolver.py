@@ -44,6 +44,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 
 from services.database_loader import catalog_form
+from services.engineering import legend_profile
 from services.structural_parser import parse_section
 from services.token_extractor import normalize_engineering_token
 
@@ -58,13 +59,15 @@ DECISION_SOURCE = "verified_project_rule"
 RESOLUTION_METHOD_DETERMINISTIC = "deterministic"
 RESOLUTION_METHOD_LLM_ASSISTED = "llm_assisted"
 
-# Page roles a LABEL_SUBSTITUTION rule may resolve a token on. A context /
-# legend page never produces a takeoff token (context_scope), so this is a
-# second, explicit line of defence.
-_RESOLVABLE_PAGE_ROLES = frozenset({"FRAMING_PLAN", "PLAN", "DETAIL", "SECTION", "SCHEDULE", "UNKNOWN"})
-_CONTEXT_PAGE_ROLES = frozenset(
-    {"GENERAL_NOTES", "STRUCTURAL_NOTES", "LEGEND", "ABBREVIATIONS", "SPECIFICATIONS"}
+# Page roles a LABEL_SUBSTITUTION rule may resolve normally. Context roles
+# retain their direct-call rejection unless the caller explicitly opts into
+# evidence-only identity resolution; the overlay then stamps the occurrence
+# non-countable and non-takeoff-eligible.
+# "DRAWING" is legend_profile's role for every non-context page.
+_RESOLVABLE_PAGE_ROLES = frozenset(
+    {"FRAMING_PLAN", "PLAN", "DETAIL", "SECTION", "SCHEDULE", "DRAWING", "UNKNOWN"}
 )
+_CONTEXT_PAGE_ROLES = frozenset(legend_profile._CONTEXT_PAGE_ROLES)
 
 
 class ResolutionRejected(Exception):
@@ -161,6 +164,7 @@ def resolve_token(
     normalized_token: Optional[str] = None,
     page_role: str = "UNKNOWN",
     takeoff_eligible: bool = True,
+    allow_context_evidence: bool = False,
     abbreviation_rules: List[Dict[str, Any]],
     project_rules: Optional[List[Dict[str, Any]]] = None,
     human_reviewed: bool = False,
@@ -178,6 +182,7 @@ def resolve_token(
             normalized_token=normalized_token,
             page_role=str(page_role or "UNKNOWN").strip().upper(),
             takeoff_eligible=takeoff_eligible,
+            allow_context_evidence=allow_context_evidence,
             abbreviation_rules=abbreviation_rules or [],
             project_rules=project_rules or [],
             human_reviewed=human_reviewed,
@@ -194,6 +199,7 @@ def _resolve(
     normalized_token: Optional[str],
     page_role: str,
     takeoff_eligible: bool,
+    allow_context_evidence: bool,
     abbreviation_rules: List[Dict[str, Any]],
     project_rules: List[Dict[str, Any]],
     human_reviewed: bool,
@@ -221,9 +227,10 @@ def _resolve(
     # and the task's own acceptance criterion for it names this exact page
     # (source page 5) as the expected resolved source -- so this gate must
     # not block it.
-    if page_role in _CONTEXT_PAGE_ROLES:
+    context_evidence = page_role in _CONTEXT_PAGE_ROLES
+    if context_evidence and not allow_context_evidence:
         raise ResolutionRejected("context_page_occurrence")
-    if page_role not in _RESOLVABLE_PAGE_ROLES:
+    if not context_evidence and page_role not in _RESOLVABLE_PAGE_ROLES:
         raise ResolutionRejected("unresolvable_page_role")
 
     # Gate 5: the token itself must parse to a real family.
@@ -305,7 +312,8 @@ def _resolve(
             "rule_type": "LABEL_SUBSTITUTION",
             "decision_source": DECISION_SOURCE,
             "extraction_method": RESOLUTION_METHOD_DETERMINISTIC,
-            "application_policy": "AUTO_ELIGIBLE",
+            "application_policy": "EVIDENCE_ONLY" if context_evidence else "AUTO_ELIGIBLE",
+            **({"context_evidence": True} if context_evidence else {}),
             "source_page": rule.get("source_page"),
             "source_quote": rule.get("source_quote"),
             "lhs": lhs_norm,
@@ -335,7 +343,8 @@ def _resolve(
         "rule_type": "LABEL_SUBSTITUTION",
         "decision_source": DECISION_SOURCE,
         "extraction_method": RESOLUTION_METHOD_LLM_ASSISTED,
-        "application_policy": "AUTO_ELIGIBLE",
+        "application_policy": "EVIDENCE_ONLY" if context_evidence else "AUTO_ELIGIBLE",
+        **({"context_evidence": True} if context_evidence else {}),
         "source_page": llm_rule.get("source_page"),
         "source_quote": llm_rule.get("source_quote"),
         "lhs": token_norm,

@@ -1,0 +1,170 @@
+{
+  "package_version": "2.0",
+  "status": "PENDING_REVIEW",
+  "review_states": [
+    "PENDING_REVIEW",
+    "APPROVED",
+    "CORRECTED",
+    "REJECTED",
+    "UNSURE"
+  ],
+  "review_workflow": {
+    "extraction": {
+      "status_field": "extraction_review_status",
+      "approved_states": [
+        "APPROVED",
+        "CORRECTED"
+      ],
+      "scope": [
+        "schedule_region",
+        "schedule_title_and_type",
+        "location",
+        "level_interval",
+        "raw_cell",
+        "canonical_section",
+        "catalog_validity",
+        "lifecycle"
+      ]
+    },
+    "physical": {
+      "status_field": "physical_review_status",
+      "approved_states": [
+        "APPROVED",
+        "CORRECTED"
+      ],
+      "scope": [
+        "member_extent",
+        "continuation_or_inheritance",
+        "physical_segment_count",
+        "plan_corroboration"
+      ]
+    },
+    "matrix_parser_gate": "All development records require extraction_review_status APPROVED or CORRECTED; physical review may remain UNSURE."
+  },
+  "review_summary": {
+    "records": 262,
+    "extraction": {
+      "PENDING_REVIEW": 262
+    },
+    "physical": {
+      "PENDING_REVIEW": 262
+    },
+    "matrix_parser_unblocked": false
+  },
+  "note": "Prefilled proposals only. Extraction and physical interpretation are independently unapproved until reviewed by a human.",
+  "pdf_root_env": "ESTIMA3D_PROJECT_RULE_ROOT",
+  "held_out_projects": [
+    "Ketcham",
+    "Sidwell"
+  ],
+  "pages": [
+    {
+      "project_id": "Burrville",
+      "document_id": "REAL-Burrville",
+      "page": 28,
+      "role": "development",
+      "template_family": "PerkinsEastman-Yun-S501",
+      "sheet_id": "S-501",
+      "records": 64,
+      "schedules": [
+        "REAL-Burrville-p28-M1",
+        "REAL-Burrville-p28-M2"
+      ],
+      "prefill_file": "REAL-Burrville_p28_prefill.jsonl",
+      "images": [
+        "REAL-Burrville_p28_page.png",
+        "REAL-Burrville_p28_M1_crop.png",
+        "REAL-Burrville_p28_M2_crop.png"
+      ]
+    },
+    {
+      "project_id": "GCDC",
+      "document_id": "REAL-GCDC",
+      "page": 77,
+      "role": "development",
+      "template_family": "Gensler-IMEG-S05",
+      "sheet_id": "S05.01_4",
+      "records": 102,
+      "schedules": [
+        "REAL-GCDC-p77-M1"
+      ],
+      "prefill_file": "REAL-GCDC_p77_prefill.jsonl",
+      "images": [
+        "REAL-GCDC_p77_page.png",
+        "REAL-GCDC_p77_M1_crop.png"
+      ]
+    },
+    {
+      "project_id": "Springhill",
+      "document_id": "REAL-Springhill",
+      "page": 26,
+      "role": "development",
+      "template_family": "PerkinsEastman-Yun-S501",
+      "sheet_id": "S-501",
+      "records": 64,
+      "schedules": [
+        "REAL-Springhill-p26-M1",
+        "REAL-Springhill-p26-M2"
+      ],
+      "prefill_file": "REAL-Springhill_p26_prefill.jsonl",
+      "images": [
+        "REAL-Springhill_p26_page.png",
+        "REAL-Springhill_p26_M1_crop.png",
+        "REAL-Springhill_p26_M2_crop.png"
+      ]
+    },
+    {
+      "project_id": "H5 Herndon",
+      "document_id": "REAL-H5",
+      "page": 7,
+      "role": "exclusion",
+      "template_family": "VSW",
+      "sheet_id": "S-100",
+      "records": 11,
+      "schedules": [
+        "p7-y64-x381"
+      ],
+      "prefill_file": "REAL-H5_p7_prefill.jsonl",
+      "images": [
+        "REAL-H5_p7_page.png",
+        "REAL-H5_p7_x381_crop.png"
+      ]
+    },
+    {
+      "project_id": "H5 Herndon",
+      "document_id": "REAL-H5",
+      "page": 8,
+      "role": "exclusion",
+      "template_family": "VSW",
+      "sheet_id": "S-101",
+      "records": 11,
+      "schedules": [
+        "p8-y64-x381"
+      ],
+      "prefill_file": "REAL-H5_p8_prefill.jsonl",
+      "images": [
+        "REAL-H5_p8_page.png",
+        "REAL-H5_p8_x381_crop.png"
+      ]
+    },
+    {
+      "project_id": "H5 Herndon",
+      "document_id": "REAL-H5",
+      "page": 23,
+      "role": "exclusion",
+      "template_family": "VSW",
+      "sheet_id": "S-800",
+      "records": 10,
+      "schedules": [
+        "p23-y88-x2433",
+        "p23-y184-x1297"
+      ],
+      "prefill_file": "REAL-H5_p23_prefill.jsonl",
+      "images": [
+        "REAL-H5_p23_page.png",
+        "REAL-H5_p23_x2433_crop.png",
+        "REAL-H5_p23_x1297_crop.png"
+      ]
+    }
+  ]
+}

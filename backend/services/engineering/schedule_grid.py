@@ -11,11 +11,15 @@ from __future__ import annotations
 import re
 from typing import Any, Callable, Dict, Iterable, List, Optional
 
+from services.engineering.drawing_intelligence import _DEMO_RE, _EXISTING_RE, _NEW_RE
+from services.engineering.member_geometry import _union_bbox as _union_boxes
 from services.token_extractor import extract_engineering_tokens
 
 
 _MARK_RE = re.compile(r"^(?:L|C)\d+[A-Z]?$", re.IGNORECASE)
 _AUX_MARK_RE = re.compile(r"^(?:BP|CL)\d+[A-Z]?$", re.IGNORECASE)
+# MARK-cell row key for the production grid: bare C/L plus BP/CL.
+_TABLE_MARK_RE = re.compile(r"^(?:BP|CL|L|C)\d+[A-Z]?$", re.IGNORECASE)
 _WITH_PLATE_RE = re.compile(r"\bWITH\s+(BOTTOM|HUNG)\s+PLATE\b", re.IGNORECASE)
 _EMPTY_PLATE_RE = re.compile(r"^(?:[-–—]|N/?A)?$", re.IGNORECASE)
 # Schedule SIZE cells on dense sheets often merge neighboring note text.
@@ -39,8 +43,7 @@ CatalogFn = Callable[[str], bool]
 def is_bare_schedule_mark(text: str) -> bool:
     """True for lintel/column marks such as ``L1``, ``C1``, ``L1A`` — not ``L4X4``."""
 
-    compact = re.sub(r"\s+", "", str(text or "")).upper()
-    return bool(_MARK_RE.fullmatch(compact))
+    return bool(_MARK_RE.fullmatch(_compact_mark(text)))
 
 
 def is_auxiliary_schedule_mark(text: str) -> bool:
@@ -99,15 +102,26 @@ def section_from_size_text(text: str, catalog_fn: CatalogFn) -> Optional[str]:
     return None
 
 
-def schedule_mark_map(grids: Iterable[Dict[str, Any]]) -> Dict[str, str]:
-    """Mark → catalog section. Non-steel SIZE cells (precast, notes) are omitted."""
+def schedule_mark_map(
+    grids: Iterable[Dict[str, Any]], *, drop_conflicts: bool = False
+) -> Dict[str, str]:
+    """Mark → catalog section. Non-steel SIZE cells (precast, notes) are omitted.
 
-    mapping: Dict[str, str] = {}
+    Legacy: a duplicated mark keeps its first row. ``drop_conflicts`` makes a
+    mark with two different sections resolve to nothing, independent of row
+    order (SCHEDULE_MARK_CONFLICT_GUARD_ENABLED).
+    """
+
+    sections: Dict[str, List[str]] = {}
     for grid in grids:
         for row in grid.get("rows") or []:
             if row.get("catalog_valid") and row.get("section") and row.get("mark"):
-                mapping.setdefault(str(row["mark"]).upper(), str(row["section"]))
-    return mapping
+                sections.setdefault(str(row["mark"]).upper(), []).append(str(row["section"]))
+    return {
+        mark: found[0]
+        for mark, found in sections.items()
+        if not (drop_conflicts and len(set(found)) > 1)
+    }
 
 
 def build_schedule_grids(
@@ -155,7 +169,14 @@ def attach_schedule_grid(document: Dict[str, Any]) -> Dict[str, Any]:
         return document
     grids = build_schedule_grids(document.get("words") or [])
     document["schedule_grid"] = grids
-    document["schedule_mark_map"] = schedule_mark_map(grids)
+    document["schedule_mark_map"] = schedule_mark_map(
+        grids, drop_conflicts=settings.schedule_mark_conflict_guard_enabled
+    )
+    if settings.schedule_evidence_shadow_enabled:
+        document["schedule_evidence_shadow"] = build_schedule_evidence(
+            document.get("words") or [],
+            discovery="widened" if settings.schedule_evidence_shadow_widened else "current",
+        )
     return document
 
 
@@ -164,7 +185,7 @@ def resolve_schedule_mark(text: str, document: Optional[Dict[str, Any]]) -> str:
 
     if not document or not is_bare_schedule_mark(text):
         return ""
-    mark = re.sub(r"\s+", "", str(text or "")).upper()
+    mark = _compact_mark(text)
     grid_map = document.get("schedule_mark_map") or {}
     prior = document.get("document_prior") or {}
     prior_map = prior.get("mark_map") or {}
@@ -368,7 +389,7 @@ def _grids_on_page(
         if not bands or "mark" not in bands or "size" not in bands:
             index += 1
             continue
-        kind, plate_role = _schedule_kind(rows, index)
+        kind, plate_role, _ = _schedule_kind(rows, index)
         body: List[dict] = []
         last_y = rows[index]["y"]
         index += 1
@@ -437,18 +458,11 @@ def _header_bands(words: List[dict]) -> Dict[str, float]:
     return bands
 
 
-def _schedule_kind(rows: List[dict], header_index: int) -> tuple:
-    header_y = rows[header_index]["y"]
-    header_labels = " ".join(
-        str(word.get("text") or "") for word in rows[header_index]["words"]
-    ).upper()
-    blob_parts = [header_labels]
-    for row in rows[: header_index + 1]:
-        if header_y - _HEADER_LOOKBACK <= row["y"] <= header_y:
-            blob_parts.append(
-                " ".join(str(word.get("text") or "") for word in row["words"])
-            )
-    blob = " ".join(blob_parts).upper()
+def _schedule_kind(
+    rows: List[dict], header_index: int, span: Optional[tuple] = None
+) -> tuple:
+    blob = _title_blob(rows, header_index, span)
+    header_labels = _text(_in_span(rows[header_index]["words"], span)).upper()
     if "BEARING" in header_labels:
         plate_role = "bearing_plate"
     elif "BASE" in header_labels:
@@ -458,16 +472,37 @@ def _schedule_kind(rows: List[dict], header_index: int) -> tuple:
     # Title phrases before column headers — a lintel table with a BEARING PLATE
     # column must stay kind=lintel, not bearing_plate.
     if re.search(r"BEARING\s+PLATE\s+SCHEDULE", blob):
-        return "bearing_plate", plate_role
+        return "bearing_plate", plate_role, blob
     if "COLUMN" in blob and "LINTEL" not in blob:
-        return "column", plate_role
+        return "column", plate_role, blob
     if "ICF" in blob or "CONCRETE CORE" in blob:
-        return "icf_lintel", plate_role
+        return "icf_lintel", plate_role, blob
     if "LINTEL" in blob:
-        return "lintel", plate_role
+        return "lintel", plate_role, blob
     if "BEARING PLATE" in blob:
-        return "bearing_plate", plate_role
-    return "schedule", plate_role
+        return "bearing_plate", plate_role, blob
+    return "schedule", plate_role, blob
+
+
+def _in_span(words: List[dict], span: Optional[tuple]) -> List[dict]:
+    if span is None:
+        return words
+    left, right = span
+    return [word for word in words if left <= float(word["bbox"][0]) < right]
+
+
+def _title_blob(rows: List[dict], header_index: int, span: Optional[tuple] = None) -> str:
+    """Header row plus rows up to ``_HEADER_LOOKBACK`` above it."""
+
+    def text(row: dict) -> str:
+        return _text(_in_span(row["words"], span))
+
+    header_y = rows[header_index]["y"]
+    parts = [text(rows[header_index])]
+    for row in rows[: header_index + 1]:
+        if header_y - _HEADER_LOOKBACK <= row["y"] <= header_y:
+            parts.append(text(row))
+    return " ".join(parts).upper()
 
 
 def _column_for(x: float, bands: Dict[str, float]) -> str:
@@ -478,6 +513,36 @@ def _column_for(x: float, bands: Dict[str, float]) -> str:
     return chosen
 
 
+def _text(words: Iterable[dict]) -> str:
+    return " ".join(str(word.get("text") or "") for word in words)
+
+
+def _compact_mark(text: Any) -> str:
+    return re.sub(r"\s+", "", str(text or "")).upper()
+
+
+def _split_row(
+    words: List[dict], bands: Dict[str, float], mark_re: "re.Pattern[str]"
+) -> Optional[tuple]:
+    """``(cells, mark_word, size_words)`` in x order, or ``None`` without a mark.
+
+    Leftover MARK-cell words (a SIZE that drifted left) join the SIZE cell.
+    """
+
+    cells: Dict[str, List[dict]] = {name: [] for name in bands}
+    for word in sorted(words, key=lambda word: float(word["bbox"][0])):
+        cells.setdefault(_column_for(float(word["bbox"][0]), bands), []).append(word)
+    mark_cell = cells.get("mark") or []
+    mark_word = next(
+        (word for word in mark_cell if mark_re.fullmatch(_compact_mark(word.get("text")))),
+        None,
+    )
+    if mark_word is None:
+        return None
+    size_words = [word for word in mark_cell if word is not mark_word] + (cells.get("size") or [])
+    return cells, mark_word, size_words
+
+
 def _parse_body_row(
     words: List[dict],
     bands: Dict[str, float],
@@ -485,24 +550,14 @@ def _parse_body_row(
     plate_role: str,
     catalog_fn: CatalogFn,
 ) -> Optional[dict]:
-    cells: Dict[str, List[str]] = {name: [] for name in bands}
-    ordered = sorted(words, key=lambda word: float(word["bbox"][0]))
-    for word in ordered:
-        column = _column_for(float(word["bbox"][0]), bands)
-        cells.setdefault(column, []).append(str(word.get("text") or ""))
-    mark = ""
-    mark_rest: List[str] = []
-    for piece in cells.get("mark") or []:
-        compact = re.sub(r"\s+", "", piece).upper()
-        if not mark and is_schedule_table_mark(compact):
-            mark = compact
-        else:
-            mark_rest.append(piece)
-    if not mark:
+    split = _split_row(words, bands, _TABLE_MARK_RE)
+    if split is None:
         return None
-    size_text = " ".join(mark_rest + (cells.get("size") or [])).strip()
-    plate_text = " ".join(cells.get("plate") or []).strip()
-    row_text = " ".join(str(word.get("text") or "") for word in ordered)
+    cells, mark_word, size_words = split
+    mark = _compact_mark(mark_word.get("text"))
+    size_text = _text(size_words).strip()
+    plate_text = _text(cells.get("plate") or []).strip()
+    row_text = _text(sorted(words, key=lambda word: float(word["bbox"][0])))
     # BP/CL marks store plate/angle SIZE text; only bare L/C marks feed the
     # steel section map via catalog-valid SIZE tokens.
     section = (
@@ -521,3 +576,257 @@ def _parse_body_row(
         "plate_role": plate_role if plate_text else None,
         "member_plate_roles": member_plate_roles(row_text),
     }
+
+
+# --------------------------------------------------------------------------
+# Shadow structured evidence (SCHEDULE_EVIDENCE_SHADOW_ENABLED). Nothing in
+# prediction reads it. Each MARK header column opens its own table segment,
+# so side-by-side schedules (concrete PIER | steel COLUMN) do not bleed into
+# each other. A definition row is evidence, never a physical occurrence.
+# --------------------------------------------------------------------------
+
+SCHEDULE_EVIDENCE_SCHEMA_VERSION = "1.0"
+# Hyphen / multi-letter marks (C-1, LB-1, BP1). Accepted only as the MARK
+# cell of a validated row; the family always comes from the SIZE cell.
+_WIDE_MARK_RE = re.compile(r"^[A-Z]{1,3}-?\d{1,3}[A-Z]?$", re.IGNORECASE)
+_SEGMENT_REACH = 300.0
+# Fabricated-component schedules: no rolled section is expected.
+_COMPONENT_KINDS = frozenset({"bearing_plate"})
+_KIND_ROLES = frozenset({"lintel", "column", "bearing_plate"})
+# Lifecycle only when the schedule title prints it (first match wins).
+# Existing / new / demolition reuse drawing_intelligence's patterns.
+_LIFECYCLE_TITLE_RES = (
+    (_DEMO_RE, "demolition"),
+    (re.compile(r"\bREINF", re.IGNORECASE), "reinforcing"),
+    (_EXISTING_RE, "existing"),
+    (_NEW_RE, "new"),
+)
+
+
+def build_schedule_evidence(
+    words: Iterable[Dict[str, Any]],
+    *,
+    discovery: str = "current",
+    catalog_fn: Optional[CatalogFn] = None,
+) -> Dict[str, Any]:
+    """Structured schedule rows with provenance. ``current`` = legacy marks."""
+
+    mark_re = _WIDE_MARK_RE if discovery == "widened" else _MARK_RE
+    accept = catalog_fn or _catalog_accepts
+    by_page: Dict[Any, List[dict]] = {}
+    for word in words:
+        by_page.setdefault(word.get("page_number", word.get("page", 0)), []).append(word)
+    regions: List[dict] = []
+    records: List[dict] = []
+    rejections: List[dict] = []
+    for page, page_words in by_page.items():
+        if not _page_has_mark_size_headers(page_words):
+            continue
+        rows = _cluster_rows(page_words)
+        for index, row in enumerate(rows):
+            for bands, span in _header_segments(row["words"]):
+                segment = _segment_evidence(rows, index, page, bands, span, mark_re, accept)
+                if segment["records"]:
+                    regions.append(segment["region"])
+                    records.extend(segment["records"])
+                rejections.extend(segment["rejections"])
+    definitions, conflicts = _definitions(records)
+    return {
+        "schema_version": SCHEDULE_EVIDENCE_SCHEMA_VERSION,
+        "discovery": discovery,
+        "regions": regions,
+        "records": records,
+        "rejections": rejections,
+        "definitions": definitions,
+        "conflicts": sorted(conflicts),
+        "mark_map": {d["mark_normalized"]: d["primary_section"] for d in definitions},
+    }
+
+
+def _header_segments(words: List[dict]) -> List[tuple]:
+    """One ``(bands, (left, right))`` per MARK word that has a SIZE to its right."""
+
+    ordered = sorted(words, key=lambda word: float(word["bbox"][0]))
+    marks = [float(w["bbox"][0]) for w in ordered if str(w.get("text") or "").upper() == "MARK"]
+    segments = []
+    for position, mark_x in enumerate(marks):
+        right = marks[position + 1] if position + 1 < len(marks) else float("inf")
+        bands = _header_bands([w for w in ordered if mark_x <= float(w["bbox"][0]) < right])
+        if bands.get("size", mark_x) <= mark_x:
+            continue
+        right = min(right, max(bands.values()) + _SEGMENT_REACH)
+        segments.append((bands, (mark_x - 8.0, right)))
+    return segments
+
+
+def _segment_evidence(rows, header_index, page, bands, span, mark_re, accept) -> dict:
+    kind, plate_role, title = _schedule_kind(rows, header_index, span)
+    region_id = f"p{page}-y{int(rows[header_index]['y'])}-x{int(span[0])}"
+    region_words = list(_in_span(rows[header_index]["words"], span))
+    records: List[dict] = []
+    rejections: List[dict] = []
+    last_y = rows[header_index]["y"]
+    for row in rows[header_index + 1:]:
+        if row["y"] - last_y > _ROW_GAP:
+            break
+        cell_words = _in_span(row["words"], span)
+        if not cell_words:
+            continue
+        if "MARK" in {str(w.get("text") or "").upper() for w in cell_words}:
+            break
+        last_y = row["y"]
+        region_words.extend(cell_words)
+        record = _evidence_row(cell_words, bands, kind, plate_role, title, mark_re, accept)
+        if record is None:
+            rejections.append({
+                "page_number": page,
+                "region_id": region_id,
+                "text": _text(cell_words),
+                "reason": "mark_not_recognized",
+            })
+            continue
+        records.append(record)
+    region_bbox = _union_bbox(region_words)
+    for record in records:
+        record.update({
+            "schema_version": SCHEDULE_EVIDENCE_SCHEMA_VERSION,
+            "page_number": page,
+            "region_id": region_id,
+            "region_bbox": region_bbox,
+        })
+    return {
+        "region": {
+            "region_id": region_id,
+            "page_number": page,
+            "kind": kind,
+            "region_bbox": region_bbox,
+            "header_bands": dict(bands),
+        },
+        "records": records,
+        "rejections": rejections,
+    }
+
+
+def _evidence_row(words, bands, kind, plate_role, title, mark_re, accept) -> Optional[dict]:
+    split = _split_row(words, bands, mark_re)
+    if split is None:
+        return None
+    cells, mark_word, size_words = split
+    mark_raw = str(mark_word.get("text") or "")
+    size_text = _text(size_words).strip()
+    plate_text = _text(cells.get("plate") or []).strip()
+    row_text = _text(words)
+    # SIZE cell only: unlike the legacy row, never fall back to the whole row.
+    section = section_from_size_text(size_text, accept) if size_text else None
+    roles = ([kind] if kind in _KIND_ROLES else []) + member_plate_roles(row_text)
+    components = []
+    if plate_text:
+        roles.append(plate_role)
+        components.append({"role": plate_role, "text": plate_text, "quantity": None})
+    if kind in _COMPONENT_KINDS and size_text:
+        components.append({"role": kind, "text": size_text, "quantity": None})
+    lifecycle = _lifecycle(title)
+    # A reinforcing schedule's SIZE cell names the host member, not the
+    # mark's identity (H5 RI-1).
+    if lifecycle == "reinforcing":
+        status, reason, section = "rejected", "host_member_schedule", None
+    elif kind in _COMPONENT_KINDS and not section:
+        status, reason = "rejected", "component_schedule"
+    elif not section:
+        status, reason = "rejected", "size_not_catalog_valid"
+    else:
+        status, reason = "resolved", None
+    return {
+        "mark_raw": mark_raw,
+        "mark_normalized": _compact_mark(mark_raw),
+        "size_text_raw": size_text,
+        "primary_section": section,
+        "catalog_valid": bool(section),
+        "role_tags": list(dict.fromkeys(roles)),
+        "components": components,
+        "row_bbox": _union_bbox(words),
+        "source_cells": [
+            {
+                "column": name,
+                "text": _text(cell),
+                "bbox": _union_bbox(cell),
+            }
+            for name, cell in cells.items()
+            if cell
+        ],
+        "countable_occurrence": False,
+        "resolution_status": status,
+        "rejection_reason": reason,
+        "lifecycle_status": lifecycle,
+    }
+
+
+def _lifecycle(title: str) -> str:
+    """Lifecycle printed in the schedule title; never inferred otherwise."""
+
+    for pattern, status in _LIFECYCLE_TITLE_RES:
+        if pattern.search(title):
+            return status
+    return "unknown"
+
+
+def _definitions(records: List[dict]) -> tuple:
+    """Group resolved rows by mark, independent of row order.
+
+    Same section + lifecycle -> one definition keeping every source row;
+    different section or lifecycle -> every such row becomes a conflict and
+    the mark resolves to nothing. Same section with different component text
+    keeps the section (contracts carry the section only) but is flagged for
+    review rather than silently picking one component.
+    """
+
+    by_mark: Dict[str, List[dict]] = {}
+    for record in records:
+        if record["resolution_status"] == "resolved":
+            by_mark.setdefault(record["mark_normalized"], []).append(record)
+    definitions: List[dict] = []
+    conflicts = set()
+    for mark in sorted(by_mark):
+        rows = by_mark[mark]
+        if len({r["primary_section"] for r in rows}) > 1:
+            reason = "conflicting_duplicate_mark"
+        elif len({r["lifecycle_status"] for r in rows}) > 1:
+            reason = "conflicting_lifecycle"
+        else:
+            reason = None
+        if reason:
+            conflicts.add(mark)
+            for row in rows:
+                row["resolution_status"] = "conflict"
+                row["rejection_reason"] = reason
+            continue
+        components = sorted(
+            {(c["role"], c["text"]) for r in rows for c in r["components"]}
+        )
+        component_sets = {
+            tuple(sorted((c["role"], c["text"]) for c in r["components"])) for r in rows
+        }
+        attribute_conflicts = ["components"] if len(component_sets) > 1 else []
+        definitions.append({
+            "duplicate_group_id": f"{mark}|{rows[0]['primary_section']}|{rows[0]['lifecycle_status']}",
+            "mark_normalized": mark,
+            "primary_section": rows[0]["primary_section"],
+            "lifecycle_status": rows[0]["lifecycle_status"],
+            "role_tags": sorted({tag for r in rows for tag in r["role_tags"]}),
+            "components": [{"role": role, "text": text, "quantity": None} for role, text in components],
+            "attribute_conflicts": attribute_conflicts,
+            "review_required": bool(attribute_conflicts),
+            "countable_occurrence": False,
+            "sources": sorted(
+                (
+                    {"page_number": r["page_number"], "region_id": r["region_id"], "row_bbox": r["row_bbox"]}
+                    for r in rows
+                ),
+                key=lambda s: (str(s["page_number"]), s["region_id"], s["row_bbox"] or []),
+            ),
+        })
+    return definitions, conflicts
+
+
+def _union_bbox(words: Iterable[dict]) -> Optional[List[float]]:
+    return _union_boxes([word.get("bbox") or [] for word in words])

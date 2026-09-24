@@ -437,6 +437,21 @@ class MarkResolutionTests(unittest.TestCase):
         self.assertTrue(result.get("takeoff_eligible"))
         self.assertEqual(result.get("prediction_source"), "Annotation")
 
+    def test_unresolved_noisy_marks_create_no_section_or_quantity(self) -> None:
+        from services.exact_section_predictor import catalog_valid_exact_section
+        from services.takeoff.quantity_engine import quantity_engine
+
+        document = {"schedule_grid": [], "schedule_mark_map": {}}
+        predictions = []
+        # Noise seen on real sheets (Burrville / Ketcham / Struct).
+        for text in ("C216,", "C 172,", "C90.", "C216", "BP4,", "BP9", "CL7"):
+            with self.subTest(text=text):
+                result, _exact = self._predict(text, document, "C12X20")
+                self.assertIsNone(catalog_valid_exact_section(result.get("section") or ""))
+                predictions.append(result)
+        report = quantity_engine.count(predictions)
+        self.assertEqual(sum(r.physical_quantity for r in report.results), 0)
+
 
 class PageRelevanceTests(unittest.TestCase):
     def test_bare_marks_are_not_steel_page_hits(self) -> None:

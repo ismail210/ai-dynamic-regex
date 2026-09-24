@@ -194,10 +194,32 @@ def load_cached_extraction(document_id: str) -> Optional[Dict[str, Any]]:
     }
 
 
+def _occurrence_page_role(
+    prediction: Dict[str, Any], legend_profile: Optional[Dict[str, Any]]
+) -> str:
+    """Page role of this occurrence from the legend profile's own
+    ``context_pages`` (the page-role source of truth): the context role, or
+    ``DRAWING`` for any other page. ``UNKNOWN`` only when the page or the
+    classification is genuinely missing, or PROJECT_RULE_PAGE_ROLE_ENABLED
+    is off (legacy behaviour)."""
+
+    from config import settings
+
+    if not settings.project_rule_page_role_enabled:
+        return "UNKNOWN"
+    context_pages = (legend_profile or {}).get("context_pages")
+    page = (prediction.get("source_text") or {}).get("page_number") or prediction.get("page_number")
+    if not isinstance(context_pages, dict) or page in (None, ""):
+        return "UNKNOWN"
+    return str(context_pages.get(str(page)) or "DRAWING")
+
+
 def _apply_project_rule_resolution(
     predictions: list[Dict[str, Any]],
     legend_profile: Optional[Dict[str, Any]],
     reviewed_ids: set,
+    *,
+    document_id: Optional[str] = None,
 ) -> tuple[list[Dict[str, Any]], list[Dict[str, Any]]]:
     """Overlay verified LABEL_SUBSTITUTION rules from the project legend
     (services.engineering.project_rule_resolver) onto served predictions:
@@ -215,7 +237,17 @@ def _apply_project_rule_resolution(
     if not abbreviation_rules:
         return predictions, []
 
+    from config import settings
+    from services.engineering.context_scope import OBJECT_SCOPE_CONTEXT_DEFINITION
     from services.engineering.project_rule_resolver import resolve_token
+
+    page_role_enabled = settings.project_rule_page_role_enabled
+    profile_document_id = str(
+        document_id
+        or (legend_profile or {}).get("source_document_id")
+        or (legend_profile or {}).get("document_id")
+        or ""
+    )
 
     applied: list[Dict[str, Any]] = []
     out: list[Dict[str, Any]] = []
@@ -229,11 +261,40 @@ def _apply_project_rule_resolution(
             out.append(prediction)
             continue
 
+        source_text_document_id = (
+            source_text.get("document_id") if isinstance(source_text, dict) else None
+        )
+        occurrence_document_id = str(
+            prediction.get("document_id") or source_text_document_id or profile_document_id
+        )
+        # This profile belongs to ``document_id``. An occurrence that
+        # explicitly names another document must not consume its rules.
+        # Keep the guard behind the feature flag so default-off output is
+        # byte-identical to the frozen Phase 1 path.
+        if (
+            page_role_enabled
+            and profile_document_id
+            and occurrence_document_id
+            and occurrence_document_id != profile_document_id
+        ):
+            out.append(prediction)
+            continue
+
+        page_role = _occurrence_page_role(prediction, legend_profile)
+        is_context_evidence = page_role in {
+            "GENERAL_NOTES",
+            "STRUCTURAL_NOTES",
+            "LEGEND",
+            "ABBREVIATIONS",
+            "SPECIFICATIONS",
+        }
+
         decision = resolve_token(
             raw_token=raw,
             normalized_token=str(source_text.get("normalized") or ""),
-            page_role="UNKNOWN",
+            page_role=page_role,
             takeoff_eligible=prediction.get("takeoff_eligible", True) is not False,
+            allow_context_evidence=page_role_enabled and is_context_evidence,
             abbreviation_rules=abbreviation_rules,
             project_rules=project_rules,
             human_reviewed=object_id in reviewed_ids,
@@ -249,6 +310,49 @@ def _apply_project_rule_resolution(
         resolved["needs_review"] = False
         resolved["review_reason"] = None
         resolved["project_rule_resolution"] = decision
+        if page_role_enabled:
+            import hashlib
+
+            occurrence_page = source_text.get("page_number") or prediction.get("page_number")
+            occurrence_bbox = (
+                source_text.get("bounding_box")
+                or source_text.get("bbox")
+                or prediction.get("bounding_box")
+                or prediction.get("bbox")
+            )
+            evidence_basis = "|".join(
+                str(value or "")
+                for value in (
+                    profile_document_id,
+                    decision.get("source_page"),
+                    decision.get("lhs"),
+                    decision.get("rhs"),
+                    decision.get("source_quote"),
+                )
+            )
+            evidence_id = decision.get("rule_id") or (
+                "project-rule-"
+                + hashlib.sha256(evidence_basis.encode("utf-8")).hexdigest()[:16]
+            )
+            decision.update(
+                {
+                    "rule_id": evidence_id,
+                    "evidence_id": evidence_id,
+                    "source_document_id": profile_document_id or occurrence_document_id or None,
+                    "source_document_hash": (legend_profile or {}).get("source_document_hash"),
+                    "occurrence_document_id": occurrence_document_id or None,
+                    "occurrence_page": occurrence_page,
+                    "occurrence_bbox": occurrence_bbox,
+                    "occurrence_row_bbox": prediction.get("row_bbox"),
+                    "occurrence_page_role": page_role,
+                }
+            )
+        if is_context_evidence:
+            resolved["object_scope"] = OBJECT_SCOPE_CONTEXT_DEFINITION
+            resolved["occurrence_scope"] = OBJECT_SCOPE_CONTEXT_DEFINITION
+            resolved["countable_occurrence"] = False
+            resolved["takeoff_eligible"] = False
+            resolved["_skip_unknown_queue"] = True
         # Clear stale missing-thickness/ambiguity state left by
         # enrich_missing_thickness_hss_predictions (which runs first): a
         # verified project rule resolves the ambiguity completely, so a
@@ -446,6 +550,7 @@ def load_cached_analysis(document_id: str) -> Optional[Dict[str, Any]]:
         enrich_missing_thickness_hss_predictions(prediction_view.get("predictions") or []),
         (extraction or {}).get("legend_profile"),
         reviewed_ids,
+        document_id=document_id,
     )
     predictions = _apply_human_selections(document_id, predictions)
     validation = _sync_validation_with_rule_resolutions(
@@ -628,7 +733,10 @@ def run_analysis_stage(
         )
         reviewed_ids = set(get_human_selection_entries(document_id).keys())
         served, rule_resolutions = _apply_project_rule_resolution(
-            served, (document or {}).get("legend_profile"), reviewed_ids
+            served,
+            (document or {}).get("legend_profile"),
+            reviewed_ids,
+            document_id=document_id,
         )
         # status_tags was computed inside analysis_response() above, BEFORE
         # project-rule resolution ran -- a resolved row's tags must reflect

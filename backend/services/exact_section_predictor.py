@@ -28,6 +28,7 @@ from config import settings
 from services.data_augmentation import generate_variants_for_token
 from services.database_loader import catalog_form, df, lookup_shape
 from services.family_codes import MODERN_FAMILY_ALTERNATION
+from services.token_extractor import QUANTITY_PREFIX_RE
 
 
 _LOCK = threading.RLock()
@@ -139,6 +140,14 @@ def resolve_trusted_explicit_section(raw_source_text: object) -> Optional[str]:
     text = str(raw_source_text or "").strip()
     if not text:
         return None
+    if settings.quantity_prefix_guard_enabled:
+        # A separated leading count ("2 L4X4X1/2", "(2) L4X4X1/2") is a
+        # quantity, not part of the section; "2-L4X4X1/2" is ambiguous.
+        quantity = QUANTITY_PREFIX_RE.match(text)
+        if quantity:
+            if "-" in quantity.group(0):
+                return None
+            text = text[quantity.end():]
     direct = catalog_valid_exact_section(text)
     if direct:
         return direct

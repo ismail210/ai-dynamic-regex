@@ -1,0 +1,327 @@
+{
+ "purpose": "Separate true default-off production differences from Drawing Summary LLM prose nondeterminism.",
+ "method": "Per sampled PDF, in a fresh subprocess with DRAWING_SUMMARY_LLM_ENABLED=false and SCHEDULE_REGION_QUARANTINE_ENABLED default (false): extract with the working-tree engine twice and with the 30bc54d (pre-quarantine) extraction_engine once, each from a cold legend cache; compare the harness digest() of the full document.",
+ "sample_selection": {
+  "reference_flipped_between_runs": 40,
+  "flip_docs_sampled": 40,
+  "unequal_in_both_runs_smallest": 15,
+  "equal_in_both_runs_smallest": 5,
+  "total": 60
+ },
+ "results": {
+  "current_deterministic": 60,
+  "default_off_equal_to_reference": 60,
+  "total": 60
+ },
+ "root_cause_probe": {
+  "doc": "DOC-169",
+  "llm_enabled_extractions": 3,
+  "distinct_digests": 2,
+  "only_differing_paths": [
+   "legend_profile.drawing_intelligence.narrative.{project_overview,schedules,scope_revision,steel_system,structural_content,typical_conditions}",
+   "legend_profile.drawing_intelligence.overview"
+  ]
+ },
+ "per_document": [
+  {
+   "doc_id": "DOC-025",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-030",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-031",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-032",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-033",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-034",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-035",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-038",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-039",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-040",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-041",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-043",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-044",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-046",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-050",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-052",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-054",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-056",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-057",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-058",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-059",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-060",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-061",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-062",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-063",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-065",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-066",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-068",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-070",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-085",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-086",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-100",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-101",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-102",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-103",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-104",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-105",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-106",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-107",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-108",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-120",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-121",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-129",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-130",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-131",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-132",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-143",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-144",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-145",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-146",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-147",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-148",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-149",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-155",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-166",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-172",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-177",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-181",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-187",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  },
+  {
+   "doc_id": "DOC-200",
+   "current_deterministic": true,
+   "default_off_equal_to_reference": true
+  }
+ ]
+}
