@@ -50,6 +50,24 @@ def _strip_outer_brackets(text: str) -> str:
     return raw
 
 
+def _exact_beside_schedule_mark(left_text: str, right_text: str) -> bool:
+    """A catalog-exact section next to a BP/CL/C/L mark (``W14x90`` / ``BP3``).
+
+    Joining them destroys the locked exact label, so they never merge.
+    """
+
+    from services.engineering.schedule_grid import is_schedule_table_mark
+    from services.exact_section_predictor import catalog_valid_exact_section
+
+    def mark(text: str) -> bool:
+        return is_schedule_table_mark(re.sub(r"[,.;:]+$", "", text))
+
+    return bool(
+        (mark(right_text) and catalog_valid_exact_section(left_text))
+        or (mark(left_text) and catalog_valid_exact_section(right_text))
+    )
+
+
 def _compatible(
     left: Dict[str, Any],
     right: Dict[str, Any],
@@ -93,7 +111,7 @@ def _compatible(
     right_font = as_float(right.get("font_size"))
     if left_font and right_font and abs(left_font - right_font) > 3.0:
         return False
-    return True
+    return not _exact_beside_schedule_mark(lt, rt)
 
 
 def group_annotation_fragments(
