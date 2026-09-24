@@ -134,7 +134,16 @@ class Settings:
     approved_dataset_path: Path = BASE_DIR / "training" / "approved_dataset.csv"
     unknown_tokens_path: Path = BASE_DIR / "training" / "unknown_tokens.csv"
     history_path: Path = BASE_DIR / "training" / "history.csv"
-    upload_log_path: Path = BASE_DIR / "training" / "upload_log.csv"
+    # Override for disposable E2E / deploy-prep uploads so a live run does
+    # not append to the preserved training upload log.
+    upload_log_path: Path = field(
+        default_factory=lambda: Path(
+            os.getenv(
+                "UPLOAD_LOG_PATH",
+                str(BASE_DIR / "training" / "upload_log.csv"),
+            )
+        )
+    )
     # Synthetic naming variants for classifier training only (not regex KB).
     augmented_dataset_path: Path = BASE_DIR / "training" / "augmented_dataset.csv"
     augmentation_enabled: bool = True
@@ -404,7 +413,16 @@ class Settings:
         BASE_DIR / "training" / "human_selections.json"
     )
     engineering_uploads_dir: Path = BASE_DIR / "uploads" / "engineering"
-    document_registry_dir: Path = BASE_DIR / "training" / "documents"
+    # Override for disposable E2E / deploy-prep uploads so document JSON
+    # writes land outside the preserved training/documents tree.
+    document_registry_dir: Path = field(
+        default_factory=lambda: Path(
+            os.getenv(
+                "DOCUMENT_REGISTRY_DIR",
+                str(BASE_DIR / "training" / "documents"),
+            )
+        )
+    )
 
     # Analysis artifacts are regenerable caches. Cap how many documents are
     # retained and refuse to write when the volume is nearly full, so a large

@@ -111,6 +111,13 @@ def is_non_steel_layout_dimension(text: str) -> bool:
 def is_non_steel_layout_token(token: dict) -> bool:
     """True when a token record should be dropped from steel takeoff."""
 
+    normalized = _compact(token.get("normalized_text") or token.get("text") or "")
+    # Schedule marks (C1, L1, BP1, CL2) are never layout dimensions. Do not
+    # drop them because a polluted line/block context elsewhere on the sheet
+    # contains footing feet-inch text.
+    if re.fullmatch(r"(?:BP|CL|L|C)\d+[A-Z]?", normalized or ""):
+        return False
+
     parts = (
         token.get("raw_text"),
         token.get("text"),
@@ -122,13 +129,11 @@ def is_non_steel_layout_token(token: dict) -> bool:
     if is_feet_inch_layout_dimension(combined):
         return True
     if contains_feet_inch_notation(combined):
-        normalized = _compact(token.get("normalized_text") or token.get("text") or "")
         if re.fullmatch(r'\d{1,2}"?', normalized) or re.fullmatch(
             r"\d{1,2}", normalized
         ):
             return True
 
-    normalized = _compact(token.get("normalized_text") or token.get("text") or "")
     return is_non_steel_layout_dimension(normalized)
 
 

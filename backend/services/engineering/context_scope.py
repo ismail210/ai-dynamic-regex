@@ -285,6 +285,48 @@ def context_definition_pages(document: Dict[str, Any]) -> set[int]:
     return pages
 
 
+def _keep_schedule_mark_as_takeoff(
+    item: Dict[str, Any], document: Dict[str, Any], page: int
+) -> bool:
+    """Plan callouts of schedule marks stay takeoff even on mis-tagged pages.
+
+    Schedule *table* rows for rolled C/L marks live on ``schedule_grid`` pages
+    and remain demoted. Bare marks resolved by this document's mark map on
+    other pages are member instances (e.g. Struct C6 on framing sheets tagged
+    LEGEND).
+
+    BP/CL marks with a printable SIZE are takeoff/BOM candidates on any page
+    (including the schedule sheet) so they appear in Results; QuantityEngine
+    still keeps schedule-table rows at qty 0 via ``schedule_member``.
+    """
+
+    from services.engineering.schedule_grid import (
+        is_auxiliary_schedule_mark,
+        is_bare_schedule_mark,
+        lookup_schedule_row,
+        resolve_auxiliary_schedule_mark,
+        resolve_schedule_mark,
+        schedule_grid_pages,
+    )
+
+    text = str(
+        item.get("original_token")
+        or item.get("raw_text")
+        or item.get("text")
+        or item.get("normalized_text")
+        or item.get("token")
+        or ""
+    )
+    if is_auxiliary_schedule_mark(text):
+        aux = resolve_auxiliary_schedule_mark(text, document)
+        return bool(aux) and not aux.get("abstain")
+    if not is_bare_schedule_mark(text):
+        return False
+    if not resolve_schedule_mark(text, document):
+        return False
+    return page not in schedule_grid_pages(document)
+
+
 def annotate_takeoff_scope(document: Dict[str, Any]) -> Dict[str, Any]:
     """Tag ``document["engineering_tokens"]`` in place. Returns a small
     diagnostic count dict."""
@@ -296,6 +338,7 @@ def annotate_takeoff_scope(document: Dict[str, Any]) -> Dict[str, Any]:
     context_demoted = 0
     detail_demoted = 0
     clip_demoted = 0
+    schedule_mark_kept = 0
     for token in tokens:
         try:
             page = int(token.get("page") or 0)
@@ -308,12 +351,17 @@ def annotate_takeoff_scope(document: Dict[str, Any]) -> Dict[str, Any]:
             token.setdefault("object_scope", OBJECT_SCOPE_TAKEOFF)
             token["takeoff_eligible"] = True
         elif page and page in context_pages:
-            token["object_scope"] = OBJECT_SCOPE_CONTEXT_DEFINITION
-            token["takeoff_eligible"] = False
-            # Existing pipeline hook: keep these out of the unknown-token
-            # review queue (see multimodal/pipeline.py).
-            token["_skip_unknown_queue"] = True
-            context_demoted += 1
+            if _keep_schedule_mark_as_takeoff(token, document, page):
+                token["object_scope"] = OBJECT_SCOPE_TAKEOFF
+                token["takeoff_eligible"] = True
+                schedule_mark_kept += 1
+            else:
+                token["object_scope"] = OBJECT_SCOPE_CONTEXT_DEFINITION
+                token["takeoff_eligible"] = False
+                # Existing pipeline hook: keep these out of the unknown-token
+                # review queue (see multimodal/pipeline.py).
+                token["_skip_unknown_queue"] = True
+                context_demoted += 1
         elif page and page in detail_pages:
             _demote_as_detail_reference(token)
             detail_demoted += 1
@@ -331,6 +379,7 @@ def annotate_takeoff_scope(document: Dict[str, Any]) -> Dict[str, Any]:
         "typical_detail_pages": sorted(detail_pages),
         "detail_reference_tokens": detail_demoted + clip_demoted,
         "clip_fabrication_tokens": clip_demoted,
+        "schedule_mark_takeoff_kept": schedule_mark_kept,
         "takeoff_tokens": len(tokens) - demoted,
         # Framing/schedule pages that carried a note/legend keyword but were
         # kept takeoff-eligible because they are dense with real steel
@@ -379,6 +428,10 @@ def reassert_prediction_scope(
             continue
         page = _prediction_page(prediction)
         if page in context_pages:
+            if _keep_schedule_mark_as_takeoff(prediction, document, page):
+                prediction["object_scope"] = OBJECT_SCOPE_TAKEOFF
+                prediction["takeoff_eligible"] = True
+                continue
             prediction["object_scope"] = OBJECT_SCOPE_CONTEXT_DEFINITION
             prediction["takeoff_eligible"] = False
             demoted += 1

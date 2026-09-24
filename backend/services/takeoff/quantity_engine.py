@@ -17,7 +17,16 @@ from services.engineering.context_scope import partition_takeoff
 from services.engineering.repeated_detail_linker import is_repeated_detail_member
 from services.prediction.contract import confidence_overall
 
-LABELED_PREDICTION_SOURCES = frozenset({"FUSION", "CORRECTION", "ANNOTATION"})
+LABELED_PREDICTION_SOURCES = frozenset(
+    {
+        "FUSION",
+        "CORRECTION",
+        "ANNOTATION",
+        # Plan callouts whose section came from this document's MARK|SIZE map.
+        # Schedule *table* cells still use METHOD_SCHEDULE_CELL and stay at qty 0.
+        "SCHEDULE MARK MAP",
+    }
+)
 
 METHOD_LABELED_CALLOUT = "labeled_callout"
 METHOD_SCHEDULE_CELL = "schedule_cell"
@@ -194,6 +203,7 @@ class QuantityEngine:
             "geometry_inference": 0,
             "excluded_geometry_duplicates": 0,
             "excluded_schedule_duplicates": 0,
+            "excluded_schedule_only": 0,
             "invalid_or_missing_section": 0,
             "unlabeled_source": 0,
         }
@@ -204,8 +214,12 @@ class QuantityEngine:
             if _is_labeled_candidate(prediction)
             and normalized_section(prediction)
         }
-        callout_keys = {
-            (_page_number(prediction), normalized_section(prediction))
+        # Non-schedule labeled callouts (Fusion / Correction / Annotation with
+        # plan/extraction evidence). Schedule cells never count as physical
+        # occurrences by themselves — they only suppress as duplicates when a
+        # real callout for the same section already exists.
+        callout_sections = {
+            normalized_section(prediction)
             for prediction in eligible
             if _is_labeled_candidate(prediction)
             and normalized_section(prediction)
@@ -240,11 +254,13 @@ class QuantityEngine:
                 continue
 
             method = _explicit_method(prediction)
-            key = (_page_number(prediction), section)
-            if method == METHOD_SCHEDULE_CELL and key in callout_keys:
-                name = "excluded_schedule_duplicates"
-                excluded[name] += 1
+            if method == METHOD_SCHEDULE_CELL:
                 section_excluded = per_section_excluded.setdefault(section, {})
+                if section in callout_sections:
+                    name = "excluded_schedule_duplicates"
+                else:
+                    name = "excluded_schedule_only"
+                excluded[name] += 1
                 section_excluded[name] = section_excluded.get(name, 0) + 1
                 continue
 

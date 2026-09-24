@@ -14,6 +14,8 @@ from services.annotation.taxonomy import AnnotationType
 from services.engineering.schedule_grid import (
     build_schedule_grids,
     is_bare_schedule_mark,
+    lookup_schedule_row,
+    schedule_assembly_sidecar,
     schedule_mark_map,
 )
 from services.engineering.shadow_page_gate import (
@@ -202,6 +204,94 @@ class ScheduleGridTests(unittest.TestCase):
         self.assertEqual(rows["L1"]["member_plate_roles"], ["bottom_plate"])
         self.assertEqual(rows["L1"]["plate_role"], "bearing_plate")
         self.assertFalse(rows["L5"]["catalog_valid"])
+        assembly = schedule_assembly_sidecar(
+            "L1",
+            {"schedule_grid": grids},
+        )
+        self.assertEqual(assembly["primary_section"], "W8X21")
+        self.assertEqual(assembly["plate_count_per_member"], 2)
+        self.assertIn("6", assembly["plate_text"] or "")
+        self.assertFalse(
+            lookup_schedule_row("L5", {"schedule_grid": grids})["catalog_valid"]
+        )
+
+    def test_bearing_plate_and_icf_marks_parse_without_steel_map(self) -> None:
+        words = [
+            _word("BEARING", 100, 100),
+            _word("PLATE", 160, 100),
+            _word("SCHEDULE", 220, 100),
+            _word("MARK", 100, 116),
+            _word("SIZE", 200, 116),
+            _word("BP1", 100, 134),
+            _word('4"x6"x3/4"', 200, 134),
+            _word("ICF", 100, 300),
+            _word("LINTEL", 140, 300),
+            _word("SCHEDULE", 200, 300),
+            _word("MARK", 100, 316),
+            _word("SIZE", 200, 316),
+            _word("CL2", 100, 334),
+            _word('5"x5"x3/8"', 200, 334),
+        ]
+        grids = build_schedule_grids(words, catalog_fn=_accept_catalog)
+        kinds = {grid["kind"] for grid in grids}
+        self.assertIn("bearing_plate", kinds)
+        self.assertIn("icf_lintel", kinds)
+        marks = {row["mark"] for grid in grids for row in grid["rows"]}
+        self.assertIn("BP1", marks)
+        self.assertIn("CL2", marks)
+        # Auxiliary marks must not invent steel sections into the mark map.
+        self.assertEqual(schedule_mark_map(grids), {})
+
+    def test_polluted_auxiliary_size_cleans_to_plate_or_angle(self) -> None:
+        from services.engineering.schedule_grid import resolve_auxiliary_schedule_mark
+
+        document = {
+            "schedule_grid": [
+                {
+                    "kind": "bearing_plate",
+                    "page": 2,
+                    "rows": [
+                        {
+                            "mark": "BP5",
+                            "size_text": 'SI - DENOTES SPECIAL INSPECTOR 6"x10"x1"',
+                            "plate_text": 'SI - DENOTES SPECIAL INSPECTOR 6"x10"x1"',
+                            "plate_role": "bearing_plate",
+                        }
+                    ],
+                },
+                {
+                    "kind": "icf_lintel",
+                    "page": 2,
+                    "rows": [
+                        {
+                            "mark": "CL2",
+                            "size_text": (
+                                'STANDARD WALL WITH 2-#5 AT HEAD '
+                                'CONTINUOUS ANGLE 5"x5"x3/8"'
+                            ),
+                            "plate_text": (
+                                'STANDARD WALL WITH 2-#5 AT HEAD '
+                                'CONTINUOUS ANGLE 5"x5"x3/8"'
+                            ),
+                            "plate_role": "plate",
+                        }
+                    ],
+                },
+            ]
+        }
+        bp = resolve_auxiliary_schedule_mark("BP5", document)
+        self.assertFalse(bp.get("abstain"))
+        self.assertEqual(bp.get("plate_type"), "PLATE")
+        self.assertIn("6", bp.get("display") or "")
+        self.assertIn("10", bp.get("display") or "")
+        cl = resolve_auxiliary_schedule_mark(
+            "CL2", document, catalog_fn=_accept_catalog
+        )
+        self.assertFalse(cl.get("abstain"))
+        self.assertTrue(
+            str(cl.get("display") or "").upper().startswith("L5"),
+            cl,
+        )
 
     def test_cap_plate_note_is_not_a_mark_quantity(self) -> None:
         note = "ALL HSS COLUMNS SHALL RECEIVE A 5/8\" THICK CAP PLATE"
@@ -221,7 +311,11 @@ class MarkExtractionTests(unittest.TestCase):
             ("C1", "C1"),
             ("L1", "L1"),
             ("L1A", "L1A"),
+            ("BP1", "BP1"),
+            ("CL2", "CL2"),
+            ("CL6A", "CL6A"),
             ("column callout C3 at grid", "C3"),
+            ("bearing plate BP3", "BP3"),
         ):
             with self.subTest(raw=raw):
                 tokens = extract_engineering_tokens(raw)
@@ -232,6 +326,7 @@ class MarkExtractionTests(unittest.TestCase):
         self.assertIn("C12X20.7", extract_engineering_tokens("C12X20.7"))
         self.assertNotIn("C12", extract_engineering_tokens("C12X20.7"))
         self.assertNotIn("L4", extract_engineering_tokens("L4X4"))
+        self.assertNotIn("CL2", extract_engineering_tokens("C12X20.7"))
 
 
 class MarkResolutionTests(unittest.TestCase):
@@ -270,6 +365,27 @@ class MarkResolutionTests(unittest.TestCase):
         self.assertNotEqual(result["section"], "L4X4X1/4")
         self.assertFalse(result.get("takeoff_eligible"))
 
+    def test_precast_schedule_mark_abstains_without_angle_family(self) -> None:
+        grids = build_schedule_grids(
+            _struct_schedule_words(),
+            catalog_fn=_accept_catalog,
+        )
+        document = {
+            "schedule_grid": grids,
+            "schedule_mark_map": schedule_mark_map(grids),
+        }
+        result, exact = self._predict("L5", document, "L4X4X1/4")
+        exact.assert_not_called()
+        self.assertTrue(result.get("schedule_non_steel_mark"))
+        self.assertFalse(result.get("takeoff_eligible"))
+        self.assertNotEqual(result.get("family"), "L")
+        self.assertIn("PRECAST", " ".join(result.get("ai_reasons") or []).upper()
+            or " ".join(
+                (result.get("explanation") or {}).get("reasons") or []
+            ).upper()
+            or str(result.get("schedule_assembly") or {}).upper()
+        )
+
     def test_mapped_mark_uses_printed_size(self) -> None:
         document = {"schedule_mark_map": {"C1": "HSS6X6X1/2"}}
         result, _exact = self._predict("C1", document, "W10X49")
@@ -284,6 +400,42 @@ class MarkResolutionTests(unittest.TestCase):
         self.assertTrue(result.get("takeoff_eligible"))
         self.assertEqual(result.get("corrected_text"), "HSS6X6X1/2")
         self.assertEqual(result.get("raw_text"), "C1")
+
+    def test_mapped_lintel_carries_plate_assembly_sidecar(self) -> None:
+        grids = build_schedule_grids(
+            _struct_schedule_words(),
+            catalog_fn=_accept_catalog,
+        )
+        document = {
+            "schedule_grid": grids,
+            "schedule_mark_map": schedule_mark_map(grids),
+        }
+        result, _exact = self._predict("L1", document, "W10X49")
+        self.assertEqual(result["section"], "W8X21")
+        assembly = result.get("schedule_assembly") or {}
+        self.assertEqual(assembly.get("primary_section"), "W8X21")
+        self.assertEqual(assembly.get("member_plate_roles"), ["bottom_plate"])
+        self.assertEqual(assembly.get("plate_count_per_member"), 2)
+        self.assertIn("6", assembly.get("plate_text") or "")
+
+    def test_bp_mark_resolves_to_plate_in_results_path(self) -> None:
+        words = [
+            _word("BEARING", 100, 100),
+            _word("PLATE", 160, 100),
+            _word("SCHEDULE", 220, 100),
+            _word("MARK", 100, 116),
+            _word("SIZE", 200, 116),
+            _word("BP1", 100, 134),
+            _word('4"x6"x3/4"', 200, 134),
+        ]
+        grids = build_schedule_grids(words, catalog_fn=_accept_catalog)
+        document = {"schedule_grid": grids, "schedule_mark_map": {}}
+        result, exact = self._predict("BP1", document, "W10X49")
+        exact.assert_not_called()
+        self.assertEqual(result.get("plate_annotation_type"), "PLATE")
+        self.assertIn("4", str(result.get("corrected_text") or ""))
+        self.assertTrue(result.get("takeoff_eligible"))
+        self.assertEqual(result.get("prediction_source"), "Annotation")
 
 
 class PageRelevanceTests(unittest.TestCase):

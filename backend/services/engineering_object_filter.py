@@ -26,7 +26,7 @@ _PLATE = re.compile(
 )
 _MEMBER_MARK = re.compile(
     r"^(?:(?:BM|BEAM|COL|COLUMN|BR|BRACE|GIRDER|JOIST|JST)[-_ ]?\d+[A-Z]?"
-    r"|(?:L|C)\d+[A-Z]?)$",
+    r"|(?:BP|CL|L|C)\d+[A-Z]?)$",
     re.IGNORECASE,
 )
 _CONNECTION = re.compile(
@@ -79,6 +79,10 @@ def _section_object_type(text: str, context: str) -> str:
 
 def _member_mark_object_type(text: str) -> str:
     upper = text.upper()
+    if upper.startswith("BP"):
+        return "bearing_plate"
+    if upper.startswith("CL"):
+        return "icf_lintel"
     if upper.startswith(("COL", "COLUMN")) or re.fullmatch(r"C\d+[A-Z]?", upper):
         return "column"
     if upper.startswith(("BR", "BRACE")):
@@ -93,21 +97,22 @@ def classify_engineering_object(
 ) -> str | None:
     """Return a structural object type or ``None`` for non-object text."""
 
-    if is_non_steel_layout_token(token):
-        return None
-
     text = _normalized(token.get("normalized_text") or token.get("text"))
     context = _context(token)
     if not text:
         return None
 
-    # Catalog-valid callouts survive incidental GENERAL NOTES / LEGEND /
-    # SPECIFICATIONS keywords in the same block (a framing sheet routinely
-    # carries both). Page-scope demotion happens later in context_scope.
+    # Schedule marks and catalog sections first — before layout/notes filters
+    # that can be poisoned by footing feet-inch text elsewhere on the sheet.
     if _SECTION.fullmatch(text):
         return _section_object_type(text, context)
     if _PLATE.fullmatch(text):
         return "plate"
+    if _MEMBER_MARK.fullmatch(text):
+        return _member_mark_object_type(text)
+
+    if is_non_steel_layout_token(token):
+        return None
 
     if _NON_OBJECT_CONTEXT.search(context):
         return None
@@ -115,8 +120,6 @@ def classify_engineering_object(
     if _ANONYMOUS_DIM.fullmatch(text):
         return "anonymous_dimension"
 
-    if _MEMBER_MARK.fullmatch(text):
-        return _member_mark_object_type(text)
     if _CONNECTION.fullmatch(text):
         if text.startswith("BOLT"):
             return "bolt"

@@ -66,6 +66,32 @@ class FeetInchFilterTests(unittest.TestCase):
             tokens = extract_engineering_tokens(sample)
             self.assertTrue(tokens, msg=sample)
 
+    def test_schedule_marks_survive_polluted_feet_inch_context(self):
+        """Footing feet-inch on the same sheet must not drop BP/CL/L/C marks."""
+
+        for mark, expected_type in (
+            ("BP1", "bearing_plate"),
+            ("CL2", "icf_lintel"),
+            ("L1", "beam"),
+            ("C6", "column"),
+        ):
+            with self.subTest(mark=mark):
+                token = {
+                    "text": mark,
+                    "raw_text": mark,
+                    "normalized_text": mark,
+                    "page": 2,
+                    "bbox": [0, 0, 10, 10],
+                    "context": {
+                        "line_text": f'(E) 7\'-6"x7\'-6"x1\'-6" {mark} footing',
+                        "neighbor_text": ["FOOTING", "SCHEDULE"],
+                    },
+                }
+                self.assertFalse(is_non_steel_layout_token(token))
+                self.assertEqual(
+                    classify_engineering_object(token), expected_type
+                )
+
 
 if __name__ == "__main__":
     unittest.main()

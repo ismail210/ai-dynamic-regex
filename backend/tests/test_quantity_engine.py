@@ -216,17 +216,19 @@ class QuantityEngineTests(unittest.TestCase):
         self.assertEqual(report.excluded_counts["scope_ineligible"], 1)
 
     def test_explicit_schedule_metadata_sets_schedule_method(self) -> None:
-        report = quantity_engine.count(
-            [
-                _prediction(
-                    "W10X33",
-                    engineering_object_type="schedule_member",
-                )
-            ]
+        prediction = _prediction(
+            "W10X33",
+            engineering_object_type="schedule_member",
         )
-        self.assertEqual(
-            _by_section(report)["W10X33"].method, METHOD_SCHEDULE_CELL
-        )
+        from services.takeoff.quantity_engine import _explicit_method
+
+        self.assertEqual(_explicit_method(prediction), METHOD_SCHEDULE_CELL)
+        report = quantity_engine.count([prediction])
+        result = _by_section(report)["W10X33"]
+        # Schedule-only cells are recognized but do not create physical qty.
+        self.assertEqual(result.physical_quantity, 0)
+        self.assertEqual(result.method, METHOD_INSUFFICIENT)
+        self.assertEqual(result.excluded_counts["excluded_schedule_only"], 1)
 
     def test_schedule_cell_does_not_double_count_same_page_callout(self) -> None:
         report = quantity_engine.count(
@@ -244,7 +246,9 @@ class QuantityEngineTests(unittest.TestCase):
         self.assertEqual(result.method, METHOD_LABELED_CALLOUT)
         self.assertEqual(result.excluded_counts["excluded_schedule_duplicates"], 1)
 
-    def test_schedule_cell_counts_when_no_callout_on_page(self) -> None:
+    def test_schedule_cell_does_not_count_when_no_callout(self) -> None:
+        """P0 safety: schedule/detail-only text is not a physical occurrence."""
+
         report = quantity_engine.count(
             [
                 _prediction(
@@ -254,10 +258,61 @@ class QuantityEngineTests(unittest.TestCase):
                 )
             ]
         )
-        self.assertEqual(_by_section(report)["W10X33"].physical_quantity, 1)
-        self.assertEqual(
-            _by_section(report)["W10X33"].method, METHOD_SCHEDULE_CELL
+        result = _by_section(report)["W10X33"]
+        self.assertEqual(result.physical_quantity, 0)
+        self.assertEqual(result.method, METHOD_INSUFFICIENT)
+        self.assertEqual(result.excluded_counts["excluded_schedule_only"], 1)
+
+    def test_schedule_mark_map_plan_callout_counts_as_labeled(self) -> None:
+        """Plan C/L marks resolved via schedule map are labeled callouts."""
+
+        report = quantity_engine.count(
+            [
+                _prediction(
+                    "HSS12X8X5/8",
+                    object_id="c6_plan",
+                    source="Schedule mark map",
+                    original_token="C6",
+                    raw_text="C6",
+                ),
+            ]
         )
+        result = _by_section(report)["HSS12X8X5/8"]
+        self.assertEqual(result.physical_quantity, 1)
+        self.assertEqual(result.method, METHOD_LABELED_CALLOUT)
+
+    def test_explicit_catalog_match_still_unlabeled_by_default(self) -> None:
+        """Do not silently expand Explicit catalog match into quantity."""
+
+        report = quantity_engine.count(
+            [
+                _prediction(
+                    "W12X26",
+                    object_id="explicit",
+                    source="Explicit catalog match",
+                ),
+            ]
+        )
+        result = _by_section(report)["W12X26"]
+        self.assertEqual(result.physical_quantity, 0)
+        self.assertEqual(result.excluded_counts.get("unlabeled_source"), 1)
+
+    def test_schedule_cell_does_not_double_count_cross_page_callout(self) -> None:
+        report = quantity_engine.count(
+            [
+                _prediction("W10X33", object_id="callout", page=5),
+                _prediction(
+                    "W10X33",
+                    object_id="schedule",
+                    page=22,
+                    engineering_object_type="schedule_member",
+                ),
+            ]
+        )
+        result = _by_section(report)["W10X33"]
+        self.assertEqual(result.physical_quantity, 1)
+        self.assertEqual(result.method, METHOD_LABELED_CALLOUT)
+        self.assertEqual(result.excluded_counts["excluded_schedule_duplicates"], 1)
 
     def test_explicit_typ_multiplier_on_labeled_callout(self) -> None:
         report = quantity_engine.count(

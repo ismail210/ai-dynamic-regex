@@ -429,18 +429,83 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         else {}
     )
     if settings.schedule_mark_map_enabled and not protected_exact_section:
-        from services.engineering.schedule_grid import resolve_schedule_mark
+        from services.engineering.schedule_grid import (
+            is_auxiliary_schedule_mark,
+            lookup_schedule_row,
+            resolve_auxiliary_schedule_mark,
+            resolve_schedule_mark,
+            schedule_assembly_sidecar,
+            schedule_grid_pages,
+        )
 
         mapped = resolve_schedule_mark(normalized or raw_text, document)
         if mapped:
             protected_exact_section = mapped
             token_record["schedule_mark_resolved"] = mapped
+            assembly = schedule_assembly_sidecar(normalized or raw_text, document)
+            if assembly:
+                token_record["schedule_assembly"] = assembly
+        elif is_auxiliary_schedule_mark(normalized or raw_text):
+            aux = resolve_auxiliary_schedule_mark(
+                normalized or raw_text, document
+            )
+            if aux:
+                token_record["schedule_assembly"] = schedule_assembly_sidecar(
+                    normalized or raw_text, document
+                ) or {
+                    "mark": aux.get("mark"),
+                    "size_text": aux.get("size_text"),
+                    "plate_text": aux.get("plate_text"),
+                    "plate_role": aux.get("plate_role"),
+                    "catalog_valid": bool(aux.get("section")),
+                    "primary_section": aux.get("section"),
+                    "member_plate_roles": [],
+                    "plate_count_per_member": 1,
+                }
+                if aux.get("abstain"):
+                    token_record["schedule_non_steel_mark"] = True
+                elif aux.get("section"):
+                    protected_exact_section = str(aux["section"])
+                    token_record["schedule_mark_resolved"] = str(aux["section"])
+                    try:
+                        page = int(token_record.get("page") or 0)
+                    except (TypeError, ValueError):
+                        page = 0
+                    if page and page in schedule_grid_pages(document):
+                        token_record["engineering_object_type"] = "schedule_member"
+                else:
+                    token_record["schedule_auxiliary_plate"] = aux
+                    token_record["schedule_mark_resolved"] = str(
+                        aux.get("display") or aux.get("mark") or ""
+                    )
+                    # Schedule-table BP/CL rows are definitions; plan callouts
+                    # are instances. Tag table rows so QuantityEngine keeps qty 0.
+                    try:
+                        page = int(token_record.get("page") or 0)
+                    except (TypeError, ValueError):
+                        page = 0
+                    if page and page in schedule_grid_pages(document):
+                        token_record["engineering_object_type"] = "schedule_member"
+        else:
+            row = lookup_schedule_row(normalized or raw_text, document)
+            if row is not None and not row.get("catalog_valid"):
+                # Document lists this mark with a non-steel SIZE (e.g. precast
+                # lintel). Abstain — do not invent an angle/family from the mark.
+                token_record["schedule_non_steel_mark"] = True
+                token_record["schedule_assembly"] = schedule_assembly_sidecar(
+                    normalized or raw_text, document
+                )
     confirmed_plate_type = _early_confirmed_plate_type(
         token_record,
         geometry=geometry,
         graph=graph,
         document_prior=document_prior,
     )
+    if not confirmed_plate_type and token_record.get("schedule_auxiliary_plate"):
+        confirmed_plate_type = str(
+            (token_record["schedule_auxiliary_plate"] or {}).get("plate_type")
+            or "PLATE"
+        )
 
     is_anonymous_dim = (
         str(token_record.get("engineering_object_type") or "") == "anonymous_dimension"
@@ -508,6 +573,7 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     non_catalog_angle_needs_review = False
     angle_catalog_abstain = False
     unresolved_schedule_mark = False
+    non_steel_schedule_mark = False
     block_fuzzy_catalog = False
 
     if skip_section_fusion:
@@ -586,14 +652,24 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         angle_catalog_abstain = bool(
             incomplete_angle_needs_review or non_catalog_angle_needs_review
         )
-        from services.engineering.schedule_grid import is_bare_schedule_mark
+        from services.engineering.schedule_grid import (
+            is_auxiliary_schedule_mark,
+            is_bare_schedule_mark,
+        )
 
         unresolved_schedule_mark = bool(
-            is_bare_schedule_mark(normalized or raw_text)
+            (
+                is_bare_schedule_mark(normalized or raw_text)
+                or is_auxiliary_schedule_mark(normalized or raw_text)
+            )
             and not protected_exact_section
+            and not token_record.get("schedule_auxiliary_plate")
         )
+        non_steel_schedule_mark = bool(token_record.get("schedule_non_steel_mark"))
         block_fuzzy_catalog = bool(
-            angle_catalog_abstain or unresolved_schedule_mark
+            angle_catalog_abstain
+            or unresolved_schedule_mark
+            or non_steel_schedule_mark
         )
 
         family_prediction = predict_with_confidence(normalized)
@@ -882,6 +958,16 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
                 "Schedule mark has no catalog-valid SIZE in this document; "
                 "a section was not invented."
             )
+            if token_record.get("schedule_non_steel_mark"):
+                size_hint = (
+                    (token_record.get("schedule_assembly") or {}).get("size_text")
+                    or ""
+                )
+                ai_reasons.append(
+                    "Schedule lists this mark as a non-steel SIZE"
+                    + (f" ({size_hint})" if size_hint else "")
+                    + "; abstaining from rolled-section takeoff."
+                )
     if token_record.get("schedule_mark_resolved"):
         ai_reasons.append(
             f"Mark resolved to {token_record['schedule_mark_resolved']} "
@@ -1090,7 +1176,15 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
     family = (
         "Plate"
         if confirmed_plate_type
-        else derive_family_from_section(section, fallback=family_label)
+        else (
+            None
+            if (
+                unresolved_schedule_mark
+                or non_steel_schedule_mark
+                or token_record.get("schedule_non_steel_mark")
+            )
+            else derive_family_from_section(section, fallback=family_label)
+        )
     )
     text_locked_family = (
         catalog_valid_exact_section(normalized)
@@ -1307,7 +1401,13 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         )
     )
     output_corrected_text = (
-        (raw_text or normalized)
+        (
+            str(
+                (token_record.get("schedule_auxiliary_plate") or {}).get("display")
+                or raw_text
+                or normalized
+            )
+        )
         if confirmed_plate_type
         else (
             section
@@ -1590,6 +1690,9 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
         if confirmed_plate_type
         else None
     )
+    aux_plate = token_record.get("schedule_auxiliary_plate") or {}
+    if confirmed_plate_type and aux_plate.get("display"):
+        plate_annotation_label = str(aux_plate["display"])
     semantic_annotation_type = confirmed_plate_type
     semantic_annotation_label = plate_annotation_label
     unresolved_anonymous_dimension = False
@@ -1812,6 +1915,8 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
             else "inferred"
         ),
         "schedule_mark_resolved": token_record.get("schedule_mark_resolved"),
+        "schedule_assembly": token_record.get("schedule_assembly"),
+        "schedule_non_steel_mark": bool(token_record.get("schedule_non_steel_mark")),
         "context_modality_disagreement": bool(explicit_section_context_disagreement),
         "section_prediction_not_applicable": bool(confirmed_plate_type),
         "plate_annotation_type": confirmed_plate_type,

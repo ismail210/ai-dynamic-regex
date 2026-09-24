@@ -59,6 +59,8 @@ TOKEN_PATTERNS = (
     r"(?:\s*[X×]\s*(?:\d+(?:\.\d+)?|\d+/\d+)){0,2}\b",
     r"\bS-\d+\b",
     r"\b(?:A|F)\d{3,4}M?\b",
+    # Bearing-plate / ICF-lintel schedule marks (BP1, CL2). Before bare C/L.
+    r"\b(?:BP|CL)\d+[A-Z]?\b",
     # Schedule marks on plans (C1, L1, L1A). Not L4X4 / C12X20 (those need X).
     r"\b(?:L|C)\d+[A-Z]?\b",
 )
@@ -90,7 +92,8 @@ _COMBINED = re.compile(
             TOKEN_PATTERNS[3],  # W / WT / S / M / HP / C / MC
             TOKEN_PATTERNS[8],  # sheet reference
             TOKEN_PATTERNS[9],  # material grade
-            TOKEN_PATTERNS[10],  # schedule marks C1 / L1
+            TOKEN_PATTERNS[10],  # BP / CL schedule marks
+            TOKEN_PATTERNS[11],  # schedule marks C1 / L1
         )
     ),
     re.IGNORECASE,

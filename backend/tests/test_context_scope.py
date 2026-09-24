@@ -75,6 +75,83 @@ class AnnotateTakeoffScopeTests(unittest.TestCase):
         takeoff, context = cs.partition_takeoff(predictions)
         self.assertEqual({p["object_id"] for p in takeoff}, {"real1"})
 
+    def test_schedule_mark_plan_callout_kept_when_page_mis_tagged_legend(self):
+        """C6-style: resolved schedule mark on a mis-tagged LEGEND framing page."""
+
+        document = {
+            "engineering_tokens": [
+                {"page": 3, "text": "C6", "original_token": "C6"},
+                {"page": 2, "text": "C6", "original_token": "C6"},
+                {"page": 3, "text": "HSS8x4x1/4", "original_token": "HSS8x4x1/4"},
+            ],
+            "legend_profile": {
+                "context_pages": {"2": "SPECIFICATIONS", "3": "LEGEND"},
+            },
+            "schedule_grid": [{"page": 2, "kind": "column", "rows": []}],
+            "schedule_mark_map": {"C6": "HSS12X8X5/8"},
+        }
+        summary = cs.annotate_takeoff_scope(document)
+        by_key = {
+            (t["page"], t["text"]): t for t in document["engineering_tokens"]
+        }
+        self.assertTrue(by_key[(3, "C6")]["takeoff_eligible"])
+        self.assertEqual(by_key[(3, "C6")]["object_scope"], cs.OBJECT_SCOPE_TAKEOFF)
+        # Schedule-table page stays demoted.
+        self.assertFalse(by_key[(2, "C6")]["takeoff_eligible"])
+        # Full section text on a legend page still demotes.
+        self.assertFalse(by_key[(3, "HSS8x4x1/4")]["takeoff_eligible"])
+        self.assertGreaterEqual(summary.get("schedule_mark_takeoff_kept", 0), 1)
+
+        predictions = [
+            {
+                "object_id": "c6_plan",
+                "page_number": 3,
+                "original_token": "C6",
+                "takeoff_eligible": True,
+                "section_resolution": "schedule_mark_map",
+            },
+            {
+                "object_id": "c6_sched",
+                "page_number": 2,
+                "original_token": "C6",
+                "takeoff_eligible": True,
+            },
+        ]
+        cs.reassert_prediction_scope(predictions, document)
+        by_id = {p["object_id"]: p for p in predictions}
+        self.assertTrue(by_id["c6_plan"]["takeoff_eligible"])
+        self.assertFalse(by_id["c6_sched"]["takeoff_eligible"])
+
+    def test_bp_mark_on_schedule_page_stays_takeoff_for_results(self):
+        document = {
+            "engineering_tokens": [
+                {"page": 2, "text": "BP1", "original_token": "BP1"},
+            ],
+            "legend_profile": {"context_pages": {"2": "SPECIFICATIONS"}},
+            "schedule_grid": [
+                {
+                    "page": 2,
+                    "kind": "bearing_plate",
+                    "rows": [
+                        {
+                            "mark": "BP1",
+                            "size_text": '4"x6"x3/4"',
+                            "plate_text": '4"x6"x3/4"',
+                            "catalog_valid": False,
+                            "section": None,
+                            "plate_role": "bearing_plate",
+                            "member_plate_roles": [],
+                        }
+                    ],
+                }
+            ],
+            "schedule_mark_map": {},
+        }
+        cs.annotate_takeoff_scope(document)
+        token = document["engineering_tokens"][0]
+        self.assertTrue(token["takeoff_eligible"])
+        self.assertEqual(token["object_scope"], cs.OBJECT_SCOPE_TAKEOFF)
+
     def test_partition_keeps_both_sides(self):
         items = [
             {"takeoff_eligible": True, "id": "a"},
