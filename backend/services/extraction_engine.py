@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Dict
 
+from config import settings
 from services.artifact_store import write_artifact
 from services.document_intelligence import build_extraction_diagnostics
 from services.annotation.fragment_grouper import group_annotation_fragments
@@ -59,6 +60,16 @@ def extract_engineering_document(
     # only sets object_scope/takeoff_eligible/_skip_unknown_queue on tokens,
     # never removes one. Consumers filter on takeoff_eligible.
     document["context_scope_summary"] = annotate_takeoff_scope(document)
+    if settings.schedule_region_quarantine_enabled:
+        from services.engineering.schedule_region_quarantine import (
+            build_schedule_region_quarantine,
+        )
+
+        # Shadow artifact only: build_schedule_region_quarantine copies every
+        # token before classification and never mutates engineering_tokens.
+        document["schedule_region_quarantine_shadow"] = (
+            build_schedule_region_quarantine(document, source_path=path)
+        )
     document["source_file"] = path.name
     document["extraction_version"] = EXTRACTION_VERSION
     _rescope_diagnostics_to_engineering_objects(document)

@@ -99,6 +99,10 @@ _COMBINED = re.compile(
     re.IGNORECASE,
 )
 _DIGIT_RE = re.compile(r"\d")
+# A leading count kept apart from the section it counts ("2", "(2)").
+_BARE_QUANTITY_RE = re.compile(r"\(?\d+\)?")
+# The same count as a text prefix: "2 L4X4X1/2", "(2) L4X4X1/2", "2-L4X4X1/2".
+QUANTITY_PREFIX_RE = re.compile(r"^(?:\(\d+\)\s*|\d+\s+|\d+\s*-\s*)(?=[A-Za-z])")
 EXTRACTION_STATUSES = ("VALID", "SUSPICIOUS", "BROKEN", "INVALID")
 _NOISE_RE = re.compile(r"^[\W_]+$")
 _MAX_WORD_GAP_PTS = 24.0
@@ -364,7 +368,9 @@ def _is_low_value_candidate(text: str) -> bool:
     return False
 
 
-def _candidate_windows(ordered: List[dict]) -> Iterable[tuple[str, List[dict]]]:
+def _candidate_windows(
+    ordered: List[dict], *, split_quantity: bool = False
+) -> Iterable[tuple[str, List[dict]]]:
     """Yield bounded adjacent-word windows to repair split labels safely.
 
     A window is only offered when it can still form a label: it must contain a
@@ -390,7 +396,15 @@ def _candidate_windows(ordered: List[dict]) -> Iterable[tuple[str, List[dict]]]:
             spaced = " ".join(texts)
             if not _DIGIT_RE.search(spaced):
                 continue
-            variants = (spaced,) if size == 1 else (spaced, "".join(texts))
+            # ``split_quantity``: never glue a separate leading count onto a
+            # section ("2" + "L1x1x1/4" must not become the 2L family).
+            joinable = size > 1 and not (
+                split_quantity
+                and _BARE_QUANTITY_RE.fullmatch(texts[0])
+                and texts[1][:1].isalpha()
+                and texts[1][:1].upper() != "X"
+            )
+            variants = (spaced, "".join(texts)) if joinable else (spaced,)
             source_ids = tuple(str(word.get("object_id") or "") for word in window)
             for variant in variants:
                 if _is_low_value_candidate(variant):
@@ -431,6 +445,9 @@ def extract_engineering_token_records(
     coordinates are removed, but repeated member labels elsewhere are kept.
     """
 
+    from config import settings
+
+    split_quantity = settings.quantity_prefix_guard_enabled
     lines = lines or []
     blocks = blocks or []
     line_index: Dict[tuple, dict] = {
@@ -467,7 +484,9 @@ def extract_engineering_token_records(
         )
         joined = " ".join(str(word.get("text") or "") for word in ordered)
         candidate_matches: List[tuple[re.Match[str], List[dict]]] = []
-        for candidate_text, candidate_words in _candidate_windows(ordered):
+        for candidate_text, candidate_words in _candidate_windows(
+            ordered, split_quantity=split_quantity
+        ):
             candidate_matches.extend(
                 (match, candidate_words) for match in _matches(candidate_text)
             )

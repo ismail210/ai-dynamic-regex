@@ -1,0 +1,199 @@
+{
+  "schema_version": "1.0",
+  "manifest_id": "project-rules-synthetic-v1",
+  "description": "Synthetic CI fixtures for the project-rule benchmark. Word coordinates are PDF points; each word bbox is [x, y, x + 6*len, y + 8]. 'baseline' marks whether the frozen 77f0ea0 path is expected to support the item; unsupported items are reported as expected_unsupported, never as passes.",
+  "documents": [
+    {
+      "document_id": "SYN-A-conventional",
+      "project_id": "SYN-A",
+      "template_family": "T1-conventional-schedule",
+      "source": {
+        "kind": "synthetic_words",
+        "pages": [
+          {
+            "page_number": 2,
+            "page_role": "SCHEDULE",
+            "text_layer": "vector",
+            "lines": [
+              [100, [[100, "LINTEL"], [160, "SCHEDULE"]]],
+              [116, [[100, "MARK"], [200, "SIZE"], [400, "BEARING"], [470, "PLATE"]]],
+              [134, [[100, "L1"], [200, "W8x21"], [250, "WITH"], [290, "BOTTOM"], [340, "PLATE"], [400, "6\"x6\"x1/2\""]]],
+              [152, [[100, "L2"], [200, "W8x28"]]],
+              [170, [[100, "L3"], [200, "12F16-IB"], [280, "PRECAST"]]],
+              [300, [[100, "COLUMN"], [160, "SCHEDULE"]]],
+              [316, [[100, "MARK"], [200, "SIZE"], [400, "BASE"], [450, "PLATE"]]],
+              [334, [[100, "C1"], [200, "HSS"], [250, "6\"x6\"x1/2\""], [400, "14\"x14\"x3/4\""]]]
+            ]
+          }
+        ]
+      },
+      "gold": {
+        "regions": [
+          {"region_id": "A-R1", "page": 2, "kind": "lintel", "bbox": [95, 95, 560, 180], "rule_bearing": true, "baseline": "supported"},
+          {"region_id": "A-R2", "page": 2, "kind": "column", "bbox": [95, 295, 560, 345], "rule_bearing": true, "baseline": "supported"}
+        ],
+        "rows": [
+          {"row_id": "A-L1", "page": 2, "mark": "L1", "size_text_raw": "W8x21 WITH BOTTOM PLATE", "primary_section": "W8X21", "role_tags": ["lintel", "bottom_plate", "bearing_plate"], "component_text": ["6\"x6\"x1/2\""], "quantity_per_assembly": null, "countable_occurrence": false, "expected_status": "resolved", "baseline": "supported", "note": "case 1: L1 -> W8X21, WITH BOTTOM PLATE kept as role evidence"},
+          {"row_id": "A-L2", "page": 2, "mark": "L2", "size_text_raw": "W8x28", "primary_section": "W8X28", "role_tags": ["lintel"], "component_text": [], "countable_occurrence": false, "expected_status": "resolved", "baseline": "supported"},
+          {"row_id": "A-L3", "page": 2, "mark": "L3", "size_text_raw": "12F16-IB PRECAST", "primary_section": null, "role_tags": ["lintel"], "component_text": [], "countable_occurrence": false, "expected_status": "abstain", "baseline": "supported", "note": "non-steel SIZE must not resolve"},
+          {"row_id": "A-C1", "page": 2, "mark": "C1", "size_text_raw": "HSS 6\"x6\"x1/2\"", "primary_section": "HSS6X6X1/2", "role_tags": ["column", "base_plate"], "component_text": ["14\"x14\"x3/4\""], "countable_occurrence": false, "expected_status": "resolved", "baseline": "supported", "note": "case 2: C1 -> catalog-valid HSS"}
+        ]
+      }
+    },
+    {
+      "document_id": "SYN-B-embedded",
+      "project_id": "SYN-B",
+      "template_family": "T2-embedded-plan-schedule",
+      "source": {
+        "kind": "synthetic_words",
+        "pages": [
+          {
+            "page_number": 3,
+            "page_role": "PLAN",
+            "text_layer": "vector",
+            "lines": [
+              [60, [[100, "SECOND"], [150, "FLOOR"], [195, "FRAMING"], [260, "PLAN"]]],
+              [200, [[300, "W16X26"], [600, "W16X26"]]],
+              [260, [[300, "W18X35"], [600, "W16X26"]]],
+              [700, [[900, "LINTEL"], [960, "SCHEDULE"]]],
+              [716, [[900, "MARK"], [1000, "SIZE"], [1150, "REMARKS"]]],
+              [734, [[900, "LB-1"], [1000, "W8X21"], [1150, "TYP"]]],
+              [752, [[900, "LB-2"], [1000, "L4X4X1/4"]]],
+              [884, [[100, "EXISTING"], [160, "PIER"], [200, "SCHEDULE"], [400, "EXISTING"], [460, "COLUMN"], [510, "SCHEDULE"]]],
+              [900, [[100, "PIER"], [140, "TYPE"], [200, "SIZE"], [300, "DIAMETER"], [400, "MARK"], [500, "SIZE"]]],
+              [918, [[100, "P-1"], [200, "1'-4\""], [240, "X"], [260, "1'-4\""], [400, "C-1"], [500, "W8x24"]]],
+              [936, [[100, "P-2"], [200, "2'-6\""], [400, "C-2"], [500, "W8x24"]]]
+            ]
+          }
+        ]
+      },
+      "gold": {
+        "regions": [
+          {"region_id": "B-R1", "page": 3, "kind": "lintel", "bbox": [895, 695, 1200, 765], "rule_bearing": true, "baseline": "unsupported", "note": "case 3+4: LB-1 marks in a schedule embedded in a framing plan"},
+          {"region_id": "B-R2", "page": 3, "kind": "column", "bbox": [395, 880, 560, 945], "rule_bearing": true, "baseline": "unsupported", "note": "H5 pp.7-8 pattern: hyphenated C-1 beside a concrete pier schedule"},
+          {"region_id": "B-R3", "page": 3, "kind": "pier", "bbox": [95, 880, 390, 945], "rule_bearing": false, "note": "concrete pier schedule, not steel"}
+        ],
+        "rows": [
+          {"row_id": "B-LB1", "page": 3, "mark": "LB-1", "size_text_raw": "W8X21", "primary_section": "W8X21", "role_tags": ["lintel"], "component_text": [], "countable_occurrence": false, "expected_status": "resolved", "baseline": "unsupported", "note": "case 3: LB-1 is a non-current convention"},
+          {"row_id": "B-LB2", "page": 3, "mark": "LB-2", "size_text_raw": "L4X4X1/4", "primary_section": "L4X4X1/4", "role_tags": ["lintel"], "component_text": [], "countable_occurrence": false, "expected_status": "resolved", "baseline": "unsupported"},
+          {"row_id": "B-C1", "page": 3, "mark": "C-1", "size_text_raw": "W8x24", "primary_section": "W8X24", "role_tags": ["column"], "component_text": [], "countable_occurrence": false, "expected_status": "resolved", "baseline": "unsupported", "note": "real H5 convention; C-1 is not a channel"},
+          {"row_id": "B-C2", "page": 3, "mark": "C-2", "size_text_raw": "W8x24", "primary_section": "W8X24", "role_tags": ["column"], "component_text": [], "countable_occurrence": false, "expected_status": "resolved", "baseline": "unsupported"},
+          {"row_id": "B-P1", "page": 3, "mark": "P-1", "size_text_raw": "", "primary_section": null, "role_tags": [], "component_text": [], "countable_occurrence": false, "expected_status": "abstain", "baseline": "supported", "note": "concrete pier mark must not resolve"}
+        ]
+      }
+    },
+    {
+      "document_id": "SYN-C-negative",
+      "project_id": "SYN-C",
+      "template_family": "T2-embedded-plan-schedule",
+      "source": {
+        "kind": "synthetic_words",
+        "pages": [
+          {
+            "page_number": 5,
+            "page_role": "SCHEDULE",
+            "text_layer": "vector",
+            "lines": [
+              [80, [[100, "INTERIOR"], [160, "COLUMN"], [210, "REINFORCING"], [290, "SCHEDULE"]]],
+              [96, [[100, "MARK"], [160, "PLATE"], [300, "SIZE"]]],
+              [114, [[100, "RI-1"], [160, "9\""], [180, "x"], [190, "0.625\""], [300, "W8x31"]]],
+              [300, [[100, "BEARING"], [160, "PLATE"], [200, "SCHEDULE"]]],
+              [316, [[100, "MARK"], [160, "SIZE"], [260, "THICKNESS"]]],
+              [334, [[100, "BP1"], [160, "4\"x14\""], [260, "1/2\""]]]
+            ]
+          }
+        ]
+      },
+      "gold": {
+        "regions": [
+          {"region_id": "C-R1", "page": 5, "kind": "reinforcing", "bbox": [95, 75, 400, 125], "rule_bearing": false, "note": "H5 p.23 pattern: W8x31 is the host column, not RI-1's identity"},
+          {"region_id": "C-R2", "page": 5, "kind": "bearing_plate", "bbox": [95, 295, 400, 345], "rule_bearing": true, "baseline": "unsupported", "note": "Ketcham p.10 pattern: fabricated plate components"}
+        ],
+        "rows": [
+          {"row_id": "C-RI1", "page": 5, "mark": "RI-1", "size_text_raw": "W8x31", "primary_section": null, "role_tags": [], "component_text": [], "countable_occurrence": false, "expected_status": "abstain", "baseline": "supported", "note": "reinforcing schedule must never map RI-1 -> W8X31"},
+          {"row_id": "C-BP1", "page": 5, "mark": "BP1", "size_text_raw": "4\"x14\"", "primary_section": null, "role_tags": ["bearing_plate"], "component_text": ["4\"x14\""], "countable_occurrence": false, "expected_status": "abstain", "baseline": "supported", "note": "case 10 analogue: plate component, not a rolled section"}
+        ]
+      }
+    },
+    {
+      "document_id": "SYN-D-conflict",
+      "project_id": "SYN-D",
+      "template_family": "T1-conventional-schedule",
+      "source": {
+        "kind": "synthetic_words",
+        "pages": [
+          {
+            "page_number": 1,
+            "page_role": "SCHEDULE",
+            "text_layer": "vector",
+            "lines": [
+              [100, [[100, "LINTEL"], [160, "SCHEDULE"]]],
+              [116, [[100, "MARK"], [200, "SIZE"]]],
+              [134, [[100, "L1"], [200, "W8X21"]]]
+            ]
+          },
+          {
+            "page_number": 2,
+            "page_role": "SCHEDULE",
+            "text_layer": "vector",
+            "lines": [
+              [100, [[100, "LINTEL"], [160, "SCHEDULE"]]],
+              [116, [[100, "MARK"], [200, "SIZE"]]],
+              [134, [[100, "L1"], [200, "W10X33"]]],
+              [152, [[100, "L4"], [200, "W8X21"]]]
+            ]
+          }
+        ]
+      },
+      "gold": {
+        "regions": [
+          {"region_id": "D-R1", "page": 1, "kind": "lintel", "bbox": [95, 95, 300, 145], "rule_bearing": true, "baseline": "supported"},
+          {"region_id": "D-R2", "page": 2, "kind": "lintel", "bbox": [95, 95, 300, 165], "rule_bearing": true, "baseline": "supported"}
+        ],
+        "rows": [
+          {"row_id": "D-L1-p1", "page": 1, "mark": "L1", "size_text_raw": "W8X21", "primary_section": null, "role_tags": ["lintel"], "component_text": [], "countable_occurrence": false, "expected_status": "review", "baseline": "unsupported", "note": "case 14: conflicting duplicate mark; baseline silently keeps first row"},
+          {"row_id": "D-L1-p2", "page": 2, "mark": "L1", "size_text_raw": "W10X33", "primary_section": null, "role_tags": ["lintel"], "component_text": [], "countable_occurrence": false, "expected_status": "review", "baseline": "unsupported"},
+          {"row_id": "D-L4", "page": 2, "mark": "L4", "size_text_raw": "W8X21", "primary_section": "W8X21", "role_tags": ["lintel"], "component_text": [], "countable_occurrence": false, "expected_status": "resolved", "baseline": "supported"}
+        ]
+      }
+    },
+    {
+      "document_id": "SYN-E-scan",
+      "project_id": "SYN-E",
+      "template_family": "T3-scanned",
+      "source": {
+        "kind": "synthetic_words",
+        "pages": [
+          {
+            "page_number": 1,
+            "page_role": "VISION_REQUIRED",
+            "text_layer": "scan",
+            "lines": [[40, [[100, "LEGEND"]]]]
+          }
+        ]
+      },
+      "gold": {
+        "regions": [
+          {"region_id": "E-R1", "page": 1, "kind": "legend", "bbox": [0, 0, 2000, 1400], "rule_bearing": true, "baseline": "unsupported", "note": "case 13: low-text page stays vision-required and unresolved"}
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "token_cases": [
+    {"case_id": "T01", "text": "W10X33", "decoy_section": "W12X26", "document_ref": "SYN-D-conflict", "expect": "locked", "expected_section": "W10X33", "note": "case 5: exact label under conflicting context"},
+    {"case_id": "T02", "text": "HSS8X4", "decoy_section": "HSS8X4X1/2", "expect": "not_auto_accepted", "expected_section": null, "note": "case 6: incomplete HSS needs thickness"},
+    {"case_id": "T03", "text": "L4X4X1/4", "decoy_section": "L4X4X3/8", "document_ref": "SYN-A-conventional", "expect": "locked", "expected_section": "L4X4X1/4", "note": "case 7: exact angle"},
+    {"case_id": "T04", "text": "L1", "decoy_section": "L4X4X1/4", "document_ref": "SYN-A-conventional", "expect": "rule_resolved", "expected_section": "W8X21", "note": "case 7: L1 is a mark, resolved via schedule"},
+    {"case_id": "T05", "text": "L1", "decoy_section": "L4X4X1/4", "expect": "not_auto_accepted", "expected_section": null, "note": "mark without schedule is never an angle"},
+    {"case_id": "T06", "text": "ANGLE 4X4X1/4", "decoy_section": "L4X4X3/8", "expect": "not_auto_accepted", "expected_section": null, "note": "case 8: prefix ANGLE cue unsupported today; safe outcome is review, never the decoy"},
+    {"case_id": "T07", "text": "4X4X1/4 ANGLE", "decoy_section": "L4X4X3/8", "expect": "locked", "expected_section": "L4X4X1/4", "note": "case 8: suffix ANGLE cue"},
+    {"case_id": "T08", "text": "4X4X1/4", "decoy_section": "L4X4X1/4", "expect": "not_auto_accepted", "expected_section": null, "note": "case 8: bare dims stay unresolved"},
+    {"case_id": "T09", "text": "CHANNEL", "decoy_section": "C8X11.5", "expect": "not_auto_accepted", "expected_section": null, "note": "case 9: CHANNEL alone does not pick C/MC"},
+    {"case_id": "T10", "text": "BENT PLATE 12X4X3/8", "decoy_section": "L4X4X3/8", "expect": "component_not_rolled", "expected_section": null, "note": "case 10: bent plate is a component, not a rolled L"},
+    {"case_id": "T11", "text": "2L4X4X1/2", "decoy_section": "L4X4X1/2", "expect": "locked", "expected_section": "2L4X4X1/2", "note": "case 11: double angle"},
+    {"case_id": "T12", "text": "2 L4X4X1/2", "decoy_section": "L4X4X3/8", "expect": "locked", "expected_section": "L4X4X1/2", "baseline": "known_defect", "note": "case 11: quantity 2 of L4X4X1/2; resolve_trusted_explicit_section collapses to 2L family"},
+    {"case_id": "T13", "text": "L1", "decoy_section": "L4X4X1/4", "document_ref": "SYN-B-embedded", "expect": "not_auto_accepted", "expected_section": null, "note": "no cross-document resolution: SYN-B has no L1"},
+    {"case_id": "T14", "text": "LB-1", "decoy_section": "W8X21", "document_ref": "SYN-B-embedded", "expect": "not_auto_accepted", "expected_section": null, "note": "production path unchanged: LB-1 is only resolved in shadow records"}
+  ]
+}
