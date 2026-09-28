@@ -59,10 +59,10 @@ TOKEN_PATTERNS = (
     r"(?:\s*[X×]\s*(?:\d+(?:\.\d+)?|\d+/\d+)){0,2}\b",
     r"\bS-\d+\b",
     r"\b(?:A|F)\d{3,4}M?\b",
-    # Bearing-plate / ICF-lintel schedule marks (BP1, CL2). Before bare C/L.
-    r"\b(?:BP|CL)\d+[A-Z]?\b",
-    # Schedule marks on plans (C1, L1, L1A). Not L4X4 / C12X20 (those need X).
-    r"\b(?:L|C)\d+[A-Z]?\b",
+    # Bearing-plate / ICF-lintel schedule marks (BP1, BP-1, CL2). Before bare C/L.
+    r"\b(?:BP|CL)[-_]?\d+[A-Z]?\b",
+    # Schedule marks on plans (C1, C-1, L1, L1A). Not L4X4 / C12X20 (those need X).
+    r"\b(?:L|C)[-_]?\d+[A-Z]?\b",
 )
 # Anonymous dimension patterns (no PL/L/BP prefix) — evaluated after explicit callouts.
 ANONYMOUS_DIM_PATTERNS = (
@@ -471,12 +471,25 @@ def extract_engineering_token_records(
             candidate_matches.extend(
                 (match, candidate_words) for match in _matches(candidate_text)
             )
+        claimed: List[tuple[set, str]] = []
         for match, candidate_words in _prefer_longest_matches(candidate_matches):
             raw = match.group(0)
             normalized = core_section_token(raw)
             contributing = _words_for_match(match.string, candidate_words, match)
             if not contributing:
                 contributing = candidate_words
+            # A window starting mid-callout (``1/2"x3/8" CONTINUOUS ANGLE``)
+            # re-reads a piece of ``6"x3 1/2"x3/8" …ANGLE`` as an anonymous
+            # dimension; it is part of that member, not a second one.
+            word_ids = {id(word) for word in contributing}
+            compact = normalize_engineering_token(raw)
+            if match.re is not _COMBINED and any(
+                word_ids <= owner_ids and compact in owner_text
+                for owner_ids, owner_text in claimed
+            ):
+                continue
+            if match.re is _COMBINED:
+                claimed.append((word_ids, compact))
             raw_source = " ".join(
                 str(word.get("raw_text") or word.get("text") or "")
                 for word in contributing

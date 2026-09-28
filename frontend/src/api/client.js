@@ -11,8 +11,9 @@ const baseURL = import.meta.env.VITE_API_BASE || "";
 const client = axios.create({
   baseURL,
   withCredentials: false,
-  // Analysis of a full drawing set can legitimately run for minutes.
-  timeout: 15 * 60 * 1000,
+  // Analysis of a large drawing set can run 20–30+ minutes; keep this above
+  // the backend UPLOAD_ANALYSIS_TIMEOUT_SECONDS budget (default 30 min).
+  timeout: 35 * 60 * 1000,
 });
 
 function describeError(error, label) {

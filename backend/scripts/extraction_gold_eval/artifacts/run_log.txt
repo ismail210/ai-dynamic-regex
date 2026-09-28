@@ -1,0 +1,18 @@
+warning: The `fitz` API is deprecated and will be removed in future. Use `import pymupdf` instead.
+
+=== Extracting Burrville ES - ST.pdf (/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/Burrville ES - ST__0d910a43b4a0.pdf) ===
+  gold=63 extract TP/FN/FP=52/11/45 R=0.825 P=0.536 | usable R=0.698
+
+=== Extracting ST-Spring Garden ES.pdf (/Users/hibareda/Desktop/Estima 3D/ST-Spring Garden ES.pdf) ===
+  gold=19 extract TP/FN/FP=17/2/52 R=0.895 P=0.246 | usable R=0.895
+
+=== Extracting ST.pdf (/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/ST.pdf) ===
+  gold=47 extract TP/FN/FP=29/18/8 R=0.617 P=0.784 | usable R=0.617
+
+=== Extracting Struct.pdf (/Users/hibareda/Desktop/Estima 3D/Struct.pdf) ===
+  gold=78 extract TP/FN/FP=76/2/52 R=0.974 P=0.594 | usable R=0.974
+
+Wrote report → /Users/hibareda/Desktop/ai-dynamic-regex/backend/scripts/extraction_gold_eval/artifacts/eval_report.json
+OVERALL extraction R=84.058% P=52.568% F1=64.684% (TP=174 FN=33 FP=157)
+OVERALL usable     R=80.193% P=53.722% F1=64.341% (demotions=8)
+FN stages (usable view): {'TOKENIZATION_MISS': 20, 'RAW_EXTRACTION_MISS': 13, 'CONTEXT_DEMOTION': 8}

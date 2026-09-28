@@ -10,7 +10,8 @@ services:
       WEB_CONCURRENCY: ${WEB_CONCURRENCY:-1}
       LOG_LEVEL: ${LOG_LEVEL:-info}
       CORS_ALLOW_ORIGINS: ${CORS_ALLOW_ORIGINS:-http://localhost}
-      MAX_UPLOAD_BYTES: ${MAX_UPLOAD_BYTES:-104857600}
+      MAX_UPLOAD_BYTES: ${MAX_UPLOAD_BYTES:-209715200}
+      UPLOAD_ANALYSIS_TIMEOUT_SECONDS: ${UPLOAD_ANALYSIS_TIMEOUT_SECONDS:-1800}
     volumes:
       - ./backend/training:/app/training
       - backend_uploads:/app/uploads

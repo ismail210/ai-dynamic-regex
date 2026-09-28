@@ -1,0 +1,709 @@
+[
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "L1",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W8x21",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "L1A",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W8x21",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "L1A",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W16x31",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W18x35",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "C3",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "C4",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W12x16",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W12x16",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W12x16",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W24x76",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W16x31",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W12x16",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W12x16",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W18x35",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W16x36",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "C1",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "HSS 5\"x5\"x5/16\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "HSS 6\"x6\"x3/8\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "C2",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "HSS 6\"x4\"x3/8\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "C3",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "C1",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "C4",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "C5",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W12x16",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W14x22",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "C5",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W16x26",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "5/8\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W14x22",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W12x16",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W14x22",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "C2",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W12x16",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W14x22",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W14x22",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W14x22",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W12x26",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "C1",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "C1",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "C2",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W14x22",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W12x16",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W14x22",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W14x22",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W16x26",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W12x16",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "L1",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "W14x22",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 3,
+    "text": "2\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "6\"x6\"x3/8\" CONTINUOUS ANGLE",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "6\"x6\"x3/8\" CONTINUOUS ANGLE",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "5/8\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "5/8\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "6\"x6\"x3/8\" CONTINUOUS ANGLE",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "2\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "5/8\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "2\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "1/4\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "1/4\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "1/4\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "1/4\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "3/8\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "3/8\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "6\"x6\"x3/8\" CONTINUOUS ANGLE",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "5/8\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "2\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "2\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "1/4\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "3/16\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "2\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "1/4\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "1/4\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "1/4\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "1/2\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "1/2\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "3/16\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "1/4\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "3/16\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "3/16\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "3/16\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "3\"x3\"x3/8\" ANGLE",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "3/16\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "1/4\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "3/16\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "3/8\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "WT8x18",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "3/8\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "3/8\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "3/8\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "1/2\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "1/2\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "1/2\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "1/4\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "3/16\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "1/4\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "1/4\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  },
+  {
+    "object_id": null,
+    "page": 8,
+    "text": "2\"",
+    "takeoff_eligible": true,
+    "object_scope": "takeoff"
+  }
+]

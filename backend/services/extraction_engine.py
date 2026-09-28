@@ -18,7 +18,7 @@ from services.pdf_parser import extract_document_structure
 
 # Bumped whenever extraction output changes, so cached documents are rebuilt
 # instead of replaying stale artifacts.
-EXTRACTION_VERSION = "3.13-bp-cl-marks"
+EXTRACTION_VERSION = "3.16-no-callout-fragments"
 
 
 def extract_engineering_document(
@@ -34,7 +34,7 @@ def extract_engineering_document(
     document = extract_document_structure(str(path))
     if document_id:
         document["document_id"] = document_id
-    attach_schedule_grid(document)
+    attach_schedule_grid(document, pdf_path=str(path))
     attach_document_prior(document)
     # Read-only, informational, document-scoped legend/notes summary --
     # attached alongside document_prior but never consumed by anything
