@@ -1,4 +1,35 @@
-import { Alert, Box, Chip, Divider, Paper, Stack, Typography } from "@mui/material";
+import { lazy, Suspense, useState } from "react";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Alert,
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Collapse,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  IconButton,
+  Paper,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
+import { CloseOutlined, ExpandMoreOutlined, FindInPageOutlined } from "@mui/icons-material";
+import { documentPdfUrl } from "../api/client";
+
+// pdf.js only loads when a source page is actually opened.
+const PdfDocumentViewer = lazy(() => import("./pdf/PdfDocumentViewer"));
 
 // User-facing message only for statuses worth actively telling the user
 // about -- DISABLED / NO_CONTEXT_PAGES / SUCCESS render nothing extra when
@@ -34,6 +65,372 @@ function pagesLabel(pages) {
   if (!pages || pages.length === 0) return "";
   const shown = pages.slice(0, 8).join(", ");
   return pages.length > 8 ? `pp. ${shown}, +${pages.length - 8}` : `p. ${shown}`;
+}
+
+// "S002 · PDF p. 2" -- sheet only when the extraction read one confidently.
+function whereLabel(item) {
+  const pages = item.pages?.length ? item.pages : item.page ? [item.page] : [];
+  const shown = pages.slice(0, 6).join(", ") + (pages.length > 6 ? ", …" : "");
+  const pdf = pages.length ? `PDF ${pages.length > 1 ? "pp." : "p."} ${shown}` : "";
+  return item.sheet ? `${item.sheet} · ${pdf}` : pdf;
+}
+
+// Badges only for states that change how a row is read.
+const STATUS_BADGE = {
+  precast: { label: "precast · not steel", color: "default" },
+  "not steel": { label: "not steel", color: "default" },
+  "no steel": { label: "no steel (N/A)", color: "default" },
+  verify: { label: "verify on sheet", color: "warning" },
+};
+
+const RULE_LABEL = {
+  "default unless otherwise noted": "Default, U.N.O.",
+  "symbol denotes": "Symbol",
+  "scope of TYP / SIM conditions": "TYP / SIM scope",
+  "scoped convention": "Convention",
+  "detail reference": "Reference",
+  "schedule note": "Schedule note",
+};
+
+const COLLAPSED_ROWS = 4;
+const COLLAPSED_RULES = 6;
+
+function ModelNote({ text }) {
+  if (!text) return null;
+  return (
+    <Typography variant="caption" color="text.secondary" sx={{ display: "block", fontStyle: "italic" }}>
+      Model note: {text}
+    </Typography>
+  );
+}
+
+// What the mark is read as: the catalog designation when one exists, else
+// the schedule's printed size/text -- never an invented plate designation.
+function designationOf(item) {
+  if (item.designation) {
+    return { main: item.designation, sub: `${item.role} · ${item.designation_source}` };
+  }
+  if (item.relation === "mark defines plate") {
+    return { main: item.printed, sub: `${item.role} · printed size, no catalog designation` };
+  }
+  return { main: item.printed || "—", sub: item.role };
+}
+
+function conditionsOf(item) {
+  return [
+    ...(item.configuration || []),
+    ...(item.parts || []).map((p) => `${p.role} ${p.printed}`),
+  ];
+}
+
+// One button per source: opens the uploaded PDF on that page (1-based).
+function ViewPageButton({ item, label, onView }) {
+  if (!onView || !item.page) return null;
+  const where = whereLabel({ sheet: item.sheet, page: item.page });
+  return (
+    <Button
+      size="small"
+      variant="outlined"
+      startIcon={<FindInPageOutlined fontSize="small" />}
+      onClick={() => onView(item)}
+      aria-label={`View ${where}${item.mark ? ` for ${item.mark}` : ""}`}
+      sx={{ whiteSpace: "nowrap", flexShrink: 0 }}
+    >
+      {label || `View p. ${item.page}`}
+    </Button>
+  );
+}
+
+function EvidenceDetails({ item, note }) {
+  return (
+    <Box sx={{ py: 1, px: 1.5, bgcolor: "action.hover", borderRadius: 1 }}>
+      <Typography variant="caption" color="text.secondary" display="block">
+        Schedule row as extracted ({item.schedule}, {whereLabel(item)})
+      </Typography>
+      <Typography variant="body2" sx={{ fontFamily: "monospace", wordBreak: "break-word" }}>
+        {item.source_text}
+      </Typography>
+      <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.5 }}>
+        Definition read from the live schedule grid: it tells you how to read {item.mark} on a
+        plan. It is not an installed member and not a quantity.
+      </Typography>
+      <ModelNote text={note} />
+    </Box>
+  );
+}
+
+function StatusBadge({ status }) {
+  const badge = STATUS_BADGE[status];
+  if (!badge) return null;
+  return <Chip size="small" variant="outlined" color={badge.color} label={badge.label} />;
+}
+
+function DefinitionTableRow({ item, note, onView, sourceLabel }) {
+  const [open, setOpen] = useState(false);
+  const { main, sub } = designationOf(item);
+  return (
+    <>
+      <TableRow sx={{ "& > td": { borderBottom: open ? 0 : undefined, verticalAlign: "top" } }}>
+        <TableCell sx={{ width: "4.5rem" }}>
+          <Typography variant="subtitle1" fontWeight={700} sx={{ fontFamily: "monospace" }}>
+            {item.mark}
+          </Typography>
+        </TableCell>
+        <TableCell>
+          <Typography variant="subtitle1" fontWeight={600}>{main}</Typography>
+          <Typography variant="caption" color="text.secondary">{sub}</Typography>
+        </TableCell>
+        <TableCell>
+          <Stack spacing={0.5} sx={{ alignItems: "flex-start" }}>
+            {conditionsOf(item).map((c) => (
+              <Typography key={c} variant="body2" color="text.secondary">{c}</Typography>
+            ))}
+            <StatusBadge status={item.status} />
+          </Stack>
+        </TableCell>
+        <TableCell align="right" sx={{ width: "1%" }}>
+          <Stack direction="row" spacing={1} sx={{ justifyContent: "flex-end" }}>
+            <ViewPageButton item={item} label={sourceLabel} onView={onView} />
+            <Button
+              size="small"
+              onClick={() => setOpen(!open)}
+              aria-expanded={open}
+              aria-label={`${open ? "Hide" : "Show"} source details for ${item.mark}`}
+            >
+              {open ? "Hide" : "Details"}
+            </Button>
+          </Stack>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell colSpan={4} sx={{ py: 0, borderBottom: open ? undefined : 0 }}>
+          <Collapse in={open} unmountOnExit>
+            <Box sx={{ pb: 1.5 }}>
+              <EvidenceDetails item={item} note={note} />
+            </Box>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </>
+  );
+}
+
+function DefinitionCard({ item, note, onView, sourceLabel }) {
+  const [open, setOpen] = useState(false);
+  const { main, sub } = designationOf(item);
+  return (
+    <Paper variant="outlined" sx={{ p: 1.5 }}>
+      <Stack direction="row" spacing={1.5} sx={{ alignItems: "baseline" }}>
+        <Typography variant="h6" component="span" fontWeight={700} sx={{ fontFamily: "monospace" }}>
+          {item.mark}
+        </Typography>
+        <Typography variant="subtitle1" component="span" fontWeight={600} sx={{ wordBreak: "break-word" }}>
+          {main}
+        </Typography>
+      </Stack>
+      <Typography variant="caption" color="text.secondary" display="block">{sub}</Typography>
+      {conditionsOf(item).map((c) => (
+        <Typography key={c} variant="body2" color="text.secondary">{c}</Typography>
+      ))}
+      {item.status && <Box sx={{ mt: 0.75 }}><StatusBadge status={item.status} /></Box>}
+      <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+        <ViewPageButton item={item} label={sourceLabel} onView={onView} />
+        <Button size="small" onClick={() => setOpen(!open)} aria-expanded={open}>
+          {open ? "Hide details" : "Details"}
+        </Button>
+      </Stack>
+      <Collapse in={open} unmountOnExit>
+        <Box sx={{ mt: 1 }}>
+          <EvidenceDetails item={item} note={note} />
+        </Box>
+      </Collapse>
+    </Paper>
+  );
+}
+
+function DefinitionGroup({ label, schedule, items, notes, onView, compact }) {
+  const [open, setOpen] = useState(false);
+  // One extra row is shown rather than hidden behind a "Show all" button.
+  const collapsible = items.length > COLLAPSED_ROWS + 1;
+  const shown = open || !collapsible ? items : items.slice(0, COLLAPSED_ROWS);
+  // The whole group usually sits on one sheet/page: say it once, up top.
+  const places = new Set(items.map((i) => `${i.sheet}|${i.page}`));
+  const common = places.size === 1 ? whereLabel(items[0]) : "";
+  const sourceLabel = common ? "View page" : undefined;
+  return (
+    <Paper variant="outlined" sx={{ mb: 2, overflow: "hidden" }}>
+      <Stack
+        direction="row"
+        spacing={1}
+        sx={{ px: 2, py: 1.25, alignItems: "baseline", flexWrap: "wrap", bgcolor: "action.hover" }}
+      >
+        <Typography variant="subtitle1" fontWeight={700}>{label}</Typography>
+        <Typography variant="body2" color="text.secondary">
+          {schedule}{common ? ` · ${common}` : ""} · {items.length} mark{items.length === 1 ? "" : "s"}
+        </Typography>
+      </Stack>
+      {compact ? (
+        <Stack spacing={1} sx={{ p: 1.5 }}>
+          {shown.map((item) => (
+            <DefinitionCard key={item.id} item={item} note={notes[item.id]} onView={onView} sourceLabel={sourceLabel} />
+          ))}
+        </Stack>
+      ) : (
+        <Table size="small" aria-label={`${label} definitions`}>
+          <TableHead>
+            <TableRow>
+              <TableCell>Mark</TableCell>
+              <TableCell>Defined section / component</TableCell>
+              <TableCell>Configuration &amp; associated parts</TableCell>
+              <TableCell align="right">Source</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {shown.map((item) => (
+              <DefinitionTableRow
+                key={item.id}
+                item={item}
+                note={notes[item.id]}
+                onView={onView}
+                sourceLabel={sourceLabel}
+              />
+            ))}
+          </TableBody>
+        </Table>
+      )}
+      {collapsible && (
+        <Box sx={{ px: 1.5, pb: 1 }}>
+          <Button size="small" onClick={() => setOpen(!open)}>
+            {open ? "Show fewer" : `Show all ${items.length}`}
+          </Button>
+        </Box>
+      )}
+    </Paper>
+  );
+}
+
+function MarksAndDefinitions({ definitions, notes, onView }) {
+  const compact = useMediaQuery(useTheme().breakpoints.down("md"));
+  const groups = [];
+  for (const item of definitions) {
+    let group = groups.find((g) => g.component === item.component);
+    if (!group) {
+      group = { component: item.component, label: item.component_label, schedule: item.schedule, items: [] };
+      groups.push(group);
+    }
+    group.items.push(item);
+  }
+  return (
+    <Section title="Marks and definitions">
+      <Typography variant="body2" color="text.secondary" mb={1.5}>
+        Each row says how to read that mark where it appears on a plan. A schedule row is a
+        definition, not an installed member — it is never a quantity.
+      </Typography>
+      {groups.map((g) => (
+        <DefinitionGroup key={g.component} {...g} notes={notes} onView={onView} compact={compact} />
+      ))}
+    </Section>
+  );
+}
+
+// The uploaded PDF on the source page, with the mark highlighted when its
+// bounding box is known. Reuses the Drawing Review viewer; needs no prediction.
+function SourceViewerDialog({ documentId, target, onClose }) {
+  const fullScreen = useMediaQuery(useTheme().breakpoints.down("md"));
+  if (!target) return null;
+  const title = [target.mark, whereLabel({ sheet: target.sheet, page: target.page })]
+    .filter(Boolean)
+    .join(" — ");
+  return (
+    <Dialog
+      open
+      onClose={onClose}
+      fullWidth
+      maxWidth="lg"
+      fullScreen={fullScreen}
+      aria-labelledby="summary-source-title"
+    >
+      <DialogTitle id="summary-source-title" sx={{ pr: 6 }}>
+        {title}
+      </DialogTitle>
+      <IconButton aria-label="Close source page" onClick={onClose} sx={{ position: "absolute", right: 8, top: 8 }}>
+        <CloseOutlined />
+      </IconButton>
+      <DialogContent dividers sx={{ p: 0, height: fullScreen ? "100%" : "78vh" }}>
+        <Suspense
+          fallback={(
+            <Box sx={{ display: "grid", placeItems: "center", height: "100%" }}>
+              <CircularProgress size={28} />
+            </Box>
+          )}
+        >
+          <PdfDocumentViewer
+            fileUrl={documentPdfUrl(documentId)}
+            pageWindow={1}
+            selection={{
+              key: `${target.id || target.mark || "source"}-${target.page}`,
+              pageNumber: target.page,
+              boundingBox: target.bbox || null,
+            }}
+          />
+        </Suspense>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function InterpretationRules({ rules, notes, onView }) {
+  const [open, setOpen] = useState(false);
+  const shown = open ? rules : rules.slice(0, COLLAPSED_RULES);
+  return (
+    <Section title="Rules affecting interpretation">
+      <Stack spacing={0.75}>
+        {shown.map((rule) => (
+          <Box key={rule.id}>
+            <Stack direction="row" spacing={1} sx={{ alignItems: "baseline", flexWrap: "wrap" }}>
+              <Chip size="small" variant="outlined" label={RULE_LABEL[rule.relation] || rule.relation} />
+              <Typography variant="body2" sx={{ flex: 1, minWidth: 0 }}>
+                {rule.text}
+              </Typography>
+            </Stack>
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center", mt: 0.25 }}>
+              <Typography variant="caption" color="text.secondary">
+                {rule.scope} · {whereLabel(rule)}
+              </Typography>
+              <ViewPageButton item={rule} onView={onView} />
+            </Stack>
+            <ModelNote text={notes[rule.id]} />
+          </Box>
+        ))}
+      </Stack>
+      {rules.length > COLLAPSED_RULES && (
+        <Button size="small" onClick={() => setOpen(!open)} sx={{ mt: 0.5, px: 0.5 }}>
+          {open ? "Show fewer" : `Show all ${rules.length} rules`}
+        </Button>
+      )}
+    </Section>
+  );
+}
+
+function NeedsAttention({ items, notes, onView }) {
+  return (
+    <Section title="Needs attention">
+      <Alert severity="warning" variant="outlined" icon={false} sx={{ py: 0.25 }}>
+        <Stack component="ul" sx={{ m: 0, pl: 2.5 }} spacing={0.75}>
+          {items.map((u) => (
+            <Typography key={u.id} component="li" variant="body2">
+              {u.text}{" "}
+              <Typography component="span" variant="caption" color="text.secondary">
+                ({whereLabel(u)})
+              </Typography>{" "}
+              <ViewPageButton item={{ ...u, page: u.page || u.pages?.[0] }} onView={onView} />
+              <ModelNote text={notes[u.id]} />
+            </Typography>
+          ))}
+        </Stack>
+      </Alert>
+    </Section>
+  );
 }
 
 function Section({ title, source, children }) {
@@ -106,8 +503,10 @@ function RuleItem({ rule }) {
  * (services/engineering/drawing_intelligence.py), optionally LLM-polished.
  * Nothing here changes a predicted section, candidate or takeoff quantity.
  */
-export default function DrawingSummaryPanel({ profile }) {
+export default function DrawingSummaryPanel({ profile, documentId = null }) {
+  const [sourceTarget, setSourceTarget] = useState(null);
   if (!profile) return null;
+  const onView = documentId ? setSourceTarget : null;
 
   const di = profile.drawing_intelligence || null;
   const narrative = di?.narrative || null;
@@ -123,9 +522,21 @@ export default function DrawingSummaryPanel({ profile }) {
   const typicalActive = (di?.typical_conditions || []).filter((i) => i.detail?.present);
   const schedules = di?.schedule_insights || [];
   const scopeActive = (di?.scope_signals || []).filter((i) => i.detail?.present);
-  const notes = di?.structural_notes || [];
   const uncertainties = di?.uncertainties || [];
   const method = di?.method;
+
+  const definitions = di?.definitions || [];
+  const interpretationRules = di?.interpretation_rules || [];
+  const unresolved = di?.unresolved || [];
+  const hasEvidence =
+    definitions.length > 0 || interpretationRules.length > 0 || unresolved.length > 0;
+  // Model notes only ever annotate an existing evidence id (validated server-side).
+  const modelNotes = Object.fromEntries(
+    [...(di?.summary_llm?.key_facts || []), ...(di?.summary_llm?.cautions || [])].map((n) => [
+      n.id,
+      n.why,
+    ]),
+  );
 
   const hasNarrative = Boolean(narrative);
   const hasRules = rules.length > 0 || (profile.abbreviation_rules || []).length > 0;
@@ -164,6 +575,17 @@ export default function DrawingSummaryPanel({ profile }) {
             <Para>{narrative.project_overview}</Para>
           </Section>
 
+          {definitions.length > 0 && (
+            <MarksAndDefinitions definitions={definitions} notes={modelNotes} onView={onView} />
+          )}
+          {interpretationRules.length > 0 && (
+            <InterpretationRules rules={interpretationRules} notes={modelNotes} onView={onView} />
+          )}
+          {unresolved.length > 0 && (
+            <NeedsAttention items={unresolved} notes={modelNotes} onView={onView} />
+          )}
+
+          <SupportingDetails collapsed={hasEvidence}>
           <Section title="Structural content">
             <Para muted>{narrative.structural_content}</Para>
           </Section>
@@ -292,19 +714,21 @@ export default function DrawingSummaryPanel({ profile }) {
               <Divider sx={{ my: 1.5 }} />
               {uncertainties.length > 0 && (
                 <Section title="Uncertainties">
-                  <Stack spacing={0.5}>
-                    {uncertainties.map((u, i) => (
-                      <Alert
-                        key={i}
-                        severity="warning"
-                        variant="outlined"
-                        icon={false}
-                        sx={{ py: 0.25, "& .MuiAlert-message": { width: "100%" } }}
-                      >
-                        <Typography variant="body2">{u.value}</Typography>
-                      </Alert>
-                    ))}
-                  </Stack>
+                  <Alert severity="warning" variant="outlined" icon={false} sx={{ py: 0.25 }}>
+                    <Stack component="ul" sx={{ m: 0, pl: 2.5 }} spacing={0.25}>
+                      {uncertainties.map((u, i) => (
+                        <Typography key={i} component="li" variant="body2">
+                          {u.value}
+                          {u.source_pages?.length > 0 && (
+                            <Typography component="span" variant="caption" color="text.secondary">
+                              {" "}
+                              (PDF {pagesLabel(u.source_pages)})
+                            </Typography>
+                          )}
+                        </Typography>
+                      ))}
+                    </Stack>
+                  </Alert>
                 </Section>
               )}
               {insights.length > 0 && (
@@ -343,13 +767,31 @@ export default function DrawingSummaryPanel({ profile }) {
             </>
           )}
 
-          {notes.length > 0 && (
-            <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
-              Source pages retained for every claim above (open the browser console profile object to expand).
-            </Typography>
-          )}
+          </SupportingDetails>
         </>
       )}
+      <SourceViewerDialog
+        documentId={documentId}
+        target={sourceTarget}
+        onClose={() => setSourceTarget(null)}
+      />
     </Paper>
+  );
+}
+
+// Page make-up, label families, TYP frequencies, scope stamps and page-level
+// uncertainties: useful background, but not the default view once verified
+// definitions exist. Without them (older cached profiles) it renders inline.
+function SupportingDetails({ collapsed, children }) {
+  if (!collapsed) return children;
+  return (
+    <Accordion disableGutters elevation={0} variant="outlined" sx={{ mt: 1 }}>
+      <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
+        <Typography variant="body2" fontWeight={600}>
+          Supporting details
+        </Typography>
+      </AccordionSummary>
+      <AccordionDetails>{children}</AccordionDetails>
+    </Accordion>
   );
 }

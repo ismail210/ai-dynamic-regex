@@ -19,7 +19,7 @@ from services.pdf_parser import extract_document_structure
 
 # Bumped whenever extraction output changes, so cached documents are rebuilt
 # instead of replaying stale artifacts.
-EXTRACTION_VERSION = "3.14-exact-beside-marks"
+EXTRACTION_VERSION = "3.16-summary-designations"
 
 
 def extract_engineering_document(

@@ -1,6 +1,19 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 import DrawingSummaryPanel from "./DrawingSummaryPanel";
+
+// The real viewer (react-pdf) is covered by PdfDocumentViewer.test.jsx; here
+// only what the summary asks it to show matters.
+vi.mock("./pdf/PdfDocumentViewer", () => ({
+  default: ({ fileUrl, selection }) => (
+    <div
+      data-testid="pdf-viewer"
+      data-file={fileUrl}
+      data-page={String(selection?.pageNumber)}
+      data-bbox={JSON.stringify(selection?.boundingBox ?? null)}
+    />
+  ),
+}));
 
 // The panel is pure -- it takes the extraction-stage `legend_profile` object
 // directly and renders its `drawing_intelligence` sub-object.
@@ -219,5 +232,208 @@ describe("DrawingSummaryPanel", () => {
   it("badges an LLM-polished summary", () => {
     render(<DrawingSummaryPanel profile={base({ drawing_intelligence: di({ method: "llm_enhanced" }) })} />);
     expect(screen.getByText("summary polished by model")).toBeInTheDocument();
+  });
+});
+
+function definition(id, mark, designation, extra = {}) {
+  return {
+    id,
+    mark,
+    designation,
+    designation_source: designation ? "AISC v16 catalog" : null,
+    printed: "",
+    role: "lintel",
+    configuration: [],
+    parts: [],
+    status: null,
+    component: "lintel",
+    component_label: "Lintels",
+    schedule: "Lintel schedule",
+    relation: "mark defines section",
+    sheet: "S002",
+    page: 2,
+    bbox: [2021.4, 1770.7, 2030.5, 1781.2],
+    source_text: `${mark} | ${designation}`,
+    ...extra,
+  };
+}
+
+const bearing = (printed) => ({ role: "bearing plate", printed, designation: null });
+
+function evidenceProfile(overrides = {}) {
+  return base({
+    drawing_intelligence: di({
+      definitions: [
+        definition("D1", "L1", "W8X21", {
+          configuration: ["bottom plate"], parts: [bearing('6"x6"x1/2"')],
+          source_text: 'L1 | W8x21 WITH BOTTOM PLATE | 6"x6"x1/2"',
+        }),
+        definition("D2", "L1A", "W8X21", { configuration: ["hung plate"], parts: [bearing('6"x6"x1/2"')] }),
+        definition("D3", "C1", "HSS6X6X1/2", {
+          component: "column", component_label: "Columns", schedule: "Column schedule", role: "column",
+        }),
+        definition("D4", "BP1", null, {
+          component: "bearing_plate", component_label: "Bearing plates",
+          schedule: "Bearing plate schedule", relation: "mark defines plate",
+          role: "bearing plate", printed: '4"x6"x3/4"',
+        }),
+        definition("D5", "CL1", "L5X5X3/8", {
+          component: "icf_lintel", component_label: "ICF lintels", schedule: "ICF lintel schedule",
+          role: "ICF lintel", configuration: ["loose angle"],
+        }),
+      ],
+      interpretation_rules: [
+        {
+          id: "R1", relation: "default unless otherwise noted",
+          text: "BEARING PLATE SIZE APPLIES TO EACH END UNLESS NOTED OTHERWISE.",
+          scope: "Lintel schedule", sheet: "S002", page: 2,
+        },
+      ],
+      unresolved: [
+        {
+          id: "U1", kind: "undefined_bracket_tag",
+          text: "Numbers in brackets after beam sizes appear 427 times; do not read them as member quantities.",
+          pages: [7, 8, 9, 10], sheet: "S102A",
+        },
+      ],
+      summary_llm: {
+        overview: "x", overview_source: "llm",
+        key_facts: [{ id: "D2", why: "An L1A callout means a hung plate, not a bottom plate." }],
+        cautions: [],
+      },
+      uncertainties: [{ value: "1 page(s) could not be confidently categorised", source_pages: [19] }],
+      ...overrides,
+    }),
+  });
+}
+
+// The table row (desktop) that holds a mark.
+function rowOf(mark) {
+  return screen.getByText(mark, { selector: "h6, span, p" }).closest("tr");
+}
+
+describe("DrawingSummaryPanel — evidence view", () => {
+  it("groups marks into schedule tables with the shared source in the heading", () => {
+    render(<DrawingSummaryPanel profile={evidenceProfile()} documentId="doc_abc" />);
+    expect(screen.getByText("Marks and definitions")).toBeInTheDocument();
+    expect(screen.getByRole("table", { name: "Lintels definitions" })).toBeInTheDocument();
+    expect(screen.getByText(/Lintel schedule · S002 · PDF p\. 2 · 2 marks/)).toBeInTheDocument();
+    expect(screen.getAllByRole("columnheader", { name: "Defined section / component" }).length).toBe(4);
+  });
+
+  it("keeps L1 and L1A distinct by configuration while sharing W8X21", () => {
+    render(<DrawingSummaryPanel profile={evidenceProfile()} />);
+    const l1 = within(rowOf("L1"));
+    const l1a = within(rowOf("L1A"));
+    expect(l1.getByText("W8X21")).toBeInTheDocument();
+    expect(l1a.getByText("W8X21")).toBeInTheDocument();
+    expect(l1.getByText("bottom plate")).toBeInTheDocument();
+    expect(l1a.getByText("hung plate")).toBeInTheDocument();
+    expect(l1.queryByText("hung plate")).not.toBeInTheDocument();
+    expect(l1.getByText('bearing plate 6"x6"x1/2"')).toBeInTheDocument();
+  });
+
+  it("shows a bearing-plate mark with its printed size and no invented designation", () => {
+    render(<DrawingSummaryPanel profile={evidenceProfile()} />);
+    const bp1 = within(rowOf("BP1"));
+    expect(bp1.getByText('4"x6"x3/4"')).toBeInTheDocument();
+    expect(bp1.getByText("bearing plate · printed size, no catalog designation")).toBeInTheDocument();
+    expect(bp1.queryByText(/bent/i)).not.toBeInTheDocument();
+  });
+
+  it("shows the catalog angle with its condition and no redundant angle badge", () => {
+    render(<DrawingSummaryPanel profile={evidenceProfile()} />);
+    const cl1 = within(rowOf("CL1"));
+    expect(cl1.getByText("L5X5X3/8")).toBeInTheDocument();
+    expect(cl1.getByText("ICF lintel · AISC v16 catalog")).toBeInTheDocument();
+    expect(cl1.getByText("loose angle")).toBeInTheDocument();
+    expect(cl1.queryByText("angle")).not.toBeInTheDocument();
+    expect(screen.queryByText("plate")).not.toBeInTheDocument();
+  });
+
+  it("badges only meaningful states", () => {
+    const defs = [
+      definition("D1", "L5", null, { relation: "mark defines non-steel item", printed: "12F16-IB PRECAST LINTEL", status: "precast" }),
+      definition("D2", "CL5", null, { relation: "mark defines no steel item", printed: "N/A", status: "no steel" }),
+      definition("D3", "BP4", null, { relation: "mark defines plate", printed: '6"x8"x3/4"', status: "verify", role: "bearing plate" }),
+    ];
+    render(<DrawingSummaryPanel profile={evidenceProfile({ definitions: defs })} />);
+    expect(screen.getByText("precast · not steel")).toBeInTheDocument();
+    expect(screen.getByText("no steel (N/A)")).toBeInTheDocument();
+    expect(screen.getByText("verify on sheet")).toBeInTheDocument();
+  });
+
+  it("states that schedule rows are definitions, never quantities", () => {
+    render(<DrawingSummaryPanel profile={evidenceProfile()} />);
+    expect(screen.getByText(/it is never a quantity/)).toBeInTheDocument();
+  });
+
+  it("reveals the original schedule wording and model note on click", () => {
+    render(<DrawingSummaryPanel profile={evidenceProfile()} />);
+    expect(screen.queryByText('L1 | W8x21 WITH BOTTOM PLATE | 6"x6"x1/2"')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Show source details for L1" }));
+    expect(screen.getByText('L1 | W8x21 WITH BOTTOM PLATE | 6"x6"x1/2"')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Show source details for L1A" }));
+    expect(screen.getByText(/Model note: An L1A callout means a hung plate/)).toBeInTheDocument();
+  });
+
+  it("shows typed rules and actionable items", () => {
+    render(<DrawingSummaryPanel profile={evidenceProfile()} />);
+    expect(screen.getByText("Rules affecting interpretation")).toBeInTheDocument();
+    expect(screen.getByText("Default, U.N.O.")).toBeInTheDocument();
+    expect(screen.getByText("Needs attention")).toBeInTheDocument();
+    expect(screen.getByText(/S102A · PDF pp\. 7, 8, 9, 10/)).toBeInTheDocument();
+  });
+
+  it("collapses long definition groups until expanded", () => {
+    const many = Array.from({ length: 7 }, (_, i) => definition(`D${i + 1}`, `L${i + 1}`, "W8X21"));
+    render(<DrawingSummaryPanel profile={evidenceProfile({ definitions: many })} />);
+    expect(screen.queryByText("L7")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByText("Show all 7"));
+    expect(screen.getByText("L7")).toBeInTheDocument();
+  });
+
+  it("moves low-value background into collapsed supporting details", () => {
+    render(<DrawingSummaryPanel profile={evidenceProfile()} />);
+    expect(screen.getByText("Supporting details")).toBeInTheDocument();
+    const summary = screen.getByText("Supporting details").closest("[aria-expanded]");
+    expect(summary).toHaveAttribute("aria-expanded", "false");
+  });
+});
+
+describe("DrawingSummaryPanel — source page navigation", () => {
+  it("hides View page when no document is loaded", () => {
+    render(<DrawingSummaryPanel profile={evidenceProfile()} />);
+    expect(screen.queryByRole("button", { name: /^View / })).not.toBeInTheDocument();
+  });
+
+  it("opens the uploaded PDF on S002 (PDF page 2) with the mark highlighted", async () => {
+    render(<DrawingSummaryPanel profile={evidenceProfile()} documentId="doc_abc" />);
+    fireEvent.click(screen.getByRole("button", { name: "View S002 · PDF p. 2 for L1" }));
+    const viewer = await screen.findByTestId("pdf-viewer");
+    expect(viewer).toHaveAttribute("data-file", "/api/documents/doc_abc/pdf");
+    expect(viewer).toHaveAttribute("data-page", "2");
+    expect(viewer).toHaveAttribute("data-bbox", "[2021.4,1770.7,2030.5,1781.2]");
+    expect(screen.getByRole("dialog", { name: "L1 — S002 · PDF p. 2" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Close source page" }));
+    await waitFor(() => expect(screen.queryByTestId("pdf-viewer")).not.toBeInTheDocument());
+  });
+
+  it("navigates to another page after a group is expanded", async () => {
+    const many = Array.from({ length: 7 }, (_, i) =>
+      definition(`D${i + 1}`, `L${i + 1}`, "W8X21", i === 6 ? { sheet: "S503", page: 22, bbox: null } : {}),
+    );
+    render(<DrawingSummaryPanel profile={evidenceProfile({ definitions: many })} documentId="doc_abc" />);
+    fireEvent.click(screen.getByText("Show all 7"));
+    fireEvent.click(screen.getByRole("button", { name: "View S503 · PDF p. 22 for L7" }));
+    const viewer = await screen.findByTestId("pdf-viewer");
+    expect(viewer).toHaveAttribute("data-page", "22");
+    expect(viewer).toHaveAttribute("data-bbox", "null");
+  });
+
+  it("opens an unresolved item's first page", async () => {
+    render(<DrawingSummaryPanel profile={evidenceProfile()} documentId="doc_abc" />);
+    fireEvent.click(screen.getByRole("button", { name: "View S102A · PDF p. 7" }));
+    expect(await screen.findByTestId("pdf-viewer")).toHaveAttribute("data-page", "7");
   });
 });

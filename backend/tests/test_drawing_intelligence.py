@@ -186,76 +186,237 @@ class NarrativeAndPacketTests(unittest.TestCase):
         self.assertLess(packet.count("W"), 200)
 
 
-class SummaryLlmGroundingTests(unittest.TestCase):
-    def _profile(self):
-        return build_drawing_intelligence(_doc(
-            {1: "ROOF FRAMING PLAN\nW16X26 TYP"},
-            tokens=[_tok("W16X26"), _tok("W14X22")],
-        ))
+def _row(mark, size_text, section=None, plate_text="", roles=()):
+    return {
+        "mark": mark, "size_text": size_text, "section": section,
+        "catalog_valid": bool(section), "plate_text": plate_text,
+        "plate_role": "bearing_plate" if plate_text else None,
+        "member_plate_roles": list(roles),
+    }
 
-    def test_invented_section_rejects_the_section(self):
-        prof = self._profile()
 
-        class P:
-            def propose(self, *_a):
-                return {
-                    "project_overview": "Uses W40X600 girders throughout.",  # not in profile
-                    "structural_content": "Two framing pages.",
-                    "steel_system": "Wide-flange framing.",
-                    "drawing_language": "None found.",
-                    "typical_conditions": "TYP language present.",
-                    "schedules": "None.",
-                    "scope_revision": "None.",
-                }
+def _schedule_doc():
+    """Struct.pdf S002 in miniature: four schedules on a sheet whose notes
+    made the legend profile call it a SPECIFICATIONS page, plus a detail
+    sheet that only says "SEE LINTEL SCHEDULE"."""
 
-        res = summarize(prof, provider=P(), evidence_text=evidence_packet(prof))
-        # project_overview names an invented section -> that section keeps the
-        # deterministic text
-        self.assertIn("project_overview", res.dropped_claims)
+    page2 = (
+        "STATEMENT OF SPECIAL INSPECTIONS\nCOLUMN SCHEDULE\nLINTEL SCHEDULE\n"
+        "BEARING PLATE SCHEDULE\nICF LINTEL SCHEDULE"
+    )
+    page3 = "TYPICAL LINTEL DETAILS\nLOOSE LINTEL, SEE LINTEL SCHEDULE\nW8X21 W8X21 W8X21 W8X21 W8X21 W8X21"
+    page4 = "FRAMING PLAN W14x22 [8] " * 12
+    doc = _doc(
+        {2: page2, 3: page3, 4: page4},
+        page_count=4,
+        schedules=[
+            {"page_number": 2, "text": "STATEMENT OF SPECIAL INSPECTIONS: NOTE 1 ..."},
+            {"page_number": 3, "text": page3},
+        ],
+    )
+    for page in doc["pages"]:
+        page.update(width=3024.0, height=2160.0)
+    doc["blocks"] += [
+        {"page_number": 2, "bbox": [2900, 2000, 2990, 2020], "text": "S002 INSPECTION TABLES AND SCHEDULES"},
+        {"page_number": 3, "bbox": [2900, 2000, 2990, 2020], "text": "S502 DETAILS"},
+        {"page_number": 2, "bbox": [2019, 1900, 2800, 1960],
+         "text": "NOTES: 1. REFER TO SHEET S303 FOR LINTEL CONFIGURATIONS. "
+                 "2. BEARING PLATE SIZE APPLIES TO EACH END UNLESS NOTED OTHERWISE."},
+    ]
+    marks = {"L1": 1770, "L1A": 1788, "L5": 1878, "C1": 134, "BP3": 1203, "CL1": 1422, "CL5": 1520}
+    doc["words"] = [
+        {"page_number": 2, "text": m, "bbox": [2020.0, y, 2032.0, y + 10.0]} for m, y in marks.items()
+    ]
+    doc["schedule_grid"] = [
+        {"page": 2, "kind": "lintel", "rows": [
+            _row("L1", "W8x21 WITH BOTTOM PLATE", "W8X21", '6"x6"x1/2"', ["bottom_plate"]),
+            _row("L1A", "W8x21 WITH HUNG PLATE", "W8X21", '6"x6"x1/2"', ["hung_plate"]),
+            _row("L5", "12F16-IB PRECAST LINTEL", None, "-"),
+        ]},
+        {"page": 2, "kind": "column", "rows": [
+            _row("C1", 'HSS 6"x6"x1/2"', "HSS6X6X1/2", '14"x14"x3/4"'),
+        ]},
+        {"page": 2, "kind": "bearing_plate", "rows": [
+            _row("BP3", '6"x6"x5/8"', None, '6"x6"x5/8"'),
+        ]},
+        {"page": 2, "kind": "icf_lintel", "rows": [
+            _row("CL1", "3. DOCUMENT ACCEPTANCE STANDARD WALL WITH 2-#5 AT HEAD",
+                 None, 'LOOSE ANGLE 5"x5"x3/8" REFER TO DETAIL'),
+            _row("CL5", "STANDARD WALL WITH 2-#6 AT HEAD", None, "N/A N/A"),
+        ]},
+    ]
+    return doc
+
+
+class ScheduleDefinitionTests(unittest.TestCase):
+    def setUp(self):
+        self.doc = _schedule_doc()
+        self.prof = build_drawing_intelligence(self.doc, context_pages={"2": "SPECIFICATIONS"})
+        self.by_mark = {d["mark"]: d for d in self.prof["definitions"]}
+
+    def test_page2_schedules_are_found_despite_notes_role(self):
+        self.assertEqual(self.prof["page_categories"]["2"], "schedule")
+        self.assertEqual(self.by_mark["L1"]["page"], 2)
+        self.assertEqual(self.by_mark["L1"]["sheet"], "S002")
+        self.assertEqual(self.by_mark["L1"]["bbox"], [2020.0, 1770, 2032.0, 1780.0])
+        self.assertIn("S002", self.prof["overview"])
+
+    def test_l1_and_l1a_share_a_section_but_not_a_configuration(self):
+        l1, l1a = self.by_mark["L1"], self.by_mark["L1A"]
+        self.assertEqual((l1["designation"], l1a["designation"]), ("W8X21", "W8X21"))
+        self.assertEqual(l1["designation_source"], "AISC v16 catalog")
+        self.assertEqual(l1["configuration"], ["bottom plate"])
+        self.assertEqual(l1a["configuration"], ["hung plate"])
+        bearing = {"role": "bearing plate", "printed": '6"x6"x1/2"', "designation": None}
+        self.assertEqual(l1["parts"], [bearing])
+        self.assertEqual(l1a["parts"], [bearing])
+
+    def test_c1_and_cl1_stay_in_their_own_schedules(self):
+        c1, cl1 = self.by_mark["C1"], self.by_mark["CL1"]
+        self.assertEqual((c1["component"], c1["designation"]), ("column", "HSS6X6X1/2"))
+        self.assertEqual(c1["parts"][0]["role"], "base plate")
+        self.assertEqual((cl1["component"], cl1["designation"]), ("icf_lintel", "L5X5X3/8"))
+        self.assertEqual(cl1["configuration"], ["loose angle"])  # a condition, not a badge
+
+    def test_bearing_plate_mark_gets_no_invented_designation(self):
+        bp3 = self.by_mark["BP3"]
+        self.assertEqual(bp3["mark"], "BP3")
+        self.assertEqual(bp3["relation"], "mark defines plate")
+        self.assertEqual(bp3["role"], "bearing plate")
+        self.assertEqual(bp3["printed"], '6"x6"x5/8"')   # printed order kept
+        self.assertIsNone(bp3["designation"])            # no plate designation in the catalog
+        self.assertNotIn("bent", repr(bp3).lower())
+
+    def test_no_catalog_designation_for_plate_marks(self):
+        # The only "BP" in the AISC files is BP8X8, a *historical* bearing-pile
+        # row outside the active catalog; plates have no catalog designation.
+        from services.engineering.drawing_intelligence import _catalog_designation
+
+        self.assertIsNone(_catalog_designation("BP8X8"))
+        self.assertIsNone(_catalog_designation("BP3"))
+        self.assertIsNone(_catalog_designation("PL3/4X4X6"))
+        self.assertIsNone(_catalog_designation('6"x6"x5/8"'))
+        self.assertEqual(_catalog_designation("L5X5X3/8"), "L5X5X3/8")
+
+    def test_precast_and_na_rows_are_not_steel(self):
+        l5, cl5 = self.by_mark["L5"], self.by_mark["CL5"]
+        self.assertEqual((l5["relation"], l5["status"]), ("mark defines non-steel item", "precast"))
+        self.assertIsNone(l5["designation"])
+        self.assertEqual((cl5["relation"], cl5["status"]), ("mark defines no steel item", "no steel"))
+
+    def test_packet_line_keeps_mark_designation_and_configuration(self):
+        from services.engineering.drawing_intelligence import definition_line
+
         self.assertEqual(
-            res.narrative["project_overview"], prof["narrative"]["project_overview"]
+            definition_line(self.by_mark["L1A"]), 'L1A → W8X21 | hung plate | bearing plate 6"x6"x1/2"'
+        )
+        self.assertEqual(
+            definition_line(self.by_mark["BP3"]), 'BP3 → bearing plate 6"x6"x5/8" (printed size)'
         )
 
-    def test_all_rejected_keeps_deterministic_narrative(self):
-        prof = self._profile()
+    def test_see_schedule_reference_is_not_a_schedule(self):
+        kinds = {(s["detail"]["kind"], s["detail"]["page"]) for s in self.prof["schedule_insights"]}
+        self.assertNotIn(("lintel_schedule", 3), kinds)
+        refs = [r for r in self.prof["interpretation_rules"] if r["scope"] == "schedule reference"]
+        self.assertEqual(len(refs), 1)
+        self.assertEqual(refs[0]["pages"], [3])
+        self.assertIn("S002 · PDF p. 2", refs[0]["text"])
 
+    def test_schedule_notes_become_typed_rules(self):
+        by_text = {r["text"]: r for r in self.prof["interpretation_rules"]}
+        each_end = by_text["BEARING PLATE SIZE APPLIES TO EACH END UNLESS NOTED OTHERWISE."]
+        self.assertEqual(each_end["relation"], "default unless otherwise noted")
+        self.assertEqual(each_end["scope"], "Lintel schedule")
+        self.assertEqual(by_text["REFER TO SHEET S303 FOR LINTEL CONFIGURATIONS."]["relation"], "detail reference")
+
+    def test_mixed_cells_and_undefined_brackets_are_actionable(self):
+        kinds = {u["kind"]: u for u in self.prof["unresolved"]}
+        self.assertIn("CL1", kinds["mixed_schedule_cells"]["text"])
+        self.assertNotIn("L1,", kinds["mixed_schedule_cells"]["text"])
+        self.assertIn("do not read them as member quantities", kinds["undefined_bracket_tag"]["text"])
+
+    def test_definitions_are_never_quantities_and_tokens_untouched(self):
+        self.assertTrue(all(d["is_definition_not_quantity"] for d in self.prof["definitions"]))
+        self.assertIn("NOT a quantity", evidence_packet(self.prof))
+        before = repr(self.doc["engineering_tokens"]) + repr(self.doc["schedule_grid"])
+        build_drawing_intelligence(self.doc, context_pages={"2": "SPECIFICATIONS"})
+        self.assertEqual(before, repr(self.doc["engineering_tokens"]) + repr(self.doc["schedule_grid"]))
+
+    def test_no_schedule_grid_means_no_definitions(self):
+        prof = build_drawing_intelligence(_doc({1: "ROOF FRAMING PLAN\nW16X26 TYP"}, tokens=[_tok("W16X26")]))
+        self.assertEqual(prof["definitions"], [])
+        self.assertIn("no MARK/SIZE schedule definitions", prof["overview"])
+
+
+class SummaryLlmGroundingTests(unittest.TestCase):
+    def setUp(self):
+        self.prof = build_drawing_intelligence(_schedule_doc(), context_pages={"2": "SPECIFICATIONS"})
+        self.ids = {d["mark"]: d["id"] for d in self.prof["definitions"]}
+        self.packet = evidence_packet(self.prof)
+
+    def _run(self, response):
         class P:
             def propose(self, *_a):
-                return "not a dict"
+                if isinstance(response, Exception):
+                    raise response
+                return response
 
-        res = summarize(prof, provider=P(), evidence_text=evidence_packet(prof))
-        self.assertIsNone(res.narrative)
-        self.assertEqual(res.method, "deterministic")
+        return summarize(self.prof, provider=P(), evidence_text=self.packet)
 
-    def test_provider_exception_is_safe(self):
-        prof = self._profile()
-
-        class P:
-            def propose(self, *_a):
-                raise RuntimeError("boom")
-
-        res = summarize(prof, provider=P(), evidence_text=evidence_packet(prof))
-        self.assertIsNone(res.narrative)
-        self.assertIn("boom", res.error)
-
-    def test_grounded_rewrite_is_accepted(self):
-        prof = self._profile()
-
-        class P:
-            def propose(self, *_a):
-                return {
-                    "project_overview": "A small roof-framing package using W16X26 and W14X22 wide-flange beams.",
-                    "structural_content": "One roof framing plan.",
-                    "steel_system": "Wide-flange members only; W16X26 and W14X22 appear.",
-                    "drawing_language": "No project shorthand was found.",
-                    "typical_conditions": "TYP markings appear near the beam labels.",
-                    "schedules": "No structural schedules were identified.",
-                    "scope_revision": "No issue phase stamp was found.",
-                }
-
-        res = summarize(prof, provider=P(), evidence_text=evidence_packet(prof))
+    def test_grounded_selection_is_accepted(self):
+        res = self._run({
+            "overview": "Schedules on S002 define the lintel marks L1 and L1A.",
+            "key_facts": [{"id": self.ids["L1A"], "why": "An L1A callout is a W8X21 with a hung plate, not L1."}],
+            "cautions": [],
+        })
         self.assertEqual(res.method, "llm_enhanced")
-        self.assertIn("W16X26", res.narrative["project_overview"])
+        self.assertEqual(res.summary["overview_source"], "llm")
+        self.assertEqual(res.summary["key_facts"][0]["id"], self.ids["L1A"])
+
+    def test_unsupported_claims_are_rejected(self):
+        res = self._run({
+            "overview": "Schedules define mark L9 as a W40X593.",  # invented mark + section
+            "key_facts": [
+                {"id": "D99", "why": "Unknown fact."},
+                {"id": self.ids["L1"], "why": "L1 is a W10X49 column."},  # section not in D(L1)
+                {"id": self.ids["C1"], "why": "C1 reads as an HSS6X6X1/2 column."},
+            ],
+            "cautions": [{"id": self.ids["L1"], "why": "Definitions are not cautions."}],
+        })
+        self.assertEqual([i["id"] for i in res.summary["key_facts"]], [self.ids["C1"]])
+        self.assertEqual(res.summary["cautions"], [])
+        self.assertEqual(res.summary["overview_source"], "deterministic")
+        self.assertEqual(res.summary["overview"], self.prof["overview"])
+        self.assertIn("overview", res.dropped_claims)
+        self.assertIn("key_facts:D99", res.dropped_claims)
+
+    def test_note_that_only_restates_its_fact_is_dropped(self):
+        res = self._run({
+            "overview": "Schedules on S002 define the lintel marks.",
+            "key_facts": [{"id": self.ids["L1"], "why": "Defines the section for lintel mark L1."}],
+            "cautions": [],
+        })
+        self.assertEqual(res.summary["key_facts"], [])
+        self.assertIn(f"key_facts:{self.ids['L1']}", res.dropped_claims)
+
+    def test_quantity_claims_are_rejected(self):
+        res = self._run({
+            "overview": "The set has 12 lintels.",
+            "key_facts": [{"id": self.ids["L1"], "why": "Count two beams per L1 row."}],
+            "cautions": [],
+        })
+        self.assertIsNone(res.summary)
+        self.assertEqual(res.error, "all_claims_rejected")
+
+    def test_malformed_and_failed_responses_fall_back(self):
+        for response, error in (("not a dict", "non_dict_response"), (RuntimeError("boom"), "RuntimeError: boom")):
+            with self.subTest(error=error):
+                res = self._run(response)
+                self.assertIsNone(res.summary)
+                self.assertEqual(res.method, "deterministic")
+                self.assertEqual(res.error, error)
+        res = self._run({"overview": 3, "key_facts": ["D1", None], "cautions": "x"})
+        self.assertIsNone(res.summary)
 
 
 class SummaryLlmProviderSchemaTests(unittest.TestCase):

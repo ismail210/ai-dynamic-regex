@@ -195,7 +195,9 @@ def _has_di_content(di_profile: Dict[str, Any]) -> bool:
     if not di_profile:
         return False
     return bool(
-        di_profile.get("steel_system", {}).get("families")
+        di_profile.get("definitions")
+        or di_profile.get("interpretation_rules")
+        or di_profile.get("steel_system", {}).get("families")
         or [i for i in di_profile.get("typical_conditions", []) if i.get("detail", {}).get("present")]
         or di_profile.get("schedule_insights")
         or [i for i in di_profile.get("scope_signals", []) if i.get("detail", {}).get("present")]
@@ -237,12 +239,14 @@ def _apply_summary_llm(profile: Dict[str, Any], *, document_id: str) -> None:
     di_profile["summary_llm_latency_ms"] = result.latency_ms
     di_profile["summary_llm_error"] = result.error
     di_profile["summary_dropped_sections"] = result.dropped_claims or []
-    if result.narrative is not None:
-        di_profile["narrative"] = result.narrative
-        di_profile["overview"] = result.narrative.get("project_overview", di_profile.get("overview"))
+    if result.summary is not None:
+        di_profile["summary_llm"] = result.summary
+        if result.summary["overview_source"] == "llm":
+            di_profile["overview"] = result.summary["overview"]
+            di_profile["narrative"]["project_overview"] = result.summary["overview"]
         di_profile["method"] = result.method
         logger.info(
-            "legend_profile[%s]: drawing summary LLM ok (latency=%sms, %d section(s) kept deterministic)",
+            "legend_profile[%s]: drawing summary LLM ok (latency=%sms, %d claim(s) rejected)",
             document_id, result.latency_ms, len(result.dropped_claims or []),
         )
     else:

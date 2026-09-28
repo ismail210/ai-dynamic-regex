@@ -15,7 +15,7 @@ import { TipButton } from "../components/ui/ActionButtons";
  * already produced (`extraction.legend_profile`).
  */
 export default function DrawingSummaryPage() {
-  const { extraction } = useAnalysis();
+  const { extraction, document } = useAnalysis();
 
   if (!extraction) {
     return (
@@ -35,7 +35,7 @@ export default function DrawingSummaryPage() {
   const di = profile?.drawing_intelligence;
   const hasProfile =
     profile &&
-    ((di && (di.narrative || di.page_groups?.length)) ||
+    ((di && (di.narrative || di.definitions?.length || di.page_groups?.length)) ||
       (profile.project_rules || []).length > 0 ||
       (profile.abbreviation_rules || []).length > 0 ||
       profile.status === "MODEL_ERROR" ||
@@ -45,12 +45,12 @@ export default function DrawingSummaryPage() {
     <Stack spacing={2.5}>
       <PageHeader
         title="Drawing Summary"
-        subtitle="The project overview, drawing conventions, and steel families Estima3D read from this set. Informational — it does not change any prediction."
+        subtitle="What the drawing marks mean and which notes govern how to read them. Informational — it does not change any prediction."
       />
       <WorkflowProgress step="summary" />
 
       {hasProfile ? (
-        <DrawingSummaryPanel profile={profile} />
+        <DrawingSummaryPanel profile={profile} documentId={document?.document_id} />
       ) : (
         <Alert severity="info" variant="outlined">
           No legend, general-note, or specification pages were identified in this

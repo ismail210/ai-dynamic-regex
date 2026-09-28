@@ -30,7 +30,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from services.database_loader import catalog_form
 
-DRAWING_INTELLIGENCE_VERSION = "drawing_intelligence_v1"
+DRAWING_INTELLIGENCE_VERSION = "drawing_intelligence_v2"
 
 _METHOD_DETERMINISTIC = "deterministic"
 _METHOD_LLM = "llm_extracted"
@@ -122,6 +122,16 @@ _PAGE_CATEGORY_RULES: Tuple[Tuple[str, str, re.Pattern[str]], ...] = (
 
 _PERSPECTIVE_RE = re.compile(r"\bPERSPECTIVE\b|\bAXONOMETRIC\b|\bISOMETRIC\s+VIEW\b|\b3D\s+VIEW\b", re.I)
 _TITLE_HINT_LEN = 900  # look at the start of a page's text for its sheet title
+_POINTER_BEFORE_RE = re.compile(r"\b(?:SEE|REFER\s+TO|PER)\s+(?:THE\s+)?$", re.I)
+
+
+def _heading_match(pattern: "re.Pattern[str]", text: str) -> bool:
+    """``pattern`` names the thing itself, not a pointer ("SEE LINTEL SCHEDULE")."""
+
+    return any(
+        not _POINTER_BEFORE_RE.search(text[max(0, m.start() - 16):m.start()])
+        for m in pattern.finditer(text)
+    )
 
 
 def _classify_pages(
@@ -129,12 +139,17 @@ def _classify_pages(
     page_texts: Dict[int, str],
     context_pages: Dict[str, str],
 ) -> Tuple[List[Insight], Dict[int, str]]:
-    """Assign every readable page a category. ``notes_legend`` defers to the
-    legend profile's own ``context_pages`` verdict where it has one."""
+    """Assign every readable page a category. A page hosting a live MARK|SIZE
+    schedule grid is a schedule page even when it also carries notes;
+    otherwise ``notes_legend`` defers to the legend profile's own
+    ``context_pages`` verdict where it has one."""
 
     page_count = int(document.get("page_count") or 0)
     ctx = {int(k): v for k, v in (context_pages or {}).items()}
     page_meta = {int(p.get("page_number") or 0): p for p in (document.get("pages") or [])}
+    grid_pages = {
+        int(g.get("page") or 0) for g in document.get("schedule_grid") or [] if g.get("rows")
+    }
 
     category_of: Dict[int, str] = {}
     uncertain: List[int] = []
@@ -145,12 +160,15 @@ def _classify_pages(
         if meta.get("unreadable") or not text.strip():
             category_of[page] = "unreadable"
             continue
+        if page in grid_pages:
+            category_of[page] = "schedule"
+            continue
         if page in ctx:
             category_of[page] = "notes_legend"
             continue
         matched = None
         for key, _label, pattern in _PAGE_CATEGORY_RULES:
-            if pattern.search(head) or pattern.search(text):
+            if _heading_match(pattern, text):
                 matched = key
                 break
         if matched is None and _PERSPECTIVE_RE.search(head):
@@ -450,8 +468,8 @@ def _schedule_insights(document: Dict[str, Any]) -> List[Insight]:
         kind = None
         label = None
         for key, name, pattern in _SCHEDULE_KIND_RULES:
-            if pattern.search(head_zone) or (
-                pattern.search(text) and key in ("column_schedule", "base_plate_schedule")
+            if _heading_match(pattern, head_zone) or (
+                _heading_match(pattern, text) and key in ("column_schedule", "base_plate_schedule")
             ):
                 kind, label = key, name
                 break
@@ -733,6 +751,467 @@ def _structural_notes(page_texts: Dict[int, str], context_pages: Dict[str, str])
 
 
 # --------------------------------------------------------------------------
+# 7. Schedule definitions + rules affecting interpretation
+#
+# Definitions come from the LIVE ``schedule_grid`` -- the same MARK|SIZE rows
+# production mark resolution already reads (SCHEDULE_GRID_ENABLED). Never the
+# shadow structured-evidence artifact and never the schedule quarantine. A
+# definition says how to READ a mark on plan; a schedule row is not a member
+# instance and never a quantity.
+# --------------------------------------------------------------------------
+# schedule_grid kind -> (group label, schedule title, mark noun)
+_COMPONENTS = {
+    "lintel": ("Lintels", "Lintel schedule", "lintel"),
+    "column": ("Columns", "Column schedule", "column"),
+    "bearing_plate": ("Bearing plates", "Bearing plate schedule", "bearing plate"),
+    "icf_lintel": ("ICF lintels", "ICF lintel schedule", "ICF lintel"),
+    "schedule": ("Other schedule marks", "Schedule", "other schedule"),
+}
+_COMPONENT_ORDER = tuple(_COMPONENTS)
+_SHEET_RE = re.compile(r"\bS-?\d{3}[A-Z]?\b")
+_ANGLE_TYPE_RE = re.compile(r"\b(LOOSE|CONTINUOUS)\s+ANGLE", re.I)
+# a printed "A x B" dimension in a resolved plate display
+_DIMENSION_RE = re.compile(r"\d+(?:\s+\d+/\d+|/\d+|\.\d+)?\"?\s*[xX×]\s*\d")
+# Words a clean MARK|SIZE|PLATE cell may legitimately contain; anything else
+# means the grid captured text from an adjacent table on the same sheet.
+_CELL_WORDS = frozenset(
+    "WITH BOTTOM HUNG PLATE HSS STANDARD WALL AT HEAD LOOSE CONTINUOUS ANGLE "
+    "WELDED TO REFER DETAIL STIRRUPS TOP OC NA PRECAST LINTEL IB".split()
+)
+# "SEE LINTEL SCHEDULE" is a pointer to a schedule, not the schedule itself.
+_SCHEDULE_REFERENCE_RE = re.compile(
+    r"\b(?:SEE|REFER\s+TO|PER)\s+(?:THE\s+)?((?:[A-Z]+\s+){0,2}?)SCHEDULE\b", re.I
+)
+_NOTES_HEAD_RE = re.compile(r"^\s*NOTES?\s*:\s*", re.I)
+_NUMBERED_RE = re.compile(r"(?:^|\s)(\d{1,2})\.\s+")
+_SYMBOL_LEGEND_RE = re.compile(r"\((\d{1,2}\*)\)\s*(.+?)(?=\s*\(\d{1,2}\*\)|$)")
+_LEGEND_ENTRY_RE = re.compile(r"^[^.]{4,}?\.(?:\s+(?:REFER\s+TO|SEE)\b[^.]*\.)?", re.I)
+# literal-anchored; the enclosing sentence is found with rfind/find, not by
+# a leading [^.]* that backtracks quadratically on period-free drawing text
+_SIMILAR_CONDITION_RE = re.compile(
+    r"\bAPPLY\s+TO\s+(?:ALL\s+)?(?:AREAS|CONDITIONS)\s+SIMILAR\b", re.I
+)
+_BRACKET_TAG_RE = re.compile(r"\b(?:W|HSS|MC|WT|C|L)\d+(?:\.\d+)?[xX][\d./]+\s*\[\d+\]")
+_UNO_RE = dict(_TYP_PATTERNS)["U.N.O."]  # same U.N.O. reading as TYP detection
+_DETAIL_REF_RE = re.compile(r"\b(?:REFER\s+TO|SEE)\s+(?:SHEET|DETAIL|S/?\d)", re.I)
+_MAX_RULES = 16
+_MAX_SYMBOLS = 8
+# Most interpretation-changing first; the cap then drops plain schedule notes.
+_RULE_RANK = {
+    "default unless otherwise noted": 0, "symbol denotes": 1,
+    "scope of TYP / SIM conditions": 2, "scoped convention": 3,
+    "schedule reference": 4, "schedule note": 5, "detail reference": 6,
+}
+
+
+def _sheet_ids(document: Dict[str, Any]) -> Dict[int, str]:
+    """Sheet number per 1-based page from the bottom-right title strip only
+    (``S002``). A page with no confident candidate is simply absent."""
+
+    meta = {int(p.get("page_number") or 0): p for p in document.get("pages") or []}
+    best: Dict[int, Tuple[float, str]] = {}
+    for block in document.get("blocks") or []:
+        page = int(block.get("page_number") or 0)
+        bbox = block.get("bbox") or []
+        width = float((meta.get(page) or {}).get("width") or 0)
+        height = float((meta.get(page) or {}).get("height") or 0)
+        if len(bbox) < 4 or not width or not height:
+            continue
+        if float(bbox[0]) < 0.62 * width or float(bbox[1]) < 0.72 * height:
+            continue
+        for match in _SHEET_RE.finditer(str(block.get("text") or "")):
+            corner = float(bbox[2]) + float(bbox[3])
+            if page not in best or corner > best[page][0]:
+                best[page] = (corner, match.group(0).replace("-", ""))
+    return {page: sheet for page, (_, sheet) in best.items()}
+
+
+def _where(sheets: Dict[int, str], page: int) -> Dict[str, Any]:
+    return {"page": page, "sheet": sheets.get(page)}
+
+
+def _grid_kind(grid: Dict[str, Any]) -> str:
+    return grid.get("kind") if grid.get("kind") in _COMPONENTS else "schedule"
+
+
+def _mark_boxes(page_words: List[Dict[str, Any]], marks: List[str]) -> Dict[str, List[float]]:
+    """Bbox of each mark's own MARK cell on the schedule page. Where a mark
+    text also appears elsewhere on the sheet, the one aligned with the rest of
+    the column (median x) wins."""
+
+    from services.engineering.schedule_grid import _compact_mark
+
+    wanted = {m.upper() for m in marks}
+    found: Dict[str, List[List[float]]] = defaultdict(list)
+    for word in page_words:
+        text = _compact_mark(word.get("text"))
+        if text in wanted and len(word.get("bbox") or []) >= 4:
+            found[text].append([round(float(v), 1) for v in word["bbox"][:4]])
+    firsts = sorted(boxes[0][0] for boxes in found.values())
+    column_x = firsts[len(firsts) // 2] if firsts else 0.0
+    return {
+        mark: min(boxes, key=lambda box: abs(box[0] - column_x))
+        for mark, boxes in found.items()
+    }
+
+
+def _mixed_cell(raw: str, value: str) -> bool:
+    """True when a cell held words from outside the cell (adjacent table)."""
+
+    rest = str(raw or "").upper().replace(str(value or "").upper(), " ")
+    return any(word not in _CELL_WORDS for word in re.findall(r"[A-Z]{2,}", rest))
+
+
+def _definition(
+    grid: Dict[str, Any], row: Dict[str, Any], document: Dict[str, Any],
+    sheets: Dict[int, str], boxes: Dict[str, List[float]],
+) -> Optional[Dict[str, Any]]:
+    from services.engineering.schedule_grid import (
+        _EMPTY_PLATE_RE,
+        is_auxiliary_schedule_mark,
+        resolve_auxiliary_schedule_mark,
+    )
+
+    mark = str(row.get("mark") or "").upper()
+    if not mark:
+        return None
+    page = int(grid.get("page") or 0)
+    kind = _grid_kind(grid)
+    size_text = _clean(row.get("size_text"))
+    plate_text = _clean(row.get("plate_text"))
+    role = _COMPONENTS[kind][2]
+    designation: Optional[str] = None   # only an exact catalog designation
+    printed = ""                        # the schedule's own size / text
+    configuration: List[str] = []       # how this mark's member is arranged
+    parts: List[Dict[str, Any]] = []    # associated plates, with printed size
+    status: Optional[str] = None
+    mixed = False
+
+    if is_auxiliary_schedule_mark(mark):
+        aux = resolve_auxiliary_schedule_mark(mark, document) or {}
+        raw = f"{size_text} {plate_text}"
+        display = str(aux.get("display") or "")
+        if aux.get("section"):
+            relation, designation = "mark defines section", _catalog_designation(aux["section"])
+            angle = _ANGLE_TYPE_RE.findall(raw)
+            if angle:
+                configuration.append(f"{angle[-1].lower()} angle")
+        elif _DIMENSION_RE.search(display) and not aux.get("abstain"):
+            # No plate designation exists in the catalog: keep the printed
+            # size, in the schedule's own dimension order.
+            relation, printed = "mark defines plate", display
+        elif re.search(r"\bN/?A\b", raw, re.I) or aux.get("abstain"):
+            relation, printed, status = "mark defines no steel item", "N/A", "no steel"
+        else:
+            relation = "unreadable"
+        mixed = _mixed_cell(raw, display)
+    elif row.get("catalog_valid") and row.get("section"):
+        relation, designation = "mark defines section", _catalog_designation(row["section"])
+        configuration.extend(r.replace("_", " ") for r in row.get("member_plate_roles") or [])
+        if plate_text and not _EMPTY_PLATE_RE.fullmatch(plate_text):
+            parts.append({
+                "role": "base plate" if kind == "column" else "bearing plate",
+                "printed": plate_text, "designation": None,
+            })
+        mixed = _mixed_cell(size_text, "")
+    else:
+        if not size_text or _EMPTY_PLATE_RE.fullmatch(size_text):
+            return None
+        # Printed SIZE is not a catalog steel section (e.g. precast lintel).
+        relation, printed = "mark defines non-steel item", size_text
+        status = "precast" if "PRECAST" in size_text.upper() else "not steel"
+    if relation == "mark defines section" and not designation:
+        printed = size_text   # resolver section the catalog does not confirm
+        mixed = True
+    if mixed and status is None:
+        status = "verify"
+    return {
+        "mark": mark,
+        "component": kind,
+        "component_label": _COMPONENTS[kind][0],
+        "schedule": _COMPONENTS[kind][1],
+        "relation": relation,
+        "role": role,
+        "designation": designation,
+        "designation_source": "AISC v16 catalog" if designation else None,
+        "printed": printed,
+        "configuration": configuration,
+        "parts": parts,
+        "status": status,
+        "is_definition_not_quantity": True,
+        "cell_text_mixed": mixed,
+        "source_text": _clean(f"{mark} | {size_text}" + (f" | {plate_text}" if plate_text else ""))[:_SNIPPET_MAX],
+        "bbox": boxes.get(mark),
+        "evidence": "schedule_grid",
+        **_where(sheets, page),
+    }
+
+
+def _catalog_designation(section: str) -> Optional[str]:
+    """The catalog's own spelling when ``section`` is an exact catalog row."""
+
+    from services.database_loader import lookup_shape
+
+    form = catalog_form(str(section or ""))
+    return form if form and lookup_shape(form) else None
+
+
+def _schedule_notes(
+    document: Dict[str, Any], grid_spans: List[Tuple[int, str, float, float]],
+    sheets: Dict[int, str],
+) -> List[Dict[str, Any]]:
+    """Numbered NOTES printed directly under a steel schedule table."""
+
+    rules: List[Dict[str, Any]] = []
+    for block in document.get("blocks") or []:
+        text = _clean(block.get("text"))
+        bbox = block.get("bbox") or []
+        if not _NOTES_HEAD_RE.match(text) or len(bbox) < 4:
+            continue
+        page = int(block.get("page_number") or 0)
+        for span_page, kind, x0, y1 in grid_spans:
+            if span_page != page or abs(float(bbox[0]) - x0) > 80:
+                continue
+            if not (y1 - 5 <= float(bbox[1]) <= y1 + 160):
+                continue
+            body = _NOTES_HEAD_RE.sub("", text)
+            items = [item.strip() for item in _NUMBERED_RE.split(body)[2::2] if item.strip()]
+            for item in items or [body]:
+                if _UNO_RE.search(item):
+                    relation = "default unless otherwise noted"
+                elif _DETAIL_REF_RE.search(item):
+                    relation = "detail reference"
+                else:
+                    relation = "schedule note"
+                rules.append({
+                    "relation": relation, "text": item[:_SNIPPET_MAX],
+                    "scope": _COMPONENTS[kind][1], "source_text": item[:_SNIPPET_MAX],
+                    "bbox": [round(float(v), 1) for v in bbox[:4]], **_where(sheets, page),
+                })
+            break
+    return rules
+
+
+def _symbol_legends(page_texts: Dict[int, str], sheets: Dict[int, str]) -> List[Dict[str, Any]]:
+    """``LEGEND ... (1*) 6"x3 1/2"x3/8" CONTINUOUS ANGLE ...`` entries, verbatim.
+    Only the stretch right after a LEGEND heading is read."""
+
+    by_text: Dict[Tuple[str, str], Dict[str, Any]] = {}
+    for page in sorted(page_texts):
+        text = _clean(page_texts[page])
+        for heading in re.finditer(r"\bLEGEND\b", text, re.I):
+            legend = text[heading.start():heading.start() + 900]
+            if "(1*)" not in legend:
+                continue
+            legend = legend[legend.index("(1*)"):]
+            for symbol, meaning in _SYMBOL_LEGEND_RE.findall(legend):
+                # first sentence plus an optional "REFER TO / SEE ..." sentence;
+                # anything after it is sheet furniture (grid labels, title block)
+                sentence = _LEGEND_ENTRY_RE.match(meaning.strip())
+                if not sentence:
+                    continue
+                meaning = sentence.group(0)[:_SNIPPET_MAX]
+                entry = by_text.setdefault((symbol, meaning), {
+                    "relation": "symbol denotes", "text": f"({symbol}) = {meaning}",
+                    "scope": "plan symbol", "source_text": f"({symbol}) {meaning}",
+                    "bbox": None, "pages": [], **_where(sheets, page),
+                })
+                if page not in entry["pages"]:
+                    entry["pages"].append(page)
+    return list(by_text.values())[:_MAX_SYMBOLS]
+
+
+def _similar_condition_rules(page_texts: Dict[int, str], sheets: Dict[int, str]) -> List[Dict[str, Any]]:
+    for page in sorted(page_texts):
+        if "SIMILAR" not in page_texts[page].upper():
+            continue
+        text = _clean(page_texts[page])
+        match = _SIMILAR_CONDITION_RE.search(text)
+        if match:
+            start = text.rfind(".", 0, match.start()) + 1
+            end = text.find(".", match.end())
+            sentence = text[start:(end + 1) if end >= 0 else len(text)]
+            sentence = re.sub(r"^.*\bNOTES?\s*:?\s*\d+\.?\s*", "", sentence.strip())
+            return [{
+                "relation": "scope of TYP / SIM conditions", "text": sentence[:_SNIPPET_MAX],
+                "scope": "sections and details", "source_text": sentence[:_SNIPPET_MAX],
+                "bbox": None, **_where(sheets, page),
+            }]
+    return []
+
+
+def _schedule_definitions(
+    document: Dict[str, Any],
+    page_texts: Dict[int, str],
+    typ_insights: List[Insight],
+) -> Dict[str, Any]:
+    grids = [g for g in document.get("schedule_grid") or [] if g.get("rows")]
+    sheets = _sheet_ids(document)
+    grid_pages = {int(g.get("page") or 0) for g in grids}
+    words_by_page: Dict[int, List[Dict[str, Any]]] = defaultdict(list)
+    for word in document.get("words") or []:
+        page = int(word.get("page_number") or word.get("page") or 0)
+        if page in grid_pages:
+            words_by_page[page].append(word)
+    definitions: List[Dict[str, Any]] = []
+    spans: List[Tuple[int, str, float, float]] = []
+    for grid in grids:
+        page = int(grid.get("page") or 0)
+        marks = [str(r.get("mark") or "") for r in grid["rows"]]
+        boxes = _mark_boxes(words_by_page[page], marks)
+        for row in grid["rows"]:
+            found = _definition(grid, row, document, sheets, boxes)
+            if found:
+                definitions.append(found)
+        grid_boxes = [boxes[m.upper()] for m in marks if m.upper() in boxes]
+        if grid_boxes:
+            spans.append((
+                page, _grid_kind(grid), min(b[0] for b in grid_boxes), max(b[3] for b in grid_boxes),
+            ))
+    unreadable = [d for d in definitions if d["relation"] == "unreadable"]
+    definitions = [d for d in definitions if d["relation"] != "unreadable"]
+    definitions.sort(key=lambda d: (_COMPONENT_ORDER.index(d["component"]), d["page"]))
+
+    rules = (
+        _schedule_notes(document, spans, sheets)
+        + _symbol_legends(page_texts, sheets)
+        + _similar_condition_rules(page_texts, sheets)
+    )
+    typ_pages = sorted({
+        p for i in typ_insights if i.type == "typical_condition" and i.detail.get("present")
+        for p in i.source_pages
+    })
+    if typ_pages:
+        rules.append({
+            "relation": "scoped convention",
+            "text": "TYP, U.N.O. and SIM apply only to the condition or detail they annotate; "
+                    "they are not a blanket instruction to repeat members.",
+            "scope": "annotated condition", "source_text": "", "bbox": None,
+            "pages": typ_pages, "page": typ_pages[0], "sheet": sheets.get(typ_pages[0]),
+        })
+
+    # Pages that only POINT at a schedule ("SEE LINTEL SCHEDULE").
+    grid_kinds = {d["component"]: d for d in definitions}
+    referenced: Dict[str, List[int]] = defaultdict(list)
+    for page, text in page_texts.items():
+        if page in grid_pages:
+            continue
+        for match in _SCHEDULE_REFERENCE_RE.finditer(text):
+            kind = next(
+                (k for k in _COMPONENTS if k != "schedule" and k.split("_")[0].upper()
+                 in (match.group(1) or "").upper()), None,
+            )
+            if kind and page not in referenced[kind]:
+                referenced[kind].append(page)
+    for kind, pages in referenced.items():
+        target = grid_kinds.get(kind)
+        on = sorted(pages)
+        where = ", ".join(f"{sheets.get(p) + ' · ' if sheets.get(p) else ''}PDF p. {p}" for p in on[:6])
+        if target:
+            text = (f"{where} refer to the {_COMPONENTS[kind][1].lower()}; those pages hold "
+                    f"references only -- the definitions are on "
+                    f"{(target['sheet'] + ' · ') if target['sheet'] else ''}PDF p. {target['page']}.")
+        else:
+            text = f"{where} refer to a {_COMPONENTS[kind][1].lower()} that was not found in this set."
+        rules.append({
+            "relation": "detail reference", "text": text, "scope": "schedule reference",
+            "source_text": "SEE " + _COMPONENTS[kind][1].upper(), "bbox": None,
+            "pages": on, "page": on[0], "sheet": sheets.get(on[0]),
+        })
+    rules.sort(key=lambda r: _RULE_RANK.get(
+        "schedule reference" if r["scope"] == "schedule reference" else r["relation"], 9,
+    ))
+    rules = rules[:_MAX_RULES]
+
+    unresolved: List[Dict[str, Any]] = []
+    if unreadable:
+        pages = sorted({d["page"] for d in unreadable})
+        unresolved.append({
+            "kind": "unreadable_schedule_rows",
+            "text": "Could not read what " + ", ".join(d["mark"] for d in unreadable)
+                    + " defines; check the schedule row on the sheet.",
+            "pages": pages, "sheet": sheets.get(pages[0]),
+        })
+    mixed = [d for d in definitions if d["cell_text_mixed"]]
+    if mixed:
+        pages = sorted({d["page"] for d in mixed})
+        unresolved.append({
+            "kind": "mixed_schedule_cells",
+            "text": (
+                "Schedule cells for " + ", ".join(d["mark"] for d in mixed)
+                + " also captured text from an adjacent table; the values shown were "
+                "cleaned from the printed size -- spot-check them on the sheet."
+            ),
+            "pages": pages, "sheet": sheets.get(pages[0]),
+        })
+    for kind in referenced:
+        if kind not in grid_kinds:
+            unresolved.append({
+                "kind": "missing_schedule",
+                "text": f"{_COMPONENTS[kind][1]} is referenced but was not found; its marks cannot be read.",
+                "pages": sorted(referenced[kind]), "sheet": sheets.get(min(referenced[kind])),
+            })
+    bracket: Dict[int, int] = Counter()
+    for page, text in page_texts.items():
+        hits = len(_BRACKET_TAG_RE.findall(text))
+        if hits:
+            bracket[page] = hits
+    defined = any(
+        re.search(r"\[[^\]]{0,6}\][^.]{0,40}\b(?:DENOTES?|INDICATES?)\b", text, re.I)
+        for text in page_texts.values()
+    )
+    if sum(bracket.values()) >= 10 and not defined:
+        pages = sorted(bracket)
+        unresolved.append({
+            "kind": "undefined_bracket_tag",
+            "text": (
+                f"Numbers in brackets after beam sizes (e.g. {_BRACKET_TAG_RE.search(page_texts[pages[0]]).group(0)}) "
+                f"appear {sum(bracket.values())} times, but no note in the text layer defines them. "
+                "Confirm their meaning on the plan legend; do not read them as member quantities."
+            ),
+            "pages": pages, "sheet": sheets.get(pages[0]),
+        })
+
+    return {
+        "definitions": [{**d, "id": f"D{i}"} for i, d in enumerate(definitions, 1)],
+        "interpretation_rules": [{**r, "id": f"R{i}"} for i, r in enumerate(rules, 1)],
+        "unresolved": [{**u, "id": f"U{i}"} for i, u in enumerate(unresolved, 1)],
+    }
+
+
+def _mark_range(marks: List[str]) -> str:
+    return marks[0] if len(marks) == 1 else f"{marks[0]}–{marks[-1]}"
+
+
+def _deterministic_overview(profile: Dict[str, Any]) -> str:
+    stamps = [s["detail"]["label"] for s in profile["scope_signals"] if s["detail"].get("present")]
+    first = f"{profile['page_count']}-page structural set" + (
+        f" ({', '.join(stamps).lower()})" if stamps else ""
+    ) + "."
+    by_kind: Dict[str, List[str]] = defaultdict(list)
+    for d in profile["definitions"]:
+        by_kind[d["component"]].append(d["mark"])
+    if not by_kind:
+        families = profile["steel_system"]["families"]
+        second = (
+            f" Most explicit section labels are {families[0]['label']}; no MARK/SIZE "
+            "schedule definitions were read." if families else
+            " No MARK/SIZE schedule definitions and no catalog-valid steel section labels were read."
+        )
+        return first + second
+    where = sorted({
+        (d["sheet"] or f"PDF p. {d['page']}") + (f" (PDF p. {d['page']})" if d["sheet"] else "")
+        for d in profile["definitions"]
+    })
+    parts = [
+        f"{_COMPONENTS[k][2]} marks ({_mark_range(by_kind[k])})"
+        for k in _COMPONENT_ORDER if k in by_kind
+    ]
+    listed = ", ".join(parts[:-1]) + (" and " if len(parts) > 1 else "") + parts[-1]
+    return first + f" Schedules on {', '.join(where)} define the {listed} used on the plans."
+
+
+# --------------------------------------------------------------------------
 # Narrative rendering (deterministic; always usable)
 # --------------------------------------------------------------------------
 def _render_narrative(profile: Dict[str, Any]) -> Dict[str, Any]:
@@ -900,16 +1379,27 @@ def build_drawing_intelligence(
     uncertainties: List[Insight] = [
         i for i in page_group_insights + scope_insights if i.type == "uncertainty"
     ]
+    # Text blobs on framing plans are plan callouts, not tables; the rest are
+    # reported once, not one warning per page.
+    framing = {"roof_framing", "floor_framing", "column_plan", "framing_plan_unlabeled", "bracing"}
+    unclear_pages: List[int] = []
+    kept: List[Insight] = []
     for sched in schedule_insights:
         if sched.detail.get("kind") == "unclassified_steel_table":
-            uncertainties.append(Insight(
-                type="uncertainty",
-                value=f"Structural table on page {sched.detail['page']} has unresolved row/cell semantics",
-                confidence=0.5,
-                source_pages=sched.source_pages,
-                scope="page",
-                detail={"kind": "schedule_semantics", "page": sched.detail["page"]},
-            ))
+            if category_of.get(sched.detail["page"]) in framing:
+                continue
+            unclear_pages.append(sched.detail["page"])
+        kept.append(sched)
+    schedule_insights = kept
+    if unclear_pages:
+        uncertainties.append(Insight(
+            type="uncertainty",
+            value=f"Structural tables with unresolved row/cell semantics on page(s) {', '.join(map(str, unclear_pages))}",
+            confidence=0.5,
+            source_pages=unclear_pages,
+            scope="document",
+            detail={"kind": "schedule_semantics", "pages": unclear_pages},
+        ))
     # conflicting abbreviation rules (same LHS, different RHS)
     by_lhs: Dict[str, set] = defaultdict(set)
     for rule in abbreviation_rules:
@@ -952,56 +1442,76 @@ def build_drawing_intelligence(
         "uncertainties": [i.as_dict() for i in uncertainties],
         "conflicts": [i.as_dict() for i in conflicts],
         "sources": [i.as_dict() for i in all_insights if i.source_pages or i.source_text],
+        **_schedule_definitions(document, page_texts, typ_insights),
     }
     profile["narrative"] = _render_narrative(profile)
+    profile["narrative"]["project_overview"] = _deterministic_overview(profile) + (
+        " The set distinguishes existing and new framing."
+        if profile["existing_new"].get("is_renovation") else ""
+    )
     profile["overview"] = profile["narrative"]["project_overview"]
     return profile
 
 
-def evidence_packet(profile: Dict[str, Any], *, max_chars: int = 6000) -> str:
-    """Compact, ranked, plain-text evidence packet for the optional LLM
-    summariser. HIGH-value context first (page make-up, steel system,
-    drawing language, TYP, schedules, scope, notes); no raw token dumps."""
+def where_label(item: Dict[str, Any]) -> str:
+    """``S002 · PDF p. 2`` (sheet only when one was read confidently)."""
 
-    lines: List[str] = []
-    lines.append(f"DRAWING SET: {profile['page_count']} pages")
-    lines.append("PAGE MAKE-UP:")
-    for g in profile["page_groups"]:
-        d = g["detail"]
-        lines.append(f"  - {d['label']}: pages {d['pages'][:15]}")
-    lines.append("STEEL SYSTEM (explicit designation occurrences, not member quantities):")
-    for f in profile["steel_system"]["families"]:
-        rep = ", ".join(f["representative"])
-        lines.append(
-            f"  - {f['label']}: {f['explicit_occurrences']} occ / "
-            f"{f['distinct_designations']} distinct; representative: {rep}"
-        )
-    if profile.get("abbreviation_rules"):
-        lines.append("PROJECT SHORTHAND RULES (explicit, verified):")
-        for r in profile["abbreviation_rules"]:
-            lines.append(f"  - {r['lhs']} = {r['rhs']} (page {r.get('source_page')})")
-    lines.append("REPEATED-CONDITION LANGUAGE:")
-    for i in profile["typical_conditions"]:
-        lines.append(f"  - {i['value']}")
-        if i["detail"].get("near_sections"):
-            lines.append(f"    near sections: {i['detail']['near_sections']}")
-    lines.append("SCHEDULES:")
-    for i in profile["schedule_insights"]:
-        lines.append(f"  - {i['value']} -- {i['detail'].get('note')}")
-    if not profile["schedule_insights"]:
-        lines.append("  - none identified")
-    lines.append("SCOPE / REVISION SIGNALS:")
-    for i in profile["scope_signals"]:
-        lines.append(f"  - {i['value']}")
-    lines.append("STRUCTURAL NOTES (verbatim):")
-    for i in profile["structural_notes"]:
-        lines.append(f"  - (p{i['source_pages'][0] if i['source_pages'] else '?'}) {i['value']}")
-    if not profile["structural_notes"]:
-        lines.append("  - none surfaced")
-    lines.append("UNCERTAINTIES:")
-    for i in profile["uncertainties"]:
-        lines.append(f"  - {i['value']}")
-    if not profile["uncertainties"]:
-        lines.append("  - none")
-    packet = "\n".join(lines)
-    return packet[:max_chars]
+    pages = item.get("pages") or ([item["page"]] if item.get("page") else [])
+    shown = ", ".join(str(p) for p in pages[:6]) + ("…" if len(pages) > 6 else "")
+    label = f"PDF p{'p' if len(pages) > 1 else ''}. {shown}" if pages else ""
+    return f"{item['sheet']} · {label}" if item.get("sheet") else label
+
+
+def definition_line(item: Dict[str, Any]) -> str:
+    """``L1 → W8X21 | bottom plate | bearing plate 6"x6"x1/2"``; a plate
+    mark reads ``BP3 → bearing plate 6"x6"x5/8" (printed size)``."""
+
+    if item.get("designation"):
+        head = f"{item['mark']} → {item['designation']}"
+    elif item["relation"] == "mark defines plate":
+        head = f"{item['mark']} → {item['role']} {item['printed']} (printed size)"
+    else:
+        head = f"{item['mark']} → {item['printed']}"
+    return " | ".join([
+        head, *item.get("configuration", []),
+        *(f"{p['role']} {p['printed']}" for p in item.get("parts", [])),
+        *([item["status"]] if item.get("status") else []),
+    ])
+
+
+def evidence_facts(profile: Dict[str, Any]) -> Dict[str, str]:
+    """``{fact id: exact fact text}`` -- the only facts the summary model may cite."""
+
+    facts: Dict[str, str] = {}
+    for d in profile.get("definitions") or []:
+        facts[d["id"]] = f"{d['schedule']} ({where_label(d)}): {definition_line(d)} [{d['relation']}]"
+    for r in profile.get("interpretation_rules") or []:
+        facts[r["id"]] = f"({r['relation']}; {r['scope']}; {where_label(r)}) {r['text']}"
+    for u in profile.get("unresolved") or []:
+        facts[u["id"]] = f"({where_label(u)}) {u['text']}"
+    return facts
+
+
+def evidence_packet(profile: Dict[str, Any], *, max_chars: int = 6000) -> str:
+    """Plain-text evidence for the optional summary model: verified schedule
+    definitions, verbatim interpretation rules and unresolved items, each
+    under a citable id. No occurrence counts and no raw token dumps."""
+
+    facts = evidence_facts(profile)
+    stamps = [s["detail"]["label"] for s in profile["scope_signals"] if s["detail"].get("present")]
+    families = [f["label"] for f in profile["steel_system"]["families"]]
+    lines = [
+        f"DRAWING SET: {profile['page_count']} pages"
+        + (f"; issue stamps: {', '.join(stamps)}" if stamps else ""),
+        "STEEL SYSTEM (families named on labels; not member quantities): "
+        + (", ".join(families) if families else "none read"),
+        "DETERMINISTIC OVERVIEW: " + str(profile.get("overview") or ""),
+        "SCHEDULE DEFINITIONS -- each says how to READ a mark on plan; a schedule "
+        "row is NOT an installed member and NOT a quantity:",
+    ]
+    lines += [f"  [{k}] {v}" for k, v in facts.items() if k.startswith("D")] or ["  none read"]
+    lines.append("RULES AFFECTING INTERPRETATION (verbatim notes):")
+    lines += [f"  [{k}] {v}" for k, v in facts.items() if k.startswith("R")] or ["  none read"]
+    lines.append("UNRESOLVED ITEMS:")
+    lines += [f"  [{k}] {v}" for k, v in facts.items() if k.startswith("U")] or ["  none"]
+    return "\n".join(lines)[:max_chars]
