@@ -347,6 +347,25 @@ class ScheduleDefinitionTests(unittest.TestCase):
         self.assertEqual(prof["definitions"], [])
         self.assertIn("no MARK/SIZE schedule definitions", prof["overview"])
 
+    def test_ruled_grid_locations_are_not_mark_definitions(self):
+        self.doc["schedule_grid"].append({"page": 2, "kind": "column", "rows": [
+            {**_row("A-1", "W10X33", "W10X33", ""), "mark_role": "grid_location"},
+        ]})
+        profile = build_drawing_intelligence(self.doc)
+        self.assertNotIn("A-1", {d["mark"] for d in profile["definitions"]})
+
+    def test_ruled_table_source_ignores_same_mark_elsewhere_on_page(self):
+        self.doc["schedule_grid"] = [{
+            "page": 2, "kind": "column", "bbox": [100, 100, 500, 300],
+            "rows": [_row("C-1", "W10X33", "W10X33", "")],
+        }]
+        self.doc["words"] = [
+            {"page_number": 2, "text": "C-1", "bbox": [900, 900, 920, 910]},
+            {"page_number": 2, "text": "C-1", "bbox": [110, 150, 130, 160]},
+        ]
+        profile = build_drawing_intelligence(self.doc)
+        self.assertEqual(profile["definitions"][0]["bbox"], [110, 150, 130, 160])
+
 
 class SummaryLlmGroundingTests(unittest.TestCase):
     def setUp(self):
@@ -407,6 +426,15 @@ class SummaryLlmGroundingTests(unittest.TestCase):
         })
         self.assertIsNone(res.summary)
         self.assertEqual(res.error, "all_claims_rejected")
+
+    def test_new_ruled_table_mark_spellings_must_be_grounded(self):
+        from services.engineering.drawing_summary_llm import _grounded
+
+        for mark in ("C-99", "BP_9", "P-1", "F5X3", "LB-101"):
+            text = f"Verify {mark} before interpreting the plan callout."
+            with self.subTest(mark=mark):
+                self.assertIsNone(_grounded(text, "L1 defines W8X21", 220))
+                self.assertEqual(_grounded(text, f"{mark} defines W8X21", 220), text)
 
     def test_malformed_and_failed_responses_fall_back(self):
         for response, error in (("not a dict", "non_dict_response"), (RuntimeError("boom"), "RuntimeError: boom")):

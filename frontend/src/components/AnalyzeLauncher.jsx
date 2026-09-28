@@ -33,11 +33,13 @@ export default function AnalyzeLauncher({ onDone }) {
     setLoading(true);
     setError("");
     try {
+      // force=false: if a prior attempt timed out at the HTTP layer but the
+      // worker finished writing artifacts, reuse them instead of rebuilding.
       const result = await analyzeDocument(
         document.document_id,
         excelFile,
         undefined,
-        true,
+        false,
       );
       setData(result);
       onDone?.(result);

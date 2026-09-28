@@ -79,7 +79,7 @@ _MAX_OVERVIEW_CHARS = 420
 # printed plate/angle size, a sheet number or a page reference.
 _ANCHOR_RES = (
     re.compile(r"\b(?:2L|WT|MT|ST|MC|HP|HSS|PIPE|W|S|M|C|L)\d+(?:\.\d+)?(?:\s*[xX×]\s*[\d./-]+)+", re.I),
-    re.compile(r"\b(?:BP|CL|C|L)\d{1,2}[A-Z]?\b(?!\s*[xX×\d./])", re.I),
+    re.compile(r"\b[A-Z]{1,4}[-_]?\d{1,5}[A-Z]{0,2}(?:X\d{1,2})?\b(?!\s*[xX×\d./])", re.I),
     re.compile(r"\d+(?:\.\d+)?\"?\s*[xX×]\s*\d+(?:\.\d+)?\"?(?:\s*[xX×]\s*[\d\s/.-]+\"?)?"),
     re.compile(r"\bS-?\d{3}[A-Z]?\b", re.I),
 )

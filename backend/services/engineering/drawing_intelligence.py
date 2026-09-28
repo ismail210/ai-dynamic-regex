@@ -873,7 +873,7 @@ def _definition(
     )
 
     mark = str(row.get("mark") or "").upper()
-    if not mark:
+    if not mark or row.get("mark_role") == "grid_location":
         return None
     page = int(grid.get("page") or 0)
     kind = _grid_kind(grid)
@@ -1058,7 +1058,16 @@ def _schedule_definitions(
     for grid in grids:
         page = int(grid.get("page") or 0)
         marks = [str(r.get("mark") or "") for r in grid["rows"]]
-        boxes = _mark_boxes(words_by_page[page], marks)
+        page_words = words_by_page[page]
+        grid_bbox = grid.get("bbox") or []
+        if len(grid_bbox) >= 4:
+            page_words = [
+                word for word in page_words
+                if len(word.get("bbox") or []) >= 4
+                and grid_bbox[0] <= (word["bbox"][0] + word["bbox"][2]) / 2 <= grid_bbox[2]
+                and grid_bbox[1] <= (word["bbox"][1] + word["bbox"][3]) / 2 <= grid_bbox[3]
+            ]
+        boxes = _mark_boxes(page_words, marks)
         for row in grid["rows"]:
             found = _definition(grid, row, document, sheets, boxes)
             if found:

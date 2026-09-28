@@ -1,0 +1,208 @@
+{
+  "description": "Hand-listed schedule answer key: mark -> printed catalog section per schedule table. Steel tables list the expected section (null = the row is a plate / precast / non-rolled item and must not get a section). non_steel tables list marks that must never get a steel section. Transposed tables (Revit grids) list grid location -> sections.",
+  "provenance": "Transcribed from the PDF text layer of each table and checked against rendered crops of the schedule regions (2026-09). Locations are written with whitespace removed, as printed. SFSLS E-2..E-4 are overprinted by markup clouds and are expected misses.",
+  "documents": [
+    {
+      "key": "ST",
+      "pdf": "uploads/ST.pdf",
+      "tables": [
+        {
+          "page": 7,
+          "title": "EXISTING COLUMN SCHEDULE",
+          "class": "steel",
+          "rows": {
+            "C-1": "W8X24", "C-2": "W8X24", "C-3": "W8X31", "C-4": "W8X24",
+            "C-5": "W8X28", "C-6": "W8X35", "C-7": "W8X28", "C-8": "W8X40",
+            "C-9": "W8X58", "C-10": "W8X31", "C-11": "W8X48"
+          }
+        },
+        {
+          "page": 7,
+          "title": "EXISTING PIER SCHEDULE",
+          "class": "non_steel",
+          "rows": {"P-1": null, "P-2": null, "P-3": null, "P-4": null}
+        }
+      ]
+    },
+    {
+      "key": "Struct",
+      "pdf": "uploads/Struct.pdf",
+      "tables": [
+        {
+          "page": 2,
+          "title": "COLUMN SCHEDULE",
+          "class": "steel",
+          "rows": {
+            "C1": "HSS6X6X1/2", "C2": "HSS7X7X3/8", "C3": "HSS8X8X1/2",
+            "C4": "W10X49", "C5": "HSS12.75X0.375", "C6": "HSS12X8X5/8"
+          }
+        },
+        {
+          "page": 2,
+          "title": "LINTEL SCHEDULE",
+          "class": "steel",
+          "rows": {
+            "L1": "W8X21", "L1A": "W8X21", "L2": "W8X28", "L2A": "W8X28",
+            "L3": "W16X36", "L4": "W24X62", "L5": null
+          }
+        },
+        {
+          "page": 2,
+          "title": "BEARING PLATE SCHEDULE",
+          "class": "steel",
+          "rows": {
+            "BP1": null, "BP2": null, "BP3": null, "BP4": null,
+            "BP5": null, "BP6": null, "BP7": null
+          }
+        },
+        {
+          "page": 2,
+          "title": "ICF LINTEL SCHEDULE",
+          "class": "steel",
+          "rows": {
+            "CL1": null, "CL2": null, "CL3": null, "CL4": null, "CL5": null,
+            "CL6": null, "CL6A": null, "CL7": null, "CL8": null, "CL9": null
+          }
+        },
+        {
+          "page": 2,
+          "title": "CONCRETE PIER SCHEDULE",
+          "class": "non_steel",
+          "rows": {"P22": null, "P24": null, "P2824": null}
+        },
+        {
+          "page": 2,
+          "title": "SPREAD FOOTING SCHEDULE",
+          "class": "non_steel",
+          "rows": {"F40": null, "F50": null, "F60": null, "F70": null, "F80": null, "F90": null}
+        },
+        {
+          "page": 2,
+          "title": "WALL FOOTING SCHEDULE",
+          "class": "non_steel",
+          "rows": {"WF20": null, "WF26": null, "WF30": null, "WF36": null, "WF40": null, "WF50": null}
+        },
+        {
+          "page": 2,
+          "title": "MASONRY PIER SCHEDULE",
+          "class": "non_steel",
+          "rows": {"MP16": null, "MP24": null, "MP24A": null, "MP32": null, "MP32A": null}
+        }
+      ]
+    },
+    {
+      "key": "Elmer",
+      "pdf": "uploads/ST-Elmer Wolfe ES__0cbd857dc6c2.pdf",
+      "tables": [
+        {"page": 4, "title": "COLUMN SCHEDULE", "class": "steel",
+         "rows": {"C1": "HSS5X5X5/16", "C2": "HSS5X5X3/8"}},
+        {"page": 5, "title": "LINTEL SCHEDULE", "class": "steel",
+         "rows": {"L1": "W8X21", "L2": "W16X31"}},
+        {"page": 4, "title": "FOUNDATION SCHEDULES", "class": "non_steel",
+         "rows": {"MP16": null, "MP24": null, "P18": null, "P20": null, "F50": null, "WF26": null}}
+      ]
+    },
+    {
+      "key": "Moton",
+      "pdf": "uploads/ST-Robert Moton ES__258cb166b79f.pdf",
+      "tables": [
+        {"page": 3, "title": "COLUMN SCHEDULE", "class": "steel",
+         "rows": {"C1": "HSS5X5X5/16"}},
+        {"page": 3, "title": "LINTEL SCHEDULE", "class": "steel",
+         "rows": {"L1": "W8X21", "L1A": "W8X21", "L2": "W8X28"}},
+        {"page": 3, "title": "BEARING PLATE SCHEDULE", "class": "steel",
+         "rows": {"BP1": null}},
+        {"page": 3, "title": "FOUNDATION SCHEDULES (partly untitled)", "class": "non_steel",
+         "rows": {"P18": null, "P20": null, "MP16": null, "MP24": null, "F50": null, "WF26": null}}
+      ]
+    },
+    {
+      "key": "Runnymede",
+      "pdf": "uploads/ST-Runnymede ES__4ff5b14a268a.pdf",
+      "tables": [
+        {"page": 3, "title": "COLUMN SCHEDULE", "class": "steel",
+         "rows": {"C1": "HSS5X5X5/16", "C2": "HSS6X4X3/8", "C3": "HSS6X6X3/8"}},
+        {"page": 4, "title": "LINTEL SCHEDULE", "class": "steel",
+         "rows": {"L1": "W8X21", "L1A": "W8X21"}},
+        {"page": 3, "title": "FOUNDATION SCHEDULES", "class": "non_steel",
+         "rows": {"P18": null, "P20": null, "F40": null, "F50": null,
+                  "MP16": null, "MP24": null, "WF20": null, "WF26": null}}
+      ]
+    },
+    {
+      "key": "BurrvilleST",
+      "pdf": "uploads/Burrville ES - ST.pdf",
+      "tables": [
+        {"page": 4, "title": "FOUNDATION SCHEDULES", "class": "non_steel",
+         "rows": {"F5": null, "F5A": null, "F5X3": null, "F6": null, "F6A": null, "F6T": null,
+                  "F7": null, "F7T": null, "F8X3": null, "F8X6": null, "F9": null, "F9T": null,
+                  "GB1": null, "P1": null, "P2": null, "P3": null}}
+      ],
+      "transposed": [
+        {"page": 28, "title": "COLUMN SCHEDULE",
+         "rows": {"A-6.5": ["W10X33"], "A-7": ["W10X33"], "A-8": ["W10X33"], "A-9": ["W10X33"],
+                  "A-9'": ["W10X33"], "A-10": ["W10X33"], "A-10.9": ["W10X33"],
+                  "A-11.6": ["W10X33"], "A.4'-0.7": ["W10X33"]}}
+      ]
+    },
+    {
+      "key": "Springhill",
+      "pdf": "uploads/ST - Springhill Lake__f6ddc4a7e233.pdf",
+      "tables": [],
+      "transposed": [
+        {"page": 26, "title": "COLUMN SCHEDULE",
+         "rows": {"A-8": ["W10X45"], "A-9": ["W10X33"], "A-11": ["W10X33"], "A-12": ["W10X33"],
+                  "A-13": ["W10X33"], "B-7": ["W12X65"], "B-8": ["W12X65"], "B-9": ["W12X65"],
+                  "B-11": ["W10X45"]}}
+      ]
+    },
+    {
+      "key": "GCDC",
+      "pdf": "uploads/GCDC Building 4 - ST1__47dc7ef27f6e.pdf",
+      "tables": [
+        {"page": 56, "title": "FOUNDATION SCHEDULES", "class": "non_steel",
+         "rows": {"F30": null, "F60": null, "F66": null, "F70": null, "F76": null, "F80": null,
+                  "F86": null, "F90": null, "F96": null, "F100": null, "F106": null, "F110": null,
+                  "F116": null, "F120": null, "F126": null, "F140": null, "F3080": null,
+                  "F30100": null, "P1": null, "P2": null, "P3": null, "P4": null, "P5": null,
+                  "SYP1": null, "SYP2": null}}
+      ],
+      "transposed": [
+        {"page": 78, "title": "COLUMN SCHEDULE",
+         "rows": {"4.D-4.7": ["W14X193"], "4.D-4.8": ["W14X193"], "4.D-4.9": ["W14X193"],
+                  "4.E-4.10": ["W14X176"], "4.E-4.12": ["W14X176"], "4.E-4.13": ["W14X176"],
+                  "4.E-4.14": ["W14X176"], "4.D.4-4.16": ["W18X311"], "4.E-4.16": ["W18X311"],
+                  "4.D.4-4.17": ["W12X65"], "4.E-4.1": ["W12X65"], "4.D.1-4.17": ["W12X72"],
+                  "4.D.4-4.16.5": ["W12X120"], "4.D.5-4.2": ["W12X87"], "4.E-4.11": ["W14X283"],
+                  "4.E-4.15": ["W14X145"]}}
+      ]
+    },
+    {
+      "key": "SFSLS",
+      "pdf": "uploads/03 - SFSLS_251029_ISSUED FOR BID_2A_STRUCTURAL complied thru add 2__6a9a9684bb19.pdf",
+      "tables": [
+        {"page": 13, "title": "FOUNDATION SCHEDULES", "class": "non_steel",
+         "rows": {"GB01": null, "GB02": null, "GB03": null, "GB04": null,
+                  "SF1": null, "SF2": null, "SF3": null,
+                  "F3": null, "F5T": null, "F6": null, "F6T": null, "F7": null, "F7T": null,
+                  "F8": null, "F8T": null, "F9": null, "F9T": null, "F10": null, "F11": null,
+                  "F11X6": null, "F12": null, "F14": null, "F15X14": null,
+                  "P1": null, "P2": null, "P3": null, "P4": null}}
+      ],
+      "transposed": [
+        {"page": 43, "title": "COLUMN SCHEDULE",
+         "rows": {"E-1": ["W14X132"], "E-2": ["W14X68"], "E-3": ["W14X68"], "E-4": ["W14X68"],
+                  "E-5": ["W14X132"], "E.1-10E": ["W8X31"], "E.1-12E": ["W8X31"],
+                  "E.1-13.9E": ["W8X31"], "E.4-5": ["W12X50"]}}
+      ]
+    },
+    {
+      "key": "StructureCopy",
+      "pdf": "uploads/Structure - Copy.pdf",
+      "tables": [
+        {"page": 12, "title": "FOOTING SCHEDULE", "class": "non_steel",
+         "rows": {"F40": null, "F50": null, "F60": null, "F70": null, "F76": null, "F80": null}}
+      ]
+    }
+  ]
+}

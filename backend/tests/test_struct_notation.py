@@ -60,6 +60,7 @@ def _accept_catalog(token: str) -> bool:
     return token in {
         "HSS6X6X1/2",
         "W8X21",
+        "W8X24",
         "W8X28",
         "W10X49",
         "W16X36",
@@ -316,10 +317,22 @@ class MarkExtractionTests(unittest.TestCase):
             ("CL6A", "CL6A"),
             ("column callout C3 at grid", "C3"),
             ("bearing plate BP3", "BP3"),
+            # Hyphenated / underscored plan + schedule marks (H5 / ST.pdf style)
+            ("C-1", "C-1"),
+            ("C-11", "C-11"),
+            ("L-13", "L-13"),
+            ("BP-6", "BP-6"),
+            ("CL-2", "CL-2"),
+            ("C_4", "C_4"),
+            ("(E) C-4 COL", "C-4"),
         ):
             with self.subTest(raw=raw):
                 tokens = extract_engineering_tokens(raw)
                 self.assertIn(expected, tokens)
+
+    def test_concrete_pier_marks_are_not_steel_tokens(self) -> None:
+        self.assertEqual(extract_engineering_tokens("P-1"), [])
+        self.assertEqual(extract_engineering_tokens("pier callout P2 at footing"), [])
 
     def test_sections_are_not_truncated_to_marks(self) -> None:
         self.assertEqual(extract_engineering_tokens("L4X4X1/4"), ["L4X4X1/4"])
@@ -327,6 +340,159 @@ class MarkExtractionTests(unittest.TestCase):
         self.assertNotIn("C12", extract_engineering_tokens("C12X20.7"))
         self.assertNotIn("L4", extract_engineering_tokens("L4X4"))
         self.assertNotIn("CL2", extract_engineering_tokens("C12X20.7"))
+        # Hyphen must not create a mark from a channel designation
+        self.assertNotIn("C-12", extract_engineering_tokens("C12X20.7"))
+
+
+class HyphenatedMarkMapTests(unittest.TestCase):
+    def test_c_hyphen_mark_maps_and_resolves_like_c1(self) -> None:
+        from services.engineering.schedule_grid import (
+            normalize_schedule_mark,
+            resolve_schedule_mark,
+            schedule_mark_map,
+        )
+
+        self.assertEqual(normalize_schedule_mark("C-1"), "C1")
+        self.assertEqual(normalize_schedule_mark("c_11"), "C11")
+        self.assertTrue(is_bare_schedule_mark("C-1"))
+        self.assertTrue(is_bare_schedule_mark("L-13"))
+        self.assertFalse(is_bare_schedule_mark("L4X4"))
+
+        words = [
+            _word("EXISTING", 50, 100),
+            _word("COLUMN", 120, 100),
+            _word("SCHEDULE", 200, 100),
+            _word("MARK", 100, 130),
+            _word("COLUMN", 200, 130),
+            _word("SIZE", 280, 130),
+            _word("C-1", 100, 150),
+            _word("W8x28", 200, 150),
+            _word("C-2", 100, 170),
+            _word("W8x24", 200, 170),
+        ]
+        grids = build_schedule_grids(words, catalog_fn=_accept_catalog)
+        mapping = schedule_mark_map(grids)
+        self.assertEqual(mapping.get("C1"), "W8X28")
+        self.assertEqual(mapping.get("C2"), "W8X24")
+        # Hyphenated lookup keys are not stored; normalized keys are.
+        self.assertNotIn("C-1", mapping)
+
+        document = {"schedule_grid": grids, "schedule_mark_map": mapping}
+        self.assertEqual(resolve_schedule_mark("C-1", document), "W8X28")
+        self.assertEqual(resolve_schedule_mark("C1", document), "W8X28")
+        self.assertEqual(resolve_schedule_mark("C-2", document), "W8X24")
+
+    def test_hyphenated_marks_classify_as_column(self) -> None:
+        self.assertEqual(
+            classify_engineering_object(
+                {"text": "C-4", "normalized_text": "C-4"}
+            ),
+            "column",
+        )
+
+
+class PierScheduleGridTests(unittest.TestCase):
+    def test_pier_type_size_diameter_schedule_is_extracted(self) -> None:
+        """EXISTING PIER SCHEDULE next to a column schedule must not be skipped."""
+
+        words = [
+            _word("EXISTING", 50, 40),
+            _word("PIER", 120, 40),
+            _word("SCHEDULE", 180, 40),
+            _word("PIER", 100, 70),
+            _word("TYPE", 140, 70),
+            _word("SIZE", 200, 70),
+            _word("DIAMETER", 270, 70),
+            _word("P-1", 100, 95),
+            _word("1'", 200, 95),
+            _word("-", 215, 95),
+            _word('4"', 225, 95),
+            _word("X", 245, 95),
+            _word("1'", 255, 95),
+            _word("-", 270, 95),
+            _word('4"', 280, 95),
+            _word("P-2", 100, 115),
+            _word("1'", 200, 115),
+            _word("-", 215, 115),
+            _word('4"', 225, 115),
+            _word("X", 245, 115),
+            _word("2'", 255, 115),
+            _word("-", 270, 115),
+            _word('4"', 280, 115),
+            _word("P-3", 100, 135),
+            _word("2'", 270, 135),
+            _word("-", 285, 135),
+            _word('6"', 295, 135),
+            _word("P-4", 100, 155),
+            _word("2'", 200, 155),
+            _word("-", 215, 155),
+            _word('2"', 225, 155),
+            _word("X", 245, 155),
+            _word("2'", 255, 155),
+            _word("-", 270, 155),
+            _word('4"', 280, 155),
+            # Neighboring column schedule — must not swallow pier rows.
+            _word("EXISTING", 450, 40),
+            _word("COLUMN", 530, 40),
+            _word("SCHEDULE", 600, 40),
+            _word("MARK", 450, 70),
+            _word("COLUMN", 530, 70),
+            _word("SIZE", 620, 70),
+            _word("C-1", 450, 95),
+            _word("W8x24", 620, 95),
+            _word("C-2", 450, 115),
+            _word("W8x24", 620, 115),
+        ]
+        grids = build_schedule_grids(words, catalog_fn=_accept_catalog)
+        by_kind = {grid["kind"]: grid for grid in grids}
+        self.assertIn("pier", by_kind)
+        self.assertIn("column", by_kind)
+        pier_rows = {row["mark"]: row for row in by_kind["pier"]["rows"]}
+        self.assertEqual(set(pier_rows), {"P-1", "P-2", "P-3", "P-4"})
+        self.assertIn("1'", pier_rows["P-1"]["size_text"])
+        self.assertIn("X", pier_rows["P-1"]["size_text"].upper())
+        self.assertFalse(pier_rows["P-1"]["catalog_valid"])
+        self.assertIsNone(pier_rows["P-1"]["section"])
+        # Round pier: diameter-only SIZE cell.
+        self.assertIn("2'", pier_rows["P-3"]["size_text"])
+        self.assertIn('6"', pier_rows["P-3"]["size_text"])
+        # Column schedule still maps steel SIZE.
+        mapping = schedule_mark_map(grids)
+        self.assertEqual(mapping.get("C1"), "W8X24")
+        self.assertNotIn("P1", mapping)
+
+    def test_pier_mark_lookup_is_non_steel(self) -> None:
+        from services.engineering.schedule_grid import (
+            is_pier_schedule_mark,
+            lookup_schedule_row,
+            normalize_schedule_mark,
+        )
+
+        self.assertTrue(is_pier_schedule_mark("P-1"))
+        self.assertEqual(normalize_schedule_mark("P-1"), "P1")
+        document = {
+            "schedule_grid": [
+                {
+                    "page": 7,
+                    "kind": "pier",
+                    "rows": [
+                        {
+                            "mark": "P-1",
+                            "size_text": "1'-4\" X 1'-4\"",
+                            "section": None,
+                            "catalog_valid": False,
+                            "plate_text": "",
+                            "plate_role": None,
+                            "member_plate_roles": [],
+                        }
+                    ],
+                }
+            ]
+        }
+        row = lookup_schedule_row("P-1", document)
+        self.assertIsNotNone(row)
+        self.assertFalse(row["catalog_valid"])
+        self.assertIn("1'-4\"", row["size_text"])
 
 
 class MarkResolutionTests(unittest.TestCase):

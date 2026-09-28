@@ -48,6 +48,25 @@ class AngleTokenExtractionTests(unittest.TestCase):
         self.assertEqual(records[0]["normalized_text"], "L4X3X1/4")
         self.assertIn("6", records[0]["raw_text"])
 
+    def test_inch_angle_does_not_leave_a_fragment_member(self):
+        """Struct S-sheet legend: one angle, not angle + ``1/2"`` plate."""
+
+        texts = ['6"x3', '1/2"x3/8"', "CONTINUOUS", "ANGLE", "(LLV)", "WELDED"]
+        words = [
+            {
+                "text": text,
+                "bbox": [10 + 40 * i, 10, 46 + 40 * i, 20],
+                "page_number": 11,
+                "block_no": 1,
+                "line_no": 1,
+                "word_no": i,
+                "object_id": f"w{i}",
+            }
+            for i, text in enumerate(texts)
+        ]
+        labels = [r["normalized_text"] for r in extract_engineering_token_records(words)]
+        self.assertEqual(labels, ["L6X3-1/2X3/8"])
+
     def test_parenthesized_new_steel_window(self):
         words = [
             {

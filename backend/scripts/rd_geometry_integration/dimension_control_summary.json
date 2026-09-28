@@ -1,0 +1,121 @@
+{
+  "control_composition": {
+    "A": {
+      "accepted": 11,
+      "ambiguous": 0,
+      "inspected": 17,
+      "insufficient": 0
+    },
+    "B": {
+      "accepted": 6,
+      "ambiguous": 0,
+      "inspected": 18,
+      "insufficient": 0
+    },
+    "C": {
+      "accepted": 8,
+      "ambiguous": 0,
+      "inspected": 13,
+      "insufficient": 0
+    },
+    "D": {
+      "accepted": 4,
+      "ambiguous": 0,
+      "inspected": 4,
+      "insufficient": 0
+    },
+    "E": {
+      "accepted": 1,
+      "ambiguous": 0,
+      "inspected": 1,
+      "insufficient": 0
+    }
+  },
+  "doc_id": "doc_0d910a43b4a021e3",
+  "e3_regression": {
+    "genuine_7_8_pass": true,
+    "own_label_pass": true,
+    "own_label_recovery": "4/4",
+    "unrelated_17k_pass": true
+  },
+  "e3_results_sha": "bc633040e9c5624d3147d937e93d536be3a5ee510ed95bf85d0c6af8a3020568",
+  "experiment": "E4_dimension_control_expansion",
+  "extractor_sha": "9688e2d84e8c67ebf692f7022db093133b106e2fcf3a2cb893eb8ec7b2d9d29e",
+  "gold_sha": "0fad4291ff06ffa4e61c46f4ac923d7187455dd6b2f9b088481ab5e6b976b155",
+  "metrics": {
+    "ambiguous_n": 0,
+    "category_c_genuine_n": 8,
+    "dim_to_member_raw_n": 0,
+    "false_flip_n": 0,
+    "false_flip_rate": 0.0,
+    "genuine_candidates_discovered": 47,
+    "genuine_dimension_n": 25,
+    "genuine_selected": 24,
+    "insufficient_n": 0,
+    "own_label_context_genuine_n": 9,
+    "own_label_regression_n": 4,
+    "preserved_n": 25,
+    "total_controls": 30,
+    "unrelated_numeric_n": 1
+  },
+  "pages": [
+    8,
+    18,
+    24
+  ],
+  "recommendation": "A",
+  "recommendation_text": "E4 provides additional evidence but does not establish production safety. Zero dangerous false flips on the Burrville control set (genuine n=25, Category C n=8) supports considering a narrowly scoped production-change experiment later \u2014 not implemented in E4. Multi-document holdout still required.",
+  "render_files": [
+    "e3reg_token_p18_1143_p18.png",
+    "e3reg_token_p8_332_p8.png",
+    "e3reg_token_p8_337_p8.png",
+    "e3reg_token_p8_348_p8.png",
+    "e3reg_token_p8_381_p8.png",
+    "e3reg_token_p8_430_p8.png",
+    "gdim_p18_geom_1232c9e584e5_p18.png",
+    "gdim_p18_geom_3edfd36115a7_p18.png",
+    "gdim_p18_geom_63f918a23a5b_p18.png",
+    "gdim_p18_geom_65f49b170a85_p18.png",
+    "gdim_p18_geom_6bfac3628a2d_p18.png",
+    "gdim_p8_geom_593de4cf85ad_p8.png",
+    "gdim_p8_geom_a07e7d6f70fc_p8.png",
+    "gdim_p8_geom_b17916eb7117_p8.png",
+    "gdim_p8_geom_d692ed561875_p8.png"
+  ],
+  "renders_written": 15,
+  "retrieval_sha": "77e213964f1c938dbebaefd558c02178d98459dbe8858474b2ab28c888f4c849",
+  "retrieval_v2_sha": "2717d31beb1b0524017ce403f86d78ccb57e4fab6c37ad5d4136f2f2b11918dc",
+  "v0_v1_by_category": {
+    "A": {
+      "changes": 0,
+      "false_flips": 0,
+      "v0_dimension": 11,
+      "v1_dimension": 11
+    },
+    "B": {
+      "changes": 0,
+      "false_flips": 0,
+      "v0_dimension": 6,
+      "v1_dimension": 6
+    },
+    "C": {
+      "changes": 0,
+      "false_flips": 0,
+      "v0_dimension": 8,
+      "v1_dimension": 8
+    },
+    "D": {
+      "changes": 4,
+      "false_flips": 0,
+      "v0_dimension": 4,
+      "v1_dimension": 0
+    },
+    "E": {
+      "changes": 0,
+      "false_flips": 0,
+      "v0_dimension": 1,
+      "v1_dimension": 1
+    }
+  },
+  "v1_refactor": "E4 imports E3 helpers via importlib; no V1 logic rewrite. evaluate_pair wraps classify_baseline + classify_shadow_ignore_own_numbers."
+}

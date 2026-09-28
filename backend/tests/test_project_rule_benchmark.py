@@ -8,6 +8,7 @@ never an unlabelled regression.
 from __future__ import annotations
 
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 from tests.helpers.script_loader import load_script_module
@@ -82,6 +83,17 @@ class ProjectRuleBenchmarkTests(unittest.TestCase):
     def test_report_renders(self) -> None:
         text = bench.render_markdown(self.report)
         self.assertIn("Safety gates", text)
+
+    def test_cross_project_check_recognizes_local_mark_aliases(self) -> None:
+        maps = {"A": {"C-1": "W8X21"}, "B": {"C1": "W10X33"}}
+        self.assertEqual(bench.cross_document_leaks(maps, {"A": "A", "B": "B"}), [])
+
+    def test_cross_project_check_still_detects_undefined_mark_leaks(self) -> None:
+        with patch.object(bench.schedule_grid, "resolve_schedule_mark", return_value="W8X21"):
+            leaks = bench.cross_document_leaks(
+                {"A": {"C-1": "W8X21"}, "B": {}}, {"A": "A", "B": "B"}
+            )
+        self.assertEqual(leaks, [{"mark": "C-1", "from": "A", "into": "B"}])
 
 
 if __name__ == "__main__":

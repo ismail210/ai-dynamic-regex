@@ -26,7 +26,7 @@ _PLATE = re.compile(
 )
 _MEMBER_MARK = re.compile(
     r"^(?:(?:BM|BEAM|COL|COLUMN|BR|BRACE|GIRDER|JOIST|JST)[-_ ]?\d+[A-Z]?"
-    r"|(?:BP|CL|L|C)\d+[A-Z]?)$",
+    r"|(?:BP|CL|L|C)[-_]?\d+[A-Z]?)$",
     re.IGNORECASE,
 )
 _CONNECTION = re.compile(
@@ -83,7 +83,9 @@ def _member_mark_object_type(text: str) -> str:
         return "bearing_plate"
     if upper.startswith("CL"):
         return "icf_lintel"
-    if upper.startswith(("COL", "COLUMN")) or re.fullmatch(r"C\d+[A-Z]?", upper):
+    if upper.startswith(("COL", "COLUMN")) or re.fullmatch(
+        r"C[-_]?\d+[A-Z]?", upper
+    ):
         return "column"
     if upper.startswith(("BR", "BRACE")):
         return "brace"

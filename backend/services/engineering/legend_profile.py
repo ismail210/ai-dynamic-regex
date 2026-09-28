@@ -82,7 +82,7 @@ PROFILE_VERSION = "legend_profile_v4"
 # interpretation rules and unresolved items; v6b summaries are stale.
 # v6d: definitions carry designation / printed / role / configuration /
 # parts instead of value / qualifiers.
-EXTRACTOR_VERSION = "legend_extractor_v6d"
+EXTRACTOR_VERSION = "legend_extractor_v6e-ruled-schedules"
 SCHEMA_VERSION = "project_rule_schema_v1"
 
 STATUS_PROPOSED_INFERENCE = "PROPOSED_INFERENCE"

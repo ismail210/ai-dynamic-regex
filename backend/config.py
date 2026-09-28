@@ -106,6 +106,13 @@ class Settings:
         .lower()
         in ("1", "true", "yes", "on")
     )
+    # Read ruled schedule tables (PyMuPDF find_tables) before word clustering.
+    schedule_ruled_tables_enabled: bool = field(
+        default_factory=lambda: os.getenv("SCHEDULE_RULED_TABLES_ENABLED", "true")
+        .strip()
+        .lower()
+        in ("1", "true", "yes", "on")
+    )
     schedule_mark_map_enabled: bool = field(
         default_factory=lambda: os.getenv("SCHEDULE_MARK_MAP_ENABLED", "true")
         .strip()
@@ -355,12 +362,12 @@ class Settings:
     # DrawingIntelligenceProfile narrative; every claim is re-checked against
     # the profile evidence and a claim that cannot be tied to it is dropped.
     # The LLM never changes a prediction, candidate, section or takeoff
-    # quantity, and never sees the ground-truth Excel. Default ON for the
-    # demo: the deterministic narrative is always produced regardless, so
-    # disabling this only removes the prose polish, never the summary itself.
+    # quantity, and never sees the ground-truth Excel. Default OFF so large
+    # PDF extract does not wait on a missing/hung Ollama; deterministic
+    # narrative is always produced regardless.
     drawing_summary_llm_enabled: bool = field(
         default_factory=lambda: os.getenv(
-            "DRAWING_SUMMARY_LLM_ENABLED", "true"
+            "DRAWING_SUMMARY_LLM_ENABLED", "false"
         )
         .strip()
         .lower()
@@ -521,15 +528,17 @@ class Settings:
         default_factory=lambda: os.getenv("LOG_LEVEL", "info").lower()
     )
     max_upload_bytes: int = field(
-        default_factory=lambda: int(os.getenv("MAX_UPLOAD_BYTES", str(100 * 1024 * 1024)))
+        default_factory=lambda: int(
+            os.getenv("MAX_UPLOAD_BYTES", str(200 * 1024 * 1024))
+        )
     )
-    # Wall-clock budget for one blocking analysis call behind an upload. This
-    # must stay strictly below the client timeout (15 min in the API client);
-    # if they are equal the browser can abort at the same moment the server
-    # replies, which surfaces as a connection reset instead of an HTTP status.
+    # Wall-clock budget for one blocking extract/analyze call. Must stay
+    # strictly below the browser + Vite proxy timeout (35 min) so the server
+    # can return 504 instead of a connection reset when the budget is hit.
+    # Large multi-page sets routinely exceed 10 minutes on a single CPU.
     upload_analysis_timeout_seconds: float = field(
         default_factory=lambda: float(
-            os.getenv("UPLOAD_ANALYSIS_TIMEOUT_SECONDS", "600")
+            os.getenv("UPLOAD_ANALYSIS_TIMEOUT_SECONDS", "1800")
         )
     )
     # Extraction and analysis are CPU-bound and hold the GIL. Running several

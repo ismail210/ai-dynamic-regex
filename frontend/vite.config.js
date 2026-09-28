@@ -6,7 +6,8 @@ import { fileURLToPath } from "node:url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Long analysis requests must not be cut off by the dev proxy.
-const PROXY_TIMEOUT_MS = 15 * 60 * 1000;
+// Keep above backend UPLOAD_ANALYSIS_TIMEOUT_SECONDS (default 30 min).
+const PROXY_TIMEOUT_MS = 35 * 60 * 1000;
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");

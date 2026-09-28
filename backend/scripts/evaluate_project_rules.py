@@ -506,8 +506,9 @@ def cross_document_leaks(mark_maps: Dict[str, Dict[str, str]], projects: Dict[st
         for doc_b, map_b in mark_maps.items():
             if projects[doc_a] == projects[doc_b]:
                 continue
+            defined_marks = {schedule_grid.normalize_schedule_mark(mark) for mark in map_b}
             for mark in map_a:
-                if mark in map_b:
+                if schedule_grid.normalize_schedule_mark(mark) in defined_marks:
                     continue
                 if schedule_grid.resolve_schedule_mark(mark, {"schedule_mark_map": map_b}):
                     leaks.append({"mark": mark, "from": doc_a, "into": doc_b})
