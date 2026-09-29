@@ -1,5 +1,7 @@
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
+import { execSync } from "node:child_process";
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -9,7 +11,20 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // Keep above backend UPLOAD_ANALYSIS_TIMEOUT_SECONDS (default 30 min).
 const PROXY_TIMEOUT_MS = 35 * 60 * 1000;
 
-export default defineConfig(({ mode }) => {
+// Identity of the worktree this dev server runs from, compared at runtime with
+// the backend's `/api/dev/identity` (see src/api/devIdentity.js).
+function devPair(target) {
+  const worktree = fs.realpathSync(path.resolve(__dirname, ".."));
+  let revision = null;
+  try {
+    revision = execSync("git rev-parse HEAD", { cwd: worktree, encoding: "utf8" }).trim();
+  } catch {
+    // Not a git checkout: the worktree path still identifies the pair.
+  }
+  return { worktree, revision, proxy_target: target };
+}
+
+export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   const target = env.VITE_PROXY_TARGET || "http://127.0.0.1:8000";
 
@@ -32,6 +47,10 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
+    define:
+      command === "serve" && mode !== "test"
+        ? { __DEV_PAIR__: JSON.stringify(devPair(target)) }
+        : {},
     test: {
       environment: "jsdom",
       globals: true,

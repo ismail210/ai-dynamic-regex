@@ -120,8 +120,10 @@ export function AnalysisProvider({ children }) {
             setRestoreNotice(restoreNoticeFor(error));
           }
         }
-      } catch {
-        if (!cancelled) {
+      } catch (error) {
+        // A backend refused by the dev pairing check (api/devIdentity.js) says
+        // nothing about the document: keep it for when the right backend runs.
+        if (!cancelled && !error.backendIdentityRefused) {
           setRehydrationError(
             "Could not restore the previous document — it may have expired. Start a new analysis.",
           );

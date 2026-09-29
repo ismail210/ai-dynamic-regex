@@ -1,4 +1,5 @@
 import axios from "axios";
+import { checkBackendIdentity } from "./devIdentity";
 
 /**
  * Single API entry point.
@@ -16,7 +17,20 @@ const client = axios.create({
   timeout: 35 * 60 * 1000,
 });
 
+// Development only: refuse to talk to a backend from another worktree (see
+// devIdentity.js) instead of rendering its responses as if they were ours.
+client.interceptors.request.use(async (config) => {
+  const identity = await checkBackendIdentity({ fresh: config.method !== "get" });
+  if (!identity.ok) {
+    const error = new Error(identity.problem);
+    error.backendIdentityRefused = true;
+    throw error;
+  }
+  return config;
+});
+
 function describeError(error, label) {
+  if (error.backendIdentityRefused) return error.message;
   const status = error.response?.status;
   const detail = error.response?.data?.detail;
   if (detail) return typeof detail === "string" ? detail : JSON.stringify(detail);
