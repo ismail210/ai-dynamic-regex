@@ -554,6 +554,17 @@ class Settings:
             "http://localhost:5173,http://127.0.0.1:5173",
         )
     )
+    # Hosted frontends whose URL changes per deployment (Vercel previews), e.g.
+    # ^https://estima3d-[a-z0-9-]+-myteam\.vercel\.app$ . Unset: exact list only.
+    cors_allow_origin_regex: str | None = field(
+        default_factory=lambda: os.getenv("CORS_ALLOW_ORIGIN_REGEX") or None
+    )
+    # When set, every /api and /upload request must carry
+    # `Authorization: Bearer <token>`. Required for any backend reachable from
+    # the internet: the API has no other authentication.
+    api_access_token: str | None = field(
+        default_factory=lambda: os.getenv("API_ACCESS_TOKEN") or None
+    )
 
 
 settings = Settings()

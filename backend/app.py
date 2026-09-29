@@ -6,6 +6,7 @@ separate API stages.
 """
 
 import logging
+import secrets
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -30,9 +31,36 @@ logging.basicConfig(
 
 app = FastAPI(title=settings.api_title, version=settings.api_version)
 
+
+class RequireAccessToken:
+    """With API_ACCESS_TOKEN set, every route except /health* needs the key.
+
+    Pure ASGI so PDF and export responses keep Starlette's direct file path.
+    """
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        token = settings.api_access_token
+        if token and scope["type"] == "http" and not scope["path"].startswith("/health"):
+            supplied = dict(scope["headers"]).get(b"authorization", b"")
+            if not secrets.compare_digest(supplied, f"Bearer {token}".encode()):
+                response = JSONResponse(
+                    {"detail": "A valid access key is required."}, status_code=401
+                )
+                await response(scope, receive, send)
+                return
+        await self.app(scope, receive, send)
+
+
+# Registered before CORS so CORS stays outermost: preflights are answered and
+# a 401 still carries the CORS headers the browser needs to read it.
+app.add_middleware(RequireAccessToken)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_allow_origins,
+    allow_origin_regex=settings.cors_allow_origin_regex,
     allow_credentials="*" not in settings.cors_allow_origins,
     allow_methods=["*"],
     allow_headers=["*"],

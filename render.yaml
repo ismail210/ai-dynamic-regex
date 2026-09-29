@@ -1,0 +1,32 @@
+# Render Blueprint for the Estima3D API used by the Vercel frontend preview.
+# Applying it in the Render dashboard creates PAID resources (a 2 CPU / 4 GB
+# web service and a 20 GB disk); nothing is created by this file alone.
+# Runbook: docs/DEPLOYMENT.md ("Protected Vercel preview")
+services:
+  - type: web
+    name: estima3d-api
+    runtime: docker
+    rootDir: ./backend
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    # Analysing the 24-page Struct.pdf peaks at ~1.6 GB; 2 GB leaves no margin.
+    plan: 2c-4g
+    healthCheckPath: /health/ready
+    disk:
+      name: estima3d-data
+      mountPath: /data
+      sizeGB: 20
+    envVars:
+      - key: APP_ENV
+        value: production
+      # Uploads and training/ on the disk (see backend/docker-entrypoint.sh).
+      - key: DATA_DIR
+        value: /data
+      # Required: the API has no other authentication. Shared out of band.
+      - key: API_ACCESS_TOKEN
+        generateValue: true
+      # e.g. ^https://estima3d-[a-z0-9-]+-<team>\.vercel\.app$
+      - key: CORS_ALLOW_ORIGIN_REGEX
+        sync: false
+      - key: CORS_ALLOW_ORIGINS
+        value: ""

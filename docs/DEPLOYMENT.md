@@ -17,6 +17,41 @@ curl -fsS http://localhost:8000/health/ready
 Only the frontend is published by default. Nginx proxies API traffic to the
 private backend service.
 
+## Protected Vercel preview (frontend on Vercel, API on Render)
+
+Vercel serves only the static `frontend/` build. The API cannot run there:
+extraction and analysis are single blocking requests (Struct.pdf, 24 pages:
+~112 s, ~1.6 GB peak), longer than Vercel's 120 s proxied-request limit for
+larger sets, and documents must persist on disk. The browser therefore calls a
+persistent HTTPS backend directly — no Vercel rewrite, no 4.5 MB function body
+limit — and that backend enforces its own access key.
+
+```
+browser ── static app ──> Vercel preview (Deployment Protection on)
+   └──── /api, PDFs, uploads (Bearer key, CORS) ──> Render web service
+                                                     └─ /data disk: uploads/, training/
+```
+
+1. **Backend (Render, paid):** apply `render.yaml` as a Blueprint from this
+   branch. It builds `backend/Dockerfile`, mounts a 20 GB disk at `/data`
+   (`DATA_DIR`) and generates `API_ACCESS_TOKEN`. The LLM features stay at
+   their default (off), so no Ollama is needed. Set `CORS_ALLOW_ORIGIN_REGEX` to the project's preview
+   origins, e.g. `^https://estima3d-[a-z0-9-]+-<team>\.vercel\.app$`.
+   Wait for `/health/ready`.
+2. **Frontend (Vercel):** create a project with Root Directory `frontend`
+   (framework: Vite; `frontend/vercel.json` adds SPA routes and headers). Set
+   the Preview environment variable `VITE_API_BASE` to the Render
+   `https://…onrender.com` origin — the build fails without it — and keep
+   Deployment Protection enabled for previews. Deploy a preview only.
+3. **Access:** share the `API_ACCESS_TOKEN` value out of band. The app asks
+   for it on the first 401 and keeps it in that tab's sessionStorage.
+
+Restarts and redeploys keep documents: `docker-entrypoint.sh` links
+`uploads/` and `training/` to the disk and seeds `training/` from the image
+without overwriting existing files. A newer model or catalog in a later image
+is therefore not applied to an existing disk automatically — copy it from
+`/app/training.image` deliberately.
+
 ## Runtime configuration
 
 - `APP_ENV` — `production` in deployed environments.
@@ -25,6 +60,11 @@ private backend service.
   replaced by transactional shared storage.
 - `LOG_LEVEL` — Uvicorn log level.
 - `CORS_ALLOW_ORIGINS` — comma-separated exact origins.
+- `CORS_ALLOW_ORIGIN_REGEX` — origins that change per deployment (Vercel
+  previews).
+- `API_ACCESS_TOKEN` — when set, `/api/*` and `/upload` require
+  `Authorization: Bearer <token>`. Mandatory for any internet-reachable backend.
+- `DATA_DIR` — persistent disk for `uploads/` and `training/` (containers).
 - `MAX_UPLOAD_BYTES` — documented application upload ceiling; enforce the same
   or lower value at the edge.
 

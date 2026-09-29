@@ -121,13 +121,19 @@ export function AnalysisProvider({ children }) {
           }
         }
       } catch (error) {
-        // A backend refused by the dev pairing check (api/devIdentity.js) says
-        // nothing about the document: keep it for when the right backend runs.
-        if (!cancelled && !error.backendIdentityRefused) {
+        // Only a document the backend no longer has is forgotten. A refused,
+        // unreachable, restarting or key-protected backend says nothing about
+        // it, so the workflow is kept for the next reload.
+        if (cancelled) return;
+        if (error.response?.status === 404) {
           setRehydrationError(
             "Could not restore the previous document — it may have expired. Start a new analysis.",
           );
           writePersistedWorkflow(null);
+        } else {
+          setRehydrationError(
+            "Could not restore the previous document right now. Reload once the backend is available.",
+          );
         }
       } finally {
         if (!cancelled) setRehydrating(false);

@@ -1,4 +1,6 @@
 import axios from "axios";
+import { downloadFile } from "../lib/utils";
+import { authHeaders, reportAccessDenied } from "./accessKey";
 import { checkBackendIdentity } from "./devIdentity";
 
 /**
@@ -26,7 +28,14 @@ client.interceptors.request.use(async (config) => {
     error.backendIdentityRefused = true;
     throw error;
   }
+  Object.assign(config.headers, authHeaders());
   return config;
+});
+
+// A hosted backend with API_ACCESS_TOKEN answers 401 until the key is entered.
+client.interceptors.response.use(undefined, (error) => {
+  if (error.response?.status === 401) reportAccessDenied();
+  return Promise.reject(error);
 });
 
 function describeError(error, label) {
@@ -377,8 +386,13 @@ export async function generateTakeoff(documentId) {
   return data;
 }
 
-export function takeoffDownloadUrl(filename) {
-  return `${baseURL}/api/takeoff/exports/${encodeURIComponent(filename)}`;
+/** Fetched through the client so a hosted backend's access key is sent. */
+export async function downloadTakeoffExport(filename) {
+  const { data } = await client.get(
+    `/api/takeoff/exports/${encodeURIComponent(filename)}`,
+    { responseType: "blob" },
+  );
+  downloadFile(data, filename, data.type);
 }
 
 export async function approveValidationCorrection({

@@ -28,6 +28,12 @@ export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   const target = env.VITE_PROXY_TARGET || "http://127.0.0.1:8000";
 
+  // Vercel serves only static files: without an absolute HTTPS backend the
+  // build would look fine and every API call would fail.
+  if (command === "build" && env.VERCEL && !/^https:\/\//.test(env.VITE_API_BASE || "")) {
+    throw new Error("Vercel builds need VITE_API_BASE set to the backend's https:// origin.");
+  }
+
   // `autoRewrite` is required: with `changeOrigin` the backend sees the target
   // host, so any redirect it emits would otherwise send the browser to
   // http://127.0.0.1:8000/... which is a different origin than the dev server.

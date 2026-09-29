@@ -4,6 +4,7 @@ import { ZoomIn, ZoomOut } from "@mui/icons-material";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
+import { authHeaders } from "../../api/accessKey";
 import BboxHighlight, { computeFitPageWidth, pageWidthForBbox } from "./BboxHighlight";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -73,6 +74,8 @@ export default function PdfDocumentViewer({
   // Soft file swap: keep showing the last successfully loaded PDF while a
   // corrected-PDF revision fetches, so Accept does not blank the viewer.
   const [displayFileUrl, setDisplayFileUrl] = useState(fileUrl);
+  // A hosted backend's access key; stable so react-pdf does not reload.
+  const documentOptions = useMemo(() => ({ httpHeaders: authHeaders() }), []);
   const [fileUpdating, setFileUpdating] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
   const hasLoadedRef = useRef(false);
@@ -517,6 +520,7 @@ export default function PdfDocumentViewer({
           <Box sx={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }} aria-hidden>
             <Document
               file={fileUrl}
+              options={documentOptions}
               loading={null}
               onLoadSuccess={onPendingFileLoadSuccess}
               onLoadError={() => {
@@ -531,6 +535,7 @@ export default function PdfDocumentViewer({
         <Document
           key={displayFileUrl || "pdf"}
           file={displayFileUrl}
+          options={documentOptions}
           loading={
             hasLoaded
               ? null
