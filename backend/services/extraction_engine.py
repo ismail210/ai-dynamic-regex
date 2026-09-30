@@ -18,7 +18,7 @@ from services.pdf_parser import extract_document_structure
 
 # Bumped whenever extraction output changes, so cached documents are rebuilt
 # instead of replaying stale artifacts.
-EXTRACTION_VERSION = "3.16-no-callout-fragments"
+EXTRACTION_VERSION = "3.16-column-locations"
 
 
 def extract_engineering_document(

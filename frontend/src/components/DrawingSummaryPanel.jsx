@@ -1,4 +1,19 @@
-import { Alert, Box, Chip, Divider, Paper, Stack, Typography } from "@mui/material";
+import { useState } from "react";
+import {
+  Alert,
+  Box,
+  Button,
+  Chip,
+  Divider,
+  Paper,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Typography,
+} from "@mui/material";
 
 // User-facing message only for statuses worth actively telling the user
 // about -- DISABLED / NO_CONTEXT_PAGES / SUCCESS render nothing extra when
@@ -75,6 +90,76 @@ function Bullets({ items }) {
   );
 }
 
+const COLLAPSED_LOCATIONS = 8;
+
+// Revit column schedules: what the schedule prints for each grid location.
+// Reference only -- never a detected member and never a quantity.
+function ColumnScheduleLocations({ locations }) {
+  const [open, setOpen] = useState(false);
+  const collapsible = locations.length > COLLAPSED_LOCATIONS + 1;
+  const shown = open || !collapsible ? locations : locations.slice(0, COLLAPSED_LOCATIONS);
+  const hasLevel = locations.some((l) => l.level);
+  const hasPlate = locations.some((l) => l.printed_base_plate);
+  const pages = new Set(locations.map((l) => l.page));
+  const commonPage = pages.size === 1 ? locations[0].page : null;
+  const schedule = locations[0].schedule;
+  return (
+    <Section title="Column Schedule Locations">
+      <Typography variant="body2" color="text.secondary" mb={1}>
+        Reference information from column schedules — not a quantity. Each row repeats what the
+        schedule prints for a grid location; it is not a detected member.
+      </Typography>
+      <Paper variant="outlined" sx={{ overflow: "hidden" }}>
+        {(schedule || commonPage) && (
+          <Typography variant="body2" color="text.secondary" sx={{ px: 2, py: 1, bgcolor: "action.hover" }}>
+            {[schedule, commonPage && `PDF p. ${commonPage}`].filter(Boolean).join(" · ")}
+          </Typography>
+        )}
+        <Box sx={{ overflowX: "auto" }}>
+          <Table size="small" aria-label="Column schedule locations">
+            <TableHead>
+              <TableRow>
+                <TableCell>Location</TableCell>
+                {hasLevel && <TableCell>Level</TableCell>}
+                <TableCell>Size</TableCell>
+                {hasPlate && <TableCell>Base plate</TableCell>}
+                {!commonPage && <TableCell align="right">Source</TableCell>}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {shown.map((loc, i) => (
+                <TableRow key={`${loc.page}-${loc.location}-${loc.level}-${i}`}>
+                  <TableCell sx={{ fontFamily: "monospace", fontWeight: 700 }}>{loc.location}</TableCell>
+                  {hasLevel && <TableCell>{loc.level || "—"}</TableCell>}
+                  <TableCell>
+                    <Typography variant="body2" fontWeight={600}>
+                      {loc.catalog_designation || loc.printed_size || "—"}
+                    </Typography>
+                    {!loc.catalog_designation && loc.printed_size && (
+                      <Typography variant="caption" color="text.secondary">
+                        printed size, no catalog designation
+                      </Typography>
+                    )}
+                  </TableCell>
+                  {hasPlate && <TableCell>{loc.printed_base_plate || "—"}</TableCell>}
+                  {!commonPage && <TableCell align="right">PDF p. {loc.page}</TableCell>}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Box>
+        {collapsible && (
+          <Box sx={{ px: 1.5, pb: 1 }}>
+            <Button size="small" onClick={() => setOpen(!open)}>
+              {open ? "Show fewer" : "Show all rows"}
+            </Button>
+          </Box>
+        )}
+      </Paper>
+    </Section>
+  );
+}
+
 function RuleItem({ rule }) {
   const badge = POLICY_BADGE[rule.application_policy];
   return (
@@ -122,6 +207,7 @@ export default function DrawingSummaryPanel({ profile }) {
   const families = di?.steel_system?.families || [];
   const typicalActive = (di?.typical_conditions || []).filter((i) => i.detail?.present);
   const schedules = di?.schedule_insights || [];
+  const columnLocations = di?.column_locations || [];
   const scopeActive = (di?.scope_signals || []).filter((i) => i.detail?.present);
   const notes = di?.structural_notes || [];
   const uncertainties = di?.uncertainties || [];
@@ -262,6 +348,8 @@ export default function DrawingSummaryPanel({ profile }) {
               </Stack>
             </Section>
           )}
+
+          {columnLocations.length > 0 && <ColumnScheduleLocations locations={columnLocations} />}
 
           <Section title="Scope / revision signals" source={scopeActive.length ? "" : ""}>
             <Para muted={scopeActive.length === 0}>{narrative.scope_revision}</Para>

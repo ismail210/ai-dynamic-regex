@@ -186,6 +186,68 @@ class NarrativeAndPacketTests(unittest.TestCase):
         self.assertLess(packet.count("W"), 200)
 
 
+def _grid_row(location, size_text, section, level, plate=""):
+    return {
+        "mark": location, "mark_role": "grid_location", "size_text": size_text,
+        "section": section, "catalog_valid": bool(section), "level": level,
+        "plate_text": plate, "plate_role": "base_plate" if plate else None,
+        "member_plate_roles": [], "bbox": None,
+    }
+
+
+class ColumnLocationTests(unittest.TestCase):
+    def setUp(self):
+        self.doc = _doc({28: "S501 COLUMN SCHEDULE"})
+        self.doc["schedule_grid"] = [
+            {"page": 28, "kind": "column", "rows": [
+                {"mark": "C1", "size_text": "W8X31", "section": "W8X31", "catalog_valid": True,
+                 "plate_text": "", "plate_role": None, "member_plate_roles": [], "bbox": None},
+            ]},
+            {"page": 28, "kind": "column", "layout": "transposed", "source": "ruled_table",
+             "title": "COLUMN SCHEDULE", "bbox": [100.0, 100.0, 900.0, 400.0],
+             "rows": [
+                 _grid_row("A-1", "W10X33", "W10X33", "LEVEL 1", '14"x14"x3/4"'),
+                 _grid_row("B-2", "L4X4", None, "ROOF"),
+             ]},
+        ]
+
+    def test_transposed_column_schedule_is_display_only(self):
+        from services.engineering.schedule_grid import (
+            lookup_schedule_row,
+            resolve_schedule_mark,
+            schedule_mark_map,
+        )
+
+        before_map = schedule_mark_map(self.doc["schedule_grid"])
+        snapshot = repr(self.doc["schedule_grid"])
+        profile = build_drawing_intelligence(self.doc)
+
+        a1, b2 = profile["column_locations"]
+        self.assertEqual(a1, {
+            "location": "A-1", "level": "LEVEL 1", "printed_size": "W10X33",
+            "catalog_designation": "W10X33", "printed_base_plate": '14"x14"x3/4"',
+            "schedule": "COLUMN SCHEDULE", "page": 28, "source": "schedule_grid",
+            "is_definition_not_quantity": True,
+        })
+        # printed text only: no catalog confirmation, no completion of L4X4
+        self.assertIsNone(b2["catalog_designation"])
+        self.assertEqual(b2["printed_size"], "L4X4")
+        self.assertIsNone(b2["printed_base_plate"])
+        self.assertEqual(b2.keys(), a1.keys())  # no count / quantity field
+
+        self.assertEqual(before_map, {"C1": "W8X31"})
+        self.assertEqual(schedule_mark_map(self.doc["schedule_grid"]), before_map)
+        self.assertEqual(repr(self.doc["schedule_grid"]), snapshot)
+        self.doc["schedule_mark_map"] = before_map
+        self.assertEqual(resolve_schedule_mark("A-1", self.doc), "")
+        self.assertIsNone(lookup_schedule_row("A-1", self.doc))
+        self.assertNotIn("A-1", evidence_packet(profile))
+
+    def test_no_transposed_schedule_means_no_column_locations(self):
+        self.doc["schedule_grid"] = self.doc["schedule_grid"][:1]
+        self.assertEqual(build_drawing_intelligence(self.doc)["column_locations"], [])
+
+
 class SummaryLlmGroundingTests(unittest.TestCase):
     def _profile(self):
         return build_drawing_intelligence(_doc(

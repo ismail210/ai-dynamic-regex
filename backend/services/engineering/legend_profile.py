@@ -78,7 +78,8 @@ PROFILE_VERSION = "legend_profile_v4"
 # conditions, schedule semantics, scope/revision signals, uncertainties) and
 # its rendered narrative. Bumping invalidates every v5 cache entry so the
 # richer summary is produced on next analyse.
-EXTRACTOR_VERSION = "legend_extractor_v6b"
+# v6b-column-locations: drawing_intelligence adds display-only column_locations.
+EXTRACTOR_VERSION = "legend_extractor_v6b-column-locations"
 SCHEMA_VERSION = "project_rule_schema_v1"
 
 STATUS_PROPOSED_INFERENCE = "PROPOSED_INFERENCE"

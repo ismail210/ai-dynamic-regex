@@ -873,6 +873,33 @@ def _page_group_sentence(groups: Dict[str, Any]) -> str:
 # --------------------------------------------------------------------------
 # Public entry point
 # --------------------------------------------------------------------------
+def _column_locations(document: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Revit column-schedule cells (grid location x printed row) for display.
+
+    Never a mark definition, member instance or quantity, and never evidence
+    for the summary model: ``schedule_grid._mark_rows`` keeps these rows out
+    of mark resolution, and ``evidence_packet`` does not read this list.
+    """
+
+    locations: List[Dict[str, Any]] = []
+    for grid in document.get("schedule_grid") or []:
+        for row in grid.get("rows") or []:
+            if row.get("mark_role") != "grid_location":
+                continue
+            locations.append({
+                "location": str(row.get("mark") or ""),
+                "level": _clean(row.get("level")) or None,
+                "printed_size": _clean(row.get("size_text")) or None,
+                "catalog_designation": catalog_form(str(row.get("section") or "")) or None,
+                "printed_base_plate": _clean(row.get("plate_text")) or None,
+                "schedule": grid.get("title"),
+                "page": int(grid.get("page") or 0),
+                "source": "schedule_grid",
+                "is_definition_not_quantity": True,
+            })
+    return locations
+
+
 def build_drawing_intelligence(
     document: Dict[str, Any],
     *,
@@ -952,6 +979,7 @@ def build_drawing_intelligence(
         "uncertainties": [i.as_dict() for i in uncertainties],
         "conflicts": [i.as_dict() for i in conflicts],
         "sources": [i.as_dict() for i in all_insights if i.source_pages or i.source_text],
+        "column_locations": _column_locations(document),
     }
     profile["narrative"] = _render_narrative(profile)
     profile["overview"] = profile["narrative"]["project_overview"]
