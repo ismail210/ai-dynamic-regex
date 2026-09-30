@@ -17,40 +17,86 @@ curl -fsS http://localhost:8000/health/ready
 Only the frontend is published by default. Nginx proxies API traffic to the
 private backend service.
 
-## Protected Vercel preview (frontend on Vercel, API on Render)
+## Deploying through the company Vercel account (handoff)
 
-Vercel serves only the static `frontend/` build. The API cannot run there:
-extraction and analysis are single blocking requests (Struct.pdf, 24 pages:
-~112 s, ~1.6 GB peak), longer than Vercel's 120 s proxied-request limit for
-larger sets, and documents must persist on disk. The browser therefore calls a
-persistent HTTPS backend directly — no Vercel rewrite, no 4.5 MB function body
-limit — and that backend enforces its own access key.
+**A Vercel project alone does not run Estima3D.** Vercel serves only the static
+`frontend/` build. The FastAPI backend must run separately as a persistent
+HTTPS service with a persistent disk; without it the deployed page loads but
+cannot upload, extract or show any drawing. The backend cannot be a Vercel
+Function: extraction and analysis are single blocking requests (Struct.pdf,
+24 pages: extraction ~15 s, analysis ~110 s at ~1.6 GB peak memory) that exceed
+Vercel's 120 s proxied-request limit for larger sets, and uploaded documents
+and their artifacts must survive restarts. The browser therefore calls the
+backend directly, so large PDFs (Struct.pdf is 9.3 MB) never pass through a
+Vercel Function body limit.
 
 ```
-browser ── static app ──> Vercel preview (Deployment Protection on)
-   └──── /api, PDFs, uploads (Bearer key, CORS) ──> Render web service
-                                                     └─ /data disk: uploads/, training/
+browser ── static app ──────────────> Vercel project (Root Directory: frontend)
+   └─ /api, PDFs, uploads ──────────> backend (HTTPS, Bearer key, CORS)
+      Authorization: Bearer <key>      └─ persistent disk: uploads/, training/
 ```
 
-1. **Backend (Render, paid):** apply `render.yaml` as a Blueprint from this
-   branch. It builds `backend/Dockerfile`, mounts a 20 GB disk at `/data`
-   (`DATA_DIR`) and generates `API_ACCESS_TOKEN`. The LLM features stay at
-   their default (off), so no Ollama is needed. Set `CORS_ALLOW_ORIGIN_REGEX` to the project's preview
-   origins, e.g. `^https://estima3d-[a-z0-9-]+-<team>\.vercel\.app$`.
-   Wait for `/health/ready`.
-2. **Frontend (Vercel):** create a project with Root Directory `frontend`
-   (framework: Vite; `frontend/vercel.json` adds SPA routes and headers). Set
-   the Preview environment variable `VITE_API_BASE` to the Render
-   `https://…onrender.com` origin — the build fails without it — and keep
-   Deployment Protection enabled for previews. Deploy a preview only.
-3. **Access:** share the `API_ACCESS_TOKEN` value out of band. The app asks
-   for it on the first 401 and keeps it in that tab's sessionStorage.
+### 1. Backend (any container host with a persistent disk)
 
-Restarts and redeploys keep documents: `docker-entrypoint.sh` links
-`uploads/` and `training/` to the disk and seeds `training/` from the image
-without overwriting existing files. A newer model or catalog in a later image
+Build `backend/Dockerfile` from this branch. `render.yaml` is a ready Render
+Blueprint for it; any equivalent host works. Provisioning is paid — decide the
+host and budget before creating it.
+
+| Need | Value |
+| --- | --- |
+| Resources | 2 CPU, 4 GB RAM (2 GB leaves no margin over the ~1.6 GB peak), one instance, `WEB_CONCURRENCY=1` |
+| Disk | persistent volume ≥ 20 GB (~300 MB of artifacts per analysed document); set `DATA_DIR` to its mount path |
+| Request timeout | ≥ 30 min at the host/proxy (backend budget `UPLOAD_ANALYSIS_TIMEOUT_SECONDS=1800`); upload limit ≥ 200 MB |
+| HTTPS | required; the frontend refuses to build against a non-https backend |
+| Health check | `/health/ready` (the only unauthenticated route besides `/health/live`) |
+
+Environment (set in the host's secret store, never in Git):
+
+- `APP_ENV=production`
+- `API_ACCESS_TOKEN` — a long random value; every route except `/health*`
+  then requires `Authorization: Bearer <token>`. **Mandatory**: the API has no
+  other authentication.
+- `CORS_ALLOW_ORIGIN_REGEX` — the Vercel project's origins, e.g.
+  `^https://<project>-[a-z0-9-]+-<team>\.vercel\.app$` for previews; add the
+  production domain to `CORS_ALLOW_ORIGINS` when there is one. Set
+  `CORS_ALLOW_ORIGINS` to an empty value to drop the localhost defaults.
+- `DATA_DIR` — mount path of the persistent disk.
+- LLM features stay at their default (off); no Ollama is needed.
+
+`docker-entrypoint.sh` links `uploads/` and `training/` to `DATA_DIR`, seeds
+`training/` (models, AISC catalog) from the image without overwriting existing
+files, and runs the app unprivileged. A newer model or catalog in a later image
 is therefore not applied to an existing disk automatically — copy it from
 `/app/training.image` deliberately.
+
+### 2. Frontend (company Vercel project)
+
+- Import the repository; **Root Directory `frontend`**; framework Vite (build
+  `npm run build`, output `dist`, both also set in `frontend/vercel.json` with
+  SPA routes and security headers).
+- Environment variable **`VITE_API_BASE`** = the backend's `https://` origin,
+  for each environment you deploy (Preview and/or Production). It is baked in
+  at build time; a Vercel build without it fails on purpose.
+- Keep **Deployment Protection** enabled (Vercel Authentication) for previews.
+- Deploy a preview first. The development-only worktree identity check never
+  runs in these builds.
+
+### 3. Access and live verification
+
+Share the `API_ACCESS_TOKEN` value out of band. The app asks for it on the
+first 401 and keeps it only in that browser tab (sessionStorage). The
+deployment is live only when, against the hosted frontend and backend:
+
+1. `GET <backend>/health/ready` is 200 and `<backend>/api/documents/x` without
+   the key is 401.
+2. Uploading a copy of Struct.pdf prompts for the key, then succeeds.
+3. Extraction completes; Drawing Summary shows L1 = W8X21 (bearing plate
+   6"x6"x1/2") and BP1 = 4"x6"x3/4" from S002.
+4. "View page" on L1/BP1 opens S002 · PDF p. 2 at the mark.
+5. Analysis matches the recorded baseline for Struct.pdf: 1436 predictions,
+   62 quantity rows totalling 264.
+6. After a backend restart/redeploy the document, its summary and its PDF are
+   still served.
 
 ## Runtime configuration
 
@@ -62,7 +108,7 @@ is therefore not applied to an existing disk automatically — copy it from
 - `CORS_ALLOW_ORIGINS` — comma-separated exact origins.
 - `CORS_ALLOW_ORIGIN_REGEX` — origins that change per deployment (Vercel
   previews).
-- `API_ACCESS_TOKEN` — when set, `/api/*` and `/upload` require
+- `API_ACCESS_TOKEN` — when set, every route except `/health*` requires
   `Authorization: Bearer <token>`. Mandatory for any internet-reachable backend.
 - `DATA_DIR` — persistent disk for `uploads/` and `training/` (containers).
 - `MAX_UPLOAD_BYTES` — documented application upload ceiling; enforce the same
