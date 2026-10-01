@@ -1,0 +1,30 @@
+{
+  "token_id": "token_p18_1186",
+  "page": 18,
+  "text": "WT7X19",
+  "label_bbox": [
+    1612.08,
+    1030.35,
+    1652.52,
+    1042.94
+  ],
+  "production_geometry_id": null,
+  "candidate_geometry_ids": [
+    "geom_dd5852884135",
+    "geom_9f6a03a38593",
+    "geom_bc15d0509cd2"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p18_1186.png",
+  "crop_available": true,
+  "g1_status": "extra_candidates_only",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Leader points to the WT under the beam. Green overlay is the W-beam top flange / roof deck, not the WT.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": true,
+  "visible_member_on_drawing": true
+}

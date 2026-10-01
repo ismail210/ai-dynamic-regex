@@ -1,0 +1,71 @@
+<!doctype html><meta charset='utf-8'>
+<title>token_p8_369</title>
+<h1>W16X26 (page 8)</h1>
+<p>Label bbox: [1869.08, 1104.22, 1891.61, 1145.93]</p>
+<form>
+<p>Review label:
+<select name='review_label'>
+<option value='direct_target'>direct_target</option>
+<option value='leader_support_not_target'>leader_support_not_target</option>
+<option value='not_target'>not_target</option>
+<option value='no_valid_target'>no_valid_target</option>
+<option value='ambiguous_requires_adjudication'>ambiguous_requires_adjudication</option>
+</select></p>
+<p>Targets:</p>
+<label><input type='checkbox' name='target' value='geom_095898d74240'> geom_095898d74240 kind=line d=43.32 leader=True</label><br><label><input type='checkbox' name='target' value='geom_0a8f27d1dd2a'> geom_0a8f27d1dd2a kind=line d=45.07 leader=True</label><br><label><input type='checkbox' name='target' value='geom_5f6b0423ca08'> geom_5f6b0423ca08 kind=line d=84.08 leader=True</label><br><label><input type='checkbox' name='target' value='geom_edbfa26d671d'> geom_edbfa26d671d kind=line d=147.35 leader=False</label><br>
+<p><button type='button' onclick='this.nextElementSibling.hidden=false'>Reveal production pick</button>
+<pre hidden>{
+  &quot;edge_id&quot;: &quot;edge_7361866d1a&quot;,
+  &quot;text_node_id&quot;: &quot;txt_6a469bcfe5&quot;,
+  &quot;geometry_node_id&quot;: &quot;geo_85f9e869af&quot;,
+  &quot;geometry_id&quot;: &quot;geom_095898d74240&quot;,
+  &quot;distance&quot;: 0.0,
+  &quot;page_number&quot;: 8,
+  &quot;meta&quot;: {
+    &quot;association_sources&quot;: [
+      &quot;leader_endpoint_resolved&quot;,
+      &quot;leader_endpoint_resolved&quot;,
+      &quot;leader_endpoint_resolved&quot;,
+      &quot;leader_endpoint_resolved&quot;,
+      &quot;leader_endpoint_resolved&quot;,
+      &quot;leader_endpoint_resolved&quot;,
+      &quot;direct_distance&quot;,
+      &quot;leader_endpoint_resolved&quot;,
+      &quot;leader_endpoint_resolved&quot;,
+      &quot;leader_endpoint_resolved&quot;,
+      &quot;leader_endpoint_resolved&quot;,
+      &quot;leader_endpoint_resolved&quot;,
+      &quot;leader_endpoint_resolved&quot;
+    ],
+    &quot;leader_resolved&quot;: true,
+    &quot;candidate_count&quot;: 3
+  },
+  &quot;geometry_kind&quot;: &quot;line&quot;,
+  &quot;geometry_bbox&quot;: [
+    1818.72,
+    929.88,
+    2159.76,
+    1020.36
+  ]
+}</pre></p>
+<p>Reviewer id: <input name='reviewer_id'></p>
+<button type='button' onclick='save()'>Save decision</button>
+</form>
+<script>
+function save(){
+  const targets=[...document.querySelectorAll('input[name=target]:checked')].map(x=>x.value);
+  const payload={
+    token_id:"token_p8_369",
+    review_label:document.querySelector('[name=review_label]').value,
+    reviewed_target_geometry_ids:targets,
+    reviewer_id:document.querySelector('[name=reviewer_id]').value,
+    page:8,
+    text:"W16X26"
+  };
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download="token_p8_369.decision.json";
+  a.click();
+}
+</script>

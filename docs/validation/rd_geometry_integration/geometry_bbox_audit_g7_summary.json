@@ -1,0 +1,592 @@
+{
+  "bbox_quality_counts": {
+    "LOCAL_BBOX": 74,
+    "UNKNOWN": 1
+  },
+  "class_audit": {
+    "L_clip_angle": {
+      "n": 13,
+      "raw_present": 2,
+      "retained": 0,
+      "usable_local": 12
+    },
+    "WT": {
+      "n": 1,
+      "raw_present": 0,
+      "retained": 0,
+      "usable_local": 0
+    },
+    "girder_W": {
+      "n": 6,
+      "raw_present": 6,
+      "retained": 0,
+      "usable_local": 6
+    },
+    "joist_scale_W": {
+      "n": 30,
+      "raw_present": 29,
+      "retained": 7,
+      "usable_local": 30
+    },
+    "plate": {
+      "n": 4,
+      "raw_present": 2,
+      "retained": 3,
+      "usable_local": 4
+    },
+    "short_W": {
+      "n": 21,
+      "raw_present": 15,
+      "retained": 2,
+      "usable_local": 21
+    }
+  },
+  "document_id": "doc_0d910a43b4a021e3",
+  "dominant_blockers": {
+    "GEOMETRY_POPULATION_GAP": 39,
+    "LEADER_TARGET_GAP": 12,
+    "NO_MAJOR_REPRESENTATION_GAP": 15,
+    "RETRIEVAL_GAP": 6,
+    "SEGMENTATION_GAP": 3
+  },
+  "extracted_status_counts": {
+    "FILTERED": 54,
+    "RETAINED": 12,
+    "UNKNOWN": 9
+  },
+  "failure_stage_counts": {
+    "geometry_population_gap": 36,
+    "leader_target_gap": 12,
+    "not_a_member_schedule": 7,
+    "raw_geometry_gap": 3,
+    "representation_sufficient_for_case": 8,
+    "retrieval_gap_not_representation": 6,
+    "segmentation_gap": 3
+  },
+  "feature_table": [
+    {
+      "exists": "YES",
+      "feature": "geometry bbox",
+      "notes": "Present on all objects; giant/compound bboxes are common on framing pages.",
+      "reliable": "PARTIAL",
+      "useful_for_association": "YES"
+    },
+    {
+      "exists": "YES",
+      "feature": "centroid",
+      "notes": "Derived from bbox; reliable when bbox is LOCAL.",
+      "reliable": "YES",
+      "useful_for_association": "YES"
+    },
+    {
+      "exists": "YES",
+      "feature": "path length",
+      "notes": "Always populated for retained strokes.",
+      "reliable": "YES",
+      "useful_for_association": "YES"
+    },
+    {
+      "exists": "YES",
+      "feature": "orientation",
+      "notes": "Present for lines; useful with label alignment later.",
+      "reliable": "YES",
+      "useful_for_association": "YES"
+    },
+    {
+      "exists": "PARTIAL",
+      "feature": "start/end",
+      "notes": "Available via points[0]/points[-1] when points exist.",
+      "reliable": "PARTIAL",
+      "useful_for_association": "YES"
+    },
+    {
+      "exists": "YES",
+      "feature": "point count",
+      "notes": "Useful for compound detection; not a member signal alone.",
+      "reliable": "YES",
+      "useful_for_association": "PARTIAL"
+    },
+    {
+      "exists": "NO",
+      "feature": "closed/open",
+      "notes": "Not an explicit field; only inferable from kind/points.",
+      "reliable": "NO",
+      "useful_for_association": "PARTIAL"
+    },
+    {
+      "exists": "YES",
+      "feature": "geometry kind",
+      "notes": "Reliable as extractor output; dimension/leader reclass still filters members.",
+      "reliable": "PARTIAL",
+      "useful_for_association": "YES"
+    },
+    {
+      "exists": "YES",
+      "feature": "label bbox",
+      "notes": "Present in gold and document tokens.",
+      "reliable": "YES",
+      "useful_for_association": "YES"
+    },
+    {
+      "exists": "NO",
+      "feature": "label orientation",
+      "notes": "Not stored on gold rows; would need derivation from text span.",
+      "reliable": "NO",
+      "useful_for_association": "YES"
+    },
+    {
+      "exists": "PARTIAL",
+      "feature": "text\u2192geometry distance",
+      "notes": "Computable from bboxes/centroids; not pre-stored.",
+      "reliable": "YES",
+      "useful_for_association": "YES"
+    },
+    {
+      "exists": "PARTIAL",
+      "feature": "leader endpoint",
+      "notes": "Inferable from raw endpoints; often cap-dropped before retention.",
+      "reliable": "PARTIAL",
+      "useful_for_association": "YES"
+    },
+    {
+      "exists": "PARTIAL",
+      "feature": "source/path ID",
+      "notes": "geometry_id stable in artifact; raw drawing id not persisted.",
+      "reliable": "YES",
+      "useful_for_association": "PARTIAL"
+    }
+  ],
+  "g7_gate": "REPRESENTATION_NOT_READY",
+  "gold_sha256": "0fad4291ff06ffa4e61c46f4ac923d7187455dd6b2f9b088481ab5e6b976b155",
+  "leader_status_counts": {
+    "LEADER_PRESENT_TARGET_MISSING": 12,
+    "TARGET_GEOMETRY_PRESENT": 6
+  },
+  "metrics": {
+    "bbox_usable_n": 17,
+    "bbox_usable_rate": 1.0,
+    "current_retention_rate_among_raw_present": 0.1364,
+    "filtered_among_raw_present": 38,
+    "giant_bbox_rate": 0.24,
+    "giant_or_compound_n": 18,
+    "gold_geometry_coverage_among_associated": 1.0,
+    "gold_geometry_present_n": 8,
+    "leader_missing_n": 0,
+    "leader_present_target_missing_n": 12,
+    "leader_required_n": 18,
+    "leader_target_present_n": 6,
+    "missing_candidate_visible_member_n": 58,
+    "n_cases": 75,
+    "raw_presence_rate": 0.7586,
+    "raw_present_n": 44,
+    "raw_present_relevant": 44,
+    "relevant_visible_n": 58,
+    "retained_among_raw_present": 6,
+    "retained_primary_n": 17,
+    "short_stroke_raw_n": 21,
+    "short_stroke_retained_n": 0,
+    "visible_miss_usable_rate": 0.9655,
+    "visible_miss_with_usable_local_geometry": 56
+  },
+  "n_cases": 75,
+  "page_population": {
+    "18": {
+      "available_fields_sample": [
+        "angle",
+        "area",
+        "aspect_ratio",
+        "bbox",
+        "block_name",
+        "center",
+        "centerline",
+        "color",
+        "coordinates",
+        "cross_section",
+        "drawing_layer",
+        "fill",
+        "fill_opacity",
+        "geometry_id",
+        "geometry_type",
+        "height",
+        "kind",
+        "layer",
+        "length",
+        "length_real_inches",
+        "nearby_text",
+        "nearest_objects",
+        "object_id",
+        "orientation",
+        "page",
+        "page_number",
+        "points",
+        "profile",
+        "region_id",
+        "source_format",
+        "stroke_opacity",
+        "width"
+      ],
+      "bbox_quality_counts": {
+        "GIANT_BBOX": 3,
+        "LOCAL_BBOX": 430
+      },
+      "giant_examples": [
+        {
+          "bbox": [
+            2735.88,
+            51.72,
+            2970.0,
+            2108.16
+          ],
+          "bbox_quality": "GIANT_BBOX",
+          "geometry_id": "geom_8b1669b94681",
+          "kind": "rectangle",
+          "path_length": 2524.68,
+          "point_count": 4
+        },
+        {
+          "bbox": [
+            2699.88,
+            51.72,
+            2699.88,
+            2108.16
+          ],
+          "bbox_quality": "GIANT_BBOX",
+          "geometry_id": "geom_fd3ce72cb8da",
+          "kind": "line",
+          "path_length": 2056.439,
+          "point_count": 2
+        },
+        {
+          "bbox": [
+            1573.44,
+            1722.84,
+            2361.84,
+            1722.84
+          ],
+          "bbox_quality": "GIANT_BBOX",
+          "geometry_id": "geom_c54124a64788",
+          "kind": "line",
+          "path_length": 788.4,
+          "point_count": 2
+        }
+      ],
+      "kinds": {
+        "dimension": 101,
+        "leader": 188,
+        "line": 79,
+        "polyline": 17,
+        "rectangle": 39,
+        "symbol": 9
+      },
+      "n_compound_bbox": 0,
+      "n_degenerate_bbox": 0,
+      "n_giant_bbox": 3,
+      "n_local_bbox": 430,
+      "n_objects": 433,
+      "n_short_member_kind_retained": 5,
+      "n_usable_local_member_kind": 141,
+      "page": 18
+    },
+    "24": {
+      "available_fields_sample": [
+        "angle",
+        "area",
+        "aspect_ratio",
+        "bbox",
+        "block_name",
+        "center",
+        "centerline",
+        "color",
+        "coordinates",
+        "cross_section",
+        "drawing_layer",
+        "fill",
+        "fill_opacity",
+        "geometry_id",
+        "geometry_type",
+        "height",
+        "kind",
+        "layer",
+        "length",
+        "length_real_inches",
+        "nearby_text",
+        "nearest_objects",
+        "object_id",
+        "orientation",
+        "page",
+        "page_number",
+        "points",
+        "profile",
+        "region_id",
+        "source_format",
+        "stroke_opacity",
+        "width"
+      ],
+      "bbox_quality_counts": {
+        "COMPOUND_BBOX": 2,
+        "GIANT_BBOX": 2,
+        "LOCAL_BBOX": 379,
+        "UNKNOWN": 1
+      },
+      "giant_examples": [
+        {
+          "bbox": [
+            2735.88,
+            51.72,
+            2970.0,
+            2108.16
+          ],
+          "bbox_quality": "GIANT_BBOX",
+          "geometry_id": "geom_da9a403d42eb",
+          "kind": "rectangle",
+          "path_length": 2524.68,
+          "point_count": 4
+        },
+        {
+          "bbox": [
+            2699.88,
+            51.72,
+            2699.88,
+            2108.16
+          ],
+          "bbox_quality": "GIANT_BBOX",
+          "geometry_id": "geom_f9db71ef4e43",
+          "kind": "line",
+          "path_length": 2056.439,
+          "point_count": 2
+        }
+      ],
+      "kinds": {
+        "dimension": 45,
+        "leader": 68,
+        "line": 136,
+        "polyline": 56,
+        "rectangle": 64,
+        "symbol": 15
+      },
+      "n_compound_bbox": 2,
+      "n_degenerate_bbox": 0,
+      "n_giant_bbox": 2,
+      "n_local_bbox": 379,
+      "n_objects": 384,
+      "n_short_member_kind_retained": 11,
+      "n_usable_local_member_kind": 266,
+      "page": 24
+    },
+    "8": {
+      "available_fields_sample": [
+        "angle",
+        "area",
+        "aspect_ratio",
+        "bbox",
+        "block_name",
+        "center",
+        "centerline",
+        "color",
+        "coordinates",
+        "cross_section",
+        "drawing_layer",
+        "fill",
+        "fill_opacity",
+        "geometry_id",
+        "geometry_type",
+        "height",
+        "kind",
+        "layer",
+        "length",
+        "length_real_inches",
+        "nearby_text",
+        "nearest_objects",
+        "object_id",
+        "orientation",
+        "page",
+        "page_number",
+        "points",
+        "profile",
+        "region_id",
+        "source_format",
+        "stroke_opacity",
+        "width"
+      ],
+      "bbox_quality_counts": {
+        "COMPOUND_BBOX": 1,
+        "GIANT_BBOX": 11,
+        "LOCAL_BBOX": 421
+      },
+      "giant_examples": [
+        {
+          "bbox": [
+            2735.88,
+            51.72,
+            2970.0,
+            2108.16
+          ],
+          "bbox_quality": "GIANT_BBOX",
+          "geometry_id": "geom_1885f3670e4e",
+          "kind": "rectangle",
+          "path_length": 2524.68,
+          "point_count": 4
+        },
+        {
+          "bbox": [
+            205.2,
+            1114.8,
+            1058.64,
+            1612.68
+          ],
+          "bbox_quality": "GIANT_BBOX",
+          "geometry_id": "geom_391188c4798e",
+          "kind": "line",
+          "path_length": 988.051,
+          "point_count": 2
+        },
+        {
+          "bbox": [
+            636.6,
+            390.24,
+            1481.04,
+            882.84
+          ],
+          "bbox_quality": "GIANT_BBOX",
+          "geometry_id": "geom_b2e19d2fbdfd",
+          "kind": "line",
+          "path_length": 977.616,
+          "point_count": 2
+        },
+        {
+          "bbox": [
+            192.84,
+            379.56,
+            627.6,
+            1124.76
+          ],
+          "bbox_quality": "GIANT_BBOX",
+          "geometry_id": "geom_79b4c492e763",
+          "kind": "rectangle",
+          "path_length": 1614.72,
+          "point_count": 4
+        },
+        {
+          "bbox": [
+            192.84,
+            379.56,
+            621.12,
+            1121.16
+          ],
+          "bbox_quality": "GIANT_BBOX",
+          "geometry_id": "geom_f6bf2271b085",
+          "kind": "line",
+          "path_length": 856.384,
+          "point_count": 2
+        },
+        {
+          "bbox": [
+            1059.24,
+            882.84,
+            1481.04,
+            1612.56
+          ],
+          "bbox_quality": "GIANT_BBOX",
+          "geometry_id": "geom_59a6f49b264f",
+          "kind": "polyline",
+          "path_length": 1194.001,
+          "point_count": 6
+        },
+        {
+          "bbox": [
+            756.6,
+            464.52,
+            1480.8,
+            882.72
+          ],
+          "bbox_quality": "GIANT_BBOX",
+          "geometry_id": "geom_e3fc08026d78",
+          "kind": "line",
+          "path_length": 836.276,
+          "point_count": 2
+        },
+        {
+          "bbox": [
+            760.44,
+            458.04,
+            1484.52,
+            876.12
+          ],
+          "bbox_quality": "GIANT_BBOX",
+          "geometry_id": "geom_91ad1d90a76f",
+          "kind": "line",
+          "path_length": 836.112,
+          "point_count": 2
+        },
+        {
+          "bbox": [
+            203.16,
+            397.68,
+            619.32,
+            1118.4
+          ],
+          "bbox_quality": "GIANT_BBOX",
+          "geometry_id": "geom_b79456866b4a",
+          "kind": "polyline",
+          "path_length": 1660.346,
+          "point_count": 3
+        },
+        {
+          "bbox": [
+            2159.76,
+            929.88,
+            2331.24,
+            1564.92
+          ],
+          "bbox_quality": "GIANT_BBOX",
+          "geometry_id": "geom_3e2826b140f9",
+          "kind": "polyline",
+          "path_length": 1314.724,
+          "point_count": 3
+        },
+        {
+          "bbox": [
+            2699.88,
+            51.72,
+            2699.88,
+            2108.16
+          ],
+          "bbox_quality": "GIANT_BBOX",
+          "geometry_id": "geom_aae0c2f2d156",
+          "kind": "line",
+          "path_length": 2056.439,
+          "point_count": 2
+        }
+      ],
+      "kinds": {
+        "arc": 3,
+        "dimension": 12,
+        "leader": 270,
+        "line": 121,
+        "polyline": 14,
+        "rectangle": 8,
+        "symbol": 5
+      },
+      "n_compound_bbox": 1,
+      "n_degenerate_bbox": 0,
+      "n_giant_bbox": 11,
+      "n_local_bbox": 421,
+      "n_objects": 433,
+      "n_short_member_kind_retained": 7,
+      "n_usable_local_member_kind": 140,
+      "page": 8
+    }
+  },
+  "pages": [
+    8,
+    18,
+    24
+  ],
+  "raw_status_counts": {
+    "RAW_AMBIGUOUS": 5,
+    "RAW_NOT_FOUND": 16,
+    "RAW_PRESENT": 54
+  },
+  "segmentation_evidence": "Multi-point polylines and page-scale bboxes coexist with member-scale strokes; point_count+length/diagonal can flag compounds but cannot split them into member-level primitives without segmentation.",
+  "segmentation_required": true
+}

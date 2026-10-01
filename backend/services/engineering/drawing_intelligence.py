@@ -1054,9 +1054,15 @@ def _schedule_definitions(
         if page in grid_pages:
             words_by_page[page].append(word)
     definitions: List[Dict[str, Any]] = []
+    column_locations: List[Dict[str, Any]] = []
     spans: List[Tuple[int, str, float, float]] = []
     for grid in grids:
         page = int(grid.get("page") or 0)
+        column_locations.extend(
+            _column_location(grid, row, sheets)
+            for row in grid["rows"]
+            if row.get("mark_role") == "grid_location"
+        )
         marks = [str(r.get("mark") or "") for r in grid["rows"]]
         page_words = words_by_page[page]
         grid_bbox = grid.get("bbox") or []
@@ -1185,6 +1191,32 @@ def _schedule_definitions(
         "definitions": [{**d, "id": f"D{i}"} for i, d in enumerate(definitions, 1)],
         "interpretation_rules": [{**r, "id": f"R{i}"} for i, r in enumerate(rules, 1)],
         "unresolved": [{**u, "id": f"U{i}"} for i, u in enumerate(unresolved, 1)],
+        "column_locations": column_locations,
+    }
+
+
+def _column_location(
+    grid: Dict[str, Any], row: Dict[str, Any], sheets: Dict[int, str],
+) -> Dict[str, Any]:
+    """One Revit column-schedule cell (grid location x printed row) for display.
+
+    Never a mark definition, member instance or quantity, and never evidence
+    for the summary model: ``_mark_rows`` keeps these rows out of mark
+    resolution, and ``evidence_facts`` does not read this list.
+    """
+
+    plate = _clean(row.get("plate_text"))
+    return {
+        "location": str(row.get("mark") or ""),
+        "level": _clean(row.get("level")) or None,
+        "printed_size": _clean(row.get("size_text")) or None,
+        "catalog_designation": _catalog_designation(row["section"]) if row.get("section") else None,
+        "printed_base_plate": plate or None,
+        "schedule": grid.get("title"),
+        "bbox": grid.get("bbox"),
+        "source": "schedule_grid",
+        "is_definition_not_quantity": True,
+        **_where(sheets, int(grid.get("page") or 0)),
     }
 
 

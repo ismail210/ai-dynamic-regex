@@ -1,0 +1,32 @@
+{
+  "token_id": "token_p8_386",
+  "page": 8,
+  "text": "W18X40",
+  "label_bbox": [
+    1367.78,
+    1432.74,
+    1398.73,
+    1473.55
+  ],
+  "production_geometry_id": "geom_59a6f49b264f",
+  "candidate_geometry_ids": [
+    "geom_d28c3126be04",
+    "geom_398d64922bf2",
+    "geom_9027619e697a",
+    "geom_3a95426e8888",
+    "geom_59a6f49b264f"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p8_386.png",
+  "crop_available": true,
+  "g1_status": "agreement",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Label sits on W18X40[40] among parallel W18X40s. Orange is a giant bay polyline.",
+  "error_bucket": "parallel_member_confusion",
+  "leader_required": false,
+  "visible_member_on_drawing": true
+}

@@ -1,0 +1,57 @@
+{
+  "audit_classification": "C",
+  "audit_confidence": "MEDIUM",
+  "baseline_b_nearest_candidate_id": "rnd_raw_p8_1341_16dcbc2956c0",
+  "evidence_basis": [
+    "local_structural_topology",
+    "repeated_member_context",
+    "overlap_or_contact_insufficient_alone"
+  ],
+  "g8_candidate_ids": [
+    "rnd_raw_p8_1341_16dcbc2956c0",
+    "rnd_raw_p8_1299_176f6a1bb69e",
+    "rnd_raw_p8_1537_5723f57887f3",
+    "rnd_raw_p8_1291_5699e04ee9db",
+    "rnd_raw_p8_1117_b3706852deb8",
+    "rnd_raw_p8_1541_36bf28e9a208",
+    "rnd_raw_p8_3149_c88535e28d73",
+    "rnd_raw_p8_1342_2ac3070d18fc",
+    "rnd_raw_p8_1292_be2a2c871ca2",
+    "rnd_raw_p8_1346_4fed0e35ae26",
+    "rnd_raw_p8_1289_4e7d1746dcb0"
+  ],
+  "g9_disagrees": false,
+  "g9_mode": "direct",
+  "g9_selected_candidate_id": "rnd_raw_p8_1341_16dcbc2956c0",
+  "g9_selected_rejected": null,
+  "historical_gold_decision": "NO_VALID_MEMBER",
+  "historical_gold_raw": "no_valid_member",
+  "historical_gold_reason": "Label sits on W18X40[40] among parallel W18X40s. Overlay is the SOG/wall line.",
+  "label": "W18X40",
+  "label_bbox": [
+    1298.42,
+    1349.34,
+    1329.37,
+    1390.15
+  ],
+  "not_historical_gold": true,
+  "notes": "Parallel same-scale G8 candidates touch the label neighborhood. Historical reason names a specific joist, but under frozen G8 multiple member-scale strokes remain plausible; ownership not forced. Competitors listed: ['rnd_raw_p8_1341_16dcbc2956c0', 'rnd_raw_p8_1291_5699e04ee9db', 'rnd_raw_p8_1299_176f6a1bb69e', 'rnd_raw_p8_1117_b3706852deb8'].",
+  "owned_candidate_ids": [
+    "rnd_raw_p8_1341_16dcbc2956c0",
+    "rnd_raw_p8_1291_5699e04ee9db",
+    "rnd_raw_p8_1299_176f6a1bb69e",
+    "rnd_raw_p8_1117_b3706852deb8"
+  ],
+  "page": 8,
+  "pattern_tags": [
+    "parallel_bay",
+    "same_scale_competition"
+  ],
+  "review_source": "g8_era_human_validation",
+  "reviewed_at": "2026-09-21T11:14:29Z",
+  "reviewer_confidence": "MEDIUM",
+  "reviewer_decision": "AMBIGUOUS",
+  "reviewer_id": "g8_era_rd_review",
+  "status": "REVIEWED",
+  "token_id": "token_p8_384"
+}

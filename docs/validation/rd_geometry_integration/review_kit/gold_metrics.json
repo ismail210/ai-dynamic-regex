@@ -1,0 +1,40 @@
+{
+  "n_reviewed": 75,
+  "decision_counts": {
+    "no_valid_member": 65,
+    "associated": 8,
+    "ambiguous": 2
+  },
+  "n_associated": 8,
+  "n_ambiguous": 2,
+  "n_no_valid_member": 65,
+  "n_unavailable": 0,
+  "n_schedule_not_member": 7,
+  "n_visible_member_missing_from_candidates": 58,
+  "recall_at_1": 1.0,
+  "recall_at_3": 1.0,
+  "recall_at_5": 1.0,
+  "recall_denominator": 8,
+  "production_match_among_associated": 6,
+  "production_match_rate_among_associated": 0.75,
+  "rd_top1_match_among_associated": 8,
+  "rd_top1_rate_among_associated": 1.0,
+  "g1_disagreement_tokens": [
+    "token_p8_348",
+    "token_p8_353",
+    "token_p8_372"
+  ],
+  "leader_required_associated": 0,
+  "leader_required_no_valid_member": 18,
+  "error_buckets": {
+    "missing_retrieval": 42,
+    "parallel_member_confusion": 16,
+    "crowded_neighborhood": 2,
+    "schedule_table_not_member": 7
+  },
+  "note": "Recall@K is among human-associated labels only. no_valid_member / ambiguous / unavailable are excluded from the denominator. Production nearest_geometry is a reference, not ground truth.",
+  "qc": {
+    "ok": true,
+    "n": 75
+  }
+}

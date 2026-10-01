@@ -1,0 +1,32 @@
+{
+  "token_id": "token_p8_433",
+  "page": 8,
+  "text": "W16X26",
+  "label_bbox": [
+    1546.49,
+    1205.9,
+    1587.3,
+    1236.85
+  ],
+  "production_geometry_id": "geom_398d64922bf2",
+  "candidate_geometry_ids": [
+    "geom_398d64922bf2",
+    "geom_e637a03a7371",
+    "geom_73c8a8794fe3",
+    "geom_59a6f49b264f",
+    "geom_9027619e697a"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p8_433.png",
+  "crop_available": true,
+  "g1_status": "agreement_ambiguous_neighborhood",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Label sits on the W16X26[12] X-infilled member. Overlay is the bent-plate pour-stop region, not that infill.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": false,
+  "visible_member_on_drawing": true
+}

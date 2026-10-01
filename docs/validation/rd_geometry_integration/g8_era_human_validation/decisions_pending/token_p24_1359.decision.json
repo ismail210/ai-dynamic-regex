@@ -1,0 +1,59 @@
+{
+  "audit_classification": "D",
+  "audit_confidence": "HIGH",
+  "baseline_b_nearest_candidate_id": "rnd_raw_p24_480_d0c0ca5e54d7",
+  "evidence_basis": [
+    "leader_endpoint_or_pointer",
+    "explicit_label_to_member_relationship"
+  ],
+  "g8_candidate_ids": [
+    "rnd_raw_p24_480_d0c0ca5e54d7",
+    "rnd_raw_p24_567_062ff3501beb",
+    "rnd_raw_p24_4086_cfa746f71182",
+    "rnd_raw_p24_4220_f4e088ea98aa",
+    "rnd_raw_p24_478_77a1ccd9dec6",
+    "rnd_raw_p24_486_b2fd13b212ca",
+    "rnd_raw_p24_161_9eb6b13bab73",
+    "rnd_raw_p24_4223_e780326d754b",
+    "rnd_raw_p24_163_ed240f76fbb6",
+    "rnd_raw_p24_4226_99fe5ca951e2",
+    "rnd_raw_p24_4231_8ef0241f0e56",
+    "rnd_raw_p24_482_4aa20eae63c4",
+    "raw_p24_10_9d8fbf0dfe5b#seg1",
+    "raw_p24_10_9d8fbf0dfe5b#seg3",
+    "raw_p24_34_fc66ab2c49f1#seg1"
+  ],
+  "g9_disagrees": true,
+  "g9_mode": "leader",
+  "g9_selected_candidate_id": "rnd_raw_p24_480_d0c0ca5e54d7",
+  "g9_selected_rejected": "rnd_raw_p24_480_d0c0ca5e54d7",
+  "historical_gold_decision": "NO_VALID_MEMBER",
+  "historical_gold_raw": "no_valid_member",
+  "historical_gold_reason": "Leader points to the small L6 relieving angle at the brick/slab. Green overlay is the long brick-hatch wall line.",
+  "label": "L6x3-1/2x3/8",
+  "label_bbox": [
+    681.0,
+    505.58,
+    740.78,
+    518.18
+  ],
+  "not_historical_gold": true,
+  "notes": "Leader tip targets the small L6 relieving angle. G9 selected long wall rnd_raw_p24_480_d0c0ca5e54d7 (405pt LINE). Owned G8 candidate is short vertex-split segment raw_p24_10_9d8fbf0dfe5b#seg1 from tip plate_or_symbol parent. This is the isolated D ranking failure (LINE vs SEGMENT at tip).",
+  "owned_candidate_ids": [
+    "raw_p24_10_9d8fbf0dfe5b#seg1"
+  ],
+  "page": 24,
+  "pattern_tags": [
+    "leader_required",
+    "short_vs_long",
+    "line_vs_segment",
+    "tip_proximity"
+  ],
+  "review_source": "g8_era_human_validation",
+  "reviewed_at": "2026-09-21T11:14:29Z",
+  "reviewer_confidence": "HIGH",
+  "reviewer_decision": "VALID_MEMBER",
+  "reviewer_id": "g8_era_rd_review",
+  "status": "REVIEWED",
+  "token_id": "token_p24_1359"
+}

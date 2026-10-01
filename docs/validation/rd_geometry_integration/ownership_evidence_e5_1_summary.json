@@ -1,0 +1,144 @@
+{
+  "category_counts": {
+    "CLEARLY_UNRELATED_NUMERIC": 30,
+    "DETERMINISTIC_OWNERSHIP_NOT_PROVABLE": 3
+  },
+  "e5_unestablished_source": "/Users/hibareda/Desktop/ai-dynamic-regex/docs/validation/rd_geometry_integration/dimension_holdout_e5_results.jsonl",
+  "evidence_inventory_totals": {
+    "baseline_alignment": {
+      "available": 0,
+      "negative": 0,
+      "not_applicable": 33,
+      "positive": 0
+    },
+    "bbox_containment": {
+      "available": 33,
+      "negative": 33,
+      "not_applicable": 0,
+      "positive": 0
+    },
+    "bbox_overlap": {
+      "available": 33,
+      "negative": 33,
+      "not_applicable": 0,
+      "positive": 0
+    },
+    "merged_label_metadata": {
+      "available": 0,
+      "negative": 0,
+      "not_applicable": 33,
+      "positive": 0
+    },
+    "rotation_alignment": {
+      "available": 0,
+      "negative": 0,
+      "not_applicable": 33,
+      "positive": 0
+    },
+    "same_pdf_block_line": {
+      "available": 33,
+      "negative": 33,
+      "not_applicable": 0,
+      "positive": 0
+    },
+    "same_source_word_ids": {
+      "available": 0,
+      "negative": 33,
+      "not_applicable": 0,
+      "positive": 0
+    },
+    "same_text_span": {
+      "available": 33,
+      "negative": 33,
+      "not_applicable": 0,
+      "positive": 0
+    },
+    "split_label_metadata": {
+      "available": 0,
+      "negative": 33,
+      "not_applicable": 0,
+      "positive": 0
+    },
+    "word_adjacency": {
+      "available": 33,
+      "negative": 33,
+      "not_applicable": 0,
+      "positive": 0
+    }
+  },
+  "experiment": "E5_1_ownership_evidence_audit",
+  "files_written": [
+    "backend/scripts/rd_geometry_integration/ownership_evidence_audit_e5_1.py",
+    "backend/tests/test_rd_geometry_ownership_e5_1.py",
+    "docs/validation/rd_geometry_integration/ownership_evidence_e5_1_results.jsonl",
+    "docs/validation/rd_geometry_integration/ownership_evidence_e5_1_summary.json",
+    "docs/validation/rd_geometry_integration/GEOMETRY_OWNERSHIP_E5_1_REPORT.md",
+    "docs/validation/rd_geometry_integration/ownership_e5_1_renders/",
+    "docs/validation/rd_geometry_integration/ownership_e5_1_review.html",
+    "backend/scripts/rd_geometry_integration/README.md"
+  ],
+  "metrics": {
+    "annotation_patterns": {
+      "bare_digit": 3,
+      "dimension_or_note": 4,
+      "grid_or_axis_mark": 10,
+      "other_member_designation": 1,
+      "quantity_mark": 5,
+      "reaction_or_load": 5,
+      "sheet_or_plate_mark": 5
+    },
+    "machine_provable_n": 0,
+    "resolved_without_fuzzy_n": 33,
+    "total_audited": 33,
+    "visual_yes_machine_no_n": 0,
+    "visual_yes_n": 0
+  },
+  "ownership_contract": {
+    "OWNERSHIP_PROVEN_if": [
+      "A document line L is selected as production nearby text for the stroke.",
+      "L is identified as the member's own annotation by identify_own_label_lines: (a) L.text contains the member designation token, or (b) the member label center lies in L.bbox and L frames the label bbox; bare load callouts matching ^\\d+(\\.\\d+)?\\s*K$ are excluded.",
+      "Only then may digits be stripped from L.text before _looks_like_dimension."
+    ],
+    "OWNERSHIP_UNESTABLISHED_if": [
+      "Nearby digit-bearing text is not identified as an own-label line.",
+      "In that case: do not strip; leave production nearby text unchanged."
+    ],
+    "explicit_non_signals": [
+      "Nearest geometry alone",
+      "Nearest digit text alone / proximity-only",
+      "Fuzzy string match",
+      "Catalog / AISC existence",
+      "Document prior",
+      "ML / VLM"
+    ],
+    "name": "e3_own_label_line_ownership_v1",
+    "notes": "E5.1 found 0/33 unestablished cases where richer PDF word evidence deterministically proved ownership that E3 missed. Most are clearly unrelated annotations; remaining bare digits stay unproven \u2192 abstain."
+  },
+  "ownership_gate": {
+    "gate": "READY_FOR_IMPLEMENTATION",
+    "reason": "None of the 33 cases are missed own-label ownership. 30 are clearly unrelated annotations; 3 bare-digit cases remain unprovable and correctly require abstention. Deterministic ownership contract is the existing E3 identify_own_label_lines rule \u2014 no proximity-only expansion needed. Counterexamples (17K, 7/8, 23'-10\") remain safe."
+  },
+  "regression": {
+    "counterexamples": {
+      "genuine_7_8_preserved": true,
+      "mixed_23_10_preserved": true,
+      "own_label_w21x44_stripped": true,
+      "pass": true,
+      "w30x90_17k_not_stripped": true
+    },
+    "e3_ok": true,
+    "e3_own_label_ok": true,
+    "e3_sha": "bc633040e9c5624d3147d937e93d536be3a5ee510ed95bf85d0c6af8a3020568",
+    "e4_genuine_preserved_ok": true,
+    "e4_sha": "eae32585f8d7e34a2e6626f4238d4a9a8c044f1a2d2fe9314e3ee7a0ecb2fcd7",
+    "e5_results_ok": true,
+    "e5_results_sha": "66d4d96f59014a7f0fd5e5f8483a504123203d76b2fc0d9d098bfae2d4fe7c15",
+    "e5_summary_sha": "815fa90ebd2e9e1bbb675255fd35a25980c4014900da0e8f9a29089bbc23dc92",
+    "extractor_ok": true,
+    "extractor_sha": "6c6f73d7090a427705599a24cba4bad167a531a70cc5ff6879ccd0ca809ec940",
+    "gold_ok": true,
+    "gold_sha": "0fad4291ff06ffa4e61c46f4ac923d7187455dd6b2f9b088481ab5e6b976b155",
+    "pass": true
+  },
+  "renders_written": 33
+}

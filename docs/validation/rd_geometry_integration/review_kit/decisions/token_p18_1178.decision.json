@@ -1,0 +1,26 @@
+{
+  "token_id": "token_p18_1178",
+  "page": 18,
+  "text": "L4X4X1/4",
+  "label_bbox": [
+    2226.0,
+    277.83,
+    2271.72,
+    290.42
+  ],
+  "production_geometry_id": null,
+  "candidate_geometry_ids": [],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p18_1178.png",
+  "crop_available": true,
+  "g1_status": "unavailable",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Leader points to the bottom-flange L4X4X1/4 brace. Zero candidates retrieved for that brace.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": true,
+  "visible_member_on_drawing": true
+}

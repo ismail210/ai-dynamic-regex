@@ -19,7 +19,7 @@ from services.pdf_parser import extract_document_structure
 
 # Bumped whenever extraction output changes, so cached documents are rebuilt
 # instead of replaying stale artifacts.
-EXTRACTION_VERSION = "3.17-summary-ruled-schedules"
+EXTRACTION_VERSION = "3.19-unlabelled-base-plates"
 
 
 def extract_engineering_document(

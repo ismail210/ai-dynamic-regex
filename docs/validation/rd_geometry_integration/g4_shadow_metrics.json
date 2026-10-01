@@ -1,0 +1,10 @@
+{
+  "label_count": 75,
+  "shadow_agree_production": 23,
+  "shadow_disagree_production": 25,
+  "shadow_abstain": 17,
+  "leader_as_unconstrained_top": 0,
+  "gold_groups": 0,
+  "candidate_recall_at_k": null,
+  "note": "agree/disagree are vs production nearest_geometry (reference), not ground truth. recall@K is None until human gold exists."
+}

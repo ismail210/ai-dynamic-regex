@@ -1,0 +1,32 @@
+{
+  "token_id": "token_p18_1169",
+  "page": 18,
+  "text": "PL 1 PL11 11/2\" 1/2\"",
+  "label_bbox": [
+    541.8,
+    228.02,
+    584.12,
+    240.62
+  ],
+  "production_geometry_id": "geom_1b18495c0462",
+  "candidate_geometry_ids": [
+    "geom_381e6fbb3a35",
+    "geom_1b18495c0462",
+    "geom_4b385a37b4b7",
+    "geom_44154c78ad23",
+    "geom_4a14d63bdc3e"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p18_1169.png",
+  "crop_available": true,
+  "g1_status": "agreement",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Leader points to the cap plate on the HSS/WF detail. Overlays are beam/weld lines, not the plate rectangle.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": true,
+  "visible_member_on_drawing": true
+}

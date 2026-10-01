@@ -1,0 +1,17 @@
+[
+  {
+    "page": 8,
+    "role": "structural_plan",
+    "why": "Burrville framing plan used in docs/validation phase1/phase2 association samples; dense W-section labels with nearby vector geometry."
+  },
+  {
+    "page": 18,
+    "role": "detail_sheet",
+    "why": "Burrville S-205 detail sheet from incomplete-L evidence set (L4X4X1/4 TYP / brace details); candidate multi-detail layout."
+  },
+  {
+    "page": 24,
+    "role": "detail_sheet_dense",
+    "why": "Burrville S-321 roof details page with many L4X4* callouts; stress-tests region clustering and cross-detail proximity."
+  }
+]

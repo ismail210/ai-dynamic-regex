@@ -1,0 +1,32 @@
+{
+  "token_id": "token_p8_352",
+  "page": 8,
+  "text": "W16X26",
+  "label_bbox": [
+    1215.65,
+    1435.94,
+    1256.46,
+    1466.89
+  ],
+  "production_geometry_id": "geom_59a6f49b264f",
+  "candidate_geometry_ids": [
+    "geom_9819e929ba52",
+    "geom_59a6f49b264f",
+    "geom_623185d91100",
+    "geom_3a95426e8888",
+    "geom_099701ad614f"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p8_352.png",
+  "crop_available": true,
+  "g1_status": "agreement_ambiguous_neighborhood",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Label sits on W16X26[10] girder. Green is S-311/S-401; orange is a giant polyline.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": false,
+  "visible_member_on_drawing": true
+}

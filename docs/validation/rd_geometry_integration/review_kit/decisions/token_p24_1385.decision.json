@@ -1,0 +1,32 @@
+{
+  "token_id": "token_p24_1385",
+  "page": 24,
+  "text": "L4x4x3/8",
+  "label_bbox": [
+    410.64,
+    1661.29,
+    452.65,
+    1673.9
+  ],
+  "production_geometry_id": null,
+  "candidate_geometry_ids": [
+    "geom_40337e57cafe",
+    "geom_94e64fbf8d04",
+    "geom_659245b417a1",
+    "geom_381961ac1aae",
+    "geom_e35130962b6a"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p24_1385.png",
+  "crop_available": true,
+  "g1_status": "ambiguous",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Leader points to the L4x4 at the deck/wall. Green overlay is a hatch/diagonal in the wall, not the angle.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": true,
+  "visible_member_on_drawing": true
+}

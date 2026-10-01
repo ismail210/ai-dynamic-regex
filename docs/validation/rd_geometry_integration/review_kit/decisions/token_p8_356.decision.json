@@ -1,0 +1,30 @@
+{
+  "token_id": "token_p8_356",
+  "page": 8,
+  "text": "W16X26",
+  "label_bbox": [
+    1873.66,
+    1292.35,
+    1915.49,
+    1314.88
+  ],
+  "production_geometry_id": "geom_485e0c733148",
+  "candidate_geometry_ids": [
+    "geom_5f6b0423ca08",
+    "geom_485e0c733148",
+    "geom_90463060295d"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p8_356.png",
+  "crop_available": true,
+  "g1_status": "agreement",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Label sits on W16X26[20] girder. Overlays are the W14X22 and W12X16 infills, not the girder.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": false,
+  "visible_member_on_drawing": true
+}

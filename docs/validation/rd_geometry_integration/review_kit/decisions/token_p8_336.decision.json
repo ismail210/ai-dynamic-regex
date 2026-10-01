@@ -1,0 +1,31 @@
+{
+  "token_id": "token_p8_336",
+  "page": 8,
+  "text": "W21X50",
+  "label_bbox": [
+    1835.5,
+    1378.51,
+    1877.33,
+    1401.04
+  ],
+  "production_geometry_id": "geom_286fd47ebc3c",
+  "candidate_geometry_ids": [
+    "geom_485e0c733148",
+    "geom_5f6b0423ca08",
+    "geom_90463060295d",
+    "geom_286fd47ebc3c"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p8_336.png",
+  "crop_available": true,
+  "g1_status": "agreement",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Label sits on the W21X50 girder. Overlays are a distant infill and a stair stroke, not the girder.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": false,
+  "visible_member_on_drawing": true
+}

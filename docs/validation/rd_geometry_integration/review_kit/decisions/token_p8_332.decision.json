@@ -1,0 +1,32 @@
+{
+  "token_id": "token_p8_332",
+  "page": 8,
+  "text": "W14X22",
+  "label_bbox": [
+    1528.73,
+    1362.62,
+    1569.54,
+    1393.57
+  ],
+  "production_geometry_id": "geom_73c8a8794fe3",
+  "candidate_geometry_ids": [
+    "geom_73c8a8794fe3",
+    "geom_00c392a4d8a5",
+    "geom_398d64922bf2",
+    "geom_e637a03a7371",
+    "geom_7a0e5dfed2b3"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p8_332.png",
+  "crop_available": true,
+  "g1_status": "agreement_ambiguous_neighborhood",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Label sits on W14X22[25] at the opening frame. Overlay is an X-brace inside the opening, not the W14X22 edge.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": false,
+  "visible_member_on_drawing": true
+}

@@ -1,0 +1,32 @@
+{
+  "token_id": "token_p24_1389",
+  "page": 24,
+  "text": "L3X3X3/8X0'-10\"",
+  "label_bbox": [
+    1263.24,
+    1831.93,
+    1342.53,
+    1844.54
+  ],
+  "production_geometry_id": null,
+  "candidate_geometry_ids": [
+    "geom_d62f6f2155ae",
+    "geom_e51c55c6d51c",
+    "geom_8594f23faad7",
+    "geom_9d880b8b42be",
+    "geom_569581aa22f1"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p24_1389.png",
+  "crop_available": true,
+  "g1_status": "ambiguous",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Leader points to the short L3X3 clip on the HSS. Green overlay is the long HSS/wall line.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": true,
+  "visible_member_on_drawing": true
+}

@@ -1,0 +1,30 @@
+{
+  "token_id": "token_p8_346",
+  "page": 8,
+  "text": "W10X15",
+  "label_bbox": [
+    2062.63,
+    1259.98,
+    2085.18,
+    1301.82
+  ],
+  "production_geometry_id": "geom_3e2826b140f9",
+  "candidate_geometry_ids": [
+    "geom_3e2826b140f9",
+    "geom_74a1dffa16c8",
+    "geom_0b5ef1f9c497"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p8_346.png",
+  "crop_available": true,
+  "g1_status": "agreement",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Label sits on W10X15[9] between the two W21X44 girders. No candidate is that short joist.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": false,
+  "visible_member_on_drawing": true
+}

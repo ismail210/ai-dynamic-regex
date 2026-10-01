@@ -1,0 +1,32 @@
+{
+  "token_id": "token_p24_1359",
+  "page": 24,
+  "text": "L6x3-1/2x3/8",
+  "label_bbox": [
+    681.0,
+    505.58,
+    740.78,
+    518.18
+  ],
+  "production_geometry_id": null,
+  "candidate_geometry_ids": [
+    "geom_3b848d5ef250",
+    "geom_b31d44311082",
+    "geom_04fcef27f50b",
+    "geom_87377fdc9117",
+    "geom_2bbf72b2eef4"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p24_1359.png",
+  "crop_available": true,
+  "g1_status": "extra_candidates_only",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Leader points to the small L6 relieving angle at the brick/slab. Green overlay is the long brick-hatch wall line.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": true,
+  "visible_member_on_drawing": true
+}

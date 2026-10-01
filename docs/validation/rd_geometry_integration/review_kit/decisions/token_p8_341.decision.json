@@ -1,0 +1,31 @@
+{
+  "token_id": "token_p8_341",
+  "page": 8,
+  "text": "W16X26",
+  "label_bbox": [
+    2075.84,
+    1045.9,
+    2098.38,
+    1087.74
+  ],
+  "production_geometry_id": "geom_095898d74240",
+  "candidate_geometry_ids": [
+    "geom_0b5ef1f9c497",
+    "geom_74a1dffa16c8",
+    "geom_095898d74240",
+    "geom_3e2826b140f9"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p8_341.png",
+  "crop_available": true,
+  "g1_status": "agreement_ambiguous_neighborhood",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Label sits on W16X26[30] c=1\" joist. Green is the W16X31 EJ wall; orange is the W21X44 wall beam.",
+  "error_bucket": "parallel_member_confusion",
+  "leader_required": false,
+  "visible_member_on_drawing": true
+}

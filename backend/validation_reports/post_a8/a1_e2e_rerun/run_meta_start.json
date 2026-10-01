@@ -1,0 +1,27 @@
+{
+  "run_id": "posta8_a1_e2e_20260913T113422Z",
+  "started_at": "2026-09-13T11:34:22.276569+00:00",
+  "input_pdf": "training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+  "document_id": "doc_posta8a1riverroad",
+  "page_map_extract_to_source": {
+    "1": 25,
+    "2": 28,
+    "3": 30,
+    "4": 33,
+    "5": 34,
+    "6": 38,
+    "7": 41
+  },
+  "pipeline_entry": "services.multimodal.pipeline.run_multimodal_pipeline",
+  "pipeline_version": "4.19-member-resolution-and-repeated-detail",
+  "expected_excel_path": null,
+  "persist": true,
+  "feature_flags": {
+    "learned_fusion_enabled": false,
+    "graphsage_section_scoring_enabled": false,
+    "geometry_missing_label_inference_enabled": false,
+    "ml_label_ranker_enabled": false,
+    "ml_label_ranker_shadow": false,
+    "legend_profile_llm_enabled": false
+  }
+}

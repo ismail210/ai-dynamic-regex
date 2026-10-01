@@ -1,0 +1,55 @@
+{
+  "audit_classification": "B",
+  "audit_confidence": "MEDIUM",
+  "baseline_b_nearest_candidate_id": "rnd_raw_p8_1288_c0f7320ead19",
+  "evidence_basis": [
+    "overlap_or_contact",
+    "text_vs_member_orientation",
+    "explicit_label_to_member_relationship"
+  ],
+  "g8_candidate_ids": [
+    "rnd_raw_p8_1288_c0f7320ead19",
+    "rnd_raw_p8_965_989494a03742",
+    "rnd_raw_p8_1041_59c3c989d1ec",
+    "rnd_raw_p8_1042_51a6d00beb80",
+    "rnd_raw_p8_1340_15043854c468",
+    "rnd_raw_p8_3401_51abad69318c",
+    "rnd_raw_p8_1339_91f1ee05f373",
+    "rnd_raw_p8_1113_25585e38b681",
+    "rnd_raw_p8_1507_4957e7e93064",
+    "rnd_raw_p8_1489_3a5ac1b6e340",
+    "rnd_raw_p8_1015_4ab88384100b",
+    "rnd_raw_p8_1045_da4626de0c3b"
+  ],
+  "g9_disagrees": false,
+  "g9_mode": "direct",
+  "g9_selected_candidate_id": "rnd_raw_p8_1288_c0f7320ead19",
+  "g9_selected_rejected": null,
+  "historical_gold_decision": "NO_VALID_MEMBER",
+  "historical_gold_raw": "no_valid_member",
+  "historical_gold_reason": "Label sits on W16X26[28] joist. Green is the S-311 callout; orange is a giant bay polyline.",
+  "label": "W16X26",
+  "label_bbox": [
+    1416.62,
+    999.41,
+    1447.57,
+    1040.23
+  ],
+  "not_historical_gold": true,
+  "notes": "Independent G8-era ownership: label sits on recovered member stroke rnd_raw_p8_1288_c0f7320ead19 (derivation=reclass_restore, length=265.537, label_distance\u22480). Historical NO_VALID_MEMBER reflected pre-G8 missing/wrong candidates, not absence of steel. Not an automatic audit-B conversion: confirmed via historical sits-on description + on-label G8 geometry + crop overlays.",
+  "owned_candidate_ids": [
+    "rnd_raw_p8_1288_c0f7320ead19"
+  ],
+  "page": 8,
+  "pattern_tags": [
+    "on_label_recovery",
+    "reclass_restore"
+  ],
+  "review_source": "g8_era_human_validation",
+  "reviewed_at": "2026-09-21T11:14:29Z",
+  "reviewer_confidence": "MEDIUM",
+  "reviewer_decision": "VALID_MEMBER",
+  "reviewer_id": "g8_era_rd_review",
+  "status": "REVIEWED",
+  "token_id": "token_p8_347"
+}

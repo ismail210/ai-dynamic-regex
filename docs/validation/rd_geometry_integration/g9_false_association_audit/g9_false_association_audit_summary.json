@@ -1,0 +1,97 @@
+{
+  "A_count": 0,
+  "B_count": 21,
+  "C_count": 5,
+  "D_count": 1,
+  "all_cases_have_evidence": true,
+  "all_cases_traced_to_g8": true,
+  "ambiguous_count": 5,
+  "candidate_universe_stale_count": 21,
+  "cases_requiring_future_g10": 1,
+  "classification_counts": {
+    "A": 0,
+    "B": 21,
+    "C": 5,
+    "D": 1
+  },
+  "confidence_breakdown": {
+    "HIGH": 20,
+    "MEDIUM": 7
+  },
+  "deterministic_ok": true,
+  "extractor_sha": "9688e2d84e8c67ebf692f7022db093133b106e2fcf3a2cb893eb8ec7b2d9d29e",
+  "g8_results_sha": "1931707165664d9e8e6ea198171624b9f9d8bb25dda2edd40d86619126ed3c44",
+  "g8_script_sha": "e3b32a6636d13eea769f62290b159ee77404c33b456b7c7e4f01ff3b3ab7a868",
+  "g9_false_association_audit_gate": "AUDIT_COMPLETE_G10_NOT_YET_JUSTIFIED",
+  "g9_results_sha": "b459522eb097c285a359bd01a2be61c389daeded6415f236b6a0c47323cb4814",
+  "g9_script_sha": "dcb9b8239549eeba777dae6ab31baa558640d8cbfd3ed8b66f0e669d52caeff8",
+  "genuine_false_association_count": 1,
+  "gold_sha": "0fad4291ff06ffa4e61c46f4ac923d7187455dd6b2f9b088481ab5e6b976b155",
+  "page_breakdown": {
+    "18": {
+      "A": 0,
+      "B": 1,
+      "C": 0,
+      "D": 0,
+      "n": 1
+    },
+    "24": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 1,
+      "n": 1
+    },
+    "8": {
+      "A": 0,
+      "B": 20,
+      "C": 5,
+      "D": 0,
+      "n": 25
+    }
+  },
+  "project_breakdown": {
+    "Burrville ES - ST": 27
+  },
+  "renders_written": 27,
+  "safety": {
+    "g8_unchanged": true,
+    "g9_unchanged": true,
+    "gold_not_rewritten": true,
+    "human_gold_unchanged": true,
+    "no_g10_implemented": true,
+    "production_unchanged": true
+  },
+  "token_ids": [
+    "token_p8_336",
+    "token_p8_337",
+    "token_p8_341",
+    "token_p8_343",
+    "token_p8_345",
+    "token_p8_346",
+    "token_p8_347",
+    "token_p8_352",
+    "token_p8_354",
+    "token_p8_356",
+    "token_p8_361",
+    "token_p8_363",
+    "token_p8_369",
+    "token_p8_371",
+    "token_p8_372",
+    "token_p8_381",
+    "token_p8_382",
+    "token_p8_383",
+    "token_p8_384",
+    "token_p8_399",
+    "token_p8_410",
+    "token_p8_411",
+    "token_p8_412",
+    "token_p8_419",
+    "token_p8_430",
+    "token_p18_1188",
+    "token_p24_1359"
+  ],
+  "total_cases": 27,
+  "unclassified_count": 0,
+  "validation_problems": []
+}

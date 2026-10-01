@@ -1,0 +1,30 @@
+{
+  "token_id": "token_p8_361",
+  "page": 8,
+  "text": "W16X26",
+  "label_bbox": [
+    2169.2,
+    1399.66,
+    2191.74,
+    1441.5
+  ],
+  "production_geometry_id": "geom_3e2826b140f9",
+  "candidate_geometry_ids": [
+    "geom_cf1c1b4a4515",
+    "geom_4f2fbd460d51",
+    "geom_3e2826b140f9"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p8_361.png",
+  "crop_available": true,
+  "g1_status": "agreement_ambiguous_neighborhood",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Label sits on W16X26[30] c=1\" joist. Green is W16X31 at the EJ; orange is a tall wall box.",
+  "error_bucket": "parallel_member_confusion",
+  "leader_required": false,
+  "visible_member_on_drawing": true
+}

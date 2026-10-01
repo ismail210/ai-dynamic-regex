@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"/>
+<title>D-case forensics token_p24_1359</title>
+<style>
+body{font-family:ui-sans-serif,system-ui,sans-serif;margin:1.25rem;background:#f6f6f4;color:#111}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.card{background:#fff;border:1px solid #ddd;padding:1rem}
+img{max-width:100%;border:1px solid #ccc}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+td,th{border:1px solid #ddd;padding:.3rem .4rem;text-align:left}
+.sel{color:#0a7a28} .cor{color:#b00020} .fact{background:#eef6ff} .inf{background:#fff8e6}
+code{font-size:.85em}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+</style></head><body>
+<h1>D-case forensics — <code>token_p24_1359</code></h1>
+<p><b>Gate:</b> D_CASE_ISOLATED · Read-only · No G10</p>
+<div class="grid">
+  <div class="card">
+    <h2>Visual crop (audit render)</h2>
+    <p>Blue=label · Green≈selected wall family · Orange/red≈alt · Purple=leader tip</p>
+    <img src="../renders/token_p24_1359.png" alt="token_p24_1359"/>
+  </div>
+  <div class="card">
+    <h2>Decision snapshot</h2>
+    <table>
+      <tr><th></th><th class="sel">Selected (wrong)</th><th class="cor">Correct (audit)</th></tr>
+      <tr><td>ID</td><td><code>rnd_raw_p24_480_d0c0ca5e54d7</code></td><td><code>raw_p24_10_9d8fbf0dfe5b#seg1</code></td></tr>
+      <tr><td>Length</td><td>405</td><td>27</td></tr>
+      <tr><td>Kind</td><td>LINE_MEMBER</td><td>SEGMENT_MEMBER</td></tr>
+      <tr><td>Derivation</td><td>on_label_retained</td><td>vertex_split</td></tr>
+      <tr><td>Tip dist</td><td>21.0</td><td>23.28</td></tr>
+      <tr><td>Rank / score</td><td>1 / 0.6002</td><td>2 / 0.4797</td></tr>
+      <tr><td>Tip role (G8)</td><td>member_like</td><td>plate_or_symbol (parent)</td></tr>
+    </table>
+    <h3>Score Δ drivers (sel − cor)</h3>
+    <table>
+      <tr><th>Term</th><th>Δ</th></tr>
+      <tr><td>W_DISTANCE*distance_score</td><td>0.0097</td></tr><tr><td>W_BBOX*bbox_score</td><td>0.0056</td></tr><tr><td>W_ORIENT*orientation_score</td><td>0.0</td></tr><tr><td>W_LENGTH*length_score</td><td>0.0</td></tr><tr><td>W_KIND*candidate_kind_score</td><td>0.0336</td></tr><tr><td>W_LEADER*leader_score</td><td>0.0036</td></tr><tr><td>W_PROVENANCE*provenance_score</td><td>0.018</td></tr><tr><td>minus_penalty</td><td>0.05</td></tr><tr><td>total_delta</td><td>0.1205</td></tr>
+    </table>
+  </div>
+</div>
+<div class="card fact"><h2>FACTS</h2>
+<ul><li>G9 ASSOCIATED rnd_raw_p24_480 (405pt wall) over raw_p24_10#seg1 (27pt segment)</li><li>Scores 0.6002 vs 0.4797; margin 0.1205</li><li>Leader tip present; tip distances 21.0 vs 23.28</li><li>Only 1 ASSOCIATED long-over-short case in frozen 75</li><li>Only 2 leader ASSOCIATED decisions total in frozen 75</li></ul></div>
+<div class="card inf"><h2>INFERENCES</h2>
+<ul><li>Wrong decision locus is G9 ranking feature composition, not missing G8 candidate</li><li>Long wall wins because tip-to-line geometry + LINE/retained priors outweigh tip role semantics</li><li>Pattern is isolated in this holdout; not yet a demonstrated repeatable production failure class</li></ul></div>
+<p>Full write-up: <a href="token_p24_1359_forensics.md">token_p24_1359_forensics.md</a> ·
+JSON: <a href="token_p24_1359_forensics.json">token_p24_1359_forensics.json</a></p>
+</body></html>

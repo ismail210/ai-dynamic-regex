@@ -1,0 +1,189 @@
+{
+  "n_rows": 7314,
+  "n_docs": 8,
+  "overall": {
+    "A": {
+      "n_with_gold": 7193,
+      "correct": 7038,
+      "accuracy": 0.978451
+    },
+    "B": {
+      "n_with_gold": 7193,
+      "correct": 7038,
+      "accuracy": 0.978451
+    },
+    "C": {
+      "n_with_gold": 7193,
+      "correct": 7112,
+      "accuracy": 0.988739
+    },
+    "D": {
+      "n_with_gold": 7193,
+      "correct": 7112,
+      "accuracy": 0.988739
+    }
+  },
+  "L": {
+    "A": {
+      "accuracy": {
+        "n_with_gold": 247,
+        "correct": 160,
+        "accuracy": 0.647773
+      },
+      "L_to_2L": 10,
+      "thickness_error": 60,
+      "size_leg_error": 12,
+      "incomplete_L_completion": 16
+    },
+    "B": {
+      "accuracy": {
+        "n_with_gold": 247,
+        "correct": 160,
+        "accuracy": 0.647773
+      },
+      "L_to_2L": 10,
+      "thickness_error": 60,
+      "size_leg_error": 12,
+      "incomplete_L_completion": 16
+    },
+    "C": {
+      "accuracy": {
+        "n_with_gold": 247,
+        "correct": 203,
+        "accuracy": 0.821862
+      },
+      "L_to_2L": 0,
+      "thickness_error": 0,
+      "size_leg_error": 0,
+      "incomplete_L_completion": 0
+    },
+    "D": {
+      "accuracy": {
+        "n_with_gold": 247,
+        "correct": 203,
+        "accuracy": 0.821862
+      },
+      "L_to_2L": 0,
+      "thickness_error": 0,
+      "size_leg_error": 0,
+      "incomplete_L_completion": 0
+    }
+  },
+  "L_buckets": {
+    "L_correct_explicit": {
+      "A": 160,
+      "B": 160,
+      "C": 203,
+      "D": 203
+    },
+    "L_wrong_thickness_or_size": {
+      "A": 72,
+      "B": 72,
+      "C": 0,
+      "D": 0
+    },
+    "L_to_2L": {
+      "A": 10,
+      "B": 10,
+      "C": 0,
+      "D": 0
+    },
+    "incomplete_L": {
+      "A": 16,
+      "B": 16,
+      "C": 16,
+      "D": 16
+    },
+    "L_wrong_other": {
+      "A": 4,
+      "B": 4,
+      "C": 43,
+      "D": 43
+    }
+  },
+  "HSS_to_W": {
+    "A": 10,
+    "B": 10,
+    "C": 0,
+    "D": 0,
+    "C_ungated": 10,
+    "D_ungated": 10
+  },
+  "HSS_n_with_gold": 864,
+  "changes_vs_A": {
+    "C": {
+      "wrong_to_wrong": 97,
+      "wrong_to_correct": 74
+    },
+    "D": {
+      "wrong_to_wrong": 97,
+      "wrong_to_correct": 74
+    },
+    "C_ungated": {}
+  },
+  "feature_avg_when_C_ungated_differs": {},
+  "feature_avg_all_rows": {
+    "spatial": 0.040174,
+    "leader": 0.02579,
+    "orientation": 0.0244,
+    "role": 0.041815,
+    "neighborhood": 0.025071,
+    "family_local": 0.033427
+  },
+  "n_C_ungated_differs": 0,
+  "gates": {
+    "gate1_explicit_override_gated_C": 0,
+    "gate1_explicit_override_ungated_C": 0,
+    "gate2_incomplete_completed_gated_C": 0,
+    "gate2_incomplete_completed_ungated_C": 16,
+    "gate2_incomplete_completed_by_graph_change": 0,
+    "gate3_candidates_only": true,
+    "gate4_no_excel": true,
+    "gate5_unsafe_size_leg_ungated_C": 0,
+    "gate6_weak_evidence_forced_change": 0,
+    "gate7_HSS_to_W": {
+      "A": 10,
+      "B": 10,
+      "C": 0,
+      "D": 0,
+      "C_ungated": 10,
+      "D_ungated": 10
+    },
+    "takeoff_eligible_field_unchanged": true,
+    "prediction_changes_among_rows_with_takeoff_flag": 0
+  },
+  "diagnostics": {
+    "same_family_pools": 7002,
+    "multi_family_pools": 312,
+    "multi_family_with_gold": 280,
+    "graph_argmax_family_matches_gold": 216,
+    "text_family_matches_gold_on_multi": 256,
+    "graph_argmax_favors_W_on_HSS_gold": 8,
+    "mean_graph_score_spread": 0.000827,
+    "rows_with_nonzero_score_spread": 96,
+    "avg_graph_v2_score": 0.190676,
+    "gate_reason_C_counts": {
+      "gate_explicit_protected": 7112,
+      "gate_weak_evidence_keep_baseline_order": 84,
+      "graph_v2_rerank": 21,
+      "gate_explicit_missing_from_pool": 81,
+      "gate_incomplete_abstain": 16
+    },
+    "note": "Gated C/D accuracy includes explicit-section protection and incomplete abstain; those are safety gates, not Graph v2 ranking signal. Primary Graph v2 signal = ungated C vs A and multi-family argmax diagnostics."
+  },
+  "changed_predictions_gated": {
+    "C": 171,
+    "D": 171
+  },
+  "changed_predictions_ungated": {
+    "C": 0,
+    "D": 0
+  },
+  "recommendation": "DO NOT ENABLE",
+  "recommendation_reasons": [
+    "Text+Graph v2 ranking never differed from text baseline (same-family pools=7002)",
+    "On multi-family pools, graph argmax family matches gold 216/280 vs text 256/280",
+    "Graph argmax prefers W on 8 HSS-gold multi-family rows (HSS\u2192W bias risk)",
+    "Gated C accuracy lift is dominated by explicit-section protection, not Graph v2 candidate scoring"
+  ]
+}

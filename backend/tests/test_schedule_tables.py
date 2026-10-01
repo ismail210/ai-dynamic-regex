@@ -5,6 +5,7 @@ from __future__ import annotations
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import fitz
@@ -19,7 +20,7 @@ from services.engineering.schedule_grid import (
     schedule_mark_crosscheck,
     schedule_mark_map,
 )
-from services.engineering.schedule_tables import read_ruled_tables
+from services.engineering.schedule_tables import _transposed_record, read_ruled_tables
 
 
 _SECTIONS = {"W8X24", "W8X31", "W10X33", "W12X65", "HSS6X6X1/2", "W16X36"}
@@ -180,6 +181,84 @@ class TransposedGridTests(unittest.TestCase):
         # Grid locations are instances, not type marks.
         self.assertEqual(schedule_mark_map([grid]), {})
         self.assertIsNone(lookup_schedule_row("C1", {"schedule_grid": [grid]}))
+
+
+class _Table:
+    """find_tables stand-in: equal-width columns, so cell j is centred at 60*j + 30."""
+
+    def __init__(self, rows):
+        self.rows = [
+            SimpleNamespace(cells=[(60.0 * c, 0.0, 60.0 * (c + 1), 10.0) for c in range(len(row))])
+            for row in rows
+        ]
+
+
+_LEVEL = ['29\' - 0" UPPER LEVEL', "W10X33", "W10X33", "W10X33", "W10X33"]
+_LOCATIONS = ["Column Locations", "A-1", "A-2", "A-3", "A-4"]
+
+
+def _plates(rows):
+    record = _transposed_record(_Table(rows), rows, rows.index(_LOCATIONS), 29, [0, 0, 300, 100])
+    (grid,) = _ruled_grids([record], _accept)
+    return {row["mark"]: row["plate_text"] for row in grid["rows"]}
+
+
+class TransposedBasePlateTests(unittest.TestCase):
+    def test_unlabelled_plate_rows_with_wrapped_value_and_blank_location(self) -> None:
+        plates = _plates([
+            _LEVEL,
+            _LOCATIONS,
+            ["", "74", "114", "", "60"],
+            ["", '1"x18"x18"', '3/4"x18"x18"', "", ""],
+            ["", "", "", "", '1 1/4"x18"x18" *'],
+        ])
+        self.assertEqual(
+            plates,
+            {"A-1": '1"x18"x18"', "A-2": '3/4"x18"x18"', "A-3": "", "A-4": '1 1/4"x18"x18" *'},
+        )
+
+    def test_label_drawn_over_a_value_cell_is_stripped(self) -> None:
+        plates = _plates([
+            _LEVEL,
+            _LOCATIONS,
+            ["", "74", "Unfactored 103 Reaction (kips)", "88", "60"],
+            ["", '1"x18"x18"', 'Base Plate 1"x18"x18" Size', '3/4"x18"x18"', '1 1/2"x18"x18" *'],
+        ])
+        self.assertEqual(plates["A-2"], '1"x18"x18"')
+        self.assertEqual(plates["A-4"], '1 1/2"x18"x18" *')
+
+    def test_labelled_plate_row_keeps_existing_behavior(self) -> None:
+        plates = _plates([
+            _LEVEL,
+            _LOCATIONS,
+            ["Unfactored Reaction (kips)", "74", "114", "88", "60"],
+            ["Base Plate Size", '1"x18"x18"', '3/4"x18"x18"', "", ""],
+            ["", "", "", '1"x18"x18"', ""],
+        ])
+        self.assertEqual(
+            plates, {"A-1": '1"x18"x18"', "A-2": '3/4"x18"x18"', "A-3": "", "A-4": ""}
+        )
+
+    def test_conflicting_inferred_rows_abstain_for_that_location(self) -> None:
+        plates = _plates([
+            _LEVEL,
+            _LOCATIONS,
+            ["", '1"x18"x18"', '3/4"x18"x18"', "", ""],
+            ["", '3/4"x18"x18"', "", "", ""],
+        ])
+        self.assertEqual(plates["A-1"], "")
+        self.assertEqual(plates["A-2"], '3/4"x18"x18"')
+
+    def test_dimension_like_rows_that_are_not_plate_sizes_stay_unlabelled(self) -> None:
+        plates = _plates([
+            _LEVEL,
+            _LOCATIONS,
+            ["", '3/4" DIA x 12"', '3/4"x18"x18"', "", ""],
+            ["", '29\' - 0"', "HSS10X10X1/2", "", ""],
+            ["CAP PLATE", "", "", '3/4"x10"x10"', ""],
+            ["", "", "", "", '1"x14"x14"'],
+        ])
+        self.assertEqual(set(plates.values()), {""})
 
 
 class ReadRuledTablesTests(unittest.TestCase):

@@ -33,6 +33,16 @@ class BentPlateParserTests(unittest.TestCase):
         self.assertEqual(parsed.plate_type, "bent_plate")
         self.assertEqual(parsed.thickness, "1/4")
 
+    def test_bp_schedule_mark_is_plate_not_bent_plate(self) -> None:
+        for mark in ("BP6", "BP-6", "BP12A"):
+            with self.subTest(mark=mark):
+                parsed = interpret_annotation(
+                    raw_text=mark,
+                    document_prior=BURRVILLE_PRIOR,
+                    page_context="BEARING PLATE SCHEDULE",
+                )
+                self.assertEqual(parsed.annotation_type, AnnotationType.PLATE.value)
+
     def test_bur_bp002_thickness_first(self) -> None:
         parsed = interpret_annotation(
             raw_text='3/8" BENT PL',

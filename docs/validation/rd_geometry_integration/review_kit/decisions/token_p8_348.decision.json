@@ -1,0 +1,32 @@
+{
+  "token_id": "token_p8_348",
+  "page": 8,
+  "text": "W30X90",
+  "label_bbox": [
+    1427.21,
+    1171.46,
+    1468.02,
+    1202.41
+  ],
+  "production_geometry_id": "geom_59a6f49b264f",
+  "candidate_geometry_ids": [
+    "geom_ee7c5aa4298f",
+    "geom_1910f0cf9e81",
+    "geom_729816914ad4",
+    "geom_bb74582f7707",
+    "geom_3e59445dd9b9"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p8_348.png",
+  "crop_available": true,
+  "g1_status": "disagreement",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Label sits on the W30X90 girder. Green is the S-311 area; production is a giant bay polyline. The W30 stroke was not retrieved.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": false,
+  "visible_member_on_drawing": true
+}

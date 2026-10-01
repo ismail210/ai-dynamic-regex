@@ -1,0 +1,768 @@
+{
+  "document_id": "doc_0d910a43b4a021e3",
+  "pages": [
+    8,
+    18,
+    24
+  ],
+  "cap_variants": [
+    {
+      "name": "CAP_450",
+      "cap": 450
+    },
+    {
+      "name": "CAP_900",
+      "cap": 900
+    },
+    {
+      "name": "CAP_1800",
+      "cap": 1800
+    },
+    {
+      "name": "CAP_NO_LIMIT",
+      "cap": null
+    }
+  ],
+  "gold_sha256": "0fad4291ff06ffa4e61c46f4ac923d7187455dd6b2f9b088481ab5e6b976b155",
+  "experimental_variable": "dense_page_path_cap_only",
+  "cap_selection_mechanism": "structural_first: exclude tiny (<3pt) and page-frame; score by _structural_keep_score; keep long strokes (span>=STRUCTURAL_MIN_SPAN_PT) first up to cap, then fill with short strokes. Rank = position in that order.",
+  "page_level": {
+    "8": {
+      "raw_paths": 3586,
+      "ranked_pool": 3151,
+      "long_strokes_in_pool": 172,
+      "short_strokes_in_pool": 2979,
+      "structural_min_span_pt": 80.0,
+      "excluded_tiny_or_frame": 435,
+      "fidelity": {
+        "artifact_count": 435,
+        "cap450_merged_count": 439,
+        "geometry_id_match": 431,
+        "replay_faithful": false
+      },
+      "caps": {
+        "CAP_450": {
+          "retained": 450,
+          "dropped_from_raw": 3136,
+          "pct_raw_retained": 12.55,
+          "post_classify_objects": 450
+        },
+        "CAP_900": {
+          "retained": 900,
+          "dropped_from_raw": 2686,
+          "pct_raw_retained": 25.1,
+          "post_classify_objects": 900
+        },
+        "CAP_1800": {
+          "retained": 1800,
+          "dropped_from_raw": 1786,
+          "pct_raw_retained": 50.2,
+          "post_classify_objects": 1800
+        },
+        "CAP_NO_LIMIT": {
+          "retained": 3151,
+          "dropped_from_raw": 435,
+          "pct_raw_retained": 87.87,
+          "post_classify_objects": 3151
+        }
+      }
+    },
+    "18": {
+      "raw_paths": 5300,
+      "ranked_pool": 2815,
+      "long_strokes_in_pool": 209,
+      "short_strokes_in_pool": 2606,
+      "structural_min_span_pt": 80.0,
+      "excluded_tiny_or_frame": 2485,
+      "fidelity": {
+        "artifact_count": 433,
+        "cap450_merged_count": 433,
+        "geometry_id_match": 433,
+        "replay_faithful": true
+      },
+      "caps": {
+        "CAP_450": {
+          "retained": 450,
+          "dropped_from_raw": 4850,
+          "pct_raw_retained": 8.49,
+          "post_classify_objects": 450
+        },
+        "CAP_900": {
+          "retained": 900,
+          "dropped_from_raw": 4400,
+          "pct_raw_retained": 16.98,
+          "post_classify_objects": 900
+        },
+        "CAP_1800": {
+          "retained": 1800,
+          "dropped_from_raw": 3500,
+          "pct_raw_retained": 33.96,
+          "post_classify_objects": 1800
+        },
+        "CAP_NO_LIMIT": {
+          "retained": 2815,
+          "dropped_from_raw": 2485,
+          "pct_raw_retained": 53.11,
+          "post_classify_objects": 2815
+        }
+      }
+    },
+    "24": {
+      "raw_paths": 4749,
+      "ranked_pool": 2784,
+      "long_strokes_in_pool": 350,
+      "short_strokes_in_pool": 2434,
+      "structural_min_span_pt": 80.0,
+      "excluded_tiny_or_frame": 1965,
+      "fidelity": {
+        "artifact_count": 392,
+        "cap450_merged_count": 392,
+        "geometry_id_match": 392,
+        "replay_faithful": true
+      },
+      "caps": {
+        "CAP_450": {
+          "retained": 450,
+          "dropped_from_raw": 4299,
+          "pct_raw_retained": 9.48,
+          "post_classify_objects": 450
+        },
+        "CAP_900": {
+          "retained": 900,
+          "dropped_from_raw": 3849,
+          "pct_raw_retained": 18.95,
+          "post_classify_objects": 900
+        },
+        "CAP_1800": {
+          "retained": 1800,
+          "dropped_from_raw": 2949,
+          "pct_raw_retained": 37.9,
+          "post_classify_objects": 1800
+        },
+        "CAP_NO_LIMIT": {
+          "retained": 2784,
+          "dropped_from_raw": 1965,
+          "pct_raw_retained": 58.62,
+          "post_classify_objects": 2784
+        }
+      }
+    }
+  },
+  "target_survival": {
+    "audited_21": {
+      "n_cases": 21,
+      "identifiable_targets": 21,
+      "uncertain_targets": 0,
+      "by_cap": {
+        "CAP_450": {
+          "survive_cap": 12,
+          "survival_pct": 57.1,
+          "available_to_candidates": 5,
+          "survives_cap_but_classified_callout": 7
+        },
+        "CAP_900": {
+          "survive_cap": 12,
+          "survival_pct": 57.1,
+          "available_to_candidates": 5,
+          "survives_cap_but_classified_callout": 7
+        },
+        "CAP_1800": {
+          "survive_cap": 12,
+          "survival_pct": 57.1,
+          "available_to_candidates": 5,
+          "survives_cap_but_classified_callout": 7
+        },
+        "CAP_NO_LIMIT": {
+          "survive_cap": 21,
+          "survival_pct": 100.0,
+          "available_to_candidates": 6,
+          "survives_cap_but_classified_callout": 15
+        }
+      },
+      "incremental": {
+        "CAP_450_to_CAP_900": {
+          "additional_surviving": 0,
+          "regressions": 0
+        },
+        "CAP_900_to_CAP_1800": {
+          "additional_surviving": 0,
+          "regressions": 0
+        },
+        "CAP_1800_to_CAP_NO_LIMIT": {
+          "additional_surviving": 9,
+          "regressions": 0
+        }
+      }
+    },
+    "associated_8": {
+      "n_cases": 8,
+      "identifiable_targets": 8,
+      "uncertain_targets": 0,
+      "by_cap": {
+        "CAP_450": {
+          "survive_cap": 8,
+          "survival_pct": 100.0,
+          "available_to_candidates": 8,
+          "survives_cap_but_classified_callout": 0
+        },
+        "CAP_900": {
+          "survive_cap": 8,
+          "survival_pct": 100.0,
+          "available_to_candidates": 8,
+          "survives_cap_but_classified_callout": 0
+        },
+        "CAP_1800": {
+          "survive_cap": 8,
+          "survival_pct": 100.0,
+          "available_to_candidates": 8,
+          "survives_cap_but_classified_callout": 0
+        },
+        "CAP_NO_LIMIT": {
+          "survive_cap": 8,
+          "survival_pct": 100.0,
+          "available_to_candidates": 8,
+          "survives_cap_but_classified_callout": 0
+        }
+      },
+      "incremental": {
+        "CAP_450_to_CAP_900": {
+          "additional_surviving": 0,
+          "regressions": 0
+        },
+        "CAP_900_to_CAP_1800": {
+          "additional_surviving": 0,
+          "regressions": 0
+        },
+        "CAP_1800_to_CAP_NO_LIMIT": {
+          "additional_surviving": 0,
+          "regressions": 0
+        }
+      }
+    },
+    "visible_member_miss_58": {
+      "n_cases": 58,
+      "identifiable_targets": 48,
+      "uncertain_targets": 10,
+      "by_cap": {
+        "CAP_450": {
+          "survive_cap": 27,
+          "survival_pct": 56.2,
+          "available_to_candidates": 6,
+          "survives_cap_but_classified_callout": 21
+        },
+        "CAP_900": {
+          "survive_cap": 28,
+          "survival_pct": 58.3,
+          "available_to_candidates": 6,
+          "survives_cap_but_classified_callout": 22
+        },
+        "CAP_1800": {
+          "survive_cap": 29,
+          "survival_pct": 60.4,
+          "available_to_candidates": 6,
+          "survives_cap_but_classified_callout": 23
+        },
+        "CAP_NO_LIMIT": {
+          "survive_cap": 48,
+          "survival_pct": 100.0,
+          "available_to_candidates": 8,
+          "survives_cap_but_classified_callout": 40
+        }
+      },
+      "incremental": {
+        "CAP_450_to_CAP_900": {
+          "additional_surviving": 1,
+          "regressions": 0
+        },
+        "CAP_900_to_CAP_1800": {
+          "additional_surviving": 1,
+          "regressions": 0
+        },
+        "CAP_1800_to_CAP_NO_LIMIT": {
+          "additional_surviving": 19,
+          "regressions": 0
+        }
+      }
+    },
+    "ambiguous_2": {
+      "n_cases": 2,
+      "identifiable_targets": 1,
+      "uncertain_targets": 1,
+      "by_cap": {
+        "CAP_450": {
+          "survive_cap": 1,
+          "survival_pct": 100.0,
+          "available_to_candidates": 0,
+          "survives_cap_but_classified_callout": 1
+        },
+        "CAP_900": {
+          "survive_cap": 1,
+          "survival_pct": 100.0,
+          "available_to_candidates": 0,
+          "survives_cap_but_classified_callout": 1
+        },
+        "CAP_1800": {
+          "survive_cap": 1,
+          "survival_pct": 100.0,
+          "available_to_candidates": 0,
+          "survives_cap_but_classified_callout": 1
+        },
+        "CAP_NO_LIMIT": {
+          "survive_cap": 1,
+          "survival_pct": 100.0,
+          "available_to_candidates": 0,
+          "survives_cap_but_classified_callout": 1
+        }
+      },
+      "incremental": {
+        "CAP_450_to_CAP_900": {
+          "additional_surviving": 0,
+          "regressions": 0
+        },
+        "CAP_900_to_CAP_1800": {
+          "additional_surviving": 0,
+          "regressions": 0
+        },
+        "CAP_1800_to_CAP_NO_LIMIT": {
+          "additional_surviving": 0,
+          "regressions": 0
+        }
+      }
+    }
+  },
+  "cap_vs_classification_audited_21": {
+    "lost_at_cap_450": 9,
+    "survives_cap_but_classified_callout": 7,
+    "survives_all_extraction_stages": 5
+  },
+  "associated_regressions": [],
+  "examples": {
+    "token_p8_355": {
+      "token_id": "token_p8_355",
+      "page": 8,
+      "label": "W10X15",
+      "population": "audited_21",
+      "human_decision": "no_valid_member",
+      "human_error_bucket": "missing_retrieval",
+      "leader_required": false,
+      "gold_selected_geometry_id": null,
+      "in_extraction_audit": true,
+      "target_identity_method": "audit_near_label_longest_ge25",
+      "target_identity_notes": "perp=7.14 len=67.71 audit_retained_cap450=False",
+      "RAW_PRESENT": true,
+      "target_fingerprint": [
+        1975.92,
+        1284.0,
+        1993.44,
+        1349.4,
+        67.71,
+        1
+      ],
+      "target_path_length": 67.71,
+      "target_structural_keep_score": 10065.4,
+      "target_cap_rank": 2946,
+      "target_excluded_before_rank": null,
+      "cap_results": {
+        "CAP_450": {
+          "SURVIVES_CAP": false,
+          "SURVIVES_FILTERING": false,
+          "CLASSIFICATION": null,
+          "reclassified_by": null,
+          "available_to_candidate_generation": false,
+          "geometry_id": null,
+          "loss_stage": "dropped_by_cap"
+        },
+        "CAP_900": {
+          "SURVIVES_CAP": false,
+          "SURVIVES_FILTERING": false,
+          "CLASSIFICATION": null,
+          "reclassified_by": null,
+          "available_to_candidate_generation": false,
+          "geometry_id": null,
+          "loss_stage": "dropped_by_cap"
+        },
+        "CAP_1800": {
+          "SURVIVES_CAP": false,
+          "SURVIVES_FILTERING": false,
+          "CLASSIFICATION": null,
+          "reclassified_by": null,
+          "available_to_candidate_generation": false,
+          "geometry_id": null,
+          "loss_stage": "dropped_by_cap"
+        },
+        "CAP_NO_LIMIT": {
+          "SURVIVES_CAP": true,
+          "SURVIVES_FILTERING": true,
+          "CLASSIFICATION": "leader",
+          "reclassified_by": "looks_like_leader",
+          "available_to_candidate_generation": false,
+          "geometry_id": "geom_e856bb24a5dc",
+          "loss_stage": "classified_as_callout"
+        }
+      },
+      "neighborhood_22pt": {
+        "raw_nearby": 3,
+        "survives_CAP_450": 2,
+        "survives_CAP_900": 2,
+        "survives_CAP_1800": 2,
+        "survives_CAP_NO_LIMIT": 3
+      }
+    },
+    "token_p8_348": {
+      "token_id": "token_p8_348",
+      "page": 8,
+      "label": "W30X90",
+      "population": "audited_21",
+      "human_decision": "no_valid_member",
+      "human_error_bucket": "missing_retrieval",
+      "leader_required": false,
+      "gold_selected_geometry_id": null,
+      "in_extraction_audit": true,
+      "target_identity_method": "audit_near_label_longest_ge25",
+      "target_identity_notes": "perp=8.98 len=323.97 audit_retained_cap450=True",
+      "RAW_PRESENT": true,
+      "target_fingerprint": [
+        1359.6,
+        1146.48,
+        1640.16,
+        1308.48,
+        323.97,
+        1
+      ],
+      "target_path_length": 323.97,
+      "target_structural_keep_score": -529.4,
+      "target_cap_rank": 155,
+      "target_excluded_before_rank": null,
+      "cap_results": {
+        "CAP_450": {
+          "SURVIVES_CAP": true,
+          "SURVIVES_FILTERING": true,
+          "CLASSIFICATION": "dimension",
+          "reclassified_by": "looks_like_dimension",
+          "available_to_candidate_generation": false,
+          "geometry_id": "geom_f35a9d1c5bd7",
+          "loss_stage": "classified_as_callout"
+        },
+        "CAP_900": {
+          "SURVIVES_CAP": true,
+          "SURVIVES_FILTERING": true,
+          "CLASSIFICATION": "dimension",
+          "reclassified_by": "looks_like_dimension",
+          "available_to_candidate_generation": false,
+          "geometry_id": "geom_f35a9d1c5bd7",
+          "loss_stage": "classified_as_callout"
+        },
+        "CAP_1800": {
+          "SURVIVES_CAP": true,
+          "SURVIVES_FILTERING": true,
+          "CLASSIFICATION": "dimension",
+          "reclassified_by": "looks_like_dimension",
+          "available_to_candidate_generation": false,
+          "geometry_id": "geom_f35a9d1c5bd7",
+          "loss_stage": "classified_as_callout"
+        },
+        "CAP_NO_LIMIT": {
+          "SURVIVES_CAP": true,
+          "SURVIVES_FILTERING": true,
+          "CLASSIFICATION": "dimension",
+          "reclassified_by": "looks_like_dimension",
+          "available_to_candidate_generation": false,
+          "geometry_id": "geom_f35a9d1c5bd7",
+          "loss_stage": "classified_as_callout"
+        }
+      },
+      "neighborhood_22pt": {
+        "raw_nearby": 2,
+        "survives_CAP_450": 2,
+        "survives_CAP_900": 2,
+        "survives_CAP_1800": 2,
+        "survives_CAP_NO_LIMIT": 2
+      }
+    },
+    "token_p18_1186": {
+      "token_id": "token_p18_1186",
+      "page": 18,
+      "label": "WT7X19",
+      "population": "audited_21",
+      "human_decision": "no_valid_member",
+      "human_error_bucket": "missing_retrieval",
+      "leader_required": true,
+      "gold_selected_geometry_id": null,
+      "in_extraction_audit": true,
+      "target_identity_method": "audit_tip_target_non_leader",
+      "target_identity_notes": "tip_d=0.0 len=51.1 audit_retained_cap450=False",
+      "RAW_PRESENT": true,
+      "target_fingerprint": [
+        1672.92,
+        1015.8,
+        1720.08,
+        1035.48,
+        51.1,
+        1
+      ],
+      "target_path_length": 51.1,
+      "target_structural_keep_score": 10047.2,
+      "target_cap_rank": 2653,
+      "target_excluded_before_rank": null,
+      "cap_results": {
+        "CAP_450": {
+          "SURVIVES_CAP": false,
+          "SURVIVES_FILTERING": false,
+          "CLASSIFICATION": null,
+          "reclassified_by": null,
+          "available_to_candidate_generation": false,
+          "geometry_id": null,
+          "loss_stage": "dropped_by_cap"
+        },
+        "CAP_900": {
+          "SURVIVES_CAP": false,
+          "SURVIVES_FILTERING": false,
+          "CLASSIFICATION": null,
+          "reclassified_by": null,
+          "available_to_candidate_generation": false,
+          "geometry_id": null,
+          "loss_stage": "dropped_by_cap"
+        },
+        "CAP_1800": {
+          "SURVIVES_CAP": false,
+          "SURVIVES_FILTERING": false,
+          "CLASSIFICATION": null,
+          "reclassified_by": null,
+          "available_to_candidate_generation": false,
+          "geometry_id": null,
+          "loss_stage": "dropped_by_cap"
+        },
+        "CAP_NO_LIMIT": {
+          "SURVIVES_CAP": true,
+          "SURVIVES_FILTERING": true,
+          "CLASSIFICATION": "leader",
+          "reclassified_by": "looks_like_leader",
+          "available_to_candidate_generation": false,
+          "geometry_id": "geom_0a5f592e14bb",
+          "loss_stage": "classified_as_callout"
+        }
+      },
+      "neighborhood_22pt": {
+        "raw_nearby": 9,
+        "survives_CAP_450": 0,
+        "survives_CAP_900": 4,
+        "survives_CAP_1800": 5,
+        "survives_CAP_NO_LIMIT": 9
+      }
+    },
+    "token_p18_1162": {
+      "token_id": "token_p18_1162",
+      "page": 18,
+      "label": "PL 3 3/8\"",
+      "population": "audited_21",
+      "human_decision": "no_valid_member",
+      "human_error_bucket": "missing_retrieval",
+      "leader_required": true,
+      "gold_selected_geometry_id": null,
+      "in_extraction_audit": true,
+      "target_identity_method": "audit_tip_target_non_leader",
+      "target_identity_notes": "tip_d=0.0 len=21.72 audit_retained_cap450=False",
+      "RAW_PRESENT": true,
+      "target_fingerprint": [
+        1086.36,
+        371.88,
+        1101.72,
+        387.24,
+        21.72,
+        1
+      ],
+      "target_path_length": 21.72,
+      "target_structural_keep_score": 10015.4,
+      "target_cap_rank": 2759,
+      "target_excluded_before_rank": null,
+      "cap_results": {
+        "CAP_450": {
+          "SURVIVES_CAP": false,
+          "SURVIVES_FILTERING": false,
+          "CLASSIFICATION": null,
+          "reclassified_by": null,
+          "available_to_candidate_generation": false,
+          "geometry_id": null,
+          "loss_stage": "dropped_by_cap"
+        },
+        "CAP_900": {
+          "SURVIVES_CAP": false,
+          "SURVIVES_FILTERING": false,
+          "CLASSIFICATION": null,
+          "reclassified_by": null,
+          "available_to_candidate_generation": false,
+          "geometry_id": null,
+          "loss_stage": "dropped_by_cap"
+        },
+        "CAP_1800": {
+          "SURVIVES_CAP": false,
+          "SURVIVES_FILTERING": false,
+          "CLASSIFICATION": null,
+          "reclassified_by": null,
+          "available_to_candidate_generation": false,
+          "geometry_id": null,
+          "loss_stage": "dropped_by_cap"
+        },
+        "CAP_NO_LIMIT": {
+          "SURVIVES_CAP": true,
+          "SURVIVES_FILTERING": true,
+          "CLASSIFICATION": "leader",
+          "reclassified_by": "looks_like_leader",
+          "available_to_candidate_generation": false,
+          "geometry_id": "geom_36687293eb79",
+          "loss_stage": "classified_as_callout"
+        }
+      },
+      "neighborhood_22pt": {
+        "raw_nearby": 4,
+        "survives_CAP_450": 1,
+        "survives_CAP_900": 3,
+        "survives_CAP_1800": 3,
+        "survives_CAP_NO_LIMIT": 4
+      }
+    },
+    "token_p24_1385": {
+      "token_id": "token_p24_1385",
+      "page": 24,
+      "label": "L4x4x3/8",
+      "population": "audited_21",
+      "human_decision": "no_valid_member",
+      "human_error_bucket": "missing_retrieval",
+      "leader_required": true,
+      "gold_selected_geometry_id": null,
+      "in_extraction_audit": true,
+      "target_identity_method": "audit_tip_target_non_leader",
+      "target_identity_notes": "tip_d=12.6 len=93.43 audit_retained_cap450=False",
+      "RAW_PRESENT": true,
+      "target_fingerprint": [
+        503.64,
+        1666.44,
+        563.04,
+        1738.56,
+        93.43,
+        1
+      ],
+      "target_path_length": 93.43,
+      "target_structural_keep_score": 10072.1,
+      "target_cap_rank": 2405,
+      "target_excluded_before_rank": null,
+      "cap_results": {
+        "CAP_450": {
+          "SURVIVES_CAP": false,
+          "SURVIVES_FILTERING": false,
+          "CLASSIFICATION": null,
+          "reclassified_by": null,
+          "available_to_candidate_generation": false,
+          "geometry_id": null,
+          "loss_stage": "dropped_by_cap"
+        },
+        "CAP_900": {
+          "SURVIVES_CAP": false,
+          "SURVIVES_FILTERING": false,
+          "CLASSIFICATION": null,
+          "reclassified_by": null,
+          "available_to_candidate_generation": false,
+          "geometry_id": null,
+          "loss_stage": "dropped_by_cap"
+        },
+        "CAP_1800": {
+          "SURVIVES_CAP": false,
+          "SURVIVES_FILTERING": false,
+          "CLASSIFICATION": null,
+          "reclassified_by": null,
+          "available_to_candidate_generation": false,
+          "geometry_id": null,
+          "loss_stage": "dropped_by_cap"
+        },
+        "CAP_NO_LIMIT": {
+          "SURVIVES_CAP": true,
+          "SURVIVES_FILTERING": true,
+          "CLASSIFICATION": "line",
+          "reclassified_by": null,
+          "available_to_candidate_generation": true,
+          "geometry_id": "geom_0ff168ae2ead",
+          "loss_stage": "survives_all_extraction_stages"
+        }
+      },
+      "neighborhood_22pt": {
+        "raw_nearby": 1,
+        "survives_CAP_450": 0,
+        "survives_CAP_900": 0,
+        "survives_CAP_1800": 0,
+        "survives_CAP_NO_LIMIT": 1
+      }
+    },
+    "token_p8_340": {
+      "token_id": "token_p8_340",
+      "page": 8,
+      "label": "W21X44",
+      "population": "audited_21",
+      "human_decision": "associated",
+      "human_error_bucket": null,
+      "leader_required": false,
+      "gold_selected_geometry_id": "geom_095898d74240",
+      "in_extraction_audit": true,
+      "target_identity_method": "gold_selected_geometry_id_via_cap450",
+      "target_identity_notes": "gold_gid=geom_095898d74240",
+      "RAW_PRESENT": true,
+      "target_fingerprint": [
+        1818.72,
+        929.88,
+        2159.76,
+        1020.36,
+        352.84,
+        1
+      ],
+      "target_path_length": 352.84,
+      "target_structural_keep_score": -111.4,
+      "target_cap_rank": 114,
+      "target_excluded_before_rank": null,
+      "cap_results": {
+        "CAP_450": {
+          "SURVIVES_CAP": true,
+          "SURVIVES_FILTERING": true,
+          "CLASSIFICATION": "line",
+          "reclassified_by": null,
+          "available_to_candidate_generation": true,
+          "geometry_id": "geom_095898d74240",
+          "loss_stage": "survives_all_extraction_stages"
+        },
+        "CAP_900": {
+          "SURVIVES_CAP": true,
+          "SURVIVES_FILTERING": true,
+          "CLASSIFICATION": "line",
+          "reclassified_by": null,
+          "available_to_candidate_generation": true,
+          "geometry_id": "geom_095898d74240",
+          "loss_stage": "survives_all_extraction_stages"
+        },
+        "CAP_1800": {
+          "SURVIVES_CAP": true,
+          "SURVIVES_FILTERING": true,
+          "CLASSIFICATION": "line",
+          "reclassified_by": null,
+          "available_to_candidate_generation": true,
+          "geometry_id": "geom_095898d74240",
+          "loss_stage": "survives_all_extraction_stages"
+        },
+        "CAP_NO_LIMIT": {
+          "SURVIVES_CAP": true,
+          "SURVIVES_FILTERING": true,
+          "CLASSIFICATION": "line",
+          "reclassified_by": null,
+          "available_to_candidate_generation": true,
+          "geometry_id": "geom_095898d74240",
+          "loss_stage": "survives_all_extraction_stages"
+        }
+      },
+      "neighborhood_22pt": {
+        "raw_nearby": 5,
+        "survives_CAP_450": 4,
+        "survives_CAP_900": 5,
+        "survives_CAP_1800": 5,
+        "survives_CAP_NO_LIMIT": 5
+      }
+    }
+  },
+  "n_jsonl_rows": 89
+}

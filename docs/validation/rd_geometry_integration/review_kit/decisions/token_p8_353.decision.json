@@ -1,0 +1,32 @@
+{
+  "token_id": "token_p8_353",
+  "page": 8,
+  "text": "W18X35",
+  "label_bbox": [
+    1697.9,
+    1164.42,
+    1728.85,
+    1205.23
+  ],
+  "production_geometry_id": "geom_485e0c733148",
+  "candidate_geometry_ids": [
+    "geom_edbfa26d671d",
+    "geom_5f6b0423ca08",
+    "geom_0a8f27d1dd2a",
+    "geom_90463060295d",
+    "geom_e637a03a7371"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p8_353.png",
+  "crop_available": true,
+  "g1_status": "disagreement",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Label sits on a W18X35 joist among parallel W18s. Green is the W21X44 wall; orange is the W12X16 infill.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": false,
+  "visible_member_on_drawing": true
+}

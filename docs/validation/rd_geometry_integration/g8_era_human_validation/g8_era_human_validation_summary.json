@@ -1,0 +1,106 @@
+{
+  "counts": {
+    "B": 21,
+    "C": 5,
+    "D": 1,
+    "priority": {
+      "HIGH": 6,
+      "MEDIUM": 2,
+      "NORMAL": 19
+    },
+    "total": 27
+  },
+  "frozen_inputs": {
+    "audit_sha": "4d6b3164b60f60a083246192136f7eacbb649753fae4a8b5fc0a212a76866410",
+    "audit_summary_sha": "672bfe6769a54b5f2814ecc4e041cc6c8903be02a354d5202ac475dd49b96493",
+    "g8_sha": "1931707165664d9e8e6ea198171624b9f9d8bb25dda2edd40d86619126ed3c44",
+    "g9_sha": "b459522eb097c285a359bd01a2be61c389daeded6415f236b6a0c47323cb4814",
+    "gold_metrics_sha": "c8bd88d1c58f60229d4c0b30491b12306999e9f557ac03853400566928040a4b",
+    "gold_sha": "0fad4291ff06ffa4e61c46f4ac923d7187455dd6b2f9b088481ab5e6b976b155"
+  },
+  "g8_era_human_validation_preparation": "COMPLETE",
+  "reuse": {
+    "existing_generator": "backend/scripts/rd_geometry_integration/review_kit.py",
+    "existing_review_kit": "docs/validation/rd_geometry_integration/review_kit/",
+    "limitation": "Historical kit candidate IDs are pre-G8 geom_*; use this prep manifest for G8 IDs"
+  },
+  "safety": {
+    "audit_unchanged": true,
+    "decisions_collected": false,
+    "g8_unchanged": true,
+    "g9_unchanged": true,
+    "gold_metrics_unchanged": true,
+    "historical_gold_unchanged": true,
+    "no_g10": true,
+    "no_g9_tuning": true,
+    "no_new_gold_created": true
+  },
+  "token_ids": [
+    "token_p8_381",
+    "token_p8_382",
+    "token_p8_383",
+    "token_p8_384",
+    "token_p8_430",
+    "token_p24_1359",
+    "token_p8_347",
+    "token_p8_419",
+    "token_p8_336",
+    "token_p8_337",
+    "token_p8_341",
+    "token_p8_343",
+    "token_p8_345",
+    "token_p8_346",
+    "token_p8_352",
+    "token_p8_354",
+    "token_p8_356",
+    "token_p8_361",
+    "token_p8_363",
+    "token_p8_369",
+    "token_p8_371",
+    "token_p8_372",
+    "token_p8_399",
+    "token_p8_410",
+    "token_p8_411",
+    "token_p8_412",
+    "token_p18_1188"
+  ],
+  "token_ids_by_class": {
+    "B": [
+      "token_p8_347",
+      "token_p8_419",
+      "token_p8_336",
+      "token_p8_337",
+      "token_p8_341",
+      "token_p8_343",
+      "token_p8_345",
+      "token_p8_346",
+      "token_p8_352",
+      "token_p8_354",
+      "token_p8_356",
+      "token_p8_361",
+      "token_p8_363",
+      "token_p8_369",
+      "token_p8_371",
+      "token_p8_372",
+      "token_p8_399",
+      "token_p8_410",
+      "token_p8_411",
+      "token_p8_412",
+      "token_p18_1188"
+    ],
+    "C": [
+      "token_p8_381",
+      "token_p8_382",
+      "token_p8_383",
+      "token_p8_384",
+      "token_p8_430"
+    ],
+    "D": [
+      "token_p24_1359"
+    ]
+  },
+  "validation": {
+    "ok": true,
+    "problems": []
+  }
+}

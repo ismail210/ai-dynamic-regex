@@ -1,0 +1,32 @@
+{
+  "token_id": "token_p18_1145",
+  "page": 18,
+  "text": "W12X40",
+  "label_bbox": [
+    1314.0,
+    237.72,
+    1361.97,
+    250.4
+  ],
+  "production_geometry_id": "geom_f2f4c1f82e85",
+  "candidate_geometry_ids": [
+    "geom_f2f4c1f82e85",
+    "geom_ea86c8c63321",
+    "geom_fc4d2f3fd33e",
+    "geom_25342840d67c",
+    "geom_ca91cce7a91b"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p18_1145.png",
+  "crop_available": true,
+  "g1_status": "agreement",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "W12X40 is splice-schedule table text. Orange overlay is the generic column-splice diagram, not this schedule row.",
+  "error_bucket": "schedule_table_not_member",
+  "leader_required": false,
+  "visible_member_on_drawing": false
+}

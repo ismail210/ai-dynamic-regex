@@ -1,0 +1,174 @@
+{
+  "cap": 450,
+  "experiment": "E5_multi_document_dimension_holdout",
+  "files_written": [
+    "backend/scripts/rd_geometry_integration/multi_document_dimension_holdout.py",
+    "backend/tests/test_rd_geometry_dimension_holdout_e5.py",
+    "docs/validation/rd_geometry_integration/dimension_holdout_e5_results.jsonl",
+    "docs/validation/rd_geometry_integration/dimension_holdout_e5_summary.json",
+    "docs/validation/rd_geometry_integration/GEOMETRY_DIMENSION_HOLDOUT_E5_REPORT.md",
+    "docs/validation/rd_geometry_integration/dimension_holdout_e5_renders/",
+    "docs/validation/rd_geometry_integration/dimension_holdout_e5_review.html",
+    "backend/scripts/rd_geometry_integration/README.md"
+  ],
+  "holdout_documents": [
+    {
+      "doc_id": "doc_f6ddc4a7e233ffb0",
+      "doc_key": "springhill_lake",
+      "independent_of_burrville": true,
+      "pages": [
+        7,
+        8
+      ],
+      "pdf": "ST - Springhill Lake__f6ddc4a7e233.pdf",
+      "project": "Springhill Lake",
+      "why": "Independent school structural set; dense framing pages with many WxxXxx [nn] designations and load callouts."
+    },
+    {
+      "doc_id": "doc_9414716bffc67596",
+      "doc_key": "structure_copy",
+      "independent_of_burrville": true,
+      "pages": [
+        6,
+        8
+      ],
+      "pdf": "Structure - Copy__9414716bffc6.pdf",
+      "project": "Structure - Copy",
+      "why": "Independent structural package; framing/detail pages with member labels and fraction/length annotations."
+    },
+    {
+      "doc_id": "doc_683e6eef0a945c9a",
+      "doc_key": "struct",
+      "independent_of_burrville": true,
+      "pages": [
+        7,
+        9
+      ],
+      "pdf": "Struct__683e6eef0a94.pdf",
+      "project": "Struct",
+      "why": "Independent structural drawings; high density of W-shape labels with trailing numeric annotation content."
+    }
+  ],
+  "implementation_gate": {
+    "gate": "NEED_MORE_EVIDENCE",
+    "reason": "Holdout is promising (false_flips=0, recovered=43, genuine_preservation_rate=1.0, docs=3) but does not yet clear the conservative IMPLEMENT bar (need: docs>=3, own_label>=6 with recovery>=6 @rate>=0.8, genuine>=10 with preservation_rate=1.0, mixed>=3, ownership_unestablished <= max(3, own/2)). Current: own=46, mixed=6, unestablished=33, own_rate=0.9348."
+  },
+  "metrics": {
+    "bucket_counts": {
+      "GENUINE_DIMENSION": 12,
+      "MIXED_MEMBER_DIMENSION": 6,
+      "OWNERSHIP_UNESTABLISHED": 33,
+      "OWN_LABEL_CONTAMINATION": 46,
+      "UNRELATED_NUMERIC": 16
+    },
+    "false_flip_n": 0,
+    "false_flip_rate": 0.0,
+    "genuine_dimension_n": 12,
+    "genuine_preservation_rate": 1.0,
+    "genuine_preserved_n": 18,
+    "member_recovery_n": 43,
+    "mixed_n": 6,
+    "net_recovered_members": 43,
+    "outcome_counts": {
+      "DIMENSION_PRESERVED": 18,
+      "MEMBER_RECOVERED": 43,
+      "NO_CHANGE": 3,
+      "UNCHANGED_DIMENSION": 49
+    },
+    "own_label_contamination_n": 46,
+    "own_label_recovery_rate": 0.9348,
+    "ownership_unestablished_n": 33,
+    "raw_candidates_before_budget": 1040,
+    "total_cases": 113,
+    "total_documents": 3,
+    "total_pages": 6,
+    "unchanged_n": 70,
+    "unrelated_numeric_n": 16
+  },
+  "nearby_radius": 48.0,
+  "page_stats": [
+    {
+      "buckets": {
+        "MIXED_MEMBER_DIMENSION": 3,
+        "OWNERSHIP_UNESTABLISHED": 21,
+        "OWN_LABEL_CONTAMINATION": 285,
+        "UNRELATED_NUMERIC": 39
+      },
+      "doc_key": "springhill_lake",
+      "page": 7,
+      "raw_candidates": 348
+    },
+    {
+      "buckets": {
+        "MIXED_MEMBER_DIMENSION": 1,
+        "OWNERSHIP_UNESTABLISHED": 16,
+        "OWN_LABEL_CONTAMINATION": 220,
+        "UNRELATED_NUMERIC": 54
+      },
+      "doc_key": "springhill_lake",
+      "page": 8,
+      "raw_candidates": 291
+    },
+    {
+      "buckets": {
+        "GENUINE_DIMENSION": 4,
+        "OWN_LABEL_CONTAMINATION": 6
+      },
+      "doc_key": "structure_copy",
+      "page": 6,
+      "raw_candidates": 10
+    },
+    {
+      "buckets": {
+        "GENUINE_DIMENSION": 22,
+        "OWNERSHIP_UNESTABLISHED": 1,
+        "OWN_LABEL_CONTAMINATION": 20
+      },
+      "doc_key": "structure_copy",
+      "page": 8,
+      "raw_candidates": 43
+    },
+    {
+      "buckets": {
+        "MIXED_MEMBER_DIMENSION": 1,
+        "OWNERSHIP_UNESTABLISHED": 27,
+        "OWN_LABEL_CONTAMINATION": 145
+      },
+      "doc_key": "struct",
+      "page": 7,
+      "raw_candidates": 173
+    },
+    {
+      "buckets": {
+        "MIXED_MEMBER_DIMENSION": 1,
+        "OWNERSHIP_UNESTABLISHED": 19,
+        "OWN_LABEL_CONTAMINATION": 155
+      },
+      "doc_key": "struct",
+      "page": 9,
+      "raw_candidates": 175
+    }
+  ],
+  "regression": {
+    "e3_genuine_7_8_ok": true,
+    "e3_own_label_recovery_ok": true,
+    "e3_results_sha": "bc633040e9c5624d3147d937e93d536be3a5ee510ed95bf85d0c6af8a3020568",
+    "e3_results_sha_ok": true,
+    "e3_unrelated_17k_ok": true,
+    "e4_false_flip_n": 0,
+    "e4_genuine_n": 25,
+    "e4_preserved_n": 25,
+    "e4_preserved_ok": true,
+    "e4_results_sha": "eae32585f8d7e34a2e6626f4238d4a9a8c044f1a2d2fe9314e3ee7a0ecb2fcd7",
+    "e4_set_sha": "ade9d99f0df0a56dc3385e0f165529b4ebd07e8eafa63c1bde9bc696437ff2f1",
+    "extractor_sha": "6c6f73d7090a427705599a24cba4bad167a531a70cc5ff6879ccd0ca809ec940",
+    "extractor_sha_ok": true,
+    "gold_sha": "0fad4291ff06ffa4e61c46f4ac923d7187455dd6b2f9b088481ab5e6b976b155",
+    "gold_sha_ok": true,
+    "pass": true
+  },
+  "renders_written": 80,
+  "retrieval_sha": "77e213964f1c938dbebaefd558c02178d98459dbe8858474b2ab28c888f4c849",
+  "retrieval_v2_sha": "2717d31beb1b0524017ce403f86d78ccb57e4fab6c37ad5d4136f2f2b11918dc",
+  "v1_source": "E3 classify_shadow_ignore_own_numbers + identify_own_label_lines (importlib)"
+}

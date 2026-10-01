@@ -1,0 +1,102 @@
+{
+  "accepted_associations": 22,
+  "ambiguous_uncertain": 5,
+  "comparisons": {
+    "g9_ranking": {
+      "ambiguous_cases_g9_had_associated": [
+        "token_p8_381",
+        "token_p8_382",
+        "token_p8_383",
+        "token_p8_384",
+        "token_p8_430"
+      ],
+      "genuine_ranking_disagreement_count": 1,
+      "valid_member_where_owned_differs_from_g9": [
+        {
+          "g9": "rnd_raw_p24_480_d0c0ca5e54d7",
+          "owned": [
+            "raw_p24_10_9d8fbf0dfe5b#seg1"
+          ],
+          "token_id": "token_p24_1359"
+        }
+      ],
+      "valid_member_where_owned_equals_g9_selected": 21
+    },
+    "historical_gold": {
+      "ambiguous_vs_hist_nvm": 5,
+      "note": "All 27 historical decisions were no_valid_member. VALID_MEMBER/AMBIGUOUS under G8 are NOT automatic model errors vs hist gold \u2014 hist gold used pre-G8 candidates.",
+      "stale_gold_disagreement_count": 27,
+      "valid_member_vs_hist_nvm": 22
+    },
+    "nearest_g8_baseline": {
+      "valid_member_where_owned_differs_from_nearest": [
+        {
+          "nearest": "rnd_raw_p24_480_d0c0ca5e54d7",
+          "owned": "raw_p24_10_9d8fbf0dfe5b#seg1",
+          "token_id": "token_p24_1359"
+        },
+        {
+          "nearest": "rnd_raw_p8_1341_16dcbc2956c0",
+          "owned": "rnd_raw_p8_1292_be2a2c871ca2",
+          "token_id": "token_p8_352"
+        },
+        {
+          "nearest": "rnd_raw_p18_4362_a0e4c7603f0c",
+          "owned": "rnd_raw_p18_5045_9d434832f314",
+          "token_id": "token_p18_1188"
+        }
+      ],
+      "valid_member_where_owned_equals_nearest": 19
+    }
+  },
+  "decision_counts": {
+    "AMBIGUOUS": 5,
+    "VALID_MEMBER": 22
+  },
+  "feature_slices": {
+    "cap_restore_owned_or_tagged": 9,
+    "leader_required_reviewed": 2,
+    "parallel_bay_ambiguous": 5,
+    "reclass_restore_tagged": 12,
+    "short_stroke_tagged": 9,
+    "tip_proximity_line_vs_segment": 1
+  },
+  "frozen_inputs": {
+    "g8_sha": "1931707165664d9e8e6ea198171624b9f9d8bb25dda2edd40d86619126ed3c44",
+    "g9_sha": "b459522eb097c285a359bd01a2be61c389daeded6415f236b6a0c47323cb4814",
+    "gold_sha": "0fad4291ff06ffa4e61c46f4ac923d7187455dd6b2f9b088481ab5e6b976b155",
+    "manifest_sha": "c0a00d57fdffa43f28c69a1ce970e593d44b531f519ded2f9a8c8194dcd09eb6"
+  },
+  "line_vs_segment_ranking_failures_vs_human": [
+    {
+      "g9_id": "rnd_raw_p24_480_d0c0ca5e54d7",
+      "g9_kind": "LINE_MEMBER_CANDIDATE",
+      "owned_id": "raw_p24_10_9d8fbf0dfe5b#seg1",
+      "owned_kind": "SEGMENT_MEMBER_CANDIDATE",
+      "token_id": "token_p24_1359"
+    }
+  ],
+  "pattern_tag_counts": {
+    "cap_restore": 9,
+    "leader_required": 2,
+    "line_vs_segment": 1,
+    "on_label_recovery": 20,
+    "parallel_bay": 5,
+    "reclass_restore": 12,
+    "same_scale_competition": 5,
+    "short_stroke": 9,
+    "short_vs_long": 1,
+    "tip_proximity": 1
+  },
+  "rejected_associations": 0,
+  "review_source": "g8_era_human_validation",
+  "reviewed_at": "2026-09-21T11:14:29Z",
+  "reviewer_id": "g8_era_rd_review",
+  "safety": {
+    "decisions_separate_from_historical_gold": true,
+    "historical_gold_unchanged": true,
+    "no_production_wiring": true
+  },
+  "total_cases_reviewed": 27,
+  "unresolved": 0
+}

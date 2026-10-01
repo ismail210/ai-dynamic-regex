@@ -354,6 +354,53 @@ class ScheduleDefinitionTests(unittest.TestCase):
         profile = build_drawing_intelligence(self.doc)
         self.assertNotIn("A-1", {d["mark"] for d in profile["definitions"]})
 
+    def test_transposed_column_schedule_is_display_only(self):
+        from services.engineering.schedule_grid import (
+            lookup_schedule_row,
+            resolve_schedule_mark,
+            schedule_mark_map,
+        )
+
+        before_definitions = self.prof["definitions"]
+        before_map = schedule_mark_map(self.doc["schedule_grid"])
+        self.doc["schedule_grid"].append({
+            "page": 2, "kind": "column", "layout": "transposed", "source": "ruled_table",
+            "title": "COLUMN SCHEDULE", "bbox": [100.0, 100.0, 900.0, 400.0],
+            "rows": [
+                {**_row("A-1", "W10X33", "W10X33", '14"x14"x3/4"'),
+                 "mark_role": "grid_location", "level": "LEVEL 1", "bbox": None},
+                {**_row("B-2", "L4X4", None, ""),
+                 "mark_role": "grid_location", "level": "ROOF", "bbox": None},
+            ],
+        })
+        snapshot = repr(self.doc["schedule_grid"])
+        profile = build_drawing_intelligence(self.doc, context_pages={"2": "SPECIFICATIONS"})
+
+        a1, b2 = profile["column_locations"]
+        self.assertEqual(a1, {
+            "location": "A-1", "level": "LEVEL 1", "printed_size": "W10X33",
+            "catalog_designation": "W10X33", "printed_base_plate": '14"x14"x3/4"',
+            "schedule": "COLUMN SCHEDULE", "bbox": [100.0, 100.0, 900.0, 400.0],
+            "source": "schedule_grid", "is_definition_not_quantity": True,
+            "page": 2, "sheet": "S002",
+        })
+        # printed text only: no catalog confirmation, no completion of L4X4
+        self.assertIsNone(b2["catalog_designation"])
+        self.assertEqual(b2["printed_size"], "L4X4")
+        self.assertIsNone(b2["printed_base_plate"])
+        self.assertEqual(b2.keys(), a1.keys())  # no count / quantity field
+
+        self.assertEqual(profile["definitions"], before_definitions)
+        self.assertEqual(schedule_mark_map(self.doc["schedule_grid"]), before_map)
+        self.assertEqual(repr(self.doc["schedule_grid"]), snapshot)
+        self.doc["schedule_mark_map"] = schedule_mark_map(self.doc["schedule_grid"])
+        self.assertEqual(resolve_schedule_mark("A-1", self.doc), "")
+        self.assertIsNone(lookup_schedule_row("A-1", self.doc))
+        self.assertNotIn("A-1", evidence_packet(profile))
+
+    def test_no_transposed_schedule_means_no_column_locations(self):
+        self.assertEqual(self.prof["column_locations"], [])
+
     def test_ruled_table_source_ignores_same_mark_elsewhere_on_page(self):
         self.doc["schedule_grid"] = [{
             "page": 2, "kind": "column", "bbox": [100, 100, 500, 300],

@@ -1,0 +1,31 @@
+{
+  "token_id": "token_p8_369",
+  "page": 8,
+  "text": "W16X26",
+  "label_bbox": [
+    1869.08,
+    1104.22,
+    1891.61,
+    1145.93
+  ],
+  "production_geometry_id": "geom_095898d74240",
+  "candidate_geometry_ids": [
+    "geom_095898d74240",
+    "geom_0a8f27d1dd2a",
+    "geom_5f6b0423ca08",
+    "geom_edbfa26d671d"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p8_369.png",
+  "crop_available": true,
+  "g1_status": "agreement_ambiguous_neighborhood",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Label sits on W16X26[30] c=3/4\" joist. Overlay is the W21X44 wall beam.",
+  "error_bucket": "parallel_member_confusion",
+  "leader_required": false,
+  "visible_member_on_drawing": true
+}

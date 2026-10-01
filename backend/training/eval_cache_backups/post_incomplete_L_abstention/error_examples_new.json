@@ -1,0 +1,465 @@
+{
+  "HSS_size_error": [
+    {
+      "doc": "doc_0bfc2d61245dbce2",
+      "raw": "HSS 8X8 8X8",
+      "gold": "HSS8X88X8",
+      "pred": "HSS8X8X3/8",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_0bfc2d61245dbce2",
+      "raw": "HSS6x8x1/2",
+      "gold": "HSS6X8X1/2",
+      "pred": "HSS8X8X1/2",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_240bd2541fbca147",
+      "raw": "HSS5x5x3/8,",
+      "gold": "HSS5X5X3/8",
+      "pred": "HSS6X4X3/8",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_240bd2541fbca147",
+      "raw": "HSS5x5x3/8,",
+      "gold": "HSS5X5X3/8",
+      "pred": "HSS6X4X3/8",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_683e6eef0a945c9a",
+      "raw": "HSS12\"x4\"x1/2\"",
+      "gold": "HSS12\"X4\"X1/2\"",
+      "pred": "HSS16X4X1/2",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_683e6eef0a945c9a",
+      "raw": "HSS12\"x4\"x1/2\"",
+      "gold": "HSS12\"X4\"X1/2\"",
+      "pred": "HSS16X4X1/2",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_683e6eef0a945c9a",
+      "raw": "HSS12\"x4\"x1/2\"",
+      "gold": "HSS12\"X4\"X1/2\"",
+      "pred": "HSS16X4X1/2",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_683e6eef0a945c9a",
+      "raw": "HSS12\"x4\"x1/2\"",
+      "gold": "HSS12\"X4\"X1/2\"",
+      "pred": "HSS16X4X1/2",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_683e6eef0a945c9a",
+      "raw": "HSS12\"x4\"x1/2\"",
+      "gold": "HSS12\"X4\"X1/2\"",
+      "pred": "HSS16X4X1/2",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_6a9a9684bb19343b",
+      "raw": "HSS6x4x3/8,",
+      "gold": "HSS6X4X3/8",
+      "pred": "HSS4X4X3/8",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_6a9a9684bb19343b",
+      "raw": "HSS6x6x3/8,",
+      "gold": "HSS6X6X3/8",
+      "pred": "HSS10X6X3/8",
+      "shop_cut": false
+    }
+  ],
+  "L_to_2L": [
+    {
+      "doc": "doc_0d910a43b4a021e3",
+      "raw": "L3X3X5/16,",
+      "gold": "L3X3X5/16",
+      "pred": "2L3X3X5/16",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_240bd2541fbca147",
+      "raw": "L4X4X5/16,",
+      "gold": "L4X4X5/16",
+      "pred": "2L4X4X5/16",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_47dc7ef27f6e5d7e",
+      "raw": "L2x2x10",
+      "gold": "L2X2X10",
+      "pred": "2L2X2X1/4",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_47dc7ef27f6e5d7e",
+      "raw": "L6x6x5/16;",
+      "gold": "L6X6X5/16",
+      "pred": "2L6X6X5/16",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_47dc7ef27f6e5d7e",
+      "raw": "L6x6x5/16;",
+      "gold": "L6X6X5/16",
+      "pred": "2L6X6X5/16",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_47dc7ef27f6e5d7e",
+      "raw": "L5x5x5/16\"",
+      "gold": "L5X5X5/16\"",
+      "pred": "2L5X5X5/16",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_47dc7ef27f6e5d7e",
+      "raw": "L6x6x1/2@2'-0\"",
+      "gold": "L6X6X1/2@2-0\"",
+      "pred": "2L6X6X1/2",
+      "shop_cut": true
+    },
+    {
+      "doc": "doc_6a9a9684bb19343b",
+      "raw": "L3x3x5/16,",
+      "gold": "L3X3X5/16",
+      "pred": "2L3X3X5/16",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_9414716bffc67596",
+      "raw": "L4x4x5/16,",
+      "gold": "L4X4X5/16",
+      "pred": "2L4X4X5/16",
+      "shop_cut": false
+    }
+  ],
+  "L_same_family_other": [
+    {
+      "doc": "doc_0d910a43b4a021e3",
+      "raw": "L3x3x1/4x0'-3\",",
+      "gold": "L3X3X1/4X0-3\"",
+      "pred": "L3X3X1/4",
+      "shop_cut": true
+    },
+    {
+      "doc": "doc_47dc7ef27f6e5d7e",
+      "raw": "L8x4x7/16x1'-0\",",
+      "gold": "L8X4X7/16X1-0\"",
+      "pred": "L8X4X7/16",
+      "shop_cut": true
+    },
+    {
+      "doc": "doc_6a9a9684bb19343b",
+      "raw": "L3x3x1/4x0'-3\",",
+      "gold": "L3X3X1/4X0-3\"",
+      "pred": "L3X3X1/4",
+      "shop_cut": true
+    },
+    {
+      "doc": "doc_6a9a9684bb19343b",
+      "raw": "2L3x2x5/16x3/8\"",
+      "gold": "2L3X2X5/16X3/8\"",
+      "pred": "2L3X2X5/16X3/8SLBB",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_f6ddc4a7e233ffb0",
+      "raw": "L3x3x1/4x0'-3\",",
+      "gold": "L3X3X1/4X0-3\"",
+      "pred": "L3X3X1/4",
+      "shop_cut": true
+    },
+    {
+      "doc": "doc_f6ddc4a7e233ffb0",
+      "raw": "L8X6X1/2X1'",
+      "gold": "L8X6X1/2X1",
+      "pred": "L8X6X1/2",
+      "shop_cut": true
+    },
+    {
+      "doc": "doc_f6ddc4a7e233ffb0",
+      "raw": "L8X8X1/2X1'",
+      "gold": "L8X8X1/2X1",
+      "pred": "L8X8X1/2",
+      "shop_cut": true
+    }
+  ],
+  "shop_cut_L_wrong": [
+    {
+      "doc": "doc_0d910a43b4a021e3",
+      "raw": "L3x3x1/4x0'-3\",",
+      "gold": "L3X3X1/4X0-3\"",
+      "pred": "L3X3X1/4"
+    },
+    {
+      "doc": "doc_47dc7ef27f6e5d7e",
+      "raw": "L3x3x1/4@8'",
+      "gold": "L3X3X1/4@8",
+      "pred": "L3X3X3/8"
+    },
+    {
+      "doc": "doc_47dc7ef27f6e5d7e",
+      "raw": "L6x4x1/4x4\"",
+      "gold": "L6X4X1/4",
+      "pred": "L6X4X3/4"
+    },
+    {
+      "doc": "doc_47dc7ef27f6e5d7e",
+      "raw": "L3x3x1/4@4'",
+      "gold": "L3X3X1/4@4",
+      "pred": "L4X3X1/4"
+    },
+    {
+      "doc": "doc_47dc7ef27f6e5d7e",
+      "raw": "L8x4x7/16x1'-0\",",
+      "gold": "L8X4X7/16X1-0\"",
+      "pred": "L8X4X7/16"
+    },
+    {
+      "doc": "doc_47dc7ef27f6e5d7e",
+      "raw": "L6x6x1/2@2'-0\"",
+      "gold": "L6X6X1/2@2-0\"",
+      "pred": "2L6X6X1/2"
+    },
+    {
+      "doc": "doc_6a9a9684bb19343b",
+      "raw": "L3x3x1/4x0'-3\",",
+      "gold": "L3X3X1/4X0-3\"",
+      "pred": "L3X3X1/4"
+    },
+    {
+      "doc": "doc_f6ddc4a7e233ffb0",
+      "raw": "L3x3x1/4x0'-3\",",
+      "gold": "L3X3X1/4X0-3\"",
+      "pred": "L3X3X1/4"
+    },
+    {
+      "doc": "doc_f6ddc4a7e233ffb0",
+      "raw": "L8X6X1/2X1'",
+      "gold": "L8X6X1/2X1",
+      "pred": "L8X6X1/2"
+    },
+    {
+      "doc": "doc_f6ddc4a7e233ffb0",
+      "raw": "L8X8X1/2X1'",
+      "gold": "L8X8X1/2X1",
+      "pred": "L8X8X1/2"
+    }
+  ],
+  "W_size_error": [
+    {
+      "doc": "doc_0d910a43b4a021e3",
+      "raw": "W14X198",
+      "gold": "W14X198",
+      "pred": "W14X68",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_47dc7ef27f6e5d7e",
+      "raw": "W18x36",
+      "gold": "W18X36",
+      "pred": "W16X36",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_47dc7ef27f6e5d7e",
+      "raw": "W12x40's",
+      "gold": "W12X40S",
+      "pred": "W12X40",
+      "shop_cut": true
+    },
+    {
+      "doc": "doc_47dc7ef27f6e5d7e",
+      "raw": "W12x19@5'",
+      "gold": "W12X19@5",
+      "pred": "W12X19",
+      "shop_cut": true
+    },
+    {
+      "doc": "doc_6a9a9684bb19343b",
+      "raw": "W8x24(E)",
+      "gold": "W8X24(E)",
+      "pred": "W8X48",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_6a9a9684bb19343b",
+      "raw": "W 4X4 4X4",
+      "gold": "W4X44X4",
+      "pred": "W14X34",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_6a9a9684bb19343b",
+      "raw": "W14X198",
+      "gold": "W14X198",
+      "pred": "W14X68",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_9414716bffc67596",
+      "raw": "W10X24",
+      "gold": "W10X24",
+      "pred": "W10X12",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_f6ddc4a7e233ffb0",
+      "raw": "W12X16.",
+      "gold": "W12X16",
+      "pred": "W12X136",
+      "shop_cut": false
+    }
+  ],
+  "same_family_other": [
+    {
+      "doc": "doc_240bd2541fbca147",
+      "raw": "WT 8x18 8x18",
+      "gold": "WT8X188X18",
+      "pred": "WT8X18",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_240bd2541fbca147",
+      "raw": "C7X9.8,",
+      "gold": "C7X9.8",
+      "pred": "C6X8.2",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_47dc7ef27f6e5d7e",
+      "raw": "C12x20.7's",
+      "gold": "C12X20.7S",
+      "pred": "C12X20.7",
+      "shop_cut": true
+    },
+    {
+      "doc": "doc_6a9a9684bb19343b",
+      "raw": "C8X13.7",
+      "gold": "C8X13.7",
+      "pred": "C8X13.75",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_6a9a9684bb19343b",
+      "raw": "WT3x6@4'",
+      "gold": "WT3X6@4",
+      "pred": "WT4X14",
+      "shop_cut": true
+    },
+    {
+      "doc": "doc_6a9a9684bb19343b",
+      "raw": "WT3x6@4'",
+      "gold": "WT3X6@4",
+      "pred": "WT4X14",
+      "shop_cut": true
+    },
+    {
+      "doc": "doc_f6ddc4a7e233ffb0",
+      "raw": "WT3X8,",
+      "gold": "WT3X8",
+      "pred": "WT8X18",
+      "shop_cut": false
+    }
+  ],
+  "L_size_leg_error": [
+    {
+      "doc": "doc_240bd2541fbca147",
+      "raw": "L18x12x3/8",
+      "gold": "L18X12X3/8",
+      "pred": "L2X2X3/8",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_240bd2541fbca147",
+      "raw": "L18x12x3/8",
+      "gold": "L18X12X3/8",
+      "pred": "L2X2X3/8",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_47dc7ef27f6e5d7e",
+      "raw": "L4x4x3/8\";",
+      "gold": "L4X4X3/8\"",
+      "pred": "L4X3X3/8",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_47dc7ef27f6e5d7e",
+      "raw": "L4x4x3/8\"",
+      "gold": "L4X4X3/8\"",
+      "pred": "L7X4X3/8",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_47dc7ef27f6e5d7e",
+      "raw": "L3x3x1/4@4'",
+      "gold": "L3X3X1/4@4",
+      "pred": "L4X3X1/4",
+      "shop_cut": true
+    },
+    {
+      "doc": "doc_47dc7ef27f6e5d7e",
+      "raw": "L4x4x1/4\"@EA",
+      "gold": "L4X4X1/4\"@EA",
+      "pred": "L4X3X1/4",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_47dc7ef27f6e5d7e",
+      "raw": "L6x4x3/8\"",
+      "gold": "L6X4X3/8\"",
+      "pred": "L4X4X3/8",
+      "shop_cut": false
+    },
+    {
+      "doc": "doc_47dc7ef27f6e5d7e",
+      "raw": "L7x7x1/2",
+      "gold": "L7X7X1/2",
+      "pred": "L7X4X1/2",
+      "shop_cut": false
+    }
+  ],
+  "L_thickness_error": [
+    {
+      "doc": "doc_47dc7ef27f6e5d7e",
+      "raw": "L3x3x1/4@8'",
+      "gold": "L3X3X1/4@8",
+      "pred": "L3X3X3/8",
+      "shop_cut": true
+    },
+    {
+      "doc": "doc_47dc7ef27f6e5d7e",
+      "raw": "L6x4x1/4x4\"",
+      "gold": "L6X4X1/4",
+      "pred": "L6X4X3/4",
+      "shop_cut": true
+    },
+    {
+      "doc": "doc_6a9a9684bb19343b",
+      "raw": "L5x5x1/4",
+      "gold": "L5X5X1/4",
+      "pred": "L5X5X1/2",
+      "shop_cut": false
+    }
+  ],
+  "other_family_confusion": [
+    {
+      "doc": "doc_f6ddc4a7e233ffb0",
+      "raw": "L3X3X3/8,",
+      "gold": "L3X3X3/8",
+      "pred": "HSS3X3X3/8",
+      "shop_cut": false
+    }
+  ]
+}

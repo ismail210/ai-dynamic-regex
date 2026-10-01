@@ -294,7 +294,7 @@ def interpret_annotation(
     )
     bent_hint = bool(
         bent_pl_callout
-        or re.search(r"\bBP\b", normalized, re.I)
+        or re.search(r"\bBP\b(?![-_]?\d+[A-Z]?$)", normalized, re.I)
         or angle is not None
         or "bent" in geom_role
     )

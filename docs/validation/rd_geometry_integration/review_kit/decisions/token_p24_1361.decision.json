@@ -1,0 +1,32 @@
+{
+  "token_id": "token_p24_1361",
+  "page": 24,
+  "text": "L4X4X3/8",
+  "label_bbox": [
+    338.28,
+    481.81,
+    384.0,
+    494.42
+  ],
+  "production_geometry_id": null,
+  "candidate_geometry_ids": [
+    "geom_f7419edaa3c6",
+    "geom_32aa092d1fe5",
+    "geom_c636afbe0e9d",
+    "geom_836949400b99",
+    "geom_4d6a2f96d0c5"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p24_1361.png",
+  "crop_available": true,
+  "g1_status": "extra_candidates_only",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Leader points to the L4X4X3/8 hanger at the joist bottom chord. Green overlay is a joist-web panel, not the hanger.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": true,
+  "visible_member_on_drawing": true
+}

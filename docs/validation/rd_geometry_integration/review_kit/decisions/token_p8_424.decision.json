@@ -1,0 +1,31 @@
+{
+  "token_id": "token_p8_424",
+  "page": 8,
+  "text": "W16X26",
+  "label_bbox": [
+    1803.09,
+    1029.54,
+    1844.93,
+    1052.08
+  ],
+  "production_geometry_id": "geom_095898d74240",
+  "candidate_geometry_ids": [
+    "geom_0a8f27d1dd2a",
+    "geom_095898d74240",
+    "geom_edbfa26d671d",
+    "geom_5f6b0423ca08",
+    "geom_e28d1c9713ef"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p8_424.png",
+  "crop_available": true,
+  "g1_status": "agreement_ambiguous_neighborhood",
+  "review_label": "ambiguous_requires_adjudication",
+  "decision": "ambiguous",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "W16X26[20] at the wall kink: text lies on the wall beam while a small infill triangle is immediately adjacent. Wall-beam vs infill cannot be uniquely decided from the crop.",
+  "error_bucket": "crowded_neighborhood",
+  "leader_required": false
+}

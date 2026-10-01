@@ -1,0 +1,23 @@
+{
+  "conclusion": "NOT_JUSTIFIED \u2014 stop G10 path; do not modify production.",
+  "current_g9_behavior": "On token_p24_1359 G9 ASSOCIATED rnd_raw_p24_480 (405pt LINE) over raw_p24_10#seg1 (27pt SEGMENT). On all other VALID_MEMBER cases in this 27, G9 selected candidate equals human owned candidate.",
+  "decision_rule_applied": "A single isolated case is NOT sufficient. G10 requires a repeatable pattern supported by multiple independently reviewed cases.",
+  "gate": "NOT_JUSTIFIED",
+  "human_review_support": {
+    "ambiguous_not_ranking_failures": 5,
+    "g9_agrees_with_human_valid_member": 21,
+    "genuine_g9_ranking_disagreements": 1,
+    "repeatable_pattern_established": false
+  },
+  "number_of_failures_vs_human": 1,
+  "number_of_relevant_cases_in_review": 1,
+  "pattern": "Long LINE preferred over short SEGMENT/plate tip target under leader mode (kind prior + segment penalty + retained provenance; near-tied tip distance).",
+  "proposed_policy_change": null,
+  "proposed_policy_change_note": "Not proposed \u2014 insufficient multi-case evidence.",
+  "relevant_token_ids": [
+    "token_p24_1359"
+  ],
+  "risk_of_overfitting": "HIGH if tuned on the single D case alone.",
+  "untouched_evaluation_set": "No independent holdout beyond Burrville exists for this association path. Even if G10 were attempted, generalization could not be established.",
+  "why_current_policy_fails": "Documented in d_case_forensics: tip roles unused; LINE/SEGMENT priors; length_score treats 405 as full member. Isolated to one leader tip case in frozen 75."
+}

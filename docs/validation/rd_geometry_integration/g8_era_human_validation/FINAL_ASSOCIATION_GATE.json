@@ -1,0 +1,57 @@
+{
+  "final_decision": "PRODUCTION_NO_GO",
+  "g10_justification_path": "/Users/hibareda/Desktop/ai-dynamic-regex/docs/validation/rd_geometry_integration/g8_era_human_validation/G10_JUSTIFICATION.md",
+  "g10_justified": false,
+  "g10_run": false,
+  "gates": [
+    {
+      "evidence": "G8 StageGate REPRESENTATION_READY_FOR_ASSOCIATION; frozen G8 used for review",
+      "gate": "Representation",
+      "status": "PASS"
+    },
+    {
+      "evidence": "G9 ASSOCIATION_STILL_NOT_READY; G10 not justified/not run; no new association policy proven",
+      "gate": "Association",
+      "status": "FAIL"
+    },
+    {
+      "evidence": "G8-era review complete on 27 cases; G9 agrees on 21/22 VALID_MEMBER; 5 AMBIGUOUS; 1 ranking disagreement",
+      "gate": "Human agreement",
+      "status": "PARTIAL"
+    },
+    {
+      "evidence": "No G10 policy change applied; no new association regressions introduced",
+      "gate": "Regression safety",
+      "status": "N/A"
+    },
+    {
+      "evidence": "No independent holdout beyond Burrville for this association path",
+      "gate": "Generalization",
+      "status": "FAIL"
+    },
+    {
+      "evidence": "Frozen SHAs; decisions in decisions_pending/; outcomes jsonl deterministic from recorded review",
+      "gate": "Reproducibility",
+      "status": "PASS"
+    },
+    {
+      "evidence": "Production association/extraction untouched; R&D path remains shadow-only",
+      "gate": "Operational safety",
+      "status": "PASS"
+    },
+    {
+      "evidence": "Historical gold SHA 0fad4291ff06ffa4e61c46f4ac923d7187455dd6b2f9b088481ab5e6b976b155",
+      "gate": "Data integrity",
+      "status": "PASS"
+    },
+    {
+      "evidence": "No production wiring; no historical gold rewrite; G10 not implemented",
+      "gate": "Scope control",
+      "status": "PASS"
+    }
+  ],
+  "generalization": "NOT_ESTABLISHED",
+  "historical_gold_sha": "0fad4291ff06ffa4e61c46f4ac923d7187455dd6b2f9b088481ab5e6b976b155",
+  "historical_gold_unchanged": true,
+  "review_summary_path": "/Users/hibareda/Desktop/ai-dynamic-regex/docs/validation/rd_geometry_integration/g8_era_human_validation/g8_era_review_summary.json"
+}

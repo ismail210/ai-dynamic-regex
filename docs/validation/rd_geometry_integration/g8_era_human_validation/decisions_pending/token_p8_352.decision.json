@@ -1,0 +1,55 @@
+{
+  "audit_classification": "B",
+  "audit_confidence": "HIGH",
+  "baseline_b_nearest_candidate_id": "rnd_raw_p8_1341_16dcbc2956c0",
+  "evidence_basis": [
+    "overlap_or_contact",
+    "text_vs_member_orientation",
+    "explicit_label_to_member_relationship"
+  ],
+  "g8_candidate_ids": [
+    "rnd_raw_p8_1341_16dcbc2956c0",
+    "rnd_raw_p8_1292_be2a2c871ca2",
+    "rnd_raw_p8_1380_42b17cb95e13",
+    "rnd_raw_p8_1291_5699e04ee9db",
+    "rnd_raw_p8_1290_407372b1406b",
+    "rnd_raw_p8_1117_b3706852deb8",
+    "rnd_raw_p8_1299_176f6a1bb69e",
+    "rnd_raw_p8_1116_24707f9663c8",
+    "rnd_raw_p8_1035_2e255f8ece12",
+    "rnd_raw_p8_1036_e0c99fc8d832",
+    "rnd_raw_p8_966_226739ea4742",
+    "rnd_raw_p8_1381_eab3132b93da"
+  ],
+  "g9_disagrees": false,
+  "g9_mode": "direct",
+  "g9_selected_candidate_id": "rnd_raw_p8_1292_be2a2c871ca2",
+  "g9_selected_rejected": null,
+  "historical_gold_decision": "NO_VALID_MEMBER",
+  "historical_gold_raw": "no_valid_member",
+  "historical_gold_reason": "Label sits on W16X26[10] girder. Green is S-311/S-401; orange is a giant polyline.",
+  "label": "W16X26",
+  "label_bbox": [
+    1215.65,
+    1435.94,
+    1256.46,
+    1466.89
+  ],
+  "not_historical_gold": true,
+  "notes": "Independent G8-era ownership: label sits on recovered member stroke rnd_raw_p8_1292_be2a2c871ca2 (derivation=reclass_restore, length=108.76, label_distance\u22480). Historical NO_VALID_MEMBER reflected pre-G8 missing/wrong candidates, not absence of steel. Not an automatic audit-B conversion: confirmed via historical sits-on description + on-label G8 geometry + crop overlays.",
+  "owned_candidate_ids": [
+    "rnd_raw_p8_1292_be2a2c871ca2"
+  ],
+  "page": 8,
+  "pattern_tags": [
+    "on_label_recovery",
+    "reclass_restore"
+  ],
+  "review_source": "g8_era_human_validation",
+  "reviewed_at": "2026-09-21T11:14:29Z",
+  "reviewer_confidence": "HIGH",
+  "reviewer_decision": "VALID_MEMBER",
+  "reviewer_id": "g8_era_rd_review",
+  "status": "REVIEWED",
+  "token_id": "token_p8_352"
+}

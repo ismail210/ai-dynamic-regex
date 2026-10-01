@@ -1,0 +1,251 @@
+{
+  "ab_status_counts": {
+    "A": {
+      "A_CAP_DROPPED": 16,
+      "A_GOLD_PRESENT": 8,
+      "A_MEMBER_RETAINED": 6,
+      "A_RAW_AMBIGUOUS": 12,
+      "A_RAW_MISSING": 2,
+      "A_RECLASSIFIED": 24,
+      "A_SCHEDULE_NOT_MEMBER": 7
+    },
+    "B": {
+      "B_GOLD_PRESERVED": 8,
+      "B_HAS_CANDIDATES": 15,
+      "B_RECOVERED": 45,
+      "B_SCHEDULE_NOT_MEMBER": 7
+    },
+    "change": {
+      "improved": 39,
+      "improved_neighborhood_only": 15,
+      "preserved": 8,
+      "unchanged": 13
+    }
+  },
+  "ambiguous_examples": [
+    {
+      "notes": "loss=RAW_AMBIGUOUS; members=35; leader=TARGET_PRESENT_MEMBERLIKE; change=improved",
+      "token_id": "token_p18_1169"
+    },
+    {
+      "notes": "loss=RAW_AMBIGUOUS; members=25; leader=TARGET_MISSING_AFTER_CLASSIFICATION; change=improved",
+      "token_id": "token_p18_1173"
+    },
+    {
+      "notes": "loss=RAW_AMBIGUOUS; members=12; leader=TARGET_PRESENT_NON_MEMBER; change=improved_neighborhood_only",
+      "token_id": "token_p18_1178"
+    },
+    {
+      "notes": "loss=RAW_AMBIGUOUS; members=11; leader=TARGET_PRESENT_NON_MEMBER; change=improved_neighborhood_only",
+      "token_id": "token_p18_1180"
+    },
+    {
+      "notes": "loss=RAW_AMBIGUOUS; members=17; leader=TARGET_MISSING_AFTER_CAP; change=improved",
+      "token_id": "token_p18_1186"
+    },
+    {
+      "notes": "loss=RAW_AMBIGUOUS; members=24; leader=TARGET_PRESENT_MEMBERLIKE; change=improved",
+      "token_id": "token_p24_1359"
+    },
+    {
+      "notes": "loss=RAW_AMBIGUOUS; members=23; leader=TARGET_MISSING_AFTER_CLASSIFICATION; change=improved",
+      "token_id": "token_p24_1360"
+    },
+    {
+      "notes": "loss=RAW_AMBIGUOUS; members=39; leader=TARGET_PRESENT_MEMBERLIKE; change=improved",
+      "token_id": "token_p24_1362"
+    }
+  ],
+  "class_audit": {
+    "L_clip_angle": {
+      "b_recovered": 13,
+      "cap_dropped": 1,
+      "n": 13,
+      "reclassified": 1,
+      "retained_member": 0
+    },
+    "WT": {
+      "b_recovered": 1,
+      "cap_dropped": 0,
+      "n": 1,
+      "reclassified": 0,
+      "retained_member": 0
+    },
+    "girder_W": {
+      "b_recovered": 4,
+      "cap_dropped": 1,
+      "n": 6,
+      "reclassified": 5,
+      "retained_member": 0
+    },
+    "joist_scale_W": {
+      "b_recovered": 25,
+      "cap_dropped": 3,
+      "n": 30,
+      "reclassified": 20,
+      "retained_member": 6
+    },
+    "plate": {
+      "b_recovered": 4,
+      "cap_dropped": 0,
+      "n": 4,
+      "reclassified": 1,
+      "retained_member": 1
+    },
+    "short_W": {
+      "b_recovered": 13,
+      "cap_dropped": 12,
+      "n": 21,
+      "reclassified": 1,
+      "retained_member": 2
+    }
+  },
+  "document_id": "doc_0d910a43b4a021e3",
+  "false_candidate_examples": [],
+  "g8_gate": "REPRESENTATION_READY_FOR_ASSOCIATION",
+  "gold_sha256": "0fad4291ff06ffa4e61c46f4ac923d7187455dd6b2f9b088481ab5e6b976b155",
+  "leader_metrics": {
+    "leader_required_n": 18,
+    "status_counts": {
+      "TARGET_MISSING_AFTER_CAP": 5,
+      "TARGET_MISSING_AFTER_CLASSIFICATION": 2,
+      "TARGET_PRESENT_MEMBERLIKE": 5,
+      "TARGET_PRESENT_NON_MEMBER": 6
+    },
+    "target_memberlike_or_recoverable": 12
+  },
+  "loss_class_counts": {
+    "CAP_DROPPED": 17,
+    "RAW_AMBIGUOUS": 12,
+    "RAW_MISSING": 9,
+    "RECLASSIFIED_DIMENSION": 21,
+    "RECLASSIFIED_LEADER": 7,
+    "RETAINED_MEMBER": 9
+  },
+  "metrics": {
+    "associated_gold_preserved": 8,
+    "cap_retained_on_label_n": 36,
+    "current_member_kind_retained_n": 5,
+    "giant_member_candidates_after_total": 0,
+    "giant_nearby_before_total": 16,
+    "raw_geometry_present_n": 56,
+    "relevant_visible_n": 58,
+    "rnd_candidate_cases_n": 75,
+    "rnd_neighborhood_only_among_visible_miss": 15,
+    "rnd_recovered_among_visible_miss": 43,
+    "segment_candidates_total": 269,
+    "short_stroke_raw_n": 27,
+    "short_stroke_recovered": 22
+  },
+  "n_cases": 75,
+  "page_metrics": {
+    "18": {
+      "b_candidates_cases": 14,
+      "improved": 3,
+      "leader_recoverable": 4,
+      "leader_required": 7,
+      "member_retained": 1,
+      "n": 14,
+      "raw_present": 7,
+      "visible": 7
+    },
+    "24": {
+      "b_candidates_cases": 11,
+      "improved": 8,
+      "leader_recoverable": 8,
+      "leader_required": 11,
+      "member_retained": 0,
+      "n": 11,
+      "raw_present": 9,
+      "visible": 11
+    },
+    "8": {
+      "b_candidates_cases": 50,
+      "improved": 28,
+      "leader_recoverable": 0,
+      "leader_required": 0,
+      "member_retained": 4,
+      "n": 50,
+      "raw_present": 40,
+      "visible": 40
+    }
+  },
+  "pages": [
+    8,
+    18,
+    24
+  ],
+  "provenance_complete": true,
+  "segmentation": {
+    "compound_paths_n": 625,
+    "derived_segments_n": 732,
+    "false_or_large_n": 22,
+    "segments_near_labels_n": 280,
+    "useful_member_scale_n": 710
+  },
+  "top_examples": [
+    {
+      "A_status": "A_RECLASSIFIED",
+      "B_candidate_count": 28,
+      "B_status": "B_RECOVERED",
+      "gold_decision": "no_valid_member",
+      "label_text": "W14X22",
+      "representation_change": "improved",
+      "token_id": "token_p8_332"
+    },
+    {
+      "A_status": "A_RECLASSIFIED",
+      "B_candidate_count": 12,
+      "B_status": "B_RECOVERED",
+      "gold_decision": "no_valid_member",
+      "label_text": "W21X50",
+      "representation_change": "improved",
+      "token_id": "token_p8_336"
+    },
+    {
+      "A_status": "A_RECLASSIFIED",
+      "B_candidate_count": 10,
+      "B_status": "B_RECOVERED",
+      "gold_decision": "no_valid_member",
+      "label_text": "W21X44",
+      "representation_change": "improved",
+      "token_id": "token_p8_338"
+    },
+    {
+      "A_status": "A_RECLASSIFIED",
+      "B_candidate_count": 9,
+      "B_status": "B_RECOVERED",
+      "gold_decision": "no_valid_member",
+      "label_text": "W16X26",
+      "representation_change": "improved",
+      "token_id": "token_p8_341"
+    },
+    {
+      "A_status": "A_GOLD_PRESENT",
+      "B_candidate_count": 9,
+      "B_status": "B_GOLD_PRESERVED",
+      "gold_decision": "associated",
+      "label_text": "W21X44",
+      "representation_change": "preserved",
+      "token_id": "token_p8_340"
+    },
+    {
+      "A_status": "A_GOLD_PRESENT",
+      "B_candidate_count": 10,
+      "B_status": "B_GOLD_PRESERVED",
+      "gold_decision": "associated",
+      "label_text": "W16X31",
+      "representation_change": "preserved",
+      "token_id": "token_p8_395"
+    },
+    {
+      "A_status": "A_GOLD_PRESENT",
+      "B_candidate_count": 11,
+      "B_status": "B_GOLD_PRESERVED",
+      "gold_decision": "associated",
+      "label_text": "W16X31",
+      "representation_change": "preserved",
+      "token_id": "token_p8_396"
+    }
+  ]
+}

@@ -1,0 +1,902 @@
+{
+  "document_id": "doc_0d910a43b4a021e3",
+  "pages": {
+    "8": {
+      "proposed_frames": [],
+      "iou_vs_production": [],
+      "iou_vs_rd2d": [],
+      "human_gold_frames": [],
+      "note": "Title-seeded frames are research_proposed, not human gold. Region remains a soft feature."
+    },
+    "18": {
+      "proposed_frames": [
+        {
+          "frame_id": "p18_title_frame_0",
+          "page": 18,
+          "bbox": [
+            501.84,
+            258.36,
+            913.08,
+            715.92
+          ],
+          "title_text": "2.   SPLICE REQUIREMENTS SHALL BE BASED ON THE UPPER COLUMN SECTION.",
+          "terminology": "detail_region_candidate",
+          "provenance": "research_proposed_frame",
+          "evidence": [
+            "title_pattern_seed",
+            "grow_pt=220.0",
+            "nearby_geometry_union"
+          ],
+          "contained_geometry_count": 29,
+          "evidence_status": "candidate"
+        },
+        {
+          "frame_id": "p18_title_frame_5",
+          "page": 18,
+          "bbox": [
+            1573.44,
+            1499.76,
+            2361.84,
+            1722.84
+          ],
+          "title_text": "TYPICAL SHALLOW BEAM FRAME TO JOIST SUPPORT BEAM CONN DETAIL",
+          "terminology": "detail_region_candidate",
+          "provenance": "research_proposed_frame",
+          "evidence": [
+            "title_pattern_seed",
+            "grow_pt=220.0",
+            "nearby_geometry_union"
+          ],
+          "contained_geometry_count": 11,
+          "evidence_status": "candidate"
+        },
+        {
+          "frame_id": "p18_title_frame_1",
+          "page": 18,
+          "bbox": [
+            790.8,
+            418.32,
+            1217.28,
+            815.04
+          ],
+          "title_text": "TYPICAL COLUMN SPLICE DETAIL",
+          "terminology": "detail_region_candidate",
+          "provenance": "research_proposed_frame",
+          "evidence": [
+            "title_pattern_seed",
+            "grow_pt=220.0",
+            "nearby_geometry_union"
+          ],
+          "contained_geometry_count": 13,
+          "evidence_status": "candidate"
+        },
+        {
+          "frame_id": "p18_title_frame_2",
+          "page": 18,
+          "bbox": [
+            528.0,
+            1493.88,
+            1108.81,
+            1722.84
+          ],
+          "title_text": "TYPICAL HORIZONTAL BRACING CONNECTION DETAIL",
+          "terminology": "detail_region_candidate",
+          "provenance": "research_proposed_frame",
+          "evidence": [
+            "title_pattern_seed",
+            "grow_pt=220.0",
+            "nearby_geometry_union"
+          ],
+          "contained_geometry_count": 6,
+          "evidence_status": "candidate"
+        },
+        {
+          "frame_id": "p18_title_frame_3",
+          "page": 18,
+          "bbox": [
+            1595.04,
+            1019.4,
+            2260.44,
+            1207.44
+          ],
+          "title_text": "TYPICAL FOLDING PARTITION SUPPORT DETAIL",
+          "terminology": "detail_region_candidate",
+          "provenance": "research_proposed_frame",
+          "evidence": [
+            "title_pattern_seed",
+            "grow_pt=220.0",
+            "nearby_geometry_union"
+          ],
+          "contained_geometry_count": 4,
+          "evidence_status": "candidate"
+        },
+        {
+          "frame_id": "p18_title_frame_4",
+          "page": 18,
+          "bbox": [
+            1998.6,
+            471.84,
+            2517.12,
+            703.44
+          ],
+          "title_text": "TYPICAL BEAM BOTTOM FLANGE BRACE DETAIL",
+          "terminology": "detail_region_candidate",
+          "provenance": "research_proposed_frame",
+          "evidence": [
+            "title_pattern_seed",
+            "grow_pt=220.0",
+            "nearby_geometry_union"
+          ],
+          "contained_geometry_count": 13,
+          "evidence_status": "candidate"
+        },
+        {
+          "frame_id": "p18_title_frame_6",
+          "page": 18,
+          "bbox": [
+            626.4,
+            995.04,
+            1112.76,
+            1207.44
+          ],
+          "title_text": "TYPICAL EMBED PLATE CONNECTION DETAIL",
+          "terminology": "detail_region_candidate",
+          "provenance": "research_proposed_frame",
+          "evidence": [
+            "title_pattern_seed",
+            "grow_pt=220.0",
+            "nearby_geometry_union"
+          ],
+          "contained_geometry_count": 10,
+          "evidence_status": "candidate"
+        }
+      ],
+      "iou_vs_production": [
+        {
+          "frame_id": "p18_title_frame_0",
+          "page": 18,
+          "provenance": "research_proposed_frame",
+          "best_region_id": "p18_r0",
+          "iou": 0.0336,
+          "frame_bbox": [
+            501.84,
+            258.36,
+            913.08,
+            715.92
+          ],
+          "region_bbox": [
+            245.4,
+            51.72,
+            2970.0,
+            2108.16
+          ]
+        },
+        {
+          "frame_id": "p18_title_frame_5",
+          "page": 18,
+          "provenance": "research_proposed_frame",
+          "best_region_id": "p18_r0",
+          "iou": 0.0314,
+          "frame_bbox": [
+            1573.44,
+            1499.76,
+            2361.84,
+            1722.84
+          ],
+          "region_bbox": [
+            245.4,
+            51.72,
+            2970.0,
+            2108.16
+          ]
+        },
+        {
+          "frame_id": "p18_title_frame_1",
+          "page": 18,
+          "provenance": "research_proposed_frame",
+          "best_region_id": "p18_r0",
+          "iou": 0.0302,
+          "frame_bbox": [
+            790.8,
+            418.32,
+            1217.28,
+            815.04
+          ],
+          "region_bbox": [
+            245.4,
+            51.72,
+            2970.0,
+            2108.16
+          ]
+        },
+        {
+          "frame_id": "p18_title_frame_2",
+          "page": 18,
+          "provenance": "research_proposed_frame",
+          "best_region_id": "p18_r0",
+          "iou": 0.0237,
+          "frame_bbox": [
+            528.0,
+            1493.88,
+            1108.81,
+            1722.84
+          ],
+          "region_bbox": [
+            245.4,
+            51.72,
+            2970.0,
+            2108.16
+          ]
+        },
+        {
+          "frame_id": "p18_title_frame_3",
+          "page": 18,
+          "provenance": "research_proposed_frame",
+          "best_region_id": "p18_r0",
+          "iou": 0.0223,
+          "frame_bbox": [
+            1595.04,
+            1019.4,
+            2260.44,
+            1207.44
+          ],
+          "region_bbox": [
+            245.4,
+            51.72,
+            2970.0,
+            2108.16
+          ]
+        },
+        {
+          "frame_id": "p18_title_frame_4",
+          "page": 18,
+          "provenance": "research_proposed_frame",
+          "best_region_id": "p18_r0",
+          "iou": 0.0214,
+          "frame_bbox": [
+            1998.6,
+            471.84,
+            2517.12,
+            703.44
+          ],
+          "region_bbox": [
+            245.4,
+            51.72,
+            2970.0,
+            2108.16
+          ]
+        },
+        {
+          "frame_id": "p18_title_frame_6",
+          "page": 18,
+          "provenance": "research_proposed_frame",
+          "best_region_id": "p18_r0",
+          "iou": 0.0184,
+          "frame_bbox": [
+            626.4,
+            995.04,
+            1112.76,
+            1207.44
+          ],
+          "region_bbox": [
+            245.4,
+            51.72,
+            2970.0,
+            2108.16
+          ]
+        }
+      ],
+      "iou_vs_rd2d": [
+        {
+          "frame_id": "p18_title_frame_0",
+          "page": 18,
+          "provenance": "research_proposed_frame",
+          "best_region_id": "p18_2d_r0",
+          "iou": 0.1899,
+          "frame_bbox": [
+            501.84,
+            258.36,
+            913.08,
+            715.92
+          ],
+          "region_bbox": [
+            245.4,
+            170.28,
+            1375.65,
+            457.2
+          ]
+        },
+        {
+          "frame_id": "p18_title_frame_5",
+          "page": 18,
+          "provenance": "research_proposed_frame",
+          "best_region_id": "p18_2d_r6",
+          "iou": 0.8393,
+          "frame_bbox": [
+            1573.44,
+            1499.76,
+            2361.84,
+            1722.84
+          ],
+          "region_bbox": [
+            1573.44,
+            1457.04,
+            2361.84,
+            1722.84
+          ]
+        },
+        {
+          "frame_id": "p18_title_frame_1",
+          "page": 18,
+          "provenance": "research_proposed_frame",
+          "best_region_id": "p18_2d_r2",
+          "iou": 0.1633,
+          "frame_bbox": [
+            790.8,
+            418.32,
+            1217.28,
+            815.04
+          ],
+          "region_bbox": [
+            453.96,
+            609.0,
+            1217.28,
+            1207.44
+          ]
+        },
+        {
+          "frame_id": "p18_title_frame_2",
+          "page": 18,
+          "provenance": "research_proposed_frame",
+          "best_region_id": "p18_2d_r12",
+          "iou": 0.2061,
+          "frame_bbox": [
+            528.0,
+            1493.88,
+            1108.81,
+            1722.84
+          ],
+          "region_bbox": [
+            794.28,
+            1374.48,
+            1348.8,
+            1648.8
+          ]
+        },
+        {
+          "frame_id": "p18_title_frame_3",
+          "page": 18,
+          "provenance": "research_proposed_frame",
+          "best_region_id": "p18_2d_r3",
+          "iou": 0.2567,
+          "frame_bbox": [
+            1595.04,
+            1019.4,
+            2260.44,
+            1207.44
+          ],
+          "region_bbox": [
+            1595.04,
+            902.76,
+            1898.04,
+            1155.36
+          ]
+        },
+        {
+          "frame_id": "p18_title_frame_4",
+          "page": 18,
+          "provenance": "research_proposed_frame",
+          "best_region_id": "p18_2d_r1",
+          "iou": 0.4577,
+          "frame_bbox": [
+            1998.6,
+            471.84,
+            2517.12,
+            703.44
+          ],
+          "region_bbox": [
+            1998.6,
+            197.4,
+            2517.12,
+            703.44
+          ]
+        },
+        {
+          "frame_id": "p18_title_frame_6",
+          "page": 18,
+          "provenance": "research_proposed_frame",
+          "best_region_id": "p18_2d_r2",
+          "iou": 0.2261,
+          "frame_bbox": [
+            626.4,
+            995.04,
+            1112.76,
+            1207.44
+          ],
+          "region_bbox": [
+            453.96,
+            609.0,
+            1217.28,
+            1207.44
+          ]
+        }
+      ],
+      "human_gold_frames": [],
+      "note": "Title-seeded frames are research_proposed, not human gold. Region remains a soft feature."
+    },
+    "24": {
+      "proposed_frames": [
+        {
+          "frame_id": "p24_title_frame_2",
+          "page": 24,
+          "bbox": [
+            364.44,
+            455.76,
+            643.32,
+            907.92
+          ],
+          "title_text": "SECTION",
+          "terminology": "detail_region_candidate",
+          "provenance": "research_proposed_frame",
+          "evidence": [
+            "title_pattern_seed",
+            "grow_pt=220.0",
+            "nearby_geometry_union"
+          ],
+          "contained_geometry_count": 17,
+          "evidence_status": "candidate"
+        },
+        {
+          "frame_id": "p24_title_frame_1",
+          "page": 24,
+          "bbox": [
+            956.28,
+            143.4,
+            1173.96,
+            719.4
+          ],
+          "title_text": "DETAIL FOR CONN",
+          "terminology": "detail_region_candidate",
+          "provenance": "research_proposed_frame",
+          "evidence": [
+            "title_pattern_seed",
+            "grow_pt=220.0",
+            "nearby_geometry_union"
+          ],
+          "contained_geometry_count": 14,
+          "evidence_status": "candidate"
+        },
+        {
+          "frame_id": "p24_title_frame_0",
+          "page": 24,
+          "bbox": [
+            956.28,
+            143.4,
+            1173.96,
+            677.4
+          ],
+          "title_text": "DETAIL ASSEMBLY",
+          "terminology": "detail_region_candidate",
+          "provenance": "research_proposed_frame",
+          "evidence": [
+            "title_pattern_seed",
+            "grow_pt=220.0",
+            "nearby_geometry_union"
+          ],
+          "contained_geometry_count": 14,
+          "evidence_status": "candidate"
+        },
+        {
+          "frame_id": "p24_title_frame_3",
+          "page": 24,
+          "bbox": [
+            2329.2,
+            471.48,
+            2509.08,
+            896.88
+          ],
+          "title_text": "SECTION",
+          "terminology": "detail_region_candidate",
+          "provenance": "research_proposed_frame",
+          "evidence": [
+            "title_pattern_seed",
+            "grow_pt=220.0",
+            "nearby_geometry_union"
+          ],
+          "contained_geometry_count": 6,
+          "evidence_status": "candidate"
+        },
+        {
+          "frame_id": "p24_title_frame_6",
+          "page": 24,
+          "bbox": [
+            411.72,
+            1275.12,
+            651.36,
+            1538.04
+          ],
+          "title_text": "SECTION",
+          "terminology": "detail_region_candidate",
+          "provenance": "research_proposed_frame",
+          "evidence": [
+            "title_pattern_seed",
+            "grow_pt=220.0",
+            "nearby_geometry_union"
+          ],
+          "contained_geometry_count": 6,
+          "evidence_status": "candidate"
+        },
+        {
+          "frame_id": "p24_title_frame_9",
+          "page": 24,
+          "bbox": [
+            2284.68,
+            1124.76,
+            2484.84,
+            1395.72
+          ],
+          "title_text": "SECTION",
+          "terminology": "detail_region_candidate",
+          "provenance": "research_proposed_frame",
+          "evidence": [
+            "title_pattern_seed",
+            "grow_pt=220.0",
+            "nearby_geometry_union"
+          ],
+          "contained_geometry_count": 6,
+          "evidence_status": "candidate"
+        },
+        {
+          "frame_id": "p24_title_frame_5",
+          "page": 24,
+          "bbox": [
+            1765.92,
+            490.68,
+            1961.16,
+            726.36
+          ],
+          "title_text": "SECTION",
+          "terminology": "detail_region_candidate",
+          "provenance": "research_proposed_frame",
+          "evidence": [
+            "title_pattern_seed",
+            "grow_pt=220.0",
+            "nearby_geometry_union"
+          ],
+          "contained_geometry_count": 12,
+          "evidence_status": "candidate"
+        },
+        {
+          "frame_id": "p24_title_frame_4",
+          "page": 24,
+          "bbox": [
+            1052.4,
+            490.68,
+            1232.4,
+            722.4
+          ],
+          "title_text": "SECTION",
+          "terminology": "detail_region_candidate",
+          "provenance": "research_proposed_frame",
+          "evidence": [
+            "title_pattern_seed",
+            "grow_pt=220.0",
+            "nearby_geometry_union"
+          ],
+          "contained_geometry_count": 9,
+          "evidence_status": "candidate"
+        }
+      ],
+      "iou_vs_production": [
+        {
+          "frame_id": "p24_title_frame_2",
+          "page": 24,
+          "provenance": "research_proposed_frame",
+          "best_region_id": "p24_r0",
+          "iou": 0.0226,
+          "frame_bbox": [
+            364.44,
+            455.76,
+            643.32,
+            907.92
+          ],
+          "region_bbox": [
+            262.32,
+            51.72,
+            2970.0,
+            2108.16
+          ]
+        },
+        {
+          "frame_id": "p24_title_frame_1",
+          "page": 24,
+          "provenance": "research_proposed_frame",
+          "best_region_id": "p24_r0",
+          "iou": 0.0225,
+          "frame_bbox": [
+            956.28,
+            143.4,
+            1173.96,
+            719.4
+          ],
+          "region_bbox": [
+            262.32,
+            51.72,
+            2970.0,
+            2108.16
+          ]
+        },
+        {
+          "frame_id": "p24_title_frame_0",
+          "page": 24,
+          "provenance": "research_proposed_frame",
+          "best_region_id": "p24_r0",
+          "iou": 0.0209,
+          "frame_bbox": [
+            956.28,
+            143.4,
+            1173.96,
+            677.4
+          ],
+          "region_bbox": [
+            262.32,
+            51.72,
+            2970.0,
+            2108.16
+          ]
+        },
+        {
+          "frame_id": "p24_title_frame_3",
+          "page": 24,
+          "provenance": "research_proposed_frame",
+          "best_region_id": "p24_r0",
+          "iou": 0.0137,
+          "frame_bbox": [
+            2329.2,
+            471.48,
+            2509.08,
+            896.88
+          ],
+          "region_bbox": [
+            262.32,
+            51.72,
+            2970.0,
+            2108.16
+          ]
+        },
+        {
+          "frame_id": "p24_title_frame_6",
+          "page": 24,
+          "provenance": "research_proposed_frame",
+          "best_region_id": "p24_r0",
+          "iou": 0.0113,
+          "frame_bbox": [
+            411.72,
+            1275.12,
+            651.36,
+            1538.04
+          ],
+          "region_bbox": [
+            262.32,
+            51.72,
+            2970.0,
+            2108.16
+          ]
+        },
+        {
+          "frame_id": "p24_title_frame_9",
+          "page": 24,
+          "provenance": "research_proposed_frame",
+          "best_region_id": "p24_r0",
+          "iou": 0.0097,
+          "frame_bbox": [
+            2284.68,
+            1124.76,
+            2484.84,
+            1395.72
+          ],
+          "region_bbox": [
+            262.32,
+            51.72,
+            2970.0,
+            2108.16
+          ]
+        },
+        {
+          "frame_id": "p24_title_frame_5",
+          "page": 24,
+          "provenance": "research_proposed_frame",
+          "best_region_id": "p24_r0",
+          "iou": 0.0083,
+          "frame_bbox": [
+            1765.92,
+            490.68,
+            1961.16,
+            726.36
+          ],
+          "region_bbox": [
+            262.32,
+            51.72,
+            2970.0,
+            2108.16
+          ]
+        },
+        {
+          "frame_id": "p24_title_frame_4",
+          "page": 24,
+          "provenance": "research_proposed_frame",
+          "best_region_id": "p24_r0",
+          "iou": 0.0075,
+          "frame_bbox": [
+            1052.4,
+            490.68,
+            1232.4,
+            722.4
+          ],
+          "region_bbox": [
+            262.32,
+            51.72,
+            2970.0,
+            2108.16
+          ]
+        }
+      ],
+      "iou_vs_rd2d": [
+        {
+          "frame_id": "p24_title_frame_2",
+          "page": 24,
+          "provenance": "research_proposed_frame",
+          "best_region_id": "p24_2d_r1",
+          "iou": 0.2098,
+          "frame_bbox": [
+            364.44,
+            455.76,
+            643.32,
+            907.92
+          ],
+          "region_bbox": [
+            262.32,
+            120.96,
+            749.48,
+            1354.44
+          ]
+        },
+        {
+          "frame_id": "p24_title_frame_1",
+          "page": 24,
+          "provenance": "research_proposed_frame",
+          "best_region_id": "p24_2d_r0",
+          "iou": 0.2678,
+          "frame_bbox": [
+            956.28,
+            143.4,
+            1173.96,
+            719.4
+          ],
+          "region_bbox": [
+            1052.4,
+            143.4,
+            1408.32,
+            722.4
+          ]
+        },
+        {
+          "frame_id": "p24_title_frame_0",
+          "page": 24,
+          "provenance": "research_proposed_frame",
+          "best_region_id": "p24_2d_r0",
+          "iou": 0.2522,
+          "frame_bbox": [
+            956.28,
+            143.4,
+            1173.96,
+            677.4
+          ],
+          "region_bbox": [
+            1052.4,
+            143.4,
+            1408.32,
+            722.4
+          ]
+        },
+        {
+          "frame_id": "p24_title_frame_3",
+          "page": 24,
+          "provenance": "research_proposed_frame",
+          "best_region_id": "p24_2d_r3",
+          "iou": 0.1221,
+          "frame_bbox": [
+            2329.2,
+            471.48,
+            2509.08,
+            896.88
+          ],
+          "region_bbox": [
+            2225.16,
+            698.16,
+            2586.36,
+            1395.72
+          ]
+        },
+        {
+          "frame_id": "p24_title_frame_6",
+          "page": 24,
+          "provenance": "research_proposed_frame",
+          "best_region_id": "p24_2d_r4",
+          "iou": 0.3087,
+          "frame_bbox": [
+            411.72,
+            1275.12,
+            651.36,
+            1538.04
+          ],
+          "region_bbox": [
+            410.64,
+            1275.12,
+            732.0,
+            1910.16
+          ]
+        },
+        {
+          "frame_id": "p24_title_frame_9",
+          "page": 24,
+          "provenance": "research_proposed_frame",
+          "best_region_id": "p24_2d_r3",
+          "iou": 0.2153,
+          "frame_bbox": [
+            2284.68,
+            1124.76,
+            2484.84,
+            1395.72
+          ],
+          "region_bbox": [
+            2225.16,
+            698.16,
+            2586.36,
+            1395.72
+          ]
+        },
+        {
+          "frame_id": "p24_title_frame_5",
+          "page": 24,
+          "provenance": "research_proposed_frame",
+          "best_region_id": "p24_2d_r2",
+          "iou": 0.1916,
+          "frame_bbox": [
+            1765.92,
+            490.68,
+            1961.16,
+            726.36
+          ],
+          "region_bbox": [
+            1728.84,
+            124.56,
+            2127.84,
+            726.36
+          ]
+        },
+        {
+          "frame_id": "p24_title_frame_4",
+          "page": 24,
+          "provenance": "research_proposed_frame",
+          "best_region_id": "p24_2d_r0",
+          "iou": 0.2024,
+          "frame_bbox": [
+            1052.4,
+            490.68,
+            1232.4,
+            722.4
+          ],
+          "region_bbox": [
+            1052.4,
+            143.4,
+            1408.32,
+            722.4
+          ]
+        }
+      ],
+      "human_gold_frames": [],
+      "note": "Title-seeded frames are research_proposed, not human gold. Region remains a soft feature."
+    }
+  }
+}

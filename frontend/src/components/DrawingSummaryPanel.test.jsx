@@ -401,6 +401,70 @@ describe("DrawingSummaryPanel — evidence view", () => {
   });
 });
 
+function columnLocation(location, extra = {}) {
+  return {
+    location,
+    level: "LEVEL 1",
+    printed_size: "W10X33",
+    catalog_designation: "W10X33",
+    printed_base_plate: 'PL 14"x14"x3/4"',
+    schedule: "COLUMN SCHEDULE",
+    bbox: [100, 100, 900, 400],
+    source: "schedule_grid",
+    is_definition_not_quantity: true,
+    page: 28,
+    sheet: "S501",
+    ...extra,
+  };
+}
+
+describe("DrawingSummaryPanel — column schedule locations", () => {
+  const locations = [
+    columnLocation("A-1"),
+    columnLocation("B-2", { level: "ROOF", printed_size: "L4X4", catalog_designation: null, printed_base_plate: null }),
+  ];
+
+  it("renders locations as reference information, separate from mark definitions", () => {
+    render(<DrawingSummaryPanel profile={evidenceProfile({ column_locations: locations })} />);
+    expect(screen.getByText("Column Schedule Locations")).toBeInTheDocument();
+    expect(screen.getByText(/Reference information from column schedules — not a quantity/)).toBeInTheDocument();
+    const table = within(screen.getByRole("table", { name: "Column schedule locations" }));
+    expect(table.getByRole("columnheader", { name: "Level" })).toBeInTheDocument();
+    expect(table.getByRole("columnheader", { name: "Base plate" })).toBeInTheDocument();
+    const a1 = within(table.getByText("A-1").closest("tr"));
+    expect(a1.getByText("LEVEL 1")).toBeInTheDocument();
+    expect(a1.getByText("W10X33")).toBeInTheDocument();
+    expect(a1.getByText('PL 14"x14"x3/4"')).toBeInTheDocument();
+    const b2 = within(table.getByText("B-2").closest("tr"));
+    expect(b2.getByText("L4X4")).toBeInTheDocument();
+    expect(b2.getByText("printed size, no catalog designation")).toBeInTheDocument();
+    expect(screen.getByText("COLUMN SCHEDULE · S501 · PDF p. 28")).toBeInTheDocument();
+    expect(screen.getByRole("table", { name: "Columns definitions" })).toBeInTheDocument();
+  });
+
+  it("shows no quantity, count or total", () => {
+    render(<DrawingSummaryPanel profile={evidenceProfile({ column_locations: locations })} />);
+    const section = screen.getByRole("table", { name: "Column schedule locations" }).closest(".MuiPaper-root");
+    expect(within(section).queryByText(/qty|quantity|total|×|\d+ locations?/i)).not.toBeInTheDocument();
+    expect(within(section).queryByRole("columnheader", { name: /qty|quantity|count/i })).not.toBeInTheDocument();
+  });
+
+  it("is hidden when there are no column schedule locations", () => {
+    render(<DrawingSummaryPanel profile={evidenceProfile({ column_locations: [] })} />);
+    expect(screen.queryByText("Column Schedule Locations")).not.toBeInTheDocument();
+    render(<DrawingSummaryPanel profile={evidenceProfile()} />);
+    expect(screen.queryByText("Column Schedule Locations")).not.toBeInTheDocument();
+  });
+
+  it("opens the schedule page from a location row", async () => {
+    render(<DrawingSummaryPanel profile={evidenceProfile({ column_locations: locations })} documentId="doc_abc" />);
+    fireEvent.click(screen.getByRole("button", { name: "View S501 · PDF p. 28 for A-1" }));
+    const viewer = await screen.findByTestId("pdf-viewer");
+    expect(viewer).toHaveAttribute("data-page", "28");
+    expect(viewer).toHaveAttribute("data-bbox", "[100,100,900,400]");
+  });
+});
+
 describe("DrawingSummaryPanel — source page navigation", () => {
   it("hides View page when no document is loaded", () => {
     render(<DrawingSummaryPanel profile={evidenceProfile()} />);

@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"/>
+<title>G9 False Association Audit</title>
+<style>
+body { font-family: ui-sans-serif, system-ui, sans-serif; margin: 1.5rem; background:#f7f7f5; color:#1a1a1a; }
+h1 { font-size: 1.4rem; }
+.case { background:#fff; border:1px solid #ddd; padding:1rem; margin:1rem 0; }
+img { max-width: 100%; border:1px solid #ccc; background:#eee; }
+table { border-collapse: collapse; width:100%; font-size:0.8rem; margin-top:0.5rem; }
+td,th { border:1px solid #ddd; padding:0.25rem 0.4rem; text-align:left; }
+code { font-size:0.85em; }
+.meta { color:#444; }
+</style></head><body>
+<h1>G9 False Association Audit (27 cases)</h1>
+<p class="meta">Gate: <b>AUDIT_COMPLETE_G10_NOT_YET_JUSTIFIED</b> ·
+A=0
+B=21
+C=5
+D=1 ·
+R&amp;D only — gold/G8/G9/production unchanged</p>
+
+<section class="case">
+  <h2>token_p8_336 · p8 · W21X50</h2>
+  <p><b>Classification:</b> B (HIGH) ·
+     <b>new_status:</b> VALID_MEMBER_NOW_VISIBLE</p>
+  <p><b>Old gold:</b> NO_VALID_MEMBER · <b>G9:</b> ASSOCIATED ·
+     <b>selected:</b> <code>rnd_raw_p8_1260_a31b1adb0cdb</code> ·
+     <b>best:</b> <code>rnd_raw_p8_1260_a31b1adb0cdb</code></p>
+  <p>Label sits on the W21X50 girder; G8 reclass_restore recovers the under-label stroke previously classified as dimension. Old gold overlays were distant infill/stair, not this girder.</p>
+  <p class="vis">Horizontal W21X50 text rests on the recovered horizontal girder stroke (G9 green).</p>
+  <img src="renders/token_p8_336.png" alt="token_p8_336" loading="lazy"/>
+  <table>
+    <thead><tr><th>ID</th><th>kind</th><th>derivation</th><th>len</th><th>dist</th><th>rank</th><th>score</th></tr></thead>
+    <tbody><tr><td>rnd_raw_p8_1260_a31b1adb0cdb</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>250.564</td><td>0.0</td><td>1</td><td>0.8696</td></tr><tr><td>rnd_raw_p8_1330_8069b8cef64a</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>0.0</td><td>3</td><td>0.6969</td></tr><tr><td>rnd_raw_p8_1328_27999919be3c</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>74.926</td><td>0.0</td><td>2</td><td>0.7682</td></tr><tr><td>rnd_raw_p8_1331_30f351be6ccf</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>17.36</td><td>4</td><td>0.6469</td></tr><tr><td>rnd_raw_p8_1329_33db0f29cdc8</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1296_4f4b33f9373b</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>159.019</td><td>60.79</td><td>8</td><td>0.4416</td></tr><tr><td>rnd_raw_p8_1327_7e831bb3d961</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>74.926</td><td>40.802</td><td>6</td><td>0.4616</td></tr><tr><td>rnd_raw_p8_1367_4908eae79b6f</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>75.011</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1366_d84aae2fd2ee</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>110.058</td><td>51.905</td><td>5</td><td>0.4675</td></tr><tr><td>rnd_raw_p8_1485_156e44d25c24</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>173.049</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1258_8d163128890a</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>254.437</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1029_af4000b1c875</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>290.558</td><td>37.555</td><td>7</td><td>0.4604</td></tr></tbody>
+  </table>
+  <details><summary>evidence</summary><ul>
+    <li>human_gold=no_valid_member (historical; unchanged)</li><li>g9_decision=ASSOCIATED selected=rnd_raw_p8_1260_a31b1adb0cdb</li><li>g8_loss_class=RECLASSIFIED_DIMENSION A_status=A_RECLASSIFIED B_status=B_RECOVERED representation_change=improved</li><li>gold_error_bucket=missing_retrieval visible_member=True</li><li>gold_reason=Label sits on the W21X50 girder. Overlays are a distant infill and a stair stroke, not the girder.</li><li>selected_derivation=reclass_restore length=250.564 kind=LINE_MEMBER_CANDIDATE dist=0.0</li><li>g8_candidate_count=12 eligible_rankings=8</li><li>rank1 id=rnd_raw_p8_1260_a31b1adb0cdb score=0.8696 dist=0.0 len=250.564 der=reclass_restore</li><li>rank2 id=rnd_raw_p8_1328_27999919be3c score=0.7682 dist=0.0 len=74.926 der=cap_restore</li><li>rank3 id=rnd_raw_p8_1330_8069b8cef64a score=0.6969 dist=0.0 len=261.015 der=reclass_restore</li><li>Label sits on the W21X50 girder; G8 reclass_restore recovers the under-label stroke previously classified as dimension. Old gold overlays were distant infill/stair, not this girder.</li>
+  </ul></details>
+</section>
+
+<section class="case">
+  <h2>token_p8_337 · p8 · W21X44</h2>
+  <p><b>Classification:</b> B (HIGH) ·
+     <b>new_status:</b> VALID_MEMBER_NOW_VISIBLE</p>
+  <p><b>Old gold:</b> NO_VALID_MEMBER · <b>G9:</b> ASSOCIATED ·
+     <b>selected:</b> <code>rnd_raw_p8_1274_e21a18219b27</code> ·
+     <b>best:</b> <code>rnd_raw_p8_1274_e21a18219b27</code></p>
+  <p>Label sits on the upper W21X44 girder. Under-label raw was a leader stub; G8 neighborhood reclass recovers the girder segment G9 selected.</p>
+  <p class="vis">On-label girder geometry now present; old candidates were giant bay/EJ wall.</p>
+  <img src="renders/token_p8_337.png" alt="token_p8_337" loading="lazy"/>
+  <table>
+    <thead><tr><th>ID</th><th>kind</th><th>derivation</th><th>len</th><th>dist</th><th>rank</th><th>score</th></tr></thead>
+    <tbody><tr><td>rnd_raw_p8_1274_e21a18219b27</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>241.512</td><td>0.0</td><td>1</td><td>0.8711</td></tr><tr><td>rnd_raw_p8_1285_cba42058a285</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>3.46</td><td>4</td><td>0.6544</td></tr><tr><td>rnd_raw_p8_1287_18ba2761eddd</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>75.042</td><td>10.52</td><td>3</td><td>0.7002</td></tr><tr><td>rnd_raw_p8_1284_2ab7f6b159ec</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>2.47</td><td>2</td><td>0.7232</td></tr><tr><td>rnd_raw_p8_1286_88fce0a03302</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>75.011</td><td>42.55</td><td>7</td><td>0.4546</td></tr><tr><td>rnd_raw_p8_1277_737c2c6faef8</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>259.531</td><td>42.2</td><td>5</td><td>0.5206</td></tr><tr><td>rnd_raw_p8_1275_09a4936ab405</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>241.512</td><td>46.88</td><td>6</td><td>0.5008</td></tr><tr><td>rnd_raw_p8_1364_9d12024059aa</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>253.679</td><td>63.527</td><td>8</td><td>0.35</td></tr></tbody>
+  </table>
+  <details><summary>evidence</summary><ul>
+    <li>human_gold=no_valid_member (historical; unchanged)</li><li>g9_decision=ASSOCIATED selected=rnd_raw_p8_1274_e21a18219b27</li><li>g8_loss_class=RECLASSIFIED_LEADER A_status=A_RECLASSIFIED B_status=B_HAS_CANDIDATES representation_change=improved_neighborhood_only</li><li>gold_error_bucket=missing_retrieval visible_member=True</li><li>gold_reason=Label sits on the upper W21X44[30] girder. Candidates are a giant bay polyline / EJ wall, not this girder segment.</li><li>selected_derivation=reclass_restore length=241.512 kind=LINE_MEMBER_CANDIDATE dist=0.0</li><li>g8_candidate_count=8 eligible_rankings=8</li><li>rank1 id=rnd_raw_p8_1274_e21a18219b27 score=0.8711 dist=0.0 len=241.512 der=reclass_restore</li><li>rank2 id=rnd_raw_p8_1284_2ab7f6b159ec score=0.7232 dist=2.47 len=261.015 der=reclass_restore</li><li>rank3 id=rnd_raw_p8_1287_18ba2761eddd score=0.7002 dist=10.52 len=75.042 der=cap_restore</li><li>Label sits on the upper W21X44 girder. Under-label raw was a leader stub; G8 neighborhood reclass recovers the girder segment G9 selected.</li>
+  </ul></details>
+</section>
+
+<section class="case">
+  <h2>token_p8_341 · p8 · W16X26</h2>
+  <p><b>Classification:</b> B (HIGH) ·
+     <b>new_status:</b> VALID_MEMBER_NOW_VISIBLE</p>
+  <p><b>Old gold:</b> NO_VALID_MEMBER · <b>G9:</b> ASSOCIATED ·
+     <b>selected:</b> <code>rnd_raw_p8_1284_2ab7f6b159ec</code> ·
+     <b>best:</b> <code>rnd_raw_p8_1284_2ab7f6b159ec</code></p>
+  <p>Label sits on W16X26 joist; G8 reclass_restore recovers the on-label joist previously treated as dimension. Old overlays were EJ wall / wall beam.</p>
+  <p class="vis">Selected stroke coincides with the labeled joist path.</p>
+  <img src="renders/token_p8_341.png" alt="token_p8_341" loading="lazy"/>
+  <table>
+    <thead><tr><th>ID</th><th>kind</th><th>derivation</th><th>len</th><th>dist</th><th>rank</th><th>score</th></tr></thead>
+    <tbody><tr><td>rnd_raw_p8_1284_2ab7f6b159ec</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>0.0</td><td>1</td><td>0.8387</td></tr><tr><td>rnd_raw_p8_1397_51483cb885bd</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>73.673</td><td>1.86</td><td>2</td><td>0.7268</td></tr><tr><td>rnd_raw_p8_1285_cba42058a285</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>20.84</td><td>3</td><td>0.6432</td></tr><tr><td>rnd_raw_p8_1398_5786610a6f08</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>73.79</td><td>40.996</td><td>5</td><td>0.4625</td></tr><tr><td>rnd_raw_p8_1364_9d12024059aa</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>253.679</td><td>58.62</td><td>7</td><td>0.4509</td></tr><tr><td>rnd_raw_p8_1278_6ae14e02a201</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>241.512</td><td>39.58</td><td>6</td><td>0.4518</td></tr><tr><td>rnd_raw_p8_3282_489ed0431e45</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>21.393</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1025_f5020ae58794</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>352.838</td><td>25.54</td><td>4</td><td>0.4995</td></tr><tr><td>rnd_raw_p8_1273_e6adfa57dad5</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>253.448</td><td>76.02</td><td>8</td><td>0.3649</td></tr></tbody>
+  </table>
+  <details><summary>evidence</summary><ul>
+    <li>human_gold=no_valid_member (historical; unchanged)</li><li>g9_decision=ASSOCIATED selected=rnd_raw_p8_1284_2ab7f6b159ec</li><li>g8_loss_class=RECLASSIFIED_DIMENSION A_status=A_RECLASSIFIED B_status=B_RECOVERED representation_change=improved</li><li>gold_error_bucket=parallel_member_confusion visible_member=True</li><li>gold_reason=Label sits on W16X26[30] c=1&quot; joist. Green is the W16X31 EJ wall; orange is the W21X44 wall beam.</li><li>selected_derivation=reclass_restore length=261.015 kind=LINE_MEMBER_CANDIDATE dist=0.0</li><li>g8_candidate_count=9 eligible_rankings=8</li><li>rank1 id=rnd_raw_p8_1284_2ab7f6b159ec score=0.8387 dist=0.0 len=261.015 der=reclass_restore</li><li>rank2 id=rnd_raw_p8_1397_51483cb885bd score=0.7268 dist=1.86 len=73.673 der=cap_restore</li><li>rank3 id=rnd_raw_p8_1285_cba42058a285 score=0.6432 dist=20.84 len=261.015 der=reclass_restore</li><li>Label sits on W16X26 joist; G8 reclass_restore recovers the on-label joist previously treated as dimension. Old overlays were EJ wall / wall beam.</li>
+  </ul></details>
+</section>
+
+<section class="case">
+  <h2>token_p8_343 · p8 · W16X26</h2>
+  <p><b>Classification:</b> B (HIGH) ·
+     <b>new_status:</b> VALID_MEMBER_NOW_VISIBLE</p>
+  <p><b>Old gold:</b> NO_VALID_MEMBER · <b>G9:</b> ASSOCIATED ·
+     <b>selected:</b> <code>rnd_raw_p8_1285_cba42058a285</code> ·
+     <b>best:</b> <code>rnd_raw_p8_1285_cba42058a285</code></p>
+  <p>Label sits on W16X26 joist; G8 recovers that joist via reclass_restore. Old overlays were distant infill / W21X44 wall.</p>
+  <p class="vis">On-label joist recovered; not the wall beam.</p>
+  <img src="renders/token_p8_343.png" alt="token_p8_343" loading="lazy"/>
+  <table>
+    <thead><tr><th>ID</th><th>kind</th><th>derivation</th><th>len</th><th>dist</th><th>rank</th><th>score</th></tr></thead>
+    <tbody><tr><td>rnd_raw_p8_1285_cba42058a285</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>0.0</td><td>1</td><td>0.8414</td></tr><tr><td>rnd_raw_p8_1294_4e2b694a2be6</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>253.679</td><td>22.28</td><td>2</td><td>0.636</td></tr><tr><td>rnd_raw_p8_1284_2ab7f6b159ec</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>56.34</td><td>3</td><td>0.4606</td></tr><tr><td>rnd_raw_p8_1278_6ae14e02a201</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>241.512</td><td>61.78</td><td>6</td><td>0.3574</td></tr><tr><td>rnd_raw_p8_1025_f5020ae58794</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>352.838</td><td>47.74</td><td>4</td><td>0.4051</td></tr><tr><td>rnd_raw_p8_1326_cea5e757337b</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>79.4</td><td>5</td><td>0.3626</td></tr></tbody>
+  </table>
+  <details><summary>evidence</summary><ul>
+    <li>human_gold=no_valid_member (historical; unchanged)</li><li>g9_decision=ASSOCIATED selected=rnd_raw_p8_1285_cba42058a285</li><li>g8_loss_class=RECLASSIFIED_DIMENSION A_status=A_RECLASSIFIED B_status=B_RECOVERED representation_change=improved</li><li>gold_error_bucket=parallel_member_confusion visible_member=True</li><li>gold_reason=Label sits on W16X26[30] c=1&quot; joist. Overlays are a distant infill and the W21X44 wall, not this joist.</li><li>selected_derivation=reclass_restore length=261.015 kind=LINE_MEMBER_CANDIDATE dist=0.0</li><li>g8_candidate_count=6 eligible_rankings=6</li><li>rank1 id=rnd_raw_p8_1285_cba42058a285 score=0.8414 dist=0.0 len=261.015 der=reclass_restore</li><li>rank2 id=rnd_raw_p8_1294_4e2b694a2be6 score=0.636 dist=22.28 len=253.679 der=reclass_restore</li><li>rank3 id=rnd_raw_p8_1284_2ab7f6b159ec score=0.4606 dist=56.34 len=261.015 der=reclass_restore</li><li>Label sits on W16X26 joist; G8 recovers that joist via reclass_restore. Old overlays were distant infill / W21X44 wall.</li>
+  </ul></details>
+</section>
+
+<section class="case">
+  <h2>token_p8_345 · p8 · W10X15</h2>
+  <p><b>Classification:</b> B (HIGH) ·
+     <b>new_status:</b> VALID_MEMBER_NOW_VISIBLE</p>
+  <p><b>Old gold:</b> NO_VALID_MEMBER · <b>G9:</b> ASSOCIATED ·
+     <b>selected:</b> <code>rnd_raw_p8_1286_88fce0a03302</code> ·
+     <b>best:</b> <code>rnd_raw_p8_1286_88fce0a03302</code></p>
+  <p>Short W10X15 joist under the label was CAP-dropped; G8 cap_restore returns the ~75pt stroke G9 associates. Old gold had no short-joist candidate.</p>
+  <p class="vis">Short on-label joist between girders matches selected length/orientation.</p>
+  <img src="renders/token_p8_345.png" alt="token_p8_345" loading="lazy"/>
+  <table>
+    <thead><tr><th>ID</th><th>kind</th><th>derivation</th><th>len</th><th>dist</th><th>rank</th><th>score</th></tr></thead>
+    <tbody><tr><td>rnd_raw_p8_1286_88fce0a03302</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>75.011</td><td>0.0</td><td>1</td><td>0.8675</td></tr><tr><td>rnd_raw_p8_1274_e21a18219b27</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>241.512</td><td>0.0</td><td>2</td><td>0.7593</td></tr><tr><td>rnd_raw_p8_1284_2ab7f6b159ec</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>16.704</td><td>3</td><td>0.6657</td></tr><tr><td>rnd_raw_p8_1277_737c2c6faef8</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>259.531</td><td>10.5</td><td>5</td><td>0.6091</td></tr><tr><td>rnd_raw_p8_1275_09a4936ab405</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>241.512</td><td>15.18</td><td>6</td><td>0.5839</td></tr><tr><td>rnd_raw_p8_1301_5bbc33a526a9</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>260.899</td><td>41.82</td><td>8</td><td>0.5331</td></tr><tr><td>rnd_raw_p8_1364_9d12024059aa</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>253.679</td><td>41.02</td><td>7</td><td>0.5491</td></tr><tr><td>rnd_raw_p8_1287_18ba2761eddd</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>75.042</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1273_e6adfa57dad5</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>253.448</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1302_189e6c134034</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1586_1cb43421f2b4</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>330.816</td><td>18.979</td><td>4</td><td>0.6151</td></tr><tr><td>rnd_raw_p8_1591_cd3da4484b79</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>330.816</td><td>None</td><td>None</td><td>None</td></tr></tbody>
+  </table>
+  <details><summary>evidence</summary><ul>
+    <li>human_gold=no_valid_member (historical; unchanged)</li><li>g9_decision=ASSOCIATED selected=rnd_raw_p8_1286_88fce0a03302</li><li>g8_loss_class=CAP_DROPPED A_status=A_CAP_DROPPED B_status=B_RECOVERED representation_change=improved</li><li>gold_error_bucket=missing_retrieval visible_member=True</li><li>gold_reason=Label sits on W10X15[9] between the two W21X44 girders. No candidate is that short joist.</li><li>selected_derivation=cap_restore length=75.011 kind=LINE_MEMBER_CANDIDATE dist=0.0</li><li>g8_candidate_count=12 eligible_rankings=8</li><li>rank1 id=rnd_raw_p8_1286_88fce0a03302 score=0.8675 dist=0.0 len=75.011 der=cap_restore</li><li>rank2 id=rnd_raw_p8_1274_e21a18219b27 score=0.7593 dist=0.0 len=241.512 der=reclass_restore</li><li>rank3 id=rnd_raw_p8_1284_2ab7f6b159ec score=0.6657 dist=16.704 len=261.015 der=reclass_restore</li><li>Short W10X15 joist under the label was CAP-dropped; G8 cap_restore returns the ~75pt stroke G9 associates. Old gold had no short-joist candidate.</li>
+  </ul></details>
+</section>
+
+<section class="case">
+  <h2>token_p8_346 · p8 · W10X15</h2>
+  <p><b>Classification:</b> B (HIGH) ·
+     <b>new_status:</b> VALID_MEMBER_NOW_VISIBLE</p>
+  <p><b>Old gold:</b> NO_VALID_MEMBER · <b>G9:</b> ASSOCIATED ·
+     <b>selected:</b> <code>rnd_raw_p8_1287_18ba2761eddd</code> ·
+     <b>best:</b> <code>rnd_raw_p8_1287_18ba2761eddd</code></p>
+  <p>Mirror of p8_345: CAP-dropped short W10X15 under label recovered by G8 cap_restore; previously absent from association candidates.</p>
+  <p class="vis">Short joist under label; G9 selects recovered CAP stroke.</p>
+  <img src="renders/token_p8_346.png" alt="token_p8_346" loading="lazy"/>
+  <table>
+    <thead><tr><th>ID</th><th>kind</th><th>derivation</th><th>len</th><th>dist</th><th>rank</th><th>score</th></tr></thead>
+    <tbody><tr><td>rnd_raw_p8_1287_18ba2761eddd</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>75.042</td><td>0.0</td><td>1</td><td>0.8671</td></tr><tr><td>rnd_raw_p8_1274_e21a18219b27</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>241.512</td><td>0.0</td><td>2</td><td>0.7086</td></tr><tr><td>rnd_raw_p8_1285_cba42058a285</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>16.704</td><td>5</td><td>0.6657</td></tr><tr><td>rnd_raw_p8_1277_737c2c6faef8</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>259.531</td><td>0.0</td><td>3</td><td>0.7045</td></tr><tr><td>rnd_raw_p8_1275_09a4936ab405</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>241.512</td><td>0.0</td><td>4</td><td>0.6992</td></tr><tr><td>rnd_raw_p8_1302_189e6c134034</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>41.82</td><td>7</td><td>0.5333</td></tr><tr><td>rnd_raw_p8_1286_88fce0a03302</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>75.011</td><td>57.66</td><td>8</td><td>0.4583</td></tr><tr><td>rnd_raw_p8_1284_2ab7f6b159ec</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>37.42</td><td>6</td><td>0.5717</td></tr><tr><td>rnd_raw_p8_1298_8ce7643019b9</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>253.679</td><td>None</td><td>None</td><td>None</td></tr></tbody>
+  </table>
+  <details><summary>evidence</summary><ul>
+    <li>human_gold=no_valid_member (historical; unchanged)</li><li>g9_decision=ASSOCIATED selected=rnd_raw_p8_1287_18ba2761eddd</li><li>g8_loss_class=CAP_DROPPED A_status=A_CAP_DROPPED B_status=B_RECOVERED representation_change=improved</li><li>gold_error_bucket=missing_retrieval visible_member=True</li><li>gold_reason=Label sits on W10X15[9] between the two W21X44 girders. No candidate is that short joist.</li><li>selected_derivation=cap_restore length=75.042 kind=LINE_MEMBER_CANDIDATE dist=0.0</li><li>g8_candidate_count=9 eligible_rankings=8</li><li>rank1 id=rnd_raw_p8_1287_18ba2761eddd score=0.8671 dist=0.0 len=75.042 der=cap_restore</li><li>rank2 id=rnd_raw_p8_1274_e21a18219b27 score=0.7086 dist=0.0 len=241.512 der=reclass_restore</li><li>rank3 id=rnd_raw_p8_1277_737c2c6faef8 score=0.7045 dist=0.0 len=259.531 der=reclass_restore</li><li>Mirror of p8_345: CAP-dropped short W10X15 under label recovered by G8 cap_restore; previously absent from association candidates.</li>
+  </ul></details>
+</section>
+
+<section class="case">
+  <h2>token_p8_347 · p8 · W16X26</h2>
+  <p><b>Classification:</b> B (MEDIUM) ·
+     <b>new_status:</b> VALID_MEMBER_NOW_VISIBLE</p>
+  <p><b>Old gold:</b> NO_VALID_MEMBER · <b>G9:</b> ASSOCIATED ·
+     <b>selected:</b> <code>rnd_raw_p8_1288_c0f7320ead19</code> ·
+     <b>best:</b> <code>rnd_raw_p8_1288_c0f7320ead19</code></p>
+  <p>Label sits on W16X26 joist. Under-label raw was CAP-dropped leader stub; G8 neighborhood reclass recovers a member-scale joist stroke G9 selects. Crowded bay has other long strokes, but selected matches the labeled joist scale.</p>
+  <p class="vis">Joist under label now candidate; old overlays were S-311 callout / giant polyline.</p>
+  <img src="renders/token_p8_347.png" alt="token_p8_347" loading="lazy"/>
+  <table>
+    <thead><tr><th>ID</th><th>kind</th><th>derivation</th><th>len</th><th>dist</th><th>rank</th><th>score</th></tr></thead>
+    <tbody><tr><td>rnd_raw_p8_1288_c0f7320ead19</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>265.537</td><td>0.0</td><td>1</td><td>0.8176</td></tr><tr><td>rnd_raw_p8_965_989494a03742</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>334.182</td><td>0.0</td><td>2</td><td>0.7519</td></tr><tr><td>rnd_raw_p8_1041_59c3c989d1ec</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>129.869</td><td>3.154</td><td>5</td><td>0.6451</td></tr><tr><td>rnd_raw_p8_1042_51a6d00beb80</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>133.264</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1340_15043854c468</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>272.948</td><td>0.0</td><td>3</td><td>0.7368</td></tr><tr><td>rnd_raw_p8_3401_51abad69318c</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>295.484</td><td>0.0</td><td>4</td><td>0.716</td></tr><tr><td>rnd_raw_p8_1339_91f1ee05f373</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>273.052</td><td>17.99</td><td>6</td><td>0.5836</td></tr><tr><td>rnd_raw_p8_1113_25585e38b681</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>130.535</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1507_4957e7e93064</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>152.579</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1489_3a5ac1b6e340</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>172.42</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1015_4ab88384100b</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>312.095</td><td>34.19</td><td>7</td><td>0.478</td></tr><tr><td>rnd_raw_p8_1045_da4626de0c3b</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>321.234</td><td>37.91</td><td>8</td><td>0.4469</td></tr></tbody>
+  </table>
+  <details><summary>evidence</summary><ul>
+    <li>human_gold=no_valid_member (historical; unchanged)</li><li>g9_decision=ASSOCIATED selected=rnd_raw_p8_1288_c0f7320ead19</li><li>g8_loss_class=CAP_DROPPED A_status=A_CAP_DROPPED B_status=B_HAS_CANDIDATES representation_change=improved_neighborhood_only</li><li>gold_error_bucket=missing_retrieval visible_member=True</li><li>gold_reason=Label sits on W16X26[28] joist. Green is the S-311 callout; orange is a giant bay polyline.</li><li>selected_derivation=reclass_restore length=265.537 kind=LINE_MEMBER_CANDIDATE dist=0.0</li><li>g8_candidate_count=12 eligible_rankings=8</li><li>rank1 id=rnd_raw_p8_1288_c0f7320ead19 score=0.8176 dist=0.0 len=265.537 der=reclass_restore</li><li>rank2 id=rnd_raw_p8_965_989494a03742 score=0.7519 dist=0.0 len=334.182 der=retained_member</li><li>rank3 id=rnd_raw_p8_1340_15043854c468 score=0.7368 dist=0.0 len=272.948 der=reclass_restore</li><li>Label sits on W16X26 joist. Under-label raw was CAP-dropped leader stub; G8 neighborhood reclass recovers a member-scale joist stroke G9 selects. Crowded bay has other long strokes, but selected matches the labeled joist scale.</li>
+  </ul></details>
+</section>
+
+<section class="case">
+  <h2>token_p8_352 · p8 · W16X26</h2>
+  <p><b>Classification:</b> B (HIGH) ·
+     <b>new_status:</b> VALID_MEMBER_NOW_VISIBLE</p>
+  <p><b>Old gold:</b> NO_VALID_MEMBER · <b>G9:</b> ASSOCIATED ·
+     <b>selected:</b> <code>rnd_raw_p8_1292_be2a2c871ca2</code> ·
+     <b>best:</b> <code>rnd_raw_p8_1292_be2a2c871ca2</code></p>
+  <p>Label sits on W16X26 girder; G8 recovers a ~109pt member-scale stroke under the label (neighborhood after CAP drop). Old candidates were callout/giant polyline.</p>
+  <p class="vis">On-label girder segment recovered; not S-311/S-401 callouts.</p>
+  <img src="renders/token_p8_352.png" alt="token_p8_352" loading="lazy"/>
+  <table>
+    <thead><tr><th>ID</th><th>kind</th><th>derivation</th><th>len</th><th>dist</th><th>rank</th><th>score</th></tr></thead>
+    <tbody><tr><td>rnd_raw_p8_1341_16dcbc2956c0</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>321.07</td><td>0.0</td><td>5</td><td>0.608</td></tr><tr><td>rnd_raw_p8_1292_be2a2c871ca2</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>108.76</td><td>0.0</td><td>1</td><td>0.814</td></tr><tr><td>rnd_raw_p8_1380_42b17cb95e13</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>200.968</td><td>1.91</td><td>2</td><td>0.6708</td></tr><tr><td>rnd_raw_p8_1291_5699e04ee9db</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>313.494</td><td>14.18</td><td>4</td><td>0.6315</td></tr><tr><td>rnd_raw_p8_1290_407372b1406b</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>104.95</td><td>37.61</td><td>7</td><td>0.4602</td></tr><tr><td>rnd_raw_p8_1117_b3706852deb8</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>291.986</td><td>12.62</td><td>3</td><td>0.6697</td></tr><tr><td>rnd_raw_p8_1299_176f6a1bb69e</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>317.364</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1116_24707f9663c8</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>161.986</td><td>48.288</td><td>8</td><td>0.4428</td></tr><tr><td>rnd_raw_p8_1035_2e255f8ece12</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>218.285</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1036_e0c99fc8d832</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>162.943</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_966_226739ea4742</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>218.814</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1381_eab3132b93da</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>197.366</td><td>37.19</td><td>6</td><td>0.5232</td></tr></tbody>
+  </table>
+  <details><summary>evidence</summary><ul>
+    <li>human_gold=no_valid_member (historical; unchanged)</li><li>g9_decision=ASSOCIATED selected=rnd_raw_p8_1292_be2a2c871ca2</li><li>g8_loss_class=CAP_DROPPED A_status=A_CAP_DROPPED B_status=B_HAS_CANDIDATES representation_change=improved_neighborhood_only</li><li>gold_error_bucket=missing_retrieval visible_member=True</li><li>gold_reason=Label sits on W16X26[10] girder. Green is S-311/S-401; orange is a giant polyline.</li><li>selected_derivation=reclass_restore length=108.76 kind=LINE_MEMBER_CANDIDATE dist=0.0</li><li>g8_candidate_count=12 eligible_rankings=8</li><li>rank1 id=rnd_raw_p8_1292_be2a2c871ca2 score=0.814 dist=0.0 len=108.76 der=reclass_restore</li><li>rank2 id=rnd_raw_p8_1380_42b17cb95e13 score=0.6708 dist=1.91 len=200.968 der=reclass_restore</li><li>rank3 id=rnd_raw_p8_1117_b3706852deb8 score=0.6697 dist=12.62 len=291.986 der=retained_member</li><li>Label sits on W16X26 girder; G8 recovers a ~109pt member-scale stroke under the label (neighborhood after CAP drop). Old candidates were callout/giant polyline.</li>
+  </ul></details>
+</section>
+
+<section class="case">
+  <h2>token_p8_354 · p8 · W18X35</h2>
+  <p><b>Classification:</b> B (HIGH) ·
+     <b>new_status:</b> VALID_MEMBER_NOW_VISIBLE</p>
+  <p><b>Old gold:</b> NO_VALID_MEMBER · <b>G9:</b> ASSOCIATED ·
+     <b>selected:</b> <code>rnd_raw_p8_1294_4e2b694a2be6</code> ·
+     <b>best:</b> <code>rnd_raw_p8_1294_4e2b694a2be6</code></p>
+  <p>Label sits on W18X35 joist; G8 reclass_restore recovers that joist after leader misclass. Old overlays were distant infill / wall.</p>
+  <p class="vis">Selected joist path aligns with on-label W18X35.</p>
+  <img src="renders/token_p8_354.png" alt="token_p8_354" loading="lazy"/>
+  <table>
+    <thead><tr><th>ID</th><th>kind</th><th>derivation</th><th>len</th><th>dist</th><th>rank</th><th>score</th></tr></thead>
+    <tbody><tr><td>rnd_raw_p8_1294_4e2b694a2be6</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>253.679</td><td>0.0</td><td>1</td><td>0.8665</td></tr><tr><td>rnd_raw_p8_1326_cea5e757337b</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>19.03</td><td>2</td><td>0.6549</td></tr><tr><td>rnd_raw_p8_1285_cba42058a285</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>32.46</td><td>3</td><td>0.5676</td></tr><tr><td>rnd_raw_p8_3357_bafd8b8dc00a</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>90.787</td><td>77.084</td><td>5</td><td>0.3606</td></tr><tr><td>rnd_raw_p8_1484_19ed80f9fdf5</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>72.43</td><td>4</td><td>0.3922</td></tr><tr><td>rnd_raw_p8_1486_5bfecaab0704</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>146.852</td><td>70.914</td><td>7</td><td>0.3186</td></tr><tr><td>rnd_raw_p8_1274_e21a18219b27</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>241.512</td><td>65.144</td><td>6</td><td>0.3431</td></tr></tbody>
+  </table>
+  <details><summary>evidence</summary><ul>
+    <li>human_gold=no_valid_member (historical; unchanged)</li><li>g9_decision=ASSOCIATED selected=rnd_raw_p8_1294_4e2b694a2be6</li><li>g8_loss_class=RECLASSIFIED_LEADER A_status=A_RECLASSIFIED B_status=B_HAS_CANDIDATES representation_change=improved_neighborhood_only</li><li>gold_error_bucket=parallel_member_confusion visible_member=True</li><li>gold_reason=Label sits on W18X35[32] joist. Overlays are a distant infill and the W21X44 wall.</li><li>selected_derivation=reclass_restore length=253.679 kind=LINE_MEMBER_CANDIDATE dist=0.0</li><li>g8_candidate_count=7 eligible_rankings=7</li><li>rank1 id=rnd_raw_p8_1294_4e2b694a2be6 score=0.8665 dist=0.0 len=253.679 der=reclass_restore</li><li>rank2 id=rnd_raw_p8_1326_cea5e757337b score=0.6549 dist=19.03 len=261.015 der=reclass_restore</li><li>rank3 id=rnd_raw_p8_1285_cba42058a285 score=0.5676 dist=32.46 len=261.015 der=reclass_restore</li><li>Label sits on W18X35 joist; G8 reclass_restore recovers that joist after leader misclass. Old overlays were distant infill / wall.</li>
+  </ul></details>
+</section>
+
+<section class="case">
+  <h2>token_p8_356 · p8 · W16X26</h2>
+  <p><b>Classification:</b> B (HIGH) ·
+     <b>new_status:</b> VALID_MEMBER_NOW_VISIBLE</p>
+  <p><b>Old gold:</b> NO_VALID_MEMBER · <b>G9:</b> ASSOCIATED ·
+     <b>selected:</b> <code>rnd_raw_p8_1296_4f4b33f9373b</code> ·
+     <b>best:</b> <code>rnd_raw_p8_1296_4f4b33f9373b</code></p>
+  <p>Label sits on W16X26 girder; G8 reclass recovers the girder previously classified as dimension. Old overlays were W14/W12 infills.</p>
+  <p class="vis">Girder under label recovered via reclass_restore.</p>
+  <img src="renders/token_p8_356.png" alt="token_p8_356" loading="lazy"/>
+  <table>
+    <thead><tr><th>ID</th><th>kind</th><th>derivation</th><th>len</th><th>dist</th><th>rank</th><th>score</th></tr></thead>
+    <tbody><tr><td>rnd_raw_p8_1296_4f4b33f9373b</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>159.019</td><td>0.0</td><td>1</td><td>0.8654</td></tr><tr><td>rnd_raw_p8_1327_7e831bb3d961</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>74.926</td><td>1.39</td><td>3</td><td>0.722</td></tr><tr><td>rnd_raw_p8_1326_cea5e757337b</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>9.31</td><td>4</td><td>0.7032</td></tr><tr><td>rnd_raw_p8_1484_19ed80f9fdf5</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>13.66</td><td>6</td><td>0.5875</td></tr><tr><td>rnd_raw_p8_1328_27999919be3c</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>74.926</td><td>0.0</td><td>2</td><td>0.7403</td></tr><tr><td>rnd_raw_p8_3330_b79e1eb5ab00</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>72.042</td><td>34.781</td><td>5</td><td>0.5882</td></tr><tr><td>rnd_raw_p8_1260_a31b1adb0cdb</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>250.564</td><td>47.12</td><td>8</td><td>0.4998</td></tr><tr><td>rnd_raw_p8_1294_4e2b694a2be6</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>253.679</td><td>28.39</td><td>7</td><td>0.5475</td></tr><tr><td>rnd_raw_p8_1329_33db0f29cdc8</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1274_e21a18219b27</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>241.512</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1485_156e44d25c24</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>173.049</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1012_98df7602bd9e</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>338.812</td><td>None</td><td>None</td><td>None</td></tr></tbody>
+  </table>
+  <details><summary>evidence</summary><ul>
+    <li>human_gold=no_valid_member (historical; unchanged)</li><li>g9_decision=ASSOCIATED selected=rnd_raw_p8_1296_4f4b33f9373b</li><li>g8_loss_class=RECLASSIFIED_DIMENSION A_status=A_RECLASSIFIED B_status=B_RECOVERED representation_change=improved</li><li>gold_error_bucket=missing_retrieval visible_member=True</li><li>gold_reason=Label sits on W16X26[20] girder. Overlays are the W14X22 and W12X16 infills, not the girder.</li><li>selected_derivation=reclass_restore length=159.019 kind=LINE_MEMBER_CANDIDATE dist=0.0</li><li>g8_candidate_count=12 eligible_rankings=8</li><li>rank1 id=rnd_raw_p8_1296_4f4b33f9373b score=0.8654 dist=0.0 len=159.019 der=reclass_restore</li><li>rank2 id=rnd_raw_p8_1328_27999919be3c score=0.7403 dist=0.0 len=74.926 der=cap_restore</li><li>rank3 id=rnd_raw_p8_1327_7e831bb3d961 score=0.722 dist=1.39 len=74.926 der=cap_restore</li><li>Label sits on W16X26 girder; G8 reclass recovers the girder previously classified as dimension. Old overlays were W14/W12 infills.</li>
+  </ul></details>
+</section>
+
+<section class="case">
+  <h2>token_p8_361 · p8 · W16X26</h2>
+  <p><b>Classification:</b> B (HIGH) ·
+     <b>new_status:</b> VALID_MEMBER_NOW_VISIBLE</p>
+  <p><b>Old gold:</b> NO_VALID_MEMBER · <b>G9:</b> ASSOCIATED ·
+     <b>selected:</b> <code>rnd_raw_p8_1301_5bbc33a526a9</code> ·
+     <b>best:</b> <code>rnd_raw_p8_1301_5bbc33a526a9</code></p>
+  <p>Label sits on W16X26 joist; G8 recovers on-label joist (was dimension). Old green/orange were EJ wall / tall wall box.</p>
+  <p class="vis">On-label joist, not the EJ wall member.</p>
+  <img src="renders/token_p8_361.png" alt="token_p8_361" loading="lazy"/>
+  <table>
+    <thead><tr><th>ID</th><th>kind</th><th>derivation</th><th>len</th><th>dist</th><th>rank</th><th>score</th></tr></thead>
+    <tbody><tr><td>rnd_raw_p8_1301_5bbc33a526a9</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>260.899</td><td>0.0</td><td>1</td><td>0.8371</td></tr><tr><td>rnd_raw_p8_1399_a867be18d612</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>73.673</td><td>2.46</td><td>2</td><td>0.7174</td></tr><tr><td>rnd_raw_p8_1302_189e6c134034</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>20.24</td><td>3</td><td>0.6471</td></tr><tr><td>rnd_raw_p8_1400_a64113f84b70</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>73.79</td><td>39.001</td><td>4</td><td>0.4763</td></tr><tr><td>rnd_raw_p8_1360_7199b5f5d5e5</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>253.679</td><td>59.22</td><td>5</td><td>0.4483</td></tr><tr><td>rnd_raw_p8_1275_09a4936ab405</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>241.512</td><td>42.7</td><td>6</td><td>0.4385</td></tr><tr><td>rnd_raw_p8_1277_737c2c6faef8</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>259.531</td><td>42.7</td><td>7</td><td>0.4385</td></tr><tr><td>rnd_raw_p8_1300_5f9e3f871947</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>253.679</td><td>76.62</td><td>8</td><td>0.3624</td></tr></tbody>
+  </table>
+  <details><summary>evidence</summary><ul>
+    <li>human_gold=no_valid_member (historical; unchanged)</li><li>g9_decision=ASSOCIATED selected=rnd_raw_p8_1301_5bbc33a526a9</li><li>g8_loss_class=RECLASSIFIED_DIMENSION A_status=A_RECLASSIFIED B_status=B_RECOVERED representation_change=improved</li><li>gold_error_bucket=parallel_member_confusion visible_member=True</li><li>gold_reason=Label sits on W16X26[30] c=1&quot; joist. Green is W16X31 at the EJ; orange is a tall wall box.</li><li>selected_derivation=reclass_restore length=260.899 kind=LINE_MEMBER_CANDIDATE dist=0.0</li><li>g8_candidate_count=8 eligible_rankings=8</li><li>rank1 id=rnd_raw_p8_1301_5bbc33a526a9 score=0.8371 dist=0.0 len=260.899 der=reclass_restore</li><li>rank2 id=rnd_raw_p8_1399_a867be18d612 score=0.7174 dist=2.46 len=73.673 der=cap_restore</li><li>rank3 id=rnd_raw_p8_1302_189e6c134034 score=0.6471 dist=20.24 len=261.015 der=reclass_restore</li><li>Label sits on W16X26 joist; G8 recovers on-label joist (was dimension). Old green/orange were EJ wall / tall wall box.</li>
+  </ul></details>
+</section>
+
+<section class="case">
+  <h2>token_p8_363 · p8 · W16X26</h2>
+  <p><b>Classification:</b> B (HIGH) ·
+     <b>new_status:</b> VALID_MEMBER_NOW_VISIBLE</p>
+  <p><b>Old gold:</b> NO_VALID_MEMBER · <b>G9:</b> ASSOCIATED ·
+     <b>selected:</b> <code>rnd_raw_p8_1302_189e6c134034</code> ·
+     <b>best:</b> <code>rnd_raw_p8_1302_189e6c134034</code></p>
+  <p>Label sits on W16X26 joist; only old candidate was a giant bay polyline. G8 reclass_restore exposes the joist stroke G9 selects.</p>
+  <p class="vis">Joist under label now present; giant bay no longer the only option.</p>
+  <img src="renders/token_p8_363.png" alt="token_p8_363" loading="lazy"/>
+  <table>
+    <thead><tr><th>ID</th><th>kind</th><th>derivation</th><th>len</th><th>dist</th><th>rank</th><th>score</th></tr></thead>
+    <tbody><tr><td>rnd_raw_p8_1302_189e6c134034</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>0.0</td><td>1</td><td>0.8455</td></tr><tr><td>rnd_raw_p8_1298_8ce7643019b9</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>253.679</td><td>24.08</td><td>2</td><td>0.6243</td></tr><tr><td>rnd_raw_p8_1301_5bbc33a526a9</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>260.899</td><td>54.66</td><td>3</td><td>0.4677</td></tr><tr><td>rnd_raw_p8_1275_09a4936ab405</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>241.512</td><td>68.62</td><td>4</td><td>0.3284</td></tr><tr><td>rnd_raw_p8_1277_737c2c6faef8</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>259.531</td><td>68.62</td><td>5</td><td>0.3284</td></tr></tbody>
+  </table>
+  <details><summary>evidence</summary><ul>
+    <li>human_gold=no_valid_member (historical; unchanged)</li><li>g9_decision=ASSOCIATED selected=rnd_raw_p8_1302_189e6c134034</li><li>g8_loss_class=RECLASSIFIED_DIMENSION A_status=A_RECLASSIFIED B_status=B_RECOVERED representation_change=improved</li><li>gold_error_bucket=missing_retrieval visible_member=True</li><li>gold_reason=Label sits on a W16X26 joist. Only candidate is a giant bay polyline to the right, not this joist.</li><li>selected_derivation=reclass_restore length=261.015 kind=LINE_MEMBER_CANDIDATE dist=0.0</li><li>g8_candidate_count=5 eligible_rankings=5</li><li>rank1 id=rnd_raw_p8_1302_189e6c134034 score=0.8455 dist=0.0 len=261.015 der=reclass_restore</li><li>rank2 id=rnd_raw_p8_1298_8ce7643019b9 score=0.6243 dist=24.08 len=253.679 der=reclass_restore</li><li>rank3 id=rnd_raw_p8_1301_5bbc33a526a9 score=0.4677 dist=54.66 len=260.899 der=reclass_restore</li><li>Label sits on W16X26 joist; only old candidate was a giant bay polyline. G8 reclass_restore exposes the joist stroke G9 selects.</li>
+  </ul></details>
+</section>
+
+<section class="case">
+  <h2>token_p8_369 · p8 · W16X26</h2>
+  <p><b>Classification:</b> B (HIGH) ·
+     <b>new_status:</b> VALID_MEMBER_NOW_VISIBLE</p>
+  <p><b>Old gold:</b> NO_VALID_MEMBER · <b>G9:</b> ASSOCIATED ·
+     <b>selected:</b> <code>rnd_raw_p8_1326_cea5e757337b</code> ·
+     <b>best:</b> <code>rnd_raw_p8_1326_cea5e757337b</code></p>
+  <p>Label sits on W16X26 joist; G8 recovers it from dimension class. Old overlay was the W21X44 wall beam.</p>
+  <p class="vis">Selected equals on-label joist, not wall beam.</p>
+  <img src="renders/token_p8_369.png" alt="token_p8_369" loading="lazy"/>
+  <table>
+    <thead><tr><th>ID</th><th>kind</th><th>derivation</th><th>len</th><th>dist</th><th>rank</th><th>score</th></tr></thead>
+    <tbody><tr><td>rnd_raw_p8_1326_cea5e757337b</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>0.0</td><td>1</td><td>0.8784</td></tr><tr><td>rnd_raw_p8_1294_4e2b694a2be6</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>253.679</td><td>13.27</td><td>3</td><td>0.6946</td></tr><tr><td>rnd_raw_p8_1484_19ed80f9fdf5</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>9.08</td><td>2</td><td>0.7196</td></tr><tr><td>rnd_raw_p8_3357_bafd8b8dc00a</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>90.787</td><td>50.14</td><td>4</td><td>0.492</td></tr><tr><td>rnd_raw_p8_1012_98df7602bd9e</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>338.812</td><td>50.36</td><td>5</td><td>0.4459</td></tr><tr><td>rnd_raw_p8_1026_fa500cc74c9c</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>338.812</td><td>50.36</td><td>6</td><td>0.4459</td></tr><tr><td>rnd_raw_p8_1486_5bfecaab0704</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>146.852</td><td>54.82</td><td>7</td><td>0.387</td></tr><tr><td>rnd_raw_p8_1485_156e44d25c24</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>173.049</td><td>70.88</td><td>8</td><td>0.3868</td></tr></tbody>
+  </table>
+  <details><summary>evidence</summary><ul>
+    <li>human_gold=no_valid_member (historical; unchanged)</li><li>g9_decision=ASSOCIATED selected=rnd_raw_p8_1326_cea5e757337b</li><li>g8_loss_class=RECLASSIFIED_DIMENSION A_status=A_RECLASSIFIED B_status=B_RECOVERED representation_change=improved</li><li>gold_error_bucket=parallel_member_confusion visible_member=True</li><li>gold_reason=Label sits on W16X26[30] c=3/4&quot; joist. Overlay is the W21X44 wall beam.</li><li>selected_derivation=reclass_restore length=261.015 kind=LINE_MEMBER_CANDIDATE dist=0.0</li><li>g8_candidate_count=8 eligible_rankings=8</li><li>rank1 id=rnd_raw_p8_1326_cea5e757337b score=0.8784 dist=0.0 len=261.015 der=reclass_restore</li><li>rank2 id=rnd_raw_p8_1484_19ed80f9fdf5 score=0.7196 dist=9.08 len=261.015 der=reclass_restore</li><li>rank3 id=rnd_raw_p8_1294_4e2b694a2be6 score=0.6946 dist=13.27 len=253.679 der=reclass_restore</li><li>Label sits on W16X26 joist; G8 recovers it from dimension class. Old overlay was the W21X44 wall beam.</li>
+  </ul></details>
+</section>
+
+<section class="case">
+  <h2>token_p8_371 · p8 · W10X15</h2>
+  <p><b>Classification:</b> B (HIGH) ·
+     <b>new_status:</b> VALID_MEMBER_NOW_VISIBLE</p>
+  <p><b>Old gold:</b> NO_VALID_MEMBER · <b>G9:</b> ASSOCIATED ·
+     <b>selected:</b> <code>rnd_raw_p8_1327_7e831bb3d961</code> ·
+     <b>best:</b> <code>rnd_raw_p8_1327_7e831bb3d961</code></p>
+  <p>Short W10X15 under label was CAP-dropped; G8 cap_restore recovers ~75pt stroke. Old overlay was W14X22 infill.</p>
+  <p class="vis">Short on-label joist matches CAP restore.</p>
+  <img src="renders/token_p8_371.png" alt="token_p8_371" loading="lazy"/>
+  <table>
+    <thead><tr><th>ID</th><th>kind</th><th>derivation</th><th>len</th><th>dist</th><th>rank</th><th>score</th></tr></thead>
+    <tbody><tr><td>rnd_raw_p8_1327_7e831bb3d961</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>74.926</td><td>0.0</td><td>1</td><td>0.8646</td></tr><tr><td>rnd_raw_p8_1296_4f4b33f9373b</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>159.019</td><td>0.0</td><td>2</td><td>0.7421</td></tr><tr><td>rnd_raw_p8_1326_cea5e757337b</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>20.851</td><td>3</td><td>0.6408</td></tr><tr><td>rnd_raw_p8_1260_a31b1adb0cdb</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>250.564</td><td>18.19</td><td>5</td><td>0.5618</td></tr><tr><td>rnd_raw_p8_1329_33db0f29cdc8</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>39.79</td><td>6</td><td>0.5559</td></tr><tr><td>rnd_raw_p8_1328_27999919be3c</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>74.926</td><td>43.16</td><td>7</td><td>0.5521</td></tr><tr><td>rnd_raw_p8_1294_4e2b694a2be6</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>253.679</td><td>38.02</td><td>4</td><td>0.5855</td></tr><tr><td>rnd_raw_p8_1274_e21a18219b27</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>241.512</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1484_19ed80f9fdf5</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1275_09a4936ab405</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>241.512</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1277_737c2c6faef8</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>259.531</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1298_8ce7643019b9</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>253.679</td><td>59.997</td><td>8</td><td>0.445</td></tr></tbody>
+  </table>
+  <details><summary>evidence</summary><ul>
+    <li>human_gold=no_valid_member (historical; unchanged)</li><li>g9_decision=ASSOCIATED selected=rnd_raw_p8_1327_7e831bb3d961</li><li>g8_loss_class=CAP_DROPPED A_status=A_CAP_DROPPED B_status=B_RECOVERED representation_change=improved</li><li>gold_error_bucket=missing_retrieval visible_member=True</li><li>gold_reason=Label sits on W10X15[9]. Overlay is the W14X22 infill.</li><li>selected_derivation=cap_restore length=74.926 kind=LINE_MEMBER_CANDIDATE dist=0.0</li><li>g8_candidate_count=12 eligible_rankings=8</li><li>rank1 id=rnd_raw_p8_1327_7e831bb3d961 score=0.8646 dist=0.0 len=74.926 der=cap_restore</li><li>rank2 id=rnd_raw_p8_1296_4f4b33f9373b score=0.7421 dist=0.0 len=159.019 der=reclass_restore</li><li>rank3 id=rnd_raw_p8_1326_cea5e757337b score=0.6408 dist=20.851 len=261.015 der=reclass_restore</li><li>Short W10X15 under label was CAP-dropped; G8 cap_restore recovers ~75pt stroke. Old overlay was W14X22 infill.</li>
+  </ul></details>
+</section>
+
+<section class="case">
+  <h2>token_p8_372 · p8 · W10X15</h2>
+  <p><b>Classification:</b> B (HIGH) ·
+     <b>new_status:</b> VALID_MEMBER_NOW_VISIBLE</p>
+  <p><b>Old gold:</b> NO_VALID_MEMBER · <b>G9:</b> ASSOCIATED ·
+     <b>selected:</b> <code>rnd_raw_p8_1328_27999919be3c</code> ·
+     <b>best:</b> <code>rnd_raw_p8_1328_27999919be3c</code></p>
+  <p>Short W10X15 CAP-dropped; G8 recovers joist. Old green/orange were W14X22 infill and stair, not the joist.</p>
+  <p class="vis">Recovered short joist under label.</p>
+  <img src="renders/token_p8_372.png" alt="token_p8_372" loading="lazy"/>
+  <table>
+    <thead><tr><th>ID</th><th>kind</th><th>derivation</th><th>len</th><th>dist</th><th>rank</th><th>score</th></tr></thead>
+    <tbody><tr><td>rnd_raw_p8_1328_27999919be3c</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>74.926</td><td>0.0</td><td>1</td><td>0.863</td></tr><tr><td>rnd_raw_p8_1296_4f4b33f9373b</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>159.019</td><td>0.0</td><td>2</td><td>0.7178</td></tr><tr><td>rnd_raw_p8_1484_19ed80f9fdf5</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>16.402</td><td>3</td><td>0.6702</td></tr><tr><td>rnd_raw_p8_1327_7e831bb3d961</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>74.926</td><td>28.87</td><td>4</td><td>0.645</td></tr><tr><td>rnd_raw_p8_1260_a31b1adb0cdb</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>250.564</td><td>7.39</td><td>6</td><td>0.632</td></tr><tr><td>rnd_raw_p8_1326_cea5e757337b</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>29.74</td><td>5</td><td>0.6394</td></tr><tr><td>rnd_raw_p8_1330_8069b8cef64a</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>46.39</td><td>7</td><td>0.522</td></tr><tr><td>rnd_raw_p8_1329_33db0f29cdc8</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>52.784</td><td>8</td><td>0.4757</td></tr><tr><td>rnd_raw_p8_1485_156e44d25c24</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>173.049</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1366_d84aae2fd2ee</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>110.058</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_3330_b79e1eb5ab00</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>72.042</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1331_30f351be6ccf</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>None</td><td>None</td><td>None</td></tr></tbody>
+  </table>
+  <details><summary>evidence</summary><ul>
+    <li>human_gold=no_valid_member (historical; unchanged)</li><li>g9_decision=ASSOCIATED selected=rnd_raw_p8_1328_27999919be3c</li><li>g8_loss_class=CAP_DROPPED A_status=A_CAP_DROPPED B_status=B_RECOVERED representation_change=improved</li><li>gold_error_bucket=missing_retrieval visible_member=True</li><li>gold_reason=Label sits on W10X15[9]. Green is the W14X22 infill; orange is the stair. The joist was not retrieved.</li><li>selected_derivation=cap_restore length=74.926 kind=LINE_MEMBER_CANDIDATE dist=0.0</li><li>g8_candidate_count=12 eligible_rankings=8</li><li>rank1 id=rnd_raw_p8_1328_27999919be3c score=0.863 dist=0.0 len=74.926 der=cap_restore</li><li>rank2 id=rnd_raw_p8_1296_4f4b33f9373b score=0.7178 dist=0.0 len=159.019 der=reclass_restore</li><li>rank3 id=rnd_raw_p8_1484_19ed80f9fdf5 score=0.6702 dist=16.402 len=261.015 der=reclass_restore</li><li>Short W10X15 CAP-dropped; G8 recovers joist. Old green/orange were W14X22 infill and stair, not the joist.</li>
+  </ul></details>
+</section>
+
+<section class="case">
+  <h2>token_p8_381 · p8 · W18X35</h2>
+  <p><b>Classification:</b> C (MEDIUM) ·
+     <b>new_status:</b> MULTIPLE_VALID_CANDIDATES</p>
+  <p><b>Old gold:</b> NO_VALID_MEMBER · <b>G9:</b> ASSOCIATED ·
+     <b>selected:</b> <code>rnd_raw_p8_1338_4cd2ddf31320</code> ·
+     <b>best:</b> <code>None</code></p>
+  <p>G8 recovers multiple parallel W18-scale joist strokes that all touch the label neighborhood (same-scale competitors at ~0 distance). PDF shows a dense parallel bay; ownership of a single stroke is not deterministic from geometry alone even though a member is visible.</p>
+  <p class="vis">Parallel W18 joists; several reclass_restore candidates equally memberlike.</p>
+  <img src="renders/token_p8_381.png" alt="token_p8_381" loading="lazy"/>
+  <table>
+    <thead><tr><th>ID</th><th>kind</th><th>derivation</th><th>len</th><th>dist</th><th>rank</th><th>score</th></tr></thead>
+    <tbody><tr><td>rnd_raw_p8_1338_4cd2ddf31320</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>269.243</td><td>0.0</td><td>1</td><td>0.8246</td></tr><tr><td>rnd_raw_p8_1496_77117ad76f03</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>232.895</td><td>0.0</td><td>2</td><td>0.734</td></tr><tr><td>rnd_raw_p8_1339_91f1ee05f373</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>273.052</td><td>0.0</td><td>3</td><td>0.7011</td></tr><tr><td>rnd_raw_p8_1494_7c1a1e740815</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.503</td><td>0.0</td><td>4</td><td>0.6607</td></tr><tr><td>rnd_raw_p8_1495_2d42c14022d1</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>88.547</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1020_c6050030c5f1</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>74.243</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1635_3073e659fbc9</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>74.243</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1493_d210661441dd</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>134.301</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1340_15043854c468</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>272.948</td><td>33.86</td><td>6</td><td>0.5161</td></tr><tr><td>rnd_raw_p8_1289_4e7d1746dcb0</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>323.972</td><td>4.13</td><td>5</td><td>0.6024</td></tr><tr><td>rnd_raw_p8_1293_5e2f730bed81</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>253.435</td><td>43.55</td><td>8</td><td>0.4749</td></tr><tr><td>rnd_raw_p8_1012_98df7602bd9e</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>338.812</td><td>38.27</td><td>7</td><td>0.4973</td></tr></tbody>
+  </table>
+  <details><summary>evidence</summary><ul>
+    <li>human_gold=no_valid_member (historical; unchanged)</li><li>g9_decision=ASSOCIATED selected=rnd_raw_p8_1338_4cd2ddf31320</li><li>g8_loss_class=RECLASSIFIED_DIMENSION A_status=A_RECLASSIFIED B_status=B_RECOVERED representation_change=improved</li><li>gold_error_bucket=parallel_member_confusion visible_member=True</li><li>gold_reason=Label sits on W18X35[35] joist among parallel W18s. Overlay is the W21X44 wall beam.</li><li>selected_derivation=reclass_restore length=269.243 kind=LINE_MEMBER_CANDIDATE dist=0.0</li><li>g8_candidate_count=12 eligible_rankings=8</li><li>rank1 id=rnd_raw_p8_1338_4cd2ddf31320 score=0.8246 dist=0.0 len=269.243 der=reclass_restore</li><li>rank2 id=rnd_raw_p8_1496_77117ad76f03 score=0.734 dist=0.0 len=232.895 der=reclass_restore</li><li>rank3 id=rnd_raw_p8_1339_91f1ee05f373 score=0.7011 dist=0.0 len=273.052 der=reclass_restore</li><li>G8 recovers multiple parallel W18-scale joist strokes that all touch the label neighborhood (same-scale competitors at ~0 distance). PDF shows a dense parallel bay; ownership of a single stroke is not deterministic from geometry alone even though a member is visible.</li>
+  </ul></details>
+</section>
+
+<section class="case">
+  <h2>token_p8_382 · p8 · W18X35</h2>
+  <p><b>Classification:</b> C (MEDIUM) ·
+     <b>new_status:</b> MULTIPLE_VALID_CANDIDATES</p>
+  <p><b>Old gold:</b> NO_VALID_MEMBER · <b>G9:</b> ASSOCIATED ·
+     <b>selected:</b> <code>rnd_raw_p8_1339_91f1ee05f373</code> ·
+     <b>best:</b> <code>None</code></p>
+  <p>Parallel W18X35 bay: top-3 G8 candidates are same-scale joist strokes with near-zero label distance and thin G9 margin (~0.08). Deterministic ownership not established.</p>
+  <p class="vis">Repeated parallel joists; selected not uniquely owned by visual topology alone.</p>
+  <img src="renders/token_p8_382.png" alt="token_p8_382" loading="lazy"/>
+  <table>
+    <thead><tr><th>ID</th><th>kind</th><th>derivation</th><th>len</th><th>dist</th><th>rank</th><th>score</th></tr></thead>
+    <tbody><tr><td>rnd_raw_p8_1339_91f1ee05f373</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>273.052</td><td>0.0</td><td>1</td><td>0.8181</td></tr><tr><td>rnd_raw_p8_1340_15043854c468</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>272.948</td><td>0.0</td><td>2</td><td>0.7364</td></tr><tr><td>rnd_raw_p8_1338_4cd2ddf31320</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>269.243</td><td>0.0</td><td>3</td><td>0.6945</td></tr><tr><td>rnd_raw_p8_1288_c0f7320ead19</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>265.537</td><td>19.94</td><td>4</td><td>0.5752</td></tr><tr><td>rnd_raw_p8_1496_77117ad76f03</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>232.895</td><td>44.99</td><td>8</td><td>0.4688</td></tr><tr><td>rnd_raw_p8_965_989494a03742</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>334.182</td><td>26.78</td><td>5</td><td>0.5342</td></tr><tr><td>rnd_raw_p8_1042_51a6d00beb80</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>133.264</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1289_4e7d1746dcb0</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>323.972</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1489_3a5ac1b6e340</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>172.42</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1015_4ab88384100b</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>312.095</td><td>23.22</td><td>6</td><td>0.5213</td></tr><tr><td>rnd_raw_p8_1045_da4626de0c3b</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>321.234</td><td>25.14</td><td>7</td><td>0.5012</td></tr><tr><td>rnd_raw_p8_3401_51abad69318c</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>295.484</td><td>None</td><td>None</td><td>None</td></tr></tbody>
+  </table>
+  <details><summary>evidence</summary><ul>
+    <li>human_gold=no_valid_member (historical; unchanged)</li><li>g9_decision=ASSOCIATED selected=rnd_raw_p8_1339_91f1ee05f373</li><li>g8_loss_class=RECLASSIFIED_DIMENSION A_status=A_RECLASSIFIED B_status=B_RECOVERED representation_change=improved</li><li>gold_error_bucket=parallel_member_confusion visible_member=True</li><li>gold_reason=Label sits on W18X35[34] joist. Overlay is the SOG/wall line.</li><li>selected_derivation=reclass_restore length=273.052 kind=LINE_MEMBER_CANDIDATE dist=0.0</li><li>g8_candidate_count=12 eligible_rankings=8</li><li>rank1 id=rnd_raw_p8_1339_91f1ee05f373 score=0.8181 dist=0.0 len=273.052 der=reclass_restore</li><li>rank2 id=rnd_raw_p8_1340_15043854c468 score=0.7364 dist=0.0 len=272.948 der=reclass_restore</li><li>rank3 id=rnd_raw_p8_1338_4cd2ddf31320 score=0.6945 dist=0.0 len=269.243 der=reclass_restore</li><li>Parallel W18X35 bay: top-3 G8 candidates are same-scale joist strokes with near-zero label distance and thin G9 margin (~0.08). Deterministic ownership not established.</li>
+  </ul></details>
+</section>
+
+<section class="case">
+  <h2>token_p8_383 · p8 · W18X35</h2>
+  <p><b>Classification:</b> C (MEDIUM) ·
+     <b>new_status:</b> MULTIPLE_VALID_CANDIDATES</p>
+  <p><b>Old gold:</b> NO_VALID_MEMBER · <b>G9:</b> ASSOCIATED ·
+     <b>selected:</b> <code>rnd_raw_p8_1340_15043854c468</code> ·
+     <b>best:</b> <code>None</code></p>
+  <p>Same parallel-bay pattern as neighboring W18 labels: multiple recovered member-scale strokes compete at the label. Ambiguous under G8 universe.</p>
+  <p class="vis">Crowded parallel W18s; no unique owner proven.</p>
+  <img src="renders/token_p8_383.png" alt="token_p8_383" loading="lazy"/>
+  <table>
+    <thead><tr><th>ID</th><th>kind</th><th>derivation</th><th>len</th><th>dist</th><th>rank</th><th>score</th></tr></thead>
+    <tbody><tr><td>rnd_raw_p8_1340_15043854c468</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>272.948</td><td>0.0</td><td>1</td><td>0.8181</td></tr><tr><td>rnd_raw_p8_1288_c0f7320ead19</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>265.537</td><td>0.0</td><td>2</td><td>0.7364</td></tr><tr><td>rnd_raw_p8_965_989494a03742</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>334.182</td><td>0.0</td><td>4</td><td>0.6706</td></tr><tr><td>rnd_raw_p8_1339_91f1ee05f373</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>273.052</td><td>0.0</td><td>3</td><td>0.6925</td></tr><tr><td>rnd_raw_p8_1041_59c3c989d1ec</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>129.869</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1042_51a6d00beb80</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>133.264</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_3401_51abad69318c</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>295.484</td><td>1.82</td><td>5</td><td>0.6522</td></tr><tr><td>rnd_raw_p8_1338_4cd2ddf31320</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>269.243</td><td>37.67</td><td>8</td><td>0.4999</td></tr><tr><td>rnd_raw_p8_1289_4e7d1746dcb0</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>323.972</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1489_3a5ac1b6e340</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>172.42</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1015_4ab88384100b</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>312.095</td><td>0.0</td><td>6</td><td>0.62</td></tr><tr><td>rnd_raw_p8_1045_da4626de0c3b</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>321.234</td><td>1.79</td><td>7</td><td>0.6004</td></tr></tbody>
+  </table>
+  <details><summary>evidence</summary><ul>
+    <li>human_gold=no_valid_member (historical; unchanged)</li><li>g9_decision=ASSOCIATED selected=rnd_raw_p8_1340_15043854c468</li><li>g8_loss_class=RECLASSIFIED_DIMENSION A_status=A_RECLASSIFIED B_status=B_RECOVERED representation_change=improved</li><li>gold_error_bucket=parallel_member_confusion visible_member=True</li><li>gold_reason=Label sits on W18X35[34] joist. Green is S-311; orange is a giant bay polyline.</li><li>selected_derivation=reclass_restore length=272.948 kind=LINE_MEMBER_CANDIDATE dist=0.0</li><li>g8_candidate_count=12 eligible_rankings=8</li><li>rank1 id=rnd_raw_p8_1340_15043854c468 score=0.8181 dist=0.0 len=272.948 der=reclass_restore</li><li>rank2 id=rnd_raw_p8_1288_c0f7320ead19 score=0.7364 dist=0.0 len=265.537 der=reclass_restore</li><li>rank3 id=rnd_raw_p8_1339_91f1ee05f373 score=0.6925 dist=0.0 len=273.052 der=reclass_restore</li><li>Same parallel-bay pattern as neighboring W18 labels: multiple recovered member-scale strokes compete at the label. Ambiguous under G8 universe.</li>
+  </ul></details>
+</section>
+
+<section class="case">
+  <h2>token_p8_384 · p8 · W18X40</h2>
+  <p><b>Classification:</b> C (MEDIUM) ·
+     <b>new_status:</b> MULTIPLE_VALID_CANDIDATES</p>
+  <p><b>Old gold:</b> NO_VALID_MEMBER · <b>G9:</b> ASSOCIATED ·
+     <b>selected:</b> <code>rnd_raw_p8_1341_16dcbc2956c0</code> ·
+     <b>best:</b> <code>None</code></p>
+  <p>W18X40 among parallel W18X40s. Selected stroke was already a retained member line, but several similar-length retained/recovered strokes also touch the label. Gold overlays showed SOG/wall; under G8 the bay remains multi-candidate ambiguous.</p>
+  <p class="vis">Parallel identical W18X40s; contact alone does not pick one deterministically.</p>
+  <img src="renders/token_p8_384.png" alt="token_p8_384" loading="lazy"/>
+  <table>
+    <thead><tr><th>ID</th><th>kind</th><th>derivation</th><th>len</th><th>dist</th><th>rank</th><th>score</th></tr></thead>
+    <tbody><tr><td>rnd_raw_p8_1341_16dcbc2956c0</td><td>LINE_MEMBER_CANDIDATE</td><td>on_label_retained</td><td>321.07</td><td>0.0</td><td>1</td><td>0.8208</td></tr><tr><td>rnd_raw_p8_1299_176f6a1bb69e</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>317.364</td><td>0.0</td><td>3</td><td>0.6818</td></tr><tr><td>rnd_raw_p8_1537_5723f57887f3</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>111.93</td><td>49.14</td><td>6</td><td>0.4747</td></tr><tr><td>rnd_raw_p8_1291_5699e04ee9db</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>313.494</td><td>0.0</td><td>2</td><td>0.7222</td></tr><tr><td>rnd_raw_p8_1117_b3706852deb8</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>291.986</td><td>0.0</td><td>4</td><td>0.6663</td></tr><tr><td>rnd_raw_p8_1541_36bf28e9a208</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>162.09</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_3149_c88535e28d73</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>21.534</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1342_2ac3070d18fc</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>324.836</td><td>23.15</td><td>5</td><td>0.5496</td></tr><tr><td>rnd_raw_p8_1292_be2a2c871ca2</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>108.76</td><td>47.33</td><td>7</td><td>0.4188</td></tr><tr><td>rnd_raw_p8_1346_4fed0e35ae26</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>328.542</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1289_4e7d1746dcb0</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>323.972</td><td>50.827</td><td>8</td><td>0.404</td></tr></tbody>
+  </table>
+  <details><summary>evidence</summary><ul>
+    <li>human_gold=no_valid_member (historical; unchanged)</li><li>g9_decision=ASSOCIATED selected=rnd_raw_p8_1341_16dcbc2956c0</li><li>g8_loss_class=RETAINED_MEMBER A_status=A_MEMBER_RETAINED B_status=B_RECOVERED representation_change=unchanged</li><li>gold_error_bucket=parallel_member_confusion visible_member=True</li><li>gold_reason=Label sits on W18X40[40] among parallel W18X40s. Overlay is the SOG/wall line.</li><li>selected_derivation=on_label_retained length=321.07 kind=LINE_MEMBER_CANDIDATE dist=0.0</li><li>g8_candidate_count=11 eligible_rankings=8</li><li>rank1 id=rnd_raw_p8_1341_16dcbc2956c0 score=0.8208 dist=0.0 len=321.07 der=on_label_retained</li><li>rank2 id=rnd_raw_p8_1291_5699e04ee9db score=0.7222 dist=0.0 len=313.494 der=retained_member</li><li>rank3 id=rnd_raw_p8_1299_176f6a1bb69e score=0.6818 dist=0.0 len=317.364 der=retained_member</li><li>W18X40 among parallel W18X40s. Selected stroke was already a retained member line, but several similar-length retained/recovered strokes also touch the label. Gold overlays showed SOG/wall; under G8 the bay remains multi-candidate ambiguous.</li>
+  </ul></details>
+</section>
+
+<section class="case">
+  <h2>token_p8_399 · p8 · W10X15</h2>
+  <p><b>Classification:</b> B (HIGH) ·
+     <b>new_status:</b> VALID_MEMBER_NOW_VISIBLE</p>
+  <p><b>Old gold:</b> NO_VALID_MEMBER · <b>G9:</b> ASSOCIATED ·
+     <b>selected:</b> <code>rnd_raw_p8_1367_4908eae79b6f</code> ·
+     <b>best:</b> <code>rnd_raw_p8_1367_4908eae79b6f</code></p>
+  <p>Short W10X15 CAP-dropped under label; G8 cap_restore recovers it. Old overlays were W14X22 infill / stair.</p>
+  <p class="vis">Short on-label joist recovered.</p>
+  <img src="renders/token_p8_399.png" alt="token_p8_399" loading="lazy"/>
+  <table>
+    <thead><tr><th>ID</th><th>kind</th><th>derivation</th><th>len</th><th>dist</th><th>rank</th><th>score</th></tr></thead>
+    <tbody><tr><td>rnd_raw_p8_1367_4908eae79b6f</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>75.011</td><td>0.0</td><td>1</td><td>0.8675</td></tr><tr><td>rnd_raw_p8_1366_d84aae2fd2ee</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>110.058</td><td>0.0</td><td>3</td><td>0.7284</td></tr><tr><td>rnd_raw_p8_1365_2df9769d7b24</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>101.733</td><td>29.138</td><td>4</td><td>0.6088</td></tr><tr><td>rnd_raw_p8_1260_a31b1adb0cdb</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>250.564</td><td>0.0</td><td>2</td><td>0.7304</td></tr><tr><td>rnd_raw_p8_1485_156e44d25c24</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>173.049</td><td>32.38</td><td>5</td><td>0.6083</td></tr><tr><td>rnd_raw_p8_1011_b6704cf3dbba</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>137.641</td><td>22.76</td><td>7</td><td>0.5565</td></tr><tr><td>rnd_raw_p8_1027_0f9526241704</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>137.641</td><td>22.76</td><td>8</td><td>0.5565</td></tr><tr><td>rnd_raw_p8_1324_ab8a0c1fb67e</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>121.537</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1296_4f4b33f9373b</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>159.019</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1331_30f351be6ccf</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1029_af4000b1c875</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>290.558</td><td>39.91</td><td>6</td><td>0.5734</td></tr><tr><td>rnd_raw_p8_1505_9bd55e0652e4</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>338.359</td><td>None</td><td>None</td><td>None</td></tr></tbody>
+  </table>
+  <details><summary>evidence</summary><ul>
+    <li>human_gold=no_valid_member (historical; unchanged)</li><li>g9_decision=ASSOCIATED selected=rnd_raw_p8_1367_4908eae79b6f</li><li>g8_loss_class=CAP_DROPPED A_status=A_CAP_DROPPED B_status=B_RECOVERED representation_change=improved</li><li>gold_error_bucket=missing_retrieval visible_member=True</li><li>gold_reason=Label sits on W10X15[9]. Green is the W14X22 infill; orange is the stair.</li><li>selected_derivation=cap_restore length=75.011 kind=LINE_MEMBER_CANDIDATE dist=0.0</li><li>g8_candidate_count=13 eligible_rankings=8</li><li>rank1 id=rnd_raw_p8_1367_4908eae79b6f score=0.8675 dist=0.0 len=75.011 der=cap_restore</li><li>rank2 id=rnd_raw_p8_1260_a31b1adb0cdb score=0.7304 dist=0.0 len=250.564 der=reclass_restore</li><li>rank3 id=rnd_raw_p8_1366_d84aae2fd2ee score=0.7284 dist=0.0 len=110.058 der=retained_member</li><li>Short W10X15 CAP-dropped under label; G8 cap_restore recovers it. Old overlays were W14X22 infill / stair.</li>
+  </ul></details>
+</section>
+
+<section class="case">
+  <h2>token_p8_410 · p8 · W10X15</h2>
+  <p><b>Classification:</b> B (HIGH) ·
+     <b>new_status:</b> VALID_MEMBER_NOW_VISIBLE</p>
+  <p><b>Old gold:</b> NO_VALID_MEMBER · <b>G9:</b> ASSOCIATED ·
+     <b>selected:</b> <code>rnd_raw_p8_1397_51483cb885bd</code> ·
+     <b>best:</b> <code>rnd_raw_p8_1397_51483cb885bd</code></p>
+  <p>W10X15 at wall CAP-dropped; G8 recovers short stroke. Old overlays were W16X31 / W21X44 wall members.</p>
+  <p class="vis">Short wall-adjacent joist under label.</p>
+  <img src="renders/token_p8_410.png" alt="token_p8_410" loading="lazy"/>
+  <table>
+    <thead><tr><th>ID</th><th>kind</th><th>derivation</th><th>len</th><th>dist</th><th>rank</th><th>score</th></tr></thead>
+    <tbody><tr><td>rnd_raw_p8_1397_51483cb885bd</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>73.673</td><td>0.0</td><td>1</td><td>0.8748</td></tr><tr><td>rnd_raw_p8_1284_2ab7f6b159ec</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>0.0</td><td>2</td><td>0.7723</td></tr><tr><td>rnd_raw_p8_1364_9d12024059aa</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>253.679</td><td>18.31</td><td>5</td><td>0.5601</td></tr><tr><td>rnd_raw_p8_3282_489ed0431e45</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>21.393</td><td>50.47</td><td>6</td><td>0.539</td></tr><tr><td>rnd_raw_p8_1273_e6adfa57dad5</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>253.448</td><td>35.71</td><td>7</td><td>0.4562</td></tr><tr><td>rnd_raw_p8_1278_6ae14e02a201</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>241.512</td><td>21.07</td><td>4</td><td>0.6474</td></tr><tr><td>rnd_raw_p8_1025_f5020ae58794</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>352.838</td><td>7.03</td><td>3</td><td>0.6955</td></tr><tr><td>rnd_raw_p8_1398_5786610a6f08</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>73.79</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1586_1cb43421f2b4</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>330.816</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1591_cd3da4484b79</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>330.816</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1285_cba42058a285</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>41.86</td><td>8</td><td>0.4421</td></tr></tbody>
+  </table>
+  <details><summary>evidence</summary><ul>
+    <li>human_gold=no_valid_member (historical; unchanged)</li><li>g9_decision=ASSOCIATED selected=rnd_raw_p8_1397_51483cb885bd</li><li>g8_loss_class=CAP_DROPPED A_status=A_CAP_DROPPED B_status=B_RECOVERED representation_change=improved</li><li>gold_error_bucket=missing_retrieval visible_member=True</li><li>gold_reason=Label sits on W10X15[10] at the wall. Green is W16X31; orange is the W21X44 wall.</li><li>selected_derivation=cap_restore length=73.673 kind=LINE_MEMBER_CANDIDATE dist=0.0</li><li>g8_candidate_count=11 eligible_rankings=8</li><li>rank1 id=rnd_raw_p8_1397_51483cb885bd score=0.8748 dist=0.0 len=73.673 der=cap_restore</li><li>rank2 id=rnd_raw_p8_1284_2ab7f6b159ec score=0.7723 dist=0.0 len=261.015 der=reclass_restore</li><li>rank3 id=rnd_raw_p8_1025_f5020ae58794 score=0.6955 dist=7.03 len=352.838 der=retained_member</li><li>W10X15 at wall CAP-dropped; G8 recovers short stroke. Old overlays were W16X31 / W21X44 wall members.</li>
+  </ul></details>
+</section>
+
+<section class="case">
+  <h2>token_p8_411 · p8 · W10X15</h2>
+  <p><b>Classification:</b> B (HIGH) ·
+     <b>new_status:</b> VALID_MEMBER_NOW_VISIBLE</p>
+  <p><b>Old gold:</b> NO_VALID_MEMBER · <b>G9:</b> ASSOCIATED ·
+     <b>selected:</b> <code>rnd_raw_p8_1398_5786610a6f08</code> ·
+     <b>best:</b> <code>rnd_raw_p8_1398_5786610a6f08</code></p>
+  <p>W10X15 CAP-dropped; G8 recovers short joist. Old overlay was W16X31 at EJ.</p>
+  <p class="vis">Recovered short joist distinct from EJ W16X31.</p>
+  <img src="renders/token_p8_411.png" alt="token_p8_411" loading="lazy"/>
+  <table>
+    <thead><tr><th>ID</th><th>kind</th><th>derivation</th><th>len</th><th>dist</th><th>rank</th><th>score</th></tr></thead>
+    <tbody><tr><td>rnd_raw_p8_1398_5786610a6f08</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>73.79</td><td>0.0</td><td>1</td><td>0.8544</td></tr><tr><td>rnd_raw_p8_1284_2ab7f6b159ec</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>0.0</td><td>3</td><td>0.7034</td></tr><tr><td>rnd_raw_p8_1364_9d12024059aa</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>253.679</td><td>0.0</td><td>2</td><td>0.7067</td></tr><tr><td>rnd_raw_p8_1273_e6adfa57dad5</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>253.448</td><td>5.11</td><td>4</td><td>0.6339</td></tr><tr><td>rnd_raw_p8_1274_e21a18219b27</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>241.512</td><td>56.96</td><td>6</td><td>0.4579</td></tr><tr><td>rnd_raw_p8_1586_1cb43421f2b4</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>330.816</td><td>18.91</td><td>5</td><td>0.5276</td></tr><tr><td>rnd_raw_p8_1591_cd3da4484b79</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>330.816</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1397_51483cb885bd</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>73.673</td><td>79.03</td><td>8</td><td>0.3641</td></tr><tr><td>rnd_raw_p8_3282_489ed0431e45</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>21.393</td><td>96.459</td><td>7</td><td>0.4</td></tr><tr><td>rnd_raw_p8_1285_cba42058a285</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>None</td><td>None</td><td>None</td></tr></tbody>
+  </table>
+  <details><summary>evidence</summary><ul>
+    <li>human_gold=no_valid_member (historical; unchanged)</li><li>g9_decision=ASSOCIATED selected=rnd_raw_p8_1398_5786610a6f08</li><li>g8_loss_class=CAP_DROPPED A_status=A_CAP_DROPPED B_status=B_RECOVERED representation_change=improved</li><li>gold_error_bucket=missing_retrieval visible_member=True</li><li>gold_reason=Label sits on W10X15[10] at the wall. Overlay is W16X31 at the EJ.</li><li>selected_derivation=cap_restore length=73.79 kind=LINE_MEMBER_CANDIDATE dist=0.0</li><li>g8_candidate_count=10 eligible_rankings=8</li><li>rank1 id=rnd_raw_p8_1398_5786610a6f08 score=0.8544 dist=0.0 len=73.79 der=cap_restore</li><li>rank2 id=rnd_raw_p8_1364_9d12024059aa score=0.7067 dist=0.0 len=253.679 der=reclass_restore</li><li>rank3 id=rnd_raw_p8_1284_2ab7f6b159ec score=0.7034 dist=0.0 len=261.015 der=reclass_restore</li><li>W10X15 CAP-dropped; G8 recovers short joist. Old overlay was W16X31 at EJ.</li>
+  </ul></details>
+</section>
+
+<section class="case">
+  <h2>token_p8_412 · p8 · W10X15</h2>
+  <p><b>Classification:</b> B (HIGH) ·
+     <b>new_status:</b> VALID_MEMBER_NOW_VISIBLE</p>
+  <p><b>Old gold:</b> NO_VALID_MEMBER · <b>G9:</b> ASSOCIATED ·
+     <b>selected:</b> <code>rnd_raw_p8_1399_a867be18d612</code> ·
+     <b>best:</b> <code>rnd_raw_p8_1399_a867be18d612</code></p>
+  <p>W10X15 CAP-dropped; G8 recovers short joist. Old overlay was W16X31 at EJ.</p>
+  <p class="vis">Recovered short joist under label.</p>
+  <img src="renders/token_p8_412.png" alt="token_p8_412" loading="lazy"/>
+  <table>
+    <thead><tr><th>ID</th><th>kind</th><th>derivation</th><th>len</th><th>dist</th><th>rank</th><th>score</th></tr></thead>
+    <tbody><tr><td>rnd_raw_p8_1399_a867be18d612</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>73.673</td><td>0.0</td><td>1</td><td>0.8686</td></tr><tr><td>rnd_raw_p8_1301_5bbc33a526a9</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>260.899</td><td>0.0</td><td>2</td><td>0.7672</td></tr><tr><td>rnd_raw_p8_1360_7199b5f5d5e5</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>253.679</td><td>15.91</td><td>5</td><td>0.5757</td></tr><tr><td>rnd_raw_p8_1300_5f9e3f871947</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>253.679</td><td>33.31</td><td>6</td><td>0.4664</td></tr><tr><td>rnd_raw_p8_1275_09a4936ab405</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>241.512</td><td>18.31</td><td>3</td><td>0.6653</td></tr><tr><td>rnd_raw_p8_1277_737c2c6faef8</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>259.531</td><td>18.31</td><td>4</td><td>0.66</td></tr><tr><td>rnd_raw_p8_1286_88fce0a03302</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>75.011</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1582_4573fc0b77bf</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>330.731</td><td>40.99</td><td>7</td><td>0.4338</td></tr><tr><td>rnd_raw_p8_1587_30dd49c2221a</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>330.731</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1400_a64113f84b70</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>73.79</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1302_189e6c134034</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>44.26</td><td>8</td><td>0.4319</td></tr></tbody>
+  </table>
+  <details><summary>evidence</summary><ul>
+    <li>human_gold=no_valid_member (historical; unchanged)</li><li>g9_decision=ASSOCIATED selected=rnd_raw_p8_1399_a867be18d612</li><li>g8_loss_class=CAP_DROPPED A_status=A_CAP_DROPPED B_status=B_RECOVERED representation_change=improved</li><li>gold_error_bucket=missing_retrieval visible_member=True</li><li>gold_reason=Label sits on W10X15[10] at the wall. Overlay is W16X31 at the EJ.</li><li>selected_derivation=cap_restore length=73.673 kind=LINE_MEMBER_CANDIDATE dist=0.0</li><li>g8_candidate_count=11 eligible_rankings=8</li><li>rank1 id=rnd_raw_p8_1399_a867be18d612 score=0.8686 dist=0.0 len=73.673 der=cap_restore</li><li>rank2 id=rnd_raw_p8_1301_5bbc33a526a9 score=0.7672 dist=0.0 len=260.899 der=reclass_restore</li><li>rank3 id=rnd_raw_p8_1275_09a4936ab405 score=0.6653 dist=18.31 len=241.512 der=reclass_restore</li><li>W10X15 CAP-dropped; G8 recovers short joist. Old overlay was W16X31 at EJ.</li>
+  </ul></details>
+</section>
+
+<section class="case">
+  <h2>token_p8_419 · p8 · W16X26</h2>
+  <p><b>Classification:</b> B (MEDIUM) ·
+     <b>new_status:</b> VALID_MEMBER_NOW_VISIBLE</p>
+  <p><b>Old gold:</b> NO_VALID_MEMBER · <b>G9:</b> ASSOCIATED ·
+     <b>selected:</b> <code>rnd_raw_p8_1484_19ed80f9fdf5</code> ·
+     <b>best:</b> <code>rnd_raw_p8_1484_19ed80f9fdf5</code></p>
+  <p>Label sits on W16X26 joist; G8 reclass recovers that stroke (was dimension). Nearby longer wall/infill strokes compete but selected matches under-label raw_trace reclass of the joist.</p>
+  <p class="vis">On-label joist recovered; wall beam was the old false overlay.</p>
+  <img src="renders/token_p8_419.png" alt="token_p8_419" loading="lazy"/>
+  <table>
+    <thead><tr><th>ID</th><th>kind</th><th>derivation</th><th>len</th><th>dist</th><th>rank</th><th>score</th></tr></thead>
+    <tbody><tr><td>rnd_raw_p8_1484_19ed80f9fdf5</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>0.0</td><td>1</td><td>0.8797</td></tr><tr><td>rnd_raw_p8_1326_cea5e757337b</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.015</td><td>8.47</td><td>2</td><td>0.7236</td></tr><tr><td>rnd_raw_p8_1485_156e44d25c24</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>173.049</td><td>16.64</td><td>3</td><td>0.6842</td></tr><tr><td>rnd_raw_p8_1012_98df7602bd9e</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>338.812</td><td>0.0</td><td>4</td><td>0.66</td></tr><tr><td>rnd_raw_p8_1026_fa500cc74c9c</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>338.812</td><td>0.0</td><td>5</td><td>0.66</td></tr><tr><td>rnd_raw_p8_1293_5e2f730bed81</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>253.435</td><td>33.56</td><td>6</td><td>0.5174</td></tr><tr><td>rnd_raw_p8_1493_d210661441dd</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>134.301</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_3330_b79e1eb5ab00</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>72.042</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_3357_bafd8b8dc00a</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>90.787</td><td>75.54</td><td>8</td><td>0.3671</td></tr><tr><td>rnd_raw_p8_1294_4e2b694a2be6</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>253.679</td><td>67.51</td><td>7</td><td>0.4131</td></tr><tr><td>rnd_raw_p8_1486_5bfecaab0704</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>146.852</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1494_7c1a1e740815</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.503</td><td>None</td><td>None</td><td>None</td></tr></tbody>
+  </table>
+  <details><summary>evidence</summary><ul>
+    <li>human_gold=no_valid_member (historical; unchanged)</li><li>g9_decision=ASSOCIATED selected=rnd_raw_p8_1484_19ed80f9fdf5</li><li>g8_loss_class=RECLASSIFIED_DIMENSION A_status=A_RECLASSIFIED B_status=B_RECOVERED representation_change=improved</li><li>gold_error_bucket=parallel_member_confusion visible_member=True</li><li>gold_reason=Label sits on W16X26[30] c=3/4&quot; joist. Overlay is the wall beam / a neighboring infill.</li><li>selected_derivation=reclass_restore length=261.015 kind=LINE_MEMBER_CANDIDATE dist=0.0</li><li>g8_candidate_count=12 eligible_rankings=8</li><li>rank1 id=rnd_raw_p8_1484_19ed80f9fdf5 score=0.8797 dist=0.0 len=261.015 der=reclass_restore</li><li>rank2 id=rnd_raw_p8_1326_cea5e757337b score=0.7236 dist=8.47 len=261.015 der=reclass_restore</li><li>rank3 id=rnd_raw_p8_1485_156e44d25c24 score=0.6842 dist=16.64 len=173.049 der=retained_member</li><li>Label sits on W16X26 joist; G8 reclass recovers that stroke (was dimension). Nearby longer wall/infill strokes compete but selected matches under-label raw_trace reclass of the joist.</li>
+  </ul></details>
+</section>
+
+<section class="case">
+  <h2>token_p8_430 · p8 · W18X35</h2>
+  <p><b>Classification:</b> C (MEDIUM) ·
+     <b>new_status:</b> MULTIPLE_VALID_CANDIDATES</p>
+  <p><b>Old gold:</b> NO_VALID_MEMBER · <b>G9:</b> ASSOCIATED ·
+     <b>selected:</b> <code>rnd_raw_p8_1496_77117ad76f03</code> ·
+     <b>best:</b> <code>None</code></p>
+  <p>Parallel W18 bay with ≥4 same-scale recovered strokes at near-zero label distance and thin margin. Member geometry is present, but ownership of one specific joist is not deterministic.</p>
+  <p class="vis">Dense parallel W18s; multiple plausible joist candidates.</p>
+  <img src="renders/token_p8_430.png" alt="token_p8_430" loading="lazy"/>
+  <table>
+    <thead><tr><th>ID</th><th>kind</th><th>derivation</th><th>len</th><th>dist</th><th>rank</th><th>score</th></tr></thead>
+    <tbody><tr><td>rnd_raw_p8_1496_77117ad76f03</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>232.895</td><td>0.0</td><td>1</td><td>0.8362</td></tr><tr><td>rnd_raw_p8_1494_7c1a1e740815</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>261.503</td><td>0.0</td><td>2</td><td>0.7706</td></tr><tr><td>rnd_raw_p8_1338_4cd2ddf31320</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>269.243</td><td>0.0</td><td>3</td><td>0.7147</td></tr><tr><td>rnd_raw_p8_1293_5e2f730bed81</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>253.435</td><td>0.0</td><td>4</td><td>0.6745</td></tr><tr><td>rnd_raw_p8_1012_98df7602bd9e</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>338.812</td><td>0.0</td><td>5</td><td>0.66</td></tr><tr><td>rnd_raw_p8_1026_fa500cc74c9c</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>338.812</td><td>0.0</td><td>6</td><td>0.66</td></tr><tr><td>rnd_raw_p8_1365_2df9769d7b24</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>101.733</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1495_2d42c14022d1</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>88.547</td><td>48.225</td><td>7</td><td>0.415</td></tr><tr><td>rnd_raw_p8_1020_c6050030c5f1</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>74.243</td><td>59.644</td><td>8</td><td>0.3665</td></tr><tr><td>rnd_raw_p8_1635_3073e659fbc9</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>74.243</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1638_f899bb3709a7</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>76.402</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p8_1639_c79cbc802513</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>76.39</td><td>None</td><td>None</td><td>None</td></tr></tbody>
+  </table>
+  <details><summary>evidence</summary><ul>
+    <li>human_gold=no_valid_member (historical; unchanged)</li><li>g9_decision=ASSOCIATED selected=rnd_raw_p8_1496_77117ad76f03</li><li>g8_loss_class=RECLASSIFIED_DIMENSION A_status=A_RECLASSIFIED B_status=B_RECOVERED representation_change=improved</li><li>gold_error_bucket=parallel_member_confusion visible_member=True</li><li>gold_reason=Label sits on W18X35[28] joist among parallel W18s. Overlay is the W21X44 wall beam.</li><li>selected_derivation=reclass_restore length=232.895 kind=LINE_MEMBER_CANDIDATE dist=0.0</li><li>g8_candidate_count=12 eligible_rankings=8</li><li>rank1 id=rnd_raw_p8_1496_77117ad76f03 score=0.8362 dist=0.0 len=232.895 der=reclass_restore</li><li>rank2 id=rnd_raw_p8_1494_7c1a1e740815 score=0.7706 dist=0.0 len=261.503 der=reclass_restore</li><li>rank3 id=rnd_raw_p8_1338_4cd2ddf31320 score=0.7147 dist=0.0 len=269.243 der=reclass_restore</li><li>Parallel W18 bay with ≥4 same-scale recovered strokes at near-zero label distance and thin margin. Member geometry is present, but ownership of one specific joist is not deterministic.</li>
+  </ul></details>
+</section>
+
+<section class="case">
+  <h2>token_p18_1188 · p18 · PL 3 3/4&quot;</h2>
+  <p><b>Classification:</b> B (HIGH) ·
+     <b>new_status:</b> VALID_MEMBER_NOW_VISIBLE</p>
+  <p><b>Old gold:</b> NO_VALID_MEMBER · <b>G9:</b> ASSOCIATED ·
+     <b>selected:</b> <code>rnd_raw_p18_5045_9d434832f314</code> ·
+     <b>best:</b> <code>rnd_raw_p18_5045_9d434832f314</code></p>
+  <p>Leader points to the embed plate. G9 selects the CAP-restored tip stroke (tip_distance=0) that coincides with the plate edge; that stroke was absent from the retained CAP set. Old gold overlays were studs/rebar, not the plate.</p>
+  <p class="vis">Leader tip lands on recovered plate-edge stroke (G9 green + purple tip).</p>
+  <img src="renders/token_p18_1188.png" alt="token_p18_1188" loading="lazy"/>
+  <table>
+    <thead><tr><th>ID</th><th>kind</th><th>derivation</th><th>len</th><th>dist</th><th>rank</th><th>score</th></tr></thead>
+    <tbody><tr><td>rnd_raw_p18_4362_a0e4c7603f0c</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>148.68</td><td>17.66</td><td>2</td><td>0.6075</td></tr><tr><td>rnd_raw_p18_4364_f87d14b4d545</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>148.68</td><td>23.06</td><td>4</td><td>0.5638</td></tr><tr><td>rnd_raw_p18_5045_9d434832f314</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>75.684</td><td>20.04</td><td>1</td><td>0.7367</td></tr><tr><td>rnd_raw_p18_4125_49c8e63a5f1f</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>402.72</td><td>40.44</td><td>3</td><td>0.5973</td></tr><tr><td>rnd_raw_p18_5043_d58e12abeb20</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>21.401</td><td>57.101</td><td>5</td><td>0.3031</td></tr><tr><td>rnd_raw_p18_4368_cc56a7a15490</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>103.56</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p18_4123_0e0ea0f7a183</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>127.08</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p18_4121_22a901dcf3fe</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>127.08</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p18_5208_c579db3bee1d</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>158.4</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p18_5034_61b21a5cbb4f</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>21.475</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p18_4369_518e1aefd955</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>103.56</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p18_4381_bbc6cc6bf77b</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>94.56</td><td>None</td><td>None</td><td>None</td></tr></tbody>
+  </table>
+  <details><summary>evidence</summary><ul>
+    <li>human_gold=no_valid_member (historical; unchanged)</li><li>g9_decision=ASSOCIATED selected=rnd_raw_p18_5045_9d434832f314</li><li>g8_loss_class=RETAINED_MEMBER A_status=A_MEMBER_RETAINED B_status=B_RECOVERED representation_change=unchanged</li><li>gold_error_bucket=missing_retrieval visible_member=True</li><li>gold_reason=Leader points to the embed plate. Green overlay is studs/rebar left of the plate, not the embed plate.</li><li>selected_derivation=cap_restore length=75.684 kind=LINE_MEMBER_CANDIDATE dist=20.04</li><li>g8_candidate_count=15 eligible_rankings=8</li><li>leader_mode tip=[698.88, 1051.32] leader_status=TARGET_PRESENT_MEMBERLIKE</li><li>rank1 id=rnd_raw_p18_5045_9d434832f314 score=0.7367 dist=20.04 len=75.684 der=cap_restore</li><li>rank2 id=rnd_raw_p18_4362_a0e4c7603f0c score=0.6075 dist=17.66 len=148.68 der=reclass_restore</li><li>rank3 id=rnd_raw_p18_4125_49c8e63a5f1f score=0.5973 dist=40.44 len=402.72 der=retained_member</li><li>Leader points to the embed plate. G9 selects the CAP-restored tip stroke (tip_distance=0) that coincides with the plate edge; that stroke was absent from the retained CAP set. Old gold overlays were studs/rebar, not the plate.</li>
+  </ul></details>
+</section>
+
+<section class="case">
+  <h2>token_p24_1359 · p24 · L6x3-1/2x3/8</h2>
+  <p><b>Classification:</b> D (HIGH) ·
+     <b>new_status:</b> CORRECT_MEMBER_EXISTS_BUT_G9_SELECTED_WRONG_ONE</p>
+  <p><b>Old gold:</b> NO_VALID_MEMBER · <b>G9:</b> ASSOCIATED ·
+     <b>selected:</b> <code>rnd_raw_p24_480_d0c0ca5e54d7</code> ·
+     <b>best:</b> <code>raw_p24_10_9d8fbf0dfe5b#seg1</code></p>
+  <p>Leader targets the small L6 relieving angle. G9 ASSOCIATED a 405pt vertical wall/hatch line (on_label_retained). Short plate/angle segments exist in G8 (rank-2 vertex_split seg from tip plate_or_symbol; additional CAP short strokes). Selected geometry is clearly the long brick/wall line, not the angle.</p>
+  <p class="vis">Blue label L6x3-1/2x3/8; selected long vertical wall; short angle segments available near tip.</p>
+  <img src="renders/token_p24_1359.png" alt="token_p24_1359" loading="lazy"/>
+  <table>
+    <thead><tr><th>ID</th><th>kind</th><th>derivation</th><th>len</th><th>dist</th><th>rank</th><th>score</th></tr></thead>
+    <tbody><tr><td>rnd_raw_p24_480_d0c0ca5e54d7</td><td>LINE_MEMBER_CANDIDATE</td><td>on_label_retained</td><td>405.0</td><td>37.68</td><td>1</td><td>0.6002</td></tr><tr><td>rnd_raw_p24_567_062ff3501beb</td><td>LINE_MEMBER_CANDIDATE</td><td>reclass_restore</td><td>140.64</td><td>45.655</td><td>4</td><td>0.3801</td></tr><tr><td>rnd_raw_p24_4086_cfa746f71182</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>21.433</td><td>44.99</td><td>3</td><td>0.3803</td></tr><tr><td>rnd_raw_p24_4220_f4e088ea98aa</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>21.585</td><td>49.68</td><td>6</td><td>0.3461</td></tr><tr><td>rnd_raw_p24_478_77a1ccd9dec6</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>405.0</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p24_486_b2fd13b212ca</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>375.72</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p24_161_9eb6b13bab73</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>375.72</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p24_4223_e780326d754b</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>21.548</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p24_163_ed240f76fbb6</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>373.44</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p24_4226_99fe5ca951e2</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>21.606</td><td>None</td><td>None</td><td>None</td></tr><tr><td>rnd_raw_p24_4231_8ef0241f0e56</td><td>LINE_MEMBER_CANDIDATE</td><td>cap_restore</td><td>78.512</td><td>45.596</td><td>7</td><td>0.3422</td></tr><tr><td>rnd_raw_p24_482_4aa20eae63c4</td><td>LINE_MEMBER_CANDIDATE</td><td>retained_member</td><td>373.44</td><td>None</td><td>None</td><td>None</td></tr></tbody>
+  </table>
+  <details><summary>evidence</summary><ul>
+    <li>human_gold=no_valid_member (historical; unchanged)</li><li>g9_decision=ASSOCIATED selected=rnd_raw_p24_480_d0c0ca5e54d7</li><li>g8_loss_class=RAW_AMBIGUOUS A_status=A_RAW_AMBIGUOUS B_status=B_RECOVERED representation_change=improved</li><li>gold_error_bucket=missing_retrieval visible_member=True</li><li>gold_reason=Leader points to the small L6 relieving angle at the brick/slab. Green overlay is the long brick-hatch wall line.</li><li>selected_derivation=on_label_retained length=405.0 kind=LINE_MEMBER_CANDIDATE dist=37.68</li><li>g8_candidate_count=15 eligible_rankings=8</li><li>leader_mode tip=[664.32, 517.92] leader_status=TARGET_PRESENT_MEMBERLIKE</li><li>rank1 id=rnd_raw_p24_480_d0c0ca5e54d7 score=0.6002 dist=37.68 len=405.0 der=on_label_retained</li><li>rank2 id=raw_p24_10_9d8fbf0dfe5b#seg1 score=0.4797 dist=39.96 len=27.0 der=vertex_split</li><li>rank3 id=rnd_raw_p24_4086_cfa746f71182 score=0.3803 dist=44.99 len=21.433 der=cap_restore</li><li>Leader targets the small L6 relieving angle. G9 ASSOCIATED a 405pt vertical wall/hatch line (on_label_retained). Short plate/angle segments exist in G8 (rank-2 vertex_split seg from tip plate_or_symbol; additional CAP short strokes). Selected geometry is clearly the long brick/wall line, not the angle.</li>
+  </ul></details>
+</section>
+
+</body></html>

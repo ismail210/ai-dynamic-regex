@@ -1,0 +1,50 @@
+{
+  "ok": true,
+  "metrics": {
+    "total": 70,
+    "reviewed": 0,
+    "remaining": 70,
+    "coverage": 0.0,
+    "extraction": {
+      "yes_rate": "N/A \u2014 no reviewed samples",
+      "no_rate": "N/A \u2014 no reviewed samples",
+      "ambiguous_rate": "N/A \u2014 no reviewed samples",
+      "n": 0
+    },
+    "grouping": {
+      "yes_rate": "N/A \u2014 no reviewed samples",
+      "no_rate": "N/A \u2014 no reviewed samples",
+      "ambiguous_rate": "N/A \u2014 no reviewed samples",
+      "n_applicable": 0,
+      "n_not_applicable": 0
+    },
+    "operation": {
+      "yes_rate": "N/A \u2014 no reviewed samples",
+      "no_rate": "N/A \u2014 no reviewed samples",
+      "ambiguous_rate": "N/A \u2014 no reviewed samples",
+      "n": 0
+    },
+    "abstention": {
+      "correct_abstention_count": "N/A \u2014 no reviewed samples",
+      "unsafe_completion_count": "N/A \u2014 no reviewed samples",
+      "missed_abstention_count": "N/A \u2014 no reviewed samples",
+      "ambiguous_abstention_count": "N/A \u2014 no reviewed samples"
+    },
+    "normalization": {
+      "correct": "N/A \u2014 no reviewed samples",
+      "incorrect": "N/A \u2014 no reviewed samples",
+      "ambiguous": "N/A \u2014 no reviewed samples",
+      "n": 0
+    },
+    "safety": {
+      "l4x4_thickness_invention": "N/A \u2014 no reviewed samples",
+      "l5x3_thickness_invention": "N/A \u2014 no reviewed samples",
+      "l_to_2l_invention": "N/A \u2014 no reviewed samples",
+      "catalog_only_completion": "N/A \u2014 no reviewed samples",
+      "excel_driven_completion": "N/A \u2014 no reviewed samples",
+      "observed_cases": []
+    },
+    "note": "Human review is ready; accuracy/precision is not yet measured."
+  },
+  "source": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/training/eval_cache_backups/accuracy_gold/a2_human_review_70.json"
+}

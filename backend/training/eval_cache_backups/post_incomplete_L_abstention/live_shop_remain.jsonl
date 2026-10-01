@@ -1,0 +1,10 @@
+{"doc": "doc_0d910a43b4a021e3", "raw": "L3x3x1/4x0'-3\",", "gold": "L3X3X1/4X0-3\"", "old": "2L3X3X5/16", "new": "L3X3X1/4", "old_ok": false, "err": "L_same_family_other"}
+{"doc": "doc_47dc7ef27f6e5d7e", "raw": "L3x3x1/4@8'", "gold": "L3X3X1/4@8", "old": "L3X3X1/4", "new": "L3X3X3/8", "old_ok": false, "err": "L_thickness_error"}
+{"doc": "doc_47dc7ef27f6e5d7e", "raw": "L6x4x1/4x4\"", "gold": "L6X4X1/4", "old": "L6X4X5/16", "new": "L6X4X3/4", "old_ok": false, "err": "L_thickness_error"}
+{"doc": "doc_47dc7ef27f6e5d7e", "raw": "L3x3x1/4@4'", "gold": "L3X3X1/4@4", "old": "L3X3X1/4", "new": "L4X3X1/4", "old_ok": false, "err": "L_size_leg_error"}
+{"doc": "doc_47dc7ef27f6e5d7e", "raw": "L8x4x7/16x1'-0\",", "gold": "L8X4X7/16X1-0\"", "old": "L8X4X7/8", "new": "L8X4X7/16", "old_ok": false, "err": "L_same_family_other"}
+{"doc": "doc_47dc7ef27f6e5d7e", "raw": "L6x6x1/2@2'-0\"", "gold": "L6X6X1/2@2-0\"", "old": "L6X6X1/2", "new": "2L6X6X1/2", "old_ok": false, "err": "L_to_2L"}
+{"doc": "doc_6a9a9684bb19343b", "raw": "L3x3x1/4x0'-3\",", "gold": "L3X3X1/4X0-3\"", "old": "2L3X3X5/16", "new": "L3X3X1/4", "old_ok": false, "err": "L_same_family_other"}
+{"doc": "doc_f6ddc4a7e233ffb0", "raw": "L3x3x1/4x0'-3\",", "gold": "L3X3X1/4X0-3\"", "old": "2L3X3X5/16", "new": "L3X3X1/4", "old_ok": false, "err": "L_same_family_other"}
+{"doc": "doc_f6ddc4a7e233ffb0", "raw": "L8X6X1/2X1'", "gold": "L8X6X1/2X1", "old": "L8X6X1", "new": "L8X6X1/2", "old_ok": false, "err": "L_same_family_other"}
+{"doc": "doc_f6ddc4a7e233ffb0", "raw": "L8X8X1/2X1'", "gold": "L8X8X1/2X1", "old": "L8X8X1", "new": "L8X8X1/2", "old_ok": false, "err": "L_same_family_other"}

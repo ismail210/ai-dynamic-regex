@@ -1,0 +1,14 @@
+{
+  "track": "A7",
+  "link_count": 100,
+  "human_verified_count": 0,
+  "system_associated_count": 100,
+  "system_association_rate": 1.0,
+  "precision_on_reviewed": null,
+  "gate_note": "Precision is null until human_label CORRECT/WRONG reviews land; do not raise dense-page geometry cap as the primary fix.",
+  "methods": [
+    "ambiguous_members",
+    "leader_tip_to_stroke",
+    "proximity_stroke"
+  ]
+}

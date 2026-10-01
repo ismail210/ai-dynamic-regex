@@ -1,0 +1,115 @@
+{
+  "$schema_name": "g8_era_human_validation_decision",
+  "decision_vocabulary": {
+    "AMBIGUOUS": {
+      "maps_from_historical_review_label": "ambiguous_requires_adjudication",
+      "meaning": "Multiple G8 candidates remain plausible; ownership not deterministic",
+      "owned_candidate_ids_cardinality": ">=2",
+      "requires": [
+        "owned_candidate_ids"
+      ]
+    },
+    "NEEDS_REVIEW": {
+      "maps_from_historical_review_label": "unavailable",
+      "meaning": "Crop/PDF evidence insufficient to decide",
+      "owned_candidate_ids_cardinality": 0,
+      "requires": [
+        "reason"
+      ]
+    },
+    "NO_VALID_MEMBER": {
+      "maps_from_historical_review_label": "no_valid_target",
+      "meaning": "No G8 candidate is the member owned by this annotation",
+      "owned_candidate_ids_cardinality": 0,
+      "requires": [
+        "reason"
+      ]
+    },
+    "VALID_MEMBER": {
+      "maps_from_historical_review_label": "direct_target",
+      "meaning": "Exactly one G8 candidate is owned by this annotation",
+      "owned_candidate_ids_cardinality": 1,
+      "requires": [
+        "owned_candidate_ids"
+      ]
+    }
+  },
+  "description": "Human ownership review against frozen G8 candidates. Collected later into decisions_pending/; never written into review_kit/gold_outcomes.jsonl by this preparation phase.",
+  "example_blank_decision": {
+    "audit_classification": "B",
+    "g8_candidate_ids": [
+      "rnd_raw_..."
+    ],
+    "g9_selected_candidate_id": "rnd_raw_...",
+    "historical_gold_decision": "NO_VALID_MEMBER",
+    "historical_gold_reason": "(from gold_outcomes.jsonl)",
+    "label": "W21X50",
+    "notes": "",
+    "owned_candidate_ids": [],
+    "page": 8,
+    "review_source": "g8_era_human_validation",
+    "reviewed_at": null,
+    "reviewer_confidence": null,
+    "reviewer_decision": null,
+    "reviewer_id": null,
+    "status": "PENDING",
+    "token_id": "token_p8_336"
+  },
+  "explicit_non_signals": [
+    "distance_alone",
+    "section_size_alone",
+    "G9_selected_candidate_is_not_auto_truth",
+    "audit_class_B_is_not_auto_VALID_MEMBER",
+    "historical_gold_decision_is_not_G8_era_truth"
+  ],
+  "field_definitions": {
+    "audit_classification": "B|C|D from false-association audit",
+    "g8_candidate_ids": "Frozen G8 B_candidate ids shown to reviewer",
+    "g9_selected_candidate_id": "G9 ASSOCIATED pick (reference only)",
+    "historical_gold_decision": "Immutable historical decision (usually no_valid_member)",
+    "historical_gold_reason": "Immutable historical reason text",
+    "label": "Raw annotation text",
+    "notes": "Free-text evidence notes",
+    "owned_candidate_ids": "G8 candidate ids the reviewer marks as owned (0, 1, or many)",
+    "page": "PDF page number",
+    "review_source": "Must be g8_era_human_validation (not human_gold)",
+    "reviewed_at": "ISO-8601 timestamp when collected later",
+    "reviewer_confidence": "HIGH|MEDIUM|LOW",
+    "reviewer_decision": "VALID_MEMBER|NO_VALID_MEMBER|AMBIGUOUS|NEEDS_REVIEW",
+    "reviewer_id": "Human initials / id",
+    "token_id": "Stable label token id (e.g. token_p8_336)"
+  },
+  "historical_gold_immutable": true,
+  "not_production_gold": true,
+  "ownership_evidence_hierarchy": [
+    "explicit_label_to_member_relationship",
+    "leader_endpoint_or_pointer",
+    "overlap_or_contact",
+    "text_vs_member_orientation",
+    "local_structural_topology",
+    "repeated_member_context",
+    "distance_proximity_last"
+  ],
+  "required_fields_on_collected_decision": [
+    "token_id",
+    "page",
+    "label",
+    "historical_gold_decision",
+    "audit_classification",
+    "reviewer_decision",
+    "owned_candidate_ids",
+    "reviewer_confidence",
+    "reviewer_id",
+    "review_source",
+    "notes",
+    "reviewed_at"
+  ],
+  "reuse_of_existing_architecture": {
+    "decision_json_per_token": "Same pattern as review_kit/decisions/*.decision.json, but under g8_era_human_validation/decisions_pending/ when humans later collect.",
+    "review_kit_gold_outcomes": "IMMUTABLE \u2014 do not append G8-era decisions there",
+    "review_kit_html": "Shows pre-G8 geom_* candidates; insufficient alone for G8 ownership review. Use this prep review.html + audit/G8/G9 renders instead.",
+    "review_kit_review_label": "Historical kit uses direct_target / no_valid_target / ambiguous_requires_adjudication / unavailable \u2014 mapped above."
+  },
+  "status": "PREPARATION_ONLY",
+  "version": "1.0-prep"
+}

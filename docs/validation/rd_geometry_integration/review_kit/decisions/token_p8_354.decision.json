@@ -1,0 +1,30 @@
+{
+  "token_id": "token_p8_354",
+  "page": 8,
+  "text": "W18X35",
+  "label_bbox": [
+    1932.43,
+    1108.18,
+    1954.98,
+    1150.02
+  ],
+  "production_geometry_id": "geom_095898d74240",
+  "candidate_geometry_ids": [
+    "geom_0a8f27d1dd2a",
+    "geom_095898d74240",
+    "geom_5f6b0423ca08"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p8_354.png",
+  "crop_available": true,
+  "g1_status": "agreement",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Label sits on W18X35[32] joist. Overlays are a distant infill and the W21X44 wall.",
+  "error_bucket": "parallel_member_confusion",
+  "leader_required": false,
+  "visible_member_on_drawing": true
+}

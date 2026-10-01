@@ -1,0 +1,34 @@
+{
+  "token_id": "token_p8_432",
+  "page": 8,
+  "text": "W16X26",
+  "label_bbox": [
+    1687.61,
+    1007.06,
+    1728.42,
+    1038.01
+  ],
+  "production_geometry_id": "geom_edbfa26d671d",
+  "candidate_geometry_ids": [
+    "geom_edbfa26d671d",
+    "geom_095898d74240",
+    "geom_0a8f27d1dd2a",
+    "geom_5f6b0423ca08",
+    "geom_e28d1c9713ef"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p8_432.png",
+  "crop_available": true,
+  "g1_status": "agreement",
+  "review_label": "direct_target",
+  "decision": "associated",
+  "reviewed_target_geometry_ids": [
+    "geom_edbfa26d671d"
+  ],
+  "selected_geometry_id": "geom_edbfa26d671d",
+  "reason": "Label sits on W16X26[18] on the same extracted wall stroke as token_p8_427. Associated to the existing primitive; no split was invented.",
+  "error_bucket": null,
+  "leader_required": false,
+  "association_mode": "direct"
+}

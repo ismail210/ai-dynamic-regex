@@ -1,0 +1,196 @@
+{
+  "8": {
+    "page": 8,
+    "region_method_used": "rd_2d_gap",
+    "region_count": 6,
+    "labels_tested": 30,
+    "unconstrained_cross_region_tops": 0,
+    "same_region_tops": 30,
+    "cross_tops_blocked_by_constraint": 0,
+    "examples": [],
+    "interpretation": "If cross_tops_blocked_by_constraint > 0, region constraints can reduce cross-detail contamination in nearest-geometry retrieval. This does not prove regions are true detail boundaries."
+  },
+  "18": {
+    "page": 18,
+    "region_method_used": "rd_2d_gap",
+    "region_count": 12,
+    "labels_tested": 24,
+    "unconstrained_cross_region_tops": 2,
+    "same_region_tops": 22,
+    "cross_tops_blocked_by_constraint": 2,
+    "examples": [
+      {
+        "token_id": "token_p18_1143",
+        "text": "W10X33",
+        "label_region_id": "p18_2d_r0",
+        "unconstrained_top": {
+          "geometry_id": "geom_25342840d67c",
+          "page_number": 18,
+          "geometry_kind": "line",
+          "geometry_role": "unknown",
+          "geometry_bbox": [
+            1300.44,
+            140.04,
+            1798.56,
+            140.04
+          ],
+          "centerline": [
+            [
+              1300.44,
+              140.04
+            ],
+            [
+              1798.56,
+              140.04
+            ]
+          ],
+          "center_distance": 222.89,
+          "bbox_distance": 70.3,
+          "perpendicular_distance": 70.3,
+          "overlap_area": 0.0,
+          "iou": 0.0,
+          "orientation_delta_deg": 0.0,
+          "same_region": false,
+          "geo_region_id": "p18_2d_r9",
+          "leader_path_ids": [],
+          "candidate_generation_sources": [
+            "direct_distance"
+          ],
+          "evidence_status": "candidate",
+          "rank": 1,
+          "leader_supported": false
+        },
+        "constrained_top": {
+          "geometry_id": "geom_f2f4c1f82e85",
+          "page_number": 18,
+          "geometry_kind": "line",
+          "geometry_role": "unknown",
+          "geometry_bbox": [
+            1257.24,
+            177.0,
+            1257.24,
+            296.88
+          ],
+          "centerline": [
+            [
+              1257.24,
+              296.88
+            ],
+            [
+              1257.24,
+              177.0
+            ]
+          ],
+          "center_distance": 85.01,
+          "bbox_distance": 80.75,
+          "perpendicular_distance": 80.75,
+          "overlap_area": 0.0,
+          "iou": 0.0,
+          "orientation_delta_deg": 90.0,
+          "same_region": true,
+          "geo_region_id": "p18_2d_r0",
+          "leader_path_ids": [],
+          "candidate_generation_sources": [
+            "direct_distance"
+          ],
+          "evidence_status": "candidate",
+          "rank": 1,
+          "leader_supported": false
+        },
+        "region_constraint_blocked_cross_detail": true
+      },
+      {
+        "token_id": "token_p18_1144",
+        "text": "W10X112",
+        "label_region_id": "p18_2d_r0",
+        "unconstrained_top": {
+          "geometry_id": "geom_fc4d2f3fd33e",
+          "page_number": 18,
+          "geometry_kind": "line",
+          "geometry_role": "unknown",
+          "geometry_bbox": [
+            1396.08,
+            161.76,
+            1716.48,
+            161.76
+          ],
+          "centerline": [
+            [
+              1396.08,
+              161.76
+            ],
+            [
+              1716.48,
+              161.76
+            ]
+          ],
+          "center_distance": 217.26,
+          "bbox_distance": 78.8,
+          "perpendicular_distance": 78.8,
+          "overlap_area": 0.0,
+          "iou": 0.0,
+          "orientation_delta_deg": 0.0,
+          "same_region": false,
+          "geo_region_id": "p18_2d_r9",
+          "leader_path_ids": [],
+          "candidate_generation_sources": [
+            "direct_distance"
+          ],
+          "evidence_status": "candidate",
+          "rank": 1,
+          "leader_supported": false
+        },
+        "constrained_top": {
+          "geometry_id": "geom_f2f4c1f82e85",
+          "page_number": 18,
+          "geometry_kind": "line",
+          "geometry_role": "unknown",
+          "geometry_bbox": [
+            1257.24,
+            177.0,
+            1257.24,
+            296.88
+          ],
+          "centerline": [
+            [
+              1257.24,
+              296.88
+            ],
+            [
+              1257.24,
+              177.0
+            ]
+          ],
+          "center_distance": 91.87,
+          "bbox_distance": 91.0,
+          "perpendicular_distance": 91.0,
+          "overlap_area": 0.0,
+          "iou": 0.0,
+          "orientation_delta_deg": 90.0,
+          "same_region": true,
+          "geo_region_id": "p18_2d_r0",
+          "leader_path_ids": [],
+          "candidate_generation_sources": [
+            "direct_distance"
+          ],
+          "evidence_status": "candidate",
+          "rank": 1,
+          "leader_supported": false
+        },
+        "region_constraint_blocked_cross_detail": true
+      }
+    ],
+    "interpretation": "If cross_tops_blocked_by_constraint > 0, region constraints can reduce cross-detail contamination in nearest-geometry retrieval. This does not prove regions are true detail boundaries."
+  },
+  "24": {
+    "page": 24,
+    "region_method_used": "rd_2d_gap",
+    "region_count": 13,
+    "labels_tested": 17,
+    "unconstrained_cross_region_tops": 0,
+    "same_region_tops": 17,
+    "cross_tops_blocked_by_constraint": 0,
+    "examples": [],
+    "interpretation": "If cross_tops_blocked_by_constraint > 0, region constraints can reduce cross-detail contamination in nearest-geometry retrieval. This does not prove regions are true detail boundaries."
+  }
+}

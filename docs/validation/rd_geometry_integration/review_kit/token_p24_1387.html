@@ -1,0 +1,38 @@
+<!doctype html><meta charset='utf-8'>
+<title>token_p24_1387</title>
+<h1>L4x4x3/8 (page 24)</h1>
+<p>Label bbox: [2265.0, 1020.01, 2307.01, 1032.62]</p>
+<form>
+<p>Review label:
+<select name='review_label'>
+<option value='direct_target'>direct_target</option>
+<option value='leader_support_not_target'>leader_support_not_target</option>
+<option value='not_target'>not_target</option>
+<option value='no_valid_target'>no_valid_target</option>
+<option value='ambiguous_requires_adjudication'>ambiguous_requires_adjudication</option>
+</select></p>
+<p>Targets:</p>
+<label><input type='checkbox' name='target' value='geom_c7c9b2933e23'> geom_c7c9b2933e23 kind=line d=0.0 leader=True</label><br><label><input type='checkbox' name='target' value='geom_a872bd01b821'> geom_a872bd01b821 kind=line d=0.0 leader=True</label><br><label><input type='checkbox' name='target' value='geom_d80f6fb36d49'> geom_d80f6fb36d49 kind=polyline d=1.32 leader=True</label><br><label><input type='checkbox' name='target' value='geom_2a7ea626cbc5'> geom_2a7ea626cbc5 kind=line d=1.56 leader=True</label><br><label><input type='checkbox' name='target' value='geom_9821d5967c09'> geom_9821d5967c09 kind=line d=4.44 leader=True</label><br>
+<p><button type='button' onclick='this.nextElementSibling.hidden=false'>Reveal production pick</button>
+<pre hidden>null</pre></p>
+<p>Reviewer id: <input name='reviewer_id'></p>
+<button type='button' onclick='save()'>Save decision</button>
+</form>
+<script>
+function save(){
+  const targets=[...document.querySelectorAll('input[name=target]:checked')].map(x=>x.value);
+  const payload={
+    token_id:"token_p24_1387",
+    review_label:document.querySelector('[name=review_label]').value,
+    reviewed_target_geometry_ids:targets,
+    reviewer_id:document.querySelector('[name=reviewer_id]').value,
+    page:24,
+    text:"L4x4x3/8"
+  };
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download="token_p24_1387.decision.json";
+  a.click();
+}
+</script>
