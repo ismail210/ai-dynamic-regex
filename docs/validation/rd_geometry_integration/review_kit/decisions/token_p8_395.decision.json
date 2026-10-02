@@ -1,0 +1,32 @@
+{
+  "token_id": "token_p8_395",
+  "page": 8,
+  "text": "W16X31",
+  "label_bbox": [
+    2254.16,
+    1397.86,
+    2276.69,
+    1439.69
+  ],
+  "production_geometry_id": "geom_3e2826b140f9",
+  "candidate_geometry_ids": [
+    "geom_cf1c1b4a4515",
+    "geom_4f2fbd460d51",
+    "geom_3e2826b140f9"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p8_395.png",
+  "crop_available": true,
+  "g1_status": "agreement_ambiguous_neighborhood",
+  "review_label": "direct_target",
+  "decision": "associated",
+  "reviewed_target_geometry_ids": [
+    "geom_cf1c1b4a4515"
+  ],
+  "selected_geometry_id": "geom_cf1c1b4a4515",
+  "reason": "Label sits on W16X31[24] along the expansion-joint wall; the green overlay matches that wall line, not a neighboring joist.",
+  "error_bucket": null,
+  "leader_required": false,
+  "association_mode": "direct"
+}

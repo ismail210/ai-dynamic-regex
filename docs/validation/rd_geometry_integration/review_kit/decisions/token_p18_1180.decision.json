@@ -1,0 +1,29 @@
+{
+  "token_id": "token_p18_1180",
+  "page": 18,
+  "text": "L4X4X1/4",
+  "label_bbox": [
+    2177.4,
+    568.71,
+    2223.12,
+    581.3
+  ],
+  "production_geometry_id": null,
+  "candidate_geometry_ids": [
+    "geom_d6eb876248e9",
+    "geom_5037b66dbc8d"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p18_1180.png",
+  "crop_available": true,
+  "g1_status": "extra_candidates_only",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Leader points to the cross-brace. Green overlay is the 1\" MAX TYP dimension box, not the brace.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": true,
+  "visible_member_on_drawing": true
+}

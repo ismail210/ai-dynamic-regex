@@ -1,0 +1,31 @@
+{
+  "token_id": "token_p8_411",
+  "page": 8,
+  "text": "W10X15",
+  "label_bbox": [
+    2127.46,
+    1129.51,
+    2169.29,
+    1152.04
+  ],
+  "production_geometry_id": "geom_3e2826b140f9",
+  "candidate_geometry_ids": [
+    "geom_0b5ef1f9c497",
+    "geom_74a1dffa16c8",
+    "geom_3e2826b140f9",
+    "geom_095898d74240"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p8_411.png",
+  "crop_available": true,
+  "g1_status": "agreement_ambiguous_neighborhood",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Label sits on W10X15[10] at the wall. Overlay is W16X31 at the EJ.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": false,
+  "visible_member_on_drawing": true
+}

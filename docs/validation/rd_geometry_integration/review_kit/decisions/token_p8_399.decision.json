@@ -1,0 +1,32 @@
+{
+  "token_id": "token_p8_399",
+  "page": 8,
+  "text": "W10X15",
+  "label_bbox": [
+    1754.24,
+    1342.54,
+    1776.77,
+    1384.37
+  ],
+  "production_geometry_id": "geom_286fd47ebc3c",
+  "candidate_geometry_ids": [
+    "geom_5f6b0423ca08",
+    "geom_485e0c733148",
+    "geom_286fd47ebc3c",
+    "geom_90463060295d",
+    "geom_00c392a4d8a5"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p8_399.png",
+  "crop_available": true,
+  "g1_status": "agreement_ambiguous_neighborhood",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Label sits on W10X15[9]. Green is the W14X22 infill; orange is the stair.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": false,
+  "visible_member_on_drawing": true
+}

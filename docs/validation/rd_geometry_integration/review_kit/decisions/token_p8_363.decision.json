@@ -1,0 +1,28 @@
+{
+  "token_id": "token_p8_363",
+  "page": 8,
+  "text": "W16X26",
+  "label_bbox": [
+    2088.56,
+    1425.58,
+    2111.1,
+    1467.42
+  ],
+  "production_geometry_id": "geom_3e2826b140f9",
+  "candidate_geometry_ids": [
+    "geom_3e2826b140f9"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p8_363.png",
+  "crop_available": true,
+  "g1_status": "agreement",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Label sits on a W16X26 joist. Only candidate is a giant bay polyline to the right, not this joist.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": false,
+  "visible_member_on_drawing": true
+}

@@ -1,0 +1,49 @@
+{
+  "audit_classification": "B",
+  "audit_confidence": "HIGH",
+  "baseline_b_nearest_candidate_id": "rnd_raw_p8_1285_cba42058a285",
+  "evidence_basis": [
+    "overlap_or_contact",
+    "text_vs_member_orientation",
+    "explicit_label_to_member_relationship"
+  ],
+  "g8_candidate_ids": [
+    "rnd_raw_p8_1285_cba42058a285",
+    "rnd_raw_p8_1294_4e2b694a2be6",
+    "rnd_raw_p8_1284_2ab7f6b159ec",
+    "rnd_raw_p8_1278_6ae14e02a201",
+    "rnd_raw_p8_1025_f5020ae58794",
+    "rnd_raw_p8_1326_cea5e757337b"
+  ],
+  "g9_disagrees": false,
+  "g9_mode": "direct",
+  "g9_selected_candidate_id": "rnd_raw_p8_1285_cba42058a285",
+  "g9_selected_rejected": null,
+  "historical_gold_decision": "NO_VALID_MEMBER",
+  "historical_gold_raw": "no_valid_member",
+  "historical_gold_reason": "Label sits on W16X26[30] c=1\" joist. Overlays are a distant infill and the W21X44 wall, not this joist.",
+  "label": "W16X26",
+  "label_bbox": [
+    1992.8,
+    1068.1,
+    2015.34,
+    1109.94
+  ],
+  "not_historical_gold": true,
+  "notes": "Independent G8-era ownership: label sits on recovered member stroke rnd_raw_p8_1285_cba42058a285 (derivation=reclass_restore, length=261.015, label_distance\u22480). Historical NO_VALID_MEMBER reflected pre-G8 missing/wrong candidates, not absence of steel. Not an automatic audit-B conversion: confirmed via historical sits-on description + on-label G8 geometry + crop overlays.",
+  "owned_candidate_ids": [
+    "rnd_raw_p8_1285_cba42058a285"
+  ],
+  "page": 8,
+  "pattern_tags": [
+    "on_label_recovery",
+    "reclass_restore"
+  ],
+  "review_source": "g8_era_human_validation",
+  "reviewed_at": "2026-09-21T11:14:29Z",
+  "reviewer_confidence": "HIGH",
+  "reviewer_decision": "VALID_MEMBER",
+  "reviewer_id": "g8_era_rd_review",
+  "status": "REVIEWED",
+  "token_id": "token_p8_343"
+}

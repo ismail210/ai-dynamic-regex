@@ -1,0 +1,34 @@
+{
+  "token_id": "token_p8_427",
+  "page": 8,
+  "text": "W21X44",
+  "label_bbox": [
+    1557.89,
+    939.51,
+    1598.69,
+    970.44
+  ],
+  "production_geometry_id": "geom_edbfa26d671d",
+  "candidate_geometry_ids": [
+    "geom_edbfa26d671d",
+    "geom_59a6f49b264f",
+    "geom_b2e19d2fbdfd",
+    "geom_e3fc08026d78",
+    "geom_91ad1d90a76f"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p8_427.png",
+  "crop_available": true,
+  "g1_status": "agreement",
+  "review_label": "direct_target",
+  "decision": "associated",
+  "reviewed_target_geometry_ids": [
+    "geom_edbfa26d671d"
+  ],
+  "selected_geometry_id": "geom_edbfa26d671d",
+  "reason": "Label sits on the W21X44[50] retaining-wall beam; the overlay follows that wall stroke.",
+  "error_bucket": null,
+  "leader_required": false,
+  "association_mode": "direct"
+}

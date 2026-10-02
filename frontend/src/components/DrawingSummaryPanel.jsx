@@ -333,6 +333,85 @@ function MarksAndDefinitions({ definitions, notes, onView }) {
   );
 }
 
+// Revit column schedules: what the schedule prints for each grid location.
+// Reference only -- never a detected member and never a quantity.
+function ColumnScheduleLocations({ locations, onView }) {
+  const [open, setOpen] = useState(false);
+  const collapsible = locations.length > COLLAPSED_ROWS + 1;
+  const shown = open || !collapsible ? locations : locations.slice(0, COLLAPSED_ROWS);
+  const hasLevel = locations.some((l) => l.level);
+  const hasPlate = locations.some((l) => l.printed_base_plate);
+  const places = new Set(locations.map((l) => `${l.sheet}|${l.page}`));
+  const common = places.size === 1 ? whereLabel(locations[0]) : "";
+  const schedule = locations[0].schedule;
+  return (
+    <Section title="Column Schedule Locations">
+      <Typography variant="body2" color="text.secondary" mb={1.5}>
+        Reference information from column schedules — not a quantity. Each row repeats what the
+        schedule prints for a grid location; it is not a detected member.
+      </Typography>
+      <Paper variant="outlined" sx={{ mb: 2, overflow: "hidden" }}>
+        {(schedule || common) && (
+          <Typography variant="body2" color="text.secondary" sx={{ px: 2, py: 1.25, bgcolor: "action.hover" }}>
+            {[schedule, common].filter(Boolean).join(" · ")}
+          </Typography>
+        )}
+        <Box sx={{ overflowX: "auto" }}>
+          <Table size="small" aria-label="Column schedule locations">
+            <TableHead>
+              <TableRow>
+                <TableCell>Location</TableCell>
+                {hasLevel && <TableCell>Level</TableCell>}
+                <TableCell>Size</TableCell>
+                {hasPlate && <TableCell>Base plate</TableCell>}
+                <TableCell align="right">Source</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {shown.map((loc, i) => (
+                <TableRow key={`${loc.page}-${loc.location}-${loc.level}-${i}`}>
+                  <TableCell sx={{ fontFamily: "monospace", fontWeight: 700 }}>{loc.location}</TableCell>
+                  {hasLevel && <TableCell>{loc.level || "—"}</TableCell>}
+                  <TableCell>
+                    <Typography variant="body2" fontWeight={600}>
+                      {loc.catalog_designation || loc.printed_size || "—"}
+                    </Typography>
+                    {!loc.catalog_designation && loc.printed_size && (
+                      <Typography variant="caption" color="text.secondary">
+                        printed size, no catalog designation
+                      </Typography>
+                    )}
+                  </TableCell>
+                  {hasPlate && <TableCell>{loc.printed_base_plate || "—"}</TableCell>}
+                  <TableCell align="right" sx={{ width: "1%", whiteSpace: "nowrap" }}>
+                    {!common && (
+                      <Typography variant="caption" color="text.secondary" sx={{ mr: 1 }}>
+                        {whereLabel(loc)}
+                      </Typography>
+                    )}
+                    <ViewPageButton
+                      item={{ ...loc, mark: loc.location }}
+                      label={common ? "View page" : undefined}
+                      onView={onView}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Box>
+        {collapsible && (
+          <Box sx={{ px: 1.5, pb: 1 }}>
+            <Button size="small" onClick={() => setOpen(!open)}>
+              {open ? "Show fewer" : "Show all rows"}
+            </Button>
+          </Box>
+        )}
+      </Paper>
+    </Section>
+  );
+}
+
 // The uploaded PDF on the source page, with the mark highlighted when its
 // bounding box is known. Reuses the Drawing Review viewer; needs no prediction.
 function SourceViewerDialog({ documentId, target, onClose }) {
@@ -528,8 +607,12 @@ export default function DrawingSummaryPanel({ profile, documentId = null }) {
   const definitions = di?.definitions || [];
   const interpretationRules = di?.interpretation_rules || [];
   const unresolved = di?.unresolved || [];
+  const columnLocations = di?.column_locations || [];
   const hasEvidence =
-    definitions.length > 0 || interpretationRules.length > 0 || unresolved.length > 0;
+    definitions.length > 0 ||
+    columnLocations.length > 0 ||
+    interpretationRules.length > 0 ||
+    unresolved.length > 0;
   // Model notes only ever annotate an existing evidence id (validated server-side).
   const modelNotes = Object.fromEntries(
     [...(di?.summary_llm?.key_facts || []), ...(di?.summary_llm?.cautions || [])].map((n) => [
@@ -577,6 +660,9 @@ export default function DrawingSummaryPanel({ profile, documentId = null }) {
 
           {definitions.length > 0 && (
             <MarksAndDefinitions definitions={definitions} notes={modelNotes} onView={onView} />
+          )}
+          {columnLocations.length > 0 && (
+            <ColumnScheduleLocations locations={columnLocations} onView={onView} />
           )}
           {interpretationRules.length > 0 && (
             <InterpretationRules rules={interpretationRules} notes={modelNotes} onView={onView} />

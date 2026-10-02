@@ -1,0 +1,32 @@
+{
+  "token_id": "token_p18_1149",
+  "page": 18,
+  "text": "W12X252",
+  "label_bbox": [
+    1310.4,
+    305.16,
+    1365.33,
+    317.84
+  ],
+  "production_geometry_id": "geom_f2f4c1f82e85",
+  "candidate_geometry_ids": [
+    "geom_f2f4c1f82e85",
+    "geom_ea86c8c63321",
+    "geom_1f374e23a34c",
+    "geom_6bd5eaa2e710",
+    "geom_a1b5aca9d084"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p18_1149.png",
+  "crop_available": true,
+  "g1_status": "agreement",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "W12X252 is splice-schedule table text, not a member callout.",
+  "error_bucket": "schedule_table_not_member",
+  "leader_required": false,
+  "visible_member_on_drawing": false
+}

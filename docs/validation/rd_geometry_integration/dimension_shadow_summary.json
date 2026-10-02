@@ -1,0 +1,375 @@
+{
+  "document_id": "doc_0d910a43b4a021e3",
+  "gold_sha256": "0fad4291ff06ffa4e61c46f4ac923d7187455dd6b2f9b088481ab5e6b976b155",
+  "extractor_sha256": "6c6f73d7090a427705599a24cba4bad167a531a70cc5ff6879ccd0ca809ec940",
+  "population": "audited_21_from_e1_e2",
+  "n_targets": 21,
+  "cap_450_survivors": 12,
+  "cap_450_losses": 9,
+  "own_label_id_method": "bbox_overlap_or_center_in_line_or_text_contains_gold_label; no source_word_ids in gold",
+  "variants": {
+    "V0_production": "current _looks_like_dimension / _looks_like_leader / nearby_text",
+    "V1_ignore_own_numbers": "strip digits from nearby text when that line is own-label",
+    "V2_exclude_own_label": "exclude own-label lines; use next nearest non-own nearby text",
+    "V3_spatial_separation": "digit lines count only if bbox does not intersect own-label union bbox (no distance threshold)"
+  },
+  "baseline_funnel": {
+    "raw": 21,
+    "cap_survivors": 12,
+    "member_eligible_v0": 5,
+    "dimension_v0": 7,
+    "leader_v0": 0
+  },
+  "variant_metrics": {
+    "V0_production": {
+      "dimension": 7,
+      "leader": 0,
+      "member_eligible": 5,
+      "recovered_members": 0,
+      "dimension_to_member_flips": 0,
+      "member_to_dimension_flips": 0,
+      "ambiguous_changes": 0,
+      "insufficient_evidence": 0,
+      "change_classes": {}
+    },
+    "V1_ignore_own_numbers": {
+      "dimension": 2,
+      "leader": 0,
+      "member_eligible": 10,
+      "recovered_members": 4,
+      "dimension_to_member_flips": 5,
+      "member_to_dimension_flips": 0,
+      "ambiguous_changes": 1,
+      "insufficient_evidence": 0,
+      "false_member_recovery": 0,
+      "dimension_preserved": 2,
+      "change_classes": {
+        "MEMBER_RECOVERED": 4,
+        "NO_CHANGE": 5,
+        "DIMENSION_PRESERVED": 2,
+        "AMBIGUOUS_CHANGE": 1
+      }
+    },
+    "V2_exclude_own_label": {
+      "dimension": 2,
+      "leader": 0,
+      "member_eligible": 10,
+      "recovered_members": 4,
+      "dimension_to_member_flips": 5,
+      "member_to_dimension_flips": 0,
+      "ambiguous_changes": 1,
+      "insufficient_evidence": 0,
+      "false_member_recovery": 0,
+      "dimension_preserved": 2,
+      "change_classes": {
+        "MEMBER_RECOVERED": 4,
+        "NO_CHANGE": 5,
+        "DIMENSION_PRESERVED": 2,
+        "AMBIGUOUS_CHANGE": 1
+      }
+    },
+    "V3_spatial_separation": {
+      "dimension": 2,
+      "leader": 0,
+      "member_eligible": 10,
+      "recovered_members": 4,
+      "dimension_to_member_flips": 5,
+      "member_to_dimension_flips": 0,
+      "ambiguous_changes": 1,
+      "insufficient_evidence": 0,
+      "false_member_recovery": 0,
+      "dimension_preserved": 2,
+      "change_classes": {
+        "MEMBER_RECOVERED": 4,
+        "NO_CHANGE": 5,
+        "DIMENSION_PRESERVED": 2,
+        "AMBIGUOUS_CHANGE": 1
+      }
+    }
+  },
+  "e2_dimension_loss_recovery": {
+    "V1_ignore_own_numbers": {
+      "n": 6,
+      "recovered": 4,
+      "still_dimension": 2,
+      "details": [
+        {
+          "token_id": "token_p8_332",
+          "label": "W14X22",
+          "trigger": "W14X22  [25]",
+          "attribution": "DIMENSION_OWN_LABEL_CONTAMINATION",
+          "change": "MEMBER_RECOVERED",
+          "v0": "dimension",
+          "shadow": "line"
+        },
+        {
+          "token_id": "token_p8_337",
+          "label": "W21X44",
+          "trigger": "W21X44  [30]",
+          "attribution": "DIMENSION_OWN_LABEL_CONTAMINATION",
+          "change": "MEMBER_RECOVERED",
+          "v0": "dimension",
+          "shadow": "line"
+        },
+        {
+          "token_id": "token_p8_348",
+          "label": "W30X90",
+          "trigger": "17K",
+          "attribution": "DIMENSION_UNRELATED_NEARBY_TEXT",
+          "change": "DIMENSION_PRESERVED",
+          "v0": "dimension",
+          "shadow": "dimension"
+        },
+        {
+          "token_id": "token_p8_381",
+          "label": "W18X35",
+          "trigger": "W18X35  [35]",
+          "attribution": "DIMENSION_OWN_LABEL_CONTAMINATION",
+          "change": "MEMBER_RECOVERED",
+          "v0": "dimension",
+          "shadow": "line"
+        },
+        {
+          "token_id": "token_p8_430",
+          "label": "W18X35",
+          "trigger": "W18X35  [28]",
+          "attribution": "DIMENSION_OWN_LABEL_CONTAMINATION",
+          "change": "MEMBER_RECOVERED",
+          "v0": "dimension",
+          "shadow": "line"
+        },
+        {
+          "token_id": "token_p18_1143",
+          "label": "W10X33",
+          "trigger": "7/8",
+          "attribution": "DIMENSION_GENUINE",
+          "change": "DIMENSION_PRESERVED",
+          "v0": "dimension",
+          "shadow": "dimension"
+        }
+      ]
+    },
+    "V2_exclude_own_label": {
+      "n": 6,
+      "recovered": 4,
+      "still_dimension": 2,
+      "details": [
+        {
+          "token_id": "token_p8_332",
+          "label": "W14X22",
+          "trigger": "W14X22  [25]",
+          "attribution": "DIMENSION_OWN_LABEL_CONTAMINATION",
+          "change": "MEMBER_RECOVERED",
+          "v0": "dimension",
+          "shadow": "line"
+        },
+        {
+          "token_id": "token_p8_337",
+          "label": "W21X44",
+          "trigger": "W21X44  [30]",
+          "attribution": "DIMENSION_OWN_LABEL_CONTAMINATION",
+          "change": "MEMBER_RECOVERED",
+          "v0": "dimension",
+          "shadow": "line"
+        },
+        {
+          "token_id": "token_p8_348",
+          "label": "W30X90",
+          "trigger": "17K",
+          "attribution": "DIMENSION_UNRELATED_NEARBY_TEXT",
+          "change": "DIMENSION_PRESERVED",
+          "v0": "dimension",
+          "shadow": "dimension"
+        },
+        {
+          "token_id": "token_p8_381",
+          "label": "W18X35",
+          "trigger": "W18X35  [35]",
+          "attribution": "DIMENSION_OWN_LABEL_CONTAMINATION",
+          "change": "MEMBER_RECOVERED",
+          "v0": "dimension",
+          "shadow": "line"
+        },
+        {
+          "token_id": "token_p8_430",
+          "label": "W18X35",
+          "trigger": "W18X35  [28]",
+          "attribution": "DIMENSION_OWN_LABEL_CONTAMINATION",
+          "change": "MEMBER_RECOVERED",
+          "v0": "dimension",
+          "shadow": "line"
+        },
+        {
+          "token_id": "token_p18_1143",
+          "label": "W10X33",
+          "trigger": "7/8",
+          "attribution": "DIMENSION_GENUINE",
+          "change": "DIMENSION_PRESERVED",
+          "v0": "dimension",
+          "shadow": "dimension"
+        }
+      ]
+    },
+    "V3_spatial_separation": {
+      "n": 6,
+      "recovered": 4,
+      "still_dimension": 2,
+      "details": [
+        {
+          "token_id": "token_p8_332",
+          "label": "W14X22",
+          "trigger": "W14X22  [25]",
+          "attribution": "DIMENSION_OWN_LABEL_CONTAMINATION",
+          "change": "MEMBER_RECOVERED",
+          "v0": "dimension",
+          "shadow": "line"
+        },
+        {
+          "token_id": "token_p8_337",
+          "label": "W21X44",
+          "trigger": "W21X44  [30]",
+          "attribution": "DIMENSION_OWN_LABEL_CONTAMINATION",
+          "change": "MEMBER_RECOVERED",
+          "v0": "dimension",
+          "shadow": "line"
+        },
+        {
+          "token_id": "token_p8_348",
+          "label": "W30X90",
+          "trigger": "17K",
+          "attribution": "DIMENSION_UNRELATED_NEARBY_TEXT",
+          "change": "DIMENSION_PRESERVED",
+          "v0": "dimension",
+          "shadow": "dimension"
+        },
+        {
+          "token_id": "token_p8_381",
+          "label": "W18X35",
+          "trigger": "W18X35  [35]",
+          "attribution": "DIMENSION_OWN_LABEL_CONTAMINATION",
+          "change": "MEMBER_RECOVERED",
+          "v0": "dimension",
+          "shadow": "line"
+        },
+        {
+          "token_id": "token_p8_430",
+          "label": "W18X35",
+          "trigger": "W18X35  [28]",
+          "attribution": "DIMENSION_OWN_LABEL_CONTAMINATION",
+          "change": "MEMBER_RECOVERED",
+          "v0": "dimension",
+          "shadow": "line"
+        },
+        {
+          "token_id": "token_p18_1143",
+          "label": "W10X33",
+          "trigger": "7/8",
+          "attribution": "DIMENSION_GENUINE",
+          "change": "DIMENSION_PRESERVED",
+          "v0": "dimension",
+          "shadow": "dimension"
+        }
+      ]
+    }
+  },
+  "attribution_among_survivors": {
+    "DIMENSION_OWN_LABEL_CONTAMINATION": 4,
+    "UNKNOWN": 3,
+    "DIMENSION_UNRELATED_NEARBY_TEXT": 1,
+    "RETRIEVAL_STAGE": 2,
+    "AMBIGUOUS": 1,
+    "DIMENSION_GENUINE": 1
+  },
+  "own_label_contamination_cases": [
+    "token_p8_332",
+    "token_p8_337",
+    "token_p8_381",
+    "token_p8_430"
+  ],
+  "unrelated_nearby_text_cases": [
+    "token_p8_348"
+  ],
+  "genuine_dimension_controls": [
+    "token_p18_1143"
+  ],
+  "genuine_dimension_control_count": 1,
+  "false_flip_safety": "weakly measurable: 1 genuine-dimension control(s) in audited survivors; insufficient for production confidence",
+  "token_p8_348_w30x90": {
+    "attribution": "DIMENSION_UNRELATED_NEARBY_TEXT",
+    "own_label_lines": [
+      "W30X90  [42]  c = 3/4\""
+    ],
+    "production_nearby_text": "17K",
+    "production_nearby_bbox": [
+      1496.18,
+      1238.11,
+      1512.99,
+      1257.6
+    ],
+    "V0": {
+      "geometry_kind": "dimension",
+      "is_dimension": true,
+      "is_leader": false,
+      "member_eligible": false,
+      "looks_like_leader": false,
+      "looks_like_dimension": true,
+      "filter_reason": "looks_like_dimension",
+      "nearby_text_used": "17K",
+      "trigger_text": "17K",
+      "trigger_bbox": [
+        1496.18,
+        1238.11,
+        1512.99,
+        1257.6
+      ],
+      "trigger_distance": 20.92
+    },
+    "V1": {
+      "geometry_kind": "dimension",
+      "is_dimension": true,
+      "is_leader": false,
+      "member_eligible": false,
+      "looks_like_leader": false,
+      "looks_like_dimension": true,
+      "filter_reason": "looks_like_dimension",
+      "nearby_text_used": "17K",
+      "removed_trigger_text": null,
+      "shadow_nearby_text": "17K",
+      "trigger_source": "unchanged_non_own_or_empty"
+    },
+    "V2": {
+      "geometry_kind": "dimension",
+      "is_dimension": true,
+      "is_leader": false,
+      "member_eligible": false,
+      "looks_like_leader": false,
+      "looks_like_dimension": true,
+      "filter_reason": "looks_like_dimension",
+      "nearby_text_used": "17K",
+      "removed_trigger_text": null,
+      "shadow_nearby_text": "17K",
+      "trigger_source": "no_own_label_in_nearby"
+    },
+    "V3": {
+      "geometry_kind": "dimension",
+      "is_dimension": true,
+      "is_leader": false,
+      "member_eligible": false,
+      "looks_like_leader": false,
+      "looks_like_dimension": true,
+      "filter_reason": "looks_like_dimension",
+      "nearby_text_used": "17K",
+      "removed_trigger_text": null,
+      "shadow_nearby_text": "17K",
+      "trigger_source": "digit_lines_outside_own_label_bbox",
+      "variant_evaluable": true,
+      "skipped_overlapping_digit_texts": []
+    },
+    "change_class": {
+      "V1_ignore_own_numbers": "DIMENSION_PRESERVED",
+      "V2_exclude_own_label": "DIMENSION_PRESERVED",
+      "V3_spatial_separation": "DIMENSION_PRESERVED"
+    },
+    "trigger_belongs_to_w30x90_annotation": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "sidecar_preserves_semantics": true,
+  "mike": {
+    "document_id": "doc_0d910a43b4a021e3",
+    "corrected_pdf_present": true,
+    "owner": "Mike",
+    "checks": [
+      "Corrected PDF still extracts through existing multimodal pipeline",
+      "document.json / geometry.json / graph.json IDs still join",
+      "Semantic Review owns text; geometry is additive sidecar only",
+      "Incomplete L/2L stay missing_thickness / takeoff_eligible false"
+    ],
+    "status": "run_live_compare"
+  }
+}

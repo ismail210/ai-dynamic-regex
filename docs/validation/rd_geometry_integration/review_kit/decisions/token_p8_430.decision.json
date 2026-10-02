@@ -1,0 +1,32 @@
+{
+  "token_id": "token_p8_430",
+  "page": 8,
+  "text": "W18X35",
+  "label_bbox": [
+    1628.9,
+    1129.74,
+    1659.85,
+    1170.55
+  ],
+  "production_geometry_id": "geom_edbfa26d671d",
+  "candidate_geometry_ids": [
+    "geom_edbfa26d671d",
+    "geom_0a8f27d1dd2a",
+    "geom_5f6b0423ca08",
+    "geom_90463060295d",
+    "geom_e637a03a7371"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p8_430.png",
+  "crop_available": true,
+  "g1_status": "agreement",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Label sits on W18X35[28] joist among parallel W18s. Overlay is the W21X44 wall beam.",
+  "error_bucket": "parallel_member_confusion",
+  "leader_required": false,
+  "visible_member_on_drawing": true
+}

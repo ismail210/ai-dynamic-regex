@@ -1,0 +1,592 @@
+{
+  "broader_pattern_search": {
+    "associated_long_over_short_segment_pattern": [
+      {
+        "association_mode": "leader",
+        "audit_classification": "D",
+        "human_gold": "no_valid_member",
+        "label": "L6x3-1/2x3/8",
+        "page": 24,
+        "selected_id": "rnd_raw_p24_480_d0c0ca5e54d7",
+        "selected_length": 405.0,
+        "short_id": "raw_p24_10_9d8fbf0dfe5b#seg1",
+        "short_length": 27.0,
+        "short_rank": 2,
+        "token_id": "token_p24_1359"
+      }
+    ],
+    "contrast_case": {
+      "note": "Only other leader ASSOCIATED case; selected short CAP-restored tip stroke (len\u224875.7), audited as B (previously missing), not D.",
+      "token_id": "token_p18_1188"
+    },
+    "factual_conclusion": "Within the frozen Burrville 75-label G9 set, ASSOCIATED decisions where a long (\u2265200pt) LINE outranks a short (<50pt) SEGMENT/plate/small target occur only for token_p24_1359.",
+    "leader_associated_cases": [
+      {
+        "audit_classification": "B",
+        "human_gold": "no_valid_member",
+        "label": "PL 3 3/4\"",
+        "leader_status": "TARGET_PRESENT_MEMBERLIKE",
+        "selected_id": "rnd_raw_p18_5045_9d434832f314",
+        "selected_length": 75.684,
+        "token_id": "token_p18_1188"
+      },
+      {
+        "audit_classification": "D",
+        "human_gold": "no_valid_member",
+        "label": "L6x3-1/2x3/8",
+        "leader_status": "TARGET_PRESENT_MEMBERLIKE",
+        "selected_id": "rnd_raw_p24_480_d0c0ca5e54d7",
+        "selected_length": 405.0,
+        "token_id": "token_p24_1359"
+      }
+    ],
+    "leader_required_total": 18,
+    "pattern_count_in_frozen_75": 1
+  },
+  "correct_candidate": {
+    "candidate_id": "raw_p24_10_9d8fbf0dfe5b#seg1",
+    "comparison_factual": [
+      "length 27 vs 405",
+      "kind SEGMENT 0.72 prior vs LINE 1.0",
+      "provenance 0.55 vs 1.0",
+      "penalty 0.05 vs 0.0",
+      "leader_score 0.5344 vs 0.58 (tip nearly equidistant)",
+      "rank 2 vs rank 1",
+      "total 0.4797 vs 0.6002"
+    ],
+    "g8": {
+      "bbox": [
+        641.04,
+        516.96,
+        641.04,
+        543.96
+      ],
+      "candidate_id": "raw_p24_10_9d8fbf0dfe5b#seg1",
+      "candidate_kind": "SEGMENT_MEMBER_CANDIDATE",
+      "confidence_basis": "compound_path_length_exceeds_bbox_diagonal;segment_length_ge_min;no_member_identity_assigned",
+      "derivation": "vertex_split",
+      "length": 27.0,
+      "orientation": 90.0,
+      "page": 24,
+      "point_count": 2,
+      "provenance": {
+        "derivation_type": "vertex_split",
+        "derived_bbox": [
+          641.04,
+          516.96,
+          641.04,
+          543.96
+        ],
+        "derived_point_count": 2,
+        "original_bbox": [
+          625.32,
+          516.96,
+          641.04,
+          543.96
+        ],
+        "original_point_count": 5,
+        "segment_index": 1,
+        "source_geometry_id": null,
+        "source_page": 24,
+        "source_raw_id": "raw_p24_10_9d8fbf0dfe5b"
+      },
+      "source_raw_id": "raw_p24_10_9d8fbf0dfe5b",
+      "source_type": "compound_polyline_segment"
+    },
+    "g9_ranking": {
+      "bbox": [
+        641.04,
+        516.96,
+        641.04,
+        543.96
+      ],
+      "bbox_distance_pt": 39.96,
+      "bbox_score": 0.1246,
+      "candidate_id": "raw_p24_10_9d8fbf0dfe5b#seg1",
+      "candidate_kind": "SEGMENT_MEMBER_CANDIDATE",
+      "candidate_kind_score": 0.72,
+      "centroid_distance_pt": 72.279,
+      "derivation": "vertex_split",
+      "distance_pt": 39.96,
+      "distance_score": 0.5005,
+      "eligibility": "ok",
+      "leader_score": 0.5344,
+      "length": 27.0,
+      "length_score": 1.0,
+      "orientation": 90.0,
+      "orientation_score": 0.55,
+      "penalty": 0.05,
+      "provenance": {
+        "derivation_type": "vertex_split",
+        "derived_bbox": [
+          641.04,
+          516.96,
+          641.04,
+          543.96
+        ],
+        "derived_point_count": 2,
+        "original_bbox": [
+          625.32,
+          516.96,
+          641.04,
+          543.96
+        ],
+        "original_point_count": 5,
+        "segment_index": 1,
+        "source_geometry_id": null,
+        "source_page": 24,
+        "source_raw_id": "raw_p24_10_9d8fbf0dfe5b"
+      },
+      "provenance_score": 0.55,
+      "rank": 2,
+      "seg_distance_pt": 70.034,
+      "source_geometry_id": null,
+      "total_score": 0.4797
+    },
+    "parent_raw_id": "raw_p24_10_9d8fbf0dfe5b",
+    "parent_tip_distance": 23.28,
+    "parent_tip_role": "plate_or_symbol",
+    "score_contributions": {
+      "W_BBOX*bbox_score": 0.0224,
+      "W_DISTANCE*distance_score": 0.1702,
+      "W_KIND*candidate_kind_score": 0.0864,
+      "W_LEADER*leader_score": 0.0428,
+      "W_LENGTH*length_score": 0.12,
+      "W_ORIENT*orientation_score": 0.066,
+      "W_PROVENANCE*provenance_score": 0.022,
+      "minus_penalty": -0.05,
+      "sum": 0.4797
+    },
+    "segment_index": 1,
+    "vertex_split": true
+  },
+  "doc_id": "doc_0d910a43b4a021e3",
+  "factual_vs_inference": {
+    "FACTS": [
+      "G9 ASSOCIATED rnd_raw_p24_480 (405pt wall) over raw_p24_10#seg1 (27pt segment)",
+      "Scores 0.6002 vs 0.4797; margin 0.1205",
+      "Leader tip present; tip distances 21.0 vs 23.28",
+      "Only 1 ASSOCIATED long-over-short case in frozen 75",
+      "Only 2 leader ASSOCIATED decisions total in frozen 75"
+    ],
+    "INFERENCES": [
+      "Wrong decision locus is G9 ranking feature composition, not missing G8 candidate",
+      "Long wall wins because tip-to-line geometry + LINE/retained priors outweigh tip role semantics",
+      "Pattern is isolated in this holdout; not yet a demonstrated repeatable production failure class"
+    ]
+  },
+  "failure_mechanisms": [
+    {
+      "applies": true,
+      "code": "D",
+      "evidence": [
+        "FACT: leader_tip=[664.32, 517.92]",
+        "FACT: tip-to-selected-wall segment distance = 21.0 pt (wall is vertical x=643.32 spanning y\u2208[138.96,543.96]; tip y=517.92 in range)",
+        "FACT: tip-to-correct-seg1 segment distance = 23.28 pt (seg1 vertical x=641.04, y\u2208[516.96,543.96])",
+        "FACT: G9 leader_score(selected)=0.58 vs leader_score(correct)=0.5344 \u2014 near-tie despite wall being the wrong object",
+        "FACT: selected centroid_distance_pt=183.3 (far) but tip-to-line distance stays small because the long wall passes beside the tip"
+      ],
+      "name": "LONG_WALL_GEOMETRY_DOMINATES_DISTANCE"
+    },
+    {
+      "applies": true,
+      "code": "C",
+      "evidence": [
+        "FACT: correct candidate_kind=SEGMENT_MEMBER_CANDIDATE \u2192 KIND_PRIOR=0.72 vs LINE=1.0 (\u0394 contribution +0.0336 to wall)",
+        "FACT: SEGMENT_MEMBER_CANDIDATE penalty = +0.05 applied to correct only",
+        "FACT: derivation vertex_split \u2192 provenance_score=0.55 vs on_label_retained=1.0 (\u0394 +0.018 to wall)",
+        "FACT: length_score=1.0 for BOTH 27pt and 405pt (MEMBER_MAX_LEN_PT=520; no long-wall penalty)"
+      ],
+      "name": "SHORT_TARGET_DISTANCE_DISADVANTAGED"
+    },
+    {
+      "applies": true,
+      "code": "G",
+      "evidence": [
+        "FACT: reconstructed weighted contributions sum to recorded totals 0.6002 vs 0.4797 (exact)",
+        "FACT: largest positive deltas favoring wall: penalty(+0.05), kind(+0.0336), provenance(+0.018); distance/leader deltas are <0.01 each",
+        "FACT: W_LEADER=0.08 is too small to overturn kind+penalty+provenance when tip distances nearly tie",
+        "INFERENCE: failure is at G9 ranking/feature composition after both candidates are eligible \u2014 not at G8 population absence"
+      ],
+      "name": "RANKING_FEATURE ISSUE"
+    },
+    {
+      "applies": true,
+      "code": "B",
+      "evidence": [
+        "FACT: G9 stores leader_tip and computes leader_score from tip\u2192candidate geometry",
+        "FACT: G8 leader_audit.tip_candidates labels raw_p24_10_9d8fbf0dfe5b as role=plate_or_symbol at tip_distance=23.28",
+        "FACT: G8 labels selected wall as role=member_like at tip_distance=21.0",
+        "FACT: G9 score_components does not consume tip candidate role/plate_or_symbol flags \u2014 only geometric tip distance",
+        "FACT: tip_distance=0.0 stroke raw_p24_4088 is role=leader_like and is NOT in G8 B_candidates (correctly excluded as pointer)"
+      ],
+      "name": "LEADER_ENDPOINT_REPRESENTED_BUT_NOT_USED",
+      "nuance": "Geometric tip IS used; tip-role metadata is not"
+    },
+    {
+      "applies": true,
+      "code": "F",
+      "evidence": [
+        "FACT: parent plate_or_symbol raw_p24_10_9d8fbf0dfe5b is NOT present as a whole PLATE_MEMBER_CANDIDATE in B_candidates",
+        "FACT: only vertex_split segments #seg1 and #seg3 from that raw id are in B",
+        "FACT: those segments inherit SEGMENT kind prior + vertex_split provenance discount",
+        "INFERENCE: segmentation path makes the visually correct object structurally weaker in G9 priors"
+      ],
+      "name": "CANDIDATE_GENERATION/SEGMENTATION ISSUE",
+      "nuance": "Secondary: plate exists as tip role but only as vertex_split segments in B"
+    },
+    {
+      "applies": false,
+      "code": "A",
+      "evidence": [
+        "FACT: leader_tip present and identical in G8 leader_audit.tip and G9 leader_tip"
+      ],
+      "name": "LEADER_ENDPOINT_NOT_REPRESENTED"
+    },
+    {
+      "applies": false,
+      "code": "E",
+      "evidence": [
+        "FACT: selected wall current_kind=line / role=member_like in G8 tip audit \u2014 classification is coherent as a line",
+        "FACT: wrongness is association ownership, not that the stroke is mis-extracted as a line"
+      ],
+      "name": "CANDIDATE_CLASSIFICATION_ERROR"
+    }
+  ],
+  "gate": "D_CASE_ISOLATED",
+  "label": "L6x3-1/2x3/8",
+  "leader_trace": {
+    "factual": [
+      "Leader tip is represented as coordinates [664.32, 517.92].",
+      "Nearest tip stroke (tip_distance=0) is leader_like raw_p24_4088 \u2014 pointer geometry, not member.",
+      "Plate/angle parent raw_p24_10 is tip role=plate_or_symbol at tip_distance=23.28.",
+      "Long wall raw_p24_480 is tip role=member_like at tip_distance=21.0.",
+      "G9 uses tip geometry for leader_score; does not use tip role labels."
+    ],
+    "inference": [
+      "Visual ownership follows the tip toward the small L6 angle (plate_or_symbol), not the long wall line.",
+      "Near-equal tip distances allow the long wall to compete as if it were a tip target."
+    ],
+    "leader_tip": [
+      664.32,
+      517.92
+    ],
+    "leader_tip_source": "G8 leader_audit.tip == G9 leader_tip",
+    "tip_candidates": [
+      {
+        "classified_kind": null,
+        "in_g8_B_candidates": false,
+        "length": 41.32,
+        "raw_id": "raw_p24_4088_f6a7253fddbc",
+        "retained_by_cap": false,
+        "role": "leader_like",
+        "tip_distance": 0.0
+      },
+      {
+        "classified_kind": "line",
+        "in_g8_B_candidates": true,
+        "length": 405.0,
+        "raw_id": "raw_p24_480_d0c0ca5e54d7",
+        "retained_by_cap": true,
+        "role": "member_like",
+        "tip_distance": 21.0
+      },
+      {
+        "classified_kind": null,
+        "in_g8_B_candidates": false,
+        "length": 23.08,
+        "raw_id": "raw_p24_116_13c0992b74c2",
+        "retained_by_cap": false,
+        "role": "leader_like",
+        "tip_distance": 21.54
+      },
+      {
+        "classified_kind": null,
+        "in_g8_B_candidates": false,
+        "length": 23.08,
+        "raw_id": "raw_p24_115_319b213b5794",
+        "retained_by_cap": false,
+        "role": "leader_like",
+        "tip_distance": 22.44
+      },
+      {
+        "classified_kind": null,
+        "in_g8_B_candidates": true,
+        "length": 85.44,
+        "raw_id": "raw_p24_10_9d8fbf0dfe5b",
+        "retained_by_cap": false,
+        "role": "plate_or_symbol",
+        "tip_distance": 23.28
+      },
+      {
+        "classified_kind": null,
+        "in_g8_B_candidates": false,
+        "length": 68.64,
+        "raw_id": "raw_p24_35_6a1286a8fe7d",
+        "retained_by_cap": false,
+        "role": "plate_or_symbol",
+        "tip_distance": 39.0
+      },
+      {
+        "classified_kind": "line",
+        "in_g8_B_candidates": true,
+        "length": 405.0,
+        "raw_id": "raw_p24_478_77a1ccd9dec6",
+        "retained_by_cap": true,
+        "role": "member_like",
+        "tip_distance": 37.32
+      },
+      {
+        "classified_kind": "dimension",
+        "in_g8_B_candidates": true,
+        "length": 140.64,
+        "raw_id": "raw_p24_567_062ff3501beb",
+        "retained_by_cap": true,
+        "role": "member_like",
+        "tip_distance": 33.453
+      },
+      {
+        "classified_kind": null,
+        "in_g8_B_candidates": true,
+        "length": 21.433,
+        "raw_id": "raw_p24_4086_cfa746f71182",
+        "retained_by_cap": false,
+        "role": "member_like",
+        "tip_distance": 32.303
+      },
+      {
+        "classified_kind": null,
+        "in_g8_B_candidates": true,
+        "length": 21.585,
+        "raw_id": "raw_p24_4220_f4e088ea98aa",
+        "retained_by_cap": false,
+        "role": "member_like",
+        "tip_distance": 34.269
+      }
+    ]
+  },
+  "page": 24,
+  "pipeline_trace": {
+    "audit_prior": {
+      "classification": "D",
+      "d_characterization": {
+        "correct_candidate_id": "raw_p24_10_9d8fbf0dfe5b#seg1",
+        "g9_rank_of_correct_candidate": 2,
+        "g9_score_of_correct_candidate": 0.4797,
+        "g9_score_of_selected_candidate": 0.6002,
+        "g9_selected_id": "rnd_raw_p24_480_d0c0ca5e54d7",
+        "main_reason_for_wrong_selection": "Leader/length scoring favored long wall line near tip over short angle/plate segment candidates."
+      }
+    },
+    "g8": {
+      "A_status": "A_RAW_AMBIGUOUS",
+      "B_candidate_count": 24,
+      "B_status": "B_RECOVERED",
+      "leader_status": "TARGET_PRESENT_MEMBERLIKE",
+      "loss_class": "RAW_AMBIGUOUS",
+      "raw_trace": {
+        "ambiguous_band": true,
+        "classified_kind_before_reclass": "line",
+        "current_final_geometry_id": "geom_3b848d5ef250",
+        "current_kind": "line",
+        "drop_reason": null,
+        "perp_distance": 67.57,
+        "proposed_reason": "member_like",
+        "proposed_rnd_candidate_kind": "LINE_MEMBER_CANDIDATE",
+        "raw_bbox": [
+          643.32,
+          138.96,
+          643.32,
+          543.96
+        ],
+        "raw_geometry_id_or_index": "raw_p24_480_d0c0ca5e54d7",
+        "raw_item_types": [
+          "l"
+        ],
+        "raw_length": 405.0,
+        "raw_point_count": 2,
+        "reclassified_by": null,
+        "retained_by_cap": true
+      },
+      "representation_change": "improved"
+    },
+    "g9": {
+      "association_mode": "leader",
+      "candidate_count_eligible": 15,
+      "decision": "ASSOCIATED",
+      "margin": 0.1205,
+      "reason_codes": [
+        "member_scale",
+        "valid_candidate_kind",
+        "leader_tip_target",
+        "memberlike_target"
+      ],
+      "selected_candidate_id": "rnd_raw_p24_480_d0c0ca5e54d7",
+      "wrong_decision_locus": "G9_RANKING_AFTER_ELIGIBILITY",
+      "wrong_decision_locus_factual_basis": "Both selected and correct candidates are hard-eligible in rankings; failure is rank-1 vs rank-2 score ordering, not missing correct candidate."
+    },
+    "label": {
+      "gold_candidate_geometry_ids": [
+        "geom_3b848d5ef250",
+        "geom_b31d44311082",
+        "geom_04fcef27f50b",
+        "geom_87377fdc9117",
+        "geom_2bbf72b2eef4"
+      ],
+      "gold_error_bucket": "missing_retrieval",
+      "gold_reason": "Leader points to the small L6 relieving angle at the brick/slab. Green overlay is the long brick-hatch wall line.",
+      "human_gold": "no_valid_member",
+      "label_bbox": [
+        681.0,
+        505.58,
+        740.78,
+        518.18
+      ],
+      "leader_required": true,
+      "raw_text": "L6x3-1/2x3/8",
+      "token_id": "token_p24_1359"
+    }
+  },
+  "project": "Burrville ES - ST",
+  "recommendation": "No G10 yet. Optional later: narrowly scoped READ-ONLY decision-policy experiment specification only if additional holdout pages show the same long-wall-vs-short-tip pattern.",
+  "safety": {
+    "extractor_sha": "9688e2d84e8c67ebf692f7022db093133b106e2fcf3a2cb893eb8ec7b2d9d29e",
+    "g8_results_sha": "1931707165664d9e8e6ea198171624b9f9d8bb25dda2edd40d86619126ed3c44",
+    "g8_script_sha": "e3b32a6636d13eea769f62290b159ee77404c33b456b7c7e4f01ff3b3ab7a868",
+    "g9_results_sha": "b459522eb097c285a359bd01a2be61c389daeded6415f236b6a0c47323cb4814",
+    "g9_script_sha": "dcb9b8239549eeba777dae6ab31baa558640d8cbfd3ed8b66f0e669d52caeff8",
+    "gold_sha": "0fad4291ff06ffa4e61c46f4ac923d7187455dd6b2f9b088481ab5e6b976b155",
+    "gold_sha_expected": "0fad4291ff06ffa4e61c46f4ac923d7187455dd6b2f9b088481ab5e6b976b155",
+    "gold_unchanged": true,
+    "no_g10_implemented": true,
+    "no_threshold_changes": true,
+    "no_weight_changes": true
+  },
+  "scope": "READ_ONLY_D_CASE_FORENSICS",
+  "score_delta_selected_minus_correct": {
+    "W_BBOX*bbox_score": 0.0056,
+    "W_DISTANCE*distance_score": 0.0097,
+    "W_KIND*candidate_kind_score": 0.0336,
+    "W_LEADER*leader_score": 0.0036,
+    "W_LENGTH*length_score": 0.0,
+    "W_ORIENT*orientation_score": 0.0,
+    "W_PROVENANCE*provenance_score": 0.018,
+    "minus_penalty": 0.05,
+    "total_delta": 0.1205
+  },
+  "selected_candidate": {
+    "candidate_id": "rnd_raw_p24_480_d0c0ca5e54d7",
+    "g8": {
+      "bbox": [
+        643.32,
+        138.96,
+        643.32,
+        543.96
+      ],
+      "candidate_id": "rnd_raw_p24_480_d0c0ca5e54d7",
+      "candidate_kind": "LINE_MEMBER_CANDIDATE",
+      "confidence_basis": "role=member_like;loss_recovery;no_section_identity",
+      "derivation": "on_label_retained",
+      "length": 405.0,
+      "orientation": -90.0,
+      "page": 24,
+      "point_count": 2,
+      "provenance": {
+        "current_kind": "line",
+        "derivation_type": "on_label_retained",
+        "derived_bbox": [
+          643.32,
+          138.96,
+          643.32,
+          543.96
+        ],
+        "derived_point_count": 2,
+        "original_bbox": [
+          643.32,
+          138.96,
+          643.32,
+          543.96
+        ],
+        "original_point_count": 2,
+        "retained_by_cap": true,
+        "source_geometry_id": "geom_3b848d5ef250",
+        "source_page": 24,
+        "source_raw_id": "raw_p24_480_d0c0ca5e54d7"
+      },
+      "source_raw_id": "raw_p24_480_d0c0ca5e54d7",
+      "source_type": "raw_drawing"
+    },
+    "g9_ranking": {
+      "bbox": [
+        643.32,
+        138.96,
+        643.32,
+        543.96
+      ],
+      "bbox_distance_pt": 37.68,
+      "bbox_score": 0.1554,
+      "candidate_id": "rnd_raw_p24_480_d0c0ca5e54d7",
+      "candidate_kind": "LINE_MEMBER_CANDIDATE",
+      "candidate_kind_score": 1.0,
+      "centroid_distance_pt": 183.327,
+      "derivation": "on_label_retained",
+      "distance_pt": 37.68,
+      "distance_score": 0.529,
+      "eligibility": "ok",
+      "leader_score": 0.58,
+      "length": 405.0,
+      "length_score": 1.0,
+      "orientation": -90.0,
+      "orientation_score": 0.55,
+      "penalty": 0.0,
+      "provenance": {
+        "current_kind": "line",
+        "derivation_type": "on_label_retained",
+        "derived_bbox": [
+          643.32,
+          138.96,
+          643.32,
+          543.96
+        ],
+        "derived_point_count": 2,
+        "original_bbox": [
+          643.32,
+          138.96,
+          643.32,
+          543.96
+        ],
+        "original_point_count": 2,
+        "retained_by_cap": true,
+        "source_geometry_id": "geom_3b848d5ef250",
+        "source_page": 24,
+        "source_raw_id": "raw_p24_480_d0c0ca5e54d7"
+      },
+      "provenance_score": 1.0,
+      "rank": 1,
+      "seg_distance_pt": 67.57,
+      "source_geometry_id": "geom_3b848d5ef250",
+      "total_score": 0.6002
+    },
+    "score_contributions": {
+      "W_BBOX*bbox_score": 0.028,
+      "W_DISTANCE*distance_score": 0.1799,
+      "W_KIND*candidate_kind_score": 0.12,
+      "W_LEADER*leader_score": 0.0464,
+      "W_LENGTH*length_score": 0.12,
+      "W_ORIENT*orientation_score": 0.066,
+      "W_PROVENANCE*provenance_score": 0.04,
+      "minus_penalty": -0.0,
+      "sum": 0.6002
+    },
+    "why_attractive_factual": [
+      "LINE_MEMBER_CANDIDATE with KIND_PRIOR=1.0",
+      "derivation=on_label_retained \u2192 provenance_score=1.0",
+      "length=405 within MEMBER_MAX_LEN_PT=520 \u2192 length_score=1.0",
+      "no SEGMENT penalty",
+      "tip distance 21 pt \u2192 leader_score=0.58",
+      "label bbox_distance_pt=37.68 (slightly nearer than correct 39.96)",
+      "source_geometry_id=geom_3b848d5ef250 appears in historical gold candidate_geometry_ids as the wrong wall overlay"
+    ]
+  },
+  "token_id": "token_p24_1359"
+}

@@ -1,0 +1,31 @@
+{
+  "token_id": "token_p8_367",
+  "page": 8,
+  "text": "W14X22",
+  "label_bbox": [
+    1670.09,
+    1333.1,
+    1704.04,
+    1372.73
+  ],
+  "production_geometry_id": "geom_485e0c733148",
+  "candidate_geometry_ids": [
+    "geom_485e0c733148",
+    "geom_286fd47ebc3c",
+    "geom_90463060295d",
+    "geom_e637a03a7371",
+    "geom_00c392a4d8a5"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p8_367.png",
+  "crop_available": true,
+  "g1_status": "agreement",
+  "review_label": "ambiguous_requires_adjudication",
+  "decision": "ambiguous",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Label sits at a crowded opening/stair node among W12X16[12], W14X22, and the W12X16[14] infill. The overlay is the neighboring infill. Multiple members remain plausible; no unique target.",
+  "error_bucket": "crowded_neighborhood",
+  "leader_required": false
+}

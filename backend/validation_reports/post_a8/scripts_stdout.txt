@@ -1,0 +1,4 @@
+{
+  "documents": 3,
+  "summary": "validation_reports/post_a8/drawing_semantics/emit_summary.json"
+}

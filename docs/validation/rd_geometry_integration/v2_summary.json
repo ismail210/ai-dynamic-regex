@@ -1,0 +1,335 @@
+{
+  "document_id": "doc_0d910a43b4a021e3",
+  "n_labels": 75,
+  "gold_sha256": "0fad4291ff06ffa4e61c46f4ac923d7187455dd6b2f9b088481ab5e6b976b155",
+  "gold_immutable": true,
+  "population_a_associated": {
+    "n": 8,
+    "baseline": {
+      "recall_at_1": {
+        "hits": 8,
+        "n": 8,
+        "rate": 1.0
+      },
+      "recall_at_3": {
+        "hits": 8,
+        "n": 8,
+        "rate": 1.0
+      },
+      "recall_at_5": {
+        "hits": 8,
+        "n": 8,
+        "rate": 1.0
+      }
+    },
+    "v2": {
+      "recall_at_1": {
+        "hits": 8,
+        "n": 8,
+        "rate": 1.0
+      },
+      "recall_at_3": {
+        "hits": 8,
+        "n": 8,
+        "rate": 1.0
+      },
+      "recall_at_5": {
+        "hits": 8,
+        "n": 8,
+        "rate": 1.0
+      }
+    }
+  },
+  "population_b_visible_member_misses": {
+    "n": 58,
+    "note": "These 58 gold records have no selected_geometry_id. retrieval_recovered is PROXY local-coverage (non-giant local stroke or leader-target small geometry in the v2 shortlist), not invented gold IDs.",
+    "baseline_exact_gold_id": "0/58 by construction (no gold geometry id)",
+    "baseline_proxy_local_coverage": 24,
+    "retrieval_recovered": 30,
+    "retrieval_still_missing": 28,
+    "retrieval_recovered_frac": "30/58",
+    "retrieval_still_missing_frac": "28/58",
+    "new_local_or_leader_absent_from_baseline": 9,
+    "new_local_or_leader_frac": "9/58",
+    "new_coverage_ids": [
+      "token_p8_351",
+      "token_p8_359",
+      "token_p8_384",
+      "token_p8_411",
+      "token_p18_1169",
+      "token_p18_1173",
+      "token_p18_1178",
+      "token_p18_1188",
+      "token_p24_1361"
+    ],
+    "recovered_ids": [
+      "token_p8_332",
+      "token_p8_336",
+      "token_p8_341",
+      "token_p8_343",
+      "token_p8_345",
+      "token_p8_347",
+      "token_p8_351",
+      "token_p8_352",
+      "token_p8_354",
+      "token_p8_356",
+      "token_p8_359",
+      "token_p8_361",
+      "token_p8_368",
+      "token_p8_369",
+      "token_p8_371",
+      "token_p8_372",
+      "token_p8_384",
+      "token_p8_386",
+      "token_p8_394",
+      "token_p8_399",
+      "token_p8_410",
+      "token_p8_411",
+      "token_p8_412",
+      "token_p18_1162",
+      "token_p18_1169",
+      "token_p18_1173",
+      "token_p18_1178",
+      "token_p18_1180",
+      "token_p18_1188",
+      "token_p24_1361"
+    ],
+    "still_missing_ids": [
+      "token_p8_337",
+      "token_p8_338",
+      "token_p8_346",
+      "token_p8_348",
+      "token_p8_353",
+      "token_p8_355",
+      "token_p8_363",
+      "token_p8_381",
+      "token_p8_382",
+      "token_p8_383",
+      "token_p8_392",
+      "token_p8_407",
+      "token_p8_416",
+      "token_p8_419",
+      "token_p8_430",
+      "token_p8_431",
+      "token_p8_433",
+      "token_p18_1186",
+      "token_p24_1359",
+      "token_p24_1360",
+      "token_p24_1362",
+      "token_p24_1370",
+      "token_p24_1377",
+      "token_p24_1378",
+      "token_p24_1379",
+      "token_p24_1385",
+      "token_p24_1387",
+      "token_p24_1389"
+    ]
+  },
+  "failure_classes": {
+    "PROXY_RECOVERED": 30,
+    "RETRIEVAL_FAILURE": 28,
+    "RETRIEVED": 8,
+    "AMBIGUITY": 2,
+    "NOT_A_MEMBER": 7
+  },
+  "leader": {
+    "n_leader_required": 18,
+    "leader_detected": 6,
+    "target_geometry_retrieved": 6,
+    "target_geometry_missing": 12,
+    "leader_as_member_total": 0,
+    "leader_as_member_invariant_ok": true
+  },
+  "giant_polyline": {
+    "baseline_top1_extent_ge_400": 13,
+    "v2_replaced_or_local": 12,
+    "examples": [
+      {
+        "label_id": "token_p8_337",
+        "page": 8,
+        "label_text": "W21X44",
+        "human_decision": "no_valid_member",
+        "baseline_top1": "geom_3e2826b140f9",
+        "baseline_extent": 657.8,
+        "v2_top1": "geom_0b5ef1f9c497",
+        "v2_extent": 253.45,
+        "v2_mechanism": "direct_segment",
+        "gold_geometry_id": null
+      },
+      {
+        "label_id": "token_p8_338",
+        "page": 8,
+        "label_text": "W21X44",
+        "human_decision": "no_valid_member",
+        "baseline_top1": "geom_3e2826b140f9",
+        "baseline_extent": 657.8,
+        "v2_top1": "geom_4f2fbd460d51",
+        "v2_extent": 330.73,
+        "v2_mechanism": "local_segment",
+        "gold_geometry_id": null
+      },
+      {
+        "label_id": "token_p8_345",
+        "page": 8,
+        "label_text": "W10X15",
+        "human_decision": "no_valid_member",
+        "baseline_top1": "geom_3e2826b140f9",
+        "baseline_extent": 657.8,
+        "v2_top1": "geom_74a1dffa16c8",
+        "v2_extent": 330.82,
+        "v2_mechanism": "leader_target",
+        "gold_geometry_id": null
+      },
+      {
+        "label_id": "token_p8_346",
+        "page": 8,
+        "label_text": "W10X15",
+        "human_decision": "no_valid_member",
+        "baseline_top1": "geom_3e2826b140f9",
+        "baseline_extent": 657.8,
+        "v2_top1": "geom_74a1dffa16c8",
+        "v2_extent": 330.82,
+        "v2_mechanism": "local_segment",
+        "gold_geometry_id": null
+      },
+      {
+        "label_id": "token_p8_351",
+        "page": 8,
+        "label_text": "W18X35",
+        "human_decision": "no_valid_member",
+        "baseline_top1": "geom_59a6f49b264f",
+        "baseline_extent": 842.9,
+        "v2_top1": "geom_099701ad614f",
+        "v2_extent": 313.49,
+        "v2_mechanism": "leader_target",
+        "gold_geometry_id": null
+      },
+      {
+        "label_id": "token_p8_359",
+        "page": 8,
+        "label_text": "W18X40",
+        "human_decision": "no_valid_member",
+        "baseline_top1": "geom_59a6f49b264f",
+        "baseline_extent": 842.9,
+        "v2_top1": "geom_9027619e697a",
+        "v2_extent": 317.36,
+        "v2_mechanism": "direct_segment",
+        "gold_geometry_id": null
+      },
+      {
+        "label_id": "token_p8_363",
+        "page": 8,
+        "label_text": "W16X26",
+        "human_decision": "no_valid_member",
+        "baseline_top1": "geom_3e2826b140f9",
+        "baseline_extent": 657.8,
+        "v2_top1": "geom_cf1c1b4a4515",
+        "v2_extent": 253.68,
+        "v2_mechanism": "direct_segment",
+        "gold_geometry_id": null
+      },
+      {
+        "label_id": "token_p8_382",
+        "page": 8,
+        "label_text": "W18X35",
+        "human_decision": "no_valid_member",
+        "baseline_top1": "geom_59a6f49b264f",
+        "baseline_extent": 842.9,
+        "v2_top1": "geom_59a6f49b264f",
+        "v2_extent": 334.89,
+        "v2_mechanism": "local_segment",
+        "gold_geometry_id": null
+      }
+    ]
+  },
+  "by_page": {
+    "8": {
+      "n": 50,
+      "associated": 8,
+      "visible_member_misses": 40,
+      "proxy_recovered": 23,
+      "leader_required": 0,
+      "leader_detected": 0,
+      "leader_target_in_candidates": 0,
+      "schedule_not_member": 0,
+      "ambiguity": 8,
+      "leader_as_member": 0
+    },
+    "18": {
+      "n": 14,
+      "associated": 0,
+      "visible_member_misses": 7,
+      "proxy_recovered": 6,
+      "leader_required": 7,
+      "leader_detected": 5,
+      "leader_target_in_candidates": 5,
+      "schedule_not_member": 7,
+      "ambiguity": 3,
+      "leader_as_member": 0
+    },
+    "24": {
+      "n": 11,
+      "associated": 0,
+      "visible_member_misses": 11,
+      "proxy_recovered": 1,
+      "leader_required": 11,
+      "leader_detected": 1,
+      "leader_target_in_candidates": 1,
+      "schedule_not_member": 0,
+      "ambiguity": 7,
+      "leader_as_member": 0
+    }
+  },
+  "schedule_not_member": 7,
+  "mechanisms": {
+    "small_detail": 10,
+    "leader_target": 31,
+    "direct_segment": 17,
+    "local_segment": 16,
+    "none": 1
+  },
+  "review_followup": [],
+  "safety": {
+    "production_untouched": true,
+    "ghx_untouched": true,
+    "semantic_review_untouched": true,
+    "takeoff_untouched": true,
+    "ml": false,
+    "vlm": false,
+    "section_completion": false,
+    "leader_as_member": 0
+  },
+  "visual_qa": {
+    "giant_polyline_failure": {
+      "token_id": "token_p8_348",
+      "path": "v2_renders/giant_polyline_failure_token_p8_348.png",
+      "ok": true
+    },
+    "recovered_p8_member": {
+      "token_id": "token_p8_359",
+      "path": "v2_renders/recovered_p8_member_token_p8_359.png",
+      "ok": true
+    },
+    "leader_p18": {
+      "token_id": "token_p18_1162",
+      "path": "v2_renders/leader_p18_token_p18_1162.png",
+      "ok": true
+    },
+    "leader_p24": {
+      "token_id": "token_p24_1361",
+      "path": "v2_renders/leader_p24_token_p24_1361.png",
+      "ok": true
+    },
+    "remaining_retrieval_failure": {
+      "token_id": "token_p8_355",
+      "path": "v2_renders/remaining_retrieval_failure_token_p8_355.png",
+      "ok": true
+    },
+    "ambiguous": {
+      "token_id": "token_p8_367",
+      "path": "v2_renders/ambiguous_token_p8_367.png",
+      "ok": true
+    }
+  },
+  "gold_sha256_after": "0fad4291ff06ffa4e61c46f4ac923d7187455dd6b2f9b088481ab5e6b976b155"
+}

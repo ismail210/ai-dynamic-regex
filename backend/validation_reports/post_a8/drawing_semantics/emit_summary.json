@@ -1,0 +1,20 @@
+[
+  {
+    "document_id": "doc_juneph3riverroad",
+    "path": "validation_reports/post_a8/drawing_semantics/doc_juneph3riverroad_drawing_semantics.json",
+    "annotation_count": 401,
+    "validation_errors": []
+  },
+  {
+    "document_id": "doc_juneph3burrville",
+    "path": "validation_reports/post_a8/drawing_semantics/doc_juneph3burrville_drawing_semantics.json",
+    "annotation_count": 562,
+    "validation_errors": []
+  },
+  {
+    "document_id": "doc_juneph3some",
+    "path": "validation_reports/post_a8/drawing_semantics/doc_juneph3some_drawing_semantics.json",
+    "annotation_count": 148,
+    "validation_errors": []
+  }
+]

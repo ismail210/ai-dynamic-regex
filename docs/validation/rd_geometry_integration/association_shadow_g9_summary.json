@@ -1,0 +1,150 @@
+{
+  "g9_gate": "ASSOCIATION_STILL_NOT_READY",
+  "gold_sha256": "0fad4291ff06ffa4e61c46f4ac923d7187455dd6b2f9b088481ab5e6b976b155",
+  "improvement_source": "primarily_G8_candidate_population",
+  "metrics": {
+    "abstention_rate": 0.4133,
+    "ambiguous_forced_association": 1,
+    "ambiguous_preserved": 1,
+    "associated_gold_exact_match": 2,
+    "baseline_a_assoc_match": 6,
+    "baseline_b_assoc_match": 8,
+    "both_g8_and_g9_needed": 2,
+    "decision_counts": {
+      "ABSTAIN": 6,
+      "AMBIGUOUS": 25,
+      "ASSOCIATED": 31,
+      "NO_VALID_MEMBER": 13
+    },
+    "false_association_no_valid_member": 27,
+    "g9_wins_where_baseline_b_wrong": 0,
+    "giant_selected": 0,
+    "large_segment_selected": 0,
+    "leader_false_association": 0,
+    "leader_success": 2,
+    "mean_eligible_candidates": 12.04,
+    "mean_margin_associated": 0.1243,
+    "non_member_selected": 0,
+    "recall_at_1": 0.625,
+    "recall_at_3": 1.0,
+    "recall_at_5": 1.0,
+    "schedule_false_association": 0,
+    "wrong_geometry_on_associated": 1
+  },
+  "n_cases": 75,
+  "page_metrics": {
+    "18": {
+      "ABSTAIN": 1,
+      "AMBIGUOUS": 2,
+      "ASSOCIATED": 1,
+      "NO_VALID_MEMBER": 10,
+      "gold_exact": 0,
+      "n": 14
+    },
+    "24": {
+      "ABSTAIN": 3,
+      "AMBIGUOUS": 4,
+      "ASSOCIATED": 1,
+      "NO_VALID_MEMBER": 3,
+      "gold_exact": 0,
+      "n": 11
+    },
+    "8": {
+      "ABSTAIN": 2,
+      "AMBIGUOUS": 19,
+      "ASSOCIATED": 29,
+      "NO_VALID_MEMBER": 0,
+      "gold_exact": 2,
+      "n": 50
+    }
+  },
+  "strata": {
+    "associated_gold": {
+      "ABSTAIN": 0,
+      "AMBIGUOUS": 5,
+      "ASSOCIATED": 3,
+      "NO_VALID_MEMBER": 0,
+      "gold_exact": 2,
+      "n": 8
+    },
+    "g8_neighborhood_only": {
+      "ABSTAIN": 0,
+      "AMBIGUOUS": 5,
+      "ASSOCIATED": 4,
+      "NO_VALID_MEMBER": 6,
+      "gold_exact": 0,
+      "n": 15
+    },
+    "g8_recovered": {
+      "ABSTAIN": 6,
+      "AMBIGUOUS": 15,
+      "ASSOCIATED": 24,
+      "NO_VALID_MEMBER": 0,
+      "gold_exact": 0,
+      "n": 45
+    },
+    "human_ambiguous": {
+      "ABSTAIN": 0,
+      "AMBIGUOUS": 1,
+      "ASSOCIATED": 1,
+      "NO_VALID_MEMBER": 0,
+      "gold_exact": 0,
+      "n": 2
+    },
+    "human_no_valid_member": {
+      "ABSTAIN": 6,
+      "AMBIGUOUS": 19,
+      "ASSOCIATED": 27,
+      "NO_VALID_MEMBER": 13,
+      "gold_exact": 0,
+      "n": 65
+    },
+    "leader_required": {
+      "ABSTAIN": 4,
+      "AMBIGUOUS": 6,
+      "ASSOCIATED": 2,
+      "NO_VALID_MEMBER": 6,
+      "gold_exact": 0,
+      "n": 18
+    },
+    "schedule_table": {
+      "ABSTAIN": 0,
+      "AMBIGUOUS": 0,
+      "ASSOCIATED": 0,
+      "NO_VALID_MEMBER": 7,
+      "gold_exact": 0,
+      "n": 7
+    },
+    "short_stroke_loss": {
+      "ABSTAIN": 0,
+      "AMBIGUOUS": 9,
+      "ASSOCIATED": 12,
+      "NO_VALID_MEMBER": 0,
+      "gold_exact": 0,
+      "n": 21
+    },
+    "visible_member": {
+      "ABSTAIN": 6,
+      "AMBIGUOUS": 19,
+      "ASSOCIATED": 27,
+      "NO_VALID_MEMBER": 6,
+      "gold_exact": 0,
+      "n": 58
+    }
+  },
+  "thresholds": {
+    "DIST_SCALE_PT": 80.0,
+    "GIANT_EXTENT_PT": 600.0,
+    "MIN_ASSOCIATE_SCORE": 0.58,
+    "MIN_MARGIN": 0.08,
+    "weights": {
+      "bbox": 0.18,
+      "distance": 0.34,
+      "kind": 0.12,
+      "leader": 0.08,
+      "length": 0.12,
+      "orient": 0.12,
+      "provenance": 0.04
+    }
+  }
+}

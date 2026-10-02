@@ -1,0 +1,115 @@
+{
+  "docs": [
+    "doc_0bfc2d61245dbce2",
+    "doc_0d910a43b4a021e3",
+    "doc_240bd2541fbca147",
+    "doc_47dc7ef27f6e5d7e",
+    "doc_683e6eef0a945c9a",
+    "doc_6a9a9684bb19343b",
+    "doc_9414716bffc67596",
+    "doc_f6ddc4a7e233ffb0"
+  ],
+  "old": {
+    "stats": {
+      "n_rows": 9396,
+      "n_no_gold": 2182,
+      "n_with_gold": 7198,
+      "n_correct": 7099,
+      "n_wrong": 99,
+      "HSS_gold": 869,
+      "explicit_L_gold": 232,
+      "explicit_L_correct": 165,
+      "L_to_2L_shop": 10,
+      "shop_cut_L_gold": 57,
+      "shop_cut_L_wrong": 53,
+      "L_thickness_shop": 39,
+      "shop_cut_L_correct": 4,
+      "HSS_to_W": 10,
+      "n_incomplete": 16,
+      "incomplete_completed_bad": 16
+    },
+    "errors": {
+      "HSS_size_error": 2,
+      "L_to_2L": 10,
+      "other_family_confusion": 4,
+      "L_thickness_error": 41,
+      "L_size_leg_error": 12,
+      "HSS_to_W": 10,
+      "W_size_error": 8,
+      "same_family_other": 6,
+      "incomplete_L_completion": 16,
+      "abstain_with_gold": 5,
+      "L_same_family_other": 1
+    },
+    "accuracy": 0.986246
+  },
+  "new": {
+    "stats": {
+      "n_rows": 9396,
+      "n_no_gold": 2182,
+      "n_with_gold": 7198,
+      "n_correct": 7143,
+      "n_wrong": 55,
+      "HSS_gold": 869,
+      "explicit_L_gold": 232,
+      "explicit_L_correct": 205,
+      "shop_cut_L_gold": 57,
+      "shop_cut_L_correct": 47,
+      "shop_cut_L_wrong": 10,
+      "n_incomplete": 16,
+      "incomplete_abstained": 16,
+      "L_thickness_shop": 2,
+      "L_to_2L_shop": 1
+    },
+    "errors": {
+      "HSS_size_error": 11,
+      "L_to_2L": 9,
+      "L_same_family_other": 7,
+      "W_size_error": 9,
+      "same_family_other": 7,
+      "L_size_leg_error": 8,
+      "L_thickness_error": 3,
+      "other_family_confusion": 1
+    },
+    "accuracy": 0.992359
+  },
+  "n_changed_rows": 1816,
+  "n_L_family_or_incomplete_changed": 1324,
+  "incomplete_printed_old": 16,
+  "incomplete_printed_new": 16,
+  "incomplete_bad_old": 16,
+  "incomplete_bad_new": 0,
+  "incomplete_abstain_new": 16,
+  "incomplete_2L_bad_old": 2,
+  "incomplete_2L_bad_new": 0,
+  "L_to_2L_old": 10,
+  "L_to_2L_new": 9,
+  "L_thickness_old": 41,
+  "L_thickness_new": 3,
+  "HSS_to_W_old": 10,
+  "HSS_to_W_new": 0,
+  "explicit_L_old": [
+    165,
+    232
+  ],
+  "explicit_L_new": [
+    205,
+    232
+  ],
+  "shop_cut_L_old": [
+    4,
+    57,
+    53
+  ],
+  "shop_cut_L_new": [
+    47,
+    57,
+    10
+  ],
+  "n_regressions": 18,
+  "n_improvements": 62,
+  "n_stale_shop_fixed": 43,
+  "n_live_shop_remain": 10,
+  "n_old_shop_th": 45,
+  "n_new_shop_th": 3
+}

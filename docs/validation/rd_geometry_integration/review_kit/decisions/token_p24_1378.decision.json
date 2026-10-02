@@ -1,0 +1,32 @@
+{
+  "token_id": "token_p24_1378",
+  "page": 24,
+  "text": "L4X4X3/8",
+  "label_bbox": [
+    1938.48,
+    295.82,
+    1984.21,
+    308.42
+  ],
+  "production_geometry_id": null,
+  "candidate_geometry_ids": [
+    "geom_8a11fdc889dc",
+    "geom_beb2f6dbb927",
+    "geom_951b2917921a",
+    "geom_54a5a265510b",
+    "geom_af61e0e6cf68"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p24_1378.png",
+  "crop_available": true,
+  "g1_status": "extra_candidates_only",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Leader points to the L4X4X3/8 DSA on the roof deck. Green overlay is the long wall face, not the angle.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": true,
+  "visible_member_on_drawing": true
+}

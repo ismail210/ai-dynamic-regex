@@ -1,0 +1,581 @@
+{
+  "all_L": [
+    {
+      "page": 2,
+      "match": "L4X3",
+      "raw": "L4X3",
+      "snip": "X5/16   (LLV)                OPENINGS 3'-5\" TO 5'-0\"        L4X3-1/2X5/16         (LLV)                OPENINGS 5'-1\" TO 6'-"
+    },
+    {
+      "page": 2,
+      "match": "L5X3",
+      "raw": "L5X3",
+      "snip": "        (LLV)                OPENINGS 5'-1\" TO 6'-0\"        L5X3-1/2X5/16         (LLV)           OPENINGS 6'-1\" TO 8'-0\"   "
+    },
+    {
+      "page": 2,
+      "match": "L6X4X3/8",
+      "raw": "L6X4X3/8",
+      "snip": "5/16         (LLV)           OPENINGS 6'-1\" TO 8'-0\"        L6X4X3/8               (LLV) LINTELS HOLLOW MASONRY UNITS USED IN NO"
+    },
+    {
+      "page": 2,
+      "match": "L3X3X1/4",
+      "raw": "L3x3x1/4",
+      "snip": "ALL SIDES. WHERE THERE IS NO BEAM FOR DECK TO BEAR, PROVIDE L3x3x1/4 DECK  SUPPORT ANGLES SUPPORTED BY THE NEAREST BEAMS. THE CO"
+    },
+    {
+      "page": 13,
+      "match": "L4X4X3/8",
+      "raw": "L4X4X3/8",
+      "snip": "K ROOF DECK ACOUSTIC DECK ROOF DECK 3 S-321 6 S-321 7 S-321 L4X4X3/8  BRACING, TYP L4X4X3/8  BRACING, TYP SEE TYP DET FOR  HORZ "
+    },
+    {
+      "page": 13,
+      "match": "L4X4X3/8",
+      "raw": "L4X4X3/8",
+      "snip": "CK ROOF DECK 3 S-321 6 S-321 7 S-321 L4X4X3/8  BRACING, TYP L4X4X3/8  BRACING, TYP SEE TYP DET FOR  HORZ BRACING  CONN, TYP 2 S-"
+    },
+    {
+      "page": 16,
+      "match": "L2X2X3/16",
+      "raw": "L2x2x3/16",
+      "snip": " SEE NOTE 3 LOWER WWF TO PLACE TOP BAR #4@12\" OC,  HOOK END L2x2x3/16 DK  SUPT TYP CLOSURE PL WRAP  AROUND COL L3x3x3/16 WELD  TO"
+    },
+    {
+      "page": 16,
+      "match": "L3X3X3/16",
+      "raw": "L3x3x3/16",
+      "snip": "HOOK END L2x2x3/16 DK  SUPT TYP CLOSURE PL WRAP  AROUND COL L3x3x3/16 WELD  TO COL FLANGES 2.  MATERIALS ARE TO BE AS FOLLOWS:   "
+    },
+    {
+      "page": 16,
+      "match": "L2X2X3/16",
+      "raw": "L2x2x3/16",
+      "snip": ",  HOOK END EDGE CLOSURE  AND POUR STOP  PER DECK  SUPPLIER L2x2x3/16 DK  SUPT TYP L3x3x3/16  WELDED TO COL 1#4x3' @ SLAB MID DEP"
+    },
+    {
+      "page": 16,
+      "match": "L3X3X3/16",
+      "raw": "L3x3x3/16",
+      "snip": "E  AND POUR STOP  PER DECK  SUPPLIER L2x2x3/16 DK  SUPT TYP L3x3x3/16  WELDED TO COL 1#4x3' @ SLAB MID DEPTH, TYP AT ANGLES CLOSU"
+    },
+    {
+      "page": 16,
+      "match": "L3X3X3/16",
+      "raw": "L3x3x3/16",
+      "snip": "OSURE PL PER TABLE A AT ANGLES 1#4x3' @ SLAB MID DEPTH, TYP L3x3x3/16  L2x2x3/16 DK SUPT WELDED TO BM  FLG TYP 1#4x3' @ SLAB MID "
+    },
+    {
+      "page": 16,
+      "match": "L2X2X3/16",
+      "raw": "L2x2x3/16",
+      "snip": "R TABLE A AT ANGLES 1#4x3' @ SLAB MID DEPTH, TYP L3x3x3/16  L2x2x3/16 DK SUPT WELDED TO BM  FLG TYP 1#4x3' @ SLAB MID DEPTH, TYP "
+    },
+    {
+      "page": 16,
+      "match": "L4X4X3/8",
+      "raw": "L4x4x3/8",
+      "snip": "YP CLOSURE PL  PER TABLE A CLOSURE PL PER TABLE A AT ANGLES L4x4x3/8 MAINTAIN WP  BTWN ANCHORS L3x3x1/4   5'-0\" MAX (2) 1/2\"\u00d8 EX"
+    },
+    {
+      "page": 16,
+      "match": "L3X3X1/4",
+      "raw": "L3x3x1/4",
+      "snip": "PL PER TABLE A AT ANGLES L4x4x3/8 MAINTAIN WP  BTWN ANCHORS L3x3x1/4   5'-0\" MAX (2) 1/2\"\u00d8 EXP ANCHORS  W/ 3 1/2\" EMBED 3/8\" PL "
+    },
+    {
+      "page": 16,
+      "match": "L3X3X1/4",
+      "raw": "L3x3x1/4",
+      "snip": "   5'-0\" MAX (2) 1/2\"\u00d8 EXP ANCHORS  W/ 3 1/2\" EMBED 3/8\" PL L3x3x1/4  5'-0\" MAX  3/16 (4) 1/2\"\u00d8 EXP ANCHORS  W/ 3 1/2\" EMBED BRA"
+    },
+    {
+      "page": 16,
+      "match": "L4X4X3/8",
+      "raw": "L4x4x3/8",
+      "snip": "OMD  SEE PLAN BRICK FACADE  SEE ARCH DWGS CFMF, SEE TYP DET L4x4x3/8  RELIEVING ANGLE TWO 3/8\" THICK  ANGLES A - A 1/2\" BENT PL "
+    },
+    {
+      "page": 16,
+      "match": "L2X2X1/4",
+      "raw": "L2X2X1/4",
+      "snip": "C6 METAL ROOF  DECK 1/4\" BENT PL    OR ANGLE  SEAT, 6\" LONG L2X2X1/4 BRACES  AT  ALL OPENINGS  OVER 5 FT LONG PROVIDE FRAMES AS "
+    },
+    {
+      "page": 17,
+      "match": "L4X3X3/8",
+      "raw": "L4X3X3/8",
+      "snip": "  CONDITION MIN 2\"  EVERY SIDE 2- 3/4\" \u00d8 ERECTION  BOLTS  4 L4X3X3/8 @ 4'-0\" MAX PL 1/2\"   BRICK FACADE  SPANDREL BM  SEE PLAN C"
+    },
+    {
+      "page": 17,
+      "match": "L3X3X3/8",
+      "raw": "L3x3x3/8",
+      "snip": " SPANDREL BM  SEE PLAN CFMF BACKUP &  CONN BY CONTR 3 SIDES L3x3x3/8 @ HGR 3/16 3 SIDES MIN 1\" RETURN, TYP STIFF PL 3/8\" 1/2\" 1/"
+    },
+    {
+      "page": 17,
+      "match": "L5X3",
+      "raw": "L5x3",
+      "snip": "\" ANGLE, WIDTH TO FIT OR CUT AS  NEEDED W/ ERECTION ANCHOR  L5x3-1/2x3/8 CONN PL 1/2\" SOMD, SEE PLAN 3/8\" BENT PL 1/4 L6X4X3"
+    },
+    {
+      "page": 17,
+      "match": "L6X4X3/8",
+      "raw": "L6X4X3/8",
+      "snip": "  L5x3-1/2x3/8 CONN PL 1/2\" SOMD, SEE PLAN 3/8\" BENT PL 1/4 L6X4X3/8 LLV ALIGN  W/ SOMD FLUTE 8\" MIN 1 1/2\" TYP 3 SIDES 1/2\" \u2104OF"
+    },
+    {
+      "page": 17,
+      "match": "L3X3X3/8X0'-6\"",
+      "raw": "L3X3X3/8X0'-6\"",
+      "snip": "\u2104OF ANGLE, TYP 55.00\u00b0 3\" (2)-1/2\"\u00d8 EPOXY ANCHORS 2\" 8\" 1/2\" L3X3X3/8X0'-6\" BM WHERE APPLIES BENT PLATES AND  CONNECTORS TO BE  DESIGNE"
+    },
+    {
+      "page": 18,
+      "match": "L4X4X1/4",
+      "raw": "L4X4X1/4",
+      "snip": " ON WIDE FLANGE 1/2\" TYP ROOF DECK SEE PLAN BM SEE PLAN TYP L4X4X1/4 TYP 3/8\" PL TYP ROOF DECK SEE PLAN BM SEE PLAN TYP L4X4X1/4"
+    },
+    {
+      "page": 18,
+      "match": "L4X4X1/4",
+      "raw": "L4X4X1/4",
+      "snip": "L4X4X1/4 TYP 3/8\" PL TYP ROOF DECK SEE PLAN BM SEE PLAN TYP L4X4X1/4 TYP 3/8\" PL TYP 1\" TYP 1/2\" TYP TYP 3/16 TYP TYP 1\" MAX 1/2"
+    },
+    {
+      "page": 19,
+      "match": "L3X3X1/4X0'-3\"",
+      "raw": "L3x3x1/4x0'-3\"",
+      "snip": "BOLT BY JOIST  CONTR L3x3x1/4x0'-3\", TYP 3/4\"\u2300x6\" EXP BOLT  IN GROUTED CELL,  TYP CMU OR  CONC "
+    },
+    {
+      "page": 19,
+      "match": "L1X1X1/4",
+      "raw": "L1x1x1/4",
+      "snip": " SUPT EXT,  COOR W/ ARCH DWGS LOAD P LOAD P  3/16 1 TYP 1 2 L1x1x1/4  JOIST P SHALL NOT EXCEED 200 LBS Sloped Seat Requirements "
+    },
+    {
+      "page": 19,
+      "match": "L3X3X5/16",
+      "raw": "L3X3X5/16",
+      "snip": " COL 5/16 TYP 1/2\" CONN PL 1/2\" MIN HSS BM 1/4 3 SIDES, TYP L3X3X5/16, T&B \u2104BM AND WT SHEAR  CENTER WT  CONN TO BE  DESIGNED  BY "
+    },
+    {
+      "page": 19,
+      "match": "L4X4X3/8X0'-8\"",
+      "raw": "L4X4X3/8X0'-8\"",
+      "snip": "PONENT OF 'P'. PH V P PV BM, SEE  PLAN ROOF DECK,  SEE PLAN L4X4X3/8X0'-8\" ROOFING, SEE  ARCH DWGS 1/4 2 1/4 4 COL, SEE PLAN  AND SCHE"
+    },
+    {
+      "page": 20,
+      "match": "2L3X3X1/4",
+      "raw": "2L3x3x1/4",
+      "snip": "E REPLACED. BOND BM W/ 2-#4 1\" CLR 3/16 3/16 3/16 3/16 3/16 2L3x3x1/4 @8'-0\" OC FOR  INTERIOR CMU WALL, @4'-0\" OC FOR EXTERIOR  C"
+    },
+    {
+      "page": 20,
+      "match": "L4X3X1/4X6\"",
+      "raw": "L4x3x1/4x6\"",
+      "snip": "OC FOR  INTERIOR CMU WALL, @4'-0\" OC FOR EXTERIOR  CMU WALL L4x3x1/4x6\" LLV OR SIMILAR  BENT PL ES AND STAGGERED.  SEE SCHEDULE FOR"
+    },
+    {
+      "page": 20,
+      "match": "L4X3X1/4X6\"",
+      "raw": "L4x3x1/4x6\"",
+      "snip": "/16 3/16 2' - 0\" MAX 2\" TYP CL OF BM WALL BYPASS STEEL BEAM L4x3x1/4x6\" LLV OR  SIMILAR BENT PL ES  AND STAGGERED BOND BM W/2#4 3/1"
+    },
+    {
+      "page": 20,
+      "match": "L4X4X1/4",
+      "raw": "L4x4x1/4",
+      "snip": "GROUT SOLID 3/16 3/16 TYP INTERIOR WALL BETWEEN STEEL BEAMS L4x4x1/4 SEE SCHEDULE  FOR SPACING L4x3x1/4x6\" LLV OR  SIMILAR BENT "
+    },
+    {
+      "page": 20,
+      "match": "L4X3X1/4X6\"",
+      "raw": "L4x3x1/4x6\"",
+      "snip": "WALL BETWEEN STEEL BEAMS L4x4x1/4 SEE SCHEDULE  FOR SPACING L4x3x1/4x6\" LLV OR  SIMILAR BENT PL ES  AND STAGGERED 3/16 TYP METAL DE"
+    },
+    {
+      "page": 20,
+      "match": "2L3X3X1/4",
+      "raw": "2L3x3x1/4",
+      "snip": "V OR  SIMILAR BENT PL ES  AND STAGGERED 3/16 TYP METAL DECK 2L3x3x1/4 @8'-0\" OC FOR  INTERIOR CMU WALL, @4'-0\" OC FOR EXTERIOR  C"
+    },
+    {
+      "page": 20,
+      "match": "L4X3X1/4X6\"",
+      "raw": "L4x3x1/4x6\"",
+      "snip": "SEE GENERAL NOTE FOR EXTERIOR  CMU WALL REINF IF NOT SHOWN. L4x3x1/4x6\" LLV OR SIMILAR  BENT PL ES AND STAGGERED GROUT SOLID PL1/4\""
+    },
+    {
+      "page": 20,
+      "match": "L4X4X1/4",
+      "raw": "L4x4x1/4",
+      "snip": " SEE  ARCH DWGS 1\" MIN STEEL JOIST CONN PL  1/4\"x2\"x4\"  TYP L4x4x1/4 @  6'-0\" MAX L4x3x1/4x2'-0\" LLV   STAGGERED 2\" BOND BM W/2#"
+    },
+    {
+      "page": 20,
+      "match": "L4X3X1/4X2'-0\"",
+      "raw": "L4x3x1/4x2'-0\"",
+      "snip": " STEEL JOIST CONN PL  1/4\"x2\"x4\"  TYP L4x4x1/4 @  6'-0\" MAX L4x3x1/4x2'-0\" LLV   STAGGERED 2\" BOND BM W/2#4 1/8 TYP MIN. 1\" THICK JOIN"
+    },
+    {
+      "page": 20,
+      "match": "L4X3X1/4X1'-0\"",
+      "raw": "L4x3x1/4x1'-0\"",
+      "snip": "M W/2#4 1/8 TYP MIN. 1\" THICK JOINT  FILLER, SEE ARCH  DWGS L4x3x1/4x1'-0\"  LLV  ES MIN. 1\" THICK  JOINT FILLER, SEE  ARCH DWGS NOTES:"
+    },
+    {
+      "page": 20,
+      "match": "L4X3X1/4X6\"",
+      "raw": "L4x3x1/4x6\"",
+      "snip": " KWIK BOLT TZ OR         APPROVED EQUIVALENT. BOND BM W/2#4 L4x3x1/4x6\" LLV OR  SIMILAR BENT PL ES  AND STAGGERED. BOND BM W/2#4 3/"
+    },
+    {
+      "page": 20,
+      "match": "L4X3X1/4X1'-0\"",
+      "raw": "L4x3x1/4x1'-0\"",
+      "snip": "4\" MIN  EMBED. SEE SCHEDULE  FOR SPACING SLAB ON METAL DECK L4x3x1/4x1'-0\" LLV OR  SIMILAR BENT PL ES AND  STAGGERED W/ (2) 1/2\"\u00d8  EXP"
+    },
+    {
+      "page": 20,
+      "match": "L4X3X1/4X6\"",
+      "raw": "L4x3x1/4x6\"",
+      "snip": "LR GROUT SOLID GROUT SOLID BOND BM W/ 2-#4 1\" CLR 3/16 3/16 L4x3x1/4x6\" LLV OR SIMILAR  BENT PL ES AND STAGGERED.  SEE SCHEDULE FOR"
+    },
+    {
+      "page": 20,
+      "match": "L4X3X1/4X6\"",
+      "raw": "L4x3x1/4x6\"",
+      "snip": " ES AND STAGGERED.  SEE SCHEDULE FOR SPACING 3/16 3/16 3/16 L4x3x1/4x6\" LLV OR SIMILAR  BENT PL ES AND STAGGERED.  SEE SCHEDULE FOR"
+    },
+    {
+      "page": 20,
+      "match": "L4X3X1/4X6\"",
+      "raw": "L4x3x1/4x6\"",
+      "snip": "K EDGE DET,  #4@18\" OC MIN PL 1/4\" MIN (BENT OR FABRICATED) L4x3x1/4x6\" LLV OR SIMILAR  BENT PL ES AND STAGGERED.  SEE SCHEDULE FOR"
+    },
+    {
+      "page": 23,
+      "match": "L4X4X3/8X0'-6\"",
+      "raw": "L4x4x3/8x0'-6\"",
+      "snip": "CH FOR SHAPE POCKET 8\" WIDE  @ 4'-0\" OC TO  INSTALL EDGE BM L4x4x3/8x0'-6\" OR  BENT PL 3/8\" THICK 1/4 SHEAR CONN TO  BE DESIGNED BY  T"
+    },
+    {
+      "page": 24,
+      "match": "L6X3",
+      "raw": "L6x3",
+      "snip": "L6x3-1/2x3/8  CONT BRICK  FACADE,  SEE ARCH  DWGS L4x4x3/8  CONT"
+    },
+    {
+      "page": 24,
+      "match": "L4X4X3/8",
+      "raw": "L4x4x3/8",
+      "snip": "L6x3-1/2x3/8  CONT BRICK  FACADE,  SEE ARCH  DWGS L4x4x3/8  CONT 3/16 L4X4X3/8 HGR, TYP L4X4X3/8 1/4 TYP 3/8\" PL,  TYP"
+    },
+    {
+      "page": 24,
+      "match": "L4X4X3/8",
+      "raw": "L4X4X3/8",
+      "snip": "/8  CONT BRICK  FACADE,  SEE ARCH  DWGS L4x4x3/8  CONT 3/16 L4X4X3/8 HGR, TYP L4X4X3/8 1/4 TYP 3/8\" PL,  TYP 1/2\" 1/2\" 1 1/2\" 3\""
+    },
+    {
+      "page": 24,
+      "match": "L4X4X3/8",
+      "raw": "L4X4X3/8",
+      "snip": "CADE,  SEE ARCH  DWGS L4x4x3/8  CONT 3/16 L4X4X3/8 HGR, TYP L4X4X3/8 1/4 TYP 3/8\" PL,  TYP 1/2\" 1/2\" 1 1/2\" 3\" 1 1/2\" CURTAIN WA"
+    },
+    {
+      "page": 24,
+      "match": "L4X3X3/8X0'-6\"",
+      "raw": "L4X3X3/8X0'-6\"",
+      "snip": "TYP 1/2\" 1/2\" 1 1/2\" 3\" 1 1/2\" CURTAIN WALL,  SEE ARCH DWGS L4X3X3/8X0'-6\" SEE TYP DET  FOR RELIEVING  ANGLE CONST 3/4\"\u00d8 A325 BOLT, TY"
+    },
+    {
+      "page": 24,
+      "match": "L4X4X3/8",
+      "raw": "L4x4x3/8",
+      "snip": "E  CONTR HSS5x3x3/16 BWT  JOISTS (NUMBER AND  LOCATION TBD) L4x4x3/8 DSA 3/16 VERT SLIDING CONN L4X4X3/8 DSA ROOF DECK, SEE PLAN"
+    },
+    {
+      "page": 24,
+      "match": "L4X4X3/8",
+      "raw": "L4X4X3/8",
+      "snip": "MBER AND  LOCATION TBD) L4x4x3/8 DSA 3/16 VERT SLIDING CONN L4X4X3/8 DSA ROOF DECK, SEE PLAN JOIST, SEE PLAN BM, SEE PLAN EXT WA"
+    },
+    {
+      "page": 24,
+      "match": "L4X4X3/8",
+      "raw": "L4x4x3/8",
+      "snip": "NERAL NOTES CFMF TO BE  DESIGNED BY CONTR VERT SLIDING CONN L4x4x3/8 DSA VERT SLIDING  CONN CFMF HEADER  TO SPAN BTW  WINDOWS JO"
+    },
+    {
+      "page": 24,
+      "match": "L7X4X3/8",
+      "raw": "L7X4X3/8",
+      "snip": " PLAN ROOF DECK, SEE PLAN ROOFING AND INSUL,  SEE ARCH DWGS L7X4X3/8 3@12 L4X4X3/8 3@12 BM, SEE PLAN JOIST, SEE PLAN ROOFING AND"
+    },
+    {
+      "page": 24,
+      "match": "L4X4X3/8",
+      "raw": "L4X4X3/8",
+      "snip": "K, SEE PLAN ROOFING AND INSUL,  SEE ARCH DWGS L7X4X3/8 3@12 L4X4X3/8 3@12 BM, SEE PLAN JOIST, SEE PLAN ROOFING AND INSUL,  SEE A"
+    },
+    {
+      "page": 24,
+      "match": "L4X4X3/8",
+      "raw": "L4X4X3/8",
+      "snip": " PLAN ROOFING AND INSUL,  SEE ARCH DWGS ROOF DECK, SEE PLAN L4X4X3/8 L2X2X1/4 NOTE: SEE                FOR BALANCE INFORMATION. "
+    },
+    {
+      "page": 24,
+      "match": "L2X2X1/4",
+      "raw": "L2X2X1/4",
+      "snip": "FING AND INSUL,  SEE ARCH DWGS ROOF DECK, SEE PLAN L4X4X3/8 L2X2X1/4 NOTE: SEE                FOR BALANCE INFORMATION.  /6 S-321"
+    },
+    {
+      "page": 24,
+      "match": "L4X4X3/8",
+      "raw": "L4x4x3/8",
+      "snip": "S-321 MAIN ROOF 29' - 0\" CFMF TO BE  DESIGNED BY  THE CONTR L4x4x3/8  VERT SLIDING  CONN 3/16 2@12 MAIN ROOF 29' - 0\" CFMF TO BE"
+    },
+    {
+      "page": 24,
+      "match": "L4X4X3/8",
+      "raw": "L4x4x3/8",
+      "snip": " 2@12 MAIN ROOF 29' - 0\" CFMF TO BE  DESIGNED BY  THE CONTR L4x4x3/8  VERT SLIDING  CONN 3/16 2@12 1\" EXT WALL CONST,  SEE ARCH "
+    },
+    {
+      "page": 24,
+      "match": "L3X3X3/8X0'-10\"",
+      "raw": "L3X3X3/8X0'-10\"",
+      "snip": "E ARCH DWGS ROOFING AND INSUL,  SEE ARCH DWGS HSS, SEE PLAN L3X3X3/8X0'-10\" ES 1/4 TYP MAIN ROOF 29' - 0\" ROOFING AND INSUL,  SEE ARCH "
+    },
+    {
+      "page": 25,
+      "match": "L6X4X3/8",
+      "raw": "L6X4X3/8",
+      "snip": "6 CONT T&B 12\" CMU WALL #6@16\" OC BRICK, SEE  ARCH DWGS TYP L6X4X3/8 LOOSE  LINTEL ES 3/16 3@12 3\" L3x3x3/8 CONT W/ 1/2\"\u00d8  EPOXY"
+    },
+    {
+      "page": 25,
+      "match": "L3X3X3/8",
+      "raw": "L3x3x3/8",
+      "snip": ", SEE  ARCH DWGS TYP L6X4X3/8 LOOSE  LINTEL ES 3/16 3@12 3\" L3x3x3/8 CONT W/ 1/2\"\u00d8  EPOXY ANCHOR @12\" OC L4X3-1/2X5/16 CONT W/ 1"
+    },
+    {
+      "page": 25,
+      "match": "L4X3",
+      "raw": "L4X3",
+      "snip": "S 3/16 3@12 3\" L3x3x3/8 CONT W/ 1/2\"\u00d8  EPOXY ANCHOR @12\" OC L4X3-1/2X5/16 CONT W/ 1/2\"\u00d8  EPOXY ANCHOR @12\" OC MAIN ROOF 29' "
+    }
+  ],
+  "incomplete": [
+    {
+      "page": 2,
+      "match": "L4X3",
+      "raw": "L4X3",
+      "snip": "X5/16   (LLV)                OPENINGS 3'-5\" TO 5'-0\"        L4X3-1/2X5/16         (LLV)                OPENINGS 5'-1\" TO 6'-"
+    },
+    {
+      "page": 2,
+      "match": "L5X3",
+      "raw": "L5X3",
+      "snip": "        (LLV)                OPENINGS 5'-1\" TO 6'-0\"        L5X3-1/2X5/16         (LLV)           OPENINGS 6'-1\" TO 8'-0\"   "
+    },
+    {
+      "page": 17,
+      "match": "L5X3",
+      "raw": "L5x3",
+      "snip": "\" ANGLE, WIDTH TO FIT OR CUT AS  NEEDED W/ ERECTION ANCHOR  L5x3-1/2x3/8 CONN PL 1/2\" SOMD, SEE PLAN 3/8\" BENT PL 1/4 L6X4X3"
+    },
+    {
+      "page": 24,
+      "match": "L6X3",
+      "raw": "L6x3",
+      "snip": "L6x3-1/2x3/8  CONT BRICK  FACADE,  SEE ARCH  DWGS L4x4x3/8  CONT"
+    },
+    {
+      "page": 25,
+      "match": "L4X3",
+      "raw": "L4X3",
+      "snip": "S 3/16 3@12 3\" L3x3x3/8 CONT W/ 1/2\"\u00d8  EPOXY ANCHOR @12\" OC L4X3-1/2X5/16 CONT W/ 1/2\"\u00d8  EPOXY ANCHOR @12\" OC MAIN ROOF 29' "
+    }
+  ],
+  "complete_L4X4": [
+    {
+      "page": 13,
+      "match": "L4X4X3/8",
+      "raw": "L4X4X3/8",
+      "snip": "K ROOF DECK ACOUSTIC DECK ROOF DECK 3 S-321 6 S-321 7 S-321 L4X4X3/8  BRACING, TYP L4X4X3/8  BRACING, TYP SEE TYP DET FOR  HORZ "
+    },
+    {
+      "page": 13,
+      "match": "L4X4X3/8",
+      "raw": "L4X4X3/8",
+      "snip": "CK ROOF DECK 3 S-321 6 S-321 7 S-321 L4X4X3/8  BRACING, TYP L4X4X3/8  BRACING, TYP SEE TYP DET FOR  HORZ BRACING  CONN, TYP 2 S-"
+    },
+    {
+      "page": 16,
+      "match": "L4X4X3/8",
+      "raw": "L4x4x3/8",
+      "snip": "YP CLOSURE PL  PER TABLE A CLOSURE PL PER TABLE A AT ANGLES L4x4x3/8 MAINTAIN WP  BTWN ANCHORS L3x3x1/4   5'-0\" MAX (2) 1/2\"\u00d8 EX"
+    },
+    {
+      "page": 16,
+      "match": "L4X4X3/8",
+      "raw": "L4x4x3/8",
+      "snip": "OMD  SEE PLAN BRICK FACADE  SEE ARCH DWGS CFMF, SEE TYP DET L4x4x3/8  RELIEVING ANGLE TWO 3/8\" THICK  ANGLES A - A 1/2\" BENT PL "
+    },
+    {
+      "page": 18,
+      "match": "L4X4X1/4",
+      "raw": "L4X4X1/4",
+      "snip": " ON WIDE FLANGE 1/2\" TYP ROOF DECK SEE PLAN BM SEE PLAN TYP L4X4X1/4 TYP 3/8\" PL TYP ROOF DECK SEE PLAN BM SEE PLAN TYP L4X4X1/4"
+    },
+    {
+      "page": 18,
+      "match": "L4X4X1/4",
+      "raw": "L4X4X1/4",
+      "snip": "L4X4X1/4 TYP 3/8\" PL TYP ROOF DECK SEE PLAN BM SEE PLAN TYP L4X4X1/4 TYP 3/8\" PL TYP 1\" TYP 1/2\" TYP TYP 3/16 TYP TYP 1\" MAX 1/2"
+    },
+    {
+      "page": 19,
+      "match": "L4X4X3/8X0'-8\"",
+      "raw": "L4X4X3/8X0'-8\"",
+      "snip": "PONENT OF 'P'. PH V P PV BM, SEE  PLAN ROOF DECK,  SEE PLAN L4X4X3/8X0'-8\" ROOFING, SEE  ARCH DWGS 1/4 2 1/4 4 COL, SEE PLAN  AND SCHE"
+    },
+    {
+      "page": 20,
+      "match": "L4X4X1/4",
+      "raw": "L4x4x1/4",
+      "snip": "GROUT SOLID 3/16 3/16 TYP INTERIOR WALL BETWEEN STEEL BEAMS L4x4x1/4 SEE SCHEDULE  FOR SPACING L4x3x1/4x6\" LLV OR  SIMILAR BENT "
+    },
+    {
+      "page": 20,
+      "match": "L4X4X1/4",
+      "raw": "L4x4x1/4",
+      "snip": " SEE  ARCH DWGS 1\" MIN STEEL JOIST CONN PL  1/4\"x2\"x4\"  TYP L4x4x1/4 @  6'-0\" MAX L4x3x1/4x2'-0\" LLV   STAGGERED 2\" BOND BM W/2#"
+    },
+    {
+      "page": 23,
+      "match": "L4X4X3/8X0'-6\"",
+      "raw": "L4x4x3/8x0'-6\"",
+      "snip": "CH FOR SHAPE POCKET 8\" WIDE  @ 4'-0\" OC TO  INSTALL EDGE BM L4x4x3/8x0'-6\" OR  BENT PL 3/8\" THICK 1/4 SHEAR CONN TO  BE DESIGNED BY  T"
+    },
+    {
+      "page": 24,
+      "match": "L4X4X3/8",
+      "raw": "L4x4x3/8",
+      "snip": "L6x3-1/2x3/8  CONT BRICK  FACADE,  SEE ARCH  DWGS L4x4x3/8  CONT 3/16 L4X4X3/8 HGR, TYP L4X4X3/8 1/4 TYP 3/8\" PL,  TYP"
+    },
+    {
+      "page": 24,
+      "match": "L4X4X3/8",
+      "raw": "L4X4X3/8",
+      "snip": "/8  CONT BRICK  FACADE,  SEE ARCH  DWGS L4x4x3/8  CONT 3/16 L4X4X3/8 HGR, TYP L4X4X3/8 1/4 TYP 3/8\" PL,  TYP 1/2\" 1/2\" 1 1/2\" 3\""
+    },
+    {
+      "page": 24,
+      "match": "L4X4X3/8",
+      "raw": "L4X4X3/8",
+      "snip": "CADE,  SEE ARCH  DWGS L4x4x3/8  CONT 3/16 L4X4X3/8 HGR, TYP L4X4X3/8 1/4 TYP 3/8\" PL,  TYP 1/2\" 1/2\" 1 1/2\" 3\" 1 1/2\" CURTAIN WA"
+    },
+    {
+      "page": 24,
+      "match": "L4X4X3/8",
+      "raw": "L4x4x3/8",
+      "snip": "E  CONTR HSS5x3x3/16 BWT  JOISTS (NUMBER AND  LOCATION TBD) L4x4x3/8 DSA 3/16 VERT SLIDING CONN L4X4X3/8 DSA ROOF DECK, SEE PLAN"
+    },
+    {
+      "page": 24,
+      "match": "L4X4X3/8",
+      "raw": "L4X4X3/8",
+      "snip": "MBER AND  LOCATION TBD) L4x4x3/8 DSA 3/16 VERT SLIDING CONN L4X4X3/8 DSA ROOF DECK, SEE PLAN JOIST, SEE PLAN BM, SEE PLAN EXT WA"
+    },
+    {
+      "page": 24,
+      "match": "L4X4X3/8",
+      "raw": "L4x4x3/8",
+      "snip": "NERAL NOTES CFMF TO BE  DESIGNED BY CONTR VERT SLIDING CONN L4x4x3/8 DSA VERT SLIDING  CONN CFMF HEADER  TO SPAN BTW  WINDOWS JO"
+    },
+    {
+      "page": 24,
+      "match": "L4X4X3/8",
+      "raw": "L4X4X3/8",
+      "snip": "K, SEE PLAN ROOFING AND INSUL,  SEE ARCH DWGS L7X4X3/8 3@12 L4X4X3/8 3@12 BM, SEE PLAN JOIST, SEE PLAN ROOFING AND INSUL,  SEE A"
+    },
+    {
+      "page": 24,
+      "match": "L4X4X3/8",
+      "raw": "L4X4X3/8",
+      "snip": " PLAN ROOFING AND INSUL,  SEE ARCH DWGS ROOF DECK, SEE PLAN L4X4X3/8 L2X2X1/4 NOTE: SEE                FOR BALANCE INFORMATION. "
+    },
+    {
+      "page": 24,
+      "match": "L4X4X3/8",
+      "raw": "L4x4x3/8",
+      "snip": "S-321 MAIN ROOF 29' - 0\" CFMF TO BE  DESIGNED BY  THE CONTR L4x4x3/8  VERT SLIDING  CONN 3/16 2@12 MAIN ROOF 29' - 0\" CFMF TO BE"
+    },
+    {
+      "page": 24,
+      "match": "L4X4X3/8",
+      "raw": "L4x4x3/8",
+      "snip": " 2@12 MAIN ROOF 29' - 0\" CFMF TO BE  DESIGNED BY  THE CONTR L4x4x3/8  VERT SLIDING  CONN 3/16 2@12 1\" EXT WALL CONST,  SEE ARCH "
+    }
+  ],
+  "deck_pages": [
+    1,
+    2,
+    3,
+    7,
+    10,
+    11,
+    13,
+    16,
+    17,
+    18,
+    19,
+    20,
+    24
+  ],
+  "legend_pages": [
+    2
+  ],
+  "L4X4_thicknesses": {
+    "3/8": 14,
+    "1/4": 4,
+    "3/8X0'-8\"": 1,
+    "3/8X0'-6\"": 1
+  },
+  "counts": {
+    "L4X3": 2,
+    "L5X3": 2,
+    "L6X4X3/8": 3,
+    "L3X3X1/4": 3,
+    "L4X4X3/8": 14,
+    "L2X2X3/16": 3,
+    "L3X3X3/16": 3,
+    "L2X2X1/4": 2,
+    "L4X3X3/8": 1,
+    "L3X3X3/8": 2,
+    "L3X3X3/8X0'-6\"": 1,
+    "L4X4X1/4": 4,
+    "L3X3X1/4X0'-3\"": 1,
+    "L1X1X1/4": 1,
+    "L3X3X5/16": 1,
+    "L4X4X3/8X0'-8\"": 1,
+    "2L3X3X1/4": 2,
+    "L4X3X1/4X6\"": 8,
+    "L4X3X1/4X2'-0\"": 1,
+    "L4X3X1/4X1'-0\"": 2,
+    "L4X4X3/8X0'-6\"": 1,
+    "L6X3": 1,
+    "L4X3X3/8X0'-6\"": 1,
+    "L7X4X3/8": 1,
+    "L3X3X3/8X0'-10\"": 1
+  }
+}

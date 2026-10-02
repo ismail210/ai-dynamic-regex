@@ -1,0 +1,161 @@
+{
+  "document_id": "doc_0d910a43b4a021e3",
+  "pages": [
+    8,
+    18,
+    24
+  ],
+  "n_cases": 21,
+  "gold_sha256": "0fad4291ff06ffa4e61c46f4ac923d7187455dd6b2f9b088481ab5e6b976b155",
+  "replay_fidelity": {
+    "8": {
+      "raw_drawing_count": 3586,
+      "retained_by_cap": 450,
+      "dropped_by_cap": 3136,
+      "objects_after_merge": 435,
+      "artifact_objects": 435,
+      "geometry_id_match": 435,
+      "replay_faithful": true,
+      "cap_threshold": 450,
+      "structural_min_span_pt": 80.0,
+      "artifact_page_summary": {
+        "raw_drawing_count": 3586,
+        "retained_drawing_count": 450,
+        "drawings_dropped_by_cap": 3136,
+        "drawings_excluded_tiny": 434,
+        "zero_area_path_count": 207
+      }
+    },
+    "18": {
+      "raw_drawing_count": 5300,
+      "retained_by_cap": 450,
+      "dropped_by_cap": 4850,
+      "objects_after_merge": 433,
+      "artifact_objects": 433,
+      "geometry_id_match": 433,
+      "replay_faithful": true,
+      "cap_threshold": 450,
+      "structural_min_span_pt": 80.0,
+      "artifact_page_summary": {
+        "raw_drawing_count": 5300,
+        "retained_drawing_count": 450,
+        "drawings_dropped_by_cap": 4850,
+        "drawings_excluded_tiny": 2484,
+        "zero_area_path_count": 2317
+      }
+    },
+    "24": {
+      "raw_drawing_count": 4749,
+      "retained_by_cap": 450,
+      "dropped_by_cap": 4299,
+      "objects_after_merge": 392,
+      "artifact_objects": 392,
+      "geometry_id_match": 392,
+      "replay_faithful": true,
+      "cap_threshold": 450,
+      "structural_min_span_pt": 80.0,
+      "artifact_page_summary": {
+        "raw_drawing_count": 4749,
+        "retained_drawing_count": 450,
+        "drawings_dropped_by_cap": 4299,
+        "drawings_excluded_tiny": 1964,
+        "zero_area_path_count": 2191
+      }
+    }
+  },
+  "page_convention_scan": {
+    "8": {
+      "labels_scanned": 50,
+      "outcomes": {
+        "retained_but_classified_dimension": 27,
+        "dropped_by_dense_page_cap": 14,
+        "retained_as_line": 9
+      },
+      "perp_distance_median": 8.98,
+      "perp_distance_p90": 12.08,
+      "retained_kind_counts": {
+        "line": 72,
+        "polyline": 12,
+        "rectangle": 8,
+        "symbol": 5,
+        "dimension": 65,
+        "leader": 270,
+        "arc": 3
+      },
+      "giant_primitive_points": [
+        2,
+        6,
+        4,
+        3,
+        3,
+        2,
+        2,
+        2,
+        4,
+        2,
+        2
+      ]
+    },
+    "18": {
+      "labels_scanned": 14,
+      "outcomes": {
+        "retained_but_classified_dimension": 8,
+        "retained_but_classified_leader": 1,
+        "retained_as_rectangle": 3,
+        "dropped_by_dense_page_cap": 2
+      },
+      "perp_distance_median": 14.44,
+      "perp_distance_p90": 31.86,
+      "retained_kind_counts": {
+        "line": 77,
+        "dimension": 103,
+        "polyline": 17,
+        "symbol": 9,
+        "rectangle": 39,
+        "leader": 188
+      },
+      "giant_primitive_points": [
+        2,
+        2,
+        4
+      ]
+    },
+    "24": {
+      "labels_scanned": 11,
+      "outcomes": {
+        "dropped_by_dense_page_cap": 8,
+        "retained_but_classified_leader": 3
+      },
+      "perp_distance_median": 277.74,
+      "perp_distance_p90": 460.16,
+      "retained_kind_counts": {
+        "line": 135,
+        "dimension": 60,
+        "polyline": 50,
+        "rectangle": 64,
+        "symbol": 15,
+        "leader": 68
+      },
+      "giant_primitive_points": [
+        2,
+        4
+      ]
+    }
+  },
+  "failure_distribution": {
+    "EXTRACTED_BUT_FILTERED": 15,
+    "EXTRACTED_BUT_RETRIEVAL_MISS": 2,
+    "DRAWING_AMBIGUITY": 2,
+    "OTHER": 2
+  },
+  "recoverability_distribution": {
+    "clearly_recoverable_extraction_normalization": 12,
+    "already_available_but_retrieval_misses": 2,
+    "visually_ambiguous": 2,
+    "already_available_retrieval_succeeds": 1,
+    "potentially_recoverable_leader_endpoint": 3,
+    "not_a_member": 1
+  },
+  "raw_present_but_dropped_by_cap": 2,
+  "retained_but_misclassified": 16
+}

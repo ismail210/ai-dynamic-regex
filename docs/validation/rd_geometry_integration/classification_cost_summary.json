@@ -1,0 +1,274 @@
+{
+  "document_id": "doc_0d910a43b4a021e3",
+  "pages": [
+    8,
+    18,
+    24
+  ],
+  "gold_sha256": "0fad4291ff06ffa4e61c46f4ac923d7187455dd6b2f9b088481ab5e6b976b155",
+  "experimental_variable": "cap_condition_only_for_population_reach; classification_helpers_unchanged",
+  "classification_predicates": {
+    "looks_like_leader": "kind in {LINE,POLYLINE} AND 8<=length<=72 AND min(w,h)<24",
+    "looks_like_dimension": "kind in {LINE,POLYLINE,PATH} AND length>=12 AND nearby_text matches /\\d+(\\.\\d+)?/",
+    "application_order": "leader first, else dimension, then small rectangle/circle -> symbol",
+    "nearby_text": "nearest document line center within nearby_radius of geometry center"
+  },
+  "funnels": {
+    "audited_21": {
+      "CAP_450": {
+        "n_cases": 21,
+        "raw_present": 21,
+        "survive_cap": 12,
+        "lost_at_cap": 9,
+        "classification_survival_rate": 41.7,
+        "survive_classification_eligible": 5,
+        "lost_to_dimension": 6,
+        "lost_to_leader": 0,
+        "lost_to_other_filter": 0,
+        "retrieval_stage_only": 2,
+        "primary_stage_counts": {
+          "CAP_LOSS": 9,
+          "DIMENSION_CLASSIFICATION": 6,
+          "RETRIEVAL_STAGE_ONLY": 2,
+          "OTHER": 3,
+          "AMBIGUOUS": 1
+        },
+        "dimension_flag_true_among_cap_survivors": 7,
+        "leader_flag_true_among_cap_survivors": 0,
+        "both_flags_true_among_cap_survivors": 0
+      },
+      "CAP_NO_LIMIT": {
+        "n_cases": 21,
+        "raw_present": 21,
+        "survive_cap": 21,
+        "lost_at_cap": 0,
+        "classification_survival_rate": 28.6,
+        "survive_classification_eligible": 6,
+        "lost_to_dimension": 7,
+        "lost_to_leader": 7,
+        "lost_to_other_filter": 0,
+        "retrieval_stage_only": 2,
+        "primary_stage_counts": {
+          "LEADER_CLASSIFICATION": 7,
+          "DIMENSION_CLASSIFICATION": 7,
+          "RETRIEVAL_STAGE_ONLY": 2,
+          "OTHER": 4,
+          "AMBIGUOUS": 1
+        },
+        "dimension_flag_true_among_cap_survivors": 13,
+        "leader_flag_true_among_cap_survivors": 7,
+        "both_flags_true_among_cap_survivors": 5
+      }
+    },
+    "associated_8": {
+      "CAP_450": {
+        "n_cases": 8,
+        "raw_present": 8,
+        "survive_cap": 8,
+        "lost_at_cap": 0,
+        "classification_survival_rate": 100.0,
+        "survive_classification_eligible": 8,
+        "lost_to_dimension": 0,
+        "lost_to_leader": 0,
+        "lost_to_other_filter": 0,
+        "retrieval_stage_only": 0,
+        "primary_stage_counts": {
+          "OTHER": 8
+        },
+        "dimension_flag_true_among_cap_survivors": 0,
+        "leader_flag_true_among_cap_survivors": 0,
+        "both_flags_true_among_cap_survivors": 0
+      },
+      "CAP_NO_LIMIT": {
+        "n_cases": 8,
+        "raw_present": 8,
+        "survive_cap": 8,
+        "lost_at_cap": 0,
+        "classification_survival_rate": 100.0,
+        "survive_classification_eligible": 8,
+        "lost_to_dimension": 0,
+        "lost_to_leader": 0,
+        "lost_to_other_filter": 0,
+        "retrieval_stage_only": 0,
+        "primary_stage_counts": {
+          "OTHER": 8
+        },
+        "dimension_flag_true_among_cap_survivors": 0,
+        "leader_flag_true_among_cap_survivors": 0,
+        "both_flags_true_among_cap_survivors": 0
+      }
+    },
+    "ambiguous_2": {
+      "CAP_450": {
+        "n_cases": 2,
+        "raw_present": 1,
+        "survive_cap": 1,
+        "lost_at_cap": 0,
+        "classification_survival_rate": 0.0,
+        "survive_classification_eligible": 0,
+        "lost_to_dimension": 0,
+        "lost_to_leader": 0,
+        "lost_to_other_filter": 0,
+        "retrieval_stage_only": 0,
+        "primary_stage_counts": {
+          "AMBIGUOUS": 1,
+          "OTHER": 1
+        },
+        "dimension_flag_true_among_cap_survivors": 1,
+        "leader_flag_true_among_cap_survivors": 0,
+        "both_flags_true_among_cap_survivors": 0
+      },
+      "CAP_NO_LIMIT": {
+        "n_cases": 2,
+        "raw_present": 1,
+        "survive_cap": 1,
+        "lost_at_cap": 0,
+        "classification_survival_rate": 0.0,
+        "survive_classification_eligible": 0,
+        "lost_to_dimension": 0,
+        "lost_to_leader": 0,
+        "lost_to_other_filter": 0,
+        "retrieval_stage_only": 0,
+        "primary_stage_counts": {
+          "AMBIGUOUS": 1,
+          "OTHER": 1
+        },
+        "dimension_flag_true_among_cap_survivors": 1,
+        "leader_flag_true_among_cap_survivors": 0,
+        "both_flags_true_among_cap_survivors": 0
+      }
+    }
+  },
+  "p8_label_stroke_scan": {
+    "labels_scanned": 50,
+    "outcomes_under_cap450": {
+      "retained_dimension": 27,
+      "cap_dropped": 14,
+      "retained_eligible": 9
+    },
+    "dimension_with_digit_from_own_labelish_text": 27
+  },
+  "token_p8_348_w30x90": {
+    "CAP_450": {
+      "raw_present": true,
+      "cap_survives": true,
+      "normalized_present": true,
+      "classification": "dimension",
+      "base_kind": "line",
+      "reclassified_by": "looks_like_dimension",
+      "looks_like_dimension": true,
+      "looks_like_leader": false,
+      "both_predicates_true": false,
+      "leader_took_precedence": false,
+      "other_classification_flags": {
+        "symbol_reclass": false,
+        "base_kind": "line"
+      },
+      "filtered_after_classification": true,
+      "final_geometry_eligible": false,
+      "candidate_available": false,
+      "geometry_id": "geom_f35a9d1c5bd7",
+      "nearby_text": "17K",
+      "nearby_text_distance": 20.92,
+      "nearby_text_line_bbox": [
+        1496.18,
+        1238.11,
+        1512.99,
+        1257.6
+      ],
+      "digit_match": "17",
+      "dimension_trigger": "kind_ok AND length>=12 AND nearby_text_contains_digit",
+      "dimension_detail": {
+        "looks_like_dimension": true,
+        "dimension_kind_ok": true,
+        "dimension_length_ok": true,
+        "dimension_digit_ok": true,
+        "dimension_digit_match": "17",
+        "dimension_trigger": "kind_ok AND length>=12 AND nearby_text_contains_digit",
+        "dimension_predicate_matches_helper": true
+      },
+      "leader_trigger": "length_outside_8_72",
+      "leader_detail": {
+        "looks_like_leader": false,
+        "leader_kind_ok": true,
+        "leader_length_ok": false,
+        "leader_thin_ok": false,
+        "leader_bbox_w": 280.56,
+        "leader_bbox_h": 162.0,
+        "leader_trigger": "length_outside_8_72",
+        "leader_predicate_matches_helper": true
+      },
+      "length": 323.972,
+      "bbox": [
+        1359.6,
+        1146.48,
+        1640.16,
+        1308.48
+      ],
+      "n_points": 2,
+      "in_candidates": null,
+      "primary_stage": "DIMENSION_CLASSIFICATION"
+    },
+    "CAP_NO_LIMIT": {
+      "raw_present": true,
+      "cap_survives": true,
+      "normalized_present": true,
+      "classification": "dimension",
+      "base_kind": "line",
+      "reclassified_by": "looks_like_dimension",
+      "looks_like_dimension": true,
+      "looks_like_leader": false,
+      "both_predicates_true": false,
+      "leader_took_precedence": false,
+      "other_classification_flags": {
+        "symbol_reclass": false,
+        "base_kind": "line"
+      },
+      "filtered_after_classification": true,
+      "final_geometry_eligible": false,
+      "candidate_available": false,
+      "geometry_id": "geom_f35a9d1c5bd7",
+      "nearby_text": "17K",
+      "nearby_text_distance": 20.92,
+      "nearby_text_line_bbox": [
+        1496.18,
+        1238.11,
+        1512.99,
+        1257.6
+      ],
+      "digit_match": "17",
+      "dimension_trigger": "kind_ok AND length>=12 AND nearby_text_contains_digit",
+      "dimension_detail": {
+        "looks_like_dimension": true,
+        "dimension_kind_ok": true,
+        "dimension_length_ok": true,
+        "dimension_digit_ok": true,
+        "dimension_digit_match": "17",
+        "dimension_trigger": "kind_ok AND length>=12 AND nearby_text_contains_digit",
+        "dimension_predicate_matches_helper": true
+      },
+      "leader_trigger": "length_outside_8_72",
+      "leader_detail": {
+        "looks_like_leader": false,
+        "leader_kind_ok": true,
+        "leader_length_ok": false,
+        "leader_thin_ok": false,
+        "leader_bbox_w": 280.56,
+        "leader_bbox_h": 162.0,
+        "leader_trigger": "length_outside_8_72",
+        "leader_predicate_matches_helper": true
+      },
+      "length": 323.972,
+      "bbox": [
+        1359.6,
+        1146.48,
+        1640.16,
+        1308.48
+      ],
+      "n_points": 2,
+      "in_candidates": null,
+      "primary_stage": "DIMENSION_CLASSIFICATION"
+    }
+  },
+  "n_jsonl_rows": 31
+}

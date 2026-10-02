@@ -1,0 +1,32 @@
+{
+  "token_id": "token_p18_1144",
+  "page": 18,
+  "text": "W10X112",
+  "label_bbox": [
+    1320.84,
+    218.04,
+    1375.65,
+    230.72
+  ],
+  "production_geometry_id": "geom_fc4d2f3fd33e",
+  "candidate_geometry_ids": [
+    "geom_fc4d2f3fd33e",
+    "geom_25342840d67c",
+    "geom_f2f4c1f82e85",
+    "geom_ca91cce7a91b",
+    "geom_ea86c8c63321"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p18_1144.png",
+  "crop_available": true,
+  "g1_status": "agreement_ambiguous_neighborhood",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "W10X112 is the second line of a splice-schedule cell, not a member on geometry.",
+  "error_bucket": "schedule_table_not_member",
+  "leader_required": false,
+  "visible_member_on_drawing": false
+}

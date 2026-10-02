@@ -49,10 +49,12 @@ export default function PdfDocumentViewer({
   // annotation overlay layer. Left empty/undefined, the viewer behaves
   // exactly as before (Drawing Review's single-selection use).
   overlays = null,
-  // When set (e.g. 1), only mount currentPage ± N (plus selection page).
-  // Drawing Review and Semantic Review both pass this so large sets
-  // (Struct.pdf-scale sheets) do not rasterize every page at once — that
-  // path stalls the tab and leaves a black canvas.
+  // When set (e.g. 1), every page is laid out as a sized placeholder but only
+  // pages near the viewport (plus currentPage ± N and the selection page)
+  // mount a canvas. Drawing Review and Semantic Review both pass this so
+  // large sets (Struct.pdf-scale sheets) stay fully scrollable without
+  // rasterizing every page at once — that path stalls the tab and leaves a
+  // black canvas.
   pageWindow = null,
   // When false, selection only navigates + scrolls — no pageWidth change.
   // Semantic Review uses this so clicking labels stays snappy; Drawing Review
@@ -96,6 +98,10 @@ export default function PdfDocumentViewer({
   // triggers zoom-to-label exactly once, not every time unrelated state
   // (e.g. another page finishing its own load) re-runs this effect.
   const lastHandledSelectionKeyRef = useRef(null);
+  // Pages whose placeholder is within ~1.5 viewports of the scroll area.
+  const [visiblePages, setVisiblePages] = useState(() => new Set());
+  const observerRef = useRef(null);
+  const pageRefCallbacks = useRef({});
 
   useEffect(() => {
     if (!fileUrl || fileUrl === displayFileUrl) return undefined;
@@ -142,6 +148,43 @@ export default function PdfDocumentViewer({
     observer.observe(node);
     measure();
     return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const root = containerRef.current;
+    if (!root || typeof IntersectionObserver === "undefined") return undefined;
+    const observer = new IntersectionObserver((entries) => {
+      setVisiblePages((prev) => {
+        const next = new Set(prev);
+        for (const entry of entries) {
+          const page = Number(entry.target.dataset.pdfPage);
+          if (entry.isIntersecting) next.add(page);
+          else next.delete(page);
+        }
+        if (next.size === prev.size && [...next].every((page) => prev.has(page))) {
+          return prev;
+        }
+        return next;
+      });
+    }, { root, rootMargin: "150% 0px" });
+    observerRef.current = observer;
+    Object.values(pageRefs.current).forEach((node) => node && observer.observe(node));
+    return () => {
+      observer.disconnect();
+      observerRef.current = null;
+    };
+  }, []);
+
+  const pageRef = useCallback((pageNumber) => {
+    if (!pageRefCallbacks.current[pageNumber]) {
+      pageRefCallbacks.current[pageNumber] = (node) => {
+        const previous = pageRefs.current[pageNumber];
+        if (previous && previous !== node) observerRef.current?.unobserve(previous);
+        pageRefs.current[pageNumber] = node;
+        if (node) observerRef.current?.observe(node);
+      };
+    }
+    return pageRefCallbacks.current[pageNumber];
   }, []);
 
   const currentPageSize = pageSizes[currentPage];
@@ -389,8 +432,23 @@ export default function PdfDocumentViewer({
     }
   }, [currentPageSize?.width]);
 
-  const onDocumentLoadSuccess = useCallback(({ numPages: next }) => {
+  const onDocumentLoadSuccess = useCallback((pdf) => {
+    const next = pdf.numPages;
     setNumPages(next);
+    // Page dictionaries are cheap to read (no rasterizing); knowing every
+    // page's size up front lets placeholders hold the real scroll height.
+    if (typeof pdf.getPage === "function") {
+      Promise.all(
+        Array.from({ length: next }, (_, index) =>
+          pdf.getPage(index + 1).then((page) => {
+            const viewport = page.getViewport({ scale: 1 });
+            return [index + 1, { width: viewport.width, height: viewport.height }];
+          }),
+        ),
+      )
+        .then((entries) => setPageSizes((prev) => ({ ...Object.fromEntries(entries), ...prev })))
+        .catch(() => {});
+    }
     setLoadError(null);
     hasLoadedRef.current = true;
     setHasLoaded(true);
@@ -418,10 +476,15 @@ export default function PdfDocumentViewer({
     }
   }, [fileUrl, displayFileUrl]);
 
-  const pages = useMemo(() => {
-    if (!numPages) return [];
+  const allPages = useMemo(
+    () => Array.from({ length: numPages }, (_, index) => index + 1),
+    [numPages],
+  );
+
+  const mountedPages = useMemo(() => {
+    if (!numPages) return new Set();
     if (pageWindow == null || pageWindow < 0) {
-      return Array.from({ length: numPages }, (_, index) => index + 1);
+      return new Set(allPages);
     }
     const focus = Number(selection?.pageNumber) || currentPage || 1;
     const lo = Math.max(1, focus - pageWindow);
@@ -433,8 +496,19 @@ export default function PdfDocumentViewer({
       const sel = Number(selection.pageNumber);
       if (sel >= 1 && sel <= numPages) set.add(sel);
     }
-    return [...set].sort((a, b) => a - b);
-  }, [numPages, pageWindow, currentPage, selection?.pageNumber]);
+    for (const page of visiblePages) {
+      if (page >= 1 && page <= numPages) set.add(page);
+    }
+    return set;
+  }, [numPages, allPages, pageWindow, currentPage, selection?.pageNumber, visiblePages]);
+
+  useEffect(() => {
+    for (const page of Object.keys(renderedWidthsRef.current)) {
+      if (!mountedPages.has(Number(page))) delete renderedWidthsRef.current[page];
+    }
+  }, [mountedPages]);
+
+  const fallbackSize = currentPageSize || Object.values(pageSizes)[0];
 
   // Grouped once per `overlays` change, not recomputed per page per render --
   // keeps annotation-heavy documents (thousands of annotations total) cheap
@@ -587,17 +661,18 @@ export default function PdfDocumentViewer({
               minWidth: "100%",
             }}
           >
-            {pages.map((pageNumber) => {
+            {allPages.map((pageNumber) => {
               const isSelectedPage =
                 selection?.pageNumber != null
                 && Number(selection.pageNumber) === pageNumber;
               const size = pageSizes[pageNumber];
+              const mounted = mountedPages.has(pageNumber);
+              const placeholderSize = size || fallbackSize;
+              if (!mounted && !placeholderSize) return null;
               return (
                 <Box
                   key={pageNumber}
-                  ref={(node) => {
-                    pageRefs.current[pageNumber] = node;
-                  }}
+                  ref={pageRef(pageNumber)}
                   data-pdf-page={pageNumber}
                   sx={{
                     position: "relative",
@@ -605,42 +680,48 @@ export default function PdfDocumentViewer({
                     bgcolor: "background.paper",
                     outline: isSelectedPage ? "2px solid" : "none",
                     outlineColor: "primary.main",
+                    ...(placeholderSize
+                      ? { minHeight: pageWidth * (placeholderSize.height / placeholderSize.width) }
+                      : {}),
+                    ...(mounted ? {} : { width: pageWidth }),
                   }}
                 >
-                  <Page
-                    pageNumber={pageNumber}
-                    width={pageWidth}
-                    renderTextLayer={false}
-                    renderAnnotationLayer={false}
-                    onLoadSuccess={(page) => {
-                      const viewport = page.getViewport({ scale: 1 });
-                      setPageSizes((prev) => ({
-                        ...prev,
-                        [pageNumber]: {
-                          width: viewport.width,
-                          height: viewport.height,
-                        },
-                      }));
-                    }}
-                    onRenderSuccess={() => {
-                      renderedWidthsRef.current[pageNumber] = pageWidth;
-                      const pending = pendingScrollRef.current;
-                      if (
-                        pending
-                        && pending.pageNumber === pageNumber
-                        // `width: null` (a navigate-only page jump waiting
-                        // on Fit Page to settle on this page's own fit
-                        // width -- see the selection effect above) matches
-                        // whatever width this page just finished at;
-                        // otherwise wait for the specific requested width.
-                        && (pending.width == null || Math.abs(pending.width - pageWidth) < WIDTH_EPSILON)
-                      ) {
-                        pendingScrollRef.current = null;
-                        scrollToSelection(pageNumber);
-                      }
-                    }}
-                  />
-                  {size?.width
+                  {mounted ? (
+                    <Page
+                      pageNumber={pageNumber}
+                      width={pageWidth}
+                      renderTextLayer={false}
+                      renderAnnotationLayer={false}
+                      onLoadSuccess={(page) => {
+                        const viewport = page.getViewport({ scale: 1 });
+                        setPageSizes((prev) => ({
+                          ...prev,
+                          [pageNumber]: {
+                            width: viewport.width,
+                            height: viewport.height,
+                          },
+                        }));
+                      }}
+                      onRenderSuccess={() => {
+                        renderedWidthsRef.current[pageNumber] = pageWidth;
+                        const pending = pendingScrollRef.current;
+                        if (
+                          pending
+                          && pending.pageNumber === pageNumber
+                          // `width: null` (a navigate-only page jump waiting
+                          // on Fit Page to settle on this page's own fit
+                          // width -- see the selection effect above) matches
+                          // whatever width this page just finished at;
+                          // otherwise wait for the specific requested width.
+                          && (pending.width == null || Math.abs(pending.width - pageWidth) < WIDTH_EPSILON)
+                        ) {
+                          pendingScrollRef.current = null;
+                          scrollToSelection(pageNumber);
+                        }
+                      }}
+                    />
+                  ) : null}
+                  {mounted && size?.width
                     ? overlaysByPage[pageNumber]?.map((overlay) => (
                         <BboxHighlight
                           key={overlay.key}

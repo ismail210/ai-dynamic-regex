@@ -1,0 +1,346 @@
+{
+  "document_id": "doc_0d910a43b4a021e3",
+  "role": "member_geometry_ocr_qa",
+  "pages_filter": [
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16
+  ],
+  "proximity_pt": 50.0,
+  "geometry_object_count": 30670,
+  "geometry_kind_counts": {
+    "leader": 23443,
+    "polyline": 941,
+    "line": 4277,
+    "symbol": 1460,
+    "rectangle": 497,
+    "arc": 50,
+    "circle": 2
+  },
+  "member_candidate_count": 3586,
+  "page_retention": [
+    {
+      "page": 10,
+      "raw_drawing_count": 3037,
+      "retained": 1200,
+      "dropped_by_cap": 1837,
+      "cap_applied": true,
+      "kinds": {
+        "line": 150,
+        "polyline": 4,
+        "symbol": 33,
+        "rectangle": 3,
+        "leader": 1005,
+        "arc": 1
+      }
+    },
+    {
+      "page": 11,
+      "raw_drawing_count": 2423,
+      "retained": 1200,
+      "dropped_by_cap": 1223,
+      "cap_applied": true,
+      "kinds": {
+        "line": 71,
+        "polyline": 4,
+        "symbol": 36,
+        "rectangle": 3,
+        "leader": 1081,
+        "arc": 1
+      }
+    },
+    {
+      "page": 12,
+      "raw_drawing_count": 1817,
+      "retained": 1200,
+      "dropped_by_cap": 617,
+      "cap_applied": true,
+      "kinds": {
+        "line": 232,
+        "symbol": 31,
+        "rectangle": 3,
+        "leader": 886,
+        "arc": 1,
+        "polyline": 23
+      }
+    },
+    {
+      "page": 13,
+      "raw_drawing_count": 1919,
+      "retained": 1200,
+      "dropped_by_cap": 719,
+      "cap_applied": true,
+      "kinds": {
+        "line": 84,
+        "rectangle": 4,
+        "symbol": 20,
+        "leader": 1091,
+        "arc": 1
+      }
+    },
+    {
+      "page": 14,
+      "raw_drawing_count": 9770,
+      "retained": 1200,
+      "dropped_by_cap": 8570,
+      "cap_applied": true,
+      "kinds": {
+        "line": 168,
+        "rectangle": 16,
+        "polyline": 21,
+        "symbol": 43,
+        "leader": 911,
+        "arc": 1
+      }
+    },
+    {
+      "page": 15,
+      "raw_drawing_count": 11561,
+      "retained": 1200,
+      "dropped_by_cap": 10361,
+      "cap_applied": true,
+      "kinds": {
+        "line": 185,
+        "polyline": 37,
+        "symbol": 42,
+        "rectangle": 17,
+        "leader": 862,
+        "arc": 1
+      }
+    },
+    {
+      "page": 16,
+      "raw_drawing_count": 5890,
+      "retained": 1200,
+      "dropped_by_cap": 4690,
+      "cap_applied": true,
+      "kinds": {
+        "line": 165,
+        "rectangle": 23,
+        "polyline": 49,
+        "symbol": 38,
+        "leader": 860,
+        "arc": 1
+      }
+    }
+  ],
+  "structural_labels": 374,
+  "struct_stroke_within_proximity": 92,
+  "struct_stroke_coverage": 0.246,
+  "preview_kind_counts": {
+    "line": 14,
+    "dimension": 32,
+    "leader": 327,
+    "symbol": 1
+  },
+  "member_geometry_available_count": 77,
+  "member_geometry_available_rate": 0.2059,
+  "primitives_claimed_by_multiple_labels": 16,
+  "max_labels_per_stroke": 4,
+  "sample_labels": [
+    {
+      "page": 10,
+      "raw_text": "W12X16",
+      "preview_kind": "line",
+      "nearest_member_distance": 5.79,
+      "near_member_count": 2,
+      "member_geometry_available": true
+    },
+    {
+      "page": 10,
+      "raw_text": "W12X16",
+      "preview_kind": "dimension",
+      "nearest_member_distance": 10.19,
+      "near_member_count": 3,
+      "member_geometry_available": true
+    },
+    {
+      "page": 10,
+      "raw_text": "W12X22",
+      "preview_kind": "dimension",
+      "nearest_member_distance": 45.71,
+      "near_member_count": 1,
+      "member_geometry_available": false
+    },
+    {
+      "page": 10,
+      "raw_text": "W12X16",
+      "preview_kind": "dimension",
+      "nearest_member_distance": 62.22,
+      "near_member_count": 0,
+      "member_geometry_available": false
+    },
+    {
+      "page": 10,
+      "raw_text": "W12X16",
+      "preview_kind": "leader",
+      "nearest_member_distance": 8.69,
+      "near_member_count": 3,
+      "member_geometry_available": true
+    },
+    {
+      "page": 10,
+      "raw_text": "W12X16",
+      "preview_kind": "leader",
+      "nearest_member_distance": 8.69,
+      "near_member_count": 1,
+      "member_geometry_available": true
+    },
+    {
+      "page": 10,
+      "raw_text": "W12X22",
+      "preview_kind": "leader",
+      "nearest_member_distance": 42.8,
+      "near_member_count": 1,
+      "member_geometry_available": true
+    },
+    {
+      "page": 10,
+      "raw_text": "W18X40",
+      "preview_kind": "leader",
+      "nearest_member_distance": 12.67,
+      "near_member_count": 1,
+      "member_geometry_available": true
+    },
+    {
+      "page": 10,
+      "raw_text": "W16X31",
+      "preview_kind": "leader",
+      "nearest_member_distance": 9.04,
+      "near_member_count": 4,
+      "member_geometry_available": true
+    },
+    {
+      "page": 10,
+      "raw_text": "W12X16",
+      "preview_kind": "leader",
+      "nearest_member_distance": 8.8,
+      "near_member_count": 5,
+      "member_geometry_available": true
+    },
+    {
+      "page": 10,
+      "raw_text": "W12X16",
+      "preview_kind": "leader",
+      "nearest_member_distance": 30.35,
+      "near_member_count": 4,
+      "member_geometry_available": true
+    },
+    {
+      "page": 10,
+      "raw_text": "W16X26",
+      "preview_kind": "leader",
+      "nearest_member_distance": 36.15,
+      "near_member_count": 1,
+      "member_geometry_available": true
+    },
+    {
+      "page": 10,
+      "raw_text": "W12X30",
+      "preview_kind": "leader",
+      "nearest_member_distance": 11.43,
+      "near_member_count": 1,
+      "member_geometry_available": true
+    },
+    {
+      "page": 10,
+      "raw_text": "W14X22",
+      "preview_kind": "dimension",
+      "nearest_member_distance": 8.69,
+      "near_member_count": 1,
+      "member_geometry_available": true
+    },
+    {
+      "page": 10,
+      "raw_text": "W10X30",
+      "preview_kind": "leader",
+      "nearest_member_distance": 2.97,
+      "near_member_count": 4,
+      "member_geometry_available": true
+    },
+    {
+      "page": 10,
+      "raw_text": "W12X40",
+      "preview_kind": "leader",
+      "nearest_member_distance": 8.67,
+      "near_member_count": 1,
+      "member_geometry_available": true
+    },
+    {
+      "page": 10,
+      "raw_text": "W10X30",
+      "preview_kind": "leader",
+      "nearest_member_distance": 7.88,
+      "near_member_count": 5,
+      "member_geometry_available": true
+    },
+    {
+      "page": 10,
+      "raw_text": "W10X15",
+      "preview_kind": "leader",
+      "nearest_member_distance": 11.44,
+      "near_member_count": 6,
+      "member_geometry_available": false
+    },
+    {
+      "page": 10,
+      "raw_text": "W10X15",
+      "preview_kind": "leader",
+      "nearest_member_distance": 11.12,
+      "near_member_count": 6,
+      "member_geometry_available": true
+    },
+    {
+      "page": 10,
+      "raw_text": "W10X15",
+      "preview_kind": "leader",
+      "nearest_member_distance": 8.68,
+      "near_member_count": 5,
+      "member_geometry_available": false
+    },
+    {
+      "page": 10,
+      "raw_text": "W10X15",
+      "preview_kind": "leader",
+      "nearest_member_distance": 5.93,
+      "near_member_count": 5,
+      "member_geometry_available": false
+    },
+    {
+      "page": 10,
+      "raw_text": "W21X44",
+      "preview_kind": "line",
+      "nearest_member_distance": 1.56,
+      "near_member_count": 4,
+      "member_geometry_available": false
+    },
+    {
+      "page": 10,
+      "raw_text": "W16X31",
+      "preview_kind": "line",
+      "nearest_member_distance": 2.76,
+      "near_member_count": 4,
+      "member_geometry_available": false
+    },
+    {
+      "page": 10,
+      "raw_text": "W21X44",
+      "preview_kind": "line",
+      "nearest_member_distance": 2.52,
+      "near_member_count": 2,
+      "member_geometry_available": false
+    },
+    {
+      "page": 10,
+      "raw_text": "W12X26",
+      "preview_kind": "line",
+      "nearest_member_distance": 8.92,
+      "near_member_count": 5,
+      "member_geometry_available": false
+    }
+  ]
+}

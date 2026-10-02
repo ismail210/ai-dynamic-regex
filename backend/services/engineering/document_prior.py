@@ -71,6 +71,7 @@ _MARK_SECTION_RE = re.compile(
 _GRADE_RE = re.compile(r"\bA(?:36|572|992|500|913)\b", re.I)
 _PLATE_VOCABULARY_RE = re.compile(r"\bPLATE\b", re.I)
 _BENT_PLATE_VOCABULARY_RE = re.compile(r"\bBENT\s+PL(?:ATE)?\b", re.I)
+_PLATE_SCHEDULE_MARK_RE = re.compile(r"BP[-_]?\d+[A-Z]?", re.I)
 
 _FAMILY_PREFIXES = (
     "2L",
@@ -297,6 +298,10 @@ def _local_plate_signals(normalized: str, compact: str) -> Dict[str, bool]:
     # Thickness-first bent callouts: 1/4"BENTPL
     if re.match(r'^[\d./]+"?BENTPL', comp):
         is_bent_local = True
+    # BP6 / BP-6 are bearing/base plate schedule marks, not bent-plate callouts.
+    if _PLATE_SCHEDULE_MARK_RE.fullmatch(comp):
+        is_bent_local = False
+        is_pl_local = True
 
     # Dimension-only tokens must not inherit plate semantics from legend alone.
     dimension_only = bool(

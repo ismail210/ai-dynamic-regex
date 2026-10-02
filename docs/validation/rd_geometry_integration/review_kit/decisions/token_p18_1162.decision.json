@@ -1,0 +1,32 @@
+{
+  "token_id": "token_p18_1162",
+  "page": 18,
+  "text": "PL 3 3/8\"",
+  "label_bbox": [
+    1069.2,
+    351.14,
+    1102.88,
+    363.74
+  ],
+  "production_geometry_id": "geom_20acac15ccd5",
+  "candidate_geometry_ids": [
+    "geom_20acac15ccd5",
+    "geom_ea86c8c63321",
+    "geom_f2f4c1f82e85",
+    "geom_c7c6e62af746",
+    "geom_a56980dbc3a2"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p18_1162.png",
+  "crop_available": true,
+  "g1_status": "agreement",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Leader points to the splice plate on the WF column. Retrieved candidates are a dimension line and column outlines, not the plate.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": true,
+  "visible_member_on_drawing": true
+}

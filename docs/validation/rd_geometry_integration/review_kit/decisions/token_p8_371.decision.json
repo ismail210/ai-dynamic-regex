@@ -1,0 +1,29 @@
+{
+  "token_id": "token_p8_371",
+  "page": 8,
+  "text": "W10X15",
+  "label_bbox": [
+    1922.12,
+    1301.98,
+    1944.65,
+    1343.81
+  ],
+  "production_geometry_id": "geom_5f6b0423ca08",
+  "candidate_geometry_ids": [
+    "geom_5f6b0423ca08",
+    "geom_485e0c733148"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p8_371.png",
+  "crop_available": true,
+  "g1_status": "agreement",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Label sits on W10X15[9]. Overlay is the W14X22 infill.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": false,
+  "visible_member_on_drawing": true
+}

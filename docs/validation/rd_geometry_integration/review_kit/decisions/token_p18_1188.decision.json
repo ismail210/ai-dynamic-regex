@@ -1,0 +1,32 @@
+{
+  "token_id": "token_p18_1188",
+  "page": 18,
+  "text": "PL 3 3/4\"",
+  "label_bbox": [
+    718.92,
+    1031.78,
+    755.53,
+    1044.38
+  ],
+  "production_geometry_id": "geom_f654783ff0ce",
+  "candidate_geometry_ids": [
+    "geom_f654783ff0ce",
+    "geom_23baac2a7cb3",
+    "geom_1c5a76a81c74",
+    "geom_6e962bc1d6eb",
+    "geom_885d2338a408"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p18_1188.png",
+  "crop_available": true,
+  "g1_status": "agreement_ambiguous_neighborhood",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Leader points to the embed plate. Green overlay is studs/rebar left of the plate, not the embed plate.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": true,
+  "visible_member_on_drawing": true
+}

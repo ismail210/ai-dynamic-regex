@@ -1,0 +1,62 @@
+<!doctype html><meta charset='utf-8'>
+<title>token_p18_1188</title>
+<h1>PL 3 3/4&quot; (page 18)</h1>
+<p>Label bbox: [718.92, 1031.78, 755.53, 1044.38]</p>
+<form>
+<p>Review label:
+<select name='review_label'>
+<option value='direct_target'>direct_target</option>
+<option value='leader_support_not_target'>leader_support_not_target</option>
+<option value='not_target'>not_target</option>
+<option value='no_valid_target'>no_valid_target</option>
+<option value='ambiguous_requires_adjudication'>ambiguous_requires_adjudication</option>
+</select></p>
+<p>Targets:</p>
+<label><input type='checkbox' name='target' value='geom_f654783ff0ce'> geom_f654783ff0ce kind=line d=0.0 leader=True</label><br><label><input type='checkbox' name='target' value='geom_23baac2a7cb3'> geom_23baac2a7cb3 kind=line d=0.0 leader=True</label><br><label><input type='checkbox' name='target' value='geom_1c5a76a81c74'> geom_1c5a76a81c74 kind=line d=4.56 leader=True</label><br><label><input type='checkbox' name='target' value='geom_6e962bc1d6eb'> geom_6e962bc1d6eb kind=line d=6.84 leader=True</label><br><label><input type='checkbox' name='target' value='geom_885d2338a408'> geom_885d2338a408 kind=line d=58.74 leader=True</label><br>
+<p><button type='button' onclick='this.nextElementSibling.hidden=false'>Reveal production pick</button>
+<pre hidden>{
+  &quot;edge_id&quot;: &quot;edge_e03c5f528b&quot;,
+  &quot;text_node_id&quot;: &quot;txt_80cfd8ba3a&quot;,
+  &quot;geometry_node_id&quot;: &quot;geo_59058d4943&quot;,
+  &quot;geometry_id&quot;: &quot;geom_f654783ff0ce&quot;,
+  &quot;distance&quot;: 0.0,
+  &quot;page_number&quot;: 18,
+  &quot;meta&quot;: {
+    &quot;association_sources&quot;: [
+      &quot;direct_distance&quot;,
+      &quot;leader_endpoint_resolved&quot;,
+      &quot;leader_endpoint_resolved&quot;,
+      &quot;leader_endpoint_resolved&quot;
+    ],
+    &quot;leader_resolved&quot;: true,
+    &quot;candidate_count&quot;: 3
+  },
+  &quot;geometry_kind&quot;: &quot;line&quot;,
+  &quot;geometry_bbox&quot;: [
+    566.16,
+    925.32,
+    665.16,
+    1014.12
+  ]
+}</pre></p>
+<p>Reviewer id: <input name='reviewer_id'></p>
+<button type='button' onclick='save()'>Save decision</button>
+</form>
+<script>
+function save(){
+  const targets=[...document.querySelectorAll('input[name=target]:checked')].map(x=>x.value);
+  const payload={
+    token_id:"token_p18_1188",
+    review_label:document.querySelector('[name=review_label]').value,
+    reviewed_target_geometry_ids:targets,
+    reviewer_id:document.querySelector('[name=reviewer_id]').value,
+    page:18,
+    text:"PL 3 3/4\""
+  };
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download="token_p18_1188.decision.json";
+  a.click();
+}
+</script>

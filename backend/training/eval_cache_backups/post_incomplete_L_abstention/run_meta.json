@@ -1,0 +1,30 @@
+{
+  "generated_at": "2026-09-10T10:46:29Z",
+  "method": "memoized_predict_token_on_cached_raw_text",
+  "source_cache": "training/eval_cache_backups/doc_*/predictions_view.json",
+  "source_cache_note": "OLD Aug 31 predictions preserved; NEW dumps written here only",
+  "n_docs": 8,
+  "n_rows": 9396,
+  "n_unique_raw": 780,
+  "flags": {
+    "graphsage_section_scoring_enabled": false,
+    "learned_fusion_enabled": false,
+    "ml_label_ranker_enabled": false,
+    "ml_label_ranker_shadow": false,
+    "geometry_missing_label_inference_enabled": false,
+    "document_prior_enabled": true
+  },
+  "code_commit": "29bdc6a7dd0ac6be67dbe4be417f4da71efcfa5d",
+  "code_paths_evaluated": [
+    "services/prediction/orchestrator.py",
+    "services/prediction/label_ranker_hook.py"
+  ],
+  "features_not_enabled": [
+    "Graph v2",
+    "GraphSAGE",
+    "learned fusion",
+    "ML label ranker",
+    "geometry missing-label inference",
+    "VLM/API"
+  ]
+}

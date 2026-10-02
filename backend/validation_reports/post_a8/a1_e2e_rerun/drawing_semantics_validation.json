@@ -1,0 +1,57 @@
+{
+  "path": "validation_reports/post_a8/a1_e2e_rerun/doc_posta8a1riverroad_drawing_semantics.json",
+  "validation_errors": [],
+  "annotation_count": 319,
+  "incomplete_l_records": [
+    {
+      "raw_text": "L4X4",
+      "normalized_text": "L4X4",
+      "completion_status": "missing_thickness",
+      "takeoff_eligible": false,
+      "source_bucket": "predictions",
+      "object_scope": "takeoff",
+      "original_text_preserved": true,
+      "page_field": 5,
+      "annotation_id": "token_p5_317"
+    },
+    {
+      "raw_text": "L5X3",
+      "normalized_text": "L5X3",
+      "completion_status": "missing_thickness",
+      "takeoff_eligible": false,
+      "source_bucket": "predictions",
+      "object_scope": "detail_reference",
+      "original_text_preserved": true,
+      "page_field": 6,
+      "annotation_id": "token_p6_464"
+    },
+    {
+      "raw_text": "L4X4",
+      "normalized_text": "L4X4",
+      "completion_status": "missing_thickness",
+      "takeoff_eligible": false,
+      "source_bucket": "predictions",
+      "object_scope": "takeoff",
+      "original_text_preserved": true,
+      "page_field": 7,
+      "annotation_id": "token_p7_508"
+    },
+    {
+      "raw_text": "L4X4",
+      "normalized_text": "L4X4",
+      "completion_status": "missing_thickness",
+      "takeoff_eligible": false,
+      "source_bucket": "predictions",
+      "object_scope": "takeoff",
+      "original_text_preserved": true,
+      "page_field": 7,
+      "annotation_id": "token_p7_510"
+    }
+  ],
+  "policy": {
+    "excel_role": "not_used",
+    "catalog_role": "verification_only",
+    "incomplete_l_auto_complete": false,
+    "grasshopper_required": false
+  }
+}

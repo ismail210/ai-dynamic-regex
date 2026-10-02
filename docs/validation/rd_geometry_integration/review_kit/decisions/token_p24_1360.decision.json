@@ -1,0 +1,32 @@
+{
+  "token_id": "token_p24_1360",
+  "page": 24,
+  "text": "L4x4x3/8",
+  "label_bbox": [
+    455.04,
+    252.85,
+    496.92,
+    265.46
+  ],
+  "production_geometry_id": null,
+  "candidate_geometry_ids": [
+    "geom_47c94e1c3426",
+    "geom_353f2534b4c8",
+    "geom_be992dda70c7",
+    "geom_2bbf72b2eef4",
+    "geom_87377fdc9117"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p24_1360.png",
+  "crop_available": true,
+  "g1_status": "ambiguous",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Leader points to the small L4x4 at the roof/wall junction. Green overlay is the long wall face, not the angle.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": true,
+  "visible_member_on_drawing": true
+}

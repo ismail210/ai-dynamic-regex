@@ -1,0 +1,58 @@
+{
+  "audit_classification": "C",
+  "audit_confidence": "MEDIUM",
+  "baseline_b_nearest_candidate_id": "rnd_raw_p8_1496_77117ad76f03",
+  "evidence_basis": [
+    "local_structural_topology",
+    "repeated_member_context",
+    "overlap_or_contact_insufficient_alone"
+  ],
+  "g8_candidate_ids": [
+    "rnd_raw_p8_1496_77117ad76f03",
+    "rnd_raw_p8_1494_7c1a1e740815",
+    "rnd_raw_p8_1338_4cd2ddf31320",
+    "rnd_raw_p8_1293_5e2f730bed81",
+    "rnd_raw_p8_1012_98df7602bd9e",
+    "rnd_raw_p8_1026_fa500cc74c9c",
+    "rnd_raw_p8_1365_2df9769d7b24",
+    "rnd_raw_p8_1495_2d42c14022d1",
+    "rnd_raw_p8_1020_c6050030c5f1",
+    "rnd_raw_p8_1635_3073e659fbc9",
+    "rnd_raw_p8_1638_f899bb3709a7",
+    "rnd_raw_p8_1639_c79cbc802513"
+  ],
+  "g9_disagrees": false,
+  "g9_mode": "direct",
+  "g9_selected_candidate_id": "rnd_raw_p8_1496_77117ad76f03",
+  "g9_selected_rejected": null,
+  "historical_gold_decision": "NO_VALID_MEMBER",
+  "historical_gold_raw": "no_valid_member",
+  "historical_gold_reason": "Label sits on W18X35[28] joist among parallel W18s. Overlay is the W21X44 wall beam.",
+  "label": "W18X35",
+  "label_bbox": [
+    1628.9,
+    1129.74,
+    1659.85,
+    1170.55
+  ],
+  "not_historical_gold": true,
+  "notes": "Parallel same-scale G8 candidates touch the label neighborhood. Historical reason names a specific joist, but under frozen G8 multiple member-scale strokes remain plausible; ownership not forced. Competitors listed: ['rnd_raw_p8_1496_77117ad76f03', 'rnd_raw_p8_1494_7c1a1e740815', 'rnd_raw_p8_1338_4cd2ddf31320', 'rnd_raw_p8_1293_5e2f730bed81'].",
+  "owned_candidate_ids": [
+    "rnd_raw_p8_1496_77117ad76f03",
+    "rnd_raw_p8_1494_7c1a1e740815",
+    "rnd_raw_p8_1338_4cd2ddf31320",
+    "rnd_raw_p8_1293_5e2f730bed81"
+  ],
+  "page": 8,
+  "pattern_tags": [
+    "parallel_bay",
+    "same_scale_competition"
+  ],
+  "review_source": "g8_era_human_validation",
+  "reviewed_at": "2026-09-21T11:14:29Z",
+  "reviewer_confidence": "MEDIUM",
+  "reviewer_decision": "AMBIGUOUS",
+  "reviewer_id": "g8_era_rd_review",
+  "status": "REVIEWED",
+  "token_id": "token_p8_430"
+}

@@ -1,0 +1,92 @@
+{
+  "document_id": "doc_0d910a43b4a021e3",
+  "retrieval": "leader_aware_exclude_leader_targets",
+  "overall": {
+    "label_count": 75,
+    "status_counts": {
+      "agreement": 29,
+      "agreement_ambiguous_neighborhood": 27,
+      "disagreement": 3,
+      "missing_retrieval": 1,
+      "ambiguous": 7,
+      "unavailable": 1,
+      "extra_candidates_only": 7
+    },
+    "agreement": 56,
+    "disagreement": 3,
+    "missing_retrieval": 1,
+    "extra_candidates_only": 7,
+    "ambiguous": 34,
+    "unavailable": 1
+  },
+  "by_page": {
+    "8": {
+      "spec": {
+        "page": 8,
+        "role": "structural_plan",
+        "why": "Burrville framing plan used in docs/validation phase1/phase2 association samples; dense W-section labels with nearby vector geometry."
+      },
+      "labels_compared": 50,
+      "summary": {
+        "label_count": 50,
+        "status_counts": {
+          "agreement": 21,
+          "agreement_ambiguous_neighborhood": 24,
+          "disagreement": 3,
+          "missing_retrieval": 1,
+          "ambiguous": 1
+        },
+        "agreement": 45,
+        "disagreement": 3,
+        "missing_retrieval": 1,
+        "extra_candidates_only": 0,
+        "ambiguous": 25,
+        "unavailable": 0
+      }
+    },
+    "18": {
+      "spec": {
+        "page": 18,
+        "role": "detail_sheet",
+        "why": "Burrville S-205 detail sheet from incomplete-L evidence set (L4X4X1/4 TYP / brace details); candidate multi-detail layout."
+      },
+      "labels_compared": 14,
+      "summary": {
+        "label_count": 14,
+        "status_counts": {
+          "agreement_ambiguous_neighborhood": 3,
+          "agreement": 8,
+          "unavailable": 1,
+          "extra_candidates_only": 2
+        },
+        "agreement": 11,
+        "disagreement": 0,
+        "missing_retrieval": 0,
+        "extra_candidates_only": 2,
+        "ambiguous": 3,
+        "unavailable": 1
+      }
+    },
+    "24": {
+      "spec": {
+        "page": 24,
+        "role": "detail_sheet_dense",
+        "why": "Burrville S-321 roof details page with many L4X4* callouts; stress-tests region clustering and cross-detail proximity."
+      },
+      "labels_compared": 11,
+      "summary": {
+        "label_count": 11,
+        "status_counts": {
+          "extra_candidates_only": 5,
+          "ambiguous": 6
+        },
+        "agreement": 0,
+        "disagreement": 0,
+        "missing_retrieval": 0,
+        "extra_candidates_only": 5,
+        "ambiguous": 6,
+        "unavailable": 0
+      }
+    }
+  }
+}

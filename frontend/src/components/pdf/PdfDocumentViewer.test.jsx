@@ -20,6 +20,7 @@ const PAGE_HEIGHT_PTS = 2160;
 // being asked to re-render their canvas over and over for no new width at
 // all (Section 71/15: at most one necessary scale transition).
 let pageRenderCount = 0;
+let mockNumPages = 1;
 
 // @mui/icons-material's barrel is ~11k modules, more than macOS's 10240
 // per-process file descriptor cap allows Vite to transform at once (EMFILE
@@ -37,7 +38,7 @@ vi.mock("react-pdf", () => ({
     useEffect(() => {
       if (fired.current) return;
       fired.current = true;
-      onLoadSuccess?.({ numPages: 1 });
+      onLoadSuccess?.({ numPages: mockNumPages });
     }, [onLoadSuccess]);
     return <div>{children}</div>;
   },
@@ -526,5 +527,44 @@ describe("PdfDocumentViewer Fit Page / manual zoom / resize", () => {
     );
 
     expect(canvasWidth()).toBe(widthBefore);
+  });
+});
+
+describe("PdfDocumentViewer page window", () => {
+  let ioCallback = null;
+
+  beforeEach(() => {
+    mockNumPages = 6;
+    vi.stubGlobal("IntersectionObserver", class {
+      constructor(cb) {
+        ioCallback = cb;
+      }
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    });
+  });
+
+  afterEach(() => {
+    mockNumPages = 1;
+    vi.unstubAllGlobals();
+  });
+
+  it("lays out every page but only renders canvases near the viewport", () => {
+    const { container } = render(
+      <PdfDocumentViewer fileUrl="multi.pdf" selection={null} pageWindow={1} />,
+    );
+
+    expect(container.querySelectorAll("[data-pdf-page]")).toHaveLength(6);
+    expect(screen.queryByTestId("page-1")).not.toBeNull();
+    expect(screen.queryByTestId("page-2")).not.toBeNull();
+    expect(screen.queryByTestId("page-5")).toBeNull();
+
+    const page5 = container.querySelector('[data-pdf-page="5"]');
+    act(() => {
+      ioCallback([{ target: page5, isIntersecting: true }]);
+    });
+
+    expect(screen.queryByTestId("page-5")).not.toBeNull();
   });
 });

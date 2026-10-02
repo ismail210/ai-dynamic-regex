@@ -1,0 +1,530 @@
+{
+  "count": 75,
+  "groups": [
+    {
+      "token_id": "token_p8_348",
+      "text": "W30X90",
+      "page": 8,
+      "status": "disagreement",
+      "href": "token_p8_348.html"
+    },
+    {
+      "token_id": "token_p8_353",
+      "text": "W18X35",
+      "page": 8,
+      "status": "disagreement",
+      "href": "token_p8_353.html"
+    },
+    {
+      "token_id": "token_p8_372",
+      "text": "W10X15",
+      "page": 8,
+      "status": "disagreement",
+      "href": "token_p8_372.html"
+    },
+    {
+      "token_id": "token_p18_1188",
+      "text": "PL 3 3/4\"",
+      "page": 18,
+      "status": "agreement_ambiguous_neighborhood",
+      "href": "token_p18_1188.html"
+    },
+    {
+      "token_id": "token_p18_1162",
+      "text": "PL 3 3/8\"",
+      "page": 18,
+      "status": "agreement",
+      "href": "token_p18_1162.html"
+    },
+    {
+      "token_id": "token_p18_1169",
+      "text": "PL 1 PL11 11/2\" 1/2\"",
+      "page": 18,
+      "status": "agreement",
+      "href": "token_p18_1169.html"
+    },
+    {
+      "token_id": "token_p18_1173",
+      "text": "PL 1 PL11 11/2\" 1/2\"",
+      "page": 18,
+      "status": "agreement",
+      "href": "token_p18_1173.html"
+    },
+    {
+      "token_id": "token_p8_341",
+      "text": "W16X26",
+      "page": 8,
+      "status": "agreement_ambiguous_neighborhood",
+      "href": "token_p8_341.html"
+    },
+    {
+      "token_id": "token_p8_343",
+      "text": "W16X26",
+      "page": 8,
+      "status": "agreement_ambiguous_neighborhood",
+      "href": "token_p8_343.html"
+    },
+    {
+      "token_id": "token_p8_347",
+      "text": "W16X26",
+      "page": 8,
+      "status": "agreement_ambiguous_neighborhood",
+      "href": "token_p8_347.html"
+    },
+    {
+      "token_id": "token_p8_351",
+      "text": "W18X35",
+      "page": 8,
+      "status": "agreement_ambiguous_neighborhood",
+      "href": "token_p8_351.html"
+    },
+    {
+      "token_id": "token_p8_352",
+      "text": "W16X26",
+      "page": 8,
+      "status": "agreement_ambiguous_neighborhood",
+      "href": "token_p8_352.html"
+    },
+    {
+      "token_id": "token_p8_359",
+      "text": "W18X40",
+      "page": 8,
+      "status": "agreement_ambiguous_neighborhood",
+      "href": "token_p8_359.html"
+    },
+    {
+      "token_id": "token_p8_361",
+      "text": "W16X26",
+      "page": 8,
+      "status": "agreement_ambiguous_neighborhood",
+      "href": "token_p8_361.html"
+    },
+    {
+      "token_id": "token_p8_369",
+      "text": "W16X26",
+      "page": 8,
+      "status": "agreement_ambiguous_neighborhood",
+      "href": "token_p8_369.html"
+    },
+    {
+      "token_id": "token_p8_382",
+      "text": "W18X35",
+      "page": 8,
+      "status": "agreement_ambiguous_neighborhood",
+      "href": "token_p8_382.html"
+    },
+    {
+      "token_id": "token_p8_383",
+      "text": "W18X35",
+      "page": 8,
+      "status": "agreement_ambiguous_neighborhood",
+      "href": "token_p8_383.html"
+    },
+    {
+      "token_id": "token_p8_384",
+      "text": "W18X40",
+      "page": 8,
+      "status": "agreement_ambiguous_neighborhood",
+      "href": "token_p8_384.html"
+    },
+    {
+      "token_id": "token_p8_394",
+      "text": "W12X16",
+      "page": 8,
+      "status": "agreement_ambiguous_neighborhood",
+      "href": "token_p8_394.html"
+    },
+    {
+      "token_id": "token_p8_395",
+      "text": "W16X31",
+      "page": 8,
+      "status": "agreement_ambiguous_neighborhood",
+      "href": "token_p8_395.html"
+    },
+    {
+      "token_id": "token_p8_396",
+      "text": "W16X31",
+      "page": 8,
+      "status": "agreement_ambiguous_neighborhood",
+      "href": "token_p8_396.html"
+    },
+    {
+      "token_id": "token_p8_398",
+      "text": "W12X16",
+      "page": 8,
+      "status": "agreement_ambiguous_neighborhood",
+      "href": "token_p8_398.html"
+    },
+    {
+      "token_id": "token_p8_399",
+      "text": "W10X15",
+      "page": 8,
+      "status": "agreement_ambiguous_neighborhood",
+      "href": "token_p8_399.html"
+    },
+    {
+      "token_id": "token_p8_407",
+      "text": "W12X16",
+      "page": 8,
+      "status": "ambiguous",
+      "href": "token_p8_407.html"
+    },
+    {
+      "token_id": "token_p8_410",
+      "text": "W10X15",
+      "page": 8,
+      "status": "agreement_ambiguous_neighborhood",
+      "href": "token_p8_410.html"
+    },
+    {
+      "token_id": "token_p8_411",
+      "text": "W10X15",
+      "page": 8,
+      "status": "agreement_ambiguous_neighborhood",
+      "href": "token_p8_411.html"
+    },
+    {
+      "token_id": "token_p8_412",
+      "text": "W10X15",
+      "page": 8,
+      "status": "agreement_ambiguous_neighborhood",
+      "href": "token_p8_412.html"
+    },
+    {
+      "token_id": "token_p8_421",
+      "text": "W14X22",
+      "page": 8,
+      "status": "agreement_ambiguous_neighborhood",
+      "href": "token_p8_421.html"
+    },
+    {
+      "token_id": "token_p8_424",
+      "text": "W16X26",
+      "page": 8,
+      "status": "agreement_ambiguous_neighborhood",
+      "href": "token_p8_424.html"
+    },
+    {
+      "token_id": "token_p8_336",
+      "text": "W21X50",
+      "page": 8,
+      "status": "agreement",
+      "href": "token_p8_336.html"
+    },
+    {
+      "token_id": "token_p8_337",
+      "text": "W21X44",
+      "page": 8,
+      "status": "agreement",
+      "href": "token_p8_337.html"
+    },
+    {
+      "token_id": "token_p8_338",
+      "text": "W21X44",
+      "page": 8,
+      "status": "agreement",
+      "href": "token_p8_338.html"
+    },
+    {
+      "token_id": "token_p8_340",
+      "text": "W21X44",
+      "page": 8,
+      "status": "agreement",
+      "href": "token_p8_340.html"
+    },
+    {
+      "token_id": "token_p8_345",
+      "text": "W10X15",
+      "page": 8,
+      "status": "agreement",
+      "href": "token_p8_345.html"
+    },
+    {
+      "token_id": "token_p8_346",
+      "text": "W10X15",
+      "page": 8,
+      "status": "agreement",
+      "href": "token_p8_346.html"
+    },
+    {
+      "token_id": "token_p8_354",
+      "text": "W18X35",
+      "page": 8,
+      "status": "agreement",
+      "href": "token_p8_354.html"
+    },
+    {
+      "token_id": "token_p8_355",
+      "text": "W10X15",
+      "page": 8,
+      "status": "missing_retrieval",
+      "href": "token_p8_355.html"
+    },
+    {
+      "token_id": "token_p8_356",
+      "text": "W16X26",
+      "page": 8,
+      "status": "agreement",
+      "href": "token_p8_356.html"
+    },
+    {
+      "token_id": "token_p8_363",
+      "text": "W16X26",
+      "page": 8,
+      "status": "agreement",
+      "href": "token_p8_363.html"
+    },
+    {
+      "token_id": "token_p8_367",
+      "text": "W14X22",
+      "page": 8,
+      "status": "agreement",
+      "href": "token_p8_367.html"
+    },
+    {
+      "token_id": "token_p8_368",
+      "text": "W10X15",
+      "page": 8,
+      "status": "agreement",
+      "href": "token_p8_368.html"
+    },
+    {
+      "token_id": "token_p8_371",
+      "text": "W10X15",
+      "page": 8,
+      "status": "agreement",
+      "href": "token_p8_371.html"
+    },
+    {
+      "token_id": "token_p8_386",
+      "text": "W18X40",
+      "page": 8,
+      "status": "agreement",
+      "href": "token_p8_386.html"
+    },
+    {
+      "token_id": "token_p8_397",
+      "text": "W12X19",
+      "page": 8,
+      "status": "agreement",
+      "href": "token_p8_397.html"
+    },
+    {
+      "token_id": "token_p8_416",
+      "text": "W12X19",
+      "page": 8,
+      "status": "agreement",
+      "href": "token_p8_416.html"
+    },
+    {
+      "token_id": "token_p8_419",
+      "text": "W16X26",
+      "page": 8,
+      "status": "agreement",
+      "href": "token_p8_419.html"
+    },
+    {
+      "token_id": "token_p8_427",
+      "text": "W21X44",
+      "page": 8,
+      "status": "agreement",
+      "href": "token_p8_427.html"
+    },
+    {
+      "token_id": "token_p8_430",
+      "text": "W18X35",
+      "page": 8,
+      "status": "agreement",
+      "href": "token_p8_430.html"
+    },
+    {
+      "token_id": "token_p8_431",
+      "text": "W18X35",
+      "page": 8,
+      "status": "agreement",
+      "href": "token_p8_431.html"
+    },
+    {
+      "token_id": "token_p8_432",
+      "text": "W16X26",
+      "page": 8,
+      "status": "agreement",
+      "href": "token_p8_432.html"
+    },
+    {
+      "token_id": "token_p18_1143",
+      "text": "W10X33",
+      "page": 18,
+      "status": "agreement_ambiguous_neighborhood",
+      "href": "token_p18_1143.html"
+    },
+    {
+      "token_id": "token_p18_1144",
+      "text": "W10X112",
+      "page": 18,
+      "status": "agreement_ambiguous_neighborhood",
+      "href": "token_p18_1144.html"
+    },
+    {
+      "token_id": "token_p24_1360",
+      "text": "L4x4x3/8",
+      "page": 24,
+      "status": "ambiguous",
+      "href": "token_p24_1360.html"
+    },
+    {
+      "token_id": "token_p24_1370",
+      "text": "L4X3X3/8X0'-6\"",
+      "page": 24,
+      "status": "ambiguous",
+      "href": "token_p24_1370.html"
+    },
+    {
+      "token_id": "token_p24_1379",
+      "text": "L4x4x3/8",
+      "page": 24,
+      "status": "ambiguous",
+      "href": "token_p24_1379.html"
+    },
+    {
+      "token_id": "token_p24_1385",
+      "text": "L4x4x3/8",
+      "page": 24,
+      "status": "ambiguous",
+      "href": "token_p24_1385.html"
+    },
+    {
+      "token_id": "token_p24_1387",
+      "text": "L4x4x3/8",
+      "page": 24,
+      "status": "ambiguous",
+      "href": "token_p24_1387.html"
+    },
+    {
+      "token_id": "token_p24_1389",
+      "text": "L3X3X3/8X0'-10\"",
+      "page": 24,
+      "status": "ambiguous",
+      "href": "token_p24_1389.html"
+    },
+    {
+      "token_id": "token_p18_1145",
+      "text": "W12X40",
+      "page": 18,
+      "status": "agreement",
+      "href": "token_p18_1145.html"
+    },
+    {
+      "token_id": "token_p18_1148",
+      "text": "W12X230",
+      "page": 18,
+      "status": "agreement",
+      "href": "token_p18_1148.html"
+    },
+    {
+      "token_id": "token_p18_1149",
+      "text": "W12X252",
+      "page": 18,
+      "status": "agreement",
+      "href": "token_p18_1149.html"
+    },
+    {
+      "token_id": "token_p18_1150",
+      "text": "W12X336",
+      "page": 18,
+      "status": "agreement",
+      "href": "token_p18_1150.html"
+    },
+    {
+      "token_id": "token_p18_1151",
+      "text": "W14X43",
+      "page": 18,
+      "status": "agreement",
+      "href": "token_p18_1151.html"
+    },
+    {
+      "token_id": "token_p18_1178",
+      "text": "L4X4X1/4",
+      "page": 18,
+      "status": "unavailable",
+      "href": "token_p18_1178.html"
+    },
+    {
+      "token_id": "token_p18_1180",
+      "text": "L4X4X1/4",
+      "page": 18,
+      "status": "extra_candidates_only",
+      "href": "token_p18_1180.html"
+    },
+    {
+      "token_id": "token_p18_1186",
+      "text": "WT7X19",
+      "page": 18,
+      "status": "extra_candidates_only",
+      "href": "token_p18_1186.html"
+    },
+    {
+      "token_id": "token_p24_1359",
+      "text": "L6x3-1/2x3/8",
+      "page": 24,
+      "status": "extra_candidates_only",
+      "href": "token_p24_1359.html"
+    },
+    {
+      "token_id": "token_p24_1361",
+      "text": "L4X4X3/8",
+      "page": 24,
+      "status": "extra_candidates_only",
+      "href": "token_p24_1361.html"
+    },
+    {
+      "token_id": "token_p24_1362",
+      "text": "L4X4X3/8",
+      "page": 24,
+      "status": "extra_candidates_only",
+      "href": "token_p24_1362.html"
+    },
+    {
+      "token_id": "token_p24_1377",
+      "text": "L4x4x3/8",
+      "page": 24,
+      "status": "extra_candidates_only",
+      "href": "token_p24_1377.html"
+    },
+    {
+      "token_id": "token_p24_1378",
+      "text": "L4X4X3/8",
+      "page": 24,
+      "status": "extra_candidates_only",
+      "href": "token_p24_1378.html"
+    },
+    {
+      "token_id": "token_p8_332",
+      "text": "W14X22",
+      "page": 8,
+      "status": "agreement_ambiguous_neighborhood",
+      "href": "token_p8_332.html"
+    },
+    {
+      "token_id": "token_p8_392",
+      "text": "W18X40",
+      "page": 8,
+      "status": "agreement_ambiguous_neighborhood",
+      "href": "token_p8_392.html"
+    },
+    {
+      "token_id": "token_p8_433",
+      "text": "W16X26",
+      "page": 8,
+      "status": "agreement_ambiguous_neighborhood",
+      "href": "token_p8_433.html"
+    },
+    {
+      "token_id": "token_p8_381",
+      "text": "W18X35",
+      "page": 8,
+      "status": "agreement",
+      "href": "token_p8_381.html"
+    }
+  ]
+}

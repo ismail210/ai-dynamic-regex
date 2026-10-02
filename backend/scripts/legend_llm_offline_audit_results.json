@@ -1,0 +1,787 @@
+{
+  "live_llm": "NOT_RUN",
+  "live_llm_reason": "Ollama unreachable. Incremental LLM recall is not measured.",
+  "flags_read_only": {
+    "LEGEND_PROFILE_ENABLED": true,
+    "LEGEND_PROFILE_LLM_ENABLED": false,
+    "DRAWING_SUMMARY_LLM_ENABLED": false,
+    "PROJECT_RULE_PAGE_ROLE_ENABLED": false,
+    "legend_llm_provider": "ollama",
+    "legend_llm_model": "llama3.1:8b",
+    "max_context_chars": 30000
+  },
+  "ollama": {
+    "reachable": false,
+    "error": "URLError: <urlopen error [Errno 61] Connection refused>"
+  },
+  "gold": {
+    "legend_rule_gold": false,
+    "column_schedule_package_status": "PENDING_REVIEW",
+    "column_schedule_records_approved": 0,
+    "note": "docs/project_rule_phase2/gold_annotation is column-schedule cell prefill, not legend-language gold, and every record is PENDING_REVIEW."
+  },
+  "deterministic_cases": [
+    {
+      "name": "general_notes_fixture",
+      "context_pages": {
+        "1": "GENERAL_NOTES"
+      },
+      "readable_pages": [
+        1
+      ],
+      "deterministic_rules": [
+        {
+          "lhs": "W8",
+          "rhs": "W8X10",
+          "lhs_family": "W",
+          "rhs_family": "W",
+          "source_page": 1,
+          "quote": "\"W8\" = W8x10",
+          "method": "deterministic"
+        },
+        {
+          "lhs": "W10",
+          "rhs": "W10X12",
+          "lhs_family": "W",
+          "rhs_family": "W",
+          "source_page": 1,
+          "quote": "\"W10\" = W10x12",
+          "method": "deterministic"
+        }
+      ],
+      "deterministic_rule_count": 2,
+      "packet_chars": 292,
+      "packet_has_page_tags": true
+    },
+    {
+      "name": "legend_table_fixture",
+      "context_pages": {
+        "1": "LEGEND"
+      },
+      "readable_pages": [
+        1
+      ],
+      "deterministic_rules": [
+        {
+          "lhs": "B1",
+          "rhs": "W16X26",
+          "lhs_family": null,
+          "rhs_family": "W",
+          "source_page": 1,
+          "quote": "\"B1\" = W16X26",
+          "method": "deterministic"
+        },
+        {
+          "lhs": "B2",
+          "rhs": "W18X35",
+          "lhs_family": null,
+          "rhs_family": "W",
+          "source_page": 1,
+          "quote": "\"B2\" = W18X35",
+          "method": "deterministic"
+        },
+        {
+          "lhs": "B3",
+          "rhs": "W21X44",
+          "lhs_family": null,
+          "rhs_family": "W",
+          "source_page": 1,
+          "quote": "\"B3\" = W21X44",
+          "method": "deterministic"
+        },
+        {
+          "lhs": "G1",
+          "rhs": "W24X68",
+          "lhs_family": null,
+          "rhs_family": "W",
+          "source_page": 1,
+          "quote": "\"G1\" = W24X68",
+          "method": "deterministic"
+        },
+        {
+          "lhs": "BR1",
+          "rhs": "HSS6X6X3/8",
+          "lhs_family": null,
+          "rhs_family": "HSS",
+          "source_page": 1,
+          "quote": "\"BR1\" = HSS6X6X3/8",
+          "method": "deterministic"
+        }
+      ],
+      "deterministic_rule_count": 5,
+      "packet_chars": 156,
+      "packet_has_page_tags": true
+    },
+    {
+      "name": "prose_notes_fixture",
+      "context_pages": {
+        "1": "GENERAL_NOTES"
+      },
+      "readable_pages": [
+        1
+      ],
+      "deterministic_rules": [],
+      "deterministic_rule_count": 0,
+      "packet_chars": 336,
+      "packet_has_page_tags": true
+    },
+    {
+      "name": "cross_family",
+      "context_pages": {
+        "1": "GENERAL_NOTES"
+      },
+      "readable_pages": [
+        1
+      ],
+      "deterministic_rules": [],
+      "deterministic_rule_count": 0,
+      "packet_chars": 89,
+      "packet_has_page_tags": true
+    },
+    {
+      "name": "invalid_catalog",
+      "context_pages": {
+        "1": "GENERAL_NOTES"
+      },
+      "readable_pages": [
+        1
+      ],
+      "deterministic_rules": [],
+      "deterministic_rule_count": 0,
+      "packet_chars": 88,
+      "packet_has_page_tags": true
+    },
+    {
+      "name": "framing_plan_only",
+      "context_pages": {},
+      "readable_pages": [],
+      "deterministic_rules": [],
+      "deterministic_rule_count": 0,
+      "packet_chars": 0,
+      "packet_has_page_tags": false
+    },
+    {
+      "name": "detail_page_with_general_notes_heading",
+      "context_pages": {},
+      "readable_pages": [],
+      "deterministic_rules": [],
+      "deterministic_rule_count": 0,
+      "packet_chars": 0,
+      "packet_has_page_tags": false
+    },
+    {
+      "name": "detail_sheet_with_notes_heading_no_incomplete_angle",
+      "context_pages": {
+        "1": "GENERAL_NOTES"
+      },
+      "readable_pages": [
+        1
+      ],
+      "deterministic_rules": [],
+      "deterministic_rule_count": 0,
+      "packet_chars": 162,
+      "packet_has_page_tags": true
+    },
+    {
+      "name": "schedule_elevation_matrix",
+      "context_pages": {
+        "1": "SPECIFICATIONS"
+      },
+      "readable_pages": [
+        1
+      ],
+      "deterministic_rules": [],
+      "deterministic_rule_count": 0,
+      "packet_chars": 238,
+      "packet_has_page_tags": true
+    },
+    {
+      "name": "dense_schedule_matrix_excluded",
+      "context_pages": {},
+      "readable_pages": [],
+      "deterministic_rules": [],
+      "deterministic_rule_count": 0,
+      "packet_chars": 0,
+      "packet_has_page_tags": false
+    },
+    {
+      "name": "low_text_notes",
+      "context_pages": {
+        "1": "VISION_REQUIRED"
+      },
+      "readable_pages": [],
+      "deterministic_rules": [],
+      "deterministic_rule_count": 0,
+      "packet_chars": 0,
+      "packet_has_page_tags": false
+    },
+    {
+      "name": "quoted_hss",
+      "context_pages": {
+        "1": "GENERAL_NOTES"
+      },
+      "readable_pages": [
+        1
+      ],
+      "deterministic_rules": [
+        {
+          "lhs": "HSS8X4",
+          "rhs": "HSS8X4X1/4",
+          "lhs_family": "HSS",
+          "rhs_family": "HSS",
+          "source_page": 1,
+          "quote": "\"HSS8x4\" = HSS8x4x1/4",
+          "method": "deterministic"
+        }
+      ],
+      "deterministic_rule_count": 1,
+      "packet_chars": 96,
+      "packet_has_page_tags": true
+    },
+    {
+      "name": "incomplete_angle_prose",
+      "context_pages": {
+        "1": "GENERAL_NOTES"
+      },
+      "readable_pages": [
+        1
+      ],
+      "deterministic_rules": [],
+      "deterministic_rule_count": 0,
+      "packet_chars": 95,
+      "packet_has_page_tags": true
+    }
+  ],
+  "input_scope_packets": [
+    {
+      "name": "notes_only_scope",
+      "context_pages": {
+        "1": "GENERAL_NOTES"
+      },
+      "readable_pages": [
+        1
+      ],
+      "deterministic_rules": [
+        {
+          "lhs": "W8",
+          "rhs": "W8X10",
+          "lhs_family": "W",
+          "rhs_family": "W",
+          "source_page": 1,
+          "quote": "\"W8\" = W8x10",
+          "method": "deterministic"
+        },
+        {
+          "lhs": "W10",
+          "rhs": "W10X12",
+          "lhs_family": "W",
+          "rhs_family": "W",
+          "source_page": 1,
+          "quote": "\"W10\" = W10x12",
+          "method": "deterministic"
+        }
+      ],
+      "deterministic_rule_count": 2,
+      "packet_chars": 292,
+      "packet_has_page_tags": true
+    },
+    {
+      "name": "tables_only_scope",
+      "context_pages": {
+        "1": "LEGEND"
+      },
+      "readable_pages": [
+        1
+      ],
+      "deterministic_rules": [
+        {
+          "lhs": "B1",
+          "rhs": "W16X26",
+          "lhs_family": null,
+          "rhs_family": "W",
+          "source_page": 1,
+          "quote": "\"B1\" = W16X26",
+          "method": "deterministic"
+        },
+        {
+          "lhs": "B2",
+          "rhs": "W18X35",
+          "lhs_family": null,
+          "rhs_family": "W",
+          "source_page": 1,
+          "quote": "\"B2\" = W18X35",
+          "method": "deterministic"
+        },
+        {
+          "lhs": "B3",
+          "rhs": "W21X44",
+          "lhs_family": null,
+          "rhs_family": "W",
+          "source_page": 1,
+          "quote": "\"B3\" = W21X44",
+          "method": "deterministic"
+        },
+        {
+          "lhs": "G1",
+          "rhs": "W24X68",
+          "lhs_family": null,
+          "rhs_family": "W",
+          "source_page": 1,
+          "quote": "\"G1\" = W24X68",
+          "method": "deterministic"
+        },
+        {
+          "lhs": "BR1",
+          "rhs": "HSS6X6X3/8",
+          "lhs_family": null,
+          "rhs_family": "HSS",
+          "source_page": 1,
+          "quote": "\"BR1\" = HSS6X6X3/8",
+          "method": "deterministic"
+        }
+      ],
+      "deterministic_rule_count": 5,
+      "packet_chars": 156,
+      "packet_has_page_tags": true
+    },
+    {
+      "name": "notes_plus_tables",
+      "context_pages": {
+        "1": "GENERAL_NOTES",
+        "2": "LEGEND"
+      },
+      "readable_pages": [
+        1,
+        2
+      ],
+      "deterministic_rules": [
+        {
+          "lhs": "W8",
+          "rhs": "W8X10",
+          "lhs_family": "W",
+          "rhs_family": "W",
+          "source_page": 1,
+          "quote": "\"W8\" = W8x10",
+          "method": "deterministic"
+        },
+        {
+          "lhs": "W10",
+          "rhs": "W10X12",
+          "lhs_family": "W",
+          "rhs_family": "W",
+          "source_page": 1,
+          "quote": "\"W10\" = W10x12",
+          "method": "deterministic"
+        },
+        {
+          "lhs": "B1",
+          "rhs": "W16X26",
+          "lhs_family": null,
+          "rhs_family": "W",
+          "source_page": 2,
+          "quote": "\"B1\" = W16X26",
+          "method": "deterministic"
+        },
+        {
+          "lhs": "B2",
+          "rhs": "W18X35",
+          "lhs_family": null,
+          "rhs_family": "W",
+          "source_page": 2,
+          "quote": "\"B2\" = W18X35",
+          "method": "deterministic"
+        },
+        {
+          "lhs": "B3",
+          "rhs": "W21X44",
+          "lhs_family": null,
+          "rhs_family": "W",
+          "source_page": 2,
+          "quote": "\"B3\" = W21X44",
+          "method": "deterministic"
+        },
+        {
+          "lhs": "G1",
+          "rhs": "W24X68",
+          "lhs_family": null,
+          "rhs_family": "W",
+          "source_page": 2,
+          "quote": "\"G1\" = W24X68",
+          "method": "deterministic"
+        },
+        {
+          "lhs": "BR1",
+          "rhs": "HSS6X6X3/8",
+          "lhs_family": null,
+          "rhs_family": "HSS",
+          "source_page": 2,
+          "quote": "\"BR1\" = HSS6X6X3/8",
+          "method": "deterministic"
+        }
+      ],
+      "deterministic_rule_count": 7,
+      "packet_chars": 450,
+      "packet_has_page_tags": true
+    },
+    {
+      "name": "broad_packet",
+      "context_pages": {
+        "1": "GENERAL_NOTES",
+        "2": "LEGEND",
+        "3": "SPECIFICATIONS",
+        "4": "SPECIFICATIONS"
+      },
+      "readable_pages": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "deterministic_rules": [
+        {
+          "lhs": "W8",
+          "rhs": "W8X10",
+          "lhs_family": "W",
+          "rhs_family": "W",
+          "source_page": 1,
+          "quote": "\"W8\" = W8x10",
+          "method": "deterministic"
+        },
+        {
+          "lhs": "W10",
+          "rhs": "W10X12",
+          "lhs_family": "W",
+          "rhs_family": "W",
+          "source_page": 1,
+          "quote": "\"W10\" = W10x12",
+          "method": "deterministic"
+        },
+        {
+          "lhs": "B1",
+          "rhs": "W16X26",
+          "lhs_family": null,
+          "rhs_family": "W",
+          "source_page": 2,
+          "quote": "\"B1\" = W16X26",
+          "method": "deterministic"
+        },
+        {
+          "lhs": "B2",
+          "rhs": "W18X35",
+          "lhs_family": null,
+          "rhs_family": "W",
+          "source_page": 2,
+          "quote": "\"B2\" = W18X35",
+          "method": "deterministic"
+        },
+        {
+          "lhs": "B3",
+          "rhs": "W21X44",
+          "lhs_family": null,
+          "rhs_family": "W",
+          "source_page": 2,
+          "quote": "\"B3\" = W21X44",
+          "method": "deterministic"
+        },
+        {
+          "lhs": "G1",
+          "rhs": "W24X68",
+          "lhs_family": null,
+          "rhs_family": "W",
+          "source_page": 2,
+          "quote": "\"G1\" = W24X68",
+          "method": "deterministic"
+        },
+        {
+          "lhs": "BR1",
+          "rhs": "HSS6X6X3/8",
+          "lhs_family": null,
+          "rhs_family": "HSS",
+          "source_page": 2,
+          "quote": "\"BR1\" = HSS6X6X3/8",
+          "method": "deterministic"
+        }
+      ],
+      "deterministic_rule_count": 7,
+      "packet_chars": 2094,
+      "packet_has_page_tags": true
+    }
+  ],
+  "gate_probes": [
+    {
+      "name": "quoted_w8_proposal",
+      "proposed": 1,
+      "accepted": 1,
+      "rejected": 0,
+      "accepted_rules": [
+        {
+          "type": "LABEL_SUBSTITUTION",
+          "trigger": "W8",
+          "result": "W8X10",
+          "policy": "AUTO_ELIGIBLE",
+          "status": "VALIDATED",
+          "quote": "\"W8\" = W8x10"
+        }
+      ],
+      "provider": "in_process_fake_not_a_model"
+    },
+    {
+      "name": "invented_thickness_quote_missing_result",
+      "proposed": 1,
+      "accepted": 1,
+      "rejected": 0,
+      "accepted_rules": [
+        {
+          "type": "LABEL_SUBSTITUTION",
+          "trigger": "L4X4",
+          "result": "L4X4X1/4",
+          "policy": "AUTO_ELIGIBLE",
+          "status": "VALIDATED",
+          "quote": "PROVIDE L4X4 AT OPENING WHERE SHOWN."
+        }
+      ],
+      "provider": "in_process_fake_not_a_model"
+    },
+    {
+      "name": "unrelated_page_quote",
+      "proposed": 1,
+      "accepted": 0,
+      "rejected": 1,
+      "accepted_rules": [],
+      "provider": "in_process_fake_not_a_model"
+    },
+    {
+      "name": "cross_family_proposal",
+      "proposed": 1,
+      "accepted": 1,
+      "rejected": 0,
+      "accepted_rules": [
+        {
+          "type": "LABEL_SUBSTITUTION",
+          "trigger": "W8",
+          "result": "C8X11.5",
+          "policy": "AUTO_ELIGIBLE",
+          "status": "VALIDATED",
+          "quote": "\"W8\" = C8x11.5"
+        }
+      ],
+      "provider": "in_process_fake_not_a_model"
+    },
+    {
+      "name": "catalog_invalid_proposal",
+      "proposed": 1,
+      "accepted": 1,
+      "rejected": 0,
+      "accepted_rules": [
+        {
+          "type": "LABEL_SUBSTITUTION",
+          "trigger": "W8",
+          "result": "W8X999",
+          "policy": "AUTO_ELIGIBLE",
+          "status": "VALIDATED",
+          "quote": "\"W8\" = W8X999"
+        }
+      ],
+      "provider": "in_process_fake_not_a_model"
+    },
+    {
+      "name": "prose_cant_without_substitution_syntax",
+      "proposed": 1,
+      "accepted": 1,
+      "rejected": 0,
+      "accepted_rules": [
+        {
+          "type": "INHERITANCE_RULE",
+          "trigger": "CANT",
+          "result": null,
+          "policy": "CORROBORATION_REQUIRED",
+          "status": "VALIDATED",
+          "quote": "THE CANTILEVERED BEAM SHALL BE THE SAME SIZE AS THE ADJACENT BACKSPAN BEAM, UNO."
+        }
+      ],
+      "provider": "in_process_fake_not_a_model"
+    },
+    {
+      "name": "quantity_is_not_a_rule_type",
+      "proposed": 1,
+      "accepted": 1,
+      "rejected": 0,
+      "accepted_rules": [
+        {
+          "type": "LABEL_SUBSTITUTION",
+          "trigger": "W8",
+          "result": "W8X10",
+          "policy": "AUTO_ELIGIBLE",
+          "status": "VALIDATED",
+          "quote": "\"W8\" = W8x10"
+        }
+      ],
+      "provider": "in_process_fake_not_a_model"
+    }
+  ],
+  "resolver": [
+    {
+      "raw": "W8",
+      "page_role": "UNKNOWN",
+      "resolved": "W8X10",
+      "method": "deterministic",
+      "gate": null
+    },
+    {
+      "raw": "W8",
+      "page_role": "UNKNOWN",
+      "resolved": null,
+      "gate": "conflicting_deterministic_rules"
+    },
+    {
+      "raw": "W8",
+      "page_role": "UNKNOWN",
+      "resolved": "W8X10",
+      "method": "llm_assisted",
+      "gate": null
+    },
+    {
+      "raw": "HSS8X4",
+      "page_role": "UNKNOWN",
+      "resolved": "HSS8X4X1/4",
+      "method": "llm_assisted",
+      "gate": null
+    },
+    {
+      "raw": "L4X4",
+      "page_role": "UNKNOWN",
+      "resolved": null,
+      "gate": "llm_rule_not_grounded"
+    },
+    {
+      "raw": "L4X4",
+      "page_role": "UNKNOWN",
+      "resolved": null,
+      "gate": "llm_rule_not_grounded"
+    },
+    {
+      "raw": "W14X61",
+      "page_role": "UNKNOWN",
+      "resolved": null,
+      "gate": "token_already_complete"
+    },
+    {
+      "raw": "B1",
+      "page_role": "UNKNOWN",
+      "resolved": null,
+      "gate": "token_unparsed_or_familyless"
+    },
+    {
+      "raw": "C1",
+      "page_role": "UNKNOWN",
+      "resolved": null,
+      "gate": "no_matching_rule"
+    },
+    {
+      "raw": "W8",
+      "page_role": "UNKNOWN",
+      "resolved": null,
+      "gate": "llm_rule_not_grounded"
+    },
+    {
+      "raw": "W8",
+      "page_role": "UNKNOWN",
+      "resolved": null,
+      "gate": "llm_rule_not_grounded"
+    }
+  ],
+  "downstream": [
+    {
+      "name": "llm_rules_without_deterministic_rules",
+      "before": [
+        [
+          "obj-HSS8X4-2",
+          "HSS8X4",
+          true
+        ]
+      ],
+      "after": [
+        {
+          "object_id": "obj-HSS8X4-2",
+          "section": "HSS8X4",
+          "takeoff_eligible": true,
+          "match_status": "needs_review",
+          "method": null
+        }
+      ],
+      "applied_count": 0
+    },
+    {
+      "name": "deterministic_w8_only",
+      "before": [
+        [
+          "obj-W8-2",
+          "W8",
+          true
+        ]
+      ],
+      "after": [
+        {
+          "object_id": "obj-W8-2",
+          "section": "W8X10",
+          "takeoff_eligible": true,
+          "match_status": "project_rule_resolved",
+          "method": "deterministic"
+        }
+      ],
+      "applied_count": 1
+    },
+    {
+      "name": "deterministic_present_plus_llm_hss_rule",
+      "before": [
+        [
+          "obj-W8-2",
+          "W8",
+          true
+        ],
+        [
+          "obj-HSS8X4-2",
+          "HSS8X4",
+          true
+        ],
+        [
+          "obj-L4X4-2",
+          "L4X4",
+          true
+        ]
+      ],
+      "after": [
+        {
+          "object_id": "obj-W8-2",
+          "section": "W8X10",
+          "takeoff_eligible": true,
+          "match_status": "project_rule_resolved",
+          "method": "deterministic"
+        },
+        {
+          "object_id": "obj-HSS8X4-2",
+          "section": "HSS8X4X1/4",
+          "takeoff_eligible": true,
+          "match_status": "project_rule_resolved",
+          "method": "llm_assisted"
+        },
+        {
+          "object_id": "obj-L4X4-2",
+          "section": "L4X4",
+          "takeoff_eligible": true,
+          "match_status": "needs_review",
+          "method": null
+        }
+      ],
+      "applied_count": 2
+    }
+  ],
+  "deterministic_rule_count_across_separate_cases": 8,
+  "metrics_not_measurable": [
+    "precision of accepted live-LLM rules",
+    "recall against gold legend rules",
+    "incremental recall of a live model over the deterministic parser",
+    "false-positive rate of a live model",
+    "input-scope ablation of live-model accepted rules"
+  ]
+}

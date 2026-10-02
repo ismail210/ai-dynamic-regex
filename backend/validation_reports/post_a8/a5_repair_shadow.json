@@ -1,0 +1,142 @@
+{
+  "track": "A5",
+  "mode": "shadow_metrics_only",
+  "cases": 5,
+  "candidate_coverage": 1.0,
+  "enable_flags_remain_false": true,
+  "rows": [
+    {
+      "id": "w8xi0",
+      "raw": "W8XI0",
+      "family": "W",
+      "expect_candidates": true,
+      "candidate_count": 19,
+      "top_candidates": [
+        "W8X10",
+        "W8X40",
+        "W18X40",
+        "W18X50",
+        "W18X60",
+        "W18X106",
+        "W18X130",
+        "W6X20",
+        "W8X13",
+        "W8X15",
+        "W8X18",
+        "W8X21",
+        "W8X24",
+        "W8X28",
+        "W8X31"
+      ],
+      "auto_selected": null,
+      "flags": {
+        "ml_label_ranker_enabled": false,
+        "ml_label_ranker_shadow": false
+      }
+    },
+    {
+      "id": "w16x2b",
+      "raw": "W16X2B",
+      "family": "W",
+      "expect_candidates": true,
+      "candidate_count": 23,
+      "top_candidates": [
+        "W16X26",
+        "W6X12",
+        "W6X20",
+        "W6X25",
+        "W10X12",
+        "W10X22",
+        "W10X26",
+        "W12X22",
+        "W12X26",
+        "W12X72",
+        "W14X22",
+        "W14X26",
+        "W14X82",
+        "W16X31",
+        "W16X36"
+      ],
+      "auto_selected": null,
+      "flags": {
+        "ml_label_ranker_enabled": false,
+        "ml_label_ranker_shadow": false
+      }
+    },
+    {
+      "id": "hss_ocr",
+      "raw": "HS56X6X3/8",
+      "family": "HSS",
+      "expect_candidates": true,
+      "candidate_count": 24,
+      "top_candidates": [
+        "HSS6X6X3/8",
+        "HSS16X6X3/8",
+        "HSS16X16X3/8",
+        "HSS5X2X3/8",
+        "HSS5X3X3/8",
+        "HSS5X4X3/8",
+        "HSS5X5X3/8",
+        "HSS6X2X3/8",
+        "HSS6X3X3/8",
+        "HSS6X4X3/8",
+        "HSS6X5X3/8",
+        "HSS6X6X1/8",
+        "HSS6X6X5/8",
+        "HSS8X6X3/8",
+        "L6X6X3/8"
+      ],
+      "auto_selected": null,
+      "flags": {
+        "ml_label_ranker_enabled": false,
+        "ml_label_ranker_shadow": false
+      }
+    },
+    {
+      "id": "l4x4_incomplete",
+      "raw": "L4X4",
+      "family": "L",
+      "expect_candidates": true,
+      "must_not_auto_complete": true,
+      "candidate_count": 7,
+      "top_candidates": [
+        "L4X4X3/4",
+        "L4X4X5/8",
+        "L4X4X1/2",
+        "L4X4X7/16",
+        "L4X4X3/8",
+        "L4X4X5/16",
+        "L4X4X1/4"
+      ],
+      "auto_selected": null,
+      "flags": {
+        "ml_label_ranker_enabled": false,
+        "ml_label_ranker_shadow": false
+      }
+    },
+    {
+      "id": "l5x3_incomplete",
+      "raw": "L5X3",
+      "family": "L",
+      "expect_candidates": true,
+      "must_not_auto_complete": true,
+      "candidate_count": 5,
+      "top_candidates": [
+        "L5X3X1/2",
+        "L5X3X7/16",
+        "L5X3X3/8",
+        "L5X3X5/16",
+        "L5X3X1/4"
+      ],
+      "auto_selected": null,
+      "flags": {
+        "ml_label_ranker_enabled": false,
+        "ml_label_ranker_shadow": false
+      }
+    }
+  ],
+  "risk_notes": [
+    "Incomplete L/2L may still generate catalog candidates; production must abstain.",
+    "No remap applied; auto_selected is always null."
+  ]
+}

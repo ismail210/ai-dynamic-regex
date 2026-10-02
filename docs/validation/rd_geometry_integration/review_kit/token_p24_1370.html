@@ -1,0 +1,38 @@
+<!doctype html><meta charset='utf-8'>
+<title>token_p24_1370</title>
+<h1>L4X3X3/8X0&#x27;-6&quot; (page 24)</h1>
+<p>Label bbox: [676.08, 467.89, 749.48, 480.5]</p>
+<form>
+<p>Review label:
+<select name='review_label'>
+<option value='direct_target'>direct_target</option>
+<option value='leader_support_not_target'>leader_support_not_target</option>
+<option value='not_target'>not_target</option>
+<option value='no_valid_target'>no_valid_target</option>
+<option value='ambiguous_requires_adjudication'>ambiguous_requires_adjudication</option>
+</select></p>
+<p>Targets:</p>
+<label><input type='checkbox' name='target' value='geom_353f2534b4c8'> geom_353f2534b4c8 kind=polyline d=15.72 leader=True</label><br><label><input type='checkbox' name='target' value='geom_47c94e1c3426'> geom_47c94e1c3426 kind=line d=16.94 leader=True</label><br><label><input type='checkbox' name='target' value='geom_be992dda70c7'> geom_be992dda70c7 kind=polyline d=29.8 leader=True</label><br><label><input type='checkbox' name='target' value='geom_2bbf72b2eef4'> geom_2bbf72b2eef4 kind=line d=29.88 leader=True</label><br><label><input type='checkbox' name='target' value='geom_87377fdc9117'> geom_87377fdc9117 kind=line d=34.2 leader=True</label><br>
+<p><button type='button' onclick='this.nextElementSibling.hidden=false'>Reveal production pick</button>
+<pre hidden>null</pre></p>
+<p>Reviewer id: <input name='reviewer_id'></p>
+<button type='button' onclick='save()'>Save decision</button>
+</form>
+<script>
+function save(){
+  const targets=[...document.querySelectorAll('input[name=target]:checked')].map(x=>x.value);
+  const payload={
+    token_id:"token_p24_1370",
+    review_label:document.querySelector('[name=review_label]').value,
+    reviewed_target_geometry_ids:targets,
+    reviewer_id:document.querySelector('[name=reviewer_id]').value,
+    page:24,
+    text:"L4X3X3/8X0'-6\""
+  };
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download="token_p24_1370.decision.json";
+  a.click();
+}
+</script>

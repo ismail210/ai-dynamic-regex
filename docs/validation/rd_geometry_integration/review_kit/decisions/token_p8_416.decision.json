@@ -1,0 +1,32 @@
+{
+  "token_id": "token_p8_416",
+  "page": 8,
+  "text": "W12X19",
+  "label_bbox": [
+    1608.53,
+    1408.71,
+    1649.34,
+    1439.65
+  ],
+  "production_geometry_id": "geom_286fd47ebc3c",
+  "candidate_geometry_ids": [
+    "geom_286fd47ebc3c",
+    "geom_7a0e5dfed2b3",
+    "geom_485e0c733148",
+    "geom_0583cc3b6272",
+    "geom_73c8a8794fe3"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p8_416.png",
+  "crop_available": true,
+  "g1_status": "agreement",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Label sits on W12X19[18] at the stair. Overlay is a large stair triangle below, not that short member.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": false,
+  "visible_member_on_drawing": true
+}

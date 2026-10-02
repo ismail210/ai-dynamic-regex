@@ -1,0 +1,84 @@
+{
+  "track": "A3",
+  "multi_fragment_rows": 12,
+  "tp": 12,
+  "fp": 0,
+  "fn": 0,
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1": 1.0,
+  "details": [
+    {
+      "gold_id": "g0033",
+      "expected": "W24X55",
+      "got": "W24X55",
+      "status": "tp"
+    },
+    {
+      "gold_id": "g0034",
+      "expected": "W24X76",
+      "got": "W24X76",
+      "status": "tp"
+    },
+    {
+      "gold_id": "g0035",
+      "expected": "W24X55",
+      "got": "W24X55",
+      "status": "tp"
+    },
+    {
+      "gold_id": "g0036",
+      "expected": "W24X55",
+      "got": "W24X55",
+      "status": "tp"
+    },
+    {
+      "gold_id": "g0037",
+      "expected": "W24X55",
+      "got": "W24X55",
+      "status": "tp"
+    },
+    {
+      "gold_id": "g0038",
+      "expected": "W24X55",
+      "got": "W24X55",
+      "status": "tp"
+    },
+    {
+      "gold_id": "g0039",
+      "expected": "W24X55",
+      "got": "W24X55",
+      "status": "tp"
+    },
+    {
+      "gold_id": "g0040",
+      "expected": "W16X26",
+      "got": "W16X26",
+      "status": "tp"
+    },
+    {
+      "gold_id": "g0041",
+      "expected": "W16X26",
+      "got": "W16X26",
+      "status": "tp"
+    },
+    {
+      "gold_id": "g0042",
+      "expected": "W16X26",
+      "got": "W16X26",
+      "status": "tp"
+    },
+    {
+      "gold_id": "g0043",
+      "expected": "W16X26",
+      "got": "W16X26",
+      "status": "tp"
+    },
+    {
+      "gold_id": "g0044",
+      "expected": "W16X26",
+      "got": "W16X26",
+      "status": "tp"
+    }
+  ]
+}

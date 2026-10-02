@@ -1,0 +1,58 @@
+{
+  "audit_classification": "B",
+  "audit_confidence": "HIGH",
+  "baseline_b_nearest_candidate_id": "rnd_raw_p18_4362_a0e4c7603f0c",
+  "evidence_basis": [
+    "leader_endpoint_or_pointer",
+    "overlap_or_contact"
+  ],
+  "g8_candidate_ids": [
+    "rnd_raw_p18_4362_a0e4c7603f0c",
+    "rnd_raw_p18_4364_f87d14b4d545",
+    "rnd_raw_p18_5045_9d434832f314",
+    "rnd_raw_p18_4125_49c8e63a5f1f",
+    "rnd_raw_p18_5043_d58e12abeb20",
+    "rnd_raw_p18_4368_cc56a7a15490",
+    "rnd_raw_p18_4123_0e0ea0f7a183",
+    "rnd_raw_p18_4121_22a901dcf3fe",
+    "rnd_raw_p18_5208_c579db3bee1d",
+    "rnd_raw_p18_5034_61b21a5cbb4f",
+    "rnd_raw_p18_4369_518e1aefd955",
+    "rnd_raw_p18_4381_bbc6cc6bf77b",
+    "raw_p18_4111_235c884df973#seg1",
+    "raw_p18_4111_235c884df973#seg2",
+    "raw_p18_4111_235c884df973#seg3"
+  ],
+  "g9_disagrees": false,
+  "g9_mode": "leader",
+  "g9_selected_candidate_id": "rnd_raw_p18_5045_9d434832f314",
+  "g9_selected_rejected": null,
+  "historical_gold_decision": "NO_VALID_MEMBER",
+  "historical_gold_raw": "no_valid_member",
+  "historical_gold_reason": "Leader points to the embed plate. Green overlay is studs/rebar left of the plate, not the embed plate.",
+  "label": "PL 3 3/4\"",
+  "label_bbox": [
+    718.92,
+    1031.78,
+    755.53,
+    1044.38
+  ],
+  "not_historical_gold": true,
+  "notes": "Leader points to embed plate; G8 CAP-restored tip stroke coincides with plate edge. G9 selection accepted as owned member geometry under G8 universe.",
+  "owned_candidate_ids": [
+    "rnd_raw_p18_5045_9d434832f314"
+  ],
+  "page": 18,
+  "pattern_tags": [
+    "leader_required",
+    "cap_restore",
+    "short_stroke"
+  ],
+  "review_source": "g8_era_human_validation",
+  "reviewed_at": "2026-09-21T11:14:29Z",
+  "reviewer_confidence": "HIGH",
+  "reviewer_decision": "VALID_MEMBER",
+  "reviewer_id": "g8_era_rd_review",
+  "status": "REVIEWED",
+  "token_id": "token_p18_1188"
+}

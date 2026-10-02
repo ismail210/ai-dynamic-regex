@@ -1,0 +1,42 @@
+{
+  "ok": true,
+  "metrics": {
+    "total": 100,
+    "reviewed": 0,
+    "remaining": 100,
+    "coverage": 0.0,
+    "correct": "N/A \u2014 no reviewed samples",
+    "wrong": "N/A \u2014 no reviewed samples",
+    "ambiguous": "N/A \u2014 no reviewed samples",
+    "correct_rate": "N/A \u2014 no reviewed samples",
+    "wrong_rate": "N/A \u2014 no reviewed samples",
+    "ambiguous_rate": "N/A \u2014 no reviewed samples",
+    "precision_excluding_ambiguous": "N/A \u2014 no reviewed samples",
+    "wrong_association_rate": "N/A \u2014 no reviewed samples",
+    "by_method": {
+      "leader_tip_to_stroke": {
+        "n_reviewed": 0,
+        "correct": 0,
+        "wrong": 0,
+        "ambiguous": 0,
+        "precision_excluding_ambiguous": "N/A \u2014 no reviewed samples"
+      },
+      "proximity_stroke": {
+        "n_reviewed": 0,
+        "correct": 0,
+        "wrong": 0,
+        "ambiguous": 0,
+        "precision_excluding_ambiguous": "N/A \u2014 no reviewed samples"
+      },
+      "ambiguous_members": {
+        "n_reviewed": 0,
+        "correct": 0,
+        "wrong": 0,
+        "ambiguous": 0,
+        "precision_excluding_ambiguous": "N/A \u2014 no reviewed samples"
+      }
+    },
+    "note": "Human review is ready; accuracy/precision is not yet measured."
+  },
+  "source": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/training/eval_cache_backups/accuracy_gold/a7_human_review_100.json"
+}

@@ -1,0 +1,32 @@
+{
+  "token_id": "token_p8_347",
+  "page": 8,
+  "text": "W16X26",
+  "label_bbox": [
+    1416.62,
+    999.41,
+    1447.57,
+    1040.23
+  ],
+  "production_geometry_id": "geom_59a6f49b264f",
+  "candidate_geometry_ids": [
+    "geom_ee7c5aa4298f",
+    "geom_59a6f49b264f",
+    "geom_1910f0cf9e81",
+    "geom_bb74582f7707",
+    "geom_729816914ad4"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p8_347.png",
+  "crop_available": true,
+  "g1_status": "agreement_ambiguous_neighborhood",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Label sits on W16X26[28] joist. Green is the S-311 callout; orange is a giant bay polyline.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": false,
+  "visible_member_on_drawing": true
+}

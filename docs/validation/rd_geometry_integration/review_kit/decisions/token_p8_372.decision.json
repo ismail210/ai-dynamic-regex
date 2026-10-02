@@ -1,0 +1,30 @@
+{
+  "token_id": "token_p8_372",
+  "page": 8,
+  "text": "W10X15",
+  "label_bbox": [
+    1865.48,
+    1312.78,
+    1888.01,
+    1354.61
+  ],
+  "production_geometry_id": "geom_286fd47ebc3c",
+  "candidate_geometry_ids": [
+    "geom_5f6b0423ca08",
+    "geom_485e0c733148",
+    "geom_90463060295d"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p8_372.png",
+  "crop_available": true,
+  "g1_status": "disagreement",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Label sits on W10X15[9]. Green is the W14X22 infill; orange is the stair. The joist was not retrieved.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": false,
+  "visible_member_on_drawing": true
+}

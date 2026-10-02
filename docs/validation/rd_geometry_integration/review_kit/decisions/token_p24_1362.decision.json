@@ -1,0 +1,32 @@
+{
+  "token_id": "token_p24_1362",
+  "page": 24,
+  "text": "L4X4X3/8",
+  "label_bbox": [
+    398.76,
+    555.25,
+    444.48,
+    567.86
+  ],
+  "production_geometry_id": null,
+  "candidate_geometry_ids": [
+    "geom_f7419edaa3c6",
+    "geom_32aa092d1fe5",
+    "geom_c636afbe0e9d",
+    "geom_836949400b99",
+    "geom_47c94e1c3426"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p24_1362.png",
+  "crop_available": true,
+  "g1_status": "extra_candidates_only",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Leader points to the small angle at the curtain-wall/column. Green overlay is still the joist-web panel.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": true,
+  "visible_member_on_drawing": true
+}

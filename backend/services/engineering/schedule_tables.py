@@ -52,6 +52,11 @@ _HEADER_PARTNERS = frozenset(
     {"SIZE", "SECTION", "DESIGNATION", "SHAPE", "WIDTH", "DIMENSIONS", "DIAMETER", "LENGTH"}
 )
 _LOCATION_LABEL = "COLUMNLOCATION"
+_PLATE_ROW_LABEL = "BASE PLATE SIZE"
+_INCHES = r'\d+(?:\s+\d+/\d+|/\d+)?"'
+# Whole-cell base plate size: T"xW"xL" with an optional trailing note star.
+_BASE_PLATE_SIZE_RE = re.compile(rf"{_INCHES}\s*[xX]\s*{_INCHES}\s*[xX]\s*{_INCHES}(?:\s*\*)?")
+_MERGED_PLATE_LABEL_RE = re.compile(r"BASE PLATE (?:SIZE )?(.+?)(?: SIZE)?", re.IGNORECASE)
 _GRID_LOCATION_RE = re.compile(r"(?:^|[A-Z0-9.'])-[A-Z0-9.]", re.IGNORECASE)
 _MAX_HEADER_ROW = 4
 # Largest blank gap between two words of one schedule header line, and the
@@ -334,15 +339,24 @@ def _transposed_record(
         location = re.sub(r"\s+", "", text)
         if location and center is not None:
             locations.append({"location": location, "x": center})
-    cells = []
+    labelled_plates = any("BASE PLATE" in header_label(row[0]) for row in rows)
+    inferred_rows = set() if labelled_plates else _unlabelled_plate_rows(rows, location_row)
+    cells, inferred = [], []
     for row_index, row in enumerate(rows):
         if row_index == location_row:
             continue
         row_label = header_label(row[0])
         for column, text in enumerate(row[1:], start=1):
             center = _cell_center_x(table, row_index, column)
-            if text.strip() and center is not None:
+            if not text.strip() or center is None:
+                continue
+            if row_index in inferred_rows:
+                inferred.append(
+                    {"text": _strip_plate_label(text), "x": center, "row_label": _PLATE_ROW_LABEL}
+                )
+            else:
                 cells.append({"text": text, "x": center, "row_label": row_label})
+    cells.extend(_without_conflicting_plates(inferred, locations))
     return {
         "page": page,
         "bbox": bbox,
@@ -351,3 +365,46 @@ def _transposed_record(
         "locations": locations,
         "cells": cells,
     }
+
+
+def _strip_plate_label(text: str) -> str:
+    """``Base Plate 1"x18"x18" Size`` -> ``1"x18"x18"`` (Revit label drawn over a value cell)."""
+
+    text = " ".join(text.split())
+    match = _MERGED_PLATE_LABEL_RE.fullmatch(text)
+    return match.group(1) if match else text
+
+
+def _unlabelled_plate_rows(rows: List[List[str]], location_row: int) -> set[int]:
+    """Rows of the unlabelled block under Column Locations whose every value is a plate size.
+
+    Only used when no row is labelled BASE PLATE; wrapped values spill onto
+    extra unlabelled rows, so row position alone says nothing.
+    """
+
+    found: set[int] = set()
+    for index in range(location_row + 1, len(rows)):
+        row = rows[index]
+        if row[0].strip():
+            break
+        values = [_strip_plate_label(cell) for cell in row[1:] if cell.strip()]
+        if values and all(_BASE_PLATE_SIZE_RE.fullmatch(value) for value in values):
+            found.add(index)
+    return found
+
+
+def _without_conflicting_plates(
+    cells: List[Dict[str, Any]], locations: List[Dict[str, Any]]
+) -> List[Dict[str, Any]]:
+    """Abstain for a location when inferred plate rows disagree on its value."""
+
+    if not locations:
+        return []
+
+    def nearest(x: float) -> str:
+        return min(locations, key=lambda item: abs(item["x"] - x))["location"]
+
+    values: Dict[str, set] = {}
+    for cell in cells:
+        values.setdefault(nearest(cell["x"]), set()).add(cell["text"])
+    return [cell for cell in cells if len(values[nearest(cell["x"])]) == 1]

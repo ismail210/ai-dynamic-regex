@@ -1,0 +1,6 @@
+blue = label bbox
+gray / dashed orange = baseline candidates (orange = baseline top-1)
+green = v2 candidates (darker = v2 top-1)
+magenta = human gold geometry (associated labels only)
+purple = leader evidence / target point
+Crop is label-centered; giant primitive boxes are not used to expand the clip.

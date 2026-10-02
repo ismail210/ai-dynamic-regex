@@ -1,0 +1,59 @@
+<!doctype html><meta charset='utf-8'>
+<title>token_p8_332</title>
+<h1>W14X22 (page 8)</h1>
+<p>Label bbox: [1528.73, 1362.62, 1569.54, 1393.57]</p>
+<form>
+<p>Review label:
+<select name='review_label'>
+<option value='direct_target'>direct_target</option>
+<option value='leader_support_not_target'>leader_support_not_target</option>
+<option value='not_target'>not_target</option>
+<option value='no_valid_target'>no_valid_target</option>
+<option value='ambiguous_requires_adjudication'>ambiguous_requires_adjudication</option>
+</select></p>
+<p>Targets:</p>
+<label><input type='checkbox' name='target' value='geom_73c8a8794fe3'> geom_73c8a8794fe3 kind=line d=20.22 leader=False</label><br><label><input type='checkbox' name='target' value='geom_00c392a4d8a5'> geom_00c392a4d8a5 kind=line d=22.81 leader=False</label><br><label><input type='checkbox' name='target' value='geom_398d64922bf2'> geom_398d64922bf2 kind=line d=34.13 leader=False</label><br><label><input type='checkbox' name='target' value='geom_e637a03a7371'> geom_e637a03a7371 kind=line d=50.52 leader=False</label><br><label><input type='checkbox' name='target' value='geom_7a0e5dfed2b3'> geom_7a0e5dfed2b3 kind=line d=64.19 leader=False</label><br>
+<p><button type='button' onclick='this.nextElementSibling.hidden=false'>Reveal production pick</button>
+<pre hidden>{
+  &quot;edge_id&quot;: &quot;edge_972573fef3&quot;,
+  &quot;text_node_id&quot;: &quot;txt_a4176441fa&quot;,
+  &quot;geometry_node_id&quot;: &quot;geo_d23a5ae34a&quot;,
+  &quot;geometry_id&quot;: &quot;geom_73c8a8794fe3&quot;,
+  &quot;distance&quot;: 20.22,
+  &quot;page_number&quot;: 8,
+  &quot;meta&quot;: {
+    &quot;association_sources&quot;: [
+      &quot;direct_distance&quot;
+    ],
+    &quot;leader_resolved&quot;: false,
+    &quot;candidate_count&quot;: 3
+  },
+  &quot;geometry_kind&quot;: &quot;line&quot;,
+  &quot;geometry_bbox&quot;: [
+    1569.36,
+    1291.8,
+    1604.16,
+    1396.44
+  ]
+}</pre></p>
+<p>Reviewer id: <input name='reviewer_id'></p>
+<button type='button' onclick='save()'>Save decision</button>
+</form>
+<script>
+function save(){
+  const targets=[...document.querySelectorAll('input[name=target]:checked')].map(x=>x.value);
+  const payload={
+    token_id:"token_p8_332",
+    review_label:document.querySelector('[name=review_label]').value,
+    reviewed_target_geometry_ids:targets,
+    reviewer_id:document.querySelector('[name=reviewer_id]').value,
+    page:8,
+    text:"W14X22"
+  };
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download="token_p8_332.decision.json";
+  a.click();
+}
+</script>

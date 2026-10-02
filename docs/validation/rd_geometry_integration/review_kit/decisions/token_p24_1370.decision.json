@@ -1,0 +1,32 @@
+{
+  "token_id": "token_p24_1370",
+  "page": 24,
+  "text": "L4X3X3/8X0'-6\"",
+  "label_bbox": [
+    676.08,
+    467.89,
+    749.48,
+    480.5
+  ],
+  "production_geometry_id": null,
+  "candidate_geometry_ids": [
+    "geom_353f2534b4c8",
+    "geom_47c94e1c3426",
+    "geom_be992dda70c7",
+    "geom_2bbf72b2eef4",
+    "geom_87377fdc9117"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p24_1370.png",
+  "crop_available": true,
+  "g1_status": "ambiguous",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Leader points to the short L4X3 clip at the 4\" brick/slab. Green overlay is the roof-wall line (the L4x4 CONT member), not this clip.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": true,
+  "visible_member_on_drawing": true
+}

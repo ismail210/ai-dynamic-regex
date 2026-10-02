@@ -1,0 +1,704 @@
+{
+  "schema": "geometry_evidence_fixtures_v1",
+  "synthetic_or_test_only": true,
+  "fixtures": {
+    "agreement": {
+      "schema_version": "1.0",
+      "annotation_id": "fix_geom_agreement_w12x26",
+      "raw_text": "W12X26",
+      "extraction_source": null,
+      "source_page": 1,
+      "source_bbox": [
+        100.0,
+        200.0,
+        140.0,
+        215.0
+      ],
+      "normalized_text": "W12X26",
+      "structural_family": "W",
+      "parser_status": null,
+      "operations": [
+        {
+          "operation": "association",
+          "input_text": "W12X26",
+          "output_text": "W12X26",
+          "evidence": [],
+          "notes": null
+        }
+      ],
+      "completion_status": "complete",
+      "original_text_preserved": true,
+      "takeoff_eligible": true,
+      "evidence": [
+        {
+          "evidence_type": "pdf_text",
+          "evidence_source": "pdf_text",
+          "evidence_reference": "W12X26",
+          "evidence_strength": "explicit",
+          "confidence": null,
+          "page_number": null,
+          "bounding_box": null,
+          "notes": null
+        },
+        {
+          "evidence_type": "pdf_geometry",
+          "evidence_source": "pdf_member_geometry_synthetic",
+          "evidence_reference": "synth_member_A",
+          "evidence_strength": "inferred",
+          "confidence": null,
+          "page_number": null,
+          "bounding_box": null,
+          "notes": null
+        },
+        {
+          "evidence_type": "grasshopper_geometry",
+          "evidence_source": "grasshopper_synthetic",
+          "evidence_reference": "synth_member_A",
+          "evidence_strength": "inferred",
+          "confidence": null,
+          "page_number": null,
+          "bounding_box": null,
+          "notes": "SYNTHETIC \u2014 not a live RH_OUT path"
+        }
+      ],
+      "confidence": null,
+      "confidence_basis": null,
+      "review_required": false,
+      "review_status": null,
+      "review_reason": null,
+      "geometry_evidence": {
+        "available": true,
+        "provider": "grasshopper+pdf",
+        "relationship": "associated_with",
+        "geometry_ref": "synth_member_A",
+        "geometry_type": "beam_candidate_synthetic",
+        "confidence": 0.9,
+        "coordinate_system": "unknown",
+        "source": "synthetic_fixture",
+        "association_status": "agreement",
+        "candidate_refs": [
+          "synth_member_A"
+        ],
+        "native_metadata": {
+          "synthetic_or_test_only": true,
+          "not_production_rh_out": true,
+          "beam_txt_crv_index_assumed_equal": false,
+          "beam_element_id_semantics": "UNKNOWN_until_G0",
+          "pdf_rhino_transform": "NOT_CALIBRATED",
+          "rh_out_datatree_contract": "UNKNOWN_until_G0",
+          "pdf_candidate_ref": "synth_member_A",
+          "gh_candidate_ref": "synth_member_A"
+        }
+      },
+      "pipeline_version": null,
+      "created_by": "geometry_evidence_fixtures",
+      "document_id": null
+    },
+    "gh_only": {
+      "schema_version": "1.0",
+      "annotation_id": "fix_geom_gh_only_w16x26",
+      "raw_text": "W16X26",
+      "extraction_source": null,
+      "source_page": 2,
+      "source_bbox": [
+        50.0,
+        50.0,
+        90.0,
+        65.0
+      ],
+      "normalized_text": "W16X26",
+      "structural_family": "W",
+      "parser_status": null,
+      "operations": [],
+      "completion_status": "complete",
+      "original_text_preserved": true,
+      "takeoff_eligible": true,
+      "evidence": [
+        {
+          "evidence_type": "pdf_text",
+          "evidence_source": "pdf_text",
+          "evidence_reference": "W16X26",
+          "evidence_strength": "explicit",
+          "confidence": null,
+          "page_number": null,
+          "bounding_box": null,
+          "notes": null
+        },
+        {
+          "evidence_type": "grasshopper_geometry",
+          "evidence_source": "grasshopper_synthetic",
+          "evidence_reference": "synth_gh_beam_91",
+          "evidence_strength": "inferred",
+          "confidence": null,
+          "page_number": null,
+          "bounding_box": null,
+          "notes": "SYNTHETIC GH_ONLY"
+        }
+      ],
+      "confidence": null,
+      "confidence_basis": null,
+      "review_required": true,
+      "review_status": null,
+      "review_reason": "geometry_gh_only_review_optional",
+      "geometry_evidence": {
+        "available": true,
+        "provider": "grasshopper",
+        "relationship": "associated_with",
+        "geometry_ref": "synth_gh_beam_91",
+        "geometry_type": "beam_candidate_synthetic",
+        "confidence": null,
+        "coordinate_system": "unknown",
+        "source": "synthetic_fixture",
+        "association_status": "gh_only",
+        "candidate_refs": [
+          "synth_gh_beam_91"
+        ],
+        "native_metadata": {
+          "synthetic_or_test_only": true,
+          "not_production_rh_out": true,
+          "beam_txt_crv_index_assumed_equal": false,
+          "beam_element_id_semantics": "UNKNOWN_until_G0",
+          "pdf_rhino_transform": "NOT_CALIBRATED",
+          "rh_out_datatree_contract": "UNKNOWN_until_G0",
+          "pdf_candidate_ref": null
+        }
+      },
+      "pipeline_version": null,
+      "created_by": "geometry_evidence_fixtures",
+      "document_id": null
+    },
+    "pdf_only": {
+      "schema_version": "1.0",
+      "annotation_id": "fix_geom_pdf_only_w21x44",
+      "raw_text": "W21X44",
+      "extraction_source": null,
+      "source_page": 3,
+      "source_bbox": [
+        10.0,
+        10.0,
+        40.0,
+        25.0
+      ],
+      "normalized_text": "W21X44",
+      "structural_family": "W",
+      "parser_status": null,
+      "operations": [],
+      "completion_status": "complete",
+      "original_text_preserved": true,
+      "takeoff_eligible": true,
+      "evidence": [
+        {
+          "evidence_type": "pdf_text",
+          "evidence_source": "pdf_text",
+          "evidence_reference": "W21X44",
+          "evidence_strength": "explicit",
+          "confidence": null,
+          "page_number": null,
+          "bounding_box": null,
+          "notes": null
+        },
+        {
+          "evidence_type": "pdf_geometry",
+          "evidence_source": "pdf_member_geometry_synthetic",
+          "evidence_reference": "synth_pdf_member_7",
+          "evidence_strength": "inferred",
+          "confidence": null,
+          "page_number": null,
+          "bounding_box": null,
+          "notes": null
+        }
+      ],
+      "confidence": null,
+      "confidence_basis": null,
+      "review_required": false,
+      "review_status": null,
+      "review_reason": null,
+      "geometry_evidence": {
+        "available": true,
+        "provider": "pdf",
+        "relationship": "associated_with",
+        "geometry_ref": "synth_pdf_member_7",
+        "geometry_type": "member_candidate",
+        "confidence": 0.7,
+        "coordinate_system": "pdf_page",
+        "source": "synthetic_fixture",
+        "association_status": "pdf_only",
+        "candidate_refs": [
+          "synth_pdf_member_7"
+        ],
+        "native_metadata": {
+          "synthetic_or_test_only": true,
+          "not_production_rh_out": true,
+          "beam_txt_crv_index_assumed_equal": false,
+          "beam_element_id_semantics": "UNKNOWN_until_G0",
+          "pdf_rhino_transform": "NOT_CALIBRATED",
+          "rh_out_datatree_contract": "UNKNOWN_until_G0",
+          "gh_candidate_ref": null
+        }
+      },
+      "pipeline_version": null,
+      "created_by": "geometry_evidence_fixtures",
+      "document_id": null
+    },
+    "conflict": {
+      "schema_version": "1.0",
+      "annotation_id": "fix_geom_conflict_w14x22",
+      "raw_text": "W14X22",
+      "extraction_source": null,
+      "source_page": 4,
+      "source_bbox": null,
+      "normalized_text": "W14X22",
+      "structural_family": "W",
+      "parser_status": null,
+      "operations": [],
+      "completion_status": "complete",
+      "original_text_preserved": true,
+      "takeoff_eligible": true,
+      "evidence": [
+        {
+          "evidence_type": "pdf_text",
+          "evidence_source": "pdf_text",
+          "evidence_reference": "W14X22",
+          "evidence_strength": "explicit",
+          "confidence": null,
+          "page_number": null,
+          "bounding_box": null,
+          "notes": null
+        },
+        {
+          "evidence_type": "pdf_geometry",
+          "evidence_source": "pdf_member_geometry_synthetic",
+          "evidence_reference": "synth_pdf_member_3",
+          "evidence_strength": "inferred",
+          "confidence": null,
+          "page_number": null,
+          "bounding_box": null,
+          "notes": null
+        },
+        {
+          "evidence_type": "grasshopper_geometry",
+          "evidence_source": "grasshopper_synthetic",
+          "evidence_reference": "synth_gh_beam_44",
+          "evidence_strength": "inferred",
+          "confidence": null,
+          "page_number": null,
+          "bounding_box": null,
+          "notes": null
+        }
+      ],
+      "confidence": null,
+      "confidence_basis": null,
+      "review_required": true,
+      "review_status": null,
+      "review_reason": "geometry_association_conflict",
+      "geometry_evidence": {
+        "available": true,
+        "provider": "grasshopper+pdf",
+        "relationship": "unknown",
+        "geometry_ref": null,
+        "geometry_type": "beam_candidate_synthetic",
+        "confidence": null,
+        "coordinate_system": "unknown",
+        "source": "synthetic_fixture",
+        "association_status": "conflict",
+        "candidate_refs": [
+          "synth_pdf_member_3",
+          "synth_gh_beam_44"
+        ],
+        "native_metadata": {
+          "synthetic_or_test_only": true,
+          "not_production_rh_out": true,
+          "beam_txt_crv_index_assumed_equal": false,
+          "beam_element_id_semantics": "UNKNOWN_until_G0",
+          "pdf_rhino_transform": "NOT_CALIBRATED",
+          "rh_out_datatree_contract": "UNKNOWN_until_G0",
+          "pdf_candidate_ref": "synth_pdf_member_3",
+          "gh_candidate_ref": "synth_gh_beam_44",
+          "conflict": true
+        }
+      },
+      "pipeline_version": null,
+      "created_by": "geometry_evidence_fixtures",
+      "document_id": null
+    },
+    "ambiguous": {
+      "schema_version": "1.0",
+      "annotation_id": "fix_geom_ambiguous_hss6x6x3_8",
+      "raw_text": "HSS6X6X3/8",
+      "extraction_source": null,
+      "source_page": 5,
+      "source_bbox": null,
+      "normalized_text": "HSS6X6X3/8",
+      "structural_family": "HSS",
+      "parser_status": null,
+      "operations": [],
+      "completion_status": "complete",
+      "original_text_preserved": true,
+      "takeoff_eligible": true,
+      "evidence": [
+        {
+          "evidence_type": "pdf_text",
+          "evidence_source": "pdf_text",
+          "evidence_reference": "HSS6X6X3/8",
+          "evidence_strength": "explicit",
+          "confidence": null,
+          "page_number": null,
+          "bounding_box": null,
+          "notes": null
+        }
+      ],
+      "confidence": null,
+      "confidence_basis": null,
+      "review_required": true,
+      "review_status": null,
+      "review_reason": "geometry_association_ambiguous",
+      "geometry_evidence": {
+        "available": true,
+        "provider": "grasshopper",
+        "relationship": "unknown",
+        "geometry_ref": null,
+        "geometry_type": "beam_candidate_synthetic",
+        "confidence": null,
+        "coordinate_system": "unknown",
+        "source": "synthetic_fixture",
+        "association_status": "ambiguous",
+        "candidate_refs": [
+          "synth_cand_1",
+          "synth_cand_2",
+          "synth_cand_3"
+        ],
+        "native_metadata": {
+          "synthetic_or_test_only": true,
+          "not_production_rh_out": true,
+          "beam_txt_crv_index_assumed_equal": false,
+          "beam_element_id_semantics": "UNKNOWN_until_G0",
+          "pdf_rhino_transform": "NOT_CALIBRATED",
+          "rh_out_datatree_contract": "UNKNOWN_until_G0",
+          "forced_selection": false
+        }
+      },
+      "pipeline_version": null,
+      "created_by": "geometry_evidence_fixtures",
+      "document_id": null
+    },
+    "incomplete_l_with_geometry": {
+      "schema_version": "1.0",
+      "annotation_id": "fix_geom_incomplete_l4x4",
+      "raw_text": "L4X4",
+      "extraction_source": null,
+      "source_page": 6,
+      "source_bbox": [
+        200.0,
+        300.0,
+        230.0,
+        312.0
+      ],
+      "normalized_text": "L4X4",
+      "structural_family": "L",
+      "parser_status": null,
+      "operations": [],
+      "completion_status": "missing_thickness",
+      "original_text_preserved": true,
+      "takeoff_eligible": false,
+      "evidence": [
+        {
+          "evidence_type": "pdf_text",
+          "evidence_source": "pdf_text",
+          "evidence_reference": "L4X4",
+          "evidence_strength": "explicit",
+          "confidence": null,
+          "page_number": null,
+          "bounding_box": null,
+          "notes": null
+        },
+        {
+          "evidence_type": "grasshopper_geometry",
+          "evidence_source": "grasshopper_synthetic",
+          "evidence_reference": "synth_angle_member_12",
+          "evidence_strength": "inferred",
+          "confidence": null,
+          "page_number": null,
+          "bounding_box": null,
+          "notes": "geometry must not invent L4X4X1/4"
+        }
+      ],
+      "confidence": null,
+      "confidence_basis": null,
+      "review_required": true,
+      "review_status": null,
+      "review_reason": "incomplete_angle_missing_thickness",
+      "geometry_evidence": {
+        "available": true,
+        "provider": "grasshopper",
+        "relationship": "associated_with",
+        "geometry_ref": "synth_angle_member_12",
+        "geometry_type": "member_candidate_synthetic",
+        "confidence": 0.8,
+        "coordinate_system": "unknown",
+        "source": "synthetic_fixture",
+        "association_status": "gh_only",
+        "candidate_refs": [
+          "synth_angle_member_12"
+        ],
+        "native_metadata": {
+          "synthetic_or_test_only": true,
+          "not_production_rh_out": true,
+          "beam_txt_crv_index_assumed_equal": false,
+          "beam_element_id_semantics": "UNKNOWN_until_G0",
+          "pdf_rhino_transform": "NOT_CALIBRATED",
+          "rh_out_datatree_contract": "UNKNOWN_until_G0",
+          "must_not_complete_thickness": true
+        }
+      },
+      "pipeline_version": null,
+      "created_by": "geometry_evidence_fixtures",
+      "document_id": null
+    },
+    "incomplete_2l_with_geometry": {
+      "schema_version": "1.0",
+      "annotation_id": "fix_geom_incomplete_2l4x4",
+      "raw_text": "2L4X4",
+      "extraction_source": null,
+      "source_page": 7,
+      "source_bbox": null,
+      "normalized_text": "2L4X4",
+      "structural_family": "2L",
+      "parser_status": null,
+      "operations": [],
+      "completion_status": "missing_thickness",
+      "original_text_preserved": true,
+      "takeoff_eligible": false,
+      "evidence": [
+        {
+          "evidence_type": "pdf_text",
+          "evidence_source": "pdf_text",
+          "evidence_reference": "2L4X4",
+          "evidence_strength": "explicit",
+          "confidence": null,
+          "page_number": null,
+          "bounding_box": null,
+          "notes": null
+        },
+        {
+          "evidence_type": "grasshopper_geometry",
+          "evidence_source": "grasshopper_synthetic",
+          "evidence_reference": "synth_2l_member_5",
+          "evidence_strength": "inferred",
+          "confidence": null,
+          "page_number": null,
+          "bounding_box": null,
+          "notes": null
+        }
+      ],
+      "confidence": null,
+      "confidence_basis": null,
+      "review_required": true,
+      "review_status": null,
+      "review_reason": "incomplete_angle_missing_thickness",
+      "geometry_evidence": {
+        "available": true,
+        "provider": "grasshopper",
+        "relationship": "associated_with",
+        "geometry_ref": "synth_2l_member_5",
+        "geometry_type": "member_candidate_synthetic",
+        "confidence": null,
+        "coordinate_system": "unknown",
+        "source": "synthetic_fixture",
+        "association_status": "gh_only",
+        "candidate_refs": [
+          "synth_2l_member_5"
+        ],
+        "native_metadata": {
+          "synthetic_or_test_only": true,
+          "not_production_rh_out": true,
+          "beam_txt_crv_index_assumed_equal": false,
+          "beam_element_id_semantics": "UNKNOWN_until_G0",
+          "pdf_rhino_transform": "NOT_CALIBRATED",
+          "rh_out_datatree_contract": "UNKNOWN_until_G0",
+          "must_not_complete_thickness": true
+        }
+      },
+      "pipeline_version": null,
+      "created_by": "geometry_evidence_fixtures",
+      "document_id": null
+    },
+    "multiple_annotations_one_geometry": [
+      {
+        "schema_version": "1.0",
+        "annotation_id": "fix_geom_multi_ann_a",
+        "raw_text": "W18X35",
+        "extraction_source": null,
+        "source_page": null,
+        "source_bbox": null,
+        "normalized_text": "W18X35",
+        "structural_family": "W",
+        "parser_status": null,
+        "operations": [],
+        "completion_status": "complete",
+        "original_text_preserved": true,
+        "takeoff_eligible": true,
+        "evidence": [
+          {
+            "evidence_type": "pdf_text",
+            "evidence_source": "pdf_text",
+            "evidence_reference": "W18X35",
+            "evidence_strength": "explicit",
+            "confidence": null,
+            "page_number": null,
+            "bounding_box": null,
+            "notes": null
+          }
+        ],
+        "confidence": null,
+        "confidence_basis": null,
+        "review_required": false,
+        "review_status": null,
+        "review_reason": null,
+        "geometry_evidence": {
+          "available": true,
+          "provider": "grasshopper",
+          "relationship": "associated_with",
+          "geometry_ref": "synth_shared_beam_100",
+          "geometry_type": "beam_candidate_synthetic",
+          "confidence": 0.75,
+          "coordinate_system": "unknown",
+          "source": "synthetic_fixture",
+          "association_status": "gh_only",
+          "candidate_refs": [
+            "synth_shared_beam_100"
+          ],
+          "native_metadata": {
+            "synthetic_or_test_only": true,
+            "not_production_rh_out": true,
+            "beam_txt_crv_index_assumed_equal": false,
+            "beam_element_id_semantics": "UNKNOWN_until_G0",
+            "pdf_rhino_transform": "NOT_CALIBRATED",
+            "rh_out_datatree_contract": "UNKNOWN_until_G0",
+            "shared_geometry_ref": "synth_shared_beam_100"
+          }
+        },
+        "pipeline_version": null,
+        "created_by": "geometry_evidence_fixtures",
+        "document_id": null
+      },
+      {
+        "schema_version": "1.0",
+        "annotation_id": "fix_geom_multi_ann_b",
+        "raw_text": "W18X40",
+        "extraction_source": null,
+        "source_page": null,
+        "source_bbox": null,
+        "normalized_text": "W18X40",
+        "structural_family": "W",
+        "parser_status": null,
+        "operations": [],
+        "completion_status": "complete",
+        "original_text_preserved": true,
+        "takeoff_eligible": true,
+        "evidence": [
+          {
+            "evidence_type": "pdf_text",
+            "evidence_source": "pdf_text",
+            "evidence_reference": "W18X40",
+            "evidence_strength": "explicit",
+            "confidence": null,
+            "page_number": null,
+            "bounding_box": null,
+            "notes": null
+          }
+        ],
+        "confidence": null,
+        "confidence_basis": null,
+        "review_required": false,
+        "review_status": null,
+        "review_reason": null,
+        "geometry_evidence": {
+          "available": true,
+          "provider": "grasshopper",
+          "relationship": "associated_with",
+          "geometry_ref": "synth_shared_beam_100",
+          "geometry_type": "beam_candidate_synthetic",
+          "confidence": 0.75,
+          "coordinate_system": "unknown",
+          "source": "synthetic_fixture",
+          "association_status": "gh_only",
+          "candidate_refs": [
+            "synth_shared_beam_100"
+          ],
+          "native_metadata": {
+            "synthetic_or_test_only": true,
+            "not_production_rh_out": true,
+            "beam_txt_crv_index_assumed_equal": false,
+            "beam_element_id_semantics": "UNKNOWN_until_G0",
+            "pdf_rhino_transform": "NOT_CALIBRATED",
+            "rh_out_datatree_contract": "UNKNOWN_until_G0",
+            "shared_geometry_ref": "synth_shared_beam_100"
+          }
+        },
+        "pipeline_version": null,
+        "created_by": "geometry_evidence_fixtures",
+        "document_id": null
+      }
+    ],
+    "one_annotation_multiple_geometry_candidates": {
+      "schema_version": "1.0",
+      "annotation_id": "fix_geom_ambiguous_hss6x6x3_8",
+      "raw_text": "HSS6X6X3/8",
+      "extraction_source": null,
+      "source_page": 5,
+      "source_bbox": null,
+      "normalized_text": "HSS6X6X3/8",
+      "structural_family": "HSS",
+      "parser_status": null,
+      "operations": [],
+      "completion_status": "complete",
+      "original_text_preserved": true,
+      "takeoff_eligible": true,
+      "evidence": [
+        {
+          "evidence_type": "pdf_text",
+          "evidence_source": "pdf_text",
+          "evidence_reference": "HSS6X6X3/8",
+          "evidence_strength": "explicit",
+          "confidence": null,
+          "page_number": null,
+          "bounding_box": null,
+          "notes": null
+        }
+      ],
+      "confidence": null,
+      "confidence_basis": null,
+      "review_required": true,
+      "review_status": null,
+      "review_reason": "geometry_association_ambiguous",
+      "geometry_evidence": {
+        "available": true,
+        "provider": "grasshopper",
+        "relationship": "unknown",
+        "geometry_ref": null,
+        "geometry_type": "beam_candidate_synthetic",
+        "confidence": null,
+        "coordinate_system": "unknown",
+        "source": "synthetic_fixture",
+        "association_status": "ambiguous",
+        "candidate_refs": [
+          "synth_cand_1",
+          "synth_cand_2",
+          "synth_cand_3"
+        ],
+        "native_metadata": {
+          "synthetic_or_test_only": true,
+          "not_production_rh_out": true,
+          "beam_txt_crv_index_assumed_equal": false,
+          "beam_element_id_semantics": "UNKNOWN_until_G0",
+          "pdf_rhino_transform": "NOT_CALIBRATED",
+          "rh_out_datatree_contract": "UNKNOWN_until_G0",
+          "forced_selection": false
+        }
+      },
+      "pipeline_version": null,
+      "created_by": "geometry_evidence_fixtures",
+      "document_id": null
+    }
+  }
+}

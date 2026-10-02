@@ -1,0 +1,32 @@
+{
+  "token_id": "token_p24_1379",
+  "page": 24,
+  "text": "L4x4x3/8",
+  "label_bbox": [
+    628.56,
+    972.37,
+    670.45,
+    984.98
+  ],
+  "production_geometry_id": null,
+  "candidate_geometry_ids": [
+    "geom_275b3bdb4d36",
+    "geom_69279d846822",
+    "geom_d834adb13dde",
+    "geom_a559a872fb89",
+    "geom_092bbdeff01f"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p24_1379.png",
+  "crop_available": true,
+  "g1_status": "ambiguous",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Leader points to the L4x4 DSA at the deck/wall. Green overlay is the long wall line.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": true,
+  "visible_member_on_drawing": true
+}

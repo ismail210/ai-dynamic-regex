@@ -1,0 +1,34 @@
+{
+  "token_id": "token_p8_397",
+  "page": 8,
+  "text": "W12X19",
+  "label_bbox": [
+    1700.36,
+    1221.1,
+    1722.89,
+    1262.93
+  ],
+  "production_geometry_id": "geom_90463060295d",
+  "candidate_geometry_ids": [
+    "geom_90463060295d",
+    "geom_485e0c733148",
+    "geom_5f6b0423ca08",
+    "geom_e637a03a7371",
+    "geom_00c392a4d8a5"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p8_397.png",
+  "crop_available": true,
+  "g1_status": "agreement",
+  "review_label": "direct_target",
+  "decision": "associated",
+  "reviewed_target_geometry_ids": [
+    "geom_90463060295d"
+  ],
+  "selected_geometry_id": "geom_90463060295d",
+  "reason": "Label is placed on the W12X19[20] infill; production and R&D overlays both match that infill segment.",
+  "error_bucket": null,
+  "leader_required": false,
+  "association_mode": "direct"
+}

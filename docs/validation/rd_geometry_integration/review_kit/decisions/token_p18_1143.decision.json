@@ -1,0 +1,32 @@
+{
+  "token_id": "token_p18_1143",
+  "page": 18,
+  "text": "W10X33",
+  "label_bbox": [
+    1314.0,
+    204.0,
+    1361.97,
+    216.68
+  ],
+  "production_geometry_id": "geom_25342840d67c",
+  "candidate_geometry_ids": [
+    "geom_25342840d67c",
+    "geom_fc4d2f3fd33e",
+    "geom_f2f4c1f82e85",
+    "geom_ca91cce7a91b",
+    "geom_ea86c8c63321"
+  ],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p18_1143.png",
+  "crop_available": true,
+  "g1_status": "agreement_ambiguous_neighborhood",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "W10X33 is STEEL COLUMN SPLICE table text (W10X33 TO W10X112), not a member callout. Orange overlay is a table/detail line, not a column.",
+  "error_bucket": "schedule_table_not_member",
+  "leader_required": false,
+  "visible_member_on_drawing": false
+}

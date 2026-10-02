@@ -1,0 +1,26 @@
+{
+  "token_id": "token_p8_355",
+  "page": 8,
+  "text": "W10X15",
+  "label_bbox": [
+    1977.31,
+    1282.78,
+    1999.86,
+    1324.62
+  ],
+  "production_geometry_id": "geom_3e2826b140f9",
+  "candidate_geometry_ids": [],
+  "reviewer_id": "human_gold_rd",
+  "review_source": "human_gold",
+  "crop": "renders/assoc_token_p8_355.png",
+  "crop_available": true,
+  "g1_status": "missing_retrieval",
+  "review_label": "no_valid_target",
+  "decision": "no_valid_member",
+  "reviewed_target_geometry_ids": [],
+  "selected_geometry_id": null,
+  "reason": "Label sits on W10X15[9]. Zero R&D candidates; production is a giant bay polyline far to the right.",
+  "error_bucket": "missing_retrieval",
+  "leader_required": false,
+  "visible_member_on_drawing": true
+}
