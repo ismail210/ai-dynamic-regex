@@ -472,8 +472,8 @@ def plan_values(document: Dict[str, Any], statements: List[Dict[str, Any]], shee
     out: List[Dict[str, Any]] = []
     for page, lines in sorted(_page_lines(document).items()):
         own = rules_by_page.get(page) or legend
-        rules = own + [r for r in project_prefix
-                       if r["page"] != page and r["prefix"] not in {o.get("prefix") for o in own}]
+        own_prefixes = {o.get("prefix") for o in own}
+        rules = own + [r for r in project_prefix if r["page"] != page and r["prefix"] not in own_prefixes]
         if not rules:
             continue
         for line in lines:
@@ -487,12 +487,14 @@ def plan_values(document: Dict[str, Any], statements: List[Dict[str, Any]], shee
                 before = text[:m.start()].rstrip().split(" ")[-1].upper() if text[:m.start()].strip() else ""
                 usable = [r for r in rules if not r.get("prefix") or before.endswith(r["prefix"])]
                 prefixed = [r for r in usable if r.get("prefix")]
-                # A recovered value is read only under a prefix rule whose own
-                # sample shows the full feet-inch form it is missing a mark of.
-                rule = (value or recovered) and _rule_for(
-                    value or recovered["candidate"],
-                    [r for r in prefixed if '"' in r["sample"]] if recovered
-                    else prefixed or [r for r in usable if not r.get("prefix")])
+                if value:
+                    rule = _rule_for(value, prefixed or [r for r in usable if not r.get("prefix")])
+                elif recovered:
+                    # Read only under a prefix rule whose own sample shows the
+                    # full feet-inch form the value is missing a mark of.
+                    rule = _rule_for(recovered["candidate"], [r for r in prefixed if '"' in r["sample"]])
+                else:
+                    continue
                 if not rule:
                     continue
                 out.append({

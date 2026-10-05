@@ -200,7 +200,7 @@ def _headed_plate_dimension(printed: str) -> Optional[Dict[str, Any]]:
     length = parse_dimension(printed)
     if value is None and length is None:
         return None
-    return {"printed": value or printed, "inches": length["inches"] if length else None}
+    return {"printed": printed, "inches": length["inches"] if length else None}
 
 
 def _interpret_plate(

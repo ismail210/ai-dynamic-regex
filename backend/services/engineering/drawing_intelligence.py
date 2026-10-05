@@ -771,7 +771,7 @@ _COMPONENTS = {
     "schedule": ("Other schedule marks", "Schedule", "other schedule"),
 }
 _COMPONENT_ORDER = tuple(_COMPONENTS)
-# ``S002`` / ``S-101`` / ``S2.09`` (dotted Yellow Spring numbering).
+# ``S002`` / ``S-101`` / dotted ``S2.09``.
 _SHEET_RE = re.compile(r"\bS-?(?:\d{3}|\d{1,2}\.\d{2})[A-Z]?\b")
 _ANGLE_TYPE_RE = re.compile(r"\b(LOOSE|CONTINUOUS)\s+ANGLE", re.I)
 # a printed "A x B" dimension in a resolved plate display

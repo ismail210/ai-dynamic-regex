@@ -17,6 +17,7 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence
 
 import fitz
 
+from services.engineering.page_space import convert_boxes, to_display, to_pdf
 from services.engineering.column_schedule import (
     matrix_key_role,
     read_column_matrix,
@@ -89,13 +90,7 @@ def read_ruled_tables(
 ) -> List[Dict[str, Any]]:
     """Schedule table records for candidate pages of ``pdf_path``."""
 
-    wanted = set(pages) if pages is not None else None
-    by_page: Dict[int, List[tuple]] = {}
-    for word in words:
-        page = int(word.get("page_number") or word.get("page") or 0)
-        bbox = word.get("bbox") or []
-        if len(bbox) >= 4 and (wanted is None or page in wanted):
-            by_page.setdefault(page, []).append((*bbox[:4], word.get("text") or ""))
+    by_page = _words_by_page(words, set(pages) if pages is not None else None)
     candidates = sorted(page for page, found in by_page.items() if _schedule_regions(found))
     if not candidates:
         return []
@@ -106,6 +101,16 @@ def read_ruled_tables(
                 page = document[page_number - 1]
                 records.extend(_page_records(page, page_number, page.get_text("words")))
     return records
+
+
+def _words_by_page(words: Iterable[Dict[str, Any]], wanted: Optional[set] = None) -> Dict[int, List[tuple]]:
+    by_page: Dict[int, List[tuple]] = {}
+    for word in words:
+        page = int(word.get("page_number") or word.get("page") or 0)
+        bbox = word.get("bbox") or []
+        if len(bbox) >= 4 and (wanted is None or page in wanted):
+            by_page.setdefault(page, []).append((*bbox[:4], str(word.get("text") or "")))
+    return by_page
 
 
 def _page_records(page: Any, page_number: int, page_words: List[tuple]) -> List[Dict[str, Any]]:
@@ -163,14 +168,7 @@ def read_rotated_column_schedules(pdf_path: str, words: Iterable[Dict[str, Any]]
     ``y``, extent ends) stay measured along the displayed schedule.
     """
 
-    from services.engineering.page_space import convert_boxes, to_display, to_pdf
-
-    by_page: Dict[int, List[tuple]] = {}
-    for word in words:
-        bbox = word.get("bbox") or []
-        if len(bbox) >= 4:
-            by_page.setdefault(int(word.get("page_number") or word.get("page") or 0), []).append(
-                (*bbox[:4], str(word.get("text") or "")))
+    by_page = _words_by_page(words)
     pages = sorted(page for page, found in by_page.items()
                    if any(w[4].upper() == "COLUMN" for w in found)
                    and any(_COLUMN_ANCHOR_RE.match(w[4].upper()) for w in found))
@@ -179,9 +177,11 @@ def read_rotated_column_schedules(pdf_path: str, words: Iterable[Dict[str, Any]]
         return records
     with fitz.open(pdf_path) as document:
         for page_number in pages:
-            if not 1 <= page_number <= document.page_count or not document[page_number - 1].rotation:
+            if not 1 <= page_number <= document.page_count:
                 continue
             page = document[page_number - 1]
+            if not page.rotation:
+                continue
             rotation, width, height = page.rotation, page.rect.width, page.rect.height
             # Cheap check on the stored words, turned the way the sheet reads.
             if not _schedule_regions([(*to_display(rotation, width, height, w[:4]), w[4])

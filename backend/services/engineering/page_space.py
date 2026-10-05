@@ -11,16 +11,22 @@ Two spaces exist for a page stored with ``/Rotate``:
   ``width`` / ``height`` are display dimensions, and the source viewer draws
   highlights in display space.
 
-Drawing Summary sections are the only consumers of display space. Each
-section converts once, at its own boundary, with the functions below. For an
-unrotated page both spaces are the same.
+Drawing Summary sections are the only consumers of display space. A section
+either reasons in display space from converted inputs (level evidence: a
+heading above its note) or converts its outputs; either way each box is
+converted exactly once, with the functions below. For an unrotated page both
+spaces are the same.
+
+One documented exception: a rotated column schedule is analysed on the page
+as displayed, so the scalar positions inside its ``column_matrix`` (level-line
+``y``, extent ends) are measured along the displayed schedule. They are only
+compared with each other, never drawn.
 """
 
 from __future__ import annotations
 
 from typing import Any, Callable, Dict, List, Optional
 
-BOX_KEYS = frozenset({"bbox", "name_bbox", "elevation_bbox", "key_bbox"})
 
 Box = Callable[[int, Any], Optional[List[float]]]
 
@@ -68,14 +74,19 @@ def display_boxes(document: Dict[str, Any]) -> Box:
     return box
 
 
+def _is_box_key(key: str) -> bool:
+    return key == "bbox" or key.endswith("_bbox")
+
+
 def convert_boxes(value: Any, box: Box, page: Optional[int] = None) -> Any:
-    """Copy of ``value`` with every :data:`BOX_KEYS` entry passed through
-    ``box(page, bbox)``, where ``page`` is the nearest enclosing ``"page"``."""
+    """Copy of ``value`` with every box -- a ``bbox`` or ``*_bbox`` key --
+    passed through ``box(page, bbox)``, ``page`` being the nearest enclosing ``"page"``."""
 
     if isinstance(value, dict):
-        page = value.get("page", page) if isinstance(value.get("page", page), int) else page
+        if isinstance(value.get("page"), int):
+            page = value["page"]
         return {
-            key: (box(page, item) if key in BOX_KEYS and isinstance(item, (list, tuple)) and page
+            key: (box(page, item) if _is_box_key(key) and isinstance(item, (list, tuple)) and page
                   else convert_boxes(item, box, page))
             for key, item in value.items()
         }

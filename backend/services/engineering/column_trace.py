@@ -31,8 +31,9 @@ from typing import Any, Dict, List, Optional
 
 import fitz
 
-from services.engineering.column_schedule import column_schedule_view
+from services.engineering.column_schedule import _union_boxes, column_schedule_view
 from services.engineering.level_evidence import (
+    _clean,
     displayed,
     level_keys,
     parse_elevation,
@@ -58,7 +59,7 @@ _ANNOTATION_RE = re.compile(
 
 
 def _norm(name: str) -> str:
-    return re.sub(r"\s+", "", str(name or "")).upper().replace("’", "'").replace("′", "'")
+    return _clean(name).replace(" ", "").upper()
 
 
 def _bubbles(words: List[tuple], drawings: List[dict], name: str) -> List[Dict[str, float]]:
@@ -136,8 +137,7 @@ def _observe(x: float, y: float, lines: List[Dict[str, Any]], drawings: List[dic
               if float(path.get("width") or 0.0) >= _SYMBOL_MIN_WIDTH
               and max(path["rect"].width, path["rect"].height) <= _SYMBOL_MAX
               and _near(path["rect"], x, y, _SYMBOL_REACH)]
-    symbol_box = ([round(min(r.x0 for r in symbol), 1), round(min(r.y0 for r in symbol), 1),
-                   round(max(r.x1 for r in symbol), 1), round(max(r.y1 for r in symbol), 1)] if symbol else None)
+    symbol_box = [round(v, 1) for v in _union_boxes(tuple(r) for r in symbol)] if symbol else None
     target = symbol_box or point
     ends = _leader_ends(target, segments)
     annotations, nearby = [], []
@@ -157,7 +157,7 @@ def _observe(x: float, y: float, lines: List[Dict[str, Any]], drawings: List[dic
         elif _near(box, x, y, _NEARBY_REACH):
             nearby.append({"text": text, "bbox": [round(float(v), 1) for v in box[:4]], "how": "nearby"})
     return {
-        "point": point,
+        "point_bbox": point,
         "symbol": {"bbox": symbol_box} if symbol_box else None,
         "annotations": annotations,
         "nearby_text": nearby[:12],
@@ -235,6 +235,38 @@ def _spanned(entry: Dict[str, Any], lines: List[Dict[str, Any]]) -> tuple:
     return spanned, ends, names
 
 
+def _analyse_plan(page: Any, page_no: int, names: List[str], lines: List[Dict[str, Any]],
+                  section_names: set) -> Optional[Dict[str, Any]]:
+    """Grid axes and the observations at their crossings on one plan page;
+    ``None`` when neither grid label is printed there (no vectors are read)."""
+
+    words = page.get_text("words")
+    if not any(_norm(w[4]) in names for w in words):
+        return None
+    drawings = page.get_drawings()
+    segments = _segments(drawings)
+    axes = [_axes(_bubbles(words, drawings, name), segments) for name in names]
+    if not any(axes):
+        return None
+    pairs = [(a, b) for a in axes[0] for b in axes[1] if a["orientation"] != b["orientation"]]
+    record: Dict[str, Any] = {"grid_axes": [len(a) for a in axes], "candidates": []}
+    for a, b in pairs:
+        x = a["at"] if a["orientation"] == "vertical" else b["at"]
+        y = a["at"] if a["orientation"] == "horizontal" else b["at"]
+        record["candidates"].append({**_observe(x, y, lines, drawings, segments, section_names), "page": page_no})
+    if not pairs:
+        record.update(observation="grids_not_found", note="Both grid lines were not found on this plan.")
+        return record
+    seen = any(c["symbol"] for c in record["candidates"])
+    record["observation"] = "column_symbol" if seen else "not_detected"
+    if len(pairs) > 1:
+        record["note"] = (f"The grids cross at {len(pairs)} places on this sheet (for example an "
+                          "enlarged or partial plan); each is listed, none is chosen.")
+    elif not seen:
+        record["note"] = "No column symbol was detected at the intersection; this is not evidence of absence."
+    return record
+
+
 def trace_column(document: Dict[str, Any], pdf_path: str, location: str,
                  schedule_id: Optional[str] = None) -> Dict[str, Any]:
     """Trace one schedule entry (printed location or mark) across the plans."""
@@ -260,8 +292,9 @@ def trace_column(document: Dict[str, Any], pdf_path: str, location: str,
                     if s["id"] == entry["schedule_id"])
     location_record = (entry.get("locations") or [{}])[0]
     grids = location_record.get("grids") or []
-    spanned, ends, spanned_all = _spanned(entry, _block_lines(entry, schedule))
-    section_names = {_norm(s.get("designation") or s.get("printed")) for s in entry.get("sections") or []}
+    spanned, ends, block_levels = _spanned(entry, _block_lines(entry, schedule))
+    sections = [s.get("designation") or s.get("printed") for s in entry.get("sections") or []]
+    section_names = {_norm(name) for name in sections}
     trace: Dict[str, Any] = {
         "status": "traced",
         "pilot": True,
@@ -269,7 +302,7 @@ def trace_column(document: Dict[str, Any], pdf_path: str, location: str,
                      "page": entry["page"], "sheet": entry.get("sheet"), "bbox": entry.get("bbox")},
         "location_text": entry.get("location_text") or entry.get("mark"),
         "grids": [{"name": g["label"], "offset": (g.get("offset") or {}).get("raw")} for g in grids],
-        "sections": [s.get("designation") or s.get("printed") for s in entry.get("sections") or []],
+        "sections": sections,
         "ends": ends,
         "levels": [],
         "notes": [],
@@ -285,56 +318,38 @@ def trace_column(document: Dict[str, Any], pdf_path: str, location: str,
                               "with certainty; plans are not searched.")
     names = [_norm(g["label"]) for g in grids]
     schedule_pages = set(schedule.get("pages") or [])
-    shown = displayed(document)
-    statements = plan_statements(shown, sheets)
-    plan_names = plan_names_by_page(shown, statements)
-    elevations = plan_elevations(statements, spot_elevations(shown, sheets), plan_values(shown, statements, sheets))
-    with fitz.open(pdf_path) as pdf:
-        cache: Dict[int, tuple] = {}
-        for line in spanned:
-            level = {"name": line["name"], "elevation": line.get("elevation_text"), "plans": [],
-                     "other_titled_sheets": []}
-            plans = _plan_pages(line, plan_names, elevations, schedule_pages, spanned_all)
-            if not plans:
-                level["note"] = "No plan names this level or states its elevation."
-            for plan in plans:
-                page_no = plan["page"]
-                if page_no not in cache:
-                    page = pdf[page_no - 1]
-                    words = page.get_text("words")
-                    drawings = page.get_drawings()
-                    cache[page_no] = (words, drawings, _segments(drawings))
-                words, drawings, segments = cache[page_no]
-                axes = [_axes(_bubbles(words, drawings, name), segments) for name in names]
-                if not any(axes):
-                    # Neither grid is labelled here: a titled sheet that is not this plan view.
-                    level["other_titled_sheets"].append(sheets.get(page_no) or f"p. {page_no}")
-                    continue
-                record = {"page": page_no, "sheet": sheets.get(page_no), "plan": plan["title"],
-                          "matched_by": plan["matched_by"], "ambiguous_match": plan["ambiguous"],
-                          "grid_axes": [len(a) for a in axes], "candidates": []}
-                pairs = [(a, b) for a in axes[0] for b in axes[1] if a["orientation"] != b["orientation"]]
-                if not pairs:
-                    record["observation"] = "grids_not_found"
-                    record["note"] = "Both grid lines were not found on this plan."
-                plan_lines = [ln for ln in document.get("lines") or []
-                              if int(ln.get("page_number") or 0) == page_no and len(ln.get("bbox") or []) >= 4]
-                for a, b in pairs:
-                    x = a["at"] if a["orientation"] == "vertical" else b["at"]
-                    y = a["at"] if a["orientation"] == "horizontal" else b["at"]
-                    observed = _observe(x, y, plan_lines, drawings, segments, section_names)
-                    observed["page"] = page_no
-                    record["candidates"].append(observed)
-                if pairs:
-                    seen = any(c["symbol"] for c in record["candidates"])
-                    record["observation"] = "column_symbol" if seen else "not_detected"
-                    if len(pairs) > 1:
-                        record["note"] = (f"The grids cross at {len(pairs)} places on this sheet (for example an "
-                                          "enlarged or partial plan); each is listed, none is chosen.")
-                    elif not seen:
-                        record["note"] = "No column symbol was detected at the intersection; this is not evidence of absence."
-                level["plans"].append(record)
-            trace["levels"].append(level)
+    if spanned:
+        shown = displayed(document)
+        statements = plan_statements(shown, sheets)
+        plan_names = plan_names_by_page(shown, statements)
+        elevations = plan_elevations(statements, spot_elevations(shown, sheets),
+                                     plan_values(shown, statements, sheets))
+        lines_by_page: Dict[int, List[Dict[str, Any]]] = {}
+        for ln in document.get("lines") or []:
+            if len(ln.get("bbox") or []) >= 4:
+                lines_by_page.setdefault(int(ln.get("page_number") or 0), []).append(ln)
+        with fitz.open(pdf_path) as pdf:
+            analysed: Dict[int, Optional[Dict[str, Any]]] = {}
+            for line in spanned:
+                level = {"name": line["name"], "elevation": line.get("elevation_text"), "plans": [],
+                         "other_titled_sheets": []}
+                plans = _plan_pages(line, plan_names, elevations, schedule_pages, block_levels)
+                if not plans:
+                    level["note"] = "No plan names this level or states its elevation."
+                for plan in plans:
+                    page_no = plan["page"]
+                    if page_no not in analysed:
+                        analysed[page_no] = _analyse_plan(pdf[page_no - 1], page_no, names,
+                                                          lines_by_page.get(page_no, []), section_names)
+                    found = analysed[page_no]
+                    if found is None:
+                        # Neither grid is labelled here: a titled sheet that is not this plan view.
+                        level["other_titled_sheets"].append(sheets.get(page_no) or f"p. {page_no}")
+                        continue
+                    level["plans"].append({"page": page_no, "sheet": sheets.get(page_no), "plan": plan["title"],
+                                           "matched_by": plan["matched_by"], "ambiguous_match": plan["ambiguous"],
+                                           **found})
+                trace["levels"].append(level)
     # A plan annotation at the column on an end's own level (``POST UP`` where
     # the schedule starts the column) supports that end; it is quoted, not parsed.
     for end in trace["ends"].values():

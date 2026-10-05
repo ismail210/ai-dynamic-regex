@@ -687,25 +687,17 @@ const OBSERVATION_LABEL = {
   grids_not_found: "both grid lines were not found on this plan",
 };
 
+// The ends themselves are shown by ColumnExtent; the trace adds only what a
+// plan prints at that end (``POST UP`` where the column starts).
 function TraceEnd({ which, end, onView }) {
-  return (
-    <Box>
+  return end.plan_annotations?.map((a, i) => (
+    <Stack key={i} direction="row" spacing={1} sx={{ alignItems: "center" }}>
       <Typography variant="body2">
-        <b>{which}:</b>{" "}
-        {end.state === "established"
-          ? `${end.level}${end.elevation ? ` (${end.elevation})` : ""} — ${end.by}`
-          : `not established — ${end.note}`}
+        {which} end: {a.sheet || `p. ${a.page}`} prints “{a.text}” with a leader to the column
       </Typography>
-      {end.plan_annotations?.map((a, i) => (
-        <Stack key={i} direction="row" spacing={1} sx={{ alignItems: "center", pl: 2 }}>
-          <Typography variant="caption">
-            {a.sheet || `p. ${a.page}`} prints “{a.text}” with a leader to the column
-          </Typography>
-          <ViewPageButton item={{ ...a, mark: `${a.text} (${which.toLowerCase()} end)` }} label="View" onView={onView} />
-        </Stack>
-      ))}
-    </Box>
-  );
+      <ViewPageButton item={{ ...a, mark: `${a.text} (${which.toLowerCase()} end)` }} label="View" onView={onView} />
+    </Stack>
+  ));
 }
 
 function TracePlan({ plan, levelName, onView }) {
@@ -730,7 +722,7 @@ function TracePlan({ plan, levelName, onView }) {
               item={{
                 page: c.page,
                 sheet: plan.sheet,
-                bbox: c.symbol?.bbox || c.point,
+                bbox: c.symbol?.bbox || c.point_bbox,
                 mark: `${levelName} grid intersection${plan.candidates.length > 1 ? ` ${i + 1}` : ""}`,
               }}
               label={plan.candidates.length > 1 ? `Intersection ${i + 1}` : "View intersection"}

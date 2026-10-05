@@ -816,7 +816,8 @@ describe("DrawingSummaryPanel — column tracing pilot", () => {
     ends: {
       top: { state: "established", level: "T.O. ROOF", elevation: "69' - 4\"", by: "drawn on the schedule's level line",
         plan_annotations: [] },
-      bottom: { state: "unresolved", position: "between", plan_annotations: [],
+      bottom: { state: "unresolved", position: "between",
+        plan_annotations: [{ sheet: "S121", page: 9, text: "POST UP", bbox: [1, 2, 3, 4] }],
         note: "The schedule draws the bottom end between two level lines; it is not moved to the nearest line." },
     },
     levels: [{
@@ -824,7 +825,7 @@ describe("DrawingSummaryPanel — column tracing pilot", () => {
       plans: [{
         page: 11, sheet: "S123", plan: "OSSE FACILITY ROOF PLAN", observation: "column_symbol", ambiguous_match: false,
         matched_by: "the plan's note names OFFICE ROOF at the same elevation", grid_axes: [1, 1],
-        candidates: [{ page: 11, point: [2171, 1487, 2177, 1493], symbol: { bbox: [2170, 1480, 2177, 1497] },
+        candidates: [{ page: 11, point_bbox: [2171, 1487, 2177, 1493], symbol: { bbox: [2170, 1480, 2177, 1497] },
           annotations: [], nearby_text: [{ text: "69' - 9\"", how: "nearby" }] }],
       }],
     }],
@@ -840,8 +841,7 @@ describe("DrawingSummaryPanel — column tracing pilot", () => {
     fireEvent.click(screen.getByRole("button", { name: "Look for this column on the plans" }));
     expect(await screen.findByText(/column symbol drawn at the grid intersection/)).toBeInTheDocument();
     expect(spy).toHaveBeenCalledWith("doc_abc", "A.4'-14, B-4.9, E-8(-4'-4\"), C'-15.6", "S1");
-    expect(screen.getByText(/T.O. ROOF \(69' - 4"\) — drawn on the schedule's level line/)).toBeInTheDocument();
-    expect(screen.getByText(/not established — The schedule draws the bottom end between two level lines/)).toBeInTheDocument();
+    expect(screen.getByText(/Bottom end: S121 prints “POST UP” with a leader to the column/)).toBeInTheDocument();
     expect(screen.getByText(/Nearby, not associated: 69' - 9"/)).toBeInTheDocument();
     expect(screen.getByText(/do not establish how many fabricated pieces/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /View S123 · PDF p. 11 for T.O. ROOF grid intersection/ }));
