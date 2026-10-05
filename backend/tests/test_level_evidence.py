@@ -328,5 +328,114 @@ class LevelDifferenceTests(unittest.TestCase):
         self.assertEqual(diff["status"], "unresolved")
 
 
+# Yellow Spring ST1.pdf p5 S2.01: the project abbreviation for top of steel.
+_YS_TOS_NOTE = ("TOP OF STEEL IS MEASURED FROM TOP OF DATUM SLAB ON GRADE AND IS INDICATED THUS TOS (+0'-0\")")
+
+
+class MalformedValueTests(unittest.TestCase):
+    def test_only_a_missing_closing_inch_mark_is_recovered(self):
+        from services.engineering.level_evidence import recover_missing_inch_mark
+
+        found = recover_missing_inch_mark("(+30'-8)")         # Yellow Spring p8 S2.04
+        self.assertEqual(found["printed"], "(+30'-8)")
+        self.assertEqual(found["candidate"]["display"], "30'-8\"")
+        for text in ("(+30'-8\")", "(+30'-12)", "(+30'-8 1/2)", "(30.5)", "W8X24"):
+            self.assertIsNone(recover_missing_inch_mark(text), text)
+
+    def view(self, lines):
+        from services.engineering.level_evidence import levels_view
+
+        doc = _doc([(5, _YS_TOS_NOTE, (2100, 740, 2700, 761))], lines)
+        return levels_view(doc, {5: "S2.01", 8: "S2.04"})
+
+    def test_a_flagged_value_keeps_its_printed_text_and_is_never_a_value(self):
+        view = self.view([(8, "TOS (+30'-8)", (1358, 2099, 1367, 2157), 7.0),
+                          (8, "TOS (30'-8\")", (1500, 2099, 1509, 2157), 7.0)])
+        (group,) = [g for g in view["noted_on_plans"] if g["sheet"] == "S2.04"]
+        self.assertEqual((group["count"], group["flagged"]), (2, 1))
+        self.assertEqual(group["rule_sheets"], ["S2.01"])          # defined on another sheet, said so
+        flagged = next(e for e in group["examples"] if e["status"] == "flagged")
+        self.assertEqual((flagged["value"], flagged["candidate"]), ("(+30'-8)", "30'-8\""))
+        self.assertFalse([r for r in view["plan_elevations"] if r["sheet"] == "S2.04"])
+
+    def test_a_prefix_defined_two_ways_is_not_applied_elsewhere(self):
+        from services.engineering.level_evidence import levels_view
+
+        other = ("TOP OF STEEL IS MEASURED FROM TOP OF FOOTING AND IS INDICATED THUS TOS (+0'-0\")")
+        doc = _doc([(5, _YS_TOS_NOTE, (2100, 740, 2700, 761)), (6, other, (2100, 740, 2700, 761))],
+                   [(8, "TOS (30'-8\")", (1500, 2099, 1509, 2157), 7.0)])
+        view = levels_view(doc, {})
+        self.assertFalse([g for g in view["noted_on_plans"] if g["page"] == 8])
+
+
+class NoteLayoutTests(unittest.TestCase):
+    def test_a_note_containing_denotes_is_not_a_heading(self):
+        # Yellow Spring p5 S2.01 floor framing notes 3-5 (display space)
+        from services.engineering.level_evidence import levels_view
+
+        doc = _doc([
+            (5, "3. TOP OF SECOND FLOOR SLAB ELEVATION +15'-4\" MEASURED FROM DATUM SLAB ON GRADE ELEVATION.",
+             (2101, 258, 2606, 268)),
+            (5, "4. c=0 DENOTES CAMBER. ALL MEMBERS SHALL BE ERECTED SUCH THAT MILL CAMBER IS UP.",
+             (2101, 280, 2547, 290)),
+            (5, "5. TOP OF STEEL BEAMS AND GIRDERS SHALL BE (-5\") FROM TOP OF SLAB UNLESS NOTED OTHERWISE.",
+             (2101, 302, 2591, 312)),
+        ])
+        steel = [r for r in levels_view(doc, {})["plan_elevations"] if r["surface"] == "top of steel"]
+        self.assertEqual([(r["status"], r["value"]["display"]) for r in steel], [("derived", "14'-11\"")])
+
+    def test_a_title_printed_over_several_lines_is_one_title(self):
+        # Yellow Spring p5: "PARTIAL FLOOR AND" / "ROOF FRAMING PLAN" (display space)
+        from services.engineering.level_evidence import plan_titles
+
+        doc = _doc([], [(5, "PARTIAL FLOOR AND", (2043, 1803, 2240, 1822), 18.95),
+                        (5, "ROOF FRAMING PLAN", (2040, 1825, 2243, 1844), 18.95),
+                        (5, "FRAMING NOTES", (100, 1825, 300, 1844), 18.95),
+                        (6, "SECOND FLOOR FRAMING PLAN", (100, 100, 400, 120), 18.95),
+                        (6, "PROVIDE BRIDGING AT ALL JOISTS", (100, 122, 400, 142), 18.95)])
+        titles = plan_titles(doc)
+        self.assertEqual(titles[5][0], "PARTIAL FLOOR AND ROOF FRAMING PLAN")
+        self.assertEqual(titles[6], ["SECOND FLOOR FRAMING PLAN"])
+
+
+class LevelBandTests(unittest.TestCase):
+    def test_a_printed_band_names_two_different_levels(self):
+        # Springhill ST p26 S501: lines ROOF 28'-0", SECOND FLOOR 14'-0", FIRST FLOOR 0'-0"
+        from services.engineering.level_evidence import levels_view
+
+        schedule = _level_schedule([("ROOF", "28' - 0\""), ("SECOND FLOOR", "14' - 0\""),
+                                    ("FIRST FLOOR", "0' - 0\"")])
+        doc = _doc([], schedules=[schedule])
+        doc["schedule_grid"] = [{"page": 26, "rows": [{"mark": "A-7", "level": "14' - 0\" FIRST FLOOR"}] * 3}]
+        bands = {b["printed"]: b for b in levels_view(doc, {})["level_bands"]}
+        band = bands["14' - 0\" FIRST FLOOR"]
+        self.assertEqual(band["upper"], {"name": "SECOND FLOOR", "elevation": "14' - 0\""})
+        self.assertEqual(band["lower"], {"name": "FIRST FLOOR", "elevation": "0' - 0\""})
+        self.assertEqual(band["schedule_rows"], 3)
+
+    def test_blocks_keep_each_source_and_never_pair_across_blocks(self):
+        from services.engineering.level_evidence import levels_view
+
+        schedule = _level_schedule([("LEVEL 2", "14'-0\""), ("LEVEL 1", "0\"")])
+        first = [{**line, "block": 1} for line in schedule["level_lines"]]
+        second = [{**line, "block": 2, "page": 27, "y": line["y"] + 500} for line in schedule["level_lines"]]
+        schedule["level_lines"] = first + second
+        view = levels_view(_doc([], schedules=[schedule]), {})
+        level2 = next(l for l in view["schedule_levels"] if l["name"] == "LEVEL 2")
+        self.assertEqual([o["page"] for o in level2["occurrences"]], [26, 27])
+        self.assertEqual([b["printed"] for b in view["level_bands"]], ["14'-0\" LEVEL 1"])
+
+
+class RotatedSheetIdTests(unittest.TestCase):
+    def test_a_rotated_title_strip_gives_its_dotted_sheet_number(self):
+        # Yellow Spring ST1.pdf p13: stored /Rotate 90, title strip bottom-right as displayed
+        from services.engineering.drawing_intelligence import _sheet_ids
+        from services.engineering.page_space import to_pdf
+
+        stored = to_pdf(90, 3024.0, 2160.0, [2777.3, 2069.1, 2948.8, 2146.1])
+        doc = _doc([(13, "3/17/2025 9:27:03 AM\nS2.09", stored)], rotation=90)
+        self.assertEqual(_sheet_ids(doc), {13: "S2.09"})
+
+
 if __name__ == "__main__":
     unittest.main()

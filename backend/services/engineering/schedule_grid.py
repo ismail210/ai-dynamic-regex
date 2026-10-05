@@ -18,10 +18,12 @@ from typing import Any, Callable, Dict, Iterable, List, Optional
 
 from services.engineering.drawing_intelligence import _DEMO_RE, _EXISTING_RE, _NEW_RE
 from services.engineering.member_geometry import _union_bbox as _union_boxes
-from services.engineering.column_schedule import build_column_schedules
+from services.engineering.column_schedule import _NOT_PLATE_GROUP_RE as NOT_PLATE_GROUP_RE
+from services.engineering.column_schedule import build_column_schedules, parse_dimension
 from services.engineering.schedule_tables import (
     MARK_HEADERS,
     SIZE_HEADERS,
+    read_rotated_column_schedules,
     read_ruled_tables,
 )
 from services.token_extractor import extract_engineering_tokens
@@ -189,18 +191,39 @@ def _as_dimension(text: str) -> Optional[str]:
     return None
 
 
+def _headed_plate_dimension(printed: str) -> Optional[Dict[str, Any]]:
+    """A plate-schedule cell under a THICKNESS / WIDTH / LENGTH heading:
+    recognised as printed (``1 1/4"``, ``3/4``, ``1'-6"``), with inches only
+    where the printed form converts. The printed text is the value."""
+
+    value = _as_dimension(printed)
+    length = parse_dimension(printed)
+    if value is None and length is None:
+        return None
+    return {"printed": value or printed, "inches": length["inches"] if length else None}
+
+
 def _interpret_plate(
     text: str,
     *,
     headed: Optional[List[tuple]] = None,
     notes: Optional[str] = None,
+    plate_schedule: bool = False,
 ) -> tuple:
-    """``(parsed_plate, plate_status)``. Does not assign thickness by position."""
+    """``(parsed_plate, plate_status)``. Does not assign thickness by position.
+
+    ``plate_schedule``: the headings belong to a plate schedule. Feet-inch
+    cells are then dimensions too (with ``dimension_inches`` beside the
+    printed text), and a heading printed twice leaves the plate unresolved
+    rather than letting the later cell replace the earlier one. Other
+    schedules keep their footing / pier / wall sizes as they were.
+    """
 
     raw = " ".join(str(text or "").split())
     kept_notes = " ".join(str(notes).split()) if notes else None
     if headed:
         dims = {"length": None, "width": None, "thickness": None}
+        inches: Dict[str, Optional[float]] = dict(dims)
         ordered: List[str] = []
         failed = False
         for role, cell in headed:
@@ -208,11 +231,19 @@ def _interpret_plate(
             if not printed:
                 continue
             ordered.append(printed)
-            value = _as_dimension(printed)
+            if plate_schedule:
+                found = _headed_plate_dimension(printed)
+                value = found and found["printed"]
+                if role in dims and dims[role] is not None:
+                    value = None
+            else:
+                value = _as_dimension(printed)
             if value is None or role not in dims:
                 failed = True
                 continue
             dims[role] = value
+            if plate_schedule:
+                inches[role] = found["inches"]
         parsed = {
             "raw": raw or " ".join(ordered),
             "dimensions": dims,
@@ -222,6 +253,8 @@ def _interpret_plate(
             "notes": kept_notes,
             "reference": None,
         }
+        if plate_schedule:
+            parsed["dimension_inches"] = inches
         if failed:
             parsed["uncertain"] = True
             return parsed, "unresolved"
@@ -257,11 +290,15 @@ def _interpret_plate(
     }, "present"
 
 
-def _apply_plate_metadata(row: Dict[str, Any], *, headed: Optional[List[tuple]] = None) -> None:
+def _apply_plate_metadata(
+    row: Dict[str, Any], *, headed: Optional[List[tuple]] = None, plate_schedule: bool = False
+) -> None:
     """Add plate status beside ``plate_text``. The printed cell is not rewritten."""
 
     notes = row.get("plate_notes")
-    parsed, status = _interpret_plate(row.get("plate_text") or "", headed=headed, notes=notes)
+    parsed, status = _interpret_plate(
+        row.get("plate_text") or "", headed=headed, notes=notes, plate_schedule=plate_schedule
+    )
     row["parsed_plate"] = parsed
     row["plate_status"] = status
     if status == "not_applicable":
@@ -440,7 +477,8 @@ def attach_schedule_grid(
     grids = build_document_schedule_grids(words, pdf_path=pdf_path, ruled_records=records)
     document["schedule_grid"] = grids
     # Display/evidence only: never read by prediction or quantities.
-    document["column_schedules"] = build_column_schedules(records, grids)
+    rotated = read_rotated_column_schedules(pdf_path, words) if pdf_path else []
+    document["column_schedules"] = build_column_schedules(records + rotated, grids)
     if pdf_path:
         from services.engineering.level_evidence import masked_spot_labels
 
@@ -585,6 +623,16 @@ def _ruled_rows_grid(
     kind = schedule_kind_from_title(record["title"])
     if kind == "schedule":
         kind = schedule_kind_from_title(header[mark_col])
+    # Plate dimensions of a plate schedule are only the headings of the plate
+    # itself: a PLATE WASHER / ANCHOR ROD group's THICKNESS is another part
+    # (same rule as the Drawing Summary plate table).
+    plate_schedule = kind in _PLATE_CONTEXT_KINDS and not _is_bent_plate_schedule(record)
+    groups = record.get("header_groups") or []
+    plate_dim_cols = [
+        (column, role) for column, role in dim_cols
+        if not plate_schedule
+        or not NOT_PLATE_GROUP_RE.search(f"{groups[column] if column < len(groups) else ''} {header[column]}")
+    ]
     plate_labels = " ".join(header[column] for column in plate_cols)
     if kind == "bearing_plate" or "BEARING" in plate_labels:
         plate_role = "bearing_plate"
@@ -637,7 +685,8 @@ def _ruled_rows_grid(
             row["plate_notes"] = notes
         _apply_plate_metadata(
             row,
-            headed=[(role, cells[column]) for column, role in dim_cols] or None,
+            headed=[(role, cells[column]) for column, role in plate_dim_cols] or None,
+            plate_schedule=plate_schedule,
         )
         rows.append(row)
     return {

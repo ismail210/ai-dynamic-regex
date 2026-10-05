@@ -16,7 +16,9 @@
       "plan_unresolved": [["S122", "top of steel"], ["S123", "top of steel"]],
       "differences": {"C.8-8.9": "31'-4\""},
       "no_difference": ["C.1-5.1", "R13(5' - 4\")-RA.1", "D.2-6.3"],
-      "notations": [["(", "bottom of base plate"], ["<", "top of framing"], ["{", "top of pier"], ["[", "bottom of footing"]]
+      "notations": [["(", "bottom of base plate"], ["<", "top of framing"], ["{", "top of pier"], ["[", "bottom of footing"]],
+      "traces": {"C.8-8.9": {"levels_with_symbol": ["T.O. ROOF", "T.O. SLAB LEVEL 2", "T.O. SLAB LEVEL 1"],
+                             "bottom": "T.O. SLAB LEVEL 1"}}
     },
     {
       "key": "furley",
@@ -35,7 +37,8 @@
       },
       "agrees": {"LEVEL 2": "14'-0\"", "LEVEL 3": "28'-0\"", "LEVEL 4": "42'-0\""},
       "plan_read": [["S120", "top of steel", "13'-6 3/4\""], ["S130", "top of steel", "27'-6 3/4\""]],
-      "datum_unresolved": ["S120", "S130", "S140"]
+      "datum_unresolved": ["S120", "S130", "S140"],
+      "plates": {"BP1": {"status": "present", "thickness": "1 1/4\"", "width": "1'-6\"", "length": "1'-6\""}}
     },
     {
       "key": "burrville",
@@ -79,7 +82,22 @@
                             ["2 SECOND FLOOR AND LOW ROOF", "15' - 4\""], ["1 FOUNDATION", "0' - 0\""]]
       },
       "agrees": {"2 SECOND FLOOR AND LOW ROOF": "15'-4\""},
-      "entry_box": {"A-24": [383.2, 529.9, 456.1, 568.4]}
+      "entry_box": {"A-24": [383.2, 529.9, 456.1, 568.4]},
+      "sheet_ids": {"5": "S2.01", "8": "S2.04", "13": "S2.09"},
+      "no_production_rows_on_pages": [13, 14],
+      "flagged": {"S2.04": 9, "S2.05": 3},
+      "plan_derived": [["S2.01", "top of steel", "14'-11\"", "any"], ["S2.04", "top of steel", "30'-8\"", "any"]],
+      "differences": {"P-21": "15'-4\""},
+      "traces": {"P-21": {"levels_with_symbol": ["3 ROOF"], "bottom": "2 SECOND FLOOR AND LOW ROOF",
+                          "bottom_annotation": ["S2.01", "POST UP"]}}
+    },
+    {
+      "key": "springhill",
+      "pdf": "55 - Springhill Lake/ST - Springhill Lake.pdf",
+      "schedule_levels": {
+        "COLUMN SCHEDULE": [["ROOF", "28' - 0\""], ["SECOND FLOOR", "14' - 0\""], ["FIRST FLOOR", "0' - 0\""]]
+      },
+      "bands": {"14' - 0\" FIRST FLOOR": ["SECOND FLOOR", "FIRST FLOOR"]}
     }
   ]
 }

@@ -32,7 +32,7 @@ def _run(spec):
         pdf = _ROOT / spec["pdf"]
         document = extract_document_structure(str(pdf))
         attach_schedule_grid(document, pdf_path=str(pdf))
-        _CACHE[spec["key"]] = di.build_drawing_intelligence(document)
+        _CACHE[spec["key"]] = (document, di.build_drawing_intelligence(document))
     return _CACHE[spec["key"]]
 
 
@@ -40,7 +40,7 @@ class LevelReferenceTests(unittest.TestCase):
     def _check(self, spec):
         if not (_ROOT / spec["pdf"]).is_file():
             self.skipTest(f"{spec['pdf']} is not available locally")
-        profile = _run(spec)
+        document, profile = _run(spec)
         view = profile["levels"]
         levels = view["schedule_levels"]
         by_name = {level["name"]: level for level in levels}
@@ -95,6 +95,36 @@ class LevelReferenceTests(unittest.TestCase):
             self.assertFalse([e for e in entries.values() if (e.get("level_difference") or {}).get("status") == "computed"])
         for key, box in spec.get("entry_box", {}).items():
             self.assertEqual([round(v) for v in entries[key]["bbox"]], [round(v) for v in box])
+
+        from services.engineering.drawing_intelligence import _sheet_ids
+
+        sheets = _sheet_ids(document)
+        for page, sheet in spec.get("sheet_ids", {}).items():
+            self.assertEqual(sheets.get(int(page)), sheet, page)
+        for page in spec.get("no_production_rows_on_pages", []):
+            # Rotated pages are read for evidence only, never into the production grid.
+            self.assertFalse([g for g in document["schedule_grid"] if g["page"] == page and g["rows"]], page)
+        for sheet, count in spec.get("flagged", {}).items():
+            self.assertEqual(next(g["flagged"] for g in view["noted_on_plans"] if g["sheet"] == sheet), count, sheet)
+        bands = {b["printed"]: b for b in view.get("level_bands") or []}
+        for printed, (upper, lower) in spec.get("bands", {}).items():
+            self.assertEqual((bands[printed]["upper"]["name"], bands[printed]["lower"]["name"]), (upper, lower))
+            self.assertGreater(bands[printed]["schedule_rows"], 0)
+        rows = {r["mark"]: r for g in document["schedule_grid"] for r in g["rows"]}
+        for mark, plate in spec.get("plates", {}).items():
+            self.assertEqual(rows[mark]["plate_status"], plate["status"])
+            self.assertEqual(rows[mark]["parsed_plate"]["dimensions"],
+                             {k: plate[k] for k in ("thickness", "width", "length")})
+        if spec.get("traces"):
+            from services.engineering.column_trace import trace_column
+
+            for location, expected in spec["traces"].items():
+                trace = trace_column(document, str(_ROOT / spec["pdf"]), location)
+                self.assertEqual(trace["summary"]["levels_with_symbol"], expected["levels_with_symbol"], location)
+                self.assertEqual(trace["ends"]["bottom"]["level"], expected["bottom"])
+                if "bottom_annotation" in expected:
+                    self.assertIn(tuple(expected["bottom_annotation"]),
+                                  [(a["sheet"], a["text"]) for a in trace["ends"]["bottom"]["plan_annotations"]])
 
 
 def _make(spec):

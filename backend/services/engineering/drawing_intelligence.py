@@ -31,6 +31,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from services.database_loader import catalog_form
 from services.engineering.column_schedule import column_schedule_view
 from services.engineering.level_evidence import levels_view
+from services.engineering.page_space import convert_boxes, display_boxes
 
 DRAWING_INTELLIGENCE_VERSION = "drawing_intelligence_v2"
 
@@ -770,7 +771,8 @@ _COMPONENTS = {
     "schedule": ("Other schedule marks", "Schedule", "other schedule"),
 }
 _COMPONENT_ORDER = tuple(_COMPONENTS)
-_SHEET_RE = re.compile(r"\bS-?\d{3}[A-Z]?\b")
+# ``S002`` / ``S-101`` / ``S2.09`` (dotted Yellow Spring numbering).
+_SHEET_RE = re.compile(r"\bS-?(?:\d{3}|\d{1,2}\.\d{2})[A-Z]?\b")
 _ANGLE_TYPE_RE = re.compile(r"\b(LOOSE|CONTINUOUS)\s+ANGLE", re.I)
 # a printed "A x B" dimension in a resolved plate display
 _DIMENSION_RE = re.compile(r"\d+(?:\s+\d+/\d+|/\d+|\.\d+)?\"?\s*[xX×]\s*\d")
@@ -811,10 +813,12 @@ def _sheet_ids(document: Dict[str, Any]) -> Dict[int, str]:
     (``S002``). A page with no confident candidate is simply absent."""
 
     meta = {int(p.get("page_number") or 0): p for p in document.get("pages") or []}
+    box = display_boxes(document)
     best: Dict[int, Tuple[float, str]] = {}
     for block in document.get("blocks") or []:
         page = int(block.get("page_number") or 0)
-        bbox = block.get("bbox") or []
+        # The title strip is bottom-right as the sheet is displayed.
+        bbox = box(page, block.get("bbox")) or []
         width = float((meta.get(page) or {}).get("width") or 0)
         height = float((meta.get(page) or {}).get("height") or 0)
         if len(bbox) < 4 or not width or not height:
@@ -1429,6 +1433,7 @@ def build_drawing_intelligence(
     page_count = int(document.get("page_count") or (max(page_texts) if page_texts else 0))
 
     sheets = _sheet_ids(document)
+    box = display_boxes(document)
     page_group_insights, category_of = _classify_pages(document, page_texts, context_pages)
     family_insights, steel_payload = _steel_families(document)
     typ_insights = _typical_conditions(document, page_texts, category_of)
@@ -1503,10 +1508,11 @@ def build_drawing_intelligence(
         "uncertainties": [i.as_dict() for i in uncertainties],
         "conflicts": [i.as_dict() for i in conflicts],
         "sources": [i.as_dict() for i in all_insights if i.source_pages or i.source_text],
-        **_schedule_definitions(document, page_texts, typ_insights, sheets),
+        # Source boxes go to the viewer in display space (``page_space``).
+        **convert_boxes(_schedule_definitions(document, page_texts, typ_insights, sheets), box),
         # Display-only column entries (section, locations, plate, notes); not
         # evidence for the summary model and never a quantity.
-        "column_schedule": column_schedule_view(document, sheets),
+        "column_schedule": convert_boxes(column_schedule_view(document, sheets), box),
         # Levels and elevations from schedules and plan notes, each sourced;
         # display-only like the column schedule.
         "levels": levels_view(document, sheets),

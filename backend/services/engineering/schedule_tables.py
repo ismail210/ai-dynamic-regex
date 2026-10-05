@@ -96,84 +96,107 @@ def read_ruled_tables(
         bbox = word.get("bbox") or []
         if len(bbox) >= 4 and (wanted is None or page in wanted):
             by_page.setdefault(page, []).append((*bbox[:4], word.get("text") or ""))
-    candidates = {page for page, found in by_page.items() if _schedule_regions(found)}
-    # Words of a page stored with /Rotate are in unrotated space, where a
-    # schedule's rows run vertically; such pages are re-checked as displayed.
-    maybe_rotated = {
-        page for page, found in by_page.items()
-        if page not in candidates and any(_ANCHOR_WORD_RE.match(str(w[4]).upper()) for w in found)
-    }
-    if not candidates and not maybe_rotated:
+    candidates = sorted(page for page, found in by_page.items() if _schedule_regions(found))
+    if not candidates:
         return []
     records: List[Dict[str, Any]] = []
     with fitz.open(pdf_path) as document:
-        for page_number in sorted(candidates | maybe_rotated):
-            if not 1 <= page_number <= document.page_count:
-                continue
-            page = document[page_number - 1]
-            if page_number not in candidates and not page.rotation:
-                continue
-            scratch = None
-            if page.rotation:
-                scratch, page = _displayed_page(document, page_number)
-            page_words = page.get_text("words")
-            if page_number not in candidates and not _schedule_regions(page_words):
-                scratch.close()
-                continue
-            drawings = page.get_drawings()
-            rules = _vertical_rules(drawings, page.rect.height)
-            phrases: Optional[tuple] = None
-            fitted = [
-                clip
-                for clip in (
-                    _fit_to_rules(region, anchor_y, rules)
-                    for region, anchor_y in _schedule_regions(page_words)
-                )
-                if clip is not None
-            ]
-            seen: set[tuple] = set()
-            for clip in _merge_overlapping(fitted, page.rect):
-                try:
-                    tables = page.find_tables(clip=clip).tables
-                except Exception:  # third-party table finder on arbitrary vector content
-                    logger.warning("find_tables failed on page %s", page_number, exc_info=True)
-                    continue
-                for table in tables:
-                    key = tuple(round(value) for value in table.bbox)
-                    if key in seen:
-                        continue
-                    seen.add(key)
-                    record = _table_record(table, page_words, page_number)
-                    if record and record["layout"] in ("transposed", "matrix"):
-                        if phrases is None:
-                            phrases = visible_phrases(page, drawings)
-                        visible, suppressed = phrases
-                        matrix = read_column_matrix(table, page_number, visible, suppressed, drawings=drawings)
-                        if matrix:
-                            matrix["captions"] = schedule_captions(record["bbox"], visible)
-                            record["column_matrix"] = matrix
-                        elif record["layout"] == "matrix":
-                            record = None
-                    if record:
-                        records.append(record)
-            if scratch is not None:
-                scratch.close()
+        for page_number in candidates:
+            if 1 <= page_number <= document.page_count:
+                page = document[page_number - 1]
+                records.extend(_page_records(page, page_number, page.get_text("words")))
     return records
 
 
-_ANCHOR_WORD_RE = re.compile(r"^(?:LOCATI|MARK$|TYPE$|PIER)")
+def _page_records(page: Any, page_number: int, page_words: List[tuple]) -> List[Dict[str, Any]]:
+    drawings = page.get_drawings()
+    rules = _vertical_rules(drawings, page.rect.height)
+    phrases: Optional[tuple] = None
+    fitted = [
+        clip
+        for clip in (
+            _fit_to_rules(region, anchor_y, rules)
+            for region, anchor_y in _schedule_regions(page_words)
+        )
+        if clip is not None
+    ]
+    records: List[Dict[str, Any]] = []
+    seen: set[tuple] = set()
+    for clip in _merge_overlapping(fitted, page.rect):
+        try:
+            tables = page.find_tables(clip=clip).tables
+        except Exception:  # third-party table finder on arbitrary vector content
+            logger.warning("find_tables failed on page %s", page_number, exc_info=True)
+            continue
+        for table in tables:
+            key = tuple(round(value) for value in table.bbox)
+            if key in seen:
+                continue
+            seen.add(key)
+            record = _table_record(table, page_words, page_number)
+            if record and record["layout"] in ("transposed", "matrix"):
+                if phrases is None:
+                    phrases = visible_phrases(page, drawings)
+                visible, suppressed = phrases
+                matrix = read_column_matrix(table, page_number, visible, suppressed, drawings=drawings)
+                if matrix:
+                    matrix["captions"] = schedule_captions(record["bbox"], visible)
+                    record["column_matrix"] = matrix
+                elif record["layout"] == "matrix":
+                    record = None
+            if record:
+                records.append(record)
+    return records
 
 
-def _displayed_page(document: Any, page_number: int) -> tuple:
-    """A one-page copy with its stored rotation removed, so text, drawings
-    and tables are in the coordinates the page is displayed in -- the space
-    the source viewer draws highlights in."""
+# A column schedule's own header words (``COLUMN LOCATIONS``, ``MARK``).
+_COLUMN_ANCHOR_RE = re.compile(r"^(?:LOCATI|MARK$)")
 
-    scratch = fitz.open()
-    scratch.insert_pdf(document, from_page=page_number - 1, to_page=page_number - 1)
-    page = scratch[0]
-    page.remove_rotation()
-    return scratch, page
+
+def read_rotated_column_schedules(pdf_path: str, words: Iterable[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Column-schedule records on pages stored with ``/Rotate``. Evidence only:
+    never part of ``schedule_grid``, so production reads every page as stored.
+
+    Stored words of such a page run vertically, so the schedule is read on a
+    copy of the page as displayed and its boxes are returned in PDF space
+    (``page_space``). Scalar positions inside ``column_matrix`` (level-line
+    ``y``, extent ends) stay measured along the displayed schedule.
+    """
+
+    from services.engineering.page_space import convert_boxes, to_display, to_pdf
+
+    by_page: Dict[int, List[tuple]] = {}
+    for word in words:
+        bbox = word.get("bbox") or []
+        if len(bbox) >= 4:
+            by_page.setdefault(int(word.get("page_number") or word.get("page") or 0), []).append(
+                (*bbox[:4], str(word.get("text") or "")))
+    pages = sorted(page for page, found in by_page.items()
+                   if any(w[4].upper() == "COLUMN" for w in found)
+                   and any(_COLUMN_ANCHOR_RE.match(w[4].upper()) for w in found))
+    records: List[Dict[str, Any]] = []
+    if not pages:
+        return records
+    with fitz.open(pdf_path) as document:
+        for page_number in pages:
+            if not 1 <= page_number <= document.page_count or not document[page_number - 1].rotation:
+                continue
+            page = document[page_number - 1]
+            rotation, width, height = page.rotation, page.rect.width, page.rect.height
+            # Cheap check on the stored words, turned the way the sheet reads.
+            if not _schedule_regions([(*to_display(rotation, width, height, w[:4]), w[4])
+                                      for w in by_page[page_number]]):
+                continue
+            with fitz.open() as scratch:
+                scratch.insert_pdf(document, from_page=page_number - 1, to_page=page_number - 1)
+                shown = scratch[0]
+                shown.remove_rotation()
+                page_words = shown.get_text("words")
+                for record in _page_records(shown, page_number, page_words):
+                    if record.get("column_matrix"):
+                        records.append(convert_boxes(
+                            record, lambda _page, bbox: to_pdf(rotation, width, height, bbox), page_number))
+    return records
 
 
 def _merge_overlapping(regions: List[fitz.Rect], page_rect: fitz.Rect) -> List[fitz.Rect]:

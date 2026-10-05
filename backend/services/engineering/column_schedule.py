@@ -966,7 +966,8 @@ def build_column_schedules(
         target["notes"].extend(n for n in captions.get("notes") or [] if n not in target["notes"])
         target["blocks"].append({"page": record["page"], "bbox": matrix["bbox"]})
         target["level_lines"].extend(
-            {**line, "page": record["page"]} for line in matrix.get("level_lines") or []
+            {**line, "page": record["page"], "block": len(target["blocks"])}
+            for line in matrix.get("level_lines") or []
         )
         target["suppressed_text"].extend({**s, "page": record["page"]} for s in matrix["suppressed_text"])
         target["entries"].extend({**column, "page": record["page"]} for column in matrix["columns"])

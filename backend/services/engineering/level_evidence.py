@@ -23,6 +23,7 @@ from fractions import Fraction
 from typing import Any, Dict, List, Optional
 
 from services.engineering.column_schedule import _union_boxes, parse_length
+from services.engineering.page_space import convert_boxes, display_boxes
 
 _ENCLOSURES = {"(": ")", "<": ">", "[": "]", "{": "}"}
 # Decimal-foot elevations carry two decimals (``28.66'``, ``XXX.XX'``); a
@@ -67,6 +68,27 @@ def parse_elevation(text: str) -> Optional[Dict[str, Any]]:
         "sign": _SIGNS.get(body[:1]),
         "enclosure": enclosure,
     }
+
+
+# ``(+30'-8)``: feet and whole inches with only the closing inch mark missing.
+_MISSING_INCH_RE = re.compile(
+    r"^(?P<open>[\(\[<{]?)\s*(?P<body>[-+−]?\s*\d+\s*'\s*-\s*(?P<inch>\d{1,2}))\s*(?P<close>[\)\]>}]?)$")
+
+
+def recover_missing_inch_mark(text: str) -> Optional[Dict[str, Any]]:
+    """A *candidate* for a feet-inch value printed without its closing inch
+    mark, or nothing. The printed text is kept as is; the candidate is never a
+    read value. Anything else malformed (a fraction, inches of 12 or more,
+    other text) is not guessed at."""
+
+    raw = _clean(text)
+    match = _MISSING_INCH_RE.fullmatch(raw)
+    if not match or int(match["inch"]) >= 12:
+        return None
+    candidate = _value(f"{match['open']}{match['body']}\"{match['close']}")
+    if not candidate:
+        return None
+    return {"printed": raw, "candidate": candidate, "flag": "closing inch mark missing"}
 
 
 def is_see_plan(text: str) -> bool:
@@ -174,40 +196,64 @@ def _value(text: str) -> Optional[Dict[str, Any]]:
     return parsed
 
 
-def display_boxes(document: Dict[str, Any]) -> Any:
-    """``box(page, bbox)`` in the coordinates a page is displayed in.
+def displayed(document: Dict[str, Any]) -> Dict[str, Any]:
+    """The inputs this module reads, with every box in display space
+    (``page_space``): notes are read the way the sheet reads -- a heading
+    above its note, a value under its label -- and the boxes go to the viewer
+    as they are. The functions below expect a displayed document."""
 
-    Extracted text keeps unrotated PDF coordinates; the source viewer draws
-    highlights on the page as displayed (after /Rotate). Unrotated pages
-    pass through unchanged.
-    """
+    box = display_boxes(document)
 
-    meta = {int(p.get("page_number") or 0): p for p in document.get("pages") or []}
+    def flat(items: Any) -> List[Dict[str, Any]]:
+        return [{**item, "bbox": box(int(item.get("page_number") or 0), item.get("bbox"))} for item in items or []]
 
-    def box(page: int, bbox: Any) -> Optional[List[float]]:
-        if not bbox or len(bbox) < 4:
-            return None
-        x0, y0, x1, y1 = (float(v) for v in bbox[:4])
-        info = meta.get(page) or {}
-        rotation = int(info.get("rotation") or 0) % 360
-        width, height = float(info.get("width") or 0), float(info.get("height") or 0)
-        if rotation == 90:
-            x0, y0, x1, y1 = width - y1, x0, width - y0, x1
-        elif rotation == 180:
-            x0, y0, x1, y1 = width - x1, height - y1, width - x0, height - y0
-        elif rotation == 270:
-            x0, y0, x1, y1 = y0, height - x1, y1, height - x0
-        return [round(x0, 1), round(y0, 1), round(x1, 1), round(y1, 1)]
+    return {
+        **document,
+        "lines": flat(document.get("lines")),
+        "blocks": flat(document.get("blocks")),
+        "column_schedules": convert_boxes(document.get("column_schedules") or {}, box),
+        "masked_text": {page: convert_boxes(items, box, int(page))
+                        for page, items in (document.get("masked_text") or {}).items()},
+    }
 
-    return box
+
+_CONTINUES_RE = re.compile(r"(?:\bAND|&|\bOF|-|,)$")
+
+
+def _wrapped_lines(document: Dict[str, Any]) -> List[tuple]:
+    """``(line, text)`` per line, where a title printed over several lines
+    (``PARTIAL FLOOR AND`` / ``ROOF FRAMING PLAN`` / ``- AREA A``) is joined:
+    the next line sits directly under it in the same size and the wording
+    shows it continues."""
+
+    by_page: Dict[int, List[Dict[str, Any]]] = defaultdict(list)
+    for line in document.get("lines") or []:
+        if len(line.get("bbox") or []) >= 4:
+            by_page[int(line.get("page_number") or 0)].append(line)
+    out: List[tuple] = []
+    for lines in by_page.values():
+        lines.sort(key=lambda l: (l["bbox"][1], l["bbox"][0]))
+        for i, line in enumerate(lines):
+            text, last = _clean(line.get("text")), line
+            for nxt in lines[i + 1:i + 40]:
+                a, b = last["bbox"], nxt["bbox"]
+                size = float(last.get("font_size") or 0)
+                if b[1] - a[3] > max(0.8 * size, 2.0):
+                    break
+                stacked = (abs(float(nxt.get("font_size") or 0) - size) <= 0.5 and b[1] >= a[3] - 1
+                           and min(a[2], b[2]) - max(a[0], b[0]) > 0)
+                following = _clean(nxt.get("text"))
+                if stacked and (_CONTINUES_RE.search(text) or following.startswith("-")):
+                    text, last = f"{text} {following}", nxt
+            out.append((line, text))
+    return out
 
 
 def plan_titles(document: Dict[str, Any]) -> Dict[int, List[str]]:
     """Plan titles printed on each page (largest text first)."""
 
     found: Dict[int, List[tuple]] = defaultdict(list)
-    for line in document.get("lines") or []:
-        text = _clean(line.get("text"))
+    for line, text in _wrapped_lines(document):
         match = _PLAN_TITLE_RE.search(text)
         if match and len(text) <= 90 and "NOTES" not in text.upper():
             found[int(line.get("page_number") or 0)].append((-float(line.get("font_size") or 0), match.group(0).upper()))
@@ -222,6 +268,10 @@ def plan_titles(document: Dict[str, Any]) -> Dict[int, List[str]]:
     return titles
 
 
+# ``NOTES`` as a word: ``c=0 DENOTES CAMBER`` is a note, not a heading.
+_NOTES_WORD_RE = re.compile(r"\bNOTES\b", re.IGNORECASE)
+
+
 def _note_heading(block: Dict[str, Any], blocks: List[Dict[str, Any]]) -> Optional[str]:
     bbox = block.get("bbox") or []
     if len(bbox) < 4:
@@ -229,7 +279,7 @@ def _note_heading(block: Dict[str, Any], blocks: List[Dict[str, Any]]) -> Option
     for other in blocks:
         obox = other.get("bbox") or []
         text = _clean(other.get("text"))
-        if other is block or len(obox) < 4 or "NOTES" not in text.upper() or len(text) > 90:
+        if other is block or len(obox) < 4 or not _NOTES_WORD_RE.search(text) or len(text) > 90:
             continue
         if 0 <= float(bbox[1]) - float(obox[3]) <= 40 and abs(float(obox[0]) - float(bbox[0])) <= 40:
             return text.rstrip(":")
@@ -241,7 +291,6 @@ def plan_statements(document: Dict[str, Any], sheets: Dict[int, str]) -> List[Di
     the note's own sheet and heading. Values are read; nothing is derived here."""
 
     titles = plan_titles(document)
-    box = display_boxes(document)
     by_page: Dict[int, List[Dict[str, Any]]] = defaultdict(list)
     for block in document.get("blocks") or []:
         by_page[int(block.get("page_number") or 0)].append(block)
@@ -257,7 +306,7 @@ def plan_statements(document: Dict[str, Any], sheets: Dict[int, str]) -> List[Di
             "heading": _note_heading(block, by_page[page]),
             "area": _clean(area["area"]).upper() if area else None,
             "text": _clean(match.group(0)),
-            "bbox": box(page, block.get("bbox")),
+            "bbox": block.get("bbox"),
             "block_id": block.get("object_id"),
             **fields,
         })
@@ -400,7 +449,6 @@ def plan_values(document: Dict[str, Any], statements: List[Dict[str, Any]], shee
     the project legend) says what the bracket means. Note text is excluded."""
 
     titles = plan_titles(document)
-    box = display_boxes(document)
     legend = [s for s in statements if s["kind"] == "notation" and s.get("legend")]
     rules_by_page: Dict[int, List[Dict[str, Any]]] = defaultdict(list)
     note_boxes: Dict[int, List[List[float]]] = defaultdict(list)
@@ -412,29 +460,50 @@ def plan_values(document: Dict[str, Any], statements: List[Dict[str, Any]], shee
         elif s.get("exception_notation"):
             rules_by_page[s["page"]].append({**s, "enclosure": s["exception_notation"], "meaning": s["surface"],
                                              "relative_to": None, "sample": s["exception_notation"] + "...)"})
+    # A prefix abbreviation (``TOS (+0'-0")``) names its own values, so it
+    # applies on every sheet -- unless two sheets define the prefix differently.
+    prefix_rules: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+    for page_rules in rules_by_page.values():
+        for r in page_rules:
+            if r.get("prefix"):
+                prefix_rules[r["prefix"]].append(r)
+    project_prefix = [found[0] for found in prefix_rules.values()
+                      if len({(r["meaning"], r["relative_to"]) for r in found}) == 1]
     out: List[Dict[str, Any]] = []
     for page, lines in sorted(_page_lines(document).items()):
-        rules = rules_by_page.get(page) or legend
+        own = rules_by_page.get(page) or legend
+        rules = own + [r for r in project_prefix
+                       if r["page"] != page and r["prefix"] not in {o.get("prefix") for o in own}]
         if not rules:
             continue
         for line in lines:
             text = _clean(line.get("text"))
-            bbox = box(page, line["bbox"])
+            bbox = line["bbox"]
             if _inside_any(bbox, note_boxes.get(page, [])):
                 continue
             for m in _ENCLOSED_RE.finditer(text):
                 value = _value(m.group(0))
+                recovered = None if value else recover_missing_inch_mark(m.group(0))
                 before = text[:m.start()].rstrip().split(" ")[-1].upper() if text[:m.start()].strip() else ""
                 usable = [r for r in rules if not r.get("prefix") or before.endswith(r["prefix"])]
                 prefixed = [r for r in usable if r.get("prefix")]
-                rule = value and _rule_for(value, prefixed or [r for r in usable if not r.get("prefix")])
+                # A recovered value is read only under a prefix rule whose own
+                # sample shows the full feet-inch form it is missing a mark of.
+                rule = (value or recovered) and _rule_for(
+                    value or recovered["candidate"],
+                    [r for r in prefixed if '"' in r["sample"]] if recovered
+                    else prefixed or [r for r in usable if not r.get("prefix")])
                 if not rule:
                     continue
                 out.append({
                     "kind": "plan_value", "page": page, "sheet": sheets.get(page),
                     "plan": (titles.get(page) or [None])[0], "value": value,
+                    "status": "read" if value else "flagged",
+                    **({"printed": recovered["printed"], "candidate": recovered["candidate"],
+                        "flag": recovered["flag"]} if recovered else {}),
                     "meaning": rule["meaning"], "relative_to": rule["relative_to"],
                     "rule": rule["text"], "context": text[:70], "bbox": bbox,
+                    "rule_sheet": None if rule["page"] == page else (rule.get("sheet") or f"p. {rule['page']}"),
                 })
                 if len(out) >= _MAX_PLAN_VALUES:
                     return out
@@ -482,7 +551,6 @@ def spot_elevations(document: Dict[str, Any], sheets: Dict[int, str]) -> List[Di
     """
 
     titles = plan_titles(document)
-    box = display_boxes(document)
     masked = document.get("masked_text") or {}
     out: List[Dict[str, Any]] = []
     for page, lines in _page_lines(document).items():
@@ -502,8 +570,8 @@ def spot_elevations(document: Dict[str, Any], sheets: Dict[int, str]) -> List[Di
                     "kind": "spot", "page": page, "sheet": sheets.get(page), "plan": (titles.get(page) or [None])[0],
                     "surface": _surface(match.group(1)), "value": value,
                     "text": f"{_clean(label.get('text'))} {value['raw']}",
-                    "bbox": box(page, [min(lb[0], float(vb["bbox"][0])), lb[1],
-                                       max(lb[2], float(vb["bbox"][2])), float(vb["bbox"][3])]),
+                    "bbox": [round(min(lb[0], float(vb["bbox"][0])), 1), round(lb[1], 1),
+                             round(max(lb[2], float(vb["bbox"][2])), 1), round(float(vb["bbox"][3]), 1)],
                 })
     return out
 
@@ -642,41 +710,85 @@ def _schedule_levels(document: Dict[str, Any], sheets: Dict[int, str]) -> List[D
         seen: Dict[tuple, Dict[str, Any]] = {}
         for line in schedule.get("level_lines") or []:
             key = (line["name"], line["elevation_text"])
+            boxes = [b for b in (line.get("name_bbox"), line.get("elevation_bbox")) if b]
+            # A schedule continued in several blocks prints each level once per block.
+            source = {"page": line["page"], "sheet": sheets.get(line["page"]), "bbox": _union_boxes(boxes) if boxes else None}
             if key in seen:
                 seen[key]["blocks"] += 1
+                seen[key]["occurrences"].append(source)
                 continue
             value = _value(line["elevation_text"]) if line["elevation_text"] else None
-            boxes = [b for b in (line.get("name_bbox"), line.get("elevation_bbox")) if b]
             seen[key] = {
                 "schedule_id": schedule["id"], "schedule": schedule.get("caption") or schedule["title"],
                 "name": line["name"], "printed": line["elevation_text"], "elevation": value,
                 "status": "read" if value else "see_plan" if line["elevation_text"] and is_see_plan(line["elevation_text"])
                 else "missing",
-                "page": line["page"], "sheet": sheets.get(line["page"]),
-                "bbox": _union_boxes(boxes) if boxes else None, "blocks": 1,
+                **source, "blocks": 1, "occurrences": [source],
             }
         out.extend(seen.values())
     return out
 
 
-def levels_view(document: Dict[str, Any], sheets: Dict[int, str]) -> Dict[str, Any]:
-    """Levels and elevations for review: schedule levels, plan elevations,
-    datum notes and notations, each with its source."""
+def _level_bands(document: Dict[str, Any], sheets: Dict[int, str]) -> List[Dict[str, Any]]:
+    """What a printed level band means. A Revit schedule prints each level's
+    name above its line and its elevation below it, so the band between two
+    lines reads ``<upper line's elevation> <lower line's name>``
+    (``14' - 0" FIRST FLOOR``): the elevation and the name are of *different*
+    levels. Schedule rows keep that printed band as their ``level`` label."""
 
-    statements = plan_statements(document, sheets)
-    spots = spot_elevations(document, sheets)
-    values = plan_values(document, statements, sheets)
-    elevations = plan_elevations(statements, spots, values)
-    titles = plan_titles(document)
+    rows: Dict[str, int] = defaultdict(int)
+    for grid in document.get("schedule_grid") or []:
+        for row in grid.get("rows") or []:
+            if row.get("level"):
+                rows[_clean(row["level"])] += 1
+    out: Dict[tuple, Dict[str, Any]] = {}
+    for schedule in (document.get("column_schedules") or {}).get("schedules") or []:
+        lines = schedule.get("level_lines") or []
+        for upper, lower in zip(lines, lines[1:]):
+            if lower.get("block") != upper.get("block") or lower["y"] <= upper["y"]:
+                continue
+            if not upper["elevation_text"] or not lower["name"]:
+                continue
+            printed = _clean(f"{upper['elevation_text']} {lower['name']}")
+            key = (schedule["id"], printed)
+            if key in out:
+                out[key]["blocks"] += 1
+                continue
+            out[key] = {
+                "schedule_id": schedule["id"], "schedule": schedule.get("caption") or schedule["title"],
+                "printed": printed,
+                "upper": {"name": upper["name"], "elevation": upper["elevation_text"]},
+                "lower": {"name": lower["name"], "elevation": lower["elevation_text"]},
+                "page": upper["page"], "sheet": sheets.get(upper["page"]), "blocks": 1,
+                "schedule_rows": rows.get(printed, 0),
+            }
+    return list(out.values())
+
+
+def plan_names_by_page(document: Dict[str, Any], statements: List[Dict[str, Any]]) -> Dict[int, List[str]]:
+    """Names each plan page goes by: its titles, its note headings, and the
+    level a note names (``TOP OF SECOND FLOOR SLAB`` -> ``SECOND FLOOR PLAN``)."""
 
     plan_names: Dict[int, List[str]] = defaultdict(list)
-    for page, names in titles.items():
+    for page, names in plan_titles(document).items():
         plan_names[page].extend(names)
     for s in statements:
         for name in (s.get("heading"), s.get("name") and f"{s['name']} PLAN"):
             if name and name not in plan_names[s["page"]]:
                 plan_names[s["page"]].append(name)
+    return plan_names
 
+
+def levels_view(document: Dict[str, Any], sheets: Dict[int, str]) -> Dict[str, Any]:
+    """Levels and elevations for review: schedule levels, plan elevations,
+    datum notes and notations, each with its source. Boxes are in display space."""
+
+    document = displayed(document)
+    statements = plan_statements(document, sheets)
+    spots = spot_elevations(document, sheets)
+    values = plan_values(document, statements, sheets)
+    elevations = plan_elevations(statements, spots, values)
+    plan_names = plan_names_by_page(document, statements)
     levels = _schedule_levels(document, sheets)
     for level in levels:
         keys = level_keys(level["name"])
@@ -731,18 +843,29 @@ def levels_view(document: Dict[str, Any], sheets: Dict[int, str]) -> Dict[str, A
     noted: Dict[int, Dict[str, Any]] = {}
     for v in values:
         group = noted.setdefault(v["page"], {"page": v["page"], "sheet": v["sheet"], "plan": v["plan"],
-                                             "meaning": set(), "count": 0, "examples": []})
+                                             "meaning": set(), "count": 0, "flagged": 0, "examples": [],
+                                             "rule_sheets": set()})
         group["meaning"].add(v["meaning"] + (f" (from {v['relative_to']})" if v["relative_to"] else ""))
         group["count"] += 1
-        if len(group["examples"]) < 8:
-            group["examples"].append({"text": v["context"], "value": v["value"]["raw"], "bbox": v["bbox"],
-                                      "page": v["page"], "sheet": v["sheet"]})
+        if v["rule_sheet"]:
+            group["rule_sheets"].add(v["rule_sheet"])
+        flagged = v["status"] == "flagged"
+        group["flagged"] += flagged
+        # Flagged values are always listed, so each one can be checked on the sheet.
+        if len(group["examples"]) < 8 or flagged:
+            group["examples"].append({
+                "text": v["context"], "page": v["page"], "sheet": v["sheet"], "bbox": v["bbox"], "status": v["status"],
+                "value": v["printed"] if flagged else v["value"]["raw"],
+                **({"candidate": v["candidate"]["display"], "flag": v["flag"]} if flagged else {}),
+            })
     return {
         "schedule_levels": levels,
+        "level_bands": _level_bands(document, sheets),
         "plan_elevations": elevations,
         "datums": datums,
         "notations": notations,
-        "noted_on_plans": [{**g, "meaning": sorted(g["meaning"])} for g in sorted(noted.values(), key=lambda g: g["page"])],
+        "noted_on_plans": [{**g, "meaning": sorted(g["meaning"]), "rule_sheets": sorted(g["rule_sheets"])}
+                           for g in sorted(noted.values(), key=lambda g: g["page"])],
     }
 
 

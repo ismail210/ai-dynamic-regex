@@ -88,7 +88,9 @@ PROFILE_VERSION = "legend_profile_v4"
 #      column schedule that was read is no longer reported as missing.
 # v6j: drawing_intelligence adds levels (schedule level lines, plan elevations)
 #      and column-schedule extents / level differences.
-EXTRACTOR_VERSION = "legend_extractor_v6j-levels"
+# v6k: display-space source boxes on rotated pages, rotated sheet ids,
+#      level bands, flagged malformed values, structured schedule plates.
+EXTRACTOR_VERSION = "legend_extractor_v6k-page-space"
 SCHEMA_VERSION = "project_rule_schema_v1"
 
 STATUS_PROPOSED_INFERENCE = "PROPOSED_INFERENCE"
