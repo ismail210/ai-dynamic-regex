@@ -31,11 +31,23 @@ def _sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _blank(doc, key):
+    """The committed review document with every human answer cleared: the
+    review files are filled in by reviewers, so metric logic is tested on a
+    deterministic unanswered copy rather than on the live answers."""
+
+    blank = copy.deepcopy(doc)
+    for item in blank[key]:
+        item["human_review"] = {field: None for field in item["human_review"]}
+    return blank
+
+
 class A2HumanReviewTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.gold = load_json(A2_GOLD)
         cls.review = load_json(A2_REVIEW)
+        cls.blank = _blank(cls.review, "rows")
         cls.gold_sha = _sha(A2_GOLD)
 
     def test_exactly_70_rows(self):
@@ -53,8 +65,14 @@ class A2HumanReviewTests(unittest.TestCase):
         unverified = [r for r in self.gold["rows"] if not r.get("human_verified")]
         self.assertEqual(len(unverified), 70)
 
+    def test_live_review_document_is_valid(self):
+        self.assertEqual(validate_a2_review_doc(self.review, gold=self.gold), [])
+
     def test_unanswered_fields_remain_null(self):
+        # A row not yet reviewed keeps every answer null (reviewed rows are the reviewers').
         for row in self.review["rows"]:
+            if a2_is_reviewed(row):
+                continue
             hr = row["human_review"]
             self.assertIsNone(hr["extraction_correct"])
             self.assertIsNone(hr["grouping_correct"])
@@ -72,13 +90,13 @@ class A2HumanReviewTests(unittest.TestCase):
         self.assertTrue(any("invalid_verdict" in e for e in errors))
 
     def test_zero_reviewed_returns_na_not_fake_zero(self):
-        metrics = compute_a2_metrics(self.review)
+        metrics = compute_a2_metrics(self.blank)
         self.assertEqual(metrics["reviewed"], 0)
         self.assertEqual(metrics["extraction"]["yes_rate"], "N/A — no reviewed samples")
         self.assertIn("not yet measured", metrics["note"])
 
     def test_partial_review_uses_reviewed_denominator(self):
-        doc = copy.deepcopy(self.review)
+        doc = copy.deepcopy(self.blank)
         doc["rows"][0]["human_review"].update(
             {
                 "extraction_correct": "YES",
@@ -119,6 +137,7 @@ class A7HumanReviewTests(unittest.TestCase):
     def setUpClass(cls):
         cls.gold = load_json(A7_GOLD)
         cls.review = load_json(A7_REVIEW)
+        cls.blank = _blank(cls.review, "links")
         cls.gold_sha = _sha(A7_GOLD)
 
     def test_exactly_100_links(self):
@@ -147,14 +166,17 @@ class A7HumanReviewTests(unittest.TestCase):
         errors = validate_a7_review_doc(doc, gold=self.gold)
         self.assertTrue(any("invalid_verdict" in e for e in errors))
 
+    def test_live_review_document_is_valid(self):
+        self.assertEqual(validate_a7_review_doc(self.review, gold=self.gold), [])
+
     def test_zero_reviewed_precision_na(self):
-        metrics = compute_a7_metrics(self.review)
+        metrics = compute_a7_metrics(self.blank)
         self.assertEqual(metrics["reviewed"], 0)
         self.assertEqual(metrics["precision_excluding_ambiguous"], "N/A — no reviewed samples")
         self.assertIn("not yet measured", metrics["note"])
 
     def test_precision_excludes_ambiguous(self):
-        doc = copy.deepcopy(self.review)
+        doc = copy.deepcopy(self.blank)
         doc["links"][0]["human_review"]["verdict"] = "CORRECT"
         doc["links"][1]["human_review"]["verdict"] = "WRONG"
         doc["links"][2]["human_review"]["verdict"] = "AMBIGUOUS"
@@ -164,7 +186,7 @@ class A7HumanReviewTests(unittest.TestCase):
         self.assertEqual(metrics["ambiguous_rate"], round(1 / 3, 4))
 
     def test_method_breakdown_totals(self):
-        doc = copy.deepcopy(self.review)
+        doc = copy.deepcopy(self.blank)
         # mark one of each method
         by_method = {}
         for link in doc["links"]:
