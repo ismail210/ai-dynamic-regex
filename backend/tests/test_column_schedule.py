@@ -332,9 +332,20 @@ class MarkMatrixTests(_SyntheticSheet):
         self.assertIn("not a grid intersection", c2["location_note"])
 
     def test_matrix_schedules_never_feed_the_production_mark_map(self):
-        self.assertEqual(schedule_mark_map(self.document["schedule_grid"]), {})
-        rows = [r for g in self.document["schedule_grid"] for r in g["rows"] if r.get("mark_role") != "grid_location"]
-        self.assertEqual(rows, [])
+        grids = self.document["schedule_grid"]
+        self.assertEqual(schedule_mark_map(grids), {})
+        marks = {row["mark"] for grid in grids for row in grid["rows"]}
+        # Fort Davis marks stay out of the production grid. C-2 is not grid C × 2.
+        self.assertNotIn("C-1", marks)
+        self.assertNotIn("C-2", marks)
+        # A ruled-only base-plate table still supplies plate definitions. Those
+        # rows are not catalog sections, so they stay out of the mark map.
+        definitions = [
+            row for grid in grids for row in grid["rows"]
+            if row.get("mark_role") != "grid_location"
+        ]
+        self.assertEqual(sorted(row["mark"] for row in definitions), ["BP2", "BP4"])
+        self.assertTrue(all(row.get("catalog_valid") is False for row in definitions))
 
 
 class LocationMatrixTests(_SyntheticSheet):

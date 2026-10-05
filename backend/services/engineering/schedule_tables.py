@@ -60,9 +60,12 @@ _HEADER_PARTNERS = frozenset(
 )
 _LOCATION_LABEL = "COLUMNLOCATION"
 _PLATE_ROW_LABEL = "BASE PLATE SIZE"
-_INCHES = r'\d+(?:\s+\d+/\d+|/\d+)?"'
-# Whole-cell base plate size: T"xW"xL" with an optional trailing note star.
-_BASE_PLATE_SIZE_RE = re.compile(rf"{_INCHES}\s*[xX]\s*{_INCHES}\s*[xX]\s*{_INCHES}(?:\s*\*)?")
+_INCHES = r'(?:\d+(?:[-\s]+\d+/\d+)?|\d+/\d+)"?'
+# Whole-cell base plate size, with an optional trailing note star.
+# x / X / × are the same separator. The pattern does not assign thickness.
+_BASE_PLATE_SIZE_RE = re.compile(
+    rf"{_INCHES}\s*[xX×]\s*{_INCHES}\s*[xX×]\s*{_INCHES}(?:\s*\*)?"
+)
 _MERGED_PLATE_LABEL_RE = re.compile(r"BASE PLATE (?:SIZE )?(.+?)(?: SIZE)?", re.IGNORECASE)
 _GRID_LOCATION_RE = re.compile(r"(?:^|[A-Z0-9.'])-[A-Z0-9.]", re.IGNORECASE)
 _MATRIX_MARK_RE = re.compile(r"[A-Z]{1,3}-?\d{1,3}[A-Z]?")
@@ -443,9 +446,13 @@ def _transposed_record(
     locations = []
     for column, text in enumerate(rows[location_row][1:], start=1):
         center = _cell_center_x(table, location_row, column)
-        location = re.sub(r"\s+", "", text)
+        # ``location`` stays whitespace-free so existing mark matching is unchanged.
+        # ``raw`` keeps the printed spacing so feet-inch fractions and offsets
+        # can be told apart from grid names.
+        printed = " ".join(str(text).split())
+        location = re.sub(r"\s+", "", printed)
         if location and center is not None:
-            locations.append({"location": location, "x": center})
+            locations.append({"location": location, "raw": printed, "x": center})
     labelled_plates = any("BASE PLATE" in header_label(row[0]) for row in rows)
     inferred_rows = set() if labelled_plates else _unlabelled_plate_rows(rows, location_row)
     cells, inferred = [], []
