@@ -1,0 +1,13 @@
+# Hash-pinned evidence: tests check the SHA-256 of these files as committed
+# (gold outcomes, frozen research results, and the source files those studies
+# froze). Check them out with LF on every platform so a Windows
+# core.autocrlf=true checkout keeps the committed bytes. All are stored LF.
+docs/validation/rd_geometry_integration/**/*.json eol=lf
+docs/validation/rd_geometry_integration/**/*.jsonl eol=lf
+docs/validation/rd_geometry_integration/**/*.md eol=lf
+docs/validation/rd_geometry_integration/**/*.html eol=lf
+backend/scripts/rd_geometry_integration/**/*.py eol=lf
+backend/scripts/rd_geometry_integration/**/*.json eol=lf
+backend/scripts/rd_geometry_integration/**/*.jsonl eol=lf
+backend/training/eval_cache_backups/accuracy_gold/*.json eol=lf
+backend/services/engineering/geometry_extractor.py eol=lf
