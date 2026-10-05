@@ -1,0 +1,566 @@
+{
+ "_about": "Column-schedule reference set (Oct 2 meeting). Every expected value was read from the rendered sheet (crops in docs/column_schedule_phase1/), independently of the parser. PDFs live outside git under ESTIMA3D_TESTING_PROJECTS (default: the Testing Projects download folder).",
+ "documents": [
+  {
+   "key": "fortdavis",
+   "pdf": "08 - Fort Davis Community Center/Structure - Copy1 - edit.pdf",
+   "pages": {
+    "15": "S301"
+   },
+   "case": "Mark-keyed graphical schedule, row labels on the right; negative control for mark vs grid (marks C-1..C-7, plan grids 00..12 / A..I).",
+   "schedules": [
+    {
+     "page": 15,
+     "key_role": "mark",
+     "blocks": 1
+    }
+   ],
+   "entries": [
+    {
+     "mark": "C-1",
+     "sections": [
+      "HSS10X10X5/16"
+     ],
+     "plate": {
+      "status": "read",
+      "raw": [
+       "18\"",
+       "18\"",
+       "3/4\""
+      ]
+     }
+    },
+    {
+     "mark": "C-2",
+     "sections": [
+      "HSS10X10X5/16"
+     ],
+     "plate": {
+      "status": "read",
+      "raw": [
+       "18\"",
+       "18\"",
+       "1\""
+      ]
+     }
+    },
+    {
+     "mark": "C-3",
+     "sections": [
+      "W10X33"
+     ],
+     "plate": {
+      "status": "read",
+      "raw": [
+       "18\"",
+       "18\"",
+       "3/4\""
+      ]
+     }
+    },
+    {
+     "mark": "C-4",
+     "sections": [
+      "W10X33"
+     ],
+     "plate": {
+      "status": "read",
+      "raw": [
+       "16\"",
+       "16\"",
+       "3/4\""
+      ]
+     }
+    },
+    {
+     "mark": "C-5",
+     "sections": [
+      "HSS8X8X5/16"
+     ],
+     "plate": {
+      "status": "read",
+      "raw": [
+       "14\"",
+       "14\"",
+       "3/4\""
+      ]
+     }
+    },
+    {
+     "mark": "C-6",
+     "sections": [
+      "HSS8X8X5/16"
+     ],
+     "plate": {
+      "status": "read",
+      "raw": [
+       "14\"",
+       "14\"",
+       "3/4\""
+      ]
+     }
+    },
+    {
+     "mark": "C-7",
+     "sections": [
+      "HSS6X6X5/16"
+     ],
+     "plate": {
+      "status": "read",
+      "raw": [
+       "12\"",
+       "12\"",
+       "3/4\""
+      ]
+     }
+    }
+   ],
+   "mark_map_before": {},
+   "column_schedule_reported_missing": false
+  },
+  {
+   "key": "brandywine",
+   "pdf": "09 - Brandywine/Structural4.pdf",
+   "pages": {
+    "42": "S600",
+    "43": "S601"
+   },
+   "case": "Graphical schedule in 4 blocks over two sheets; several locations per column, prime / double-prime grids, signed offsets; BP leader marks resolved through the BASE PLATE SCHEDULE (THICKNESS | WIDTH | LENGTH, washer THICKNESS ignored). Transfer columns O'-7' / Q'-7' start at an upper level and carry no BP leader: no plate is invented.",
+   "schedules": [
+    {
+     "pages": [
+      42,
+      43
+     ],
+     "key_role": "location",
+     "blocks": 4
+    }
+   ],
+   "entries": [
+    {
+     "location": "A-9",
+     "sections": [
+      "HSS6X6X1/4"
+     ],
+     "plate": {
+      "status": "resolved",
+      "printed": "BP8",
+      "type": "base plate",
+      "labelled": [
+       [
+        "thickness",
+        "3/4\""
+       ],
+       [
+        "width",
+        "1'-6\""
+       ],
+       [
+        "length",
+        "1'-6\""
+       ]
+      ]
+     }
+    },
+    {
+     "location": "C-5",
+     "sections": [
+      "W10X45"
+     ],
+     "plate": {
+      "status": "resolved",
+      "printed": "BP6",
+      "labelled": [
+       [
+        "thickness",
+        "1 3/4\""
+       ],
+       [
+        "width",
+        "2'-0\""
+       ],
+       [
+        "length",
+        "2'-0\""
+       ]
+      ]
+     }
+    },
+    {
+     "location": "A.1'-18",
+     "sections": [
+      "HSS6X6X5/16"
+     ],
+     "location_count": 9,
+     "grids": {
+      "F\"-1\"": [
+       "F\"",
+       "1\""
+      ],
+      "A.1'-18": [
+       "A.1'",
+       "18"
+      ]
+     },
+     "plate": {
+      "status": "resolved",
+      "printed": "BP8"
+     }
+    },
+    {
+     "location": "A.4'-14",
+     "sections": [
+      "W12X40"
+     ],
+     "location_count": 9,
+     "offsets": {
+      "E-8(-4'-4\")": [
+       1,
+       -52.0
+      ]
+     },
+     "plate": {
+      "status": "resolved",
+      "printed": "BP7"
+     }
+    },
+    {
+     "location": "C-4",
+     "sections": [
+      "W12X50"
+     ],
+     "location_count": 13,
+     "offsets": {
+      "C-8(-4'-4\")": [
+       1,
+       -52.0
+      ]
+     },
+     "plate": {
+      "status": "not_shown"
+     }
+    },
+    {
+     "location": "O'-7'",
+     "sections": [
+      "W12X45"
+     ],
+     "plate": {
+      "status": "not_shown"
+     }
+    }
+   ],
+   "mark_map_before": {},
+   "column_schedule_reported_missing": false
+  },
+  {
+   "key": "washlatin",
+   "pdf": "01 - Washington Latin/New bldg - St.pdf",
+   "pages": {
+    "14": "S-201",
+    "15": "S-202"
+   },
+   "case": "Locations printed top and bottom; two section tiers; BRACE FRAME COLUMN notes; base plate as a detail reference D/S-201; a schedule note sends transfer base plates to the typical details; Revit text masked by white boxes (elevations under SEE PLAN, the original location row under SERVICE LOAD).",
+   "schedules": [
+    {
+     "page": 15,
+     "key_role": "location",
+     "blocks": 2,
+     "notes_contain": "TRANSFER BASE PLATE",
+     "hidden_contains": [
+      "314' - 0\""
+     ]
+    }
+   ],
+   "entries": [
+    {
+     "location": "A-1",
+     "sections": [
+      "W10X33",
+      "W10X39"
+     ],
+     "repeated_label": true,
+     "hidden": [
+      "A-1"
+     ],
+     "plate": {
+      "status": "read",
+      "raw": [
+       "1 1/4\"",
+       "14\"",
+       "1'-2\""
+      ]
+     }
+    },
+    {
+     "location": "A-2",
+     "sections": [
+      "W10X45",
+      "W10X49"
+     ],
+     "notes": [
+      "BRACE FRAME COLUMN"
+     ],
+     "plate": {
+      "status": "reference",
+      "detail": "D",
+      "sheet": "S-201",
+      "reference_page": 14
+     }
+    },
+    {
+     "location": "A-4",
+     "sections": [
+      "HSS10X10X1/4",
+      "HSS10X10X5/16"
+     ],
+     "plate": {
+      "status": "read",
+      "raw": [
+       "1 1/2\"",
+       "16\"",
+       "1'-4\""
+      ]
+     }
+    },
+    {
+     "location": "C.8-1",
+     "plate": {
+      "status": "read",
+      "raw": [
+       "1 1/4\"",
+       "14\"",
+       "1'-2\""
+      ]
+     }
+    }
+   ],
+   "mark_map_before": {},
+   "column_schedule_reported_missing": false
+  },
+  {
+   "key": "osse",
+   "pdf": "07 - FEMS & OSSE/OSSE - ST.pdf",
+   "pages": {
+    "25": "S-601",
+    "26": "S-602"
+   },
+   "case": "Two graphical schedules on one sheet (parking in 3 continuation blocks, building in 1); plates only through a location-keyed BASE PLATE SCHEDULE then the BASE PLATE TYPE SCHEDULE (WIDTH | LENGTH | THICKNESS); offset grid R13(5' - 4\").",
+   "schedules": [
+    {
+     "name": "OSSE PARKING - GCS",
+     "page": 26,
+     "blocks": 3,
+     "notes_contain": "PRECAST"
+    },
+    {
+     "name": "OSSE BUILDING - GCS",
+     "page": 26,
+     "blocks": 1
+    }
+   ],
+   "entries": [
+    {
+     "location": "C.1-8.1",
+     "sections": [
+      "W12X53"
+     ],
+     "plate": {
+      "status": "resolved",
+      "printed": "CBP-4",
+      "labelled": [
+       [
+        "width",
+        "16\""
+       ],
+       [
+        "length",
+        "28\""
+       ],
+       [
+        "thickness",
+        "1 1/4\""
+       ]
+      ]
+     }
+    },
+    {
+     "location": "C.8-8.9",
+     "sections": [
+      "W10X33"
+     ],
+     "plate": {
+      "status": "resolved",
+      "printed": "CBP-2"
+     }
+    },
+    {
+     "location": "R13(5' - 4\")-RA.1",
+     "sections": [
+      "W8X31"
+     ],
+     "grids": {
+      "R13(5' - 4\")-RA.1": [
+       "R13",
+       "RA.1"
+      ]
+     },
+     "offsets": {
+      "R13(5' - 4\")-RA.1": [
+       0,
+       64.0
+      ]
+     }
+    }
+   ],
+   "mark_map_before": {},
+   "column_schedule_reported_missing": false
+  },
+  {
+   "key": "burrville",
+   "pdf": "51 - Burrvile ES/ST-Burrville.pdf",
+   "pages": {
+    "28": "S-501",
+    "29": "S-502"
+   },
+   "case": "Revit schedule continued on the next sheet (meeting: 'page 29'); grids primed on both sides; plate cells with a trailing note marker.",
+   "schedules": [
+    {
+     "pages": [
+      28,
+      29
+     ],
+     "key_role": "location",
+     "blocks": 4
+    }
+   ],
+   "entries": [
+    {
+     "location": "H.4'-5.8'",
+     "grids": {
+      "H.4'-5.8'": [
+       "H.4'",
+       "5.8'"
+      ]
+     },
+     "plate": {
+      "status": "read",
+      "raw": [
+       "1\"",
+       "18\"",
+       "18\""
+      ]
+     }
+    },
+    {
+     "location": "A-6.5",
+     "sections": [
+      "W10X33"
+     ],
+     "plate": {
+      "status": "read",
+      "markers": [
+       "*"
+      ]
+     }
+    }
+   ],
+   "mark_map_before": {}
+  },
+  {
+   "key": "furley",
+   "pdf": "36 - Furley ES/Struct.pdf",
+   "pages": {
+    "2": "S002"
+   },
+   "case": "Grimm + Parker: conventional MARK | SIZE | BASE PLATE table; BP1-BP7 are a separate BEARING PLATE schedule; HSS cap plate defined by a schedule note.",
+   "schedules": [
+    {
+     "page": 2,
+     "key_role": "mark",
+     "blocks": 1
+    }
+   ],
+   "plate_tables": [
+    {
+     "kind": "bearing plate",
+     "marks": [
+      "BP1",
+      "BP2",
+      "BP3",
+      "BP4",
+      "BP5",
+      "BP6",
+      "BP7"
+     ]
+    }
+   ],
+   "entries": [
+    {
+     "mark": "C1",
+     "sections": [
+      "HSS6X6X1/2"
+     ],
+     "cap_plate": "5/8\"",
+     "plate": {
+      "status": "read",
+      "type": "base plate",
+      "raw": [
+       "14\"",
+       "14\"",
+       "3/4\""
+      ]
+     }
+    },
+    {
+     "mark": "C4",
+     "sections": [
+      "W10X49"
+     ],
+     "cap_plate": null,
+     "plate": {
+      "status": "read",
+      "raw": [
+       "18\"",
+       "14\"",
+       "3/4\""
+      ]
+     }
+    },
+    {
+     "mark": "C6",
+     "sections": [
+      "HSS12X8X5/8"
+     ],
+     "plate": {
+      "status": "read",
+      "raw": [
+       "20\"",
+       "14\"",
+       "1-1/4\""
+      ]
+     }
+    }
+   ],
+   "mark_map_before": {
+    "C1": "HSS6X6X1/2",
+    "C2": "HSS7X7X3/8",
+    "C3": "HSS8X8X1/2",
+    "C4": "W10X49",
+    "C5": "HSS12.750X0.375",
+    "C6": "HSS12X8X5/8",
+    "L1": "W8X21",
+    "L1A": "W8X21",
+    "L2": "W8X28",
+    "L2A": "W8X28",
+    "L3": "W16X36",
+    "L4": "W24X62"
+   }
+  }
+ ],
+ "unavailable": {
+  "MARS Arcadia": "Only DWG files under 02 - MARS Arcadia; no PDF in the testing folder.",
+  "Yellow Spring S2.09": "Pages are stored rotated 90 degrees; schedule tables are not read on rotated pages yet."
+ },
+ "_mark_map_before": "schedule_mark_map produced by origin/main f792d9c on the same PDF, before this change."
+}

@@ -333,81 +333,344 @@ function MarksAndDefinitions({ definitions, notes, onView }) {
   );
 }
 
-// Revit column schedules: what the schedule prints for each grid location.
-// Reference only -- never a detected member and never a quantity.
-function ColumnScheduleLocations({ locations, onView }) {
-  const [open, setOpen] = useState(false);
-  const collapsible = locations.length > COLLAPSED_ROWS + 1;
-  const shown = open || !collapsible ? locations : locations.slice(0, COLLAPSED_ROWS);
-  const hasLevel = locations.some((l) => l.level);
-  const hasPlate = locations.some((l) => l.printed_base_plate);
-  const places = new Set(locations.map((l) => `${l.sheet}|${l.page}`));
-  const common = places.size === 1 ? whereLabel(locations[0]) : "";
-  const schedule = locations[0].schedule;
+// Column schedules: one row per schedule column -- its section, the printed
+// location(s), the base plate and notes, each with where it was read.
+// Definitions only: a listed location is never a takeoff quantity.
+const COLLAPSED_COLUMNS = 8;
+
+const DIMENSION_WORD = { thickness: "thick", width: "wide", length: "long" };
+
+function dimensionsText(plate) {
+  return (plate.dimensions || [])
+    .map((d) => (d.label ? `${d.raw} ${DIMENSION_WORD[d.label] || d.label}` : d.raw))
+    .join(" × ");
+}
+
+const PLATE_STATUS = {
+  read: { label: "read from schedule", color: "success" },
+  resolved: { label: "resolved via plate schedule", color: "success" },
+  reference: { label: "detail reference", color: "info" },
+  blank: { label: "blank in schedule", color: "default" },
+  not_applicable: { label: "not applicable", color: "default" },
+  not_shown: null,
+};
+// unresolved / conflict / unreadable
+const PLATE_NEEDS_REVIEW = { label: "needs review", color: "warning" };
+
+function plateSummary(plate) {
+  const type = plate.type ? plate.type.charAt(0).toUpperCase() + plate.type.slice(1) : "Plate";
+  switch (plate.status) {
+    case "read":
+      return { main: dimensionsText(plate), sub: `${type} · as printed` };
+    case "resolved":
+      return { main: dimensionsText(plate), sub: `${type} ${plate.printed}` };
+    case "reference":
+      return {
+        main: `See detail ${plate.reference.detail} on ${plate.reference.sheet}`,
+        sub: "Dimensions are on that detail — not read",
+      };
+    case "blank":
+      return { main: "Blank", sub: plate.note };
+    case "not_applicable":
+      return { main: plate.printed || "N/A", sub: "Printed as not applicable" };
+    case "not_shown":
+      return { main: "—", sub: "Not given in this schedule" };
+    default:
+      return { main: plate.printed || "—", sub: plate.note || "Could not be read" };
+  }
+}
+
+function locationLabel(location) {
+  if (location.status !== "parsed") return location.raw;
+  return location.grids
+    .map((g) => (g.offset ? `${g.label} (${g.offset.raw} offset)` : g.label))
+    .join(" × ");
+}
+
+function columnLabel(entry) {
+  if (entry.mark) return entry.mark;
+  const [first, ...rest] = entry.locations || [];
+  if (!first) return entry.location_text || "—";
+  return rest.length ? `${first.raw} +${rest.length}` : first.raw;
+}
+
+function SourceTrail({ via, onView }) {
+  if (!via?.length) return null;
   return (
-    <Section title="Column Schedule Locations">
-      <Typography variant="body2" color="text.secondary" mb={1.5}>
-        Reference information from column schedules — not a quantity. Each row repeats what the
-        schedule prints for a grid location; it is not a detected member.
-      </Typography>
-      <Paper variant="outlined" sx={{ mb: 2, overflow: "hidden" }}>
-        {(schedule || common) && (
-          <Typography variant="body2" color="text.secondary" sx={{ px: 2, py: 1.25, bgcolor: "action.hover" }}>
-            {[schedule, common].filter(Boolean).join(" · ")}
+    <Stack spacing={0.75}>
+      {via.map((source, i) => (
+        <Stack key={`${source.kind}-${i}`} direction="row" spacing={1} sx={{ alignItems: "center", flexWrap: "wrap" }}>
+          <Typography variant="caption" color="text.secondary" sx={{ minWidth: "8.5rem" }}>
+            {source.kind}
+            {source.title ? ` · ${source.title}` : ""}
+          </Typography>
+          <Typography variant="body2" sx={{ fontFamily: "monospace", wordBreak: "break-word" }}>
+            {source.text}
+          </Typography>
+          <ViewPageButton
+            item={{ ...source, mark: source.text }}
+            label={`View ${whereLabel(source)}`}
+            onView={onView}
+          />
+        </Stack>
+      ))}
+    </Stack>
+  );
+}
+
+function ColumnEntryDetails({ entry, onView }) {
+  const plate = entry.plate;
+  return (
+    <Stack spacing={1.25} sx={{ py: 1, px: 1.5, bgcolor: "action.hover", borderRadius: 1 }}>
+      {entry.key_role === "location" ? (
+        <Box>
+          <Typography variant="caption" color="text.secondary" display="block">
+            Location text as printed
+          </Typography>
+          <Typography variant="body2" sx={{ fontFamily: "monospace", wordBreak: "break-word" }}>
+            {entry.location_text}
+          </Typography>
+          <Box component="ul" sx={{ m: 0, mt: 0.5, pl: 2.5 }}>
+            {entry.locations.map((location) => (
+              <Typography component="li" variant="body2" key={location.raw}>
+                {location.status === "parsed" ? (
+                  <>
+                    Grid {location.grids.map((g) => g.label).join(" and grid ")}
+                    {location.grids.some((g) => g.offset) &&
+                      ` — offset ${location.grids
+                        .filter((g) => g.offset)
+                        .map((g) => `${g.offset.raw} from grid ${g.label}`)
+                        .join(", ")} (direction not stated)`}
+                  </>
+                ) : (
+                  <>
+                    <Box component="span" sx={{ fontFamily: "monospace" }}>{location.raw}</Box> — not a
+                    recognized grid intersection; kept as printed
+                  </>
+                )}
+              </Typography>
+            ))}
+          </Box>
+          {entry.repeated_label && (
+            <Typography variant="caption" color="text.secondary" display="block" mt={0.5}>
+              The same location text is printed at the top and bottom of this column — one entry, not two.
+            </Typography>
+          )}
+          {entry.label_conflict && (
+            <Typography variant="caption" color="warning.main" display="block" mt={0.5}>
+              Top and bottom location labels differ: {entry.label_conflict}
+            </Typography>
+          )}
+        </Box>
+      ) : (
+        <Typography variant="body2">{entry.location_note}</Typography>
+      )}
+      <Box>
+        <Typography variant="caption" color="text.secondary" display="block" mb={0.5}>
+          Where the base plate was read
+        </Typography>
+        {plate.via?.length ? (
+          <SourceTrail via={plate.via} onView={onView} />
+        ) : (
+          <Typography variant="body2" color="text.secondary">{plateSummary(plate).sub}</Typography>
+        )}
+        {plate.status === "reference" && (
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center", mt: 0.75 }}>
+            <Typography variant="body2">
+              Detail {plate.reference.detail} / {plate.reference.sheet}
+              {plate.reference.page ? "" : " — sheet not found in this PDF"}
+            </Typography>
+            {plate.reference.page && (
+              <ViewPageButton
+                item={{ page: plate.reference.page, sheet: plate.reference.sheet, mark: `detail ${plate.reference.detail}` }}
+                label={`Open ${plate.reference.sheet}`}
+                onView={onView}
+              />
+            )}
+          </Stack>
+        )}
+        {plate.markers?.length > 0 && (
+          <Typography variant="caption" color="text.secondary" display="block" mt={0.5}>
+            Printed with the note marker {plate.markers.join(" ")} — check the schedule notes.
           </Typography>
         )}
-        <Box sx={{ overflowX: "auto" }}>
-          <Table size="small" aria-label="Column schedule locations">
-            <TableHead>
-              <TableRow>
-                <TableCell>Location</TableCell>
-                {hasLevel && <TableCell>Level</TableCell>}
-                <TableCell>Size</TableCell>
-                {hasPlate && <TableCell>Base plate</TableCell>}
-                <TableCell align="right">Source</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {shown.map((loc, i) => (
-                <TableRow key={`${loc.page}-${loc.location}-${loc.level}-${i}`}>
-                  <TableCell sx={{ fontFamily: "monospace", fontWeight: 700 }}>{loc.location}</TableCell>
-                  {hasLevel && <TableCell>{loc.level || "—"}</TableCell>}
-                  <TableCell>
-                    <Typography variant="body2" fontWeight={600}>
-                      {loc.catalog_designation || loc.printed_size || "—"}
-                    </Typography>
-                    {!loc.catalog_designation && loc.printed_size && (
-                      <Typography variant="caption" color="text.secondary">
-                        printed size, no catalog designation
-                      </Typography>
-                    )}
-                  </TableCell>
-                  {hasPlate && <TableCell>{loc.printed_base_plate || "—"}</TableCell>}
-                  <TableCell align="right" sx={{ width: "1%", whiteSpace: "nowrap" }}>
-                    {!common && (
-                      <Typography variant="caption" color="text.secondary" sx={{ mr: 1 }}>
-                        {whereLabel(loc)}
-                      </Typography>
-                    )}
-                    <ViewPageButton
-                      item={{ ...loc, mark: loc.location }}
-                      label={common ? "View page" : undefined}
-                      onView={onView}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </Box>
-        {collapsible && (
-          <Box sx={{ px: 1.5, pb: 1 }}>
-            <Button size="small" onClick={() => setOpen(!open)}>
-              {open ? "Show fewer" : "Show all rows"}
+      </Box>
+      {entry.conflicts?.length > 0 && (
+        <Alert severity="warning" variant="outlined" sx={{ py: 0 }}>
+          {entry.conflicts.join(" ")}
+        </Alert>
+      )}
+      {entry.hidden_text?.length > 0 && (
+        <Typography variant="caption" color="text.secondary">
+          Text hidden under a white mask in this column was ignored ({entry.hidden_text.join(", ")}); the
+          visible drawing was used.
+        </Typography>
+      )}
+      <Typography variant="caption" color="text.secondary">
+        A schedule entry is a definition, not a counted member — it is never a takeoff quantity.
+      </Typography>
+    </Stack>
+  );
+}
+
+function ColumnEntryRow({ entry, onView }) {
+  const [open, setOpen] = useState(false);
+  const plate = plateSummary(entry.plate);
+  const status = entry.plate.status;
+  const badge = status in PLATE_STATUS ? PLATE_STATUS[status] : PLATE_NEEDS_REVIEW;
+  const sections = entry.sections || [];
+  const notes = [
+    ...(entry.notes || []),
+    ...(entry.other_plates || []).map((p) => `${p.type}: ${dimensionsText(p)} (schedule note)`),
+  ];
+  const label = columnLabel(entry);
+  return (
+    <>
+      <TableRow sx={{ "& > td": { borderBottom: open ? 0 : undefined, verticalAlign: "top" } }}>
+        <TableCell>
+          <Typography variant="body2" fontWeight={700} sx={{ fontFamily: "monospace" }}>
+            {label}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {entry.key_role === "location"
+              ? entry.listed_location_count > 1
+                ? `${entry.listed_location_count} locations listed`
+                : "grid location"
+              : "column mark"}
+          </Typography>
+        </TableCell>
+        <TableCell>
+          {sections.length === 0 && <Typography variant="body2">—</Typography>}
+          {sections.map((s, i) => (
+            <Box key={`${s.printed}-${i}`}>
+              <Typography variant="body2" fontWeight={600}>{s.designation || s.printed}</Typography>
+              {!s.designation && (
+                <Typography variant="caption" color="text.secondary">printed size, not a catalog section</Typography>
+              )}
+            </Box>
+          ))}
+        </TableCell>
+        <TableCell>
+          <Typography variant="body2" fontWeight={600}>{plate.main}</Typography>
+          <Typography variant="caption" color="text.secondary" display="block">{plate.sub}</Typography>
+          {badge && <Chip size="small" variant="outlined" color={badge.color} label={badge.label} sx={{ mt: 0.5 }} />}
+        </TableCell>
+        <TableCell>
+          {notes.map((n) => (
+            <Typography key={n} variant="body2" color="text.secondary">{n}</Typography>
+          ))}
+        </TableCell>
+        <TableCell align="right" sx={{ width: "1%", whiteSpace: "nowrap" }}>
+          <Stack direction="row" spacing={1} sx={{ justifyContent: "flex-end" }}>
+            <ViewPageButton item={{ ...entry, mark: label }} label="View page" onView={onView} />
+            <Button
+              size="small"
+              onClick={() => setOpen(!open)}
+              aria-expanded={open}
+              aria-label={`${open ? "Hide" : "Show"} details for ${label}`}
+            >
+              {open ? "Hide" : "Details"}
             </Button>
-          </Box>
-        )}
-      </Paper>
+          </Stack>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell colSpan={5} sx={{ py: 0, borderBottom: open ? undefined : 0 }}>
+          <Collapse in={open} unmountOnExit>
+            <Box sx={{ pb: 1.5 }}>
+              <ColumnEntryDetails entry={entry} onView={onView} />
+            </Box>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </>
+  );
+}
+
+function ColumnScheduleBlock({ schedule, entries, onView }) {
+  const [open, setOpen] = useState(false);
+  const collapsible = entries.length > COLLAPSED_COLUMNS + 1;
+  const shown = open || !collapsible ? entries : entries.slice(0, COLLAPSED_COLUMNS);
+  const where = whereLabel({ sheet: schedule.sheets.filter(Boolean).join(", "), pages: schedule.pages });
+  return (
+    <Paper variant="outlined" sx={{ mb: 2, overflow: "hidden" }}>
+      <Stack
+        direction="row"
+        spacing={1}
+        sx={{ px: 2, py: 1.25, alignItems: "center", flexWrap: "wrap", bgcolor: "action.hover" }}
+      >
+        <Typography variant="subtitle1" fontWeight={700}>{schedule.name}</Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ flexGrow: 1 }}>
+          {[
+            where,
+            schedule.layout === "graphical" ? "graphical schedule" : "table",
+            schedule.block_count > 1 ? `printed in ${schedule.block_count} parts` : "",
+            `${entries.length} schedule column${entries.length === 1 ? "" : "s"}`,
+          ]
+            .filter(Boolean)
+            .join(" · ")}
+        </Typography>
+        <ViewPageButton item={{ ...schedule, mark: schedule.name }} label="View schedule" onView={onView} />
+      </Stack>
+      {(schedule.notes.length > 0 || schedule.hidden_text.length > 0) && (
+        <Box sx={{ px: 2, pt: 1 }}>
+          {schedule.notes.map((n) => (
+            <Typography key={n} variant="body2" color="text.secondary">{n}</Typography>
+          ))}
+          {schedule.hidden_text.length > 0 && (
+            <Typography variant="caption" color="text.secondary" display="block">
+              {schedule.hidden_text.length} text item{schedule.hidden_text.length === 1 ? "" : "s"} hidden
+              under white masks in this schedule {schedule.hidden_text.length === 1 ? "was" : "were"} ignored;
+              values come from the visible drawing.
+            </Typography>
+          )}
+        </Box>
+      )}
+      <Box sx={{ overflowX: "auto" }}>
+        <Table size="small" aria-label={`${schedule.name} columns`}>
+          <TableHead>
+            <TableRow>
+              <TableCell>{schedule.key_role === "location" ? "Location" : "Mark"}</TableCell>
+              <TableCell>Section</TableCell>
+              <TableCell>Base plate</TableCell>
+              <TableCell>Notes</TableCell>
+              <TableCell align="right">Source</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {shown.map((entry) => (
+              <ColumnEntryRow key={entry.id} entry={entry} onView={onView} />
+            ))}
+          </TableBody>
+        </Table>
+      </Box>
+      {collapsible && (
+        <Box sx={{ px: 1.5, pb: 1 }}>
+          <Button size="small" onClick={() => setOpen(!open)}>
+            {open ? "Show fewer" : `Show all ${entries.length}`}
+          </Button>
+        </Box>
+      )}
+    </Paper>
+  );
+}
+
+function ColumnSchedules({ data, onView }) {
+  return (
+    <Section title="Column schedule">
+      <Typography variant="body2" color="text.secondary" mb={1.5}>
+        Each row is one schedule column: its section, where it is located, its base plate and notes,
+        with the sheet each value was read from. Schedule entries are definitions — not takeoff
+        quantities.
+      </Typography>
+      {data.schedules.map((schedule) => (
+        <ColumnScheduleBlock
+          key={schedule.id}
+          schedule={schedule}
+          entries={data.entries.filter((e) => e.schedule_id === schedule.id)}
+          onView={onView}
+        />
+      ))}
     </Section>
   );
 }
@@ -604,13 +867,21 @@ export default function DrawingSummaryPanel({ profile, documentId = null }) {
   const uncertainties = di?.uncertainties || [];
   const method = di?.method;
 
-  const definitions = di?.definitions || [];
+  const columnSchedule = di?.column_schedule;
+  const columnEntries = columnSchedule?.entries || [];
+  const hasColumnSchedule = columnEntries.length > 0;
+  // Column marks the column schedule already shows (with plates and notes).
+  const scheduledColumns = new Set(
+    columnEntries.filter((e) => e.mark).map((e) => `${e.page}|${e.mark}`),
+  );
+  const definitions = (di?.definitions || []).filter(
+    (d) => !(d.component === "column" && scheduledColumns.has(`${d.page}|${d.mark}`)),
+  );
   const interpretationRules = di?.interpretation_rules || [];
   const unresolved = di?.unresolved || [];
-  const columnLocations = di?.column_locations || [];
   const hasEvidence =
     definitions.length > 0 ||
-    columnLocations.length > 0 ||
+    hasColumnSchedule ||
     interpretationRules.length > 0 ||
     unresolved.length > 0;
   // Model notes only ever annotate an existing evidence id (validated server-side).
@@ -661,9 +932,7 @@ export default function DrawingSummaryPanel({ profile, documentId = null }) {
           {definitions.length > 0 && (
             <MarksAndDefinitions definitions={definitions} notes={modelNotes} onView={onView} />
           )}
-          {columnLocations.length > 0 && (
-            <ColumnScheduleLocations locations={columnLocations} onView={onView} />
-          )}
+          {hasColumnSchedule && <ColumnSchedules data={columnSchedule} onView={onView} />}
           {interpretationRules.length > 0 && (
             <InterpretationRules rules={interpretationRules} notes={modelNotes} onView={onView} />
           )}

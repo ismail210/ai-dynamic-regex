@@ -15,7 +15,7 @@ import {
 import { DownloadOutlined, TableViewOutlined } from "@mui/icons-material";
 import {
   generateTakeoff,
-  takeoffDownloadUrl,
+  downloadTakeoffExport,
 } from "../api/client";
 import { useAnalysis } from "../context/AnalysisContext";
 import EmptyState from "../components/ui/EmptyState";
@@ -93,8 +93,11 @@ export default function TakeoffPage() {
             severity="success"
             action={
               <Button
-                component="a"
-                href={takeoffDownloadUrl(takeoff.filename)}
+                onClick={() =>
+                  downloadTakeoffExport(takeoff.filename).catch((err) =>
+                    setError(err.message),
+                  )
+                }
                 startIcon={<DownloadOutlined />}
               >
                 Download Excel

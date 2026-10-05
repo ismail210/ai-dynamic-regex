@@ -91,7 +91,9 @@ describe("AnalysisContext workflow persistence", () => {
       "steelTakeoff.workflow.v1",
       JSON.stringify({ documentId: "doc_gone", stage: "analyzed" }),
     );
-    getDocument.mockRejectedValue(new Error("404"));
+    getDocument.mockRejectedValue(
+      Object.assign(new Error("Request failed with status code 404"), { response: { status: 404 } }),
+    );
 
     render(
       <AnalysisProvider>
@@ -103,6 +105,28 @@ describe("AnalysisContext workflow persistence", () => {
     expect(screen.getByTestId("stage").textContent).toBe("empty");
     expect(sessionStorage.getItem("steelTakeoff.workflow.v1")).toBeNull();
   });
+
+  it.each([401, 502])(
+    "keeps the persisted document when the backend answers %s (key missing, restarting)",
+    async (status) => {
+      sessionStorage.setItem(
+        "steelTakeoff.workflow.v1",
+        JSON.stringify({ documentId: "doc_kept", stage: "analyzed" }),
+      );
+      getDocument.mockRejectedValue(
+        Object.assign(new Error(`Request failed with status code ${status}`), { response: { status } }),
+      );
+
+      render(
+        <AnalysisProvider>
+          <Probe />
+        </AnalysisProvider>,
+      );
+
+      await waitFor(() => expect(screen.getByTestId("rehydrating").textContent).toBe("false"));
+      expect(JSON.parse(sessionStorage.getItem("steelTakeoff.workflow.v1")).documentId).toBe("doc_kept");
+    },
+  );
 
   it("surfaces a missing-original-file notice instead of silently swallowing a 404 on restore", async () => {
     sessionStorage.setItem(

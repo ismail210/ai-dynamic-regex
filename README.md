@@ -35,6 +35,21 @@ npm run dev
 Backend: `http://localhost:8000` · frontend: `http://localhost:5173` · OpenAPI:
 `http://localhost:8000/docs`.
 
+Or start this worktree's frontend and backend as one pair (after the installs
+above):
+
+```bash
+node scripts/dev.mjs                                             # 5173 -> 8000
+node scripts/dev.mjs --frontend-port 5174 --backend-port 8001    # a second worktree
+```
+
+A busy port is an error, never a silent move to another port. `--python`
+(or `ESTIMA3D_PYTHON`) selects the interpreter when `backend/venv` is absent.
+In development the frontend compares its worktree with the backend's
+`GET /api/dev/identity` and blocks upload and extraction, with the reason, when
+the backend is unreachable, belongs to another worktree, or serves an older
+Drawing Summary API.
+
 The staged workflow uses same-origin AJAX:
 `POST /api/documents` → `POST /api/documents/{id}/extract` →
 `POST /api/documents/{id}/analyze`. Upload only validates and stores bytes;
