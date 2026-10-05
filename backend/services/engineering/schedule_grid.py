@@ -18,6 +18,7 @@ from typing import Any, Callable, Dict, Iterable, List, Optional
 
 from services.engineering.drawing_intelligence import _DEMO_RE, _EXISTING_RE, _NEW_RE
 from services.engineering.member_geometry import _union_bbox as _union_boxes
+from services.engineering.column_schedule import build_column_schedules
 from services.engineering.schedule_tables import (
     MARK_HEADERS,
     SIZE_HEADERS,
@@ -210,8 +211,12 @@ def build_document_schedule_grids(
     pdf_path: Optional[str] = None,
     pages: Optional[Iterable[int]] = None,
     catalog_fn: Optional[CatalogFn] = None,
+    ruled_records: Optional[List[Dict[str, Any]]] = None,
 ) -> List[Dict[str, Any]]:
-    """Ruled-table grids first; word-cluster rows only for marks they missed."""
+    """Ruled-table grids first; word-cluster rows only for marks they missed.
+
+    ``ruled_records`` passes tables already read from ``pdf_path``.
+    """
 
     accept = catalog_fn or _catalog_accepts
     page_filter = set(pages) if pages is not None else None
@@ -224,9 +229,9 @@ def build_document_schedule_grids(
     fallback = build_schedule_grids(word_list, catalog_fn=accept)
     if not pdf_path:
         return fallback
-    ruled = _ruled_grids(
-        read_ruled_tables(pdf_path, word_list, pages=page_filter), accept
-    )
+    if ruled_records is None:
+        ruled_records = read_ruled_tables(pdf_path, word_list, pages=page_filter)
+    ruled = _ruled_grids(ruled_records, accept)
     # BP/CL resolution consumes the legacy row wording, including angle/type
     # order and N/A context. Leave these marks on the word-cluster path so
     # ruled-cell reordering cannot change production plate/angle selection.
@@ -264,11 +269,13 @@ def attach_schedule_grid(
 
     if not settings.schedule_grid_enabled:
         return document
-    grids = build_document_schedule_grids(
-        document.get("words") or [],
-        pdf_path=pdf_path if settings.schedule_ruled_tables_enabled else None,
-    )
+    words = document.get("words") or []
+    pdf_path = pdf_path if settings.schedule_ruled_tables_enabled else None
+    records = read_ruled_tables(pdf_path, words) if pdf_path else []
+    grids = build_document_schedule_grids(words, pdf_path=pdf_path, ruled_records=records)
     document["schedule_grid"] = grids
+    # Display/evidence only: never read by prediction or quantities.
+    document["column_schedules"] = build_column_schedules(records, grids)
     document["schedule_mark_map"] = schedule_mark_map(
         grids, drop_conflicts=settings.schedule_mark_conflict_guard_enabled
     )
@@ -329,8 +336,12 @@ def _ruled_grids(
     for record in records:
         if record["layout"] == "transposed":
             grid = _transposed_grid(record, catalog_fn)
-        else:
+        elif record["layout"] == "rows":
             grid = _ruled_rows_grid(record, catalog_fn)
+        else:
+            # Mark-keyed matrices and location-keyed rows are column-schedule
+            # evidence only: a location such as C-6 must never become mark C6.
+            continue
         if grid and grid["rows"]:
             grids.append(grid)
     return grids

@@ -401,67 +401,205 @@ describe("DrawingSummaryPanel — evidence view", () => {
   });
 });
 
-function columnLocation(location, extra = {}) {
+// Entries shaped like the backend's column_schedule view (values from
+// Brandywine S-600/S-601, Washington Latin S-202, Fort Davis S301).
+const grid = (label, offset = null) => ({ label, offset });
+const parsed = (raw, ...grids) => ({ raw, status: "parsed", grids });
+
+function columnScheduleData() {
   return {
-    location,
-    level: "LEVEL 1",
-    printed_size: "W10X33",
-    catalog_designation: "W10X33",
-    printed_base_plate: 'PL 14"x14"x3/4"',
-    schedule: "COLUMN SCHEDULE",
-    bbox: [100, 100, 900, 400],
-    source: "schedule_grid",
-    is_definition_not_quantity: true,
-    page: 28,
-    sheet: "S501",
-    ...extra,
+    schedules: [
+      {
+        id: "S1", name: "COLUMN SCHEDULE", layout: "graphical", key_role: "location",
+        pages: [42, 43], sheets: ["S600", "S601"], page: 42, sheet: "S600",
+        bbox: [250, 230, 2500, 860], block_count: 4, notes: [], hidden_text: [],
+      },
+      {
+        id: "S2", name: "STEEL COLUMN SCHEDULE", layout: "graphical", key_role: "location",
+        pages: [15], sheets: ["S202"], page: 15, sheet: "S202", bbox: [651, 98, 2594, 1065],
+        block_count: 2, notes: ["NOTE: SEE TYPICAL DETAILS FOR TRANSFER BASE PLATE DETAIL."],
+        hidden_text: ["314' - 0\"", "A-1"],
+      },
+      {
+        id: "S3", name: "COLUMN SCHEDULE", layout: "graphical", key_role: "mark",
+        pages: [15], sheets: ["S301"], page: 15, sheet: "S301", bbox: [539, 159, 1204, 716],
+        block_count: 1, notes: [], hidden_text: [],
+      },
+    ],
+    entries: [
+      {
+        id: "S1-8", schedule_id: "S1", key_role: "location", page: 42, sheet: "S600",
+        bbox: [843, 760, 958, 860], mark: null,
+        location_text: "A.4'-14, B-4.9, E-8(-4'-4\"), C'-15.6",
+        locations: [
+          parsed("A.4'-14", grid("A.4'"), grid("14")),
+          parsed("B-4.9", grid("B"), grid("4.9")),
+          parsed("E-8(-4'-4\")", grid("E"), grid("8", { raw: "-4'-4\"", inches: -52, direction: null })),
+          parsed("C'-15.6", grid("C'"), grid("15.6")),
+        ],
+        listed_location_count: 4, repeated_label: false, label_conflict: null,
+        sections: [{ designation: "W12X40", printed: "W12X40", catalog_exact: true }],
+        plate: {
+          status: "resolved", type: "base plate", printed: "BP7",
+          dimensions: [
+            { label: "thickness", raw: '1 1/2"' },
+            { label: "width", raw: "1'-8\"" },
+            { label: "length", raw: "1'-8\"" },
+          ],
+          via: [
+            { kind: "leader mark", text: "BP7", page: 42, sheet: "S600", bbox: [880, 620, 900, 650], title: "COLUMN SCHEDULE" },
+            { kind: "plate schedule", text: 'BP7 | B | 1 1/2" | 1\'-8"', page: 43, sheet: "S601", bbox: [730, 1880, 1600, 1890], title: "BASE PLATE SCHEDULE" },
+          ],
+        },
+        other_plates: [], notes: [], conflicts: [], hidden_text: [], is_definition_not_quantity: true,
+      },
+      {
+        id: "S2-1", schedule_id: "S2", key_role: "location", page: 15, sheet: "S202",
+        bbox: [721, 127, 793, 201], mark: null, location_text: "A-1",
+        locations: [parsed("A-1", grid("A"), grid("1"))], listed_location_count: 1,
+        repeated_label: true, label_conflict: null,
+        sections: [
+          { designation: "W10X33", printed: "W10X33", catalog_exact: true },
+          { designation: "W10X39", printed: "W10X39", catalog_exact: true },
+        ],
+        plate: {
+          status: "read", type: "base plate", printed: "1 1/4\"x14\"x1'-2\"", markers: [],
+          dimensions: [{ label: null, raw: '1 1/4"' }, { label: null, raw: '14"' }, { label: null, raw: "1'-2\"" }],
+          via: [{ kind: "schedule cell", text: "1 1/4\"x14\"x1'-2\"", page: 15, sheet: "S202", bbox: [721, 961, 793, 993], title: "BASE PLATE" }],
+        },
+        other_plates: [], notes: [], conflicts: [], hidden_text: ["A-1"], is_definition_not_quantity: true,
+      },
+      {
+        id: "S2-2", schedule_id: "S2", key_role: "location", page: 15, sheet: "S202",
+        bbox: [793, 127, 865, 201], mark: null, location_text: "A-2",
+        locations: [parsed("A-2", grid("A"), grid("2"))], listed_location_count: 1,
+        repeated_label: true, label_conflict: null,
+        sections: [{ designation: "W10X45", printed: "W10X45", catalog_exact: true }],
+        plate: {
+          status: "reference", type: "base plate", printed: "D/S-201", dimensions: [],
+          reference: { raw: "D/S-201", detail: "D", sheet: "S-201", page: 14 },
+          via: [{ kind: "schedule cell", text: "D/S-201", page: 15, sheet: "S202", bbox: [793, 961, 865, 993], title: "BASE PLATE" }],
+        },
+        other_plates: [], notes: ["BRACE FRAME COLUMN"], conflicts: [], hidden_text: [], is_definition_not_quantity: true,
+      },
+      {
+        id: "S2-3", schedule_id: "S2", key_role: "location", page: 15, sheet: "S202",
+        bbox: [1600, 127, 1670, 201], mark: null, location_text: "C.8-1",
+        locations: [parsed("C.8-1", grid("C.8"), grid("1"))], listed_location_count: 1,
+        repeated_label: true, label_conflict: null,
+        sections: [{ designation: "W10X39", printed: "W10X39", catalog_exact: true }],
+        plate: {
+          status: "blank", type: "base plate", printed: "", dimensions: [], via: [],
+          note: "Left blank in the schedule. Schedule note: NOTE: SEE TYPICAL DETAILS FOR TRANSFER BASE PLATE DETAIL.",
+        },
+        other_plates: [], notes: [], conflicts: [], hidden_text: [], is_definition_not_quantity: true,
+      },
+      {
+        id: "S3-6", schedule_id: "S3", key_role: "mark", page: 15, sheet: "S301",
+        bbox: [1033, 214, 1110, 266], mark: "C-2", location_text: null, locations: [],
+        listed_location_count: 0, repeated_label: false, label_conflict: null,
+        location_note: "C-2 is a column mark, not a grid intersection. Its positions are drawn on the column location plan; they are not read yet.",
+        sections: [{ designation: "HSS10X10X5/16", printed: "HSS10X10X5/16", catalog_exact: true }],
+        plate: {
+          status: "read", type: "base plate", printed: '18"x18"x1"', markers: [],
+          dimensions: [{ label: null, raw: '18"' }, { label: null, raw: '18"' }, { label: null, raw: '1"' }],
+          via: [{ kind: "schedule cell", text: '18"x18"x1"', page: 15, sheet: "S301", bbox: [1033, 560, 1110, 600], title: "BASE PLATE" }],
+        },
+        other_plates: [], notes: [], conflicts: [], hidden_text: [], is_definition_not_quantity: true,
+      },
+    ],
+    plate_tables: [],
   };
 }
 
-describe("DrawingSummaryPanel — column schedule locations", () => {
-  const locations = [
-    columnLocation("A-1"),
-    columnLocation("B-2", { level: "ROOF", printed_size: "L4X4", catalog_designation: null, printed_base_plate: null }),
-  ];
+const withColumns = (extra = {}) => evidenceProfile({ column_schedule: columnScheduleData(), ...extra });
 
-  it("renders locations as reference information, separate from mark definitions", () => {
-    render(<DrawingSummaryPanel profile={evidenceProfile({ column_locations: locations })} />);
-    expect(screen.getByText("Column Schedule Locations")).toBeInTheDocument();
-    expect(screen.getByText(/Reference information from column schedules — not a quantity/)).toBeInTheDocument();
-    const table = within(screen.getByRole("table", { name: "Column schedule locations" }));
-    expect(table.getByRole("columnheader", { name: "Level" })).toBeInTheDocument();
-    expect(table.getByRole("columnheader", { name: "Base plate" })).toBeInTheDocument();
-    const a1 = within(table.getByText("A-1").closest("tr"));
-    expect(a1.getByText("LEVEL 1")).toBeInTheDocument();
-    expect(a1.getByText("W10X33")).toBeInTheDocument();
-    expect(a1.getByText('PL 14"x14"x3/4"')).toBeInTheDocument();
-    const b2 = within(table.getByText("B-2").closest("tr"));
-    expect(b2.getByText("L4X4")).toBeInTheDocument();
-    expect(b2.getByText("printed size, no catalog designation")).toBeInTheDocument();
-    expect(screen.getByText("COLUMN SCHEDULE · S501 · PDF p. 28")).toBeInTheDocument();
-    expect(screen.getByRole("table", { name: "Columns definitions" })).toBeInTheDocument();
+describe("DrawingSummaryPanel — column schedule", () => {
+  it("shows one row per schedule column with section, location and plate", () => {
+    render(<DrawingSummaryPanel profile={withColumns()} />);
+    expect(screen.getByText("Column schedule")).toBeInTheDocument();
+    expect(screen.getByText(/S600, S601 · PDF pp. 42, 43 · graphical schedule · printed in 4 parts/)).toBeInTheDocument();
+    const row = within(screen.getByText("A.4'-14 +3").closest("tr"));
+    expect(row.getByText("4 locations listed")).toBeInTheDocument();
+    expect(row.getByText("W12X40")).toBeInTheDocument();
+    expect(row.getByText("1 1/2\" thick × 1'-8\" wide × 1'-8\" long")).toBeInTheDocument();
+    expect(row.getByText("Base plate BP7")).toBeInTheDocument();
+    expect(row.getByText("resolved via plate schedule")).toBeInTheDocument();
   });
 
-  it("shows no quantity, count or total", () => {
-    render(<DrawingSummaryPanel profile={evidenceProfile({ column_locations: locations })} />);
-    const section = screen.getByRole("table", { name: "Column schedule locations" }).closest(".MuiPaper-root");
-    expect(within(section).queryByText(/qty|quantity|total|×|\d+ locations?/i)).not.toBeInTheDocument();
-    expect(within(section).queryByRole("columnheader", { name: /qty|quantity|count/i })).not.toBeInTheDocument();
+  it("keeps the printed location text next to the parsed grids and offsets", () => {
+    render(<DrawingSummaryPanel profile={withColumns()} />);
+    fireEvent.click(screen.getByRole("button", { name: "Show details for A.4'-14 +3" }));
+    expect(screen.getByText("A.4'-14, B-4.9, E-8(-4'-4\"), C'-15.6")).toBeInTheDocument();
+    expect(screen.getByText(/Grid E and grid 8 — offset -4'-4" from grid 8 \(direction not stated\)/)).toBeInTheDocument();
+    expect(screen.getByText("Grid A.4' and grid 14")).toBeInTheDocument();
   });
 
-  it("is hidden when there are no column schedule locations", () => {
-    render(<DrawingSummaryPanel profile={evidenceProfile({ column_locations: [] })} />);
-    expect(screen.queryByText("Column Schedule Locations")).not.toBeInTheDocument();
-    render(<DrawingSummaryPanel profile={evidenceProfile()} />);
-    expect(screen.queryByText("Column Schedule Locations")).not.toBeInTheDocument();
-  });
-
-  it("opens the schedule page from a location row", async () => {
-    render(<DrawingSummaryPanel profile={evidenceProfile({ column_locations: locations })} documentId="doc_abc" />);
-    fireEvent.click(screen.getByRole("button", { name: "View S501 · PDF p. 28 for A-1" }));
+  it("opens both the leader mark and the plate schedule row it resolved through", async () => {
+    render(<DrawingSummaryPanel profile={withColumns()} documentId="doc_abc" />);
+    fireEvent.click(screen.getByRole("button", { name: "Show details for A.4'-14 +3" }));
+    fireEvent.click(screen.getByRole("button", { name: /View S601 · PDF p. 43 for BP7/ }));
     const viewer = await screen.findByTestId("pdf-viewer");
-    expect(viewer).toHaveAttribute("data-page", "28");
-    expect(viewer).toHaveAttribute("data-bbox", "[100,100,900,400]");
+    expect(viewer).toHaveAttribute("data-page", "43");
+    expect(viewer).toHaveAttribute("data-bbox", "[730,1880,1600,1890]");
+  });
+
+  it("shows a detail reference without inventing dimensions, and opens the detail sheet", async () => {
+    render(<DrawingSummaryPanel profile={withColumns()} documentId="doc_abc" />);
+    const row = within(screen.getByText("A-2").closest("tr"));
+    expect(row.getByText("See detail D on S-201")).toBeInTheDocument();
+    expect(row.getByText("Dimensions are on that detail — not read")).toBeInTheDocument();
+    expect(row.getByText("BRACE FRAME COLUMN")).toBeInTheDocument();
+    fireEvent.click(row.getByRole("button", { name: "Show details for A-2" }));
+    fireEvent.click(screen.getByRole("button", { name: "View S-201 · PDF p. 14 for detail D" }));
+    expect(await screen.findByTestId("pdf-viewer")).toHaveAttribute("data-page", "14");
+  });
+
+  it("says a repeated top/bottom label is one entry, and that masked text was ignored", () => {
+    render(<DrawingSummaryPanel profile={withColumns()} />);
+    expect(screen.getByText(/2 text items hidden under white masks in this schedule were ignored/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Show details for A-1" }));
+    expect(screen.getByText(/printed at the top and bottom of this column — one entry, not two/)).toBeInTheDocument();
+    expect(screen.getByText(/Text hidden under a white mask in this column was ignored \(A-1\)/)).toBeInTheDocument();
+  });
+
+  it("shows a blank plate as blank, with the schedule's own note", () => {
+    render(<DrawingSummaryPanel profile={withColumns()} />);
+    const row = within(screen.getByText("C.8-1").closest("tr"));
+    expect(row.getByText("Blank")).toBeInTheDocument();
+    expect(row.getByText(/SEE TYPICAL DETAILS FOR TRANSFER BASE PLATE DETAIL/)).toBeInTheDocument();
+  });
+
+  it("never presents a column mark as a grid intersection", () => {
+    render(<DrawingSummaryPanel profile={withColumns()} />);
+    const row = within(screen.getByText("C-2").closest("tr"));
+    expect(row.getByText("column mark")).toBeInTheDocument();
+    fireEvent.click(row.getByRole("button", { name: "Show details for C-2" }));
+    expect(screen.getByText(/C-2 is a column mark, not a grid intersection/)).toBeInTheDocument();
+    expect(screen.queryByText(/Grid C and grid 2/)).not.toBeInTheDocument();
+  });
+
+  it("shows no quantity column or total", () => {
+    render(<DrawingSummaryPanel profile={withColumns()} />);
+    for (const table of screen.getAllByRole("table", { name: /columns$/ })) {
+      expect(within(table).queryByRole("columnheader", { name: /qty|quantity|count|total/i })).not.toBeInTheDocument();
+    }
+    expect(screen.getByText(/Schedule entries are definitions — not takeoff\s+quantities/)).toBeInTheDocument();
+  });
+
+  it("does not list a scheduled column mark twice", () => {
+    const data = columnScheduleData();
+    data.entries.push({ ...data.entries[4], id: "S4-1", schedule_id: "S3", mark: "C1", page: 2 });
+    render(<DrawingSummaryPanel profile={evidenceProfile({ column_schedule: data })} />);
+    expect(screen.queryByRole("table", { name: "Columns definitions" })).not.toBeInTheDocument();
+    expect(screen.getByRole("table", { name: "Lintels definitions" })).toBeInTheDocument();
+  });
+
+  it("is hidden when no column schedule was read", () => {
+    render(<DrawingSummaryPanel profile={evidenceProfile({ column_schedule: { schedules: [], entries: [] } })} />);
+    expect(screen.queryByText("Column schedule")).not.toBeInTheDocument();
+    render(<DrawingSummaryPanel profile={evidenceProfile()} />);
+    expect(screen.queryByText("Column schedule")).not.toBeInTheDocument();
   });
 });
 

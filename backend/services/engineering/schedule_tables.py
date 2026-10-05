@@ -17,6 +17,13 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence
 
 import fitz
 
+from services.engineering.column_schedule import (
+    matrix_key_role,
+    read_column_matrix,
+    schedule_captions,
+    visible_phrases,
+)
+
 logger = logging.getLogger(__name__)
 
 MARK_HEADERS = frozenset(
@@ -58,6 +65,7 @@ _INCHES = r'\d+(?:\s+\d+/\d+|/\d+)?"'
 _BASE_PLATE_SIZE_RE = re.compile(rf"{_INCHES}\s*[xX]\s*{_INCHES}\s*[xX]\s*{_INCHES}(?:\s*\*)?")
 _MERGED_PLATE_LABEL_RE = re.compile(r"BASE PLATE (?:SIZE )?(.+?)(?: SIZE)?", re.IGNORECASE)
 _GRID_LOCATION_RE = re.compile(r"(?:^|[A-Z0-9.'])-[A-Z0-9.]", re.IGNORECASE)
+_MATRIX_MARK_RE = re.compile(r"[A-Z]{1,3}-?\d{1,3}[A-Z]?")
 _MAX_HEADER_ROW = 4
 # Largest blank gap between two words of one schedule header line, and the
 # vertical reach of a stacked (two-line) header around the MARK word.
@@ -95,7 +103,9 @@ def read_ruled_tables(
                 continue
             page = document[page_number - 1]
             page_words = page.get_text("words")
-            rules = _vertical_rules(page)
+            drawings = page.get_drawings()
+            rules = _vertical_rules(drawings, page.rect.height)
+            phrases: Optional[tuple] = None
             fitted = [
                 clip
                 for clip in (
@@ -117,6 +127,16 @@ def read_ruled_tables(
                         continue
                     seen.add(key)
                     record = _table_record(table, page_words, page_number)
+                    if record and record["layout"] in ("transposed", "matrix"):
+                        if phrases is None:
+                            phrases = visible_phrases(page, drawings)
+                        visible, suppressed = phrases
+                        matrix = read_column_matrix(table, page_number, visible, suppressed)
+                        if matrix:
+                            matrix["captions"] = schedule_captions(record["bbox"], visible)
+                            record["column_matrix"] = matrix
+                        elif record["layout"] == "matrix":
+                            record = None
                     if record:
                         records.append(record)
     return records
@@ -147,12 +167,12 @@ def _merge_overlapping(regions: List[fitz.Rect], page_rect: fitz.Rect) -> List[f
     return merged
 
 
-def _vertical_rules(page: fitz.Page) -> List[tuple]:
+def _vertical_rules(drawings: List[dict], page_height: float) -> List[tuple]:
     """``(x, top, bottom)`` of vertical line work, sheet-height borders excluded."""
 
-    limit = 0.8 * page.rect.height
+    limit = 0.8 * page_height
     rules: List[tuple] = []
-    for path in page.get_drawings():
+    for path in drawings:
         for item in path["items"]:
             if item[0] == "l":
                 a, b = item[1], item[2]
@@ -225,7 +245,30 @@ def _schedule_regions(page_words: Sequence[tuple]) -> List[tuple]:
                 regions.append(
                     (fitz.Rect(x0 - 60, y0 - 120, right + 60, y0 + 1500), anchor_y)
                 )
+            elif label == "MARK" and _is_matrix_mark_label(x0, y0, page_words):
+                # Row labels on the right: the marks run leftwards along the row.
+                regions.append((fitz.Rect(x0 - 2500, y0 - 200, x1 + 200, y0 + 1500), anchor_y))
     return regions
+
+
+def _is_matrix_mark_label(x0: float, y0: float, page_words: Sequence[tuple]) -> bool:
+    """``MARK`` as the row label of a mark x level column schedule: a
+    ``BASE PLATE`` row label below it and marks along its row."""
+
+    plate_label = any(
+        str(other[4]).upper() == "BASE" and abs(other[0] - x0) < 40.0 and 0 < other[1] - y0 < 1500.0
+        for other in page_words
+    )
+    if not plate_label:
+        return False
+    marks = sum(
+        1
+        for other in page_words
+        if abs(other[1] - y0) < 12.0
+        and other[0] < x0
+        and _MATRIX_MARK_RE.fullmatch(str(other[4]).upper())
+    )
+    return marks >= 2
 
 
 def _is_column_locations_label(x0: float, y0: float, page_words: Sequence[tuple]) -> bool:
@@ -240,28 +283,46 @@ def _is_column_locations_label(x0: float, y0: float, page_words: Sequence[tuple]
     )
     if "COLUMN" not in "".join(text for _, _, text in near).upper():
         return False
+    # Revit centers the values in a tall row whose label sits at its top.
     locations = sum(
         1
         for other in page_words
         if 0 < other[0] - x0 < 600.0
-        and abs(other[1] - y0) < 12.0
+        and -12.0 < other[1] - y0 < 45.0
         and _GRID_LOCATION_RE.search(str(other[4]))
     )
     return locations >= 2
 
 
 def _table_record(table: Any, page_words: Sequence[tuple], page: int) -> Optional[Dict[str, Any]]:
-    rows = [[str(cell or "") for cell in row] for row in table.extract()]
+    raw = table.extract()
+    rows = [[str(cell or "") for cell in row] for row in raw]
     if len(rows) < 2:
         return None
     bbox = [round(float(value), 2) for value in table.bbox]
     for index, row in enumerate(rows):
         if _LOCATION_LABEL in re.sub(r"\s+", "", row[0]).upper():
             return _transposed_record(table, rows, index, page, bbox)
+    # Column schedules whose edge column holds the row labels (MARK ... BASE
+    # PLATE, or COLUMN LOCATIONS on the right), read by ``column_schedule``
+    # only; ``schedule_grid`` never sees them. A MARK | SIZE table has no
+    # BASE PLATE row label in its edge column, so it is not one of these.
+    if matrix_key_role([row[0] for row in rows]) or matrix_key_role([row[-1] for row in rows]):
+        return {"page": page, "bbox": bbox, "layout": "matrix", "title": "COLUMN SCHEDULE"}
+    layout = "rows"
     header_index = _header_index(rows)
     if header_index is None:
-        return None
+        header_index = _location_header_index(rows)
+        if header_index is None:
+            return None
+        # Rows keyed by grid location (location | section | plate type).
+        layout = "location_rows"
     header = [header_label(cell) for cell in rows[header_index]]
+    # Merged header cells come back as None: each covered column inherits the
+    # heading on its left (BASE PLATE SIZE over THICKNESS | WIDTH | LENGTH).
+    groups: List[str] = []
+    for cell in raw[header_index]:
+        groups.append(header_label(cell) if cell is not None else (groups[-1] if groups else ""))
     body_start = header_index + 1
     # Two-line headers (MARK | BASE PLATE SIZE / WIDTH | LENGTH ...).
     while body_start < len(rows) and not rows[body_start][0].strip() and not any(
@@ -277,14 +338,29 @@ def _table_record(table: Any, page_words: Sequence[tuple], page: int) -> Optiona
     return {
         "page": page,
         "bbox": bbox,
-        "layout": "rows",
+        "layout": layout,
         "title": title,
         "header": header,
+        "header_groups": groups,
         "body": [
             {"cells": rows[index], "bbox": _row_bbox(table, index)}
             for index in range(body_start, len(rows))
         ],
     }
+
+
+def _location_header_index(rows: List[List[str]]) -> Optional[int]:
+    """Header row of a table keyed by grid location (``LOCATION MARK | SECTION``)."""
+
+    for index, row in enumerate(rows[:_MAX_HEADER_ROW]):
+        labels = [header_label(cell) for cell in row if cell.strip()]
+        if (
+            len(labels) >= 2
+            and "LOCATION" in labels[0]
+            and any(re.search(r"SECTION|SIZE|PLATE", label) for label in labels[1:])
+        ):
+            return index
+    return None
 
 
 def _header_index(rows: List[List[str]]) -> Optional[int]:

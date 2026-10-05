@@ -29,6 +29,7 @@ from dataclasses import asdict, dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
 
 from services.database_loader import catalog_form
+from services.engineering.column_schedule import column_schedule_view
 
 DRAWING_INTELLIGENCE_VERSION = "drawing_intelligence_v2"
 
@@ -1044,9 +1045,9 @@ def _schedule_definitions(
     document: Dict[str, Any],
     page_texts: Dict[int, str],
     typ_insights: List[Insight],
+    sheets: Dict[int, str],
 ) -> Dict[str, Any]:
     grids = [g for g in document.get("schedule_grid") or [] if g.get("rows")]
-    sheets = _sheet_ids(document)
     grid_pages = {int(g.get("page") or 0) for g in grids}
     words_by_page: Dict[int, List[Dict[str, Any]]] = defaultdict(list)
     for word in document.get("words") or []:
@@ -1105,11 +1106,17 @@ def _schedule_definitions(
             "pages": typ_pages, "page": typ_pages[0], "sheet": sheets.get(typ_pages[0]),
         })
 
-    # Pages that only POINT at a schedule ("SEE LINTEL SCHEDULE").
+    # Pages that only POINT at a schedule ("SEE LINTEL SCHEDULE"). A graphical
+    # column schedule has no mark rows but is a schedule page all the same.
     grid_kinds = {d["component"]: d for d in definitions}
+    column_pages = sorted({
+        p for s in (document.get("column_schedules") or {}).get("schedules") or [] for p in s["pages"]
+    })
+    if column_pages:
+        grid_kinds.setdefault("column", {"page": column_pages[0], "sheet": sheets.get(column_pages[0])})
     referenced: Dict[str, List[int]] = defaultdict(list)
     for page, text in page_texts.items():
-        if page in grid_pages:
+        if page in grid_pages or page in column_pages:
             continue
         for match in _SCHEDULE_REFERENCE_RE.finditer(text):
             kind = next(
@@ -1409,6 +1416,7 @@ def build_drawing_intelligence(
     full_text = _full_text(document, page_texts)
     page_count = int(document.get("page_count") or (max(page_texts) if page_texts else 0))
 
+    sheets = _sheet_ids(document)
     page_group_insights, category_of = _classify_pages(document, page_texts, context_pages)
     family_insights, steel_payload = _steel_families(document)
     typ_insights = _typical_conditions(document, page_texts, category_of)
@@ -1483,7 +1491,10 @@ def build_drawing_intelligence(
         "uncertainties": [i.as_dict() for i in uncertainties],
         "conflicts": [i.as_dict() for i in conflicts],
         "sources": [i.as_dict() for i in all_insights if i.source_pages or i.source_text],
-        **_schedule_definitions(document, page_texts, typ_insights),
+        **_schedule_definitions(document, page_texts, typ_insights, sheets),
+        # Display-only column entries (section, locations, plate, notes); not
+        # evidence for the summary model and never a quantity.
+        "column_schedule": column_schedule_view(document, sheets),
     }
     profile["narrative"] = _render_narrative(profile)
     profile["narrative"]["project_overview"] = _deterministic_overview(profile) + (
