@@ -1,4 +1,7 @@
 import axios from "axios";
+import { downloadFile } from "../lib/utils";
+import { authHeaders, reportAccessDenied } from "./accessKey";
+import { checkBackendIdentity } from "./devIdentity";
 
 /**
  * Single API entry point.
@@ -16,7 +19,27 @@ const client = axios.create({
   timeout: 35 * 60 * 1000,
 });
 
+// Development only: refuse to talk to a backend from another worktree (see
+// devIdentity.js) instead of rendering its responses as if they were ours.
+client.interceptors.request.use(async (config) => {
+  const identity = await checkBackendIdentity({ fresh: config.method !== "get" });
+  if (!identity.ok) {
+    const error = new Error(identity.problem);
+    error.backendIdentityRefused = true;
+    throw error;
+  }
+  Object.assign(config.headers, authHeaders());
+  return config;
+});
+
+// A hosted backend with API_ACCESS_TOKEN answers 401 until the key is entered.
+client.interceptors.response.use(undefined, (error) => {
+  if (error.response?.status === 401) reportAccessDenied();
+  return Promise.reject(error);
+});
+
 function describeError(error, label) {
+  if (error.backendIdentityRefused) return error.message;
   const status = error.response?.status;
   const detail = error.response?.data?.detail;
   if (detail) return typeof detail === "string" ? detail : JSON.stringify(detail);
@@ -363,8 +386,13 @@ export async function generateTakeoff(documentId) {
   return data;
 }
 
-export function takeoffDownloadUrl(filename) {
-  return `${baseURL}/api/takeoff/exports/${encodeURIComponent(filename)}`;
+/** Fetched through the client so a hosted backend's access key is sent. */
+export async function downloadTakeoffExport(filename) {
+  const { data } = await client.get(
+    `/api/takeoff/exports/${encodeURIComponent(filename)}`,
+    { responseType: "blob" },
+  );
+  downloadFile(data, filename, data.type);
 }
 
 export async function approveValidationCorrection({

@@ -33,6 +33,8 @@ import {
 } from "@mui/icons-material";
 import { useThemeMode } from "../context/ThemeContext";
 import { useAnalysis } from "../context/AnalysisContext";
+import AccessKeyPrompt from "../components/ui/AccessKeyPrompt";
+import BackendIdentityBanner from "../components/ui/BackendIdentityBanner";
 
 const DRAWER_WIDTH = 260;
 
@@ -252,6 +254,8 @@ export default function AppLayout() {
             py: { xs: 2.25, sm: 3, lg: 3.5 },
           }}
         >
+          <BackendIdentityBanner />
+          <AccessKeyPrompt />
           {rehydrationError && (
             <Alert severity="warning" variant="outlined" sx={{ mb: 2 }}>
               {rehydrationError}
