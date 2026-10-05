@@ -167,7 +167,7 @@ class SmallGeometryTests(unittest.TestCase):
 
 class SafetyTests(unittest.TestCase):
     def test_no_section_size_completion_occurs(self) -> None:
-        src = (BACKEND / "scripts/rd_geometry_integration/retrieval_v2.py").read_text()
+        src = (BACKEND / "scripts/rd_geometry_integration/retrieval_v2.py").read_text(encoding="utf-8")
         self.assertNotIn("L4X4X", src)
         self.assertNotIn("primary_label", src)
         self.assertNotIn("takeoff_eligible", src)
@@ -187,7 +187,7 @@ class SafetyTests(unittest.TestCase):
 
     def test_no_production_module_imported(self) -> None:
         path = BACKEND / "scripts/rd_geometry_integration/retrieval_v2.py"
-        tree = ast.parse(path.read_text())
+        tree = ast.parse(path.read_text(encoding="utf-8"))
         imported = set()
         for node in ast.walk(tree):
             if isinstance(node, ast.Import):
@@ -205,7 +205,7 @@ class SafetyTests(unittest.TestCase):
         gold = REPO / "docs/validation/rd_geometry_integration/review_kit/gold_outcomes.jsonl"
         self.assertTrue(gold.exists(), gold)
         expected = hashlib.sha256(gold.read_bytes()).hexdigest()
-        records = [json.loads(line) for line in gold.read_text().splitlines() if line.strip()]
+        records = [json.loads(line) for line in gold.read_text(encoding="utf-8").splitlines() if line.strip()]
         self.assertEqual(len(records), 75)
         associated = [r for r in records if r.get("decision") == "associated"]
         self.assertEqual(len(associated), 8)
@@ -216,8 +216,8 @@ class SafetyTests(unittest.TestCase):
         ]
         self.assertEqual(len(misses), 58)
         # retrieval_v2 must not be a writer of this path
-        v2_src = (BACKEND / "scripts/rd_geometry_integration/retrieval_v2.py").read_text()
-        run_src = (BACKEND / "scripts/rd_geometry_integration/run_retrieval_v2.py").read_text()
+        v2_src = (BACKEND / "scripts/rd_geometry_integration/retrieval_v2.py").read_text(encoding="utf-8")
+        run_src = (BACKEND / "scripts/rd_geometry_integration/run_retrieval_v2.py").read_text(encoding="utf-8")
         self.assertNotIn("gold_outcomes.jsonl", v2_src)
         self.assertIn("Does not write gold_outcomes.jsonl", run_src)
         self.assertNotRegex(run_src, r"GOLD_PATH\.write")

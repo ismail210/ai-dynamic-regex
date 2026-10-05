@@ -153,7 +153,7 @@ class SafetyContractTests(unittest.TestCase):
         self.assertTrue(settings.schedule_mark_map_enabled)
 
     def test_orchestrator_does_not_import_excel(self) -> None:
-        source = (_BACKEND / "services/prediction/orchestrator.py").read_text()
+        source = (_BACKEND / "services/prediction/orchestrator.py").read_text(encoding="utf-8")
         tree = ast.parse(source)
         modules = []
         for node in ast.walk(tree):

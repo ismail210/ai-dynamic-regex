@@ -158,7 +158,7 @@ class ExportMetadataContentTests(unittest.TestCase):
             groups = _build_groups_for_pdf(pdf_path)
             out_dir = Path(tmp) / "export"
             payload = write_group_export(groups[0], pdf_path=str(pdf_path), output_dir=out_dir)
-            metadata = json.loads((out_dir / f"{groups[0].group_id}.json").read_text())
+            metadata = json.loads((out_dir / f"{groups[0].group_id}.json").read_text(encoding="utf-8"))
             self.assertIn("no_valid_target_option", metadata)
             self.assertTrue(metadata["multi_target_supported"])
             self.assertIn("annotation_notes_field", metadata)

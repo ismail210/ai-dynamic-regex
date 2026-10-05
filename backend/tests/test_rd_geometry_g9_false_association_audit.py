@@ -73,13 +73,13 @@ def m():
 @pytest.fixture(scope="module")
 def rows():
     assert RESULTS.exists(), "Run g9_false_association_audit.py first"
-    return [json.loads(l) for l in RESULTS.read_text().splitlines() if l.strip()]
+    return [json.loads(l) for l in RESULTS.read_text(encoding="utf-8").splitlines() if l.strip()]
 
 
 @pytest.fixture(scope="module")
 def summary():
     assert SUMMARY.exists()
-    return json.loads(SUMMARY.read_text())
+    return json.loads(SUMMARY.read_text(encoding="utf-8"))
 
 
 def _sha(path: Path) -> str:
@@ -95,7 +95,7 @@ def test_artifacts_exist():
 
 
 def test_discovers_exactly_27_false_associations(m):
-    g9 = [json.loads(l) for l in G9.read_text().splitlines() if l.strip()]
+    g9 = [json.loads(l) for l in G9.read_text(encoding="utf-8").splitlines() if l.strip()]
     fa = m.discover_false_associations(g9)
     assert len(fa) == EXPECTED_FA
     ids = [r["token_id"] for r in fa]
@@ -123,7 +123,7 @@ def test_every_case_has_evidence(rows):
 def test_b_cases_reference_g8_candidate(rows):
     g8 = {
         json.loads(l)["token_id"]: json.loads(l)
-        for l in G8.read_text().splitlines()
+        for l in G8.read_text(encoding="utf-8").splitlines()
         if l.strip()
     }
     for r in rows:
@@ -139,7 +139,7 @@ def test_b_cases_reference_g8_candidate(rows):
 def test_d_cases_identify_selected_and_alternative(rows):
     g8 = {
         json.loads(l)["token_id"]: json.loads(l)
-        for l in G8.read_text().splitlines()
+        for l in G8.read_text(encoding="utf-8").splitlines()
         if l.strip()
     }
     for r in rows:
@@ -176,7 +176,7 @@ def test_deterministic_output(rows, summary, m):
     assert summary.get("deterministic_ok") is True
     assert summary.get("validation_problems") == []
     # Second discovery pass yields identical token set
-    g9 = [json.loads(l) for l in G9.read_text().splitlines() if l.strip()]
+    g9 = [json.loads(l) for l in G9.read_text(encoding="utf-8").splitlines() if l.strip()]
     fa_ids = [r["token_id"] for r in m.discover_false_associations(g9)]
     assert [r["token_id"] for r in rows] == fa_ids
     assert len(set(fa_ids)) == EXPECTED_FA
@@ -190,7 +190,7 @@ def test_duplicate_token_ids_rejected(rows):
 def test_all_referenced_candidate_ids_exist(rows):
     g8 = {
         json.loads(l)["token_id"]: json.loads(l)
-        for l in G8.read_text().splitlines()
+        for l in G8.read_text(encoding="utf-8").splitlines()
         if l.strip()
     }
     for r in rows:
@@ -204,7 +204,7 @@ def test_all_referenced_candidate_ids_exist(rows):
 
 
 def test_all_27_represented_exactly_once(rows, m):
-    g9 = [json.loads(l) for l in G9.read_text().splitlines() if l.strip()]
+    g9 = [json.loads(l) for l in G9.read_text(encoding="utf-8").splitlines() if l.strip()]
     expected = sorted(r["token_id"] for r in m.discover_false_associations(g9))
     got = sorted(r["token_id"] for r in rows)
     assert got == expected
@@ -218,7 +218,7 @@ def test_gate_is_explicit(summary):
         "AUDIT_COMPLETE_G10_NOT_YET_JUSTIFIED",
         "AUDIT_INCOMPLETE",
     }
-    assert gate in REPORT.read_text()
+    assert gate in REPORT.read_text(encoding="utf-8")
     assert gate != "AUDIT_INCOMPLETE"
 
 

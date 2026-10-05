@@ -59,7 +59,7 @@ def _sha(p: Path) -> str:
 
 
 def _rows():
-    return [json.loads(l) for l in OUTCOMES.read_text().splitlines() if l.strip()]
+    return [json.loads(l) for l in OUTCOMES.read_text(encoding="utf-8").splitlines() if l.strip()]
 
 
 def test_review_artifacts_exist():
@@ -80,7 +80,7 @@ def test_decisions_match_pending_files():
     for r in rows:
         p = PENDING / f"{r['token_id']}.decision.json"
         assert p.exists()
-        d = json.loads(p.read_text())
+        d = json.loads(p.read_text(encoding="utf-8"))
         assert d["token_id"] == r["token_id"]
         assert d["reviewer_decision"] == r["reviewer_decision"]
 
@@ -96,7 +96,7 @@ def test_decision_vocabulary():
 def test_owned_ids_in_g8():
     g8 = {
         json.loads(l)["token_id"]: json.loads(l)
-        for l in G8.read_text().splitlines()
+        for l in G8.read_text(encoding="utf-8").splitlines()
         if l.strip()
     }
     for r in _rows():
@@ -140,8 +140,8 @@ def test_counts():
 
 
 def test_g10_not_justified_and_final_no_go():
-    just = JUST.read_text()
-    final = FINAL.read_text()
+    just = JUST.read_text(encoding="utf-8")
+    final = FINAL.read_text(encoding="utf-8")
     assert "NOT_JUSTIFIED" in just
     assert "PRODUCTION_NO_GO" in final
     assert "G10 was not run" in final or "not run" in final.lower()
@@ -151,10 +151,10 @@ def test_historical_gold_and_g8_g9_frozen():
     assert _sha(GOLD) == EXPECTED_GOLD
     assert _sha(G8) == EXPECTED_G8
     assert _sha(G9) == EXPECTED_G9
-    summary = json.loads(SUMMARY.read_text())
+    summary = json.loads(SUMMARY.read_text(encoding="utf-8"))
     assert summary["safety"]["historical_gold_unchanged"] is True
 
 
 def test_manifest_ids_covered():
-    man = [json.loads(l) for l in MANIFEST.read_text().splitlines() if l.strip()]
+    man = [json.loads(l) for l in MANIFEST.read_text(encoding="utf-8").splitlines() if l.strip()]
     assert sorted(r["token_id"] for r in man) == sorted(r["token_id"] for r in _rows())

@@ -43,7 +43,7 @@ def test_gold_sha_frozen():
 
 
 def test_gold_has_75_cases():
-    rows = [json.loads(l) for l in GOLD.read_text().splitlines() if l.strip()]
+    rows = [json.loads(l) for l in GOLD.read_text(encoding="utf-8").splitlines() if l.strip()]
     assert len(rows) == 75
 
 

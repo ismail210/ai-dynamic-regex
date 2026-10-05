@@ -59,7 +59,7 @@ def _sha(path: Path) -> str:
 
 
 def _load_jsonl(path: Path):
-    return [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
 
 
 def test_control_records_deterministic(e4):
@@ -169,7 +169,7 @@ def test_insufficient_evidence_not_counted_as_genuine():
     # they must never be counted as genuine.
     for c in insuff:
         assert c["control_id"] not in genuine_ids
-    summary = json.loads(SUMMARY.read_text())
+    summary = json.loads(SUMMARY.read_text(encoding="utf-8"))
     assert summary["metrics"]["insufficient_n"] == len(
         [r for r in results if r["control_status"] == "insufficient_evidence"]
     )
@@ -179,7 +179,7 @@ def test_insufficient_evidence_not_counted_as_genuine():
 
 def test_no_production_files_modified_and_gold_immutable():
     assert _sha(GOLD) == EXPECTED_GOLD_SHA
-    summary = json.loads(SUMMARY.read_text())
+    summary = json.loads(SUMMARY.read_text(encoding="utf-8"))
     assert summary["gold_sha"] == EXPECTED_GOLD_SHA
     # Retrieval / E3 artifacts remain frozen; geometry_extractor.py may change
     # after the approved post-E5.1 production own-label fix.
@@ -187,7 +187,7 @@ def test_no_production_files_modified_and_gold_immutable():
     assert _sha(RETRIEVAL_V2) == summary["retrieval_v2_sha"]
     assert _sha(E3_RESULTS) == summary["e3_results_sha"]
     assert EXTRACTOR.exists()
-    assert "services/engineering/geometry_extractor.py" in str(EXTRACTOR)
+    assert EXTRACTOR.as_posix().endswith("services/engineering/geometry_extractor.py")
 
 
 def test_e4_control_set_does_not_mutate_human_gold():
@@ -217,12 +217,12 @@ def test_repeated_execution_identical_results():
     assert r1.returncode == 0, r1.stderr
     set1 = _sha(CONTROL_SET)
     res1 = _sha(RESULTS)
-    sum1 = json.loads(SUMMARY.read_text())
+    sum1 = json.loads(SUMMARY.read_text(encoding="utf-8"))
     r2 = subprocess.run(env_cmd, cwd=str(ROOT), capture_output=True, text=True)
     assert r2.returncode == 0, r2.stderr
     assert _sha(CONTROL_SET) == set1
     assert _sha(RESULTS) == res1
-    sum2 = json.loads(SUMMARY.read_text())
+    sum2 = json.loads(SUMMARY.read_text(encoding="utf-8"))
     assert sum2["metrics"] == sum1["metrics"]
     assert sum2["e3_regression"] == sum1["e3_regression"]
     assert _sha(GOLD) == EXPECTED_GOLD_SHA

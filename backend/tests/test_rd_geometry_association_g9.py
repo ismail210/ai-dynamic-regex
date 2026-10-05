@@ -78,7 +78,7 @@ def test_gold_sha_frozen():
 
 def test_g8_results_exist_with_75():
     assert G8.exists()
-    rows = [json.loads(l) for l in G8.read_text().splitlines() if l.strip()]
+    rows = [json.loads(l) for l in G8.read_text(encoding="utf-8").splitlines() if l.strip()]
     assert len(rows) == 75
 
 

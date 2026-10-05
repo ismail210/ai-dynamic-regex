@@ -145,7 +145,7 @@ class ReviewKitGoldPreserveTests(unittest.TestCase):
             gold = out / "gold_outcomes.jsonl"
             gold.write_text('{"token_id":"keep"}\n')
             write_review_kit([], out)
-            self.assertEqual(gold.read_text(), '{"token_id":"keep"}\n')
+            self.assertEqual(gold.read_text(encoding="utf-8"), '{"token_id":"keep"}\n')
 
 
 class HumanGoldIntegrityTests(unittest.TestCase):
@@ -155,7 +155,7 @@ class HumanGoldIntegrityTests(unittest.TestCase):
             / "docs/validation/rd_geometry_integration/review_kit/gold_outcomes.jsonl"
         )
         self.assertTrue(path.exists(), path)
-        records = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+        records = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
         self.assertEqual(len(records), 75)
         ids = [r["token_id"] for r in records]
         self.assertEqual(len(ids), len(set(ids)))

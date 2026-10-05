@@ -94,12 +94,12 @@ def m():
 @pytest.fixture(scope="module")
 def rows():
     assert MANIFEST.exists(), "Run g8_era_human_validation_prep.py first"
-    return [json.loads(l) for l in MANIFEST.read_text().splitlines() if l.strip()]
+    return [json.loads(l) for l in MANIFEST.read_text(encoding="utf-8").splitlines() if l.strip()]
 
 
 @pytest.fixture(scope="module")
 def summary():
-    return json.loads(SUMMARY.read_text())
+    return json.loads(SUMMARY.read_text(encoding="utf-8"))
 
 
 def test_artifacts_exist():
@@ -132,7 +132,7 @@ def test_no_duplicate_token_ids(rows):
 
 
 def test_matches_audit_bcd_set(rows):
-    audit = [json.loads(l) for l in AUDIT.read_text().splitlines() if l.strip()]
+    audit = [json.loads(l) for l in AUDIT.read_text(encoding="utf-8").splitlines() if l.strip()]
     expected = sorted(
         r["token_id"] for r in audit if r.get("classification") in {"B", "C", "D"}
     )
@@ -142,7 +142,7 @@ def test_matches_audit_bcd_set(rows):
 def test_all_g8_candidate_ids_exist(rows):
     g8 = {
         json.loads(l)["token_id"]: json.loads(l)
-        for l in G8.read_text().splitlines()
+        for l in G8.read_text(encoding="utf-8").splitlines()
         if l.strip()
     }
     for r in rows:
@@ -199,7 +199,7 @@ def test_no_new_gold_file_created():
 
 
 def test_schema_has_required_decisions():
-    schema = json.loads(SCHEMA.read_text())
+    schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
     vocab = schema["decision_vocabulary"]
     assert set(vocab) >= {"VALID_MEMBER", "NO_VALID_MEMBER", "AMBIGUOUS", "NEEDS_REVIEW"}
     assert schema["not_production_gold"] is True
@@ -218,7 +218,7 @@ def test_gate_complete(summary):
     assert summary["g8_era_human_validation_preparation"] == "COMPLETE"
     assert summary["validation"]["ok"] is True
     assert summary["safety"]["no_new_gold_created"] is True
-    assert "COMPLETE" in PLAN.read_text()
+    assert "COMPLETE" in PLAN.read_text(encoding="utf-8")
 
 
 def test_deterministic_manifest_order(rows, m):

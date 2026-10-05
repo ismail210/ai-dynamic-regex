@@ -213,7 +213,7 @@ def test_gold_immutable_sha():
 def test_audited_population_is_21_from_e1():
     tokens = {
         __import__("json").loads(line)["token_id"]
-        for line in E1.read_text().splitlines()
+        for line in E1.read_text(encoding="utf-8").splitlines()
         if line.strip()
         and __import__("json").loads(line).get("population") == "audited_21"
     }

@@ -77,7 +77,7 @@ def _sha(path: Path) -> str:
 
 
 def _rows():
-    return [json.loads(line) for line in RESULTS.read_text().splitlines() if line.strip()]
+    return [json.loads(line) for line in RESULTS.read_text(encoding="utf-8").splitlines() if line.strip()]
 
 
 def test_artifacts_exist():
@@ -90,7 +90,7 @@ def test_artifacts_exist():
 def test_audits_exactly_e5_unestablished_token_ids(m):
     e5 = [
         json.loads(line)
-        for line in E5_RESULTS.read_text().splitlines()
+        for line in E5_RESULTS.read_text(encoding="utf-8").splitlines()
         if line.strip()
     ]
     expected = sorted(
@@ -103,7 +103,7 @@ def test_audits_exactly_e5_unestablished_token_ids(m):
 
 def test_e5_artifacts_immutable():
     assert _sha(E5_RESULTS) == EXPECTED_E5_SHA
-    summary = json.loads(SUMMARY.read_text())
+    summary = json.loads(SUMMARY.read_text(encoding="utf-8"))
     assert summary["regression"]["e5_results_sha"] == EXPECTED_E5_SHA
 
 
@@ -134,12 +134,12 @@ def test_category_partition_covers_all_33(m):
         m.CAT_OTHER,
     }
     assert cats <= allowed
-    summary = json.loads(SUMMARY.read_text())
+    summary = json.loads(SUMMARY.read_text(encoding="utf-8"))
     assert sum(summary["category_counts"].values()) == 33
 
 
 def test_unrelated_majority_and_zero_representation_gap(m):
-    summary = json.loads(SUMMARY.read_text())
+    summary = json.loads(SUMMARY.read_text(encoding="utf-8"))
     assert summary["category_counts"].get(m.CAT_UNRELATED, 0) >= 25
     assert summary["category_counts"].get(m.CAT_REP_GAP, 0) == 0
     assert summary["metrics"]["visual_yes_machine_no_n"] == 0
@@ -154,14 +154,14 @@ def test_counterexamples_safe(m):
 
 
 def test_ownership_gate_explicit():
-    summary = json.loads(SUMMARY.read_text())
+    summary = json.loads(SUMMARY.read_text(encoding="utf-8"))
     gate = summary["ownership_gate"]["gate"]
     assert gate in {"READY_FOR_IMPLEMENTATION", "NOT_READY", "REPRESENTATION_GAP"}
-    assert gate in REPORT.read_text()
+    assert gate in REPORT.read_text(encoding="utf-8")
 
 
 def test_immutability_gold_extractor_e3_e4():
-    summary = json.loads(SUMMARY.read_text())
+    summary = json.loads(SUMMARY.read_text(encoding="utf-8"))
     assert _sha(GOLD) == EXPECTED_GOLD_SHA
     # E3/E5 result artifacts remain frozen. geometry_extractor.py is allowed
     # to change after OWNERSHIP_GATE = READY_FOR_IMPLEMENTATION. E4 results may
