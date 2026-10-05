@@ -19,7 +19,7 @@ from typing import Any, Callable, Dict, Iterable, List, Optional
 from services.engineering.drawing_intelligence import _DEMO_RE, _EXISTING_RE, _NEW_RE
 from services.engineering.member_geometry import _union_bbox as _union_boxes
 from services.engineering.column_schedule import _NOT_PLATE_GROUP_RE as NOT_PLATE_GROUP_RE
-from services.engineering.column_schedule import build_column_schedules, parse_dimension
+from services.engineering.column_schedule import _band_key, band_readings, build_column_schedules, parse_dimension
 from services.engineering.schedule_tables import (
     MARK_HEADERS,
     SIZE_HEADERS,
@@ -479,6 +479,7 @@ def attach_schedule_grid(
     # Display/evidence only: never read by prediction or quantities.
     rotated = read_rotated_column_schedules(pdf_path, words) if pdf_path else []
     document["column_schedules"] = build_column_schedules(records + rotated, grids)
+    attach_level_bands(grids, document["column_schedules"])
     if pdf_path:
         from services.engineering.level_evidence import masked_spot_labels
 
@@ -840,28 +841,46 @@ _TRANSPOSED_LEVEL_DATUM_RE = re.compile(r"\d+' - \d+\"")
 
 
 def _split_transposed_level_label(level: str) -> Dict[str, Any]:
-    """Separate one leading feet-inch prefix from a transposed ``level`` label."""
+    """``level_band``: the printed parts of a transposed ``level`` label.
+
+    The printed elevation and name are *not* a level: in a graphical schedule
+    the label between two drawn lines is the upper line's elevation and the
+    lower line's name. ``pairing`` stays ``unresolved`` until
+    :func:`attach_level_bands` reads the drawn lines; ``level`` is set only
+    when one line prints both parts.
+    """
 
     text = str(level or "")
     found = list(_TRANSPOSED_LEVEL_DATUM_RE.finditer(text))
+    band = {"raw": text, "printed_elevation": None, "printed_name": None, "prefix_status": "absent",
+            "pairing": "unresolved", "level": None, "elevation_of": None, "name_of": None}
     if not text.strip() or (found and (found[0].start() != 0 or len(found) != 1)):
-        return {
-            "level_elevation_text": None,
-            "level_name": None,
-            "level_elevation_status": "unresolved",
-        }
-    if not found:
-        return {
-            "level_elevation_text": None,
-            "level_name": text,
-            "level_elevation_status": "absent",
-        }
-    name = text[found[0].end():].lstrip()
-    return {
-        "level_elevation_text": found[0].group(0),
-        "level_name": name or None,
-        "level_elevation_status": "present",
-    }
+        band["prefix_status"] = "unresolved"
+    elif not found:
+        band["printed_name"] = text
+    else:
+        band.update(printed_elevation=found[0].group(0), printed_name=text[found[0].end():].lstrip() or None,
+                    prefix_status="present")
+    return {"level_band": band}
+
+
+def attach_level_bands(grids: List[Dict[str, Any]], column_schedules: Dict[str, Any]) -> None:
+    """Resolve each row's ``level_band`` pairing from the drawn level lines of
+    the same page's column schedule (metadata only; rows are not selected,
+    added or removed)."""
+
+    readings = band_readings(column_schedules)
+    for grid in grids:
+        for row in grid.get("rows") or []:
+            band = row.get("level_band")
+            reading = band and readings.get((grid.get("page"), _band_key(band["raw"])))
+            if not reading:
+                continue
+            band["pairing"] = reading["pairing"]
+            if reading["pairing"] == "ambiguous":
+                band["candidates"] = reading["candidates"]
+            else:
+                band.update(level=reading["level"], elevation_of=reading["elevation_of"], name_of=reading["name_of"])
 
 
 def _transposed_grid(

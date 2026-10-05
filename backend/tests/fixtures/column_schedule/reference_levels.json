@@ -43,6 +43,7 @@
     {
       "key": "burrville",
       "pdf": "51 - Burrvile ES/ST-Burrville.pdf",
+      "bands": {"29' - 0\" UPPER LEVEL": ["MAIN ROOF", "UPPER LEVEL"]},
       "schedule_levels": {
         "COLUMN SCHEDULE": [["UPPER ROOF", "44' - 6\""], ["MAIN ROOF", "29' - 0\""], ["UPPER LEVEL", "14' - 6\""],
                             ["GROUND LEVEL", "0' - 0\""]]

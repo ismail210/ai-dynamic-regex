@@ -882,47 +882,54 @@ class PlateStructureTests(unittest.TestCase):
 class TransposedLevelTests(unittest.TestCase):
     def test_datum_and_name_keep_the_printed_prefix(self) -> None:
         split = _split_transposed_level_label('14\' - 6" GROUND LEVEL')
-        self.assertEqual(split["level_elevation_text"], '14\' - 6"')
-        self.assertEqual(split["level_name"], "GROUND LEVEL")
-        self.assertEqual(split["level_elevation_status"], "present")
+        self.assertEqual(split["level_band"]["printed_elevation"], '14\' - 6"')
+        self.assertEqual(split["level_band"]["printed_name"], "GROUND LEVEL")
+        self.assertEqual(split["level_band"]["prefix_status"], "present")
+
+    def test_printed_parts_are_not_a_level_until_the_drawn_lines_say_so(self) -> None:
+        # Burrville S-501 p28: the band between MAIN ROOF and UPPER LEVEL lines
+        # prints MAIN ROOF's 29' - 0" and UPPER LEVEL's name.
+        band = _split_transposed_level_label('29\' - 0" UPPER LEVEL')["level_band"]
+        self.assertEqual(band["raw"], '29\' - 0" UPPER LEVEL')
+        self.assertEqual((band["pairing"], band["level"]), ("unresolved", None))
 
     def test_zero_datum_has_no_level_name(self) -> None:
         split = _split_transposed_level_label('0\' - 0"')
-        self.assertEqual(split["level_elevation_text"], '0\' - 0"')
-        self.assertIsNone(split["level_name"])
-        self.assertEqual(split["level_elevation_status"], "present")
+        self.assertEqual(split["level_band"]["printed_elevation"], '0\' - 0"')
+        self.assertIsNone(split["level_band"]["printed_name"])
+        self.assertEqual(split["level_band"]["prefix_status"], "present")
 
     def test_main_roof_and_upper_level_datums(self) -> None:
         roof = _split_transposed_level_label('44\' - 6" MAIN ROOF')
         upper = _split_transposed_level_label('29\' - 0" UPPER LEVEL')
-        self.assertEqual(roof["level_elevation_text"], '44\' - 6"')
-        self.assertEqual(roof["level_name"], "MAIN ROOF")
-        self.assertEqual(roof["level_elevation_status"], "present")
-        self.assertEqual(upper["level_elevation_text"], '29\' - 0"')
-        self.assertEqual(upper["level_name"], "UPPER LEVEL")
-        self.assertEqual(upper["level_elevation_status"], "present")
+        self.assertEqual(roof["level_band"]["printed_elevation"], '44\' - 6"')
+        self.assertEqual(roof["level_band"]["printed_name"], "MAIN ROOF")
+        self.assertEqual(roof["level_band"]["prefix_status"], "present")
+        self.assertEqual(upper["level_band"]["printed_elevation"], '29\' - 0"')
+        self.assertEqual(upper["level_band"]["printed_name"], "UPPER LEVEL")
+        self.assertEqual(upper["level_band"]["prefix_status"], "present")
 
     def test_name_only_label_has_no_elevation(self) -> None:
         split = _split_transposed_level_label("UPPER ROOF")
-        self.assertIsNone(split["level_elevation_text"])
-        self.assertEqual(split["level_name"], "UPPER ROOF")
-        self.assertEqual(split["level_elevation_status"], "absent")
+        self.assertIsNone(split["level_band"]["printed_elevation"])
+        self.assertEqual(split["level_band"]["printed_name"], "UPPER ROOF")
+        self.assertEqual(split["level_band"]["prefix_status"], "absent")
 
     def test_reaction_label_is_not_an_elevation(self) -> None:
         split = _split_transposed_level_label("UNFACTORED REACTION (KIPS)")
-        self.assertIsNone(split["level_elevation_text"])
-        self.assertEqual(split["level_elevation_status"], "absent")
+        self.assertIsNone(split["level_band"]["printed_elevation"])
+        self.assertEqual(split["level_band"]["prefix_status"], "absent")
 
     def test_two_datums_stay_unresolved(self) -> None:
         label = '14\' - 6" / 29\' - 0" LEVEL'
         split = _split_transposed_level_label(label)
-        self.assertIsNone(split["level_elevation_text"])
-        self.assertIsNone(split["level_name"])
-        self.assertEqual(split["level_elevation_status"], "unresolved")
+        self.assertIsNone(split["level_band"]["printed_elevation"])
+        self.assertIsNone(split["level_band"]["printed_name"])
+        self.assertEqual(split["level_band"]["prefix_status"], "unresolved")
         buried = _split_transposed_level_label('GROUND LEVEL 14\' - 6"')
-        self.assertIsNone(buried["level_elevation_text"])
-        self.assertIsNone(buried["level_name"])
-        self.assertEqual(buried["level_elevation_status"], "unresolved")
+        self.assertIsNone(buried["level_band"]["printed_elevation"])
+        self.assertIsNone(buried["level_band"]["printed_name"])
+        self.assertEqual(buried["level_band"]["prefix_status"], "unresolved")
 
     def test_same_location_keeps_one_row_per_level(self) -> None:
         record = {
@@ -941,7 +948,7 @@ class TransposedLevelTests(unittest.TestCase):
         }
         (grid,) = _ruled_grids([record], _accept)
         self.assertEqual(
-            [(row["level"], row["level_elevation_text"], row["level_name"], row["level_elevation_status"]) for row in grid["rows"]],
+            [(row["level"], row["level_band"]["printed_elevation"], row["level_band"]["printed_name"], row["level_band"]["prefix_status"]) for row in grid["rows"]],
             [
                 ('0\' - 0"', '0\' - 0"', None, "present"),
                 ('14\' - 6" GROUND LEVEL', '14\' - 6"', "GROUND LEVEL", "present"),
@@ -964,8 +971,7 @@ class TransposedLevelTests(unittest.TestCase):
         ], _accept)
         row = grid["rows"][0]
         self.assertNotIn("level", row)
-        self.assertNotIn("level_elevation_text", row)
-        self.assertNotIn("level_elevation_status", row)
+        self.assertNotIn("level_band", row)
         self.assertEqual(row["plate_text"], "BP1")
 
 

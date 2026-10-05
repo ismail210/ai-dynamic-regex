@@ -413,6 +413,27 @@ class LevelBandTests(unittest.TestCase):
         self.assertEqual(band["lower"], {"name": "FIRST FLOOR", "elevation": "0' - 0\""})
         self.assertEqual(band["schedule_rows"], 3)
 
+    def test_schedule_rows_get_an_explicit_pairing_and_no_invented_level(self):
+        from services.engineering.schedule_grid import _split_transposed_level_label, attach_level_bands
+
+        schedule = _level_schedule([("ROOF", "28' - 0\""), ("SECOND FLOOR", "14' - 0\""),
+                                    ("FIRST FLOOR", "0' - 0\"")])
+        rows = [{"mark": "A-8", "level": label, **_split_transposed_level_label(label)}
+                for label in ("14' - 0\" FIRST FLOOR", "14' - 0\" SECOND FLOOR", "9' - 0\" MEZZANINE")]
+        grids = [{"page": 26, "rows": rows}]
+        attach_level_bands(grids, {"schedules": [schedule]})
+        unpaired, paired, unknown = (row["level_band"] for row in grids[0]["rows"])
+        # The band between two lines: two different levels, no canonical level.
+        self.assertEqual((unpaired["pairing"], unpaired["level"]), ("unpaired", None))
+        self.assertEqual((unpaired["elevation_of"]["level"], unpaired["name_of"]["level"]),
+                         ("SECOND FLOOR", "FIRST FLOOR"))
+        self.assertEqual(unpaired["elevation_of"]["bbox"], [10, 152, 50, 160])
+        # One line printing both parts is a level.
+        self.assertEqual((paired["pairing"], paired["level"]["name"]), ("paired", "SECOND FLOOR"))
+        # No drawn line explains the band: unresolved, nothing guessed.
+        self.assertEqual((unknown["pairing"], unknown["level"], unknown["elevation_of"]), ("unresolved", None, None))
+        self.assertEqual(len(grids[0]["rows"]), 3)
+
     def test_blocks_keep_each_source_and_never_pair_across_blocks(self):
         from services.engineering.level_evidence import levels_view
 

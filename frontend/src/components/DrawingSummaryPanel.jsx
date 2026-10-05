@@ -1006,8 +1006,15 @@ function LevelBands({ bands }) {
       </Typography>
       {bands.map((b) => (
         <Typography key={`${b.schedule_id}-${b.printed}`} variant="body2" sx={{ mb: 0.25 }}>
-          <Box component="span" sx={{ fontFamily: "monospace" }}>{b.printed}</Box> — {b.upper.elevation} is{" "}
-          {b.upper.name}; {b.lower.name} is at {b.lower.elevation || "an elevation the schedule does not print"}
+          <Box component="span" sx={{ fontFamily: "monospace" }}>{b.printed}</Box> —{" "}
+          {b.pairing === "unpaired" && (
+            <>
+              two levels: {b.upper.elevation} is {b.upper.name}; {b.lower.name} is at{" "}
+              {b.lower.elevation || "an elevation the schedule does not print"}
+            </>
+          )}
+          {b.pairing === "paired" && <>one level: {b.level.name} at {b.level.elevation_text}</>}
+          {b.pairing === "ambiguous" && <>reads more than one way in this schedule; not attributed to a level</>}
           {b.schedule_rows > 0 ? ` · the label of ${b.schedule_rows} schedule row${b.schedule_rows === 1 ? "" : "s"}` : ""}
         </Typography>
       ))}

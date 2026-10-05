@@ -926,6 +926,61 @@ def _continues(first: tuple, second: tuple) -> bool:
     return not union or len(first[2] & second[2]) / len(union) >= 0.8
 
 
+def _band_key(text: Any) -> str:
+    return " ".join(str(text or "").split()).upper()
+
+
+def band_readings(column_schedules: Dict[str, Any]) -> Dict[tuple, Dict[str, Any]]:
+    """What each printed level band means, from the schedule's drawn level lines.
+
+    A graphical (Revit) schedule prints a level's name just above its line and
+    its elevation just below it, so the label of the band between two lines
+    reads ``<upper line's elevation> <lower line's name>`` -- ``14' - 0" FIRST
+    FLOOR`` is SECOND FLOOR's elevation and FIRST FLOOR's name. Keyed by
+    ``(page, printed band)``. ``pairing``:
+
+    * ``unpaired`` -- the two parts belong to different lines (``elevation_of``
+      / ``name_of`` say which, with their source boxes);
+    * ``paired`` -- one line prints both (``level`` is that level);
+    * ``ambiguous`` -- the same printed band reads more than one way.
+    """
+
+    readings: Dict[tuple, Dict[str, Any]] = {}
+
+    def part(line: Dict[str, Any], text_key: str, box_key: str) -> Dict[str, Any]:
+        return {"text": line[text_key], "level": line["name"], "elevation_text": line["elevation_text"],
+                "page": line["page"], "bbox": line.get(box_key)}
+
+    def add(key: tuple, reading: Dict[str, Any]) -> None:
+        known = readings.get(key)
+        if known is None:
+            readings[key] = reading
+        elif (known["pairing"], known.get("elevation_of", {}).get("level"), known.get("name_of", {}).get("level")) != \
+                (reading["pairing"], reading.get("elevation_of", {}).get("level"), reading.get("name_of", {}).get("level")):
+            readings[key] = {"pairing": "ambiguous", "schedule_id": reading["schedule_id"],
+                             "candidates": [known, reading] if known["pairing"] != "ambiguous"
+                             else known["candidates"] + [reading]}
+
+    for schedule in (column_schedules or {}).get("schedules") or []:
+        lines = schedule.get("level_lines") or []
+        for line in lines:
+            if line.get("name") and line.get("elevation_text"):
+                add((line["page"], _band_key(f"{line['elevation_text']} {line['name']}")),
+                    {"pairing": "paired", "schedule_id": schedule["id"],
+                     "level": {"name": line["name"], "elevation_text": line["elevation_text"]},
+                     "elevation_of": part(line, "elevation_text", "elevation_bbox"),
+                     "name_of": part(line, "name", "name_bbox")})
+        for upper, lower in zip(lines, lines[1:]):
+            if lower.get("block") != upper.get("block") or lower["y"] <= upper["y"]:
+                continue
+            if upper.get("elevation_text") and lower.get("name"):
+                add((upper["page"], _band_key(f"{upper['elevation_text']} {lower['name']}")),
+                    {"pairing": "unpaired", "schedule_id": schedule["id"], "level": None,
+                     "elevation_of": part(upper, "elevation_text", "elevation_bbox"),
+                     "name_of": part(lower, "name", "name_bbox")})
+    return readings
+
+
 def build_column_schedules(
     records: List[Dict[str, Any]], grids: Optional[List[Dict[str, Any]]] = None
 ) -> Dict[str, Any]:

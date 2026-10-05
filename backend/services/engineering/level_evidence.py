@@ -22,7 +22,7 @@ from collections import defaultdict
 from fractions import Fraction
 from typing import Any, Dict, List, Optional
 
-from services.engineering.column_schedule import _union_boxes, parse_length
+from services.engineering.column_schedule import _band_key, _union_boxes, band_readings, parse_length
 from services.engineering.page_space import convert_boxes, display_boxes
 
 _ENCLOSURES = {"(": ")", "<": ">", "[": "]", "{": "}"}
@@ -742,28 +742,30 @@ def _level_bands(document: Dict[str, Any], sheets: Dict[int, str]) -> List[Dict[
     for grid in document.get("schedule_grid") or []:
         for row in grid.get("rows") or []:
             if row.get("level"):
-                rows[_clean(row["level"])] += 1
+                rows[_band_key(row["level"])] += 1
+    names = {s["id"]: s.get("caption") or s["title"]
+             for s in (document.get("column_schedules") or {}).get("schedules") or []}
     out: Dict[tuple, Dict[str, Any]] = {}
-    for schedule in (document.get("column_schedules") or {}).get("schedules") or []:
-        lines = schedule.get("level_lines") or []
-        for upper, lower in zip(lines, lines[1:]):
-            if lower.get("block") != upper.get("block") or lower["y"] <= upper["y"]:
-                continue
-            if not upper["elevation_text"] or not lower["name"]:
-                continue
-            printed = _clean(f"{upper['elevation_text']} {lower['name']}")
-            key = (schedule["id"], printed)
-            if key in out:
-                out[key]["blocks"] += 1
-                continue
-            out[key] = {
-                "schedule_id": schedule["id"], "schedule": schedule.get("caption") or schedule["title"],
-                "printed": printed,
-                "upper": {"name": upper["name"], "elevation": upper["elevation_text"]},
-                "lower": {"name": lower["name"], "elevation": lower["elevation_text"]},
-                "page": upper["page"], "sheet": sheets.get(upper["page"]), "blocks": 1,
-                "schedule_rows": rows.get(printed, 0),
-            }
+    for (page, printed), reading in band_readings(document.get("column_schedules") or {}).items():
+        # A line's own name + elevation is a band only if a schedule row prints it.
+        if reading["pairing"] == "paired" and not rows.get(printed):
+            continue
+        key = (reading["schedule_id"], printed)
+        if key in out:
+            out[key]["pages"].append(page)
+            continue
+        known = reading["pairing"] != "ambiguous"
+        out[key] = {
+            "schedule_id": reading["schedule_id"], "schedule": names.get(reading["schedule_id"]),
+            "printed": printed, "pairing": reading["pairing"], "level": reading.get("level"),
+            # Which level each printed part belongs to (None when ambiguous).
+            "upper": {"name": reading["elevation_of"]["level"], "elevation": reading["elevation_of"]["text"]}
+            if known else None,
+            "lower": {"name": reading["name_of"]["level"], "elevation": reading["name_of"]["elevation_text"]}
+            if known else None,
+            "page": page, "sheet": sheets.get(page), "pages": [page],
+            "schedule_rows": rows.get(printed, 0),
+        }
     return list(out.values())
 
 

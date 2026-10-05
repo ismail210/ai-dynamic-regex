@@ -110,6 +110,12 @@ class LevelReferenceTests(unittest.TestCase):
         for printed, (upper, lower) in spec.get("bands", {}).items():
             self.assertEqual((bands[printed]["upper"]["name"], bands[printed]["lower"]["name"]), (upper, lower))
             self.assertGreater(bands[printed]["schedule_rows"], 0)
+            # Production rows carrying the band say it names two levels; no canonical level.
+            carried = [r["level_band"] for g in document["schedule_grid"] for r in g["rows"]
+                       if r.get("level_band") and " ".join(r["level_band"]["raw"].split()) == printed]
+            self.assertTrue(carried)
+            self.assertEqual({(b["pairing"], b["level"] is None) for b in carried}, {("unpaired", True)})
+            self.assertEqual({(b["elevation_of"]["level"], b["name_of"]["level"]) for b in carried}, {(upper, lower)})
         rows = {r["mark"]: r for g in document["schedule_grid"] for r in g["rows"]}
         for mark, plate in spec.get("plates", {}).items():
             self.assertEqual(rows[mark]["plate_status"], plate["status"])

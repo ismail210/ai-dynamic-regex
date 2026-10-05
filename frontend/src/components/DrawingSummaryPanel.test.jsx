@@ -777,7 +777,7 @@ describe("DrawingSummaryPanel — level bands and flagged values", () => {
   const levels = () => ({
     schedule_levels: [], plan_elevations: [], datums: [], notations: [],
     level_bands: [{
-      schedule_id: "S1", schedule: "COLUMN SCHEDULE", printed: "14' - 0\" FIRST FLOOR",
+      schedule_id: "S1", schedule: "COLUMN SCHEDULE", printed: "14' - 0\" FIRST FLOOR", pairing: "unpaired", level: null,
       upper: { name: "SECOND FLOOR", elevation: "14' - 0\"" }, lower: { name: "FIRST FLOOR", elevation: "0' - 0\"" },
       page: 26, sheet: "S501", blocks: 4, schedule_rows: 118,
     }],
@@ -794,7 +794,7 @@ describe("DrawingSummaryPanel — level bands and flagged values", () => {
 
   it("explains that a printed band joins two different levels", () => {
     render(<DrawingSummaryPanel profile={evidenceProfile({ levels: levels() })} />);
-    expect(screen.getByText(/14' - 0" is\s+SECOND FLOOR; FIRST FLOOR is at 0' - 0"/)).toBeInTheDocument();
+    expect(screen.getByText(/two levels: 14' - 0" is SECOND FLOOR; FIRST FLOOR is at\s+0' - 0"/)).toBeInTheDocument();
     expect(screen.getByText(/the label of 118 schedule rows/)).toBeInTheDocument();
   });
 
