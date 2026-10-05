@@ -44,6 +44,7 @@ from services.engineering.level_evidence import (
     spot_elevations,
 )
 from services.engineering.page_space import convert_boxes, display_boxes
+from services.engineering.view_scope import COUNTS, ScopeResolver
 
 _BUBBLE_MIN, _BUBBLE_MAX = 10.0, 90.0
 _AXIS_MIN_LENGTH = 200.0      # a grid line runs across the plan, not a detail
@@ -332,11 +333,12 @@ def trace_column(document: Dict[str, Any], pdf_path: str, location: str,
         for ln in document.get("lines") or []:
             if len(ln.get("bbox") or []) >= 4:
                 lines_by_page.setdefault(int(ln.get("page_number") or 0), []).append(ln)
+        scopes = ScopeResolver(document, elevations)
         with fitz.open(pdf_path) as pdf:
             analysed: Dict[int, Optional[Dict[str, Any]]] = {}
             for line in spanned:
                 level = {"name": line["name"], "elevation": line.get("elevation_text"), "plans": [],
-                         "other_titled_sheets": []}
+                         "other_titled_sheets": [], "other_scope_views": []}
                 plans = _plan_pages(line, plan_names, elevations, schedule_pages, block_levels)
                 if not plans:
                     level["note"] = "No plan names this level or states its elevation."
@@ -350,9 +352,37 @@ def trace_column(document: Dict[str, Any], pdf_path: str, location: str,
                         # Neither grid is labelled here: a titled sheet that is not this plan view.
                         level["other_titled_sheets"].append(sheets.get(page_no) or f"p. {page_no}")
                         continue
-                    level["plans"].append({"page": page_no, "sheet": sheets.get(page_no), "plan": plan["title"],
-                                           "matched_by": plan["matched_by"], "ambiguous_match": plan["ambiguous"],
-                                           **found})
+                    record = {"page": page_no, "sheet": sheets.get(page_no), "plan": plan["title"],
+                              "matched_by": plan["matched_by"], "ambiguous_match": plan["ambiguous"],
+                              **found, "candidates": []}
+                    for candidate in found["candidates"]:
+                        scope = scopes.scope(schedule["id"], page_no, candidate["point_bbox"])
+                        if scope["status"] == "conflicting":
+                            # Another building's view with the same grid and level names.
+                            level["other_scope_views"].append({"page": page_no, "sheet": sheets.get(page_no),
+                                                              "view_title": scope["view_title"],
+                                                              "sheet_title": scope["sheet_title"],
+                                                              "note": scope["note"]})
+                            continue
+                        record["candidates"].append({**candidate, "scope": scope})
+                    if not found["candidates"]:
+                        # No grid crossing here: the sheet's own scope decides whether to list it.
+                        sheet_scope = scopes.scope(schedule["id"], page_no)
+                        if sheet_scope["status"] == "conflicting":
+                            level["other_scope_views"].append({"page": page_no, "sheet": sheets.get(page_no),
+                                                              "view_title": None,
+                                                              "sheet_title": sheet_scope["sheet_title"],
+                                                              "note": sheet_scope["note"]})
+                            continue
+                        record["scope"] = sheet_scope
+                    elif not record["candidates"]:
+                        continue
+                    if not any(c["scope"]["status"] in COUNTS for c in record["candidates"]):
+                        record["scope_unresolved"] = True
+                    seen = [c for c in record["candidates"] if c["symbol"]]
+                    if found["observation"] == "column_symbol" and not seen:
+                        record["observation"] = "not_detected"
+                    level["plans"].append(record)
                 trace["levels"].append(level)
     # One plan page matched to several spanned levels is not specific to any.
     levels_of_page: Dict[int, List[str]] = {}
@@ -375,9 +405,12 @@ def trace_column(document: Dict[str, Any], pdf_path: str, location: str,
             for lvl in trace["levels"] if lvl["name"] == end.get("level")
             for plan in lvl["plans"] for candidate in plan["candidates"] for note in candidate["annotations"]
             if note["how"] == "leader ends at the column" and words.search(note["text"])
+            and candidate["scope"]["status"] in COUNTS
         ]
+    # A symbol counts only on a plan specific to the level, in this schedule's scope.
     observed_levels = [lvl["name"] for lvl in trace["levels"]
-                       if any(p.get("observation") == "column_symbol" and not p["ambiguous_match"] for p in lvl["plans"])]
+                       if any(not p["ambiguous_match"] and c["symbol"] and c["scope"]["status"] in COUNTS
+                              for p in lvl["plans"] for c in p["candidates"])]
     trace["summary"] = {
         "levels_spanned": [lvl["name"] for lvl in trace["levels"]],
         "levels_with_symbol": observed_levels,

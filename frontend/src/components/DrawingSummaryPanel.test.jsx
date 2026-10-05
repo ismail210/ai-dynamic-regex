@@ -822,10 +822,14 @@ describe("DrawingSummaryPanel — column tracing pilot", () => {
     },
     levels: [{
       name: "T.O. ROOF", elevation: "69' - 4\"", other_titled_sheets: ["S3.05"],
+      other_scope_views: [{ page: 5, sheet: "S101", view_title: null, sheet_title: "OSSE PARKING FOUNDATION AND FIRST FLOOR PLAN",
+        note: "The view is titled for PARKING, another schedule's scope." }],
       plans: [{
         page: 11, sheet: "S123", plan: "OSSE FACILITY ROOF PLAN", observation: "column_symbol", ambiguous_match: false,
         matched_by: "the plan's note names OFFICE ROOF at the same elevation", grid_axes: [1, 1],
         candidates: [{ page: 11, point_bbox: [2171, 1487, 2177, 1493], symbol: { bbox: [2170, 1480, 2177, 1497] },
+          scope: { status: "supported_by_datum", view_title: null, sheet_title: "OSSE FACILITY ROOF PLAN",
+            note: "The plan's note names OFFICE ROOF at 69'-4\", a level of this schedule only." },
           annotations: [], nearby_text: [{ text: "69' - 9\"", how: "nearby" }] }],
       }],
     }],
@@ -843,6 +847,8 @@ describe("DrawingSummaryPanel — column tracing pilot", () => {
     expect(spy).toHaveBeenCalledWith("doc_abc", "A.4'-14, B-4.9, E-8(-4'-4\"), C'-15.6", "S1");
     expect(screen.getByText(/Bottom end: S121 prints “POST UP” with a leader to the column/)).toBeInTheDocument();
     expect(screen.getByText(/Nearby, not associated: 69' - 9"/)).toBeInTheDocument();
+    expect(screen.getByText(/Scope: same building \/ area \(datum note\) — OSSE FACILITY ROOF PLAN/)).toBeInTheDocument();
+    expect(screen.getByText(/Not this building \/ area: S101 · OSSE PARKING FOUNDATION AND FIRST FLOOR PLAN/)).toBeInTheDocument();
     expect(screen.getByText(/do not establish how many fabricated pieces/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /View S123 · PDF p. 11 for T.O. ROOF grid intersection/ }));
     expect(await screen.findByTestId("pdf-viewer")).toHaveAttribute("data-page", "11");

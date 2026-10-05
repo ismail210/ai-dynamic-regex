@@ -20,7 +20,10 @@
       "plates": {"CBP-2": {"status": "present", "thickness": "3/4\"", "width": "12\"", "length": "18\"",
                            "plate_text": "12\" 18\" 3/4\""}},
       "traces": {"C.8-8.9": {"levels_with_symbol": ["T.O. ROOF", "T.O. SLAB LEVEL 2", "T.O. SLAB LEVEL 1"],
-                             "bottom": "T.O. SLAB LEVEL 1"}}
+                             "bottom": "T.O. SLAB LEVEL 1",
+                             "scope": {"S121": "supported_by_datum", "S122": "consistent_by_sheet_family",
+                                       "S123": "supported_by_datum"},
+                             "other_scope": {"T.O. SLAB LEVEL 1": ["S101"]}}}
     },
     {
       "key": "furley",

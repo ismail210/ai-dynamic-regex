@@ -700,6 +700,25 @@ function TraceEnd({ which, end, onView }) {
   ));
 }
 
+const SCOPE_LABEL = {
+  consistent: "same building / area",
+  supported_by_datum: "same building / area (datum note)",
+  consistent_by_sheet_family: "same building / area (sheet family)",
+  single_schedule: "one column schedule in the set",
+  unresolved: "building / area not established",
+};
+
+function ScopeLine({ scope }) {
+  if (!scope) return null;
+  const counts = scope.status !== "unresolved";
+  return (
+    <Typography variant="caption" color={counts ? "text.secondary" : "warning.main"} display="block">
+      Scope: {SCOPE_LABEL[scope.status] || scope.status}
+      {scope.view_title || scope.sheet_title ? ` — ${scope.view_title || scope.sheet_title}` : ""}. {scope.note}
+    </Typography>
+  );
+}
+
 function TracePlan({ plan, levelName, onView }) {
   return (
     <Box sx={{ pl: 2, mb: 0.75 }}>
@@ -715,8 +734,15 @@ function TracePlan({ plan, levelName, onView }) {
         {OBSERVATION_LABEL[plan.observation] || plan.observation}
       </Typography>
       {plan.note && <Typography variant="caption" color="text.secondary" display="block">{plan.note}</Typography>}
+      <ScopeLine scope={plan.scope} />
+      {plan.scope_unresolved && (
+        <Typography variant="caption" color="warning.main" display="block">
+          Shown as a candidate only: nothing printed ties this view to the schedule's building or area.
+        </Typography>
+      )}
       {plan.candidates.map((c, i) => (
         <Stack key={i} spacing={0.25} sx={{ pl: 1.5, mt: 0.25 }}>
+          <ScopeLine scope={c.scope} />
           <Stack direction="row" spacing={1} sx={{ alignItems: "center", flexWrap: "wrap" }}>
             <ViewPageButton
               item={{
@@ -791,6 +817,11 @@ function ColumnTrace({ entry, documentId, onView }) {
               )}
               {level.plans.map((plan) => (
                 <TracePlan key={plan.page} plan={plan} levelName={level.name} onView={onView} />
+              ))}
+              {level.other_scope_views?.map((o, i) => (
+                <Typography key={`o${i}`} variant="caption" color="text.secondary" display="block" sx={{ pl: 2 }}>
+                  Not this building / area: {o.sheet || `p. ${o.page}`} · {o.view_title || o.sheet_title} — {o.note}
+                </Typography>
               ))}
               {level.other_titled_sheets?.length > 0 && (
                 <Typography variant="caption" color="text.secondary" display="block" sx={{ pl: 2 }}>

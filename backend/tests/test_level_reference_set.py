@@ -133,6 +133,14 @@ class LevelReferenceTests(unittest.TestCase):
                 trace = trace_column(document, str(_ROOT / spec["pdf"]), location)
                 self.assertEqual(trace["summary"]["levels_with_symbol"], expected["levels_with_symbol"], location)
                 self.assertEqual(trace["ends"]["bottom"]["level"], expected["bottom"])
+                for sheet, status in expected.get("scope", {}).items():
+                    self.assertIn(status, [c["scope"]["status"] for lvl in trace["levels"] for p in lvl["plans"]
+                                           if p["sheet"] == sheet for c in p["candidates"]], sheet)
+                for level_name, excluded in expected.get("other_scope", {}).items():
+                    # Another building's plan with the same level name is listed apart, never observed.
+                    (lvl,) = [lvl for lvl in trace["levels"] if lvl["name"] == level_name]
+                    self.assertEqual([o["sheet"] for o in lvl["other_scope_views"]], excluded)
+                    self.assertNotIn(excluded[0], [p["sheet"] for p in lvl["plans"]])
                 if "top_annotations" in expected:
                     # POST UP starts a column; it never supports the top end.
                     self.assertEqual([a["text"] for a in trace["ends"]["top"]["plan_annotations"]],
