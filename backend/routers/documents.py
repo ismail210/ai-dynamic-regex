@@ -23,6 +23,7 @@ from services.staged_pipeline import (
     load_cached_extraction,
     run_analysis_stage,
     run_extraction_stage,
+    trace_scheduled_column,
 )
 from services.upload_service import (
     EXCEL_SUFFIXES,
@@ -96,6 +97,24 @@ async def extract_document(
 @router.get("/documents/{document_id}/extraction")
 def document_extraction(document_id: str):
     result = load_cached_extraction(document_id)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Extraction not found")
+    return result
+
+
+@router.get("/documents/{document_id}/column-trace")
+def column_trace(
+    document_id: str,
+    location: str = Query(..., min_length=1, max_length=80),
+    schedule: Optional[str] = Query(None, max_length=20),
+):
+    """Column tracing pilot: one schedule entry looked for on the framing plans."""
+
+    try:
+        document_source(document_id)
+    except (FileNotFoundError, ValueError) as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    result = trace_scheduled_column(document_id, location, schedule)
     if result is None:
         raise HTTPException(status_code=404, detail="Extraction not found")
     return result

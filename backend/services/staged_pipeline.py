@@ -178,6 +178,20 @@ def _write_extraction_view(document: Dict[str, Any]) -> Optional[str]:
     )
 
 
+def trace_scheduled_column(
+    document_id: str, location: str, schedule_id: Optional[str] = None
+) -> Optional[Dict[str, Any]]:
+    """Column tracing pilot for one schedule entry of an extracted document
+    (evidence for review; nothing is stored). ``None`` without a current extraction."""
+
+    from services.engineering.column_trace import trace_column
+
+    document = _current_document(document_id)
+    if document is None:
+        return None
+    return trace_column(document, str(document_source(document_id)), location, schedule_id)
+
+
 def load_cached_extraction(document_id: str) -> Optional[Dict[str, Any]]:
     """Return the persisted extraction without starting extraction."""
 

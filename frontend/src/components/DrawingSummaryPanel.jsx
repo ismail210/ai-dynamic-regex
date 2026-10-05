@@ -26,7 +26,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { CloseOutlined, ExpandMoreOutlined, FindInPageOutlined } from "@mui/icons-material";
-import { documentPdfUrl } from "../api/client";
+import { documentPdfUrl, getColumnTrace } from "../api/client";
 
 // pdf.js only loads when a source page is actually opened.
 const PdfDocumentViewer = lazy(() => import("./pdf/PdfDocumentViewer"));
@@ -418,7 +418,7 @@ function SourceTrail({ via, onView }) {
   );
 }
 
-function ColumnEntryDetails({ entry, onView }) {
+function ColumnEntryDetails({ entry, onView, documentId }) {
   const plate = entry.plate;
   return (
     <Stack spacing={1.25} sx={{ py: 1, px: 1.5, bgcolor: "action.hover", borderRadius: 1 }}>
@@ -507,6 +507,7 @@ function ColumnEntryDetails({ entry, onView }) {
         </Typography>
       )}
       <ColumnExtent entry={entry} />
+      {documentId && <ColumnTrace entry={entry} documentId={documentId} onView={onView} />}
       <Typography variant="caption" color="text.secondary">
         A schedule entry is a definition, not a counted member — it is never a takeoff quantity.
       </Typography>
@@ -514,7 +515,7 @@ function ColumnEntryDetails({ entry, onView }) {
   );
 }
 
-function ColumnEntryRow({ entry, onView }) {
+function ColumnEntryRow({ entry, onView, documentId }) {
   const [open, setOpen] = useState(false);
   const plate = plateSummary(entry.plate);
   const status = entry.plate.status;
@@ -579,7 +580,7 @@ function ColumnEntryRow({ entry, onView }) {
         <TableCell colSpan={5} sx={{ py: 0, borderBottom: open ? undefined : 0 }}>
           <Collapse in={open} unmountOnExit>
             <Box sx={{ pb: 1.5 }}>
-              <ColumnEntryDetails entry={entry} onView={onView} />
+              <ColumnEntryDetails entry={entry} onView={onView} documentId={documentId} />
             </Box>
           </Collapse>
         </TableCell>
@@ -588,7 +589,7 @@ function ColumnEntryRow({ entry, onView }) {
   );
 }
 
-function ColumnScheduleBlock({ schedule, entries, onView }) {
+function ColumnScheduleBlock({ schedule, entries, onView, documentId }) {
   const [open, setOpen] = useState(false);
   const collapsible = entries.length > COLLAPSED_COLUMNS + 1;
   const shown = open || !collapsible ? entries : entries.slice(0, COLLAPSED_COLUMNS);
@@ -640,7 +641,7 @@ function ColumnScheduleBlock({ schedule, entries, onView }) {
           </TableHead>
           <TableBody>
             {shown.map((entry) => (
-              <ColumnEntryRow key={entry.id} entry={entry} onView={onView} />
+              <ColumnEntryRow key={entry.id} entry={entry} onView={onView} documentId={documentId} />
             ))}
           </TableBody>
         </Table>
@@ -656,7 +657,7 @@ function ColumnScheduleBlock({ schedule, entries, onView }) {
   );
 }
 
-function ColumnSchedules({ data, onView }) {
+function ColumnSchedules({ data, onView, documentId }) {
   return (
     <Section title="Column schedule">
       <Typography variant="body2" color="text.secondary" mb={1.5}>
@@ -670,9 +671,149 @@ function ColumnSchedules({ data, onView }) {
           schedule={schedule}
           entries={data.entries.filter((e) => e.schedule_id === schedule.id)}
           onView={onView}
+          documentId={documentId}
         />
       ))}
     </Section>
+  );
+}
+
+// Column tracing pilot: the schedule column looked for on the framing plans of
+// the levels it spans. Observations are shown with their sources; ends are
+// established only by the schedule's drawn extent or an explicit annotation.
+const OBSERVATION_LABEL = {
+  column_symbol: "column symbol drawn at the grid intersection",
+  not_detected: "no column symbol detected at the grid intersection (not evidence of absence)",
+  grids_not_found: "both grid lines were not found on this plan",
+};
+
+function TraceEnd({ which, end, onView }) {
+  return (
+    <Box>
+      <Typography variant="body2">
+        <b>{which}:</b>{" "}
+        {end.state === "established"
+          ? `${end.level}${end.elevation ? ` (${end.elevation})` : ""} — ${end.by}`
+          : `not established — ${end.note}`}
+      </Typography>
+      {end.plan_annotations?.map((a, i) => (
+        <Stack key={i} direction="row" spacing={1} sx={{ alignItems: "center", pl: 2 }}>
+          <Typography variant="caption">
+            {a.sheet || `p. ${a.page}`} prints “{a.text}” with a leader to the column
+          </Typography>
+          <ViewPageButton item={{ ...a, mark: `${a.text} (${which.toLowerCase()} end)` }} label="View" onView={onView} />
+        </Stack>
+      ))}
+    </Box>
+  );
+}
+
+function TracePlan({ plan, levelName, onView }) {
+  return (
+    <Box sx={{ pl: 2, mb: 0.75 }}>
+      <Typography variant="body2">
+        {plan.sheet || `p. ${plan.page}`} · {plan.plan}{" "}
+        <Typography component="span" variant="caption" color="text.secondary">({plan.matched_by})</Typography>
+      </Typography>
+      <Typography
+        variant="caption"
+        color={plan.observation === "column_symbol" ? "success.main" : "text.secondary"}
+        display="block"
+      >
+        {OBSERVATION_LABEL[plan.observation] || plan.observation}
+      </Typography>
+      {plan.note && <Typography variant="caption" color="text.secondary" display="block">{plan.note}</Typography>}
+      {plan.candidates.map((c, i) => (
+        <Stack key={i} spacing={0.25} sx={{ pl: 1.5, mt: 0.25 }}>
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center", flexWrap: "wrap" }}>
+            <ViewPageButton
+              item={{
+                page: c.page,
+                sheet: plan.sheet,
+                bbox: c.symbol?.bbox || c.point,
+                mark: `${levelName} grid intersection${plan.candidates.length > 1 ? ` ${i + 1}` : ""}`,
+              }}
+              label={plan.candidates.length > 1 ? `Intersection ${i + 1}` : "View intersection"}
+              onView={onView}
+            />
+            {c.annotations.map((a, j) => (
+              <Typography key={j} variant="caption">“{a.text}” — {a.how}</Typography>
+            ))}
+          </Stack>
+          {c.nearby_text.length > 0 && (
+            <Typography variant="caption" color="text.secondary">
+              Nearby, not associated: {c.nearby_text.slice(0, 6).map((n) => n.text).join("; ")}
+            </Typography>
+          )}
+        </Stack>
+      ))}
+    </Box>
+  );
+}
+
+function ColumnTrace({ entry, documentId, onView }) {
+  const [state, setState] = useState({ loading: false, trace: null, error: null });
+  const location = entry.location_text || entry.mark;
+  if (!location) return null;
+  const load = async () => {
+    setState({ loading: true, trace: null, error: null });
+    try {
+      const trace = await getColumnTrace(documentId, location, entry.schedule_id);
+      setState({ loading: false, trace, error: null });
+    } catch (error) {
+      setState({ loading: false, trace: null, error: error.friendlyMessage || "The trace could not be loaded." });
+    }
+  };
+  const trace = state.trace;
+  return (
+    <Box>
+      <Typography variant="caption" color="text.secondary" display="block" mb={0.5}>
+        On the framing plans (pilot)
+      </Typography>
+      {!trace && (
+        <Button
+          size="small"
+          variant="outlined"
+          onClick={load}
+          disabled={state.loading}
+          startIcon={state.loading ? <CircularProgress size={14} /> : null}
+        >
+          Look for this column on the plans
+        </Button>
+      )}
+      {state.error && <Alert severity="warning" variant="outlined" sx={{ py: 0, mt: 0.5 }}>{state.error}</Alert>}
+      {trace && trace.status !== "traced" && (
+        <Typography variant="body2" color="text.secondary">{trace.note}</Typography>
+      )}
+      {trace?.status === "traced" && (
+        <Stack spacing={0.75}>
+          <TraceEnd which="Top" end={trace.ends.top} onView={onView} />
+          <TraceEnd which="Bottom" end={trace.ends.bottom} onView={onView} />
+          {trace.levels.map((level) => (
+            <Box key={level.name}>
+              <Typography variant="body2" fontWeight={600}>
+                {level.name}{level.elevation ? ` (${level.elevation})` : ""}
+              </Typography>
+              {level.note && (
+                <Typography variant="caption" color="text.secondary" display="block" sx={{ pl: 2 }}>{level.note}</Typography>
+              )}
+              {level.plans.map((plan) => (
+                <TracePlan key={plan.page} plan={plan} levelName={level.name} onView={onView} />
+              ))}
+              {level.other_titled_sheets?.length > 0 && (
+                <Typography variant="caption" color="text.secondary" display="block" sx={{ pl: 2 }}>
+                  Also titled for this level, without these grid labels: {level.other_titled_sheets.join(", ")}
+                </Typography>
+              )}
+            </Box>
+          ))}
+          {trace.notes.map((note, i) => (
+            <Typography key={i} variant="caption" color="text.secondary" display="block">{note}</Typography>
+          ))}
+          <Typography variant="caption" color="text.secondary">{trace.summary.note}</Typography>
+        </Stack>
+      )}
+    </Box>
   );
 }
 
@@ -787,7 +928,16 @@ function LevelRow({ level, onView }) {
         )}
       </TableCell>
       <TableCell align="right" sx={{ width: "1%" }}>
-        <ViewPageButton item={sourceItem} label="View level" onView={onView} />
+        <Stack spacing={0.5} sx={{ alignItems: "flex-end" }}>
+          {(level.occurrences?.length > 1 ? level.occurrences : [sourceItem]).map((o, i, all) => (
+            <ViewPageButton
+              key={i}
+              item={{ ...o, mark: all.length > 1 ? `${level.name} (schedule part ${i + 1})` : level.name }}
+              label={all.length > 1 ? `Part ${i + 1}` : "View level"}
+              onView={onView}
+            />
+          ))}
+        </Stack>
       </TableCell>
     </TableRow>
   );
@@ -852,6 +1002,27 @@ function PlanElevationRow({ item, onView }) {
   );
 }
 
+function LevelBands({ bands }) {
+  if (!bands?.length) return null;
+  return (
+    <Paper variant="outlined" sx={{ mb: 2, p: 1.5 }}>
+      <Typography variant="subtitle2" fontWeight={700}>How the schedule's printed level labels read</Typography>
+      <Typography variant="caption" color="text.secondary" display="block" mb={1}>
+        Each level's name is printed above its line and its elevation below it, so the label between two
+        lines joins the elevation of one level with the name of the next one down. Schedule rows keep that
+        label exactly as printed.
+      </Typography>
+      {bands.map((b) => (
+        <Typography key={`${b.schedule_id}-${b.printed}`} variant="body2" sx={{ mb: 0.25 }}>
+          <Box component="span" sx={{ fontFamily: "monospace" }}>{b.printed}</Box> — {b.upper.elevation} is{" "}
+          {b.upper.name}; {b.lower.name} is at {b.lower.elevation || "an elevation the schedule does not print"}
+          {b.schedule_rows > 0 ? ` · the label of ${b.schedule_rows} schedule row${b.schedule_rows === 1 ? "" : "s"}` : ""}
+        </Typography>
+      ))}
+    </Paper>
+  );
+}
+
 function LevelsAndElevations({ data, onView }) {
   const [showAll, setShowAll] = useState(false);
   const levels = data.schedule_levels || [];
@@ -894,6 +1065,7 @@ function LevelsAndElevations({ data, onView }) {
           </Box>
         </Paper>
       ))}
+      <LevelBands bands={data.level_bands} />
       {elevations.length > 0 && (
         <Paper variant="outlined" sx={{ mb: 2, overflow: "hidden" }}>
           <Typography variant="subtitle1" fontWeight={700} sx={{ px: 2, py: 1.25, bgcolor: "action.hover" }}>
@@ -945,17 +1117,34 @@ function LevelsAndElevations({ data, onView }) {
               <ViewPageButton item={{ ...n.source, mark: n.sample }} label="View note" onView={onView} />
             </Stack>
           ))}
-          {data.noted_on_plans?.map((g) => (
-            <Stack key={`v${g.page}`} direction="row" spacing={1} sx={{ alignItems: "center", flexWrap: "wrap", mb: 0.5 }}>
-              <Typography variant="body2">
-                {g.sheet || `p. ${g.page}`}: {g.count} value{g.count === 1 ? "" : "s"} noted on plan ({g.meaning.join(", ")})
-                {g.examples.length ? ` — e.g. ${g.examples.slice(0, 3).map((e) => e.text).join("; ")}` : ""}
-              </Typography>
-              {g.examples[0] && (
-                <ViewPageButton item={{ ...g.examples[0], mark: g.examples[0].value }} label="View example" onView={onView} />
-              )}
-            </Stack>
-          ))}
+          {data.noted_on_plans?.map((g) => {
+            const read = g.examples.filter((e) => e.status !== "flagged");
+            const flagged = g.examples.filter((e) => e.status === "flagged");
+            return (
+              <Box key={`v${g.page}`} sx={{ mb: 0.5 }}>
+                <Stack direction="row" spacing={1} sx={{ alignItems: "center", flexWrap: "wrap" }}>
+                  <Typography variant="body2">
+                    {g.sheet || `p. ${g.page}`}: {g.count} value{g.count === 1 ? "" : "s"} noted on plan ({g.meaning.join(", ")})
+                    {read.length ? ` — e.g. ${read.slice(0, 3).map((e) => e.text).join("; ")}` : ""}
+                    {g.rule_sheets?.length > 0 ? ` · notation defined on ${g.rule_sheets.join(", ")}` : ""}
+                  </Typography>
+                  {read[0] && (
+                    <ViewPageButton item={{ ...read[0], mark: read[0].value }} label="View example" onView={onView} />
+                  )}
+                </Stack>
+                {flagged.map((e, i) => (
+                  <Stack key={i} direction="row" spacing={1} sx={{ alignItems: "center", flexWrap: "wrap", pl: 2 }}>
+                    <Chip size="small" variant="outlined" color="warning" label="flagged" />
+                    <Typography variant="caption">
+                      Printed <Box component="span" sx={{ fontFamily: "monospace" }}>{e.value}</Box> — {e.flag}; reads
+                      as {e.candidate} if completed. Kept as a candidate, not used as an elevation.
+                    </Typography>
+                    <ViewPageButton item={{ ...e, mark: `${e.value} (flagged ${i + 1})` }} label="View" onView={onView} />
+                  </Stack>
+                ))}
+              </Box>
+            );
+          })}
         </Paper>
       )}
     </Section>
@@ -1159,7 +1348,8 @@ export default function DrawingSummaryPanel({ profile, documentId = null }) {
   const hasColumnSchedule = columnEntries.length > 0;
   const levels = di?.levels;
   const hasLevels = Boolean(
-    levels && (levels.schedule_levels?.length || levels.plan_elevations?.length || levels.datums?.length),
+    levels && ["schedule_levels", "plan_elevations", "datums", "notations", "noted_on_plans", "level_bands"]
+      .some((key) => levels[key]?.length),
   );
   // Column marks the column schedule already shows (with plates and notes).
   const scheduledColumns = new Set(
@@ -1224,7 +1414,7 @@ export default function DrawingSummaryPanel({ profile, documentId = null }) {
           {definitions.length > 0 && (
             <MarksAndDefinitions definitions={definitions} notes={modelNotes} onView={onView} />
           )}
-          {hasColumnSchedule && <ColumnSchedules data={columnSchedule} onView={onView} />}
+          {hasColumnSchedule && <ColumnSchedules data={columnSchedule} onView={onView} documentId={documentId} />}
           {hasLevels && <LevelsAndElevations data={levels} onView={onView} />}
           {interpretationRules.length > 0 && (
             <InterpretationRules rules={interpretationRules} notes={modelNotes} onView={onView} />

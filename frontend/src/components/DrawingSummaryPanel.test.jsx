@@ -772,3 +772,86 @@ describe("DrawingSummaryPanel — source page navigation", () => {
     expect(await screen.findByTestId("pdf-viewer")).toHaveAttribute("data-page", "7");
   });
 });
+
+describe("DrawingSummaryPanel — level bands and flagged values", () => {
+  const levels = () => ({
+    schedule_levels: [], plan_elevations: [], datums: [], notations: [],
+    level_bands: [{
+      schedule_id: "S1", schedule: "COLUMN SCHEDULE", printed: "14' - 0\" FIRST FLOOR",
+      upper: { name: "SECOND FLOOR", elevation: "14' - 0\"" }, lower: { name: "FIRST FLOOR", elevation: "0' - 0\"" },
+      page: 26, sheet: "S501", blocks: 4, schedule_rows: 118,
+    }],
+    noted_on_plans: [{
+      page: 8, sheet: "S2.04", plan: "FRAMING PLAN", meaning: ["top of steel (from top of datum slab on grade)"],
+      count: 2, flagged: 1, rule_sheets: ["S2.01"],
+      examples: [
+        { text: "TOS (30'-8\")", value: "(30'-8\")", status: "read", page: 8, sheet: "S2.04", bbox: [1, 2, 3, 4] },
+        { text: "TOS (+30'-8)", value: "(+30'-8)", status: "flagged", candidate: "30'-8\"",
+          flag: "closing inch mark missing", page: 8, sheet: "S2.04", bbox: [5, 6, 7, 8] },
+      ],
+    }],
+  });
+
+  it("explains that a printed band joins two different levels", () => {
+    render(<DrawingSummaryPanel profile={evidenceProfile({ levels: levels() })} />);
+    expect(screen.getByText(/14' - 0" is\s+SECOND FLOOR; FIRST FLOOR is at 0' - 0"/)).toBeInTheDocument();
+    expect(screen.getByText(/the label of 118 schedule rows/)).toBeInTheDocument();
+  });
+
+  it("shows a flagged value with its printed text and candidate, apart from read values", async () => {
+    render(<DrawingSummaryPanel profile={evidenceProfile({ levels: levels() })} documentId="doc_abc" />);
+    expect(screen.getByText(/notation defined on S2.01/)).toBeInTheDocument();
+    expect(screen.getByText("flagged")).toBeInTheDocument();
+    expect(screen.getByText(/closing inch mark missing; reads\s+as 30'-8" if completed/)).toBeInTheDocument();
+    expect(screen.queryByText(/e\.g\. .*\(\+30'-8\)/)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /for \(\+30'-8\) \(flagged 1\)/ }));
+    expect(await screen.findByTestId("pdf-viewer")).toHaveAttribute("data-page", "8");
+  });
+});
+
+describe("DrawingSummaryPanel — column tracing pilot", () => {
+  const trace = {
+    status: "traced", pilot: true, location_text: "A.4'-14", grids: [], sections: ["W10X33"], notes: [],
+    schedule: { id: "S1", title: "COLUMN SCHEDULE", page: 42, sheet: "S600", bbox: [1, 2, 3, 4] },
+    ends: {
+      top: { state: "established", level: "T.O. ROOF", elevation: "69' - 4\"", by: "drawn on the schedule's level line",
+        plan_annotations: [] },
+      bottom: { state: "unresolved", position: "between", plan_annotations: [],
+        note: "The schedule draws the bottom end between two level lines; it is not moved to the nearest line." },
+    },
+    levels: [{
+      name: "T.O. ROOF", elevation: "69' - 4\"", other_titled_sheets: ["S3.05"],
+      plans: [{
+        page: 11, sheet: "S123", plan: "OSSE FACILITY ROOF PLAN", observation: "column_symbol", ambiguous_match: false,
+        matched_by: "the plan's note names OFFICE ROOF at the same elevation", grid_axes: [1, 1],
+        candidates: [{ page: 11, point: [2171, 1487, 2177, 1493], symbol: { bbox: [2170, 1480, 2177, 1497] },
+          annotations: [], nearby_text: [{ text: "69' - 9\"", how: "nearby" }] }],
+      }],
+    }],
+    summary: { levels_spanned: ["T.O. ROOF"], levels_with_symbol: ["T.O. ROOF"], logical_stack_only: true,
+      note: "Observations describe one logical column stack at this location; they do not establish how many fabricated pieces it is made of." },
+  };
+
+  it("loads a trace on request and shows honest end states with plan sources", async () => {
+    const client = await import("../api/client");
+    const spy = vi.spyOn(client, "getColumnTrace").mockResolvedValue(trace);
+    render(<DrawingSummaryPanel profile={evidenceProfile({ column_schedule: columnScheduleData() })} documentId="doc_abc" />);
+    fireEvent.click(screen.getByRole("button", { name: "Show details for A.4'-14 +3" }));
+    fireEvent.click(screen.getByRole("button", { name: "Look for this column on the plans" }));
+    expect(await screen.findByText(/column symbol drawn at the grid intersection/)).toBeInTheDocument();
+    expect(spy).toHaveBeenCalledWith("doc_abc", "A.4'-14, B-4.9, E-8(-4'-4\"), C'-15.6", "S1");
+    expect(screen.getByText(/T.O. ROOF \(69' - 4"\) — drawn on the schedule's level line/)).toBeInTheDocument();
+    expect(screen.getByText(/not established — The schedule draws the bottom end between two level lines/)).toBeInTheDocument();
+    expect(screen.getByText(/Nearby, not associated: 69' - 9"/)).toBeInTheDocument();
+    expect(screen.getByText(/do not establish how many fabricated pieces/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /View S123 · PDF p. 11 for T.O. ROOF grid intersection/ }));
+    expect(await screen.findByTestId("pdf-viewer")).toHaveAttribute("data-page", "11");
+    spy.mockRestore();
+  });
+
+  it("offers no trace without a stored document", () => {
+    render(<DrawingSummaryPanel profile={evidenceProfile({ column_schedule: columnScheduleData() })} />);
+    fireEvent.click(screen.getByRole("button", { name: "Show details for A.4'-14 +3" }));
+    expect(screen.queryByRole("button", { name: "Look for this column on the plans" })).not.toBeInTheDocument();
+  });
+});

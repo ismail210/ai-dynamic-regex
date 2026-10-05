@@ -110,6 +110,15 @@ export async function getDocument(documentId) {
   return data;
 }
 
+/** Column tracing pilot: one schedule entry looked for on the framing plans. */
+export async function getColumnTrace(documentId, location, scheduleId = null) {
+  const { data } = await client.get(
+    `/api/documents/${encodeURIComponent(documentId)}/column-trace`,
+    { params: { location, ...(scheduleId ? { schedule: scheduleId } : {}) } },
+  );
+  return data;
+}
+
 /** Same-origin URL for the registered drawing PDF (proxied in Vite). */
 export function documentPdfUrl(documentId) {
   return `${baseURL}/api/documents/${encodeURIComponent(documentId)}/pdf`;
