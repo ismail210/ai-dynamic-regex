@@ -90,7 +90,9 @@ PROFILE_VERSION = "legend_profile_v4"
 #      and column-schedule extents / level differences.
 # v6k: display-space source boxes on rotated pages, rotated sheet ids,
 #      level bands, flagged malformed values, structured schedule plates.
-EXTRACTOR_VERSION = "legend_extractor_v6k-page-space"
+# v6l: schedule rows carry level_band pairings; plate schedules keep
+#      accessories apart and read SIZE WIDTH as width.
+EXTRACTOR_VERSION = "legend_extractor_v6l-level-bands"
 SCHEMA_VERSION = "project_rule_schema_v1"
 
 STATUS_PROPOSED_INFERENCE = "PROPOSED_INFERENCE"
