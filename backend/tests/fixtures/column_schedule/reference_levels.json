@@ -89,7 +89,7 @@
       "plan_derived": [["S2.01", "top of steel", "14'-11\"", "any"], ["S2.04", "top of steel", "30'-8\"", "any"]],
       "differences": {"P-21": "15'-4\""},
       "traces": {"P-21": {"levels_with_symbol": ["3 ROOF"], "bottom": "2 SECOND FLOOR AND LOW ROOF",
-                          "bottom_annotation": ["S2.01", "POST UP"]}}
+                          "bottom_annotation": ["S2.01", "POST UP"], "top_annotations": []}}
     },
     {
       "key": "springhill",

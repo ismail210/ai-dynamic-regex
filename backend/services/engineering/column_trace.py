@@ -58,6 +58,10 @@ _ANNOTATION_RE = re.compile(
     re.IGNORECASE)
 
 
+_UP_RE = re.compile(r"\b(?:UP|ABOVE|OVER)\b", re.IGNORECASE)
+_DOWN_RE = re.compile(r"\b(?:DOWN|BELOW|UNDER)\b|\bTOP\s+OF\s+COL|\bT\.?O\.?\s*COL", re.IGNORECASE)
+
+
 def _norm(name: str) -> str:
     return _clean(name).replace(" ", "").upper()
 
@@ -350,14 +354,27 @@ def trace_column(document: Dict[str, Any], pdf_path: str, location: str,
                                            "matched_by": plan["matched_by"], "ambiguous_match": plan["ambiguous"],
                                            **found})
                 trace["levels"].append(level)
-    # A plan annotation at the column on an end's own level (``POST UP`` where
-    # the schedule starts the column) supports that end; it is quoted, not parsed.
-    for end in trace["ends"].values():
+    # One plan page matched to several spanned levels is not specific to any.
+    levels_of_page: Dict[int, List[str]] = {}
+    for lvl in trace["levels"]:
+        for plan in lvl["plans"]:
+            levels_of_page.setdefault(plan["page"], []).append(lvl["name"])
+    for lvl in trace["levels"]:
+        for plan in lvl["plans"]:
+            others = [name for name in levels_of_page[plan["page"]] if name != lvl["name"]]
+            if others:
+                plan["ambiguous_match"] = True
+                plan["matched_by"] += f"; also matched to {', '.join(others)}"
+    # A plan annotation at the column on an end's own level supports that end
+    # only in its own direction: ``POST UP`` starts a column (bottom end),
+    # ``COLUMN BELOW`` / ``DOWN`` ends one (top end). Quoted, not parsed further.
+    for which, end in trace["ends"].items():
+        words = _UP_RE if which == "bottom" else _DOWN_RE
         end["plan_annotations"] = [
             {"sheet": plan["sheet"], "page": plan["page"], "text": note["text"], "bbox": note["bbox"]}
             for lvl in trace["levels"] if lvl["name"] == end.get("level")
             for plan in lvl["plans"] for candidate in plan["candidates"] for note in candidate["annotations"]
-            if note["how"] == "leader ends at the column"
+            if note["how"] == "leader ends at the column" and words.search(note["text"])
         ]
     observed_levels = [lvl["name"] for lvl in trace["levels"]
                        if any(p.get("observation") == "column_symbol" and not p["ambiguous_match"] for p in lvl["plans"])]

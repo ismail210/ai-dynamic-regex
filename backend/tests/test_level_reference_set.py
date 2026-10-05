@@ -122,6 +122,10 @@ class LevelReferenceTests(unittest.TestCase):
                 trace = trace_column(document, str(_ROOT / spec["pdf"]), location)
                 self.assertEqual(trace["summary"]["levels_with_symbol"], expected["levels_with_symbol"], location)
                 self.assertEqual(trace["ends"]["bottom"]["level"], expected["bottom"])
+                if "top_annotations" in expected:
+                    # POST UP starts a column; it never supports the top end.
+                    self.assertEqual([a["text"] for a in trace["ends"]["top"]["plan_annotations"]],
+                                     expected["top_annotations"])
                 if "bottom_annotation" in expected:
                     self.assertIn(tuple(expected["bottom_annotation"]),
                                   [(a["sheet"], a["text"]) for a in trace["ends"]["bottom"]["plan_annotations"]])
