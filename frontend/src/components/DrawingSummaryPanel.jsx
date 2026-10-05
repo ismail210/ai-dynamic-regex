@@ -719,6 +719,50 @@ function ScopeLine({ scope }) {
   );
 }
 
+const SCALE_LABEL = {
+  calibrated: "calibrated from grid dimensions",
+  printed: "printed, not validated",
+  nts: "not to scale",
+  unresolved: "not established",
+};
+const OFFSET_LABEL = {
+  unresolved_direction: "side not established",
+  unresolved_scale: "not placed (scale)",
+  unresolved_two_offsets: "not placed",
+};
+
+function OffsetLine({ candidate, plan, levelName, onView }) {
+  const { scale, offset } = candidate;
+  return (
+    <Box sx={{ pl: 1 }}>
+      {scale && (
+        <Typography variant="caption" color={["validated", "calibrated"].includes(scale.status) ? "text.secondary" : "warning.main"} display="block">
+          Scale: {SCALE_LABEL[scale.status] || scale.status}
+          {scale.printed?.raw ? ` — ${scale.printed.raw}` : ""}. {scale.note}
+        </Typography>
+      )}
+      {offset && (
+        <>
+          <Typography variant="caption" display="block">
+            Offset {offset.printed} from grid {offset.grid}: <b>{OFFSET_LABEL[offset.status] || offset.status}</b>. {offset.note}
+          </Typography>
+          <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
+            {offset.sides?.map((side, j) => (
+              <ViewPageButton
+                key={j}
+                item={{ page: candidate.page, sheet: plan.sheet, bbox: side.symbol?.bbox || side.point_bbox,
+                  mark: `${levelName} offset toward grid ${side.toward || "?"}` }}
+                label={`Toward ${side.toward ? `grid ${side.toward}` : "edge"}${side.symbol ? " (column drawn)" : ""}`}
+                onView={onView}
+              />
+            ))}
+          </Stack>
+        </>
+      )}
+    </Box>
+  );
+}
+
 function TracePlan({ plan, levelName, onView }) {
   return (
     <Box sx={{ pl: 2, mb: 0.75 }}>
@@ -743,6 +787,7 @@ function TracePlan({ plan, levelName, onView }) {
       {plan.candidates.map((c, i) => (
         <Stack key={i} spacing={0.25} sx={{ pl: 1.5, mt: 0.25 }}>
           <ScopeLine scope={c.scope} />
+          <OffsetLine candidate={c} plan={plan} levelName={levelName} onView={onView} />
           <Stack direction="row" spacing={1} sx={{ alignItems: "center", flexWrap: "wrap" }}>
             <ViewPageButton
               item={{
@@ -773,7 +818,9 @@ function ColumnTrace({ entry, documentId, onView }) {
   const [state, setState] = useState({ loading: false, trace: null, error: null });
   const location = entry.location_text || entry.mark;
   if (!location) return null;
-  const load = async () => {
+  // An entry listing several locations is traced one location at a time.
+  const locations = entry.locations?.length > 1 ? entry.locations.map((loc) => loc.raw) : [location];
+  const load = async (location) => {
     setState({ loading: true, trace: null, error: null });
     try {
       const trace = await getColumnTrace(documentId, location, entry.schedule_id);
@@ -789,14 +836,19 @@ function ColumnTrace({ entry, documentId, onView }) {
         On the framing plans (pilot)
       </Typography>
       {!trace && (
-        <Button
-          size="small"
-          variant="outlined"
-          onClick={load}
-          disabled={state.loading}
-          startIcon={state.loading ? <CircularProgress size={14} /> : null}
-        >
-          Look for this column on the plans
+        <Stack direction="row" spacing={0.5} sx={{ flexWrap: "wrap", alignItems: "center" }} useFlexGap>
+          {state.loading && <CircularProgress size={14} />}
+          {locations.length > 1 && <Typography variant="caption">Look for one location on the plans:</Typography>}
+          {locations.map((loc) => (
+            <Button key={loc} size="small" variant="outlined" onClick={() => load(loc)} disabled={state.loading}>
+              {locations.length > 1 ? loc : "Look for this column on the plans"}
+            </Button>
+          ))}
+        </Stack>
+      )}
+      {trace && locations.length > 1 && (
+        <Button size="small" onClick={() => setState({ loading: false, trace: null, error: null })}>
+          Trace another location
         </Button>
       )}
       {state.error && <Alert severity="warning" variant="outlined" sx={{ py: 0, mt: 0.5 }}>{state.error}</Alert>}
@@ -830,6 +882,22 @@ function ColumnTrace({ entry, documentId, onView }) {
               )}
             </Box>
           ))}
+          {trace.directional_evidence?.length > 0 && (
+            <Box>
+              <Typography variant="caption" color="text.secondary" display="block">
+                Notes with a leader to the column (continuation evidence, not an end by themselves):
+              </Typography>
+              {trace.directional_evidence.map((d, i) => (
+                <Stack key={i} direction="row" spacing={1} sx={{ alignItems: "center", pl: 2 }}>
+                  <Typography variant="caption">
+                    {d.level} · {d.sheet || `p. ${d.page}`}: “{d.text}”{d.direction ? ` (${d.direction})` : ""}
+                    {d.scope_counts ? "" : " — scope not established"}
+                  </Typography>
+                  <ViewPageButton item={{ ...d, mark: `${d.text} on ${d.level}` }} label="View" onView={onView} />
+                </Stack>
+              ))}
+            </Box>
+          )}
           {trace.notes.map((note, i) => (
             <Typography key={i} variant="caption" color="text.secondary" display="block">{note}</Typography>
           ))}

@@ -44,7 +44,18 @@
       "plan_read": [["S120", "top of steel", "13'-6 3/4\""], ["S130", "top of steel", "27'-6 3/4\""]],
       "datum_unresolved": ["S120", "S130", "S140"],
       "plates": {"BP1": {"status": "present", "thickness": "1 1/4\"", "width": "1'-6\"", "length": "1'-6\"",
-                         "plate_text": "1 1/4\" 1'-6\" 1'-6\"", "accessory": ["PLATE WASHER", "PLATE WASHER Ø", "2 3/4\""]}}
+                         "plate_text": "1 1/4\" 1'-6\" 1'-6\"", "accessory": ["PLATE WASHER", "PLATE WASHER Ø", "2 3/4\""]}},
+      "traces": {
+        "C-8(-4'-4\")": {"levels_with_symbol": ["LEVEL 4", "LEVEL 3", "LEVEL 2"], "bottom": null, "top": "LEVEL 4",
+                         "offsets": {"S121": ["placed", "7"], "S131": ["placed", "7"], "S141": ["placed", "7"],
+                                     "S120": ["candidate", "7"], "S130": ["candidate", "7"], "S140": ["candidate", "7"]}},
+        "K.2'-13'(-9'-4\")": {"levels_with_symbol": ["LEVEL 3", "LEVEL 2"], "bottom": null, "top": "LEVEL 3",
+                              "offsets": {"S123": ["placed", "12'"], "S133": ["placed", "12'"]}},
+        "T.2'-7'(3'-8\")": {"levels_with_symbol": ["LEVEL 2"], "bottom": null, "top": null,
+                            "offsets": {"S124": ["placed", "8'"], "S120": ["candidate", "8'"]}},
+        "O'-7'": {"levels_with_symbol": ["LEVEL 3", "LEVEL 2"], "bottom": "LEVEL 2", "top": null,
+                  "top_annotations": [], "directional": [["LEVEL 2", "S124", "COL UP", "up"]]}
+      }
     },
     {
       "key": "burrville",

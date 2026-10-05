@@ -46,15 +46,15 @@ def _plan(symbol=True, second_axis=False):
 class GridTests(unittest.TestCase):
     def test_grid_axes_come_from_labelled_bubbles(self):
         words, drawings, _ = _plan()
-        segments = ct._segments(drawings)
-        a = ct._axes(ct._bubbles(words, drawings, "A"), segments)
-        two = ct._axes(ct._bubbles(words, drawings, "2"), segments)
+        segments = ct._segment_index(ct._segments(drawings))
+        a = ct._axes(ct._bubbles(words, ct._circles(drawings), "A"), segments)
+        two = ct._axes(ct._bubbles(words, ct._circles(drawings), "2"), segments)
         self.assertEqual([(x["orientation"], round(x["at"])) for x in a], [("vertical", 100)])
         self.assertEqual([(x["orientation"], round(x["at"])) for x in two], [("horizontal", 300)])
 
     def test_a_grid_on_two_axes_gives_two_candidates(self):
         words, drawings, _ = _plan(second_axis=True)
-        axes = ct._axes(ct._bubbles(words, drawings, "A"), ct._segments(drawings))
+        axes = ct._axes(ct._bubbles(words, ct._circles(drawings), "A"), ct._segment_index(ct._segments(drawings)))
         self.assertEqual(sorted(round(x["at"]) for x in axes), [100, 600])
 
 

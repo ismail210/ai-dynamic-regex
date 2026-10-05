@@ -130,9 +130,8 @@ only, computed on request (≈1 s OSSE, ≈3 s Yellow Spring).
 
 Crops: `crops/trace_*.png`. Never assumed: equal sections or equal grid names
 across buildings identify a column; the lowest plan is the foundation; no
-symbol means absent; observed floors are one fabrication piece. Offsets are
-not applied (plan scale not read); a plan page matched to several levels is
-labelled so.
+symbol means absent; observed floors are one fabrication piece. A plan page
+matched to several levels is labelled so. Offsets: see milestone B below.
 
 Building / area scope (`view_scope.py`): per view (plan title under the
 view, else the title-block title next to "Title:"); a schedule is compared on
@@ -142,3 +141,66 @@ the words that distinguish it from the set's other column schedules
 `consistent_by_sheet_family` and `single_schedule` count; anything else is an
 unresolved candidate. The FEMS logistics set (`42 - Logistics Building/ST.pdf`,
 sheets `-L`) is another document; nothing is matched across documents.
+
+## Milestone B — view scale, offsets, continuation notes (pilot, evidence only)
+
+Nothing here feeds prediction, the mark map, quantities or takeoff; the trace
+is computed on request and extraction is unchanged (no cache version bump).
+
+**View scale** (`view_scale.py`, per view, never per sheet):
+
+| Status | Meaning | May place an offset |
+|---|---|---|
+| `validated` | scale printed under the view title agrees (±2 %) with ≥3 printed grid dimensions | yes |
+| `calibrated` | no printed scale; ≥3 grid bays agree (±1 %) on points per inch | yes |
+| `printed` | printed under the title, nothing to check it against | candidate only |
+| `conflicting` | printed and measured disagree | no |
+| `nts` | NTS printed under the title | no |
+| `unresolved` | neither; the title-block scale (`drawing_scale`) is recorded and never used alone. Also when the sheet repeats a grid name in one direction (several views) and no scale is printed for the view | no |
+
+Conversion: `points = |printed inches| × points_per_inch`; one real inch at
+1/8" = 1'-0" is 0.75 PDF pt (72 / 96). Rotation preserves distances, so the
+value holds on rotated pages. Calibration = perpendicular distance between two
+adjacent parallel grid lines / the full feet-inch dimension printed between
+them (`12'-0"`; a primed label such as `7'` is not a dimension).
+
+Brandywine: S120/S130/S140 print `1" = 20'-0"` under the overall-plan titles
+while every title block says `1/8" = 1'-0"` → `printed` (the title-block
+value is reported, not used). Area plans S121/S131/S141, S123/S133, S124 →
+`validated` by 13–14 bays at 0.75 pt/in.
+
+**Offsets.** Grid lines are found as general lines (`n·p = c`, any angle;
+Brandywine's slanted grids), crossings by intersection. A printed offset is
+measured perpendicular to its own grid on both sides; the printed sign is not
+taken as a screen direction. A side is named by the next parallel grid it
+heads toward. Status: `placed` (column drawn on exactly one side, scale
+validated/calibrated), `candidate` (same, scale only printed),
+`unresolved_direction` (drawn on both or neither side), `unresolved_scale`,
+`unresolved_two_offsets` (both grids carry an offset). A level counts as
+observed for an offset location only when the offset is `placed`.
+
+| Location | Result | Crop |
+|---|---|---|
+| Brandywine C-8(-4'-4") | placed on S121/S131/S141 toward grid 7 (39 pt = 52" × 0.75); candidate on S120/S130/S140 (1"=20' printed only) | `crops/B_C8_S121_placed.png` (red = placed, blue = crossing) |
+| Brandywine K.2'-13'(-9'-4") | placed on S123/S133 toward grid 12'. The symbol at the crossing itself is the schedule's separate K.2'-13' location; each trace attributes only its own symbol | `crops/B_K2_13_S123_placed.png` |
+| Brandywine T.2'-7'(3'-8") | placed on S124 toward grid 8'; the plan's own 3'-8" dimension confirms it; candidate on S120 | `crops/B_T2_7_S124_placed.png` |
+
+Browser check (5183/8033): S121 "Toward grid 7 (column drawn)" opens PDF p. 12
+with the red box at (0.6652, 0.4628) of the page; the API box is (0.6653, 0.4634).
+
+**Ends and continuation notes.** End states still come only from the
+schedule's level lines. A note whose leader ends at the column (for an offset
+column: at the placed side) is listed under `directional_evidence` with its
+direction (UP/ABOVE/OVER = up; DOWN/BELOW/UNDER, TOP OF COL, T.O. COL = down).
+It supports an end only on that end's own level and in its own direction.
+Brandywine O'-7': bottom LEVEL 2 established, "S124 COL UP" listed as upward
+continuation, top unresolved (no stop is invented) — `crops/B_O7_S124_col_up.png`.
+One logical stack per location; splices / fabricated pieces are not inferred.
+
+Multi-location schedule entries (Brandywine lists up to 13 locations in one
+column) are traced one location at a time from Drawing Summary.
+
+Tests: `tests/test_view_scale.py` (printed/NTS/title-block/validated/
+conflicting/calibrated/several views/slanted/rotation; synthetic plans for
+placed, both sides, neither side, printed-only candidate, no scale; slanted
+crossings) and the Brandywine traces in `test_level_reference_set.py`.

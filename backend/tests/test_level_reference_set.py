@@ -132,7 +132,19 @@ class LevelReferenceTests(unittest.TestCase):
             for location, expected in spec["traces"].items():
                 trace = trace_column(document, str(_ROOT / spec["pdf"]), location)
                 self.assertEqual(trace["summary"]["levels_with_symbol"], expected["levels_with_symbol"], location)
-                self.assertEqual(trace["ends"]["bottom"]["level"], expected["bottom"])
+                self.assertEqual(trace["ends"]["bottom"].get("level"), expected["bottom"])
+                if "top" in expected:
+                    self.assertEqual(trace["ends"]["top"].get("level"), expected["top"])
+                for sheet, (status, toward) in expected.get("offsets", {}).items():
+                    # Placed only at a validated / calibrated view scale; the side is the drawn one.
+                    (offset,) = [c["offset"] for lvl in trace["levels"] for p in lvl["plans"]
+                                 if p["sheet"] == sheet for c in p["candidates"]]
+                    self.assertEqual(offset["status"], status, sheet)
+                    self.assertEqual([s["toward"] for s in offset["sides"] if s["symbol"]], [toward], sheet)
+                if "directional" in expected:
+                    # A leadered COL UP is continuation evidence, kept apart from the ends.
+                    self.assertEqual([[d["level"], d["sheet"], d["text"], d["direction"]]
+                                      for d in trace["directional_evidence"]], expected["directional"])
                 for sheet, status in expected.get("scope", {}).items():
                     self.assertIn(status, [c["scope"]["status"] for lvl in trace["levels"] for p in lvl["plans"]
                                            if p["sheet"] == sheet for c in p["candidates"]], sheet)

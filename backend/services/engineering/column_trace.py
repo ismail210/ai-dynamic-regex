@@ -26,7 +26,9 @@ schedule's drawn extent or from an explicit annotation.
 
 from __future__ import annotations
 
+import math
 import re
+from collections import defaultdict
 from typing import Any, Dict, List, Optional
 
 import fitz
@@ -44,6 +46,15 @@ from services.engineering.level_evidence import (
     spot_elevations,
 )
 from services.engineering.page_space import convert_boxes, display_boxes
+from services.engineering.view_scale import (
+    PLACES,
+    _normal,
+    _parallel,
+    grid_calibration,
+    printed_view_scale,
+    resolve_view_scale,
+    sheet_scales,
+)
 from services.engineering.view_scope import COUNTS, ScopeResolver
 
 _BUBBLE_MIN, _BUBBLE_MAX = 10.0, 90.0
@@ -55,19 +66,29 @@ _LEADER_REACH = 10.0
 _TEXT_REACH = 18.0
 _NEARBY_REACH = 60.0
 _ANNOTATION_RE = re.compile(
-    r"\b(?:POST|COL(?:UMN)?\.?)\s+(?:UP|DOWN|ABOVE|BELOW|OVER|UNDER)\b|\bTOP\s+OF\s+COL|\bT\.?O\.?\s*COL|\bBEARS?\b",
+    r"\b(?:POST|COL(?:UMN)?\.?)\s+(?:UP|DOWN|ABOVE|BELOW|OVER|UNDER)\b|\bTOP\s+OF\s+COL|\bT\.\s*O\.\s*COL|\bBEARS?\b",
     re.IGNORECASE)
 
 
 _UP_RE = re.compile(r"\b(?:UP|ABOVE|OVER)\b", re.IGNORECASE)
-_DOWN_RE = re.compile(r"\b(?:DOWN|BELOW|UNDER)\b|\bTOP\s+OF\s+COL|\bT\.?O\.?\s*COL", re.IGNORECASE)
+_GRID_LABEL_RE = re.compile(r"^(?:[A-Z]{1,2}(?:\.\d+)?|\d{1,2}(?:\.\d+)?)['\"′″]*$")
+_DOWN_RE = re.compile(r"\b(?:DOWN|BELOW|UNDER)\b|\bTOP\s+OF\s+COL|\bT\.\s*O\.\s*COL", re.IGNORECASE)
 
 
 def _norm(name: str) -> str:
     return _clean(name).replace(" ", "").upper()
 
 
-def _bubbles(words: List[tuple], drawings: List[dict], name: str) -> List[Dict[str, float]]:
+def _circles(drawings: List[dict]) -> List[Any]:
+    """Rects of the page's circle-like paths (grid bubble candidates)."""
+
+    return [path["rect"] for path in drawings
+            if _BUBBLE_MIN <= path["rect"].width <= _BUBBLE_MAX
+            and abs(path["rect"].width - path["rect"].height) <= 0.15 * path["rect"].width
+            and any(item[0] == "c" for item in path["items"])]
+
+
+def _bubbles(words: List[tuple], circles: List[Any], name: str) -> List[Dict[str, float]]:
     """Centres of circles that contain a word printed exactly as ``name``."""
 
     out = []
@@ -75,13 +96,9 @@ def _bubbles(words: List[tuple], drawings: List[dict], name: str) -> List[Dict[s
         if _norm(w[4]) != name:
             continue
         cx, cy = (w[0] + w[2]) / 2, (w[1] + w[3]) / 2
-        for path in drawings:
-            r = path["rect"]
-            if (_BUBBLE_MIN <= r.width <= _BUBBLE_MAX and abs(r.width - r.height) <= 0.15 * r.width
-                    and r.x0 <= cx <= r.x1 and r.y0 <= cy <= r.y1
-                    and any(item[0] == "c" for item in path["items"])):
-                out.append({"x": (r.x0 + r.x1) / 2, "y": (r.y0 + r.y1) / 2})
-                break
+        r = next((r for r in circles if r.x0 <= cx <= r.x1 and r.y0 <= cy <= r.y1), None)
+        if r is not None:
+            out.append({"x": (r.x0 + r.x1) / 2, "y": (r.y0 + r.y1) / 2})
     return out
 
 
@@ -90,20 +107,86 @@ def _segments(drawings: List[dict]) -> List[tuple]:
             for path in drawings for item in path["items"] if item[0] == "l"]
 
 
-def _axes(bubbles: List[Dict[str, float]], segments: List[tuple]) -> List[Dict[str, Any]]:
-    """Distinct grid axes through the bubbles: ``{"orientation", "at"}``."""
+_ANGLE_STEP = 0.5   # degrees per angle bucket
 
+
+_CELL = 100.0       # PDF points per cell of the segment-endpoint grid
+_LOCAL_REACH = 60.0  # a grid line starts at its bubble
+
+
+def _segment_index(segments: List[tuple]) -> tuple:
+    """``(lines, near)``: total segment length per (direction, line position)
+    -- angle bucket -> round(c) -> length, with ``c = n . p`` -- and the
+    segments by endpoint cell. Grid lines at any angle (slanted building
+    wings) are found without rescanning every segment."""
+
+    lines: Dict[int, Dict[int, float]] = defaultdict(lambda: defaultdict(float))
+    near: Dict[tuple, List[tuple]] = defaultdict(list)
+    for x0, y0, x1, y1, _w in segments:
+        length = math.hypot(x1 - x0, y1 - y0)
+        if length < 2.0:
+            continue
+        angle = math.degrees(math.atan2(y1 - y0, x1 - x0)) % 180.0
+        key = round(angle / _ANGLE_STEP) % round(180 / _ANGLE_STEP)
+        nx, ny = _normal(key * _ANGLE_STEP)
+        lines[key][round(nx * x0 + ny * y0)] += length
+        for px, py in ((x0, y0), (x1, y1)):
+            near[(int(px // _CELL), int(py // _CELL))].append((x0, y0, x1, y1, key))
+    return lines, near
+
+
+def _axes(bubbles: List[Dict[str, float]], index: Dict[int, Dict[int, float]]) -> List[Dict[str, Any]]:
+    """Distinct grid axes through the bubbles. An axis is the line ``n . p = c``
+    at ``angle`` degrees (PDF space), labelled vertical / horizontal (with
+    ``at`` = its x / y) or angled."""
+
+    buckets = round(180 / _ANGLE_STEP)
+    lines, near = index
     axes: List[Dict[str, Any]] = []
     for b in bubbles:
-        vertical = sum(abs(s[3] - s[1]) for s in segments if abs(s[0] - b["x"]) < 1.0 and abs(s[2] - b["x"]) < 1.0)
-        horizontal = sum(abs(s[2] - s[0]) for s in segments if abs(s[1] - b["y"]) < 1.0 and abs(s[3] - b["y"]) < 1.0)
-        if max(vertical, horizontal) < _AXIS_MIN_LENGTH:
+        # Directions of segments that start next to the bubble and point through its centre.
+        cell = (int(b["x"] // _CELL), int(b["y"] // _CELL))
+        local = set()
+        for dx in (-1, 0, 1):
+            for dy in (-1, 0, 1):
+                for x0, y0, x1, y1, key in near.get((cell[0] + dx, cell[1] + dy), ()):
+                    if min(math.hypot(x0 - b["x"], y0 - b["y"]), math.hypot(x1 - b["x"], y1 - b["y"])) > _LOCAL_REACH:
+                        continue
+                    nx, ny = _normal(key * _ANGLE_STEP)
+                    if abs(nx * (b["x"] - x0) + ny * (b["y"] - y0)) <= 1.5:
+                        local.add(key)
+        best = (0.0, None)
+        for key in local:
+            nx, ny = _normal(key * _ANGLE_STEP)
+            c = round(nx * b["x"] + ny * b["y"])
+            total = sum(lines[(key + dk) % buckets].get(c + k, 0.0) for dk in (-1, 0, 1) for k in (-1, 0, 1)
+                        if (key + dk) % buckets in lines)
+            if total > best[0]:
+                best = (total, key)
+        if best[0] < _AXIS_MIN_LENGTH:
             continue
-        axis = ({"orientation": "vertical", "at": b["x"]} if vertical >= horizontal
-                else {"orientation": "horizontal", "at": b["y"]})
-        if not any(a["orientation"] == axis["orientation"] and abs(a["at"] - axis["at"]) < 2.0 for a in axes):
+        angle = best[1] * _ANGLE_STEP
+        nx, ny = _normal(angle)
+        axis: Dict[str, Any] = {"angle": angle, "c": nx * b["x"] + ny * b["y"]}
+        if abs(angle - 90.0) <= 1.0:
+            axis.update(orientation="vertical", at=b["x"])
+        elif min(angle, 180.0 - angle) <= 1.0:
+            axis.update(orientation="horizontal", at=b["y"])
+        else:
+            axis.update(orientation="angled", at=None)
+        if not any(_parallel(a, axis) and abs(a["c"] - axis["c"]) < 2.0 for a in axes):
             axes.append(axis)
     return axes
+
+
+def _crossing(a: Dict[str, Any], b: Dict[str, Any]) -> Optional[tuple]:
+    """Where two grid lines cross (None when they are within 10 degrees of parallel)."""
+
+    if _parallel(a, b, 10.0):
+        return None
+    (ax, ay), (bx, by) = _normal(a["angle"]), _normal(b["angle"])
+    det = ax * by - ay * bx
+    return (a["c"] * by - ay * b["c"]) / det, (ax * b["c"] - a["c"] * bx) / det
 
 
 def _near(box: Any, x: float, y: float, reach: float) -> bool:
@@ -241,8 +324,10 @@ def _spanned(entry: Dict[str, Any], lines: List[Dict[str, Any]]) -> tuple:
 
 
 def _analyse_plan(page: Any, page_no: int, names: List[str], lines: List[Dict[str, Any]],
-                  section_names: set) -> Optional[Dict[str, Any]]:
-    """Grid axes and the observations at their crossings on one plan page;
+                  section_names: set) -> Optional[tuple]:
+    """``(record, context)`` for one plan page: the grid axes, the observations
+    at their crossings, and (context, not output) every labelled grid axis,
+    the grid-dimension calibration and the vectors for offset placement.
     ``None`` when neither grid label is printed there (no vectors are read)."""
 
     words = page.get_text("words")
@@ -250,18 +335,26 @@ def _analyse_plan(page: Any, page_no: int, names: List[str], lines: List[Dict[st
         return None
     drawings = page.get_drawings()
     segments = _segments(drawings)
-    axes = [_axes(_bubbles(words, drawings, name), segments) for name in names]
+    index = _segment_index(segments)
+    circles = _circles(drawings)
+    by_name: Dict[str, List[tuple]] = defaultdict(list)
+    for w in words:
+        by_name[_norm(w[4])].append(w)
+    labels = {name for name in by_name if _GRID_LABEL_RE.match(name)} | set(names)
+    all_axes = {name: found for name in labels if (found := _axes(_bubbles(by_name[name], circles, name), index))}
+    axes = [all_axes.get(name, []) for name in names]
     if not any(axes):
         return None
-    pairs = [(a, b) for a in axes[0] for b in axes[1] if a["orientation"] != b["orientation"]]
-    record: Dict[str, Any] = {"grid_axes": [len(a) for a in axes], "candidates": []}
-    for a, b in pairs:
-        x = a["at"] if a["orientation"] == "vertical" else b["at"]
-        y = a["at"] if a["orientation"] == "horizontal" else b["at"]
-        record["candidates"].append({**_observe(x, y, lines, drawings, segments, section_names), "page": page_no})
+    pairs = [(a, b, at) for a in axes[0] for b in axes[1] if (at := _crossing(a, b))]
+    # Per candidate (same order): its crossing and the two axes, for offset placement.
+    context = {"axes": all_axes, "calibration": grid_calibration(all_axes, lines), "drawings": drawings,
+               "segments": segments, "lines": lines,
+               "crossings": [((x, y), {names[0]: a, names[1]: b}) for a, b, (x, y) in pairs]}
+    record: Dict[str, Any] = {"grid_axes": [len(a) for a in axes], "candidates": [
+        {**_observe(x, y, lines, drawings, segments, section_names), "page": page_no} for _a, _b, (x, y) in pairs]}
     if not pairs:
         record.update(observation="grids_not_found", note="Both grid lines were not found on this plan.")
-        return record
+        return record, context
     seen = any(c["symbol"] for c in record["candidates"])
     record["observation"] = "column_symbol" if seen else "not_detected"
     if len(pairs) > 1:
@@ -269,7 +362,66 @@ def _analyse_plan(page: Any, page_no: int, names: List[str], lines: List[Dict[st
                           "enlarged or partial plan); each is listed, none is chosen.")
     elif not seen:
         record["note"] = "No column symbol was detected at the intersection; this is not evidence of absence."
-    return record
+    return record, context
+
+
+def _place_offset(crossing: tuple, grid: str, offset: Dict[str, Any], scale: Dict[str, Any],
+                  context: Dict[str, Any], section_names: set) -> Dict[str, Any]:
+    """Where a column printed as offset from ``grid`` can be on this view.
+
+    The offset runs perpendicular to its own grid line. Its printed sign is
+    not a screen direction, so both sides are measured and looked at; a side
+    is named by the grid it heads toward. A side is established only when the
+    view's scale is validated or calibrated and the column is drawn on exactly
+    one side."""
+
+    record: Dict[str, Any] = {"grid": grid, "printed": offset.get("raw"), "inches": abs(float(offset["inches"])),
+                              "scale_status": scale["status"], "sides": []}
+    usable = scale["points_per_inch"] or ((scale.get("printed") or {}).get("points_per_inch")
+                                         if scale["status"] == "printed" else None)
+    if not usable:
+        return {**record, "status": "unresolved_scale",
+                "note": f"The offset is not placed: {scale['note']}"}
+    distance = record["inches"] * usable
+    (x, y), axes = crossing
+    axis = axes[grid]
+    nx, ny = _normal(axis["angle"])
+    # Other grid lines parallel to the offset grid, by their position along its normal.
+    parallel = [(a["c"], name) for name, found in context["axes"].items() for a in found
+                if name != grid and _parallel(a, axis)]
+    for sign in (-1, 1):
+        px, py = x + sign * distance * nx, y + sign * distance * ny
+        beyond = [(abs(c - axis["c"]), name) for c, name in parallel if (c - axis["c"]) * sign > 0]
+        seen = _observe(px, py, context["lines"], context["drawings"], context["segments"], section_names)
+        record["sides"].append({"toward": min(beyond)[1] if beyond else None, "point_bbox": seen["point_bbox"],
+                                "symbol": seen["symbol"], "annotations": seen["annotations"]})
+    record["points"] = round(distance, 1)
+    drawn = [side for side in record["sides"] if side["symbol"]]
+    if len(drawn) == 1:
+        side = drawn[0]
+        toward = f"toward grid {side['toward']}" if side["toward"] else "on one side"
+        if scale["status"] in PLACES:
+            return {**record, "status": "placed", "placed_bbox": side["point_bbox"],
+                    "note": f"The column is drawn {record['printed']} from grid {grid}, {toward}, at the view's "
+                            f"{scale['status']} scale."}
+        return {**record, "status": "candidate", "placed_bbox": side["point_bbox"],
+                "note": f"A column is drawn {toward} at the offset, but the view's scale is only printed, not validated."}
+    return {**record, "status": "unresolved_direction",
+            "note": ("A column is drawn on both sides; the side is not established." if drawn
+                     else "No column symbol is drawn at the offset on either side; the side is not established.")}
+
+
+def _column_annotations(candidate: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Notes at the column itself: at the crossing, or -- for an offset column
+    -- at the side the column is drawn on (none while that side is unknown)."""
+
+    offset = candidate.get("offset")
+    if not offset:
+        return candidate["annotations"]
+    placed = offset.get("placed_bbox")
+    if not placed:
+        return []
+    return next((side["annotations"] for side in offset.get("sides") or [] if side["point_bbox"] == placed), [])
 
 
 def trace_column(document: Dict[str, Any], pdf_path: str, location: str,
@@ -281,9 +433,13 @@ def trace_column(document: Dict[str, Any], pdf_path: str, location: str,
     sheets = _sheet_ids(document)
     view = column_schedule_view(document, sheets)
     wanted = _norm(location)
+    # One schedule entry can list several locations (Brandywine S-600:
+    # "A.4'-14, B-4.9, E-8(-4'-4"), C'-15.6"); each is traced on its own.
+    def printed(e: Dict[str, Any]) -> set:
+        return {_norm(e.get("location_text") or e.get("mark") or "")} | {_norm(loc.get("raw")) for loc in e.get("locations") or []}
+
     entries = [e for e in view.get("entries") or []
-               if _norm(e.get("location_text") or e.get("mark") or "") == wanted
-               and (schedule_id is None or e.get("schedule_id") == schedule_id)]
+               if wanted in printed(e) and (schedule_id is None or e.get("schedule_id") == schedule_id)]
     if not entries:
         return {"status": "not_found", "location": location,
                 "note": "No column-schedule entry prints this location or mark."}
@@ -295,7 +451,8 @@ def trace_column(document: Dict[str, Any], pdf_path: str, location: str,
     entry = entries[0]
     schedule = next(s for s in (document.get("column_schedules") or {}).get("schedules") or []
                     if s["id"] == entry["schedule_id"])
-    location_record = (entry.get("locations") or [{}])[0]
+    location_record = next((loc for loc in entry.get("locations") or [] if _norm(loc.get("raw")) == wanted),
+                           (entry.get("locations") or [{}])[0])
     grids = location_record.get("grids") or []
     spanned, ends, block_levels = _spanned(entry, _block_lines(entry, schedule))
     sections = [s.get("designation") or s.get("printed") for s in entry.get("sections") or []]
@@ -306,6 +463,7 @@ def trace_column(document: Dict[str, Any], pdf_path: str, location: str,
         "schedule": {"id": schedule["id"], "title": schedule.get("caption") or schedule.get("title"),
                      "page": entry["page"], "sheet": entry.get("sheet"), "bbox": entry.get("bbox")},
         "location_text": entry.get("location_text") or entry.get("mark"),
+        "location": location_record.get("raw") or entry.get("mark"),
         "grids": [{"name": g["label"], "offset": (g.get("offset") or {}).get("raw")} for g in grids],
         "sections": sections,
         "ends": ends,
@@ -315,9 +473,8 @@ def trace_column(document: Dict[str, Any], pdf_path: str, location: str,
     if len(grids) != 2:
         trace["notes"].append("The location is not two grids, so no intersection can be looked for on plans.")
         return convert_boxes(trace, display_boxes(document))
-    if any(g.get("offset") for g in grids):
-        trace["notes"].append("An offset from a grid is printed; it is not applied (plan scale is not read), "
-                              "so plan observations are at the grid intersection, not the offset position.")
+    offsets = {_norm(g["label"]): g["offset"] for g in grids if g.get("offset")}
+    two_offsets = len(offsets) > 1
     if not spanned:
         trace["notes"].append("The schedule's drawn extent does not sit on level lines, so no level is spanned "
                               "with certainty; plans are not searched.")
@@ -334,6 +491,12 @@ def trace_column(document: Dict[str, Any], pdf_path: str, location: str,
             if len(ln.get("bbox") or []) >= 4:
                 lines_by_page.setdefault(int(ln.get("page_number") or 0), []).append(ln)
         scopes = ScopeResolver(document, elevations, shown)
+        shown_lines: Dict[int, List[Dict[str, Any]]] = defaultdict(list)
+        for ln in shown.get("lines") or []:
+            if ln.get("bbox"):
+                shown_lines[int(ln.get("page_number") or 0)].append(ln)
+        title_block_scale = sheet_scales(document)
+        view_scales: Dict[tuple, Dict[str, Any]] = {}
         with fitz.open(pdf_path) as pdf:
             analysed: Dict[int, Optional[Dict[str, Any]]] = {}
             for line in spanned:
@@ -347,7 +510,7 @@ def trace_column(document: Dict[str, Any], pdf_path: str, location: str,
                     if page_no not in analysed:
                         analysed[page_no] = _analyse_plan(pdf[page_no - 1], page_no, names,
                                                           lines_by_page.get(page_no, []), section_names)
-                    found = analysed[page_no]
+                    found, context = analysed[page_no] or (None, None)
                     if found is None:
                         # Neither grid is labelled here: a titled sheet that is not this plan view.
                         level["other_titled_sheets"].append(sheets.get(page_no) or f"p. {page_no}")
@@ -355,7 +518,7 @@ def trace_column(document: Dict[str, Any], pdf_path: str, location: str,
                     record = {"page": page_no, "sheet": sheets.get(page_no), "plan": plan["title"],
                               "matched_by": plan["matched_by"], "ambiguous_match": plan["ambiguous"],
                               **found, "candidates": []}
-                    for candidate in found["candidates"]:
+                    for candidate, crossing in zip(found["candidates"], context["crossings"]):
                         scope = scopes.scope(schedule["id"], page_no, candidate["point_bbox"])
                         if scope["status"] == "conflicting":
                             # Another building's view with the same grid and level names.
@@ -364,7 +527,24 @@ def trace_column(document: Dict[str, Any], pdf_path: str, location: str,
                                                               "sheet_title": scope["sheet_title"],
                                                               "note": scope["note"]})
                             continue
-                        record["candidates"].append({**candidate, "scope": scope})
+                        view_key = (page_no, tuple(scope.get("view_title_bbox") or ()))
+                        if view_key not in view_scales:
+                            view_scales[view_key] = resolve_view_scale(
+                                printed_view_scale(shown_lines.get(page_no, []), scope.get("view_title_bbox")),
+                                title_block_scale.get(page_no), context["calibration"])
+                        scale = view_scales[view_key]
+                        observed = {**candidate, "scope": scope, "scale": scale}
+                        if two_offsets:
+                            observed["offset"] = {"status": "unresolved_two_offsets", "sides": [],
+                                                  "note": "Both grids carry an offset; not placed."}
+                        elif offsets:
+                            (grid_name, offset), = offsets.items()
+                            observed["offset"] = _place_offset(crossing, grid_name, offset, scale, context,
+                                                               section_names)
+                        # An offset column is the one placed at the offset, not whatever sits on the crossing.
+                        observed["column_observed"] = (observed["offset"]["status"] == "placed" if offsets
+                                                       else bool(candidate["symbol"]))
+                        record["candidates"].append(observed)
                     if not found["candidates"]:
                         # No grid crossing here: the sheet's own scope decides whether to list it.
                         sheet_scope = scopes.scope(schedule["id"], page_no)
@@ -380,8 +560,12 @@ def trace_column(document: Dict[str, Any], pdf_path: str, location: str,
                     scopes_here = [c["scope"] for c in record["candidates"]] or [record["scope"]]
                     if not any(scope["status"] in COUNTS for scope in scopes_here):
                         record["scope_unresolved"] = True
-                    if found["observation"] == "column_symbol" and not any(c["symbol"] for c in record["candidates"]):
-                        record["observation"] = "not_detected"
+                    if record["candidates"]:
+                        observed = any(c["column_observed"] for c in record["candidates"])
+                        if offsets:
+                            record["observation"] = "column_symbol_at_offset" if observed else "not_detected_at_offset"
+                        elif found["observation"] == "column_symbol" and not observed:
+                            record["observation"] = "not_detected"
                     level["plans"].append(record)
                 trace["levels"].append(level)
     # One plan page matched to several spanned levels is not specific to any.
@@ -395,21 +579,27 @@ def trace_column(document: Dict[str, Any], pdf_path: str, location: str,
             if others:
                 plan["ambiguous_match"] = True
                 plan["matched_by"] += f"; also matched to {', '.join(others)}"
-    # A plan annotation at the column on an end's own level supports that end
-    # only in its own direction: ``POST UP`` starts a column (bottom end),
-    # ``COLUMN BELOW`` / ``DOWN`` ends one (top end). Quoted, not parsed further.
+    # Every note whose leader ends at the column, by level and direction. Evidence
+    # about continuation, kept apart from the end states: "COL UP" says a column
+    # continues upward from that plan, not where it stops.
+    trace["directional_evidence"] = [
+        {"level": lvl["name"], "sheet": plan["sheet"], "page": plan["page"], "text": note["text"], "bbox": note["bbox"],
+         "direction": "up" if _UP_RE.search(note["text"]) else "down" if _DOWN_RE.search(note["text"]) else None,
+         "scope_counts": candidate["scope"]["status"] in COUNTS}
+        for lvl in trace["levels"] for plan in lvl["plans"] for candidate in plan["candidates"]
+        for note in _column_annotations(candidate) if note["how"] == "leader ends at the column"
+    ]
+    # Such a note on an end's own level supports that end only in its own
+    # direction: ``POST UP`` starts a column (bottom end), ``COLUMN BELOW`` /
+    # ``DOWN`` ends one (top end). Quoted, not parsed further.
     for which, end in trace["ends"].items():
         words = _UP_RE if which == "bottom" else _DOWN_RE
-        end["plan_annotations"] = [
-            {"sheet": plan["sheet"], "page": plan["page"], "text": note["text"], "bbox": note["bbox"]}
-            for lvl in trace["levels"] if lvl["name"] == end.get("level")
-            for plan in lvl["plans"] for candidate in plan["candidates"] for note in candidate["annotations"]
-            if note["how"] == "leader ends at the column" and words.search(note["text"])
-            and candidate["scope"]["status"] in COUNTS
-        ]
+        end["plan_annotations"] = [{k: d[k] for k in ("sheet", "page", "text", "bbox")}
+                                   for d in trace["directional_evidence"]
+                                   if d["level"] == end.get("level") and d["scope_counts"] and words.search(d["text"])]
     # A symbol counts only on a plan specific to the level, in this schedule's scope.
     observed_levels = [lvl["name"] for lvl in trace["levels"]
-                       if any(not p["ambiguous_match"] and c["symbol"] and c["scope"]["status"] in COUNTS
+                       if any(not p["ambiguous_match"] and c["column_observed"] and c["scope"]["status"] in COUNTS
                               for p in lvl["plans"] for c in p["candidates"])]
     trace["summary"] = {
         "levels_spanned": [lvl["name"] for lvl in trace["levels"]],

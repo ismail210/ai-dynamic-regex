@@ -828,11 +828,17 @@ describe("DrawingSummaryPanel — column tracing pilot", () => {
         page: 11, sheet: "S123", plan: "OSSE FACILITY ROOF PLAN", observation: "column_symbol", ambiguous_match: false,
         matched_by: "the plan's note names OFFICE ROOF at the same elevation", grid_axes: [1, 1],
         candidates: [{ page: 11, point_bbox: [2171, 1487, 2177, 1493], symbol: { bbox: [2170, 1480, 2177, 1497] },
+          scale: { status: "validated", printed: { raw: "1/8\" = 1'-0\"" }, note: "1/8\" = 1'-0\" agrees with 13 printed grid dimensions." },
+          offset: { grid: "8", printed: "-4'-4\"", status: "placed", note: "The column is drawn -4'-4\" from grid 8, toward grid 7, at the view's validated scale.",
+            sides: [{ toward: "7", point_bbox: [2012, 1001, 2018, 1007], symbol: { bbox: [2011, 999, 2018, 1009] } },
+              { toward: "9", point_bbox: [2090, 1001, 2096, 1007], symbol: null }] },
           scope: { status: "supported_by_datum", view_title: null, sheet_title: "OSSE FACILITY ROOF PLAN",
             note: "The plan's note names OFFICE ROOF at 69'-4\", a level of this schedule only." },
           annotations: [], nearby_text: [{ text: "69' - 9\"", how: "nearby" }] }],
       }],
     }],
+    directional_evidence: [{ level: "T.O. ROOF", sheet: "S123", page: 11, text: "COL UP", bbox: [1, 2, 3, 4],
+      direction: "up", scope_counts: true }],
     summary: { levels_spanned: ["T.O. ROOF"], levels_with_symbol: ["T.O. ROOF"], logical_stack_only: true,
       note: "Observations describe one logical column stack at this location; they do not establish how many fabricated pieces it is made of." },
   };
@@ -842,11 +848,18 @@ describe("DrawingSummaryPanel — column tracing pilot", () => {
     const spy = vi.spyOn(client, "getColumnTrace").mockResolvedValue(trace);
     render(<DrawingSummaryPanel profile={evidenceProfile({ column_schedule: columnScheduleData() })} documentId="doc_abc" />);
     fireEvent.click(screen.getByRole("button", { name: "Show details for A.4'-14 +3" }));
-    fireEvent.click(screen.getByRole("button", { name: "Look for this column on the plans" }));
+    // The entry lists four locations; each is traced on its own.
+    expect(screen.getByRole("button", { name: "C'-15.6" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "E-8(-4'-4\")" }));
     expect(await screen.findByText(/column symbol drawn at the grid intersection/)).toBeInTheDocument();
-    expect(spy).toHaveBeenCalledWith("doc_abc", "A.4'-14, B-4.9, E-8(-4'-4\"), C'-15.6", "S1");
+    expect(spy).toHaveBeenCalledWith("doc_abc", "E-8(-4'-4\")", "S1");
+    expect(screen.getByRole("button", { name: "Trace another location" })).toBeInTheDocument();
     expect(screen.getByText(/Bottom end: S121 prints “POST UP” with a leader to the column/)).toBeInTheDocument();
     expect(screen.getByText(/Nearby, not associated: 69' - 9"/)).toBeInTheDocument();
+    expect(screen.getByText(/Scale: validated — 1\/8" = 1'-0"/)).toBeInTheDocument();
+    expect(screen.getByText(/toward grid 7, at the view's validated scale/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /for T.O. ROOF offset toward grid 7/ })).toHaveTextContent("Toward grid 7 (column drawn)");
+    expect(screen.getByText(/“COL UP” \(up\)/)).toBeInTheDocument();
     expect(screen.getByText(/Scope: same building \/ area \(datum note\) — OSSE FACILITY ROOF PLAN/)).toBeInTheDocument();
     expect(screen.getByText(/Not this building \/ area: S101 · OSSE PARKING FOUNDATION AND FIRST FLOOR PLAN/)).toBeInTheDocument();
     expect(screen.getByText(/do not establish how many fabricated pieces/)).toBeInTheDocument();
@@ -858,6 +871,6 @@ describe("DrawingSummaryPanel — column tracing pilot", () => {
   it("offers no trace without a stored document", () => {
     render(<DrawingSummaryPanel profile={evidenceProfile({ column_schedule: columnScheduleData() })} />);
     fireEvent.click(screen.getByRole("button", { name: "Show details for A.4'-14 +3" }));
-    expect(screen.queryByRole("button", { name: "Look for this column on the plans" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "E-8(-4'-4\")" })).not.toBeInTheDocument();
   });
 });
