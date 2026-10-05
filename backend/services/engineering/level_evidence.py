@@ -249,13 +249,19 @@ def _wrapped_lines(document: Dict[str, Any]) -> List[tuple]:
     return out
 
 
+def is_plan_title(text: str) -> bool:
+    """A line that reads as a plan title (not a note that mentions a plan)."""
+
+    return bool(_PLAN_TITLE_RE.search(text)) and len(text) <= 90 and "NOTES" not in text.upper()
+
+
 def plan_titles(document: Dict[str, Any]) -> Dict[int, List[str]]:
     """Plan titles printed on each page (largest text first)."""
 
     found: Dict[int, List[tuple]] = defaultdict(list)
     for line, text in _wrapped_lines(document):
         match = _PLAN_TITLE_RE.search(text)
-        if match and len(text) <= 90 and "NOTES" not in text.upper():
+        if match and is_plan_title(text):
             found[int(line.get("page_number") or 0)].append((-float(line.get("font_size") or 0), match.group(0).upper()))
     titles: Dict[int, List[str]] = {}
     for page, entries in found.items():

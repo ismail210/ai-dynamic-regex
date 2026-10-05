@@ -333,7 +333,7 @@ def trace_column(document: Dict[str, Any], pdf_path: str, location: str,
         for ln in document.get("lines") or []:
             if len(ln.get("bbox") or []) >= 4:
                 lines_by_page.setdefault(int(ln.get("page_number") or 0), []).append(ln)
-        scopes = ScopeResolver(document, elevations)
+        scopes = ScopeResolver(document, elevations, shown)
         with fitz.open(pdf_path) as pdf:
             analysed: Dict[int, Optional[Dict[str, Any]]] = {}
             for line in spanned:
@@ -377,10 +377,10 @@ def trace_column(document: Dict[str, Any], pdf_path: str, location: str,
                         record["scope"] = sheet_scope
                     elif not record["candidates"]:
                         continue
-                    if not any(c["scope"]["status"] in COUNTS for c in record["candidates"]):
+                    scopes_here = [c["scope"] for c in record["candidates"]] or [record["scope"]]
+                    if not any(scope["status"] in COUNTS for scope in scopes_here):
                         record["scope_unresolved"] = True
-                    seen = [c for c in record["candidates"] if c["symbol"]]
-                    if found["observation"] == "column_symbol" and not seen:
+                    if found["observation"] == "column_symbol" and not any(c["symbol"] for c in record["candidates"]):
                         record["observation"] = "not_detected"
                     level["plans"].append(record)
                 trace["levels"].append(level)

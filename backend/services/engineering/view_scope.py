@@ -31,7 +31,7 @@ import re
 from collections import defaultdict
 from typing import Any, Dict, List, Optional
 
-from services.engineering.level_evidence import _PLAN_TITLE_RE, _clean, _wrapped_lines, parse_elevation
+from services.engineering.level_evidence import _clean, _wrapped_lines, displayed, is_plan_title, parse_elevation
 from services.engineering.page_space import display_boxes
 
 COUNTS = frozenset({"consistent", "supported_by_datum", "consistent_by_sheet_family", "single_schedule"})
@@ -55,6 +55,12 @@ def scope_terms(text: Any) -> set:
 
 
 def sheet_titles(document: Dict[str, Any]) -> Dict[int, Dict[str, Any]]:
+    """Expects display-space lines (``level_evidence.displayed``): "right of
+    the label" is read the way the sheet reads, also on rotated sheets."""
+    return _sheet_titles(document)
+
+
+def _sheet_titles(document: Dict[str, Any]) -> Dict[int, Dict[str, Any]]:
     """The title-block drawing title per page: the lines printed just right
     of a ``Title:`` label, in a font at least the label's size, in reading
     order (OSSE S-121-O: "OSSE FACILITY FOUNDATION" / "AND FIRST FLOOR PLAN")."""
@@ -84,30 +90,34 @@ def sheet_titles(document: Dict[str, Any]) -> Dict[int, Dict[str, Any]]:
 class ScopeResolver:
     """Scope of plan views for the column schedules of one document."""
 
-    def __init__(self, document: Dict[str, Any], elevations: List[Dict[str, Any]]):
-        self.document = document
+    def __init__(self, document: Dict[str, Any], elevations: List[Dict[str, Any]],
+                 shown: Optional[Dict[str, Any]] = None):
+        """``shown``: the document with display-space lines, when the caller has it."""
+
         self.box = display_boxes(document)
+        shown = shown or displayed(document)
         schedules = (document.get("column_schedules") or {}).get("schedules") or []
-        self.terms = {s["id"]: scope_terms(s.get("caption") or s.get("title")) for s in schedules}
-        common = set.intersection(*self.terms.values()) if len(self.terms) > 1 else set()
-        self.own = {sid: terms - common for sid, terms in self.terms.items()}
+        terms = {s["id"]: scope_terms(s.get("caption") or s.get("title")) for s in schedules}
+        common = set.intersection(*terms.values()) if len(terms) > 1 else set()
+        self.own = {sid: words - common for sid, words in terms.items()}
         self.levels = {s["id"]: {round(v["inches"], 2) for line in s.get("level_lines") or []
                                  if (v := parse_elevation(line.get("elevation_text") or ""))}
                        for s in schedules}
-        self.sheet_titles = sheet_titles(document)
+        self.sheet_titles = sheet_titles(shown)
         self.views: Dict[int, List[tuple]] = defaultdict(list)
         meta = {int(p.get("page_number") or 0): p for p in document.get("pages") or []}
-        for line, text in _wrapped_lines(_displayed_lines(document)):
+        for line, text in _wrapped_lines(shown):
             page = int(line.get("page_number") or 0)
             width = float((meta.get(page) or {}).get("width") or 0)
-            if _PLAN_TITLE_RE.search(text) and len(text) <= 90 and "NOTES" not in text.upper() \
-                    and not (width and line["bbox"][0] > 0.84 * width):
+            # Title-block lines (right edge of the displayed sheet) are not view titles.
+            if is_plan_title(text) and not (width and line["bbox"][0] > 0.84 * width):
                 self.views[page].append((text, line["bbox"]))
         # Datum / named plan elevations per page (read values only).
         self.page_levels: Dict[int, List[Dict[str, Any]]] = defaultdict(list)
         for e in elevations:
             if e.get("status") == "read" and e.get("value") and e.get("name"):
                 self.page_levels[e["page"]].append(e)
+        self._datum: Dict[int, Dict[str, List[Dict[str, Any]]]] = {}
         self.family = self._sheet_families()
 
     def _view_title(self, page: int, point_pdf: List[float]) -> Optional[Dict[str, Any]]:
@@ -128,12 +138,15 @@ class ScopeResolver:
     def _datum_schedules(self, page: int) -> Dict[str, List[Dict[str, Any]]]:
         """Schedules a page's read level elevations tie it to (uniquely)."""
 
+        if page in self._datum:
+            return self._datum[page]
         out: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
         for e in self.page_levels.get(page, []):
             inches = round(e["value"]["inches"], 2)
             owners = [sid for sid, levels in self.levels.items() if inches in levels]
             if len(owners) == 1:
                 out[owners[0]].append(e)
+        self._datum[page] = out
         return out
 
     def _sheet_families(self) -> Dict[frozenset, set]:
@@ -181,8 +194,3 @@ class ScopeResolver:
         return {**record, "status": "unresolved",
                 "note": "Nothing printed ties this view to this schedule's building or area."}
 
-
-def _displayed_lines(document: Dict[str, Any]) -> Dict[str, Any]:
-    box = display_boxes(document)
-    return {"lines": [{**ln, "bbox": box(int(ln.get("page_number") or 0), ln.get("bbox"))}
-                      for ln in document.get("lines") or [] if len(ln.get("bbox") or []) >= 4]}
