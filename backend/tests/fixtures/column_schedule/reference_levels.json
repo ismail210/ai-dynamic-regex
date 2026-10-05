@@ -17,6 +17,8 @@
       "differences": {"C.8-8.9": "31'-4\""},
       "no_difference": ["C.1-5.1", "R13(5' - 4\")-RA.1", "D.2-6.3"],
       "notations": [["(", "bottom of base plate"], ["<", "top of framing"], ["{", "top of pier"], ["[", "bottom of footing"]],
+      "plates": {"CBP-2": {"status": "present", "thickness": "3/4\"", "width": "12\"", "length": "18\"",
+                           "plate_text": "12\" 18\" 3/4\""}},
       "traces": {"C.8-8.9": {"levels_with_symbol": ["T.O. ROOF", "T.O. SLAB LEVEL 2", "T.O. SLAB LEVEL 1"],
                              "bottom": "T.O. SLAB LEVEL 1"}}
     },
@@ -38,7 +40,8 @@
       "agrees": {"LEVEL 2": "14'-0\"", "LEVEL 3": "28'-0\"", "LEVEL 4": "42'-0\""},
       "plan_read": [["S120", "top of steel", "13'-6 3/4\""], ["S130", "top of steel", "27'-6 3/4\""]],
       "datum_unresolved": ["S120", "S130", "S140"],
-      "plates": {"BP1": {"status": "present", "thickness": "1 1/4\"", "width": "1'-6\"", "length": "1'-6\""}}
+      "plates": {"BP1": {"status": "present", "thickness": "1 1/4\"", "width": "1'-6\"", "length": "1'-6\"",
+                         "plate_text": "1 1/4\" 1'-6\" 1'-6\"", "accessory": ["PLATE WASHER", "PLATE WASHER Ø", "2 3/4\""]}}
     },
     {
       "key": "burrville",

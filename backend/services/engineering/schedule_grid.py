@@ -585,11 +585,30 @@ def _ruled_rows_grid(
         if not filled or sum(_is_table_mark(c, catalog_fn) for c in filled) * 2 < len(filled):
             return None
         mark_col = 0
+    kind = schedule_kind_from_title(record["title"])
+    if kind == "schedule":
+        kind = schedule_kind_from_title(header[mark_col])
+    # In a plate schedule the headings say what each cell is: a column under
+    # another part's group (PLATE WASHER, ANCHOR ROD, COLUMN WELD) is that
+    # part's, never a plate dimension (same rule as the Drawing Summary plate
+    # table); ``SIZE WIDTH`` under a SIZE group is the width, not a size cell.
+    plate_schedule = kind in _PLATE_CONTEXT_KINDS and not _is_bent_plate_schedule(record)
+    groups = record.get("header_groups") or []
+
+    def group_of(column: int) -> str:
+        return groups[column] if column < len(groups) else ""
+
+    def other_part(column: int) -> bool:
+        return plate_schedule and bool(NOT_PLATE_GROUP_RE.search(f"{group_of(column)} {header[column]}"))
+
+    def dimension_heading(column: int) -> bool:
+        return plate_schedule and _heading_dimension_role(header[column]) is not None
+
     size_col = next(
         (
             column
             for column, label in enumerate(header)
-            if column != mark_col and label in SIZE_HEADERS
+            if column != mark_col and label in SIZE_HEADERS and not dimension_heading(column)
         ),
         None,
     )
@@ -601,12 +620,17 @@ def _ruled_rows_grid(
                 if column != mark_col
                 and re.search(r"SIZE|SECTION|DIMENSION", label)
                 and not any(word in label for word in _SIZE_EXCLUDE)
+                and not dimension_heading(column)
             ),
             None,
         )
     plate_cols, dim_cols, note_cols, diameter_cols, other_cols = [], [], [], [], []
+    accessory_cols: List[int] = []
     for column, label in enumerate(header):
         if column in (mark_col, size_col):
+            continue
+        if other_part(column):
+            accessory_cols.append(column)
             continue
         role = _heading_dimension_role(label)
         if role:
@@ -621,19 +645,6 @@ def _ruled_rows_grid(
             continue
         else:
             other_cols.append(column)
-    kind = schedule_kind_from_title(record["title"])
-    if kind == "schedule":
-        kind = schedule_kind_from_title(header[mark_col])
-    # Plate dimensions of a plate schedule are only the headings of the plate
-    # itself: a PLATE WASHER / ANCHOR ROD group's THICKNESS is another part
-    # (same rule as the Drawing Summary plate table).
-    plate_schedule = kind in _PLATE_CONTEXT_KINDS and not _is_bent_plate_schedule(record)
-    groups = record.get("header_groups") or []
-    plate_dim_cols = [
-        (column, role) for column, role in dim_cols
-        if not plate_schedule
-        or not NOT_PLATE_GROUP_RE.search(f"{groups[column] if column < len(groups) else ''} {header[column]}")
-    ]
     plate_labels = " ".join(header[column] for column in plate_cols)
     if kind == "bearing_plate" or "BEARING" in plate_labels:
         plate_role = "bearing_plate"
@@ -684,9 +695,17 @@ def _ruled_rows_grid(
         }
         if notes:
             row["plate_notes"] = notes
+        accessories = [
+            {"part": group_of(column) or header[column], "heading": header[column],
+             "role": _heading_dimension_role(header[column]), "text": " ".join(cells[column].split())}
+            for column in accessory_cols if cells[column].strip()
+        ]
+        if accessories:
+            # Printed as given; kept apart from the plate's own dimensions.
+            row["plate_accessories"] = accessories
         _apply_plate_metadata(
             row,
-            headed=[(role, cells[column]) for column, role in plate_dim_cols] or None,
+            headed=[(role, cells[column]) for column, role in dim_cols] or None,
             plate_schedule=plate_schedule,
         )
         rows.append(row)

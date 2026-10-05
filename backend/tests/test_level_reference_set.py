@@ -121,6 +121,11 @@ class LevelReferenceTests(unittest.TestCase):
             self.assertEqual(rows[mark]["plate_status"], plate["status"])
             self.assertEqual(rows[mark]["parsed_plate"]["dimensions"],
                              {k: plate[k] for k in ("thickness", "width", "length")})
+            self.assertEqual(rows[mark]["plate_text"], plate["plate_text"])
+            if "accessory" in plate:
+                part, heading, text = plate["accessory"]
+                self.assertIn({"part": part, "heading": heading, "text": text},
+                              [{k: a[k] for k in ("part", "heading", "text")} for a in rows[mark]["plate_accessories"]])
         if spec.get("traces"):
             from services.engineering.column_trace import trace_column
 

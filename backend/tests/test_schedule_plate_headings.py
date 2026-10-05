@@ -58,12 +58,31 @@ class HeadedPlateDimensionTests(unittest.TestCase):
         self.assertEqual(row["plate_status"], "unresolved")
         self.assertEqual(row["parsed_plate"]["dimensions"]["thickness"], '1 1/4"')
 
-    def test_production_text_fields_are_unchanged(self):
+    def test_plate_text_is_the_plate_and_accessories_stay_apart(self):
         row = self._bp1()
-        # The printed plate / size cells keep the partner's column routing.
-        self.assertEqual(row["plate_text"], '2 3/4"')
+        # Before: plate_text was the PLATE WASHER Ø (2 3/4").
+        self.assertEqual(row["plate_text"], "1 1/4\" 1'-6\" 1'-6\"")
+        accessories = {(a["part"], a["heading"]): a["text"] for a in row["plate_accessories"]}
+        self.assertEqual(accessories[("PLATE WASHER", "PLATE WASHER Ø")], '2 3/4"')
+        self.assertEqual(accessories[("PLATE WASHER", "THICKNESS")], '1/4"')
+        self.assertEqual(accessories[("ANCHOR ROD", "EMBED")], '8"')
         self.assertFalse(row["catalog_valid"])
         self.assertIsNone(row["section"])
+
+    def test_size_width_heading_is_the_width(self):
+        # OSSE S-601-O p25 BASE PLATE TYPE SCHEDULE: MARK | SIZE WIDTH | LENGTH | THICKNESS
+        (grid,) = _ruled_grids([_record("BASE PLATE TYPE SCHEDULE", ["MARK", "SIZE WIDTH", "LENGTH", "THICKNESS"],
+                                        [["CBP-2", '12"', '18"', '3/4"']], ["MARK", "SIZE", "SIZE", "THICKNESS"],
+                                        page=25)], _accept)
+        row = grid["rows"][0]
+        self.assertEqual(row["parsed_plate"]["dimensions"], {"width": '12"', "length": '18"', "thickness": '3/4"'})
+        self.assertEqual(row["plate_text"], '12" 18" 3/4"')
+        self.assertEqual(row["plate_status"], "present")
+
+    def test_an_unheaded_plate_cell_keeps_unknown_roles(self):
+        (grid,) = _ruled_grids([_record("BASE PLATE SCHEDULE", ["MARK", "PLATE"], [["BP3", '1"x18"x18"']])], _accept)
+        dims = grid["rows"][0]["parsed_plate"]["dimensions"]
+        self.assertEqual(dims, {"length": None, "width": None, "thickness": None})
 
     def test_footing_sizes_keep_their_previous_status(self):
         (grid,) = _ruled_grids([_record("SPREAD FOOTING SCHEDULE", ["MARK", "WIDTH", "LENGTH", "THICKNESS"],

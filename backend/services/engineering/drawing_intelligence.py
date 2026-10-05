@@ -1220,10 +1220,7 @@ def _column_location(
     plate = _clean(row.get("plate_text"))
     record = {
         "location": str(row.get("mark") or ""),
-        # ``level`` is the printed band; ``level_band`` says which level each
-        # printed part belongs to (never a level of its own unless paired).
         "level": _clean(row.get("level")) or None,
-        "level_band": row.get("level_band"),
         "printed_size": _clean(row.get("size_text")) or None,
         "catalog_designation": _catalog_designation(row["section"]) if row.get("section") else None,
         "printed_base_plate": plate or None,
@@ -1233,6 +1230,10 @@ def _column_location(
         "is_definition_not_quantity": True,
         **_where(sheets, int(grid.get("page") or 0)),
     }
+    # ``level`` is the printed band; ``level_band`` says which level each
+    # printed part belongs to (never a level of its own unless paired).
+    if isinstance(row.get("level_band"), dict):
+        record["level_band"] = row["level_band"]
     parsed = row.get("parsed_location")
     if isinstance(parsed, dict):
         record["parsed_location"] = parsed
