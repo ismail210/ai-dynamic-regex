@@ -276,6 +276,10 @@ def attach_schedule_grid(
     document["schedule_grid"] = grids
     # Display/evidence only: never read by prediction or quantities.
     document["column_schedules"] = build_column_schedules(records, grids)
+    if pdf_path:
+        from services.engineering.level_evidence import masked_spot_labels
+
+        document["masked_text"] = masked_spot_labels(document, pdf_path)
     document["schedule_mark_map"] = schedule_mark_map(
         grids, drop_conflicts=settings.schedule_mark_conflict_guard_enabled
     )

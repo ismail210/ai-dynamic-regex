@@ -433,6 +433,7 @@ def read_column_matrix(
     suppressed: List[dict],
     *,
     catalog_fn: Any = None,
+    drawings: Optional[List[dict]] = None,
 ) -> Optional[Dict[str, Any]]:
     """One entry per schedule column of a level/row-labelled column matrix.
 
@@ -517,6 +518,21 @@ def read_column_matrix(
         {"label": row_labels[i], "bbox": _box(row_rect(i, label_rect[0], label_rect[2]))}
         for i, c in enumerate(categories) if c == "level" and row_labels[i]
     ]
+    def level_line(line: Dict[str, Any]) -> bool:
+        """Named from a level row, not from a BASE PLATE / LOADS row. A name in
+        the key row's cell (WL ``COLUMN LOCATIONS / ROOF LEVEL``) counts only
+        with a value under it, so the ``MARK / FLOOR`` header word does not."""
+
+        if line["name"] is None:
+            return line["elevation_text"] is not None
+        if _row_category(line["name"], role) != "level":
+            return False
+        index = row_of({"bbox": line["name_bbox"]})
+        category = categories[index] if index is not None else "level"
+        return category == "level" or (category == "key" and line["elevation_text"] is not None)
+
+    lines = [line for line in _level_lines(table_box, label_rect, in_table, drawings or []) if level_line(line)]
+    strokes = _column_strokes(table_box, drawings or [])
     columns: List[Dict[str, Any]] = []
     for x0, x1 in bands:
         band = [
@@ -581,6 +597,7 @@ def read_column_matrix(
             "supplementary": supplementary,
             "suppressed_text": [p["text"] for p in hidden if _inside(p["bbox"], band_rect)],
             "bbox": _box(band_rect),
+            "extent": _column_extent(x0, x1, strokes, lines),
         })
     if not columns:
         return None
@@ -591,9 +608,145 @@ def read_column_matrix(
         "label_side": "left" if label_col == 0 else "right",
         "layout": "graphical" if categories.count("level") >= 2 else "matrix",
         "levels": levels,
+        "level_lines": lines,
         "columns": columns,
         "suppressed_text": [{"text": p["text"], "bbox": p["bbox"]} for p in hidden],
     }
+
+
+# A level label sits against its line: the name just above, the elevation
+# just below (Revit graphical schedules). Farther text is not attached.
+_LEVEL_TEXT_REACH = 30.0
+_ON_LINE = 3.0
+# Drawn columns sit mid-band; cell rules sit on band edges and are hairlines.
+_COLUMN_STROKE_MIN_WIDTH = 0.4
+# An end drawn within about a text height of a line is reported as near it
+# (Revit draws top offsets), but stays "between": it is never snapped.
+_NEAR_LINE = 8.0
+
+
+def _level_lines(table_box: List[float], label_rect: List[float], phrases: List[dict],
+                 drawings: List[dict]) -> List[Dict[str, Any]]:
+    """Drawn level lines across the label column, with the name printed just
+    above each and the elevation (or SEE PLAN) printed just below.
+
+    Positions are page coordinates of the drawn line; no elevation is ever
+    computed from them.
+    """
+
+    from services.engineering.level_evidence import is_see_plan, parse_elevation
+
+    x0, x1 = label_rect[0], label_rect[2]
+    ys: List[float] = []
+    for path in drawings:
+        for item in path.get("items") or ():
+            if item[0] != "l":
+                continue
+            a, b = item[1], item[2]
+            if abs(a.y - b.y) > 0.8 or not table_box[1] + 1 < a.y < table_box[3] - 1:
+                continue
+            if min(a.x, b.x) <= x0 + 0.2 * (x1 - x0) and max(a.x, b.x) >= x1 - 0.2 * (x1 - x0):
+                if all(abs(a.y - y) > 1.5 for y in ys):
+                    ys.append(a.y)
+    labels = [p for p in phrases if _inside(p["bbox"], label_rect) and not p["vertical"]]
+    ys.sort()
+
+    def nearest_below(phrase: dict) -> Optional[float]:
+        return next((y for y in ys if y >= phrase["bbox"][3] - 0.5), None)
+
+    def nearest_above(phrase: dict) -> Optional[float]:
+        return next((y for y in reversed(ys) if y <= phrase["bbox"][1] + 0.5), None)
+
+    lines = []
+    for y in ys:
+        # Each label belongs to one line only: a name to the line right under
+        # it, an elevation to the line right over it.
+        above = sorted((p for p in labels if y - _LEVEL_TEXT_REACH <= p["bbox"][3] <= y + 0.5
+                        and nearest_below(p) == y), key=lambda p: -p["bbox"][3])
+        below = sorted((p for p in labels if y - 0.5 <= p["bbox"][1] <= y + _LEVEL_TEXT_REACH
+                        and nearest_above(p) == y), key=lambda p: p["bbox"][1])
+        name_parts: List[dict] = []
+        for phrase in above:
+            if parse_elevation(phrase["text"]) or is_see_plan(phrase["text"]):
+                break
+            if name_parts and name_parts[-1]["bbox"][1] - phrase["bbox"][3] > 6.0:
+                break
+            name_parts.append(phrase)
+        value = next((p for p in below if parse_elevation(p["text"]) or is_see_plan(p["text"])), None)
+        if not name_parts and value is None:
+            continue
+        name_parts.reverse()
+        lines.append({
+            "y": round(y, 1),
+            "name": " ".join(p["text"] for p in name_parts) or None,
+            "name_bbox": _union_boxes(p["bbox"] for p in name_parts) if name_parts else None,
+            "elevation_text": value["text"] if value else None,
+            "elevation_bbox": value["bbox"] if value else None,
+        })
+    return lines
+
+
+def _union_boxes(boxes: Any) -> List[float]:
+    boxes = list(boxes)
+    return [min(b[0] for b in boxes), min(b[1] for b in boxes), max(b[2] for b in boxes), max(b[3] for b in boxes)]
+
+
+def _column_strokes(table_box: List[float], drawings: List[dict]) -> List[tuple]:
+    """``(x, top, bottom)`` of heavy vertical strokes inside the table: the
+    drawn columns of a graphical schedule (table rules are hairlines)."""
+
+    strokes = []
+    for path in drawings:
+        if float(path.get("width") or 0.0) < _COLUMN_STROKE_MIN_WIDTH:
+            continue
+        for item in path.get("items") or ():
+            if item[0] == "l" and abs(item[1].x - item[2].x) < 0.8:
+                top, bottom = sorted((item[1].y, item[2].y))
+                if (bottom - top > 5 and table_box[0] <= item[1].x <= table_box[2]
+                        and table_box[1] - 1 <= top and bottom <= table_box[3] + 1):
+                    strokes.append((item[1].x, top, bottom))
+    return strokes
+
+
+def _endpoint(y: float, lines: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Where a drawn column end sits: on a level line, between two, or
+    beyond all of them. Never snapped to the nearest line."""
+
+    def ref(line: Dict[str, Any]) -> Dict[str, Any]:
+        return {k: line[k] for k in ("name", "elevation_text", "y")}
+
+    on = [line for line in lines if abs(line["y"] - y) <= _ON_LINE]
+    if on:
+        return {"position": "at", "y": round(y, 1), "line": ref(on[0])}
+    above = [line for line in lines if line["y"] < y]
+    below = [line for line in lines if line["y"] > y]
+    if above and below:
+        near = ("upper" if y - above[-1]["y"] <= _NEAR_LINE
+                else "lower" if below[0]["y"] - y <= _NEAR_LINE else None)
+        return {"position": "between", "y": round(y, 1), "upper": ref(above[-1]), "lower": ref(below[0]),
+                "near": near}
+    if below:
+        return {"position": "above", "y": round(y, 1), "lower": ref(below[0])}
+    if above:
+        return {"position": "below", "y": round(y, 1), "upper": ref(above[-1])}
+    return {"position": "unknown", "y": round(y, 1)}
+
+
+def _column_extent(x0: float, x1: float, strokes: List[tuple], lines: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    """Top and bottom of the drawn column in this band, relative to the level lines."""
+
+    if not lines:
+        return None
+    middle, half = (x0 + x1) / 2.0, (x1 - x0) / 2.0
+    mine = [s for s in strokes if abs(s[0] - middle) <= 0.6 * half]
+    if not mine:
+        return None
+    # The column is one collinear stroke; a pier or plate outline drawn
+    # beside it in the same band is not part of it.
+    axis = max(mine, key=lambda s: s[2] - s[1])[0]
+    mine = [s for s in mine if abs(s[0] - axis) <= 1.5]
+    top, bottom = min(s[1] for s in mine), max(s[2] for s in mine)
+    return {"top": _endpoint(top, lines), "bottom": _endpoint(bottom, lines)}
 
 
 def schedule_captions(bbox: List[float], visible: List[dict], *, reach: float = 90.0) -> Dict[str, Any]:
@@ -804,7 +957,7 @@ def build_column_schedules(
             target = {
                 "_signature": signature, "title": title, "caption": None, "key_role": matrix["key_role"],
                 "layout": matrix["layout"], "levels": matrix["levels"], "pages": [], "blocks": [],
-                "notes": [], "entries": [], "suppressed_text": [],
+                "notes": [], "entries": [], "suppressed_text": [], "level_lines": [],
             }
             schedules.append(target)
         if record["page"] not in target["pages"]:
@@ -812,6 +965,9 @@ def build_column_schedules(
         target["caption"] = target["caption"] or captions.get("caption")
         target["notes"].extend(n for n in captions.get("notes") or [] if n not in target["notes"])
         target["blocks"].append({"page": record["page"], "bbox": matrix["bbox"]})
+        target["level_lines"].extend(
+            {**line, "page": record["page"]} for line in matrix.get("level_lines") or []
+        )
         target["suppressed_text"].extend({**s, "page": record["page"]} for s in matrix["suppressed_text"])
         target["entries"].extend({**column, "page": record["page"]} for column in matrix["columns"])
     for schedule in schedules:
@@ -953,6 +1109,7 @@ def column_schedule_view(document: Dict[str, Any], sheets: Dict[int, str]) -> Di
     """
 
     from services.engineering.drawing_intelligence import _catalog_designation
+    from services.engineering.level_evidence import level_difference
     from services.engineering.schedule_grid import _catalog_accepts, section_from_size_text
 
     data = document.get("column_schedules") or {}
@@ -1052,6 +1209,11 @@ def column_schedule_view(document: Dict[str, Any], sheets: Dict[int, str]) -> Di
                 if row["section"] and exact and row["section"] not in exact
             ]
             entry["hidden_text"] = column.get("suppressed_text") or []
+            # Where the drawn column starts and ends against the schedule's
+            # level lines, and the elevation difference when both ends sit on
+            # lines with printed elevations. Never a column length.
+            extent = entry["extent"] = column.get("extent")
+            entry["level_difference"] = level_difference(extent) if extent else None
             entries.append(entry)
     return {
         "schedules": schedules_out,

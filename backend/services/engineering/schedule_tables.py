@@ -93,16 +93,30 @@ def read_ruled_tables(
         bbox = word.get("bbox") or []
         if len(bbox) >= 4 and (wanted is None or page in wanted):
             by_page.setdefault(page, []).append((*bbox[:4], word.get("text") or ""))
-    candidates = sorted(page for page, found in by_page.items() if _schedule_regions(found))
-    if not candidates:
+    candidates = {page for page, found in by_page.items() if _schedule_regions(found)}
+    # Words of a page stored with /Rotate are in unrotated space, where a
+    # schedule's rows run vertically; such pages are re-checked as displayed.
+    maybe_rotated = {
+        page for page, found in by_page.items()
+        if page not in candidates and any(_ANCHOR_WORD_RE.match(str(w[4]).upper()) for w in found)
+    }
+    if not candidates and not maybe_rotated:
         return []
     records: List[Dict[str, Any]] = []
     with fitz.open(pdf_path) as document:
-        for page_number in candidates:
+        for page_number in sorted(candidates | maybe_rotated):
             if not 1 <= page_number <= document.page_count:
                 continue
             page = document[page_number - 1]
+            if page_number not in candidates and not page.rotation:
+                continue
+            scratch = None
+            if page.rotation:
+                scratch, page = _displayed_page(document, page_number)
             page_words = page.get_text("words")
+            if page_number not in candidates and not _schedule_regions(page_words):
+                scratch.close()
+                continue
             drawings = page.get_drawings()
             rules = _vertical_rules(drawings, page.rect.height)
             phrases: Optional[tuple] = None
@@ -131,7 +145,7 @@ def read_ruled_tables(
                         if phrases is None:
                             phrases = visible_phrases(page, drawings)
                         visible, suppressed = phrases
-                        matrix = read_column_matrix(table, page_number, visible, suppressed)
+                        matrix = read_column_matrix(table, page_number, visible, suppressed, drawings=drawings)
                         if matrix:
                             matrix["captions"] = schedule_captions(record["bbox"], visible)
                             record["column_matrix"] = matrix
@@ -139,7 +153,24 @@ def read_ruled_tables(
                             record = None
                     if record:
                         records.append(record)
+            if scratch is not None:
+                scratch.close()
     return records
+
+
+_ANCHOR_WORD_RE = re.compile(r"^(?:LOCATI|MARK$|TYPE$|PIER)")
+
+
+def _displayed_page(document: Any, page_number: int) -> tuple:
+    """A one-page copy with its stored rotation removed, so text, drawings
+    and tables are in the coordinates the page is displayed in -- the space
+    the source viewer draws highlights in."""
+
+    scratch = fitz.open()
+    scratch.insert_pdf(document, from_page=page_number - 1, to_page=page_number - 1)
+    page = scratch[0]
+    page.remove_rotation()
+    return scratch, page
 
 
 def _merge_overlapping(regions: List[fitz.Rect], page_rect: fitz.Rect) -> List[fitz.Rect]:

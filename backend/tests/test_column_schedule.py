@@ -376,6 +376,76 @@ class LocationMatrixTests(_SyntheticSheet):
         self.assertEqual([r["location"] for t in tables for r in t["rows"]], ["C-6"])
 
 
+def _graphical_page(document):
+    """OSSE S-602-O shape: level name just above each line, elevation just
+    below; three drawn columns:
+
+    * A-1 from the T.O. ROOF line down to the LEVEL 1 line, a pier outline
+      drawn beside its foot;
+    * B-2 starting between ROOF and LEVEL 2, ending on LEVEL 1;
+    * C-3 ending below the last line.
+    """
+
+    page = document.new_page(width=900, height=700)
+    xs, ys = _grid_lines(page, 100, 100, [120, 90, 90, 90], [40, 100, 100, 60, 30, 30])
+    # ys: 100 top, 140 ROOF line, 240 LEVEL 2 line, 340 LEVEL 1 line, 400, 430 plate row, 460
+    for y, name, elevation in ((140, "T.O. ROOF", "69' - 4\""), (240, "T.O. SLAB LEVEL 2", "55' - 10\""),
+                               (340, "T.O. SLAB LEVEL 1", "38' - 0\"")):
+        page.insert_text((xs[0] + 4, y - 6), name, fontsize=8)
+        page.insert_text((xs[0] + 4, y + 12), elevation, fontsize=8)
+    page.insert_text((xs[0] + 4, ys[5] - 10), "BASE PLATE", fontsize=8)
+    page.insert_text((xs[0] + 4, ys[6] - 10), "Column Locations", fontsize=8)
+    for i, (location, top, bottom) in enumerate((("A-1", 140, 340), ("B-2", 170, 340), ("C-3", 140, 385))):
+        x = xs[i + 1] + 45
+        page.insert_text((xs[i + 1] + 30, ys[6] - 10), location, fontsize=8)
+        page.draw_line((x, top), (x, bottom), width=1.8)
+        page.insert_text((x - 4, 300), "W10X33", fontsize=7, rotate=90)
+    page.draw_rect(fitz.Rect(xs[1] + 35, 330, xs[1] + 55, 395), width=0.5)   # pier outline at A-1
+
+
+class LevelLineTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = tempfile.TemporaryDirectory()
+        pdf = Path(cls.tmp.name) / "gcs.pdf"
+        document = fitz.open()
+        _graphical_page(document)
+        document.save(str(pdf))
+        document.close()
+        with fitz.open(str(pdf)) as document:
+            words = [{"text": w[4], "bbox": list(w[:4]), "page_number": 1} for w in document[0].get_text("words")]
+        cls.data = build_column_schedules(read_ruled_tables(str(pdf), words))
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    def entry(self, key):
+        return next(e for s in self.data["schedules"] for e in s["entries"] if e["key"] == key)
+
+    def test_level_lines_pair_the_name_above_with_the_elevation_below(self):
+        lines = self.data["schedules"][0]["level_lines"]
+        self.assertEqual([(l["name"], l["elevation_text"]) for l in lines],
+                         [("T.O. ROOF", "69' - 4\""), ("T.O. SLAB LEVEL 2", "55' - 10\""), ("T.O. SLAB LEVEL 1", "38' - 0\"")])
+        self.assertTrue(all(l["name_bbox"] and l["elevation_bbox"] for l in lines))   # sources kept
+
+    def test_ends_on_lines_between_lines_and_below_all_lines(self):
+        a1, b2, c3 = (self.entry(k)["extent"] for k in ("A-1", "B-2", "C-3"))
+        self.assertEqual((a1["top"]["position"], a1["top"]["line"]["name"]), ("at", "T.O. ROOF"))
+        # the pier outline drawn under A-1 is not part of the column
+        self.assertEqual((a1["bottom"]["position"], a1["bottom"]["line"]["name"]), ("at", "T.O. SLAB LEVEL 1"))
+        self.assertEqual((b2["top"]["position"], b2["top"]["upper"]["name"], b2["top"]["lower"]["name"]),
+                         ("between", "T.O. ROOF", "T.O. SLAB LEVEL 2"))   # never snapped
+        self.assertEqual((c3["bottom"]["position"], c3["bottom"]["upper"]["name"]), ("below", "T.O. SLAB LEVEL 1"))
+
+    def test_only_both_ends_on_printed_levels_give_a_difference(self):
+        from services.engineering.level_evidence import level_difference
+
+        self.assertEqual(level_difference(self.entry("A-1")["extent"])["display"], "31'-4\"")
+        self.assertEqual(level_difference(self.entry("B-2")["extent"])["status"], "unresolved")
+        self.assertEqual(level_difference(self.entry("C-3")["extent"])["status"], "unresolved")
+
+
 class PlateTableTests(unittest.TestCase):
     def _record(self, title, header, groups, rows, page=43):
         return {

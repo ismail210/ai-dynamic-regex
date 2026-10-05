@@ -506,6 +506,7 @@ function ColumnEntryDetails({ entry, onView }) {
           visible drawing was used.
         </Typography>
       )}
+      <ColumnExtent entry={entry} />
       <Typography variant="caption" color="text.secondary">
         A schedule entry is a definition, not a counted member — it is never a takeoff quantity.
       </Typography>
@@ -671,6 +672,292 @@ function ColumnSchedules({ data, onView }) {
           onView={onView}
         />
       ))}
+    </Section>
+  );
+}
+
+// Levels and elevations: what the schedules and plan notes state about each
+// level, kept as separate sourced records. A difference between two level
+// elevations is never presented as a column length.
+const surfaceLabel = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : "Elevation");
+const COLLAPSED_ELEVATIONS = 12;
+
+function endLabel(end) {
+  if (!end) return "—";
+  const level = (ref) => `${ref.name || "unnamed line"}${ref.elevation_text ? ` (${ref.elevation_text})` : ""}`;
+  switch (end.position) {
+    case "at":
+      return `at ${level(end.line)}`;
+    case "between":
+      return `between ${level(end.upper)} and ${level(end.lower)}${
+        end.near ? ` — drawn just ${end.near === "upper" ? "below" : "above"} ${end[end.near].name}` : ""
+      }`;
+    case "above":
+      return `above ${level(end.lower)}`;
+    case "below":
+      return `below ${level(end.upper)}`;
+    default:
+      return "not on a level line";
+  }
+}
+
+function ColumnExtent({ entry }) {
+  if (!entry.extent) return null;
+  const diff = entry.level_difference;
+  return (
+    <Box>
+      <Typography variant="caption" color="text.secondary" display="block">
+        Vertical extent drawn in the schedule
+      </Typography>
+      <Typography variant="body2">Top: {endLabel(entry.extent.top)}</Typography>
+      <Typography variant="body2">Bottom: {endLabel(entry.extent.bottom)}</Typography>
+      {diff?.status === "computed" ? (
+        <Typography variant="body2" sx={{ mt: 0.5 }}>
+          Level-to-level difference: <b>{diff.display}</b> ({diff.upper.name} {diff.upper.elevation} − {diff.lower.name}{" "}
+          {diff.lower.elevation}). This is the difference between the two printed level elevations, not
+          the column's length.
+        </Typography>
+      ) : (
+        <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.5 }}>
+          No height shown: {diff?.note || "the schedule does not establish both ends."}
+        </Typography>
+      )}
+    </Box>
+  );
+}
+
+const LEVEL_STATUS = {
+  read: { label: "read from schedule", color: "success" },
+  see_plan: { label: "see plan", color: "info" },
+  missing: { label: "no elevation printed", color: "default" },
+};
+
+function LevelRow({ level, onView }) {
+  const badge = LEVEL_STATUS[level.status];
+  const sourceItem = { page: level.page, sheet: level.sheet, bbox: level.bbox, mark: level.name };
+  return (
+    <TableRow sx={{ "& > td": { verticalAlign: "top" } }}>
+      <TableCell>
+        <Typography variant="body2" fontWeight={700}>{level.name || "Unnamed level line"}</Typography>
+        {level.blocks > 1 && (
+          <Typography variant="caption" color="text.secondary">printed on {level.blocks} schedule parts</Typography>
+        )}
+      </TableCell>
+      <TableCell>
+        <Typography variant="body2" fontWeight={600}>{level.printed || "—"}</Typography>
+        {badge && <Chip size="small" variant="outlined" color={badge.color} label={badge.label} sx={{ mt: 0.5 }} />}
+        {level.resolved && (
+          <Typography variant="body2" sx={{ mt: 0.5 }}>
+            {surfaceLabel(level.resolved.surface)} {level.resolved.display} on {level.resolved.via}
+          </Typography>
+        )}
+        {level.note && (
+          <Typography variant="caption" color="text.secondary" display="block">{level.note}</Typography>
+        )}
+      </TableCell>
+      <TableCell>
+        {level.plan_matches.length === 0 && (
+          <Typography variant="body2" color="text.secondary">No plan with a matching title states an elevation.</Typography>
+        )}
+        {level.plan_matches.map((match) => (
+          <Box key={match.page} sx={{ mb: 0.75 }}>
+            <Typography variant="body2">
+              {match.plan} ({match.sheet || `p. ${match.page}`})
+              {match.comparison === "agrees" && " — agrees"}
+            </Typography>
+            {match.values.map((v, i) => (
+              <Stack key={i} direction="row" spacing={1} sx={{ alignItems: "center" }}>
+                <Typography variant="caption" color="text.secondary">
+                  {surfaceLabel(v.surface)} {v.display}
+                  {v.status === "derived" ? " (derived)" : ""}
+                </Typography>
+                <ViewPageButton item={{ ...v.source, mark: `${surfaceLabel(v.surface)} ${v.display}` }}
+                  label="View note" onView={onView} />
+              </Stack>
+            ))}
+            {match.comparison === "differs" && (
+              <Chip size="small" variant="outlined" color="warning" label="differs from the schedule" sx={{ mt: 0.5 }} />
+            )}
+          </Box>
+        ))}
+        {level.also_titled?.length > 0 && (
+          <Typography variant="caption" color="text.secondary" display="block">
+            Also titled on {level.also_titled.join(", ")} (no elevation stated there)
+          </Typography>
+        )}
+      </TableCell>
+      <TableCell align="right" sx={{ width: "1%" }}>
+        <ViewPageButton item={sourceItem} label="View level" onView={onView} />
+      </TableCell>
+    </TableRow>
+  );
+}
+
+const ELEVATION_STATUS = {
+  read: { label: "read from note", color: "success" },
+  derived: { label: "derived by note", color: "info" },
+  unresolved: { label: "not established", color: "default" },
+};
+
+function PlanElevationRow({ item, onView }) {
+  const badge = ELEVATION_STATUS[item.status];
+  return (
+    <TableRow sx={{ "& > td": { verticalAlign: "top" } }}>
+      <TableCell>
+        <Typography variant="body2" fontWeight={600}>{item.plan || "Plan"}</Typography>
+        <Typography variant="caption" color="text.secondary" display="block">
+          {[item.sheet || `p. ${item.page}`, item.area && `at ${item.area.toLowerCase()}`].filter(Boolean).join(" · ")}
+        </Typography>
+      </TableCell>
+      <TableCell>{surfaceLabel(item.surface)}</TableCell>
+      <TableCell>
+        <Typography variant="body2" fontWeight={600}>{item.value ? item.value.display : "—"}</Typography>
+        {item.value?.raw && item.value.raw !== item.value.display && (
+          <Typography variant="caption" color="text.secondary" display="block">printed {item.value.raw}</Typography>
+        )}
+        <Chip size="small" variant="outlined" color={badge.color} label={badge.label} sx={{ mt: 0.5 }} />
+      </TableCell>
+      <TableCell>
+        {item.status === "derived" && item.offset && (
+          <Typography variant="body2">
+            {item.inputs?.[0]?.text ? `${item.inputs[0].text} ` : ""}
+            {item.offset.display.replace(/^-/, "")} {item.offset.direction} {item.offset.relative_to}
+          </Typography>
+        )}
+        {item.status === "derived" && item.true_elevation && (
+          <Typography variant="body2">True elevation {item.true_elevation.raw} (reference elevation note)</Typography>
+        )}
+        {item.rule && <Typography variant="caption" color="text.secondary" display="block">“{item.rule}”</Typography>}
+        {item.note && <Typography variant="caption" color="text.secondary" display="block">{item.note}</Typography>}
+        {item.unless_noted && item.exceptions && (
+          <Typography variant="caption" color="text.secondary" display="block">
+            Unless noted otherwise{item.exceptions.notation ? ` thus ${item.exceptions.notation}…` : ""}:{" "}
+            {item.exceptions.count} local value{item.exceptions.count === 1 ? "" : "s"} noted on this sheet.
+          </Typography>
+        )}
+      </TableCell>
+      <TableCell align="right" sx={{ width: "1%" }}>
+        <Stack spacing={0.5} sx={{ alignItems: "flex-end" }}>
+          {(item.inputs?.length ? item.inputs : [item.source]).map((source, i) => (
+            <ViewPageButton key={i}
+              item={{ ...source, mark: item.inputs?.length > 1
+                ? (i === 0 ? "the value it is derived from" : "the offset note")
+                : surfaceLabel(item.surface) }}
+              label={item.inputs?.length > 1 ? (i === 0 ? "View value" : "View offset note") : "View note"}
+              onView={onView} />
+          ))}
+        </Stack>
+      </TableCell>
+    </TableRow>
+  );
+}
+
+function LevelsAndElevations({ data, onView }) {
+  const [showAll, setShowAll] = useState(false);
+  const levels = data.schedule_levels || [];
+  const elevations = data.plan_elevations || [];
+  const shownElevations = showAll ? elevations : elevations.slice(0, COLLAPSED_ELEVATIONS);
+  const bySchedule = [];
+  for (const level of levels) {
+    let group = bySchedule.find((g) => g.id === level.schedule_id);
+    if (!group) bySchedule.push((group = { id: level.schedule_id, name: level.schedule, items: [] }));
+    group.items.push(level);
+  }
+  return (
+    <Section title="Levels and elevations">
+      <Typography variant="body2" color="text.secondary" mb={1.5}>
+        Levels and elevations as the schedules and plan notes state them, each with its source. A plan
+        is linked to a schedule level only as a possible match by name; differing values are shown, not
+        merged. Elevations are read as printed — nothing is measured from the drawing.
+      </Typography>
+      {bySchedule.map((group) => (
+        <Paper key={group.id} variant="outlined" sx={{ mb: 2, overflow: "hidden" }}>
+          <Typography variant="subtitle1" fontWeight={700} sx={{ px: 2, py: 1.25, bgcolor: "action.hover" }}>
+            Levels in {group.name}
+          </Typography>
+          <Box sx={{ overflowX: "auto" }}>
+            <Table size="small" aria-label={`Levels in ${group.name}`}>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Level</TableCell>
+                  <TableCell>Elevation in schedule</TableCell>
+                  <TableCell>Plans with a matching title</TableCell>
+                  <TableCell align="right">Source</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {group.items.map((level, i) => (
+                  <LevelRow key={`${level.name}-${i}`} level={level} onView={onView} />
+                ))}
+              </TableBody>
+            </Table>
+          </Box>
+        </Paper>
+      ))}
+      {elevations.length > 0 && (
+        <Paper variant="outlined" sx={{ mb: 2, overflow: "hidden" }}>
+          <Typography variant="subtitle1" fontWeight={700} sx={{ px: 2, py: 1.25, bgcolor: "action.hover" }}>
+            Elevations stated on plans
+          </Typography>
+          <Box sx={{ overflowX: "auto" }}>
+            <Table size="small" aria-label="Elevations stated on plans">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Plan / area</TableCell>
+                  <TableCell>Surface</TableCell>
+                  <TableCell>Elevation</TableCell>
+                  <TableCell>How it is established</TableCell>
+                  <TableCell align="right">Source</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {shownElevations.map((item, i) => (
+                  <PlanElevationRow key={i} item={item} onView={onView} />
+                ))}
+              </TableBody>
+            </Table>
+          </Box>
+          {elevations.length > COLLAPSED_ELEVATIONS && (
+            <Box sx={{ px: 1.5, pb: 1 }}>
+              <Button size="small" onClick={() => setShowAll(!showAll)}>
+                {showAll ? "Show fewer" : `Show all ${elevations.length}`}
+              </Button>
+            </Box>
+          )}
+        </Paper>
+      )}
+      {(data.datums?.length > 0 || data.notations?.length > 0 || data.noted_on_plans?.length > 0) && (
+        <Paper variant="outlined" sx={{ p: 1.5 }}>
+          {data.datums?.map((d, i) => (
+            <Stack key={`d${i}`} direction="row" spacing={1} sx={{ alignItems: "center", mb: 0.5 }}>
+              <Typography variant="body2">
+                <b>Datum</b> ({d.sheet || `p. ${d.page}`}): {d.relation}
+              </Typography>
+              <ViewPageButton item={{ ...d.source, mark: "datum note" }} label="View note" onView={onView} />
+            </Stack>
+          ))}
+          {data.notations?.map((n, i) => (
+            <Stack key={`n${i}`} direction="row" spacing={1} sx={{ alignItems: "center", mb: 0.5 }}>
+              <Typography variant="body2">
+                <b>{n.sample}</b> on plan means {n.meaning}
+                {n.relative_to ? `, measured from ${n.relative_to}` : ""} ({n.scope}, {n.sheet || `p. ${n.page}`})
+              </Typography>
+              <ViewPageButton item={{ ...n.source, mark: n.sample }} label="View note" onView={onView} />
+            </Stack>
+          ))}
+          {data.noted_on_plans?.map((g) => (
+            <Stack key={`v${g.page}`} direction="row" spacing={1} sx={{ alignItems: "center", flexWrap: "wrap", mb: 0.5 }}>
+              <Typography variant="body2">
+                {g.sheet || `p. ${g.page}`}: {g.count} value{g.count === 1 ? "" : "s"} noted on plan ({g.meaning.join(", ")})
+                {g.examples.length ? ` — e.g. ${g.examples.slice(0, 3).map((e) => e.text).join("; ")}` : ""}
+              </Typography>
+              {g.examples[0] && (
+                <ViewPageButton item={{ ...g.examples[0], mark: g.examples[0].value }} label="View example" onView={onView} />
+              )}
+            </Stack>
+          ))}
+        </Paper>
+      )}
     </Section>
   );
 }
@@ -870,6 +1157,10 @@ export default function DrawingSummaryPanel({ profile, documentId = null }) {
   const columnSchedule = di?.column_schedule;
   const columnEntries = columnSchedule?.entries || [];
   const hasColumnSchedule = columnEntries.length > 0;
+  const levels = di?.levels;
+  const hasLevels = Boolean(
+    levels && (levels.schedule_levels?.length || levels.plan_elevations?.length || levels.datums?.length),
+  );
   // Column marks the column schedule already shows (with plates and notes).
   const scheduledColumns = new Set(
     columnEntries.filter((e) => e.mark).map((e) => `${e.page}|${e.mark}`),
@@ -882,6 +1173,7 @@ export default function DrawingSummaryPanel({ profile, documentId = null }) {
   const hasEvidence =
     definitions.length > 0 ||
     hasColumnSchedule ||
+    hasLevels ||
     interpretationRules.length > 0 ||
     unresolved.length > 0;
   // Model notes only ever annotate an existing evidence id (validated server-side).
@@ -933,6 +1225,7 @@ export default function DrawingSummaryPanel({ profile, documentId = null }) {
             <MarksAndDefinitions definitions={definitions} notes={modelNotes} onView={onView} />
           )}
           {hasColumnSchedule && <ColumnSchedules data={columnSchedule} onView={onView} />}
+          {hasLevels && <LevelsAndElevations data={levels} onView={onView} />}
           {interpretationRules.length > 0 && (
             <InterpretationRules rules={interpretationRules} notes={modelNotes} onView={onView} />
           )}

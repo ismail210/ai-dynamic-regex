@@ -1,0 +1,85 @@
+{
+  "_about": "Levels and elevations reference set (Phase 2). Values were read from the rendered sheets (crops in docs/levels_phase2/), independently of the parser. Pages are 1-based PDF pages; sheet ids as printed.",
+  "documents": [
+    {
+      "key": "osse",
+      "pdf": "07 - FEMS & OSSE/OSSE - ST.pdf",
+      "schedule_levels": {
+        "OSSE BUILDING - GCS": [["T.O. ROOF", "69' - 4\""], ["T.O. SLAB LEVEL 2", "55' - 10\""],
+                                ["T.O. SLAB LEVEL 1", "38' - 0\""], ["T.O. PARKING LOWER DECK", "33' - 0\""]],
+        "OSSE PARKING - GCS": [["T.O. PARKING DECK SLAB", "50' - 0\""], ["T.O. SLAB LOW RAMP", "41' - 9 5/8\""],
+                               ["T.O. PARKING LOWER DECK", "33' - 0\""]]
+      },
+      "conflicts": {"T.O. SLAB LEVEL 2": "55'-2\""},
+      "agrees": {"T.O. SLAB LEVEL 1": "38'-0\""},
+      "plan_read": [["S122", "top of slab", "55'-2\""], ["S121", "top of slab", "38'-0\""], ["S123", "top of slab", "69'-4\""]],
+      "plan_unresolved": [["S122", "top of steel"], ["S123", "top of steel"]],
+      "differences": {"C.8-8.9": "31'-4\""},
+      "no_difference": ["C.1-5.1", "R13(5' - 4\")-RA.1", "D.2-6.3"],
+      "notations": [["(", "bottom of base plate"], ["<", "top of framing"], ["{", "top of pier"], ["[", "bottom of footing"]]
+    },
+    {
+      "key": "furley",
+      "pdf": "36 - Furley ES/Struct.pdf",
+      "plan_read": [["S102C", "top of slab", "19'-4\""], ["S102D", "top of slab", "14'-8\""]],
+      "plan_derived": [["S102C", "top of steel", "18'-8\"", "MEACHANICAL ROOM"], ["S102D", "top of steel", "14'-3\"", null],
+                       ["S102A", "top of steel", "14'-3\"", null]],
+      "noted": [["S103A", "top of steel (from datum)"]]
+    },
+    {
+      "key": "brandywine",
+      "pdf": "09 - Brandywine/Structural4.pdf",
+      "schedule_levels": {
+        "COLUMN SCHEDULE": [["LEVEL 4", "42'-0\""], ["LEVEL 3", "28'-0\""], ["LEVEL 2", "14'-0\""], ["LEVEL 1", "0\""],
+                            ["LOWER LEVEL", "-5'-0\""]]
+      },
+      "agrees": {"LEVEL 2": "14'-0\"", "LEVEL 3": "28'-0\"", "LEVEL 4": "42'-0\""},
+      "plan_read": [["S120", "top of steel", "13'-6 3/4\""], ["S130", "top of steel", "27'-6 3/4\""]],
+      "datum_unresolved": ["S120", "S130", "S140"]
+    },
+    {
+      "key": "burrville",
+      "pdf": "51 - Burrvile ES/ST-Burrville.pdf",
+      "schedule_levels": {
+        "COLUMN SCHEDULE": [["UPPER ROOF", "44' - 6\""], ["MAIN ROOF", "29' - 0\""], ["UPPER LEVEL", "14' - 6\""],
+                            ["GROUND LEVEL", "0' - 0\""]]
+      },
+      "agrees": {"UPPER LEVEL": "14'-6\"", "UPPER ROOF": "44'-6\"", "MAIN ROOF": "29'-0\""},
+      "plan_derived": [["S102A", "top of slab", "14'-6\"", null]],
+      "plan_unresolved": [["S102A", "top of steel"]],
+      "datums": ["reference elevation 14'-6\" corresponds to true elevation 112'-0\""]
+    },
+    {
+      "key": "washlatin",
+      "pdf": "01 - Washington Latin/New bldg - St.pdf",
+      "schedule_levels": {
+        "STEEL COLUMN SCHEDULE": [["ROOF LEVEL", "SEE PLAN"], ["FOURTH FLOOR", "SEE PLAN"], ["THIRD FLOOR", "SEE PLAN"],
+                                  ["SECOND FLOOR", "SEE PLAN"], ["FIRST FLOOR", "SEE PLAN"], ["GROUND FLOOR", "SEE PLAN"]]
+      },
+      "resolved": {"SECOND FLOOR": "330'-0\"", "FIRST FLOOR": "314'-0\"", "ROOF LEVEL": "372'-9\""},
+      "unresolved_see_plan": ["THIRD FLOOR", "FOURTH FLOOR"],
+      "plan_derived": [["S102", "top of steel", "329'-5 3/4\"", null], ["S103", "top of steel", "343'-11 3/4\"", null],
+                       ["S103", "top of steel", "343'-0 3/4\"", null]],
+      "masked_not_used": ["314' - 0\"", "372' - 6\""]
+    },
+    {
+      "key": "fortdavis",
+      "pdf": "08 - Fort Davis Community Center/Structure - Copy1 - edit.pdf",
+      "schedule_levels": {
+        "COLUMN SCHEDULE": [["HIGH ROOF", null], ["LOW ROOF", null], ["2ND", null], ["FOUNDATION", null]]
+      },
+      "no_computed_differences": true
+    },
+    {
+      "key": "yellowspring",
+      "pdf": "00 - Yellow Spring/ST1.pdf",
+      "rotated": true,
+      "schedule_levels": {
+        "COLUMN SCHEDULE": [["MECHANICAL PENTHOUSE ROOF", "42' - 0\""], ["3 ROOF", "30' - 8\""],
+                            ["2 SECOND FLOOR AND LOW ROOF", "15' - 4\""], ["1 FOUNDATION", "0' - 0\""]]
+      },
+      "agrees": {"2 SECOND FLOOR AND LOW ROOF": "15'-4\""},
+      "entry_box": {"A-24": [383.2, 529.9, 456.1, 568.4]}
+    }
+  ]
+}

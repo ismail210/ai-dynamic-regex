@@ -30,6 +30,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from services.database_loader import catalog_form
 from services.engineering.column_schedule import column_schedule_view
+from services.engineering.level_evidence import levels_view
 
 DRAWING_INTELLIGENCE_VERSION = "drawing_intelligence_v2"
 
@@ -1495,6 +1496,9 @@ def build_drawing_intelligence(
         # Display-only column entries (section, locations, plate, notes); not
         # evidence for the summary model and never a quantity.
         "column_schedule": column_schedule_view(document, sheets),
+        # Levels and elevations from schedules and plan notes, each sourced;
+        # display-only like the column schedule.
+        "levels": levels_view(document, sheets),
     }
     profile["narrative"] = _render_narrative(profile)
     profile["narrative"]["project_overview"] = _deterministic_overview(profile) + (

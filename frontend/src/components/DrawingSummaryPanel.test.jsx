@@ -603,6 +603,139 @@ describe("DrawingSummaryPanel — column schedule", () => {
   });
 });
 
+// Shaped like the backend's levels view (OSSE S-602-O / S-122-O, Furley
+// S102C, Washington Latin S-202 / S-102 / S-103).
+function levelsData() {
+  const src = (page, sheet, text, bbox = [10, 20, 30, 40]) => ({ page, sheet, text, bbox });
+  return {
+    schedule_levels: [
+      {
+        schedule_id: "S2", schedule: "OSSE BUILDING - GCS", name: "T.O. SLAB LEVEL 2", printed: "55' - 10\"",
+        elevation: { raw: "55' - 10\"", display: "55'-10\"" }, status: "read", page: 26, sheet: "S602",
+        bbox: [161, 1533, 240, 1572], blocks: 1, conflict: true, also_titled: [],
+        plan_matches: [{
+          page: 10, sheet: "S122", plan: "SECOND FLOOR PLAN", comparison: "differs",
+          values: [{ surface: "top of slab", display: "55'-2\"", raw: "55' - 2\"", status: "read",
+            source: src(10, "S122", "DATUM ELEVATION 0'-0\" REFERENCES TOP OF SECOND FLOOR SLAB ELEVATION 55' - 2\"", [2555, 371, 2876, 555]) }],
+        }],
+      },
+      {
+        schedule_id: "S3", schedule: "STEEL COLUMN SCHEDULE", name: "SECOND FLOOR", printed: "SEE PLAN", elevation: null,
+        status: "see_plan", page: 15, sheet: "S202", bbox: [653, 568, 697, 595], blocks: 1, conflict: false,
+        resolved: { surface: "top of slab", display: "330'-0\"", via: "S102" }, plan_matches: [], also_titled: [],
+      },
+      {
+        schedule_id: "S3", schedule: "STEEL COLUMN SCHEDULE", name: "THIRD FLOOR", printed: "SEE PLAN", elevation: null,
+        status: "see_plan", page: 15, sheet: "S202", bbox: [653, 438, 697, 464], blocks: 1, conflict: false,
+        resolved: null, note: "The matching plan shows 2 different values; the level is not reduced to one.",
+        plan_matches: [], also_titled: [],
+      },
+    ],
+    plan_elevations: [
+      {
+        status: "derived", surface: "top of steel", plan: "SECOND FLOOR / MECHANICAL ROOM FLOOR FRAMING NOTES",
+        area: "MEACHANICAL ROOM", page: 9, sheet: "S102C", value: { raw: null, display: "18'-8\"" },
+        offset: { display: "-0'-8\"", raw: "8\"", direction: "below", relative_to: "top of slab" },
+        rule: "TOP OF STEEL ELEVATION (BOTTOM OF DECK) SHALL BE 8\" BELOW TOP OF SLAB",
+        inputs: [src(9, "S102C", "TOP OF SLAB ELEVATION SHALL BE 19'-4\"", [1908, 1383, 2454, 1652]),
+          src(9, "S102C", "TOP OF STEEL ELEVATION (BOTTOM OF DECK) SHALL BE 8\" BELOW TOP OF SLAB", [1908, 1383, 2454, 1652])],
+        unless_noted: true, exceptions: { notation: "(", count: 4, examples: ["W16x26 [14] (13.00')"] },
+        source: src(9, "S102C", "TOP OF SLAB ELEVATION SHALL BE 19'-4\""),
+      },
+      {
+        status: "unresolved", surface: "top of steel", plan: "FLOOR PLAN", area: null, page: 10, sheet: "S122", value: null,
+        note: "The note gives <0' - 5 1/4\"> from the top of slab but not whether it is above or below.",
+        rule: "TOP OF STEEL ELEVATION IS <0' - 5 1/4\"> FROM TOP OF SLAB", unless_noted: true,
+        source: src(10, "S122", "TOP OF STEEL ELEVATION IS <0' - 5 1/4\"> FROM TOP OF SLAB"),
+      },
+    ],
+    datums: [{ page: 7, sheet: "S102A", plan: "UPPER FLOOR FRAMING PLAN NOTES", status: "read",
+      relation: "reference elevation 14'-6\" corresponds to true elevation 112'-0\"", source: src(7, "S102A", "REFERENCE ELEVATION") }],
+    notations: [{ page: 2, sheet: "S001", sample: "(##' - ##\")", meaning: "bottom of base plate", relative_to: "datum",
+      scope: "project legend", source: src(2, "S001", "(##' - ##\") BOTTOM OF BASE PLATE ELEVATION RELATIVE TO DATUM") }],
+    noted_on_plans: [],
+  };
+}
+
+describe("DrawingSummaryPanel — levels and elevations", () => {
+  const withLevels = () => evidenceProfile({ levels: levelsData() });
+
+  it("shows a schedule level next to a differing plan value without replacing it", () => {
+    render(<DrawingSummaryPanel profile={withLevels()} />);
+    expect(screen.getByText("Levels and elevations")).toBeInTheDocument();
+    const row = within(screen.getByText("T.O. SLAB LEVEL 2").closest("tr"));
+    expect(row.getByText("55' - 10\"")).toBeInTheDocument();
+    expect(row.getByText("Top of slab 55'-2\"")).toBeInTheDocument();
+    expect(row.getByText("differs from the schedule")).toBeInTheDocument();
+  });
+
+  it("resolves SEE PLAN only to a single plan value", () => {
+    render(<DrawingSummaryPanel profile={withLevels()} />);
+    expect(within(screen.getByText("SECOND FLOOR").closest("tr")).getByText("Top of slab 330'-0\" on S102")).toBeInTheDocument();
+    expect(within(screen.getByText("THIRD FLOOR").closest("tr")).getByText(/2 different values/)).toBeInTheDocument();
+  });
+
+  it("shows a derived top of steel with its slab value and the note's offset", async () => {
+    render(<DrawingSummaryPanel profile={withLevels()} documentId="doc_abc" />);
+    const row = within(screen.getByText("18'-8\"").closest("tr"));
+    expect(row.getByText("derived by note")).toBeInTheDocument();
+    expect(row.getByText(/TOP OF SLAB ELEVATION SHALL BE 19'-4" 0'-8" below top of slab/)).toBeInTheDocument();
+    expect(row.getByText(/4 local values noted on this sheet/)).toBeInTheDocument();
+    fireEvent.click(row.getByRole("button", { name: "View S102C · PDF p. 9 for the value it is derived from" }));
+    expect(await screen.findByTestId("pdf-viewer")).toHaveAttribute("data-page", "9");
+  });
+
+  it("leaves an offset with no stated direction unresolved, with no value", () => {
+    render(<DrawingSummaryPanel profile={withLevels()} />);
+    const row = within(screen.getByText(/not whether it is above or below/).closest("tr"));
+    expect(row.getByText("not established")).toBeInTheDocument();
+    expect(row.getByText("—")).toBeInTheDocument();
+  });
+
+  it("lists datum relations and project notations", () => {
+    render(<DrawingSummaryPanel profile={withLevels()} />);
+    expect(screen.getByText(/reference elevation 14'-6" corresponds to true elevation 112'-0"/)).toBeInTheDocument();
+    expect(screen.getByText(/on plan means bottom of base plate, measured from datum/)).toBeInTheDocument();
+  });
+
+  it("is hidden without level evidence", () => {
+    render(<DrawingSummaryPanel profile={evidenceProfile()} />);
+    expect(screen.queryByText("Levels and elevations")).not.toBeInTheDocument();
+  });
+});
+
+describe("DrawingSummaryPanel — column vertical extent", () => {
+  function withExtent(extent, difference) {
+    const data = columnScheduleData();
+    data.entries[0] = { ...data.entries[0], extent, level_difference: difference };
+    return evidenceProfile({ column_schedule: data });
+  }
+  const line = (name, elevation_text) => ({ name, elevation_text, y: 0 });
+
+  it("shows a level-to-level difference as such, never as a column length", () => {
+    render(<DrawingSummaryPanel profile={withExtent(
+      { top: { position: "at", line: line("T.O. ROOF", "69' - 4\"") }, bottom: { position: "at", line: line("T.O. SLAB LEVEL 1", "38' - 0\"") } },
+      { status: "computed", display: "31'-4\"", upper: { name: "T.O. ROOF", elevation: "69' - 4\"" },
+        lower: { name: "T.O. SLAB LEVEL 1", elevation: "38' - 0\"" } },
+    )} />);
+    fireEvent.click(screen.getByRole("button", { name: "Show details for A.4'-14 +3" }));
+    expect(screen.getByText("31'-4\"")).toBeInTheDocument();
+    expect(screen.getByText(/not\s+the column's length/)).toBeInTheDocument();
+  });
+
+  it("shows no height when an end is between level lines", () => {
+    render(<DrawingSummaryPanel profile={withExtent(
+      { top: { position: "between", near: "upper", upper: line("LEVEL 2", "14'-0\""), lower: line("LEVEL 1", "0\"") },
+        bottom: { position: "at", line: line("LEVEL 1", "0\"") } },
+      { status: "unresolved", note: "One end is not drawn on a level line." },
+    )} />);
+    fireEvent.click(screen.getByRole("button", { name: "Show details for A.4'-14 +3" }));
+    expect(screen.getByText(/Top: between LEVEL 2 \(14'-0"\) and LEVEL 1 \(0"\) — drawn just below LEVEL 2/)).toBeInTheDocument();
+    expect(screen.getByText(/No height shown: One end is not drawn on a level line/)).toBeInTheDocument();
+    expect(screen.queryByText(/Level-to-level difference/)).not.toBeInTheDocument();
+  });
+});
+
 describe("DrawingSummaryPanel — source page navigation", () => {
   it("hides View page when no document is loaded", () => {
     render(<DrawingSummaryPanel profile={evidenceProfile()} />);

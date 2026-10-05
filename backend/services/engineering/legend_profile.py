@@ -86,7 +86,9 @@ PROFILE_VERSION = "legend_profile_v4"
 # v6g: column_locations carry base plates from unlabelled Revit plate rows.
 # v6i: drawing_intelligence adds display-only column_schedule entries; a
 #      column schedule that was read is no longer reported as missing.
-EXTRACTOR_VERSION = "legend_extractor_v6i-column-schedule"
+# v6j: drawing_intelligence adds levels (schedule level lines, plan elevations)
+#      and column-schedule extents / level differences.
+EXTRACTOR_VERSION = "legend_extractor_v6j-levels"
 SCHEMA_VERSION = "project_rule_schema_v1"
 
 STATUS_PROPOSED_INFERENCE = "PROPOSED_INFERENCE"
