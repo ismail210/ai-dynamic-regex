@@ -51,12 +51,31 @@ _BAND_LEFT_SLACK = 48.0
 _BAND_RIGHT_SLACK = 120.0
 _WITH_PLATE_RE = re.compile(r"\bWITH\s+(BOTTOM|HUNG)\s+PLATE\b", re.IGNORECASE)
 _EMPTY_PLATE_RE = re.compile(r"^(?:[-–—]|N/?A)?$", re.IGNORECASE)
+# Blank, a dash, and an explicit "no plate" are not a plate. NONE / NO PLATE
+# are included here; the narrower pattern above stays for callers that only
+# treated a dash or N/A as empty.
+_NOT_APPLICABLE_PLATE_RE = re.compile(
+    r"^(?:[-–—]|N/?A|NONE|NO\s+PLATE)$", re.IGNORECASE
+)
+# One imperial plate dimension, printed. Mixed fractions stay text: ``1 1/4``,
+# ``1-1/4``, ``3/4``. No float conversion.
+_DIM_ATOM = r"(?:\d+[-\s]+\d+/\d+|\d+/\d+|\d+(?:\.\d+)?)"
+_ONE_DIM_RE = re.compile(rf"{_DIM_ATOM}\"?", re.IGNORECASE)
 # Schedule SIZE cells on dense sheets often merge neighboring note text.
 # Prefer the printed plate / angle dimension embedded in that blob.
+# Separators are x / X / ×. Roles are not assigned: the third number is not thickness.
 _PLATE_DIM_RE = re.compile(
-    r"(\d+(?:\.\d+)?|\d+/\d+)\s*\"?\s*[xX×]\s*"
-    r"(\d+(?:\.\d+)?|\d+/\d+)\s*\"?\s*[xX×]\s*"
-    r"(\d+\s+\d+/\d+|\d+/\d+|\d+(?:\.\d+)?)\s*\"?"
+    rf"({_DIM_ATOM})\s*\"?\s*[xX×]\s*"
+    rf"({_DIM_ATOM})\s*\"?\s*[xX×]\s*"
+    rf"({_DIM_ATOM})\s*\"?"
+)
+_BP_MARK_RE = re.compile(r"^BP[-_]?\d+[A-Z]?$", re.IGNORECASE)
+_PLATE_CONTEXT_KINDS = frozenset({"base_plate", "bearing_plate", "plate"})
+_KNOWN_SCHEDULE_LABELS = (
+    "BENT PLATE SCHEDULE",
+    "BEARING PLATE SCHEDULE",
+    "BASE PLATE SCHEDULE",
+    "PLATE SCHEDULE",
 )
 _ANGLE_THEN_DIM_RE = re.compile(
     r"\b(?:LOOSE|CONTINUOUS)?\s*ANGLES?\s+"
@@ -114,6 +133,140 @@ def member_plate_roles(text: str) -> List[str]:
     return roles
 
 
+def _heading_dimension_role(label: str) -> Optional[str]:
+    """Length / width / thickness from a schedule header. Combined plate labels are not roles."""
+
+    text = " ".join(str(label or "").upper().split())
+    if text in {
+        "BASE PLATE",
+        "BASE PLATE SIZE",
+        "BEARING PLATE",
+        "BEARING PLATE SIZE",
+        "PLATE",
+        "PLATE SIZE",
+    }:
+        return None
+    if re.search(r"(?:^|\s)(?:THK|THICKNESS)$", text):
+        return "thickness"
+    if re.search(r"(?:^|\s)WIDTH$", text):
+        return "width"
+    if re.search(r"(?:^|\s)LENGTH$", text):
+        return "length"
+    return None
+
+
+def _plate_not_applicable(text: str) -> bool:
+    return bool(_NOT_APPLICABLE_PLATE_RE.fullmatch(str(text or "").strip()))
+
+
+def _blank_plate(raw: str, notes: Optional[str] = None) -> Dict[str, Any]:
+    return {
+        "raw": raw,
+        "dimensions": {"length": None, "width": None, "thickness": None},
+        "ordered_dimensions": [],
+        "dimension_source": None,
+        "uncertain": False,
+        "notes": notes,
+        "reference": None,
+    }
+
+
+def _token_with_quote(raw: str, match: re.Match, group: int) -> str:
+    token = match.group(group).strip()
+    cursor = match.end(group)
+    while cursor < len(raw) and raw[cursor] == " ":
+        cursor += 1
+    if cursor < len(raw) and raw[cursor] in {'"', "″"}:
+        return token + raw[cursor]
+    return token
+
+
+def _as_dimension(text: str) -> Optional[str]:
+    value = " ".join(str(text or "").split())
+    if value and _ONE_DIM_RE.fullmatch(value):
+        return value
+    return None
+
+
+def _interpret_plate(
+    text: str,
+    *,
+    headed: Optional[List[tuple]] = None,
+    notes: Optional[str] = None,
+) -> tuple:
+    """``(parsed_plate, plate_status)``. Does not assign thickness by position."""
+
+    raw = " ".join(str(text or "").split())
+    kept_notes = " ".join(str(notes).split()) if notes else None
+    if headed:
+        dims = {"length": None, "width": None, "thickness": None}
+        ordered: List[str] = []
+        failed = False
+        for role, cell in headed:
+            printed = " ".join(str(cell or "").split())
+            if not printed:
+                continue
+            ordered.append(printed)
+            value = _as_dimension(printed)
+            if value is None or role not in dims:
+                failed = True
+                continue
+            dims[role] = value
+        parsed = {
+            "raw": raw or " ".join(ordered),
+            "dimensions": dims,
+            "ordered_dimensions": ordered,
+            "dimension_source": "headings",
+            "uncertain": not all(dims.values()),
+            "notes": kept_notes,
+            "reference": None,
+        }
+        if failed:
+            parsed["uncertain"] = True
+            return parsed, "unresolved"
+        if not any(dims.values()):
+            return _blank_plate(raw, kept_notes), "not_applicable"
+        return parsed, "present"
+
+    if not raw or _plate_not_applicable(raw):
+        return _blank_plate(raw, kept_notes), "not_applicable"
+    compact = re.sub(r"\s+", "", raw).upper()
+    if _BP_MARK_RE.fullmatch(compact):
+        parsed = _blank_plate(raw, kept_notes)
+        parsed["reference"] = compact
+        parsed["uncertain"] = True
+        return parsed, "unresolved"
+    matches = list(_PLATE_DIM_RE.finditer(raw))
+    if len(matches) != 1:
+        parsed = _blank_plate(raw, kept_notes)
+        parsed["uncertain"] = True
+        return parsed, "unresolved"
+    match = matches[0]
+    ordered = [_token_with_quote(raw, match, index) for index in (1, 2, 3)]
+    remainder = " ".join(f"{raw[:match.start()]} {raw[match.end():]}".split())
+    note_parts = [part for part in (kept_notes, remainder) if part]
+    return {
+        "raw": raw,
+        "dimensions": {"length": None, "width": None, "thickness": None},
+        "ordered_dimensions": ordered,
+        "dimension_source": "combined",
+        "uncertain": True,
+        "notes": " ".join(note_parts) or None,
+        "reference": None,
+    }, "present"
+
+
+def _apply_plate_metadata(row: Dict[str, Any], *, headed: Optional[List[tuple]] = None) -> None:
+    """Add plate status beside ``plate_text``. The printed cell is not rewritten."""
+
+    notes = row.get("plate_notes")
+    parsed, status = _interpret_plate(row.get("plate_text") or "", headed=headed, notes=notes)
+    row["parsed_plate"] = parsed
+    row["plate_status"] = status
+    if status == "not_applicable":
+        row["plate_role"] = None
+
+
 def plate_count_per_member(row: Dict[str, Any]) -> int:
     """Sidecar plate count hint from schedule notes — not a physical takeoff yet.
 
@@ -122,7 +275,11 @@ def plate_count_per_member(row: Dict[str, Any]) -> int:
     """
 
     plate_text = str(row.get("plate_text") or "").strip()
-    if not plate_text or _EMPTY_PLATE_RE.fullmatch(plate_text):
+    if (
+        not plate_text
+        or _plate_not_applicable(plate_text)
+        or row.get("plate_status") in {"not_applicable", "unresolved", "ambiguous"}
+    ):
         return 0
     if row.get("member_plate_roles") or row.get("plate_role") == "bearing_plate":
         return 2
@@ -184,7 +341,7 @@ def build_schedule_grids(
         if not _page_has_mark_size_headers(page_words):
             continue
         grids.extend(_grids_on_page(page_words, page, accept))
-    return grids
+    return attach_resolved_plates(grids)
 
 
 def _page_has_mark_size_headers(words: List[dict]) -> bool:
@@ -228,12 +385,20 @@ def build_document_schedule_grids(
         read_ruled_tables(pdf_path, word_list, pages=page_filter), accept
     )
     # BP/CL resolution consumes the legacy row wording, including angle/type
-    # order and N/A context. Leave these marks on the word-cluster path so
-    # ruled-cell reordering cannot change production plate/angle selection.
+    # order and N/A context. A word-cluster row for the same page and mark
+    # stays authoritative. A ruled auxiliary row remains when clustering
+    # missed that mark.
+    fallback_auxiliary = {
+        (grid["page"], normalize_schedule_mark(row["mark"]))
+        for grid in fallback
+        for row in _mark_rows(grid)
+        if is_auxiliary_schedule_mark(row["mark"])
+    }
     ruled = [
         {**grid, "rows": [
             row for row in grid["rows"]
             if not is_auxiliary_schedule_mark(row["mark"])
+            or (grid["page"], normalize_schedule_mark(row["mark"])) not in fallback_auxiliary
         ]}
         for grid in ruled
     ]
@@ -252,7 +417,7 @@ def build_document_schedule_grids(
         ]
         if rows:
             merged.append({**grid, "rows": rows})
-    return merged
+    return attach_resolved_plates(merged)
 
 
 def attach_schedule_grid(
@@ -307,6 +472,9 @@ def schedule_kind_from_title(title: str) -> str:
         return "beam"
     if "BRAC" in text:
         return "brace"
+    # Bent-plate schedules stay generic plates. They are not base or bearing plates.
+    if "BENT PLATE" in text or re.search(r"\bBENT\s+PL\b", text):
+        return "plate"
     if "PLATE" in text:
         return "plate"
     return "schedule"
@@ -333,7 +501,7 @@ def _ruled_grids(
             grid = _ruled_rows_grid(record, catalog_fn)
         if grid and grid["rows"]:
             grids.append(grid)
-    return grids
+    return attach_resolved_plates(grids)
 
 
 def _is_table_mark(text: str, catalog_fn: CatalogFn) -> bool:
@@ -382,15 +550,20 @@ def _ruled_rows_grid(
             ),
             None,
         )
-    plate_cols, diameter_cols, other_cols = [], [], []
+    plate_cols, dim_cols, note_cols, diameter_cols, other_cols = [], [], [], [], []
     for column, label in enumerate(header):
         if column in (mark_col, size_col):
             continue
-        if "PLATE" in label:
+        role = _heading_dimension_role(label)
+        if role:
+            dim_cols.append((column, role))
+        elif "PLATE" in label:
             plate_cols.append(column)
         elif label.startswith("DIA"):
             diameter_cols.append(column)
         elif label in _SKIP_HEADERS or "ANCHOR" in label or "BOLT" in label:
+            if label in _SKIP_HEADERS:
+                note_cols.append(column)
             continue
         else:
             other_cols.append(column)
@@ -400,7 +573,7 @@ def _ruled_rows_grid(
     plate_labels = " ".join(header[column] for column in plate_cols)
     if kind == "bearing_plate" or "BEARING" in plate_labels:
         plate_role = "bearing_plate"
-    elif "BASE" in plate_labels:
+    elif kind == "base_plate" or "BASE" in plate_labels:
         plate_role = "base_plate"
     else:
         plate_role = "plate"
@@ -426,24 +599,32 @@ def _ruled_rows_grid(
         elif diameter_text:
             size_text = f"{size_text} DIA {diameter_text}"
         plate_text = joined(plate_cols)
+        if not plate_text and dim_cols:
+            plate_text = joined(column for column, _role in dim_cols)
         plate_mark = kind in _PLATE_KINDS or is_auxiliary_schedule_mark(mark)
         if not plate_text and plate_mark:
             plate_text = size_text
         section = None
         if kind not in NON_STEEL_SCHEDULE_KINDS and not plate_mark:
             section = section_from_size_text(size_text, catalog_fn)
-        rows.append(
-            {
-                "mark": mark,
-                "size_text": size_text,
-                "section": section,
-                "catalog_valid": bool(section),
-                "plate_text": plate_text,
-                "plate_role": plate_role if plate_text else None,
-                "member_plate_roles": member_plate_roles(" ".join(cells)),
-                "bbox": body_row.get("bbox"),
-            }
+        notes = joined(note_cols)
+        row = {
+            "mark": mark,
+            "size_text": size_text,
+            "section": section,
+            "catalog_valid": bool(section),
+            "plate_text": plate_text,
+            "plate_role": plate_role if plate_text else None,
+            "member_plate_roles": member_plate_roles(" ".join(cells)),
+            "bbox": body_row.get("bbox"),
+        }
+        if notes:
+            row["plate_notes"] = notes
+        _apply_plate_metadata(
+            row,
+            headed=[(role, cells[column]) for column, role in dim_cols] or None,
         )
+        rows.append(row)
     return {
         "page": record["page"],
         "kind": kind,
@@ -455,10 +636,180 @@ def _ruled_rows_grid(
     }
 
 
+# A dash in a location cell is not always a grid intersection.
+# ``A-6`` splits into grids. ``- 2'-0"`` is a signed offset. ``41'-9 5/8"``
+# is a feet-inch measurement and is never a pair of grids. A prime on a
+# letter (``A'``, ``B'``) is part of the grid name. A prime on a number
+# (``6'``) is kept as printed and marked uncertain — that shape is also a
+# feet mark, and this parser does not invent a correction.
+_FOOT_MARK = r"['′’]"
+_INCH_MARK = r"[\"″]"
+_INCH_BODY = r"\d{1,2}(?:\s+\d+/\d+)?"
+_LOCATION_DIMENSION_RE = re.compile(
+    rf"^(?:"
+    rf"\d{{1,4}}\s*{_FOOT_MARK}\s*-\s*{_INCH_BODY}\s*{_INCH_MARK}?"
+    rf"|\d{{1,4}}\s*{_FOOT_MARK}\s*{_INCH_BODY}\s*{_INCH_MARK}"
+    rf"|\d+(?:\s+\d+/\d+)?\s*{_INCH_MARK}"
+    rf")$"
+)
+_GRID_ATOM = (
+    rf"(?:[A-Z][A-Z0-9]*(?:\.[A-Z0-9]+)*|\d+(?:\.[A-Z0-9]+)*)(?:{_FOOT_MARK}+)?"
+)
+_ONE_GRID_RE = re.compile(rf"^{_GRID_ATOM}$", re.IGNORECASE)
+_TWO_GRID_RE = re.compile(
+    rf"^(?P<a>{_GRID_ATOM})\s*-\s*(?P<b>{_GRID_ATOM})$", re.IGNORECASE
+)
+_SIGNED_OFFSET_RE = re.compile(
+    rf"\s*(?P<signed>[+-]\s*(?:"
+    rf"\d{{1,4}}\s*{_FOOT_MARK}\s*-\s*{_INCH_BODY}\s*{_INCH_MARK}?"
+    rf"|\d+(?:\s+\d+/\d+)?\s*{_INCH_MARK}"
+    rf"))\s*$",
+    re.IGNORECASE,
+)
+_NUMERIC_PRIME_RE = re.compile(rf"^\d+{_FOOT_MARK}+$")
+_OFFSET_LABELS = frozenset({"OFFSET", "OFFSETS", "GRID OFFSET"})
+
+
+def parse_column_location(text: str) -> Dict[str, Any]:
+    """Structure one column-location cell without changing the printed text.
+
+    List separators are comma and semicolon only. Repeated copies of the same
+    grid inside that one cell become one occurrence. Nothing here is a schedule
+    mark, a plate, or a quantity.
+    """
+
+    raw = " ".join(str(text or "").split())
+    if not raw:
+        return {"raw": "", "kind": "unparsed", "occurrences": [], "uncertain": True}
+    if _LOCATION_DIMENSION_RE.fullmatch(raw):
+        return {"raw": raw, "kind": "dimension", "occurrences": [], "uncertain": False}
+    pieces = (
+        [part.strip() for part in re.split(r"\s*[,;]\s*", raw) if part.strip()]
+        if re.search(r"[,;]", raw)
+        else [raw]
+    )
+    occurrences = [_dedupe_location_piece(piece) for piece in pieces]
+    occurrences = _dedupe_location_occurrences(occurrences)
+    uncertain = any(item["uncertain"] for item in occurrences) or not occurrences
+    kind = "grid" if any(item["grids"] for item in occurrences) else "unparsed"
+    return {"raw": raw, "kind": kind, "occurrences": occurrences, "uncertain": uncertain}
+
+
+def _dedupe_location_piece(piece: str) -> Dict[str, Any]:
+    """``A-6 A-6`` printed twice in one cell is one logical location."""
+
+    parts = piece.split()
+    if len(parts) >= 2 and len(set(parts)) == 1 and _grids_of(parts[0])[1]:
+        parsed = _parse_location_piece(parts[0])
+        parsed["raw"] = piece
+        return parsed
+    return _parse_location_piece(piece)
+
+
+def _parse_location_piece(piece: str) -> Dict[str, Any]:
+    if _LOCATION_DIMENSION_RE.fullmatch(piece):
+        return {"raw": piece, "grids": [], "offset": None, "uncertain": True}
+    offset = None
+    body = piece
+    match = _SIGNED_OFFSET_RE.search(piece)
+    if match:
+        offset = match.group("signed").strip()
+        body = piece[: match.start()].strip()
+    grids, ok = _grids_of(body)
+    uncertain = (not ok) or any(_NUMERIC_PRIME_RE.fullmatch(grid) for grid in grids)
+    return {
+        "raw": piece,
+        "grids": grids if ok else [],
+        "offset": offset,
+        "uncertain": uncertain,
+    }
+
+
+def _grids_of(body: str) -> tuple:
+    if not body or _LOCATION_DIMENSION_RE.fullmatch(body):
+        return [], False
+    one = _ONE_GRID_RE.fullmatch(body)
+    if one:
+        return [one.group(0)], True
+    two = _TWO_GRID_RE.fullmatch(body)
+    if two:
+        return [two.group("a"), two.group("b")], True
+    return [], False
+
+
+def _dedupe_location_occurrences(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    kept: List[Dict[str, Any]] = []
+    seen: set = set()
+    for item in items:
+        if not item["grids"]:
+            kept.append(item)
+            continue
+        key = (tuple(item["grids"]), item["offset"], item["uncertain"])
+        if key in seen:
+            continue
+        seen.add(key)
+        kept.append(item)
+    return kept
+
+
+def _apply_location_offset(
+    parsed: Dict[str, Any], offset_text: str
+) -> Dict[str, Any]:
+    """Attach one neighboring OFFSET cell when this entry has a single grid."""
+
+    occurrences = parsed.get("occurrences") or []
+    if (
+        not offset_text
+        or len(occurrences) != 1
+        or occurrences[0].get("offset")
+    ):
+        return parsed
+    return {
+        **parsed,
+        "occurrences": [{**occurrences[0], "offset": offset_text}],
+    }
+
+
+# Leading datum on a transposed column-schedule row label, as printed:
+# ``14' - 6" GROUND LEVEL``. A datum later in the label is not a prefix.
+_TRANSPOSED_LEVEL_DATUM_RE = re.compile(r"\d+' - \d+\"")
+
+
+def _split_transposed_level_label(level: str) -> Dict[str, Any]:
+    """Separate one leading feet-inch prefix from a transposed ``level`` label."""
+
+    text = str(level or "")
+    found = list(_TRANSPOSED_LEVEL_DATUM_RE.finditer(text))
+    if not text.strip() or (found and (found[0].start() != 0 or len(found) != 1)):
+        return {
+            "level_elevation_text": None,
+            "level_name": None,
+            "level_elevation_status": "unresolved",
+        }
+    if not found:
+        return {
+            "level_elevation_text": None,
+            "level_name": text,
+            "level_elevation_status": "absent",
+        }
+    name = text[found[0].end():].lstrip()
+    return {
+        "level_elevation_text": found[0].group(0),
+        "level_name": name or None,
+        "level_elevation_status": "present",
+    }
+
+
 def _transposed_grid(
     record: Dict[str, Any], catalog_fn: CatalogFn
 ) -> Optional[Dict[str, Any]]:
-    """One row per (grid location, section) of a Revit column schedule."""
+    """One row per source cell that names a section at a grid location.
+
+    Two cells with the same location and section stay two rows when both
+    were printed. ``mark`` remains the compacted location string and
+    ``mark_role`` remains ``grid_location``, so it is not a schedule mark.
+    ``parsed_location`` is metadata beside that string.
+    """
 
     locations = sorted(record["locations"], key=lambda item: item["x"])
     if not locations:
@@ -466,25 +817,31 @@ def _transposed_grid(
     gaps = [b["x"] - a["x"] for a, b in zip(locations, locations[1:]) if b["x"] > a["x"]]
     tolerance = max(0.6 * median(gaps), 12.0) if gaps else 40.0
 
-    def nearest(x: float) -> Optional[str]:
+    def nearest(x: float) -> Optional[Dict[str, Any]]:
         best = min(locations, key=lambda item: abs(item["x"] - x))
-        return best["location"] if abs(best["x"] - x) <= tolerance else None
+        return best if abs(best["x"] - x) <= tolerance else None
 
     plates: Dict[str, str] = {}
+    offsets: Dict[str, str] = {}
     rows: List[Dict[str, Any]] = []
-    seen: set[tuple] = set()
     for cell in record["cells"]:
-        location = nearest(cell["x"])
-        if location is None:
+        found = nearest(cell["x"])
+        if found is None:
             continue
+        location = str(found["location"])
         text = " ".join(cell["text"].split())
-        if "BASE PLATE" in cell["row_label"]:
+        label = " ".join(str(cell.get("row_label") or "").split()).upper()
+        if "BASE PLATE" in label:
             plates.setdefault(location, text)
             continue
-        section = section_from_size_text(text, catalog_fn)
-        if not section or (location, section) in seen:
+        if label in _OFFSET_LABELS or label.startswith("OFFSET "):
+            if text:
+                offsets.setdefault(location, text)
             continue
-        seen.add((location, section))
+        section = section_from_size_text(text, catalog_fn)
+        if not section:
+            continue
+        level = cell["row_label"]
         rows.append(
             {
                 "mark": location,
@@ -492,11 +849,15 @@ def _transposed_grid(
                 "size_text": text,
                 "section": section,
                 "catalog_valid": True,
-                "level": cell["row_label"],
+                "level": level,
+                **_split_transposed_level_label(level),
                 "plate_text": "",
                 "plate_role": None,
                 "member_plate_roles": [],
                 "bbox": None,
+                "parsed_location": parse_column_location(
+                    str(found.get("raw") or location)
+                ),
             }
         )
     for row in rows:
@@ -504,6 +865,10 @@ def _transposed_grid(
         if plate:
             row["plate_text"] = plate
             row["plate_role"] = "base_plate"
+        extra = offsets.get(row["mark"])
+        if extra:
+            row["parsed_location"] = _apply_location_offset(row["parsed_location"], extra)
+        _apply_plate_metadata(row)
     return {
         "page": record["page"],
         "kind": "column",
@@ -621,6 +986,108 @@ def schedule_grid_pages(document: Optional[Dict[str, Any]]) -> set[int]:
     return pages
 
 
+def _recognized_schedule_title(text: str) -> Optional[str]:
+    """A schedule name present in nearby header text, or nothing if it is not unique."""
+
+    upper = str(text or "").upper()
+    if "BENT PLATE SCHEDULE" in upper:
+        return "BENT PLATE SCHEDULE"
+    specific = [
+        label for label in ("BEARING PLATE SCHEDULE", "BASE PLATE SCHEDULE")
+        if label in upper
+    ]
+    if len(specific) == 1 and "BENT PLATE" not in upper:
+        return specific[0]
+    if "PLATE SCHEDULE" in upper and not specific and "BENT PLATE" not in upper:
+        return "PLATE SCHEDULE"
+    return None
+
+
+def _is_bent_plate_schedule(grid: Dict[str, Any]) -> bool:
+    return "BENT PLATE" in str(grid.get("title") or "").upper()
+
+
+def _source_schedule(grid: Dict[str, Any]) -> Optional[str]:
+    title = " ".join(str(grid.get("title") or "").split())
+    upper = title.upper()
+    if "BENT PLATE" in upper:
+        return title or None
+    specific = [
+        label for label in _KNOWN_SCHEDULE_LABELS
+        if label in upper and label != "PLATE SCHEDULE"
+    ]
+    if len(specific) == 1:
+        return specific[0]
+    if "PLATE SCHEDULE" in upper and not specific:
+        return "PLATE SCHEDULE"
+    return title or None
+
+
+def _context_plate_role(grid: Dict[str, Any], row: Dict[str, Any]) -> str:
+    """Plate type from the schedule title or header. The BP prefix is not a type."""
+
+    kind = grid.get("kind")
+    if kind in {"base_plate", "bearing_plate"}:
+        return str(kind)
+    role = row.get("plate_role")
+    if role in {"base_plate", "bearing_plate", "plate"}:
+        return str(role)
+    return "plate"
+
+
+def _resolved_plate(grid: Dict[str, Any], row: Dict[str, Any]) -> Dict[str, Any]:
+    return {
+        "mark": row.get("mark"),
+        "plate_role": _context_plate_role(grid, row),
+        "source_schedule": _source_schedule(grid),
+        "source_page": grid.get("page"),
+        "source_kind": grid.get("kind"),
+        "parsed_plate": row.get("parsed_plate"),
+    }
+
+
+def _plate_definition_rows(grids: Iterable[Dict[str, Any]]) -> Dict[str, List[tuple]]:
+    grouped: Dict[str, List[tuple]] = {}
+    for grid in grids:
+        if _is_bent_plate_schedule(grid) or grid.get("kind") not in _PLATE_CONTEXT_KINDS:
+            continue
+        for row in grid.get("rows") or []:
+            mark = re.sub(r"\s+", "", str(row.get("mark") or "")).upper()
+            if not _BP_MARK_RE.fullmatch(mark):
+                continue
+            grouped.setdefault(normalize_schedule_mark(mark), []).append((grid, row))
+    return grouped
+
+
+def attach_resolved_plates(grids: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Link a column plate reference to its schedule definition. Duplicate marks stay unresolved."""
+
+    grouped = _plate_definition_rows(grids)
+    for grid in grids:
+        for row in grid.get("rows") or []:
+            compact = re.sub(r"\s+", "", str(row.get("plate_text") or "")).upper()
+            if not _BP_MARK_RE.fullmatch(compact):
+                continue
+            matches = grouped.get(normalize_schedule_mark(compact), [])
+            others = [(source_grid, source_row) for source_grid, source_row in matches if source_row is not row]
+            if len(matches) > 1:
+                row["plate_status"] = "ambiguous"
+                row["resolved_plate"] = None
+                row["plate_candidates"] = [_resolved_plate(source_grid, source_row) for source_grid, source_row in matches]
+                continue
+            row.pop("plate_candidates", None)
+            if len(others) == 1:
+                source_grid, source_row = others[0]
+                row["resolved_plate"] = _resolved_plate(source_grid, source_row)
+                source_status = source_row.get("plate_status")
+                row["plate_status"] = source_status if source_status in {"present", "unresolved"} else "present"
+                continue
+            row["resolved_plate"] = None
+            if row.get("mark_role") == "grid_location" or grid.get("kind") not in _PLATE_CONTEXT_KINDS:
+                row["plate_status"] = "unresolved"
+    return grids
+
+
 def lookup_schedule_row(
     text: str, document: Optional[Dict[str, Any]]
 ) -> Optional[Dict[str, Any]]:
@@ -645,9 +1112,13 @@ def schedule_assembly_sidecar(
     if not row:
         return None
     plate_text = str(row.get("plate_text") or "").strip()
-    if plate_text and _EMPTY_PLATE_RE.fullmatch(plate_text):
+    if plate_text and (
+        _EMPTY_PLATE_RE.fullmatch(plate_text)
+        or _plate_not_applicable(plate_text)
+        or row.get("plate_status") == "not_applicable"
+    ):
         plate_text = ""
-    return {
+    sidecar = {
         "mark": row.get("mark"),
         "primary_section": row.get("section"),
         "size_text": row.get("size_text"),
@@ -657,6 +1128,13 @@ def schedule_assembly_sidecar(
         "member_plate_roles": list(row.get("member_plate_roles") or []),
         "plate_count_per_member": plate_count_per_member(row),
     }
+    if isinstance(row.get("parsed_plate"), dict):
+        sidecar["parsed_plate"] = row["parsed_plate"]
+    if row.get("plate_status"):
+        sidecar["plate_status"] = row["plate_status"]
+    if isinstance(row.get("resolved_plate"), dict):
+        sidecar["resolved_plate"] = row["resolved_plate"]
+    return sidecar
 
 
 def _auxiliary_size_display(text: str) -> str:
@@ -696,6 +1174,65 @@ def resolve_auxiliary_schedule_mark(
 
     if not document or not is_auxiliary_schedule_mark(text):
         return None
+    compact_mark = re.sub(r"\s+", "", str(text or "")).upper()
+    if _BP_MARK_RE.fullmatch(compact_mark):
+        found = _plate_definition_rows(document.get("schedule_grid") or []).get(
+            normalize_schedule_mark(compact_mark), []
+        )
+        if len(found) > 1:
+            return {
+                "mark": compact_mark,
+                "abstain": True,
+                "ambiguous": True,
+                "display": compact_mark,
+                "size_text": "",
+                "plate_text": compact_mark,
+                "plate_role": None,
+                "kind": None,
+            }
+        if len(found) != 1:
+            return None
+        grid, row = found[0]
+        role = _context_plate_role(grid, row)
+        size_text = str(row.get("size_text") or "").strip()
+        plate_text = str(row.get("plate_text") or "").strip()
+        if plate_text and (
+            _EMPTY_PLATE_RE.fullmatch(plate_text) or _plate_not_applicable(plate_text)
+        ):
+            plate_text = ""
+        raw_display = plate_text or size_text
+        display = _auxiliary_size_display(raw_display) or (
+            raw_display if raw_display and len(raw_display) <= 40 else ""
+        )
+        kind = role if role in {"base_plate", "bearing_plate"} else "plate"
+        if not display or _EMPTY_PLATE_RE.fullmatch(display) or _plate_not_applicable(display):
+            return {
+                "mark": compact_mark,
+                "abstain": True,
+                "display": compact_mark,
+                "kind": kind,
+                "size_text": size_text,
+                "plate_text": plate_text or None,
+                "plate_role": role,
+                "parsed_plate": row.get("parsed_plate"),
+                "source_schedule": _source_schedule(grid),
+                "source_page": grid.get("page"),
+            }
+        return {
+            "mark": compact_mark,
+            "abstain": False,
+            "kind": kind,
+            "display": display,
+            "plate_type": "PLATE",
+            "section": None,
+            "size_text": size_text,
+            "plate_text": display,
+            "plate_role": role,
+            "parsed_plate": row.get("parsed_plate"),
+            "source_schedule": _source_schedule(grid),
+            "source_page": grid.get("page"),
+        }
+
     row = lookup_schedule_row(text, document)
     if row is None:
         return None
@@ -719,18 +1256,6 @@ def resolve_auxiliary_schedule_mark(
         }
 
     accept = catalog_fn or _catalog_accepts
-    if mark.startswith("BP"):
-        return {
-            "mark": mark,
-            "abstain": False,
-            "kind": "bearing_plate",
-            "display": display,
-            "plate_type": "PLATE",
-            "section": None,
-            "size_text": size_text,
-            "plate_text": display,
-            "plate_role": row.get("plate_role") or "bearing_plate",
-        }
 
     # CL* — prefer a catalog-valid angle in the SIZE cell when present.
     section = section_from_size_text(display, accept) or section_from_size_text(
@@ -822,7 +1347,7 @@ def _grids_on_page(
             last_y = rows[index]["y"]
             index += 1
         for bands, kind_hint in all_groups:
-            _kind, plate_role, _ = _schedule_kind(rows, header_index)
+            _kind, plate_role, title = _schedule_kind(rows, header_index)
             if kind_hint:
                 kind = kind_hint
             elif "diameter" in bands:
@@ -856,6 +1381,7 @@ def _grids_on_page(
                         "kind": kind,
                         "rows": body,
                         "source": "word_cluster",
+                        "title": _recognized_schedule_title(title),
                     }
                 )
     return grids
@@ -961,6 +1487,8 @@ def _schedule_kind(
     # column must stay kind=lintel, not bearing_plate.
     if re.search(r"BEARING\s+PLATE\s+SCHEDULE", blob):
         return "bearing_plate", plate_role, blob
+    if re.search(r"BASE\s+PLATE\s+SCHEDULE", blob):
+        return "base_plate", plate_role, blob
     if re.search(r"\bPIER\s+SCHEDULE\b", blob) or (
         "PIER" in header_labels and "DIAMETER" in header_labels
     ):
@@ -1049,7 +1577,7 @@ def _parse_body_row(
         cells, mark_word, size_words = auxiliary
         size_text = _text(size_words).strip()
         plate_text = _text(cells.get("plate") or []).strip() or size_text
-        return {
+        row = {
             "mark": _compact_mark(mark_word.get("text")),
             "size_text": size_text,
             "section": None,
@@ -1058,6 +1586,11 @@ def _parse_body_row(
             "plate_role": plate_role if plate_text else None,
             "member_plate_roles": member_plate_roles(_text(words)),
         }
+        remarks = " ".join(str(word.get("text") or "") for word in (cells.get("remarks") or [])).strip()
+        if remarks:
+            row["plate_notes"] = remarks
+        _apply_plate_metadata(row)
+        return row
     cells: Dict[str, List[str]] = {name: [] for name in bands}
     mark_x = float(bands["mark"]) if "mark" in bands else None
     right_x = max(bands.values()) if bands else None
@@ -1097,7 +1630,7 @@ def _parse_body_row(
         section = section_from_size_text(size_text or row_text, catalog_fn)
     if is_auxiliary_schedule_mark(mark) and not plate_text:
         plate_text = size_text
-    return {
+    row = {
         "mark": mark,
         "size_text": size_text,
         "section": section,
@@ -1112,6 +1645,11 @@ def _parse_body_row(
             max(float(word["bbox"][3]) for word in scoped),
         ],
     }
+    remarks = " ".join(cells.get("remarks") or []).strip()
+    if remarks:
+        row["plate_notes"] = remarks
+    _apply_plate_metadata(row)
+    return row
 
 
 # --------------------------------------------------------------------------

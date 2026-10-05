@@ -1206,7 +1206,7 @@ def _column_location(
     """
 
     plate = _clean(row.get("plate_text"))
-    return {
+    record = {
         "location": str(row.get("mark") or ""),
         "level": _clean(row.get("level")) or None,
         "printed_size": _clean(row.get("size_text")) or None,
@@ -1218,6 +1218,17 @@ def _column_location(
         "is_definition_not_quantity": True,
         **_where(sheets, int(grid.get("page") or 0)),
     }
+    parsed = row.get("parsed_location")
+    if isinstance(parsed, dict):
+        record["parsed_location"] = parsed
+    plate_parsed = row.get("parsed_plate")
+    if isinstance(plate_parsed, dict):
+        record["parsed_plate"] = plate_parsed
+    if row.get("plate_status"):
+        record["plate_status"] = row.get("plate_status")
+    if isinstance(row.get("resolved_plate"), dict):
+        record["resolved_plate"] = row["resolved_plate"]
+    return record
 
 
 def _mark_range(marks: List[str]) -> str:

@@ -449,7 +449,20 @@ def predict_from_context(context: Dict[str, Any]) -> Dict[str, Any]:
             aux = resolve_auxiliary_schedule_mark(
                 normalized or raw_text, document
             )
-            if aux:
+            if aux and aux.get("ambiguous"):
+                token_record["schedule_assembly"] = {
+                    "mark": aux.get("mark"),
+                    "primary_section": None,
+                    "size_text": aux.get("size_text"),
+                    "catalog_valid": False,
+                    "plate_text": aux.get("plate_text"),
+                    "plate_role": None,
+                    "member_plate_roles": [],
+                    "plate_count_per_member": 0,
+                    "plate_status": "ambiguous",
+                }
+                token_record["schedule_non_steel_mark"] = True
+            elif aux:
                 token_record["schedule_assembly"] = schedule_assembly_sidecar(
                     normalized or raw_text, document
                 ) or {

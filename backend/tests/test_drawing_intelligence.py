@@ -401,6 +401,56 @@ class ScheduleDefinitionTests(unittest.TestCase):
     def test_no_transposed_schedule_means_no_column_locations(self):
         self.assertEqual(self.prof["column_locations"], [])
 
+    def test_parsed_location_is_display_metadata_not_a_definition(self):
+        parsed = {
+            "raw": "A-6",
+            "kind": "grid",
+            "occurrences": [
+                {"raw": "A-6", "grids": ["A", "6"], "offset": None, "uncertain": False}
+            ],
+            "uncertain": False,
+        }
+        self.doc["schedule_grid"].append({
+            "page": 2, "kind": "column", "layout": "transposed", "source": "ruled_table",
+            "title": "COLUMN SCHEDULE", "bbox": [100.0, 100.0, 900.0, 400.0],
+            "rows": [{
+                **_row("A-6", "W10X33", "W10X33", ""),
+                "mark_role": "grid_location", "level": "ROOF", "bbox": None,
+                "parsed_location": parsed,
+            }],
+        })
+        profile = build_drawing_intelligence(self.doc)
+        self.assertEqual(profile["column_locations"][0]["location"], "A-6")
+        self.assertEqual(profile["column_locations"][0]["parsed_location"], parsed)
+        self.assertTrue(profile["column_locations"][0]["is_definition_not_quantity"])
+        self.assertNotIn("quantity", profile["column_locations"][0])
+        self.assertNotIn("A-6", {item["mark"] for item in profile["definitions"]})
+
+    def test_parsed_plate_is_copied_beside_the_printed_plate(self):
+        parsed = {
+            "raw": '1"x18"x18"',
+            "dimensions": {"length": None, "width": None, "thickness": None},
+            "ordered_dimensions": ['1"', '18"', '18"'],
+            "dimension_source": "combined",
+            "uncertain": True,
+            "notes": None,
+            "reference": None,
+        }
+        self.doc["schedule_grid"].append({
+            "page": 2, "kind": "column", "layout": "transposed", "source": "ruled_table",
+            "title": "COLUMN SCHEDULE", "bbox": [100.0, 100.0, 900.0, 400.0],
+            "rows": [{
+                **_row("A-7", "W10X33", "W10X33", '1"x18"x18"'),
+                "mark_role": "grid_location", "level": "ROOF", "bbox": None,
+                "parsed_plate": parsed, "plate_status": "present",
+            }],
+        })
+        location = build_drawing_intelligence(self.doc)["column_locations"][0]
+        self.assertEqual(location["printed_base_plate"], '1"x18"x18"')
+        self.assertEqual(location["parsed_plate"], parsed)
+        self.assertEqual(location["plate_status"], "present")
+        self.assertNotIn("quantity", location)
+
     def test_ruled_table_source_ignores_same_mark_elsewhere_on_page(self):
         self.doc["schedule_grid"] = [{
             "page": 2, "kind": "column", "bbox": [100, 100, 500, 300],
