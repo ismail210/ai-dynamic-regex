@@ -37,6 +37,45 @@ def _run(spec):
 
 
 class LevelReferenceTests(unittest.TestCase):
+    def _check_summary(self, expected, document, profile):
+        """Drawing Summary interpretation on the real sheets: offsets are
+        locations, the framing key defines the bracket, levels link by name
+        and scope, parking stays concrete, conflicts keep both values."""
+
+        view = profile["levels"]
+        by_name = {(l["schedule"], l["name"]): l for l in view["schedule_levels"]}
+        building = {name: l for (schedule, name), l in by_name.items() if "BUILDING" in schedule}
+        for name, (sheet, qualifiers, comparison) in expected["linked"].items():
+            (match,) = [m for m in building[name]["plan_matches"] if m["association"] == "supported"]
+            self.assertEqual((match["sheet"], match["plan_qualifiers"], match["comparison"]), (sheet, qualifiers, comparison), name)
+            self.assertEqual(building[name]["association"], "linked")
+        for name, sheets in expected["excluded_scope"].items():
+            self.assertEqual([x["sheet"] for x in building[name]["excluded_scope"]], sheets)
+            self.assertNotIn(sheets[0], building[name]["also_titled"])
+        self.assertEqual([[o["sheet"], o["location"], o["grid"], o["offset"]["inches"]] for o in view["location_offsets"]],
+                         expected["location_offsets"])
+        noted = {g["sheet"] for g in view["noted_on_plans"]}
+        self.assertFalse(noted & set(expected["no_values_noted_on"]))
+        self.assertEqual([[e["sheet"], e["value"]] for e in view["legend_examples"]], expected["legend_examples"])
+        (key,) = [r for r in profile["interpretation_rules"] if r.get("kind") == "framing_key"]
+        self.assertEqual({p["token"]: p["meaning"] for p in key["parts"]}, expected["framing_key"])
+        self.assertEqual([u["kind"] for u in profile["unresolved"]], expected["unresolved_kinds"])
+        schedules = profile["column_schedule"]["schedules"]
+        self.assertEqual({s["name"]: s["material_group"] for s in schedules}, expected["schedule_groups"])
+        for mark, (material, count) in expected["material"].items():
+            found = [e for e in profile["column_schedule"]["entries"] if (e.get("material") or {}).get("mark") == mark]
+            self.assertEqual((found[0]["material"]["material"], len(found)), (material, count))
+        self.assertEqual(profile["existing_new"]["is_renovation"], expected["renovation"])
+        level, schedule_value, plan_value, difference = expected["conflict_fact"]
+        (fact,) = [f for f in profile["facts"] if f["type"] == "level_conflict"]
+        self.assertEqual((fact["level"], fact["schedule_value"], fact["plan_value"], fact["difference"]),
+                         (level, schedule_value, plan_value, difference))
+        for mark, cells in expected["wall_cells"].items():
+            definition = next(d for d in profile["definitions"] if d["mark"] == mark)
+            self.assertEqual([[c["heading"], c["text"]] for c in definition["cells"] if c["heading"] != "WIDTH"], cells)
+        # Display-only: the production mark map is untouched by the cells.
+        self.assertFalse(any("cells" in str(v) for v in (document.get("schedule_mark_map") or {}).values()))
+
     def _check(self, spec):
         if not (_ROOT / spec["pdf"]).is_file():
             self.skipTest(f"{spec['pdf']} is not available locally")
@@ -126,6 +165,8 @@ class LevelReferenceTests(unittest.TestCase):
                 part, heading, text = plate["accessory"]
                 self.assertIn({"part": part, "heading": heading, "text": text},
                               [{k: a[k] for k in ("part", "heading", "text")} for a in rows[mark]["plate_accessories"]])
+        if spec.get("summary"):
+            self._check_summary(spec["summary"], document, profile)
         if spec.get("traces"):
             from services.engineering.column_trace import trace_column
 

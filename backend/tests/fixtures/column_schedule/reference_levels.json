@@ -23,7 +23,26 @@
                              "bottom": "T.O. SLAB LEVEL 1",
                              "scope": {"S121": "supported_by_datum", "S122": "consistent_by_sheet_family",
                                        "S123": "supported_by_datum"},
-                             "other_scope": {"T.O. SLAB LEVEL 1": ["S101"]}}}
+                             "other_scope": {"T.O. SLAB LEVEL 1": ["S101"]}}},
+      "summary": {
+        "_about": "Drawing Summary review (Oct 2026): S601/S602 location offsets, S001 framing key, S123 office-roof datum, parking precast note, read from the rendered sheets.",
+        "linked": {"T.O. ROOF": ["S123", ["OFFICE"], "agrees"], "T.O. SLAB LEVEL 2": ["S122", [], "differs"],
+                   "T.O. SLAB LEVEL 1": ["S121", [], "agrees"]},
+        "excluded_scope": {"T.O. SLAB LEVEL 1": ["S101"]},
+        "location_offsets": [["S601", "C.1(-6\")-7.3", "C.1", -6.0], ["S601", "C.1(-6\")-7.5", "C.1", -6.0],
+                             ["S601", "C.5-7(6\")", "7", 6.0], ["S602", "R13(5' - 4\")-RA.1", "R13", 64.0],
+                             ["S602", "R13(5' - 4\")-RA.2", "R13", 64.0]],
+        "no_values_noted_on": ["S001", "S601", "S602"],
+        "legend_examples": [["S001", "<+12'-3\">"]],
+        "framing_key": {"[35]": "# OF SHEAR STUDS. SEE TYPICAL DETAIL", "c=1 1/4\"": "CAMBER",
+                        "<+12'-3\">": "TOP OF STEEL ELEVATION RELATIVE TO DATUM"},
+        "unresolved_kinds": [],
+        "schedule_groups": {"OSSE BUILDING - GCS": "steel", "OSSE PARKING - GCS": "concrete"},
+        "material": {"C1": ["precast concrete", 71]},
+        "renovation": false,
+        "conflict_fact": ["T.O. SLAB LEVEL 2", "55' - 10\"", "55' - 2\"", "8\""],
+        "wall_cells": {"W1": [["REINFORCEMENT VERTICAL", "#4@12\" O.C. E.F."], ["HORIZONTAL", "#4@12\" O.C. E.F."]]}
+      }
     },
     {
       "key": "furley",

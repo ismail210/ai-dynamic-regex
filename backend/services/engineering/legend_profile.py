@@ -92,7 +92,7 @@ PROFILE_VERSION = "legend_profile_v4"
 #      level bands, flagged malformed values, structured schedule plates.
 # v6l: schedule rows carry level_band pairings; plate schedules keep
 #      accessories apart and read SIZE WIDTH as width.
-EXTRACTOR_VERSION = "legend_extractor_v6l-level-bands"
+EXTRACTOR_VERSION = "legend_extractor_v6m-summary-evidence"
 SCHEMA_VERSION = "project_rule_schema_v1"
 
 STATUS_PROPOSED_INFERENCE = "PROPOSED_INFERENCE"

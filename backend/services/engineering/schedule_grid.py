@@ -703,6 +703,14 @@ def _ruled_rows_grid(
         if accessories:
             # Printed as given; kept apart from the plate's own dimensions.
             row["plate_accessories"] = accessories
+        if kind in NON_STEEL_SCHEDULE_KINDS:
+            # Display only: each printed cell under its own heading, so equal
+            # values in two columns (VERTICAL / HORIZONTAL reinforcement) stay
+            # two values. ``size_text`` above is unchanged.
+            row["cells"] = [
+                {"heading": header[column], "group": group_of(column) or None, "text": " ".join(cells[column].split())}
+                for column in range(width) if column != mark_col
+            ]
         _apply_plate_metadata(
             row,
             headed=[(role, cells[column]) for column, role in dim_cols] or None,

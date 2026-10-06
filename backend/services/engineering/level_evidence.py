@@ -22,7 +22,15 @@ from collections import defaultdict
 from fractions import Fraction
 from typing import Any, Dict, List, Optional
 
-from services.engineering.column_schedule import _band_key, _union_boxes, band_readings, parse_length
+from services.engineering.column_schedule import (
+    _GRID_NAME,
+    _PRIMES,
+    _band_key,
+    _union_boxes,
+    band_readings,
+    parse_grid_location,
+    parse_length,
+)
 from services.engineering.page_space import convert_boxes, display_boxes
 
 _ENCLOSURES = {"(": ")", "<": ">", "[": "]", "{": "}"}
@@ -450,9 +458,52 @@ def _rule_for(value: Dict[str, Any], rules: List[Dict[str, Any]]) -> Optional[Di
     return candidates[0]
 
 
-def plan_values(document: Dict[str, Any], statements: List[Dict[str, Any]], sheets: Dict[int, str]) -> List[Dict[str, Any]]:
+# A grid written right against the bracket (``C.1(-6")``), optionally after a
+# first grid and its hyphen (``C.5-7(6")``); and a hyphen + grid right after it.
+_GRID_BEFORE_RE = re.compile(rf"(?:(?P<first>{_GRID_NAME}{_PRIMES})\s*[-–]\s*)?(?P<grid>{_GRID_NAME}{_PRIMES})$")
+_GRID_AFTER_RE = re.compile(rf"^\s*[-–]\s*(?P<grid>{_GRID_NAME}{_PRIMES})")
+
+
+def grid_location_offset(text: str, start: int, end: int) -> Optional[Dict[str, Any]]:
+    """The location an enclosed value at ``text[start:end]`` belongs to, when
+    the value is the offset of a grid in a grid-location expression
+    (``C.1(-6")-7.3``, ``C.5-7(6")``, ``R13(5' - 4")-RA.1``): the bracket
+    touches its grid with no space, and the expression parses as a grid
+    intersection (``column_schedule.parse_grid_location``). ``None`` for an
+    enclosed value standing on its own -- that may still be an elevation."""
+
+    before = _GRID_BEFORE_RE.search(text[:start].upper())
+    if not before:
+        return None
+    after = _GRID_AFTER_RE.match(text[end:].upper())
+    if after:
+        expression = f"{before['grid']}{text[start:end]}-{after['grid']}"
+    elif before["first"]:
+        expression = f"{before['first']}-{before['grid']}{text[start:end]}"
+    else:
+        return None
+    parsed = parse_grid_location(expression)
+    if parsed["status"] != "parsed":
+        return None
+    grid = next((g for g in parsed["grids"] if g["offset"]), None)
+    if grid is None:
+        return None
+    return {"location": expression, "grid": grid["label"], "offset": grid["offset"], "grids": parsed["grids"]}
+
+
+def plan_values(document: Dict[str, Any], statements: List[Dict[str, Any]], sheets: Dict[int, str],
+                *, location_offsets: Optional[List[Dict[str, Any]]] = None,
+                legend_regions: Optional[Dict[int, List[List[float]]]] = None,
+                legend_examples: Optional[List[Dict[str, Any]]] = None) -> List[Dict[str, Any]]:
     """Bracketed elevations on plans, read only where a note on that sheet (or
-    the project legend) says what the bracket means. Note text is excluded."""
+    the project legend) says what the bracket means. Note text is excluded.
+
+    Read in context, not by bracket shape alone: an enclosed value that is a
+    grid's offset in a location (``C.1(-6")-7.3``) is a location, appended to
+    ``location_offsets`` when given; a value inside a legend's own example
+    (``legend_regions``, display-space boxes per page) illustrates the
+    notation and is appended to ``legend_examples`` -- neither is an
+    elevation observed on a plan."""
 
     titles = plan_titles(document)
     legend = [s for s in statements if s["kind"] == "notation" and s.get("legend")]
@@ -487,7 +538,14 @@ def plan_values(document: Dict[str, Any], statements: List[Dict[str, Any]], shee
             bbox = line["bbox"]
             if _inside_any(bbox, note_boxes.get(page, [])):
                 continue
+            example = _inside_any(bbox, (legend_regions or {}).get(page, []))
             for m in _ENCLOSED_RE.finditer(text):
+                located = grid_location_offset(text, m.start(), m.end())
+                if located:
+                    if location_offsets is not None:
+                        location_offsets.append({**located, "text": m.group(0), "context": text[:70], "page": page,
+                                                 "sheet": sheets.get(page), "bbox": bbox})
+                    continue
                 value = _value(m.group(0))
                 recovered = None if value else recover_missing_inch_mark(m.group(0))
                 before = text[:m.start()].rstrip().split(" ")[-1].upper() if text[:m.start()].strip() else ""
@@ -502,6 +560,11 @@ def plan_values(document: Dict[str, Any], statements: List[Dict[str, Any]], shee
                 else:
                     continue
                 if not rule:
+                    continue
+                if example:
+                    if legend_examples is not None:
+                        legend_examples.append({"text": text[:70], "value": m.group(0), "meaning": rule["meaning"],
+                                                "page": page, "sheet": sheets.get(page), "bbox": bbox})
                     continue
                 out.append({
                     "kind": "plan_value", "page": page, "sheet": sheets.get(page),
@@ -789,44 +852,146 @@ def plan_names_by_page(document: Dict[str, Any], statements: List[Dict[str, Any]
     return plan_names
 
 
-def levels_view(document: Dict[str, Any], sheets: Dict[int, str]) -> Dict[str, Any]:
-    """Levels and elevations for review: schedule levels, plan elevations,
-    datum notes and notations, each with its source. Boxes are in display space."""
+def _level_surface(name: Any) -> Optional[str]:
+    """The surface a schedule level names (``T.O. SLAB LEVEL 2`` -> top of slab);
+    ``None`` when the name gives none (``T.O. ROOF``)."""
 
+    # The last surface word is the head noun: PARKING DECK SLAB is a slab.
+    words = re.findall(r"\b(STEEL|DECK|SLAB)\b", _clean(name).upper())
+    return f"top of {words[-1].lower()}" if words else None
+
+
+def _relation(level_keyset: set, name: Any, scope_words: set) -> Optional[Dict[str, Any]]:
+    """How a plan / note name relates to a schedule level name: ``same`` when
+    their level keys are equal once the sheet's building / area words are set
+    aside (``OSSE FACILITY ROOF PLAN`` is the ROOF of the OSSE facility);
+    ``qualified`` when kind and ordinal agree but the plan adds a level
+    qualifier the schedule does not print (``OFFICE ROOF``). Qualifiers are
+    kept, never dropped: ``UPPER ROOF`` and ``LOWER ROOF`` are not the same."""
+
+    found = None
+    for key in level_keys(name):
+        key = (key[0], key[1], frozenset(key[2] - scope_words))
+        for own in level_keyset:
+            own = (own[0], own[1], frozenset(own[2] - scope_words))
+            if key == own:
+                return {"relation": "same", "plan_qualifiers": []}
+            if key[:2] == own[:2] and own[2] <= key[2]:
+                found = {"relation": "qualified", "plan_qualifiers": sorted(key[2] - own[2])}
+    return found
+
+
+_ASSOCIATION_NOTE = {
+    "linked": "Linked through the plan's own title or datum note, in this schedule's building / area.",
+    "checked_no_value": "Plans for this level were found and checked; the elevation was not found in the linked sources.",
+    "unresolved": "No plan view could be tied to this level and building / area yet.",
+}
+
+
+def levels_view(document: Dict[str, Any], sheets: Dict[int, str], *,
+                legend_regions: Optional[Dict[int, List[List[float]]]] = None) -> Dict[str, Any]:
+    """Levels and elevations for review: schedule levels, plan elevations,
+    datum notes and notations, each with its source. Boxes are in display space.
+
+    A schedule level is linked to a plan by name *and* building / area scope
+    (``view_scope``, the tracing contract): a plan of another schedule's
+    building (OSSE PARKING for the OSSE BUILDING schedule) is listed as
+    excluded, never compared. Equal elevations never link a level on their
+    own. A plan that names the level with an extra qualifier (OFFICE ROOF for
+    T.O. ROOF) is linked only when the schedule has no other level of that
+    kind; the qualifier is shown. Values are compared on the surface the
+    schedule names (slab / deck / steel stay apart)."""
+
+    from services.engineering.view_scope import COUNTS, ScopeResolver, scope_terms
+
+    source_document = document
     document = displayed(document)
     statements = plan_statements(document, sheets)
     spots = spot_elevations(document, sheets)
-    values = plan_values(document, statements, sheets)
+    location_offsets: List[Dict[str, Any]] = []
+    legend_examples: List[Dict[str, Any]] = []
+    values = plan_values(document, statements, sheets, location_offsets=location_offsets,
+                         legend_regions=legend_regions, legend_examples=legend_examples)
     elevations = plan_elevations(statements, spots, values)
     plan_names = plan_names_by_page(document, statements)
     levels = _schedule_levels(document, sheets)
+    scopes = ScopeResolver(source_document, elevations, document)
+    # Words that name the project / building, not a level: the column
+    # schedules' captions and words shared by several sheet titles (OSSE,
+    # FACILITY). A word printed on one sheet (OFFICE) stays a qualifier.
+    title_words = [scope_terms(t["text"]) for t in scopes.sheet_titles.values()]
+    scope_words = {w for words in title_words for w in words if sum(w in other for other in title_words) >= 3}
+    for schedule in (source_document.get("column_schedules") or {}).get("schedules") or []:
+        scope_words |= scope_terms(schedule.get("caption") or schedule.get("title"))
+    usable: Dict[int, List[Dict[str, Any]]] = defaultdict(list)
+    for e in elevations:
+        if e["value"] and e["status"] in ("read", "derived"):
+            usable[e["page"]].append(e)
+    kinds: Dict[tuple, int] = defaultdict(int)   # (schedule, kind, ordinal) -> levels of that kind
+    for level in levels:
+        for kind in {k[:2] for k in level_keys(level["name"])}:
+            kinds[(level["schedule_id"], *kind)] += 1
     for level in levels:
         keys = level_keys(level["name"])
-        pages = sorted(p for p, names in plan_names.items()
-                       if keys and any(level_keys(n) & keys for n in names) and p != level["page"])
-        matches = []
+        # One level of this kind in its schedule: a qualified plan name may link to it.
+        only_of_kind = all(kinds[(level["schedule_id"], *k[:2])] == 1 for k in keys)
+        surface = _level_surface(level["name"])
+        matches: List[Dict[str, Any]] = []
         titled_only: List[str] = []
-        for page in pages:
-            found = [e for e in elevations if e["page"] == page and e["value"] and e["status"] in ("read", "derived")
-                     and (e.get("name") is None or level_keys(e["name"]) & keys)]
-            slab = [e for e in found if e["surface"] in ("top of slab", "top of deck")]
-            comparison = None
-            if level["elevation"] and slab:
-                comparison = "agrees" if all(abs(e["value"]["inches"] - level["elevation"]["inches"]) < 0.01 for e in slab) \
-                    else "differs"
+        excluded: List[Dict[str, Any]] = []
+        for page in sorted(plan_names):
+            if not keys or page == level["page"]:
+                continue
+            relations = [(name, _relation(keys, name, scope_words)) for name in plan_names[page]]
+            relations = [(name, r) for name, r in relations if r]
+            if not relations:
+                continue
+            # A qualified name links only when the schedule has one level of this kind.
+            if all(r["relation"] == "qualified" for _n, r in relations) and not only_of_kind:
+                continue
+            scope = scopes.scope(level["schedule_id"], page)
+            if scope["status"] == "conflicting":
+                excluded.append({"page": page, "sheet": sheets.get(page), "plan": relations[0][0],
+                                 "sheet_title": scope.get("sheet_title"), "note": scope["note"]})
+                continue
+            found = []
+            for e in usable.get(page, []):
+                named = _relation(keys, e["name"], scope_words) if e.get("name") else {"relation": "same", "plan_qualifiers": []}
+                if named and (named["relation"] == "same" or only_of_kind):
+                    found.append((e, named))
             if not found:
                 titled_only.append(sheets.get(page) or f"p. {page}")
                 continue
+            compared = [e for e, _r in found if (e["surface"] == surface if surface
+                                                  else e["surface"] in ("top of slab", "top of deck"))]
+            compared_ids = {id(e) for e in compared}
+            comparison = None
+            if level["elevation"] and compared:
+                comparison = "agrees" if all(abs(e["value"]["inches"] - level["elevation"]["inches"]) < 0.01
+                                             for e in compared) else "differs"
+            qualifiers = sorted({q for _n, r in relations for q in r["plan_qualifiers"]}
+                                | {q for _e, r in found for q in r["plan_qualifiers"]})
             matches.append({
                 "page": page, "sheet": sheets.get(page),
-                "plan": next((n for n in plan_names[page] if level_keys(n) & keys), None),
+                "plan": relations[0][0],
+                "association": "supported" if scope["status"] in COUNTS else "candidate",
+                "scope": {"status": scope["status"], "note": scope["note"]},
+                "name_relation": "qualified" if qualifiers else "same",
+                "plan_qualifiers": qualifiers,
                 "values": [{"surface": e["surface"], "display": e["value"]["display"], "raw": e["value"].get("raw"),
-                            "status": e["status"], "area": e.get("area"), "source": e["source"]} for e in found],
+                            "inches": e["value"]["inches"], "status": e["status"], "area": e.get("area"),
+                            "name": e.get("name"), "datum": e.get("datum"), "source": e["source"],
+                            "compared": id(e) in compared_ids} for e, _r in found],
                 "comparison": comparison,
             })
+        level["surface"] = surface
         level["plan_matches"] = matches
         level["also_titled"] = titled_only
-        level["conflict"] = any(m["comparison"] == "differs" for m in matches)
+        level["excluded_scope"] = excluded
+        level["conflict"] = any(m["comparison"] == "differs" and m["association"] == "supported" for m in matches)
+        level["association"] = ("linked" if any(m["association"] == "supported" for m in matches)
+                                else "checked_no_value" if titled_only or matches else "unresolved")
+        level["association_note"] = _ASSOCIATION_NOTE[level["association"]]
         if level["status"] == "see_plan":
             slab_values = {(v["surface"], v["display"]) for m in matches for v in m["values"]
                            if v["surface"] in ("top of slab", "top of deck") and v["status"] == "read"}
@@ -876,6 +1041,10 @@ def levels_view(document: Dict[str, Any], sheets: Dict[int, str]) -> Dict[str, A
         "notations": notations,
         "noted_on_plans": [{**g, "meaning": sorted(g["meaning"]), "rule_sheets": sorted(g["rule_sheets"])}
                            for g in sorted(noted.values(), key=lambda g: g["page"])],
+        # Bracketed values read as something other than an elevation: a grid's
+        # offset inside a location (``C.1(-6")-7.3``), and a legend's own example.
+        "location_offsets": [{**o, "kind": "grid location offset"} for o in location_offsets],
+        "legend_examples": legend_examples,
     }
 
 

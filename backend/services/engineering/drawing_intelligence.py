@@ -30,10 +30,11 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from services.database_loader import catalog_form
 from services.engineering.column_schedule import column_schedule_view
-from services.engineering.level_evidence import levels_view
+from services.engineering.framing_key import bracket_definition, read_framing_keys
+from services.engineering.level_evidence import format_elevation, levels_view
 from services.engineering.page_space import convert_boxes, display_boxes
 
-DRAWING_INTELLIGENCE_VERSION = "drawing_intelligence_v2"
+DRAWING_INTELLIGENCE_VERSION = "drawing_intelligence_v3"
 
 _METHOD_DETERMINISTIC = "deterministic"
 _METHOD_LLM = "llm_extracted"
@@ -638,17 +639,36 @@ _EXISTING_RE = re.compile(r"\(E\)|\bEXIST(?:ING|\.)?\b|\bE\.?T\.?R\.?\b")
 _NEW_RE = re.compile(r"\(N\)|\bNEW\s+(?:STEEL|BEAM|COLUMN|FRAMING|MEMBER|CONSTRUCTION)\b")
 _DEMO_RE = re.compile(r"\bDEMO(?:LISH|LITION)?\b|\bREMOVE\s+(?:EXISTING|\(E\))\b|\bREPLACE\s+(?:EXISTING|\(E\))\b")
 _EN_MEMBER_RE = re.compile(r"\((?:E|N)\)\s*(?:W|WT|HSS|L|2L|C|MC|PIPE|M|S|HP)\d", re.I)
+# Framing named existing / new: "EXISTING BEAM", "EXIST. STEEL", "(E) W10X12";
+# "NEW STEEL", "NEW BEAM", "(N) HSS6X6". Existing soils, slabs or surfaces are
+# not framing.
+_FRAMING_WORDS = r"(?:STEEL|BEAMS?|COLUMNS?|FRAMING|JOISTS?|GIRDERS?|MEMBERS?|(?:W|HSS|WT|MC)\d)"
+_EXISTING_FRAMING_RE = re.compile(rf"\bEXIST(?:ING|\.)\s+{_FRAMING_WORDS}|\(E\)\s*{_FRAMING_WORDS}", re.I)
+_NEW_FRAMING_RE = re.compile(rf"\bNEW\s+{_FRAMING_WORDS}|\(N\)\s*{_FRAMING_WORDS}", re.I)
 
 
-def _existing_new(document: Dict[str, Any], full_text: str) -> Tuple[Optional[Insight], Dict[str, Any]]:
+def _existing_new(page_texts: Dict[int, str], full_text: str) -> Tuple[Optional[Insight], Dict[str, Any]]:
     existing = len(_EXISTING_RE.findall(full_text))
     new = len(_NEW_RE.findall(full_text))
     demo = len(_DEMO_RE.findall(full_text))
     en_members = len(_EN_MEMBER_RE.findall(full_text))
+    existing_framing = len(_EXISTING_FRAMING_RE.findall(full_text))
+    new_framing = len(_NEW_FRAMING_RE.findall(full_text))
+    # "The set distinguishes existing and new framing" needs framing named
+    # both ways (or tagged (E) / (N) members). General notes about existing
+    # soils, slabs or surfaces and an abbreviation list's DEMO entry do not.
+    both = existing_framing >= 2 and new_framing >= 2
     payload = {
         "existing_tags": existing, "new_tags": new, "demo_tags": demo,
         "en_member_callouts": en_members,
-        "is_renovation": en_members >= 3 or (existing >= 8 and demo >= 1),
+        "existing_framing_mentions": existing_framing, "new_framing_mentions": new_framing,
+        "is_renovation": en_members >= 3 or both,
+        "basis": ("tagged (E) / (N) member callouts" if en_members >= 3 else
+                  "framing is named both existing and new" if both else
+                  "existing construction is mentioned, but framing is not named both existing and new"
+                  if existing else "no existing / new tags"),
+        "pages": sorted(p for p, text in page_texts.items()
+                        if _EXISTING_FRAMING_RE.search(text) or _NEW_FRAMING_RE.search(text) or _EN_MEMBER_RE.search(text)),
     }
     if not payload["is_renovation"]:
         return None, payload
@@ -656,8 +676,8 @@ def _existing_new(document: Dict[str, Any], full_text: str) -> Tuple[Optional[In
         Insight(
             type="existing_new",
             value=(
-                f"This set distinguishes existing and new structural framing "
-                f"({en_members} tagged member callout(s), {demo} demo/remove note(s)) "
+                f"This set distinguishes existing and new structural framing ({payload['basis']}; "
+                f"{existing_framing} existing / {new_framing} new framing mention(s)) "
                 f"-- takeoff scope should preserve those designations"
             ),
             confidence=0.75,
@@ -949,6 +969,10 @@ def _definition(
         "source_text": _clean(f"{mark} | {size_text}" + (f" | {plate_text}" if plate_text else ""))[:_SNIPPET_MAX],
         "bbox": boxes.get(mark),
         "evidence": "schedule_grid",
+        # The printed table's own title and its cells under their headings
+        # (non-steel schedules), so equal values in two columns stay two values.
+        "schedule_title": grid.get("title"),
+        **({"cells": row["cells"]} if row.get("cells") else {}),
         **_where(sheets, page),
     }
 
@@ -1051,7 +1075,9 @@ def _schedule_definitions(
     page_texts: Dict[int, str],
     typ_insights: List[Insight],
     sheets: Dict[int, str],
+    keys: Optional[List[Dict[str, Any]]] = None,
 ) -> Dict[str, Any]:
+    keys = keys or []
     grids = [g for g in document.get("schedule_grid") or [] if g.get("rows")]
     grid_pages = {int(g.get("page") or 0) for g in grids}
     words_by_page: Dict[int, List[Dict[str, Any]]] = defaultdict(list)
@@ -1097,6 +1123,7 @@ def _schedule_definitions(
         _schedule_notes(document, spans, sheets)
         + _symbol_legends(page_texts, sheets)
         + _similar_condition_rules(page_texts, sheets)
+        + _key_rules(keys)
     )
     typ_pages = sorted({
         p for i in typ_insights if i.type == "typical_condition" and i.detail.get("present")
@@ -1183,21 +1210,35 @@ def _schedule_definitions(
         hits = len(_BRACKET_TAG_RE.findall(text))
         if hits:
             bracket[page] = hits
-    defined = any(
+    defined_in_text = any(
         re.search(r"\[[^\]]{0,6}\][^.]{0,40}\b(?:DENOTES?|INDICATES?)\b", text, re.I)
         for text in page_texts.values()
     )
-    if sum(bracket.values()) >= 10 and not defined:
+    # A graphical framing key (leader from the bracket to a printed label)
+    # defines the bracket as well as a sentence does; ``_key_rules`` shows it.
+    by_key = bracket_definition(keys)
+    if sum(bracket.values()) >= 10 and not defined_in_text and by_key["status"] != "defined":
         pages = sorted(bracket)
-        unresolved.append({
-            "kind": "undefined_bracket_tag",
-            "text": (
-                f"Numbers in brackets after beam sizes (e.g. {_BRACKET_TAG_RE.search(page_texts[pages[0]]).group(0)}) "
-                f"appear {sum(bracket.values())} times, but no note in the text layer defines them. "
-                "Confirm their meaning on the plan legend; do not read them as member quantities."
-            ),
-            "pages": pages, "sheet": sheets.get(pages[0]),
-        })
+        example = _BRACKET_TAG_RE.search(page_texts[pages[0]]).group(0)
+        if by_key["status"] == "conflicting":
+            unresolved.append({
+                "kind": "conflicting_bracket_definition",
+                "text": (f"Numbers in brackets after beam sizes (e.g. {example}) are defined differently by the "
+                         f"set's framing keys: {'; '.join(by_key['meanings'])}. Confirm which applies; "
+                         "do not read them as member quantities."),
+                "pages": sorted({s['page'] for s in by_key["sources"]} | set(pages)),
+                "sheet": sheets.get(pages[0]),
+            })
+        else:
+            unresolved.append({
+                "kind": "undefined_bracket_tag",
+                "text": (
+                    f"Numbers in brackets after beam sizes (e.g. {example}) appear on plans, but no note and "
+                    f"no framing key in the set defines them ({by_key['missing']}). Confirm their meaning on the "
+                    "plan legend; do not read them as member quantities."
+                ),
+                "pages": pages, "sheet": sheets.get(pages[0]),
+            })
 
     return {
         "definitions": [{**d, "id": f"D{i}"} for i, d in enumerate(definitions, 1)],
@@ -1205,6 +1246,31 @@ def _schedule_definitions(
         "unresolved": [{**u, "id": f"U{i}"} for i, u in enumerate(unresolved, 1)],
         "column_locations": column_locations,
     }
+
+
+def _key_rules(keys: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """One interpretation rule per framing key: each callout part with the
+    printed label its leader ends at. A part with no leader, or whose leader
+    ends at two labels, is stated as such -- never given a meaning."""
+
+    rules = []
+    for key in keys:
+        defined = [p for p in key["parts"] if p["status"] == "defined"]
+        if not defined:
+            continue
+        parts = "; ".join(f"{p['token']} = {p['meaning']}" for p in defined)
+        open_parts = [p["token"] for p in key["parts"] if p["status"] != "defined"]
+        rules.append({
+            "relation": "notation key", "kind": "framing_key",
+            "text": (f"{key['title'].title()}: in a beam callout such as {key['example']}, {parts}."
+                     + (f" Not defined by a leader: {', '.join(open_parts)}." if open_parts else "")
+                     + " The key's own numbers are an example, not a count."),
+            "scope": "project legend", "source_text": key["example"],
+            "bbox": key["region"], "page": key["page"], "pages": [key["page"]], "sheet": key["sheet"],
+            "parts": [{k: p.get(k) for k in ("token", "form", "meaning", "field", "status", "bbox", "label_bbox")}
+                      for p in key["parts"]],
+        })
+    return rules
 
 
 def _column_location(
@@ -1251,32 +1317,54 @@ def _mark_range(marks: List[str]) -> str:
     return marks[0] if len(marks) == 1 else f"{marks[0]}–{marks[-1]}"
 
 
+# Definition statuses of marks that are not steel (concrete walls, piers,
+# footings; precast lintels; "N/A" rows).
+NON_STEEL_STATUSES = frozenset({"not steel", "precast", "no steel"})
+
+
 def _deterministic_overview(profile: Dict[str, Any]) -> str:
     stamps = [s["detail"]["label"] for s in profile["scope_signals"] if s["detail"].get("present")]
     first = f"{profile['page_count']}-page structural set" + (
         f" ({', '.join(stamps).lower()})" if stamps else ""
     ) + "."
+    sentences = [first]
+    # Column schedules first: steel apart from concrete (a schedule is
+    # concrete only when its own note says so for its labels).
+    by_group: Dict[str, List[str]] = defaultdict(list)
+    for s in (profile.get("column_schedule") or {}).get("schedules") or []:
+        where = s.get("sheet") or f"PDF p. {s['page']}"
+        by_group[s.get("material_group") or "unclassified"].append(f"{s['name']} ({where})")
+    for group, label in (("steel", "Steel column schedule"), ("concrete", "Concrete column schedule"),
+                         ("unclassified", "Column schedule")):
+        if by_group.get(group):
+            plural = "s" if len(by_group[group]) > 1 else ""
+            sentences.append(f"{label}{plural}: {', '.join(by_group[group])}.")
+    steel_defs = [d for d in profile["definitions"] if d.get("status") not in NON_STEEL_STATUSES]
+    other_defs = [d for d in profile["definitions"] if d.get("status") in NON_STEEL_STATUSES]
     by_kind: Dict[str, List[str]] = defaultdict(list)
-    for d in profile["definitions"]:
+    for d in steel_defs:
         by_kind[d["component"]].append(d["mark"])
-    if not by_kind:
+    if by_kind:
+        where = sorted({d["sheet"] or f"PDF p. {d['page']}" for d in steel_defs})
+        parts = [f"{_COMPONENTS[k][2]} marks ({_mark_range(by_kind[k])})" for k in _COMPONENT_ORDER if k in by_kind]
+        listed = ", ".join(parts[:-1]) + (" and " if len(parts) > 1 else "") + parts[-1]
+        sentences.append(f"Schedules on {', '.join(where)} define the {listed} used on the plans.")
+    if other_defs:
+        titles = list(dict.fromkeys(str(d.get("schedule_title") or d["schedule"]).title() for d in other_defs))
+        where = sorted({d["sheet"] or f"PDF p. {d['page']}" for d in other_defs})
+        sentences.append(f"Concrete and other non-steel schedules on {', '.join(where)} "
+                         f"({', '.join(titles[:4])}{', …' if len(titles) > 4 else ''}) are kept with the supporting schedules.")
+    if not (by_group or by_kind or other_defs):
         families = profile["steel_system"]["families"]
-        second = (
-            f" Most explicit section labels are {families[0]['label']}; no MARK/SIZE "
-            "schedule definitions were read." if families else
-            " No MARK/SIZE schedule definitions and no catalog-valid steel section labels were read."
-        )
-        return first + second
-    where = sorted({
-        (d["sheet"] or f"PDF p. {d['page']}") + (f" (PDF p. {d['page']})" if d["sheet"] else "")
-        for d in profile["definitions"]
-    })
-    parts = [
-        f"{_COMPONENTS[k][2]} marks ({_mark_range(by_kind[k])})"
-        for k in _COMPONENT_ORDER if k in by_kind
-    ]
-    listed = ", ".join(parts[:-1]) + (" and " if len(parts) > 1 else "") + parts[-1]
-    return first + f" Schedules on {', '.join(where)} define the {listed} used on the plans."
+        sentences.append(
+            f"Most explicit section labels are {families[0]['label']}; no MARK/SIZE schedule definitions were read."
+            if families else "No MARK/SIZE schedule definitions and no catalog-valid steel section labels were read.")
+    conflicts = [f for f in profile.get("facts") or [] if f["type"] == "level_conflict"]
+    if conflicts:
+        sentences.append("Sources disagree on " + "; ".join(
+            f"{f['level']} (schedule {f['schedule_value']}, {f['plan_sheet']} plan note {f['plan_value']})"
+            for f in conflicts) + "; both values are shown.")
+    return " ".join(sentences)
 
 
 # --------------------------------------------------------------------------
@@ -1438,12 +1526,13 @@ def build_drawing_intelligence(
 
     sheets = _sheet_ids(document)
     box = display_boxes(document)
+    keys = read_framing_keys(document, sheets)
     page_group_insights, category_of = _classify_pages(document, page_texts, context_pages)
     family_insights, steel_payload = _steel_families(document)
     typ_insights = _typical_conditions(document, page_texts, category_of)
     schedule_insights = _schedule_insights(document)
     scope_insights = _scope_signals(document, page_texts)
-    reno_insight, reno_payload = _existing_new(document, full_text)
+    reno_insight, reno_payload = _existing_new(page_texts, full_text)
     note_insights = _structural_notes(page_texts, context_pages)
 
     uncertainties: List[Insight] = [
@@ -1513,14 +1602,17 @@ def build_drawing_intelligence(
         "conflicts": [i.as_dict() for i in conflicts],
         "sources": [i.as_dict() for i in all_insights if i.source_pages or i.source_text],
         # Source boxes go to the viewer in display space (``page_space``).
-        **convert_boxes(_schedule_definitions(document, page_texts, typ_insights, sheets), box),
+        **convert_boxes(_schedule_definitions(document, page_texts, typ_insights, sheets, keys), box),
         # Display-only column entries (section, locations, plate, notes); not
         # evidence for the summary model and never a quantity.
         "column_schedule": convert_boxes(column_schedule_view(document, sheets), box),
         # Levels and elevations from schedules and plan notes, each sourced;
         # display-only like the column schedule.
-        "levels": levels_view(document, sheets),
+        # A framing key's own example is a definition, not a plan observation.
+        "levels": levels_view(document, sheets,
+                              legend_regions={k["page"]: [box(k["page"], k["region"])] for k in keys}),
     }
+    profile["facts"] = summary_facts(profile)
     profile["narrative"] = _render_narrative(profile)
     profile["narrative"]["project_overview"] = _deterministic_overview(profile) + (
         " The set distinguishes existing and new framing."
@@ -1556,23 +1648,180 @@ def definition_line(item: Dict[str, Any]) -> str:
     ])
 
 
+_MAX_COLUMN_FACTS = 6
+
+
+def _difference(inches: float) -> str:
+    """``8"`` under a foot, else feet-inches; the magnitude only."""
+
+    text = format_elevation(abs(inches))
+    return text.split("'-", 1)[1] if text.startswith("0'-") else text
+
+
+def _plate_phrase(plate: Dict[str, Any]) -> str:
+    if plate.get("status") == "resolved" and plate.get("dimensions"):
+        dims = ", ".join(f"{d['label']} {d['raw']}" for d in plate["dimensions"])
+        table = next((v for v in plate.get("via") or [] if v.get("kind") == "plate schedule"), None)
+        return (f"base plate {plate.get('printed')} ({dims}"
+                + (f"; from {str(table.get('title') or 'plate schedule').title()}, {where_label(table)}" if table else "")
+                + ")")
+    if plate.get("printed"):
+        return f"base plate {plate['printed']} (dimensions not linked: {plate.get('status')})"
+    return f"base plate {str(plate.get('status') or 'not shown').replace('_', ' ')}"
+
+
+def summary_facts(profile: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Typed, sourced facts for the overview model, with stable ids, built
+    from the validated profile -- never from model output.
+
+    * ``X`` level conflicts: both printed values, both sources, the
+      difference; status ``conflicting`` (never resolved);
+    * ``K`` schedule levels linked to a plan datum / note in scope;
+    * ``C`` representative steel column entries: section, plate assignment
+      and plate dimensions with their roles, and the level-to-level
+      elevation difference when both ends sit on level lines (calculated
+      from stated values; not a fabricated length). A selection, not the
+      schedule: one entry per distinct section + plate;
+    * ``M`` material a schedule note states for a label family (C_ precast);
+    * ``G`` grid-location offsets read as locations, not elevations.
+
+    Each fact keeps ``refs`` / ``sources`` to what it describes, so the
+    summary renders canonical values and links from the data, never from
+    the model's words."""
+
+    facts: List[Dict[str, Any]] = []
+    levels = (profile.get("levels") or {}).get("schedule_levels") or []
+    for level in levels:
+        schedule_source = {"page": level["page"], "sheet": level.get("sheet"), "bbox": level.get("bbox")}
+        for match in level.get("plan_matches") or []:
+            if match.get("association") != "supported":
+                continue
+            for value in (v for v in match["values"] if v.get("compared")):
+                plan_value = value.get("raw") or value["display"]
+                base = {
+                    "level": level["name"], "schedule": level["schedule"], "schedule_value": level["printed"],
+                    "plan_value": plan_value, "plan_sheet": match["sheet"], "surface": value["surface"],
+                    "sources": [schedule_source, value["source"]],
+                    "refs": {"schedule_id": level["schedule_id"], "level": level["name"], "plan_page": match["page"]},
+                }
+                if match["comparison"] == "differs" and level.get("elevation"):
+                    diff = level["elevation"]["inches"] - value["inches"]
+                    facts.append({
+                        **base, "type": "level_conflict", "status": "conflicting", "difference": _difference(diff),
+                        "difference_inches": round(diff, 4),
+                        "text": (f"{level['schedule']}: {level['name']} is {level['printed']} in the column schedule "
+                                 f"({where_label(schedule_source)}); the {match['sheet']} plan note gives "
+                                 f"{value['surface']} {plan_value} ({where_label(value['source'])}). "
+                                 f"Difference {_difference(diff)}. Both values stand; the drawing does not say "
+                                 "which governs."),
+                    })
+                elif match["comparison"] == "agrees":
+                    named = f" (the plan names it {value['name']})" if value.get("name") else ""
+                    facts.append({
+                        **base, "type": "level_link", "status": "read",
+                        "text": (f"{level['schedule']}: {level['name']} {level['printed']} (column schedule, "
+                                 f"{where_label(schedule_source)}) agrees with the {match['sheet']} plan note, "
+                                 f"{value['surface']} {plan_value}{named}."),
+                    })
+    column = profile.get("column_schedule") or {}
+    names = {s["id"]: s["name"] for s in column.get("schedules") or []}
+    groups: Dict[tuple, List[Dict[str, Any]]] = defaultdict(list)
+    for entry in column.get("entries") or []:
+        designation = next((s["designation"] for s in entry["sections"] if s.get("designation")), None)
+        if designation:
+            groups[(designation, (entry.get("plate") or {}).get("printed"))].append(entry)
+    ranked = sorted(groups.items(),
+                    key=lambda kv: (-((kv[1][0].get("plate") or {}).get("status") == "resolved"), -len(kv[1])))
+    for (designation, _plate), group in ranked[:_MAX_COLUMN_FACTS]:
+        entry = group[0]
+        where = entry.get("location_text") or entry.get("mark")
+        diff = entry.get("level_difference") or {}
+        span = (f" Drawn from {diff['lower']['name']} ({diff['lower']['elevation']}) to {diff['upper']['name']} "
+                f"({diff['upper']['elevation']}): elevation difference {diff['display']}, calculated from the "
+                "schedule's elevations; not a fabricated member length."
+                if diff.get("status") == "computed" else "")
+        plate = entry.get("plate") or {}
+        facts.append({
+            "type": "column", "status": "read" if plate.get("status") == "resolved" else "partial",
+            "schedule": names.get(entry["schedule_id"]), "location": where, "section": designation,
+            "plate": plate.get("printed"),
+            "sources": [{"page": entry["page"], "sheet": entry.get("sheet"), "bbox": entry.get("bbox")}]
+            + list(plate.get("via") or []),
+            "refs": {"column_entry": entry["id"]},
+            "text": (f"{names.get(entry['schedule_id'])} ({where_label(entry)}): column at {where} -> {designation}; "
+                     f"{_plate_phrase(plate)}.{span} Shown as an example of {len(group)} schedule "
+                     "entries with this section and plate; a schedule entry is not an installed column."),
+        })
+    seen_materials = set()
+    for entry in column.get("entries") or []:
+        material = entry.get("material") or {}
+        if material.get("status") != "read" or (entry["schedule_id"], material["mark"]) in seen_materials:
+            continue
+        seen_materials.add((entry["schedule_id"], material["mark"]))
+        size = (material.get("size") or {}).get("raw")
+        facts.append({
+            "type": "material", "status": "read", "schedule": names.get(entry["schedule_id"]),
+            "mark": material["mark"], "material": material["material"], "size": size,
+            "sources": [material["source"]], "refs": {"schedule_id": entry["schedule_id"]},
+            "text": (f"{names.get(entry['schedule_id'])}: {material['mark']} columns are {material['material']} "
+                     f"per the schedule note \"{material['source']['text']}\" ({where_label(material['source'])})"
+                     + (f"; printed size {size}" if size else "") + ". Not steel."),
+        })
+    offsets = (profile.get("levels") or {}).get("location_offsets") or []
+    if offsets:
+        examples = list(dict.fromkeys(o["location"] for o in offsets))[:3]
+        facts.append({
+            "type": "grid_offset", "status": "read", "examples": examples,
+            "sources": [{"page": o["page"], "sheet": o.get("sheet"), "bbox": o.get("bbox")} for o in offsets[:3]],
+            "text": (f"Bracketed values inside grid locations ({', '.join(examples)}) are offsets of a grid line "
+                     "within the location, not elevations; the legend's bracket notation does not apply to them."),
+        })
+    prefix = {"level_conflict": "X", "level_link": "K", "column": "C", "material": "M", "grid_offset": "G"}
+    counters: Dict[str, int] = defaultdict(int)
+    for fact in facts:
+        letter = prefix[fact["type"]]
+        counters[letter] += 1
+        fact["id"] = f"{letter}{counters[letter]}"
+    return facts
+
+
 def evidence_facts(profile: Dict[str, Any]) -> Dict[str, str]:
     """``{fact id: exact fact text}`` -- the only facts the summary model may cite."""
 
     facts: Dict[str, str] = {}
     for d in profile.get("definitions") or []:
-        facts[d["id"]] = f"{d['schedule']} ({where_label(d)}): {definition_line(d)} [{d['relation']}]"
+        title = str(d.get("schedule_title") or d["schedule"]).title()
+        facts[d["id"]] = f"{title} ({where_label(d)}): {definition_line(d)} [{d['relation']}]"
     for r in profile.get("interpretation_rules") or []:
         facts[r["id"]] = f"({r['relation']}; {r['scope']}; {where_label(r)}) {r['text']}"
     for u in profile.get("unresolved") or []:
         facts[u["id"]] = f"({where_label(u)}) {u['text']}"
+    typed = profile.get("facts")
+    for fact in typed if typed is not None else summary_facts(profile):
+        facts[fact["id"]] = fact["text"]
     return facts
 
 
+_PACKET_SECTIONS = (
+    ("X", "CONFLICTS BETWEEN SOURCES -- both values stand; never choose, average or resolve them:"),
+    ("K", "SCHEDULE LEVELS LINKED TO PLAN NOTES (same building / area):"),
+    ("C", "SELECTED STEEL COLUMN ENTRIES -- examples chosen from the column schedule, one per distinct section "
+          "and plate; NOT the complete schedule and NOT installed members:"),
+    ("M", "MATERIAL STATED BY SCHEDULE NOTES:"),
+    ("G", "LOCATION NOTATION:"),
+    ("R", "RULES AFFECTING INTERPRETATION (verbatim notes and keys):"),
+    ("U", "UNRESOLVED ITEMS:"),
+    ("D", "OTHER SCHEDULE DEFINITIONS -- each says how to READ a mark on plan; a schedule row is NOT an "
+          "installed member and NOT a quantity:"),
+)
+
+
 def evidence_packet(profile: Dict[str, Any], *, max_chars: int = 6000) -> str:
-    """Plain-text evidence for the optional summary model: verified schedule
-    definitions, verbatim interpretation rules and unresolved items, each
-    under a citable id. No occurrence counts and no raw token dumps."""
+    """Plain-text evidence for the optional summary model, each fact under a
+    citable id. Whole facts only: when the budget runs out, the remaining
+    facts are left out *and the packet says so* -- a fact is never cut
+    mid-record. Conflicts and linked levels come first, then the selected
+    columns; non-steel schedule definitions last."""
 
     facts = evidence_facts(profile)
     stamps = [s["detail"]["label"] for s in profile["scope_signals"] if s["detail"].get("present")]
@@ -1583,12 +1832,28 @@ def evidence_packet(profile: Dict[str, Any], *, max_chars: int = 6000) -> str:
         "STEEL SYSTEM (families named on labels; not member quantities): "
         + (", ".join(families) if families else "none read"),
         "DETERMINISTIC OVERVIEW: " + str(profile.get("overview") or ""),
-        "SCHEDULE DEFINITIONS -- each says how to READ a mark on plan; a schedule "
-        "row is NOT an installed member and NOT a quantity:",
     ]
-    lines += [f"  [{k}] {v}" for k, v in facts.items() if k.startswith("D")] or ["  none read"]
-    lines.append("RULES AFFECTING INTERPRETATION (verbatim notes):")
-    lines += [f"  [{k}] {v}" for k, v in facts.items() if k.startswith("R")] or ["  none read"]
-    lines.append("UNRESOLVED ITEMS:")
-    lines += [f"  [{k}] {v}" for k, v in facts.items() if k.startswith("U")] or ["  none"]
-    return "\n".join(lines)[:max_chars]
+    non_steel = {d["id"] for d in profile.get("definitions") or [] if d.get("status") in NON_STEEL_STATUSES}
+    definitions = sorted((k for k in facts if k.startswith("D")), key=lambda k: k in non_steel)
+    used = sum(len(line) + 1 for line in lines)
+    omitted = 0
+    reserve = 120   # room for the omission line
+    for prefix, title in _PACKET_SECTIONS:
+        ids = definitions if prefix == "D" else [k for k in facts if k[0] == prefix and k[1:].isdigit()]
+        rows = [f"  [{k}] {facts[k]}" for k in ids]
+        if not rows:
+            continue
+        if used + len(title) + len(rows[0]) + 2 > max_chars - reserve:
+            omitted += len(rows)
+            continue
+        lines.append(title)
+        used += len(title) + 1
+        for row in rows:
+            if used + len(row) + 1 > max_chars - reserve:
+                omitted += 1
+                continue
+            lines.append(row)
+            used += len(row) + 1
+    if omitted:
+        lines.append(f"({omitted} further facts left out for length -- they are shown in the summary itself.)")
+    return "\n".join(lines)

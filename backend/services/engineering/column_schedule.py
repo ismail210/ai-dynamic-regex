@@ -1157,6 +1157,54 @@ def _read_plate(entry: Dict[str, Any], column: Dict[str, Any], schedule_name: st
             "note": "This schedule shows no plate for the column."}
 
 
+# "ALL C_ COLUMNS ARE PRECAST COLUMNS ...": a schedule note naming the
+# material of one family of column labels (the prefix before ``_``).
+_MATERIAL_NOTE_RE = re.compile(
+    r"\bALL\s+(?P<prefix>[A-Z]{1,3})_\s*COLUMNS\s+(?:ARE|SHALL\s+BE)\s+"
+    r"(?P<material>PRECAST(?:\s+CONCRETE)?|CAST[- ]IN[- ]PLACE(?:\s+CONCRETE)?|CONCRETE|STEEL|TIMBER|WOOD)\b",
+    re.IGNORECASE,
+)
+_MATERIALS = {"PRECAST": "precast concrete", "CAST IN PLACE": "cast-in-place concrete",
+              "CONCRETE": "concrete", "STEEL": "steel", "TIMBER": "timber", "WOOD": "wood"}
+
+
+def _material_name(printed: str) -> str:
+    """``CAST-IN-PLACE CONCRETE`` / ``PRECAST`` / ... -> one normalised name."""
+
+    words = re.sub(r"\s+CONCRETE$", "", re.sub(r"[-\s]+", " ", printed.upper()).strip())
+    return _MATERIALS.get(words, words.lower())
+
+
+_LABEL_SIZE_RE = re.compile(r"^(?P<mark>[A-Z]{1,3}\d+[A-Z]?)\s*[-–]\s*(?P<size>.+)$", re.IGNORECASE)
+
+
+def _printed_size(text: str) -> Optional[Dict[str, Any]]:
+    """``24"x24"`` -> both dimensions as printed and in inches; ``None`` when
+    a part does not read as a dimension (kept as printed elsewhere)."""
+
+    parts = [p.strip() for p in re.split(r"\s*[xX×]\s*", text.strip()) if p.strip()]
+    dims = [parse_dimension(p) for p in parts]
+    if len(parts) < 2 or None in dims:
+        return None
+    return {"raw": text.strip(), "dimensions": dims}
+
+
+def _material(entry: Dict[str, Any], rules: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    """What a schedule note says this entry's label is made of, only for the
+    label family the note names (C_ -> C1, C2 ...). Other labels get nothing:
+    a note about C_ columns says nothing about P1 piers."""
+
+    printed = " ".join(s.get("printed") or "" for s in entry["sections"]).strip()
+    match = _LABEL_SIZE_RE.match(printed)
+    mark = (match["mark"] if match else printed).upper()
+    for rule in rules:
+        if re.fullmatch(rf"{rule['prefix']}\d+[A-Z]?", mark):
+            return {"status": "read", "material": rule["material"], "mark": mark,
+                    "size": _printed_size(match["size"]) if match else None,
+                    "printed": printed, "source": rule["source"]}
+    return None
+
+
 def column_schedule_view(document: Dict[str, Any], sheets: Dict[int, str]) -> Dict[str, Any]:
     """Reviewable column entries: section, locations, plate, notes, sources.
 
@@ -1197,6 +1245,11 @@ def column_schedule_view(document: Dict[str, Any], sheets: Dict[int, str]) -> Di
         name = schedule.get("caption") or schedule["title"]
         transfer_note = next((n for n in schedule["notes"] if "TRANSFER" in n.upper()), None)
         rules = [rule for page in schedule["pages"] for rule in cap_rules.get(page, [])]
+        material_rules = [
+            {"prefix": m["prefix"].upper(), "material": _material_name(m["material"]),
+             "source": _source("schedule note", note, schedule["pages"][0], sheets, schedule["blocks"][0]["bbox"])}
+            for note in schedule["notes"] for m in _MATERIAL_NOTE_RE.finditer(note)
+        ]
         schedules_out.append({
             "id": schedule["id"], "name": name, "layout": schedule["layout"], "key_role": schedule["key_role"],
             "pages": schedule["pages"], "sheets": [sheets.get(p) for p in schedule["pages"]],
@@ -1206,6 +1259,7 @@ def column_schedule_view(document: Dict[str, Any], sheets: Dict[int, str]) -> Di
             "notes": schedule["notes"],
             "hidden_text": [s["text"] for s in schedule.get("suppressed_text") or []],
         })
+        first_entry = len(entries)
         for number, column in enumerate(schedule["entries"], 1):
             entry: Dict[str, Any] = {
                 "id": f"{schedule['id']}-{number}", "schedule_id": schedule["id"],
@@ -1270,7 +1324,20 @@ def column_schedule_view(document: Dict[str, Any], sheets: Dict[int, str]) -> Di
             # lines with printed elevations. Never a column length.
             extent = entry["extent"] = column.get("extent")
             entry["level_difference"] = level_difference(extent) if extent else None
+            material = _material(entry, material_rules)
+            if material:
+                entry["material"] = material
+            elif any(s["designation"] for s in entry["sections"]):
+                entry["material"] = {"status": "catalog section", "material": "steel"}
             entries.append(entry)
+        # Steel when the schedule's entries are catalog steel sections; a
+        # schedule whose entries a note makes concrete is a concrete schedule.
+        own = entries[first_entry:]
+        materials = [(e.get("material") or {}).get("material") for e in own]
+        schedules_out[-1]["material_group"] = (
+            "steel" if "steel" in materials else
+            "concrete" if any(m and "concrete" in m for m in materials) else "unclassified")
+        schedules_out[-1]["entry_count"] = len(own)
     return {
         "schedules": schedules_out,
         "entries": entries,
