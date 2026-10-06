@@ -18,6 +18,7 @@ export const ChevronLeft = IconStub;
 export const ChevronRight = IconStub;
 export const CloseOutlined = IconStub;
 export const CloudUpload = IconStub;
+export const CompareOutlined = IconStub;
 export const CloudUploadOutlined = IconStub;
 export const ContentCopyOutlined = IconStub;
 export const DashboardOutlined = IconStub;

@@ -6,7 +6,7 @@
  */
 
 // `drawing_intelligence.definitions` (grouped mark definitions) arrived with v2.
-export const EXPECTED_SUMMARY_API = "drawing_intelligence_v2";
+export const EXPECTED_SUMMARY_API = "drawing_intelligence_v3";
 
 const devPair = typeof __DEV_PAIR__ !== "undefined" ? __DEV_PAIR__ : null;
 const baseURL = import.meta.env.VITE_API_BASE || "";

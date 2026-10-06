@@ -100,7 +100,7 @@ describe("DrawingSummaryPanel", () => {
   it("renders the deterministic narrative sections", () => {
     render(<DrawingSummaryPanel profile={base()} />);
     expect(screen.getByText(TITLE)).toBeInTheDocument();
-    expect(screen.getByText("Project overview")).toBeInTheDocument();
+    expect(screen.getByText("Project orientation")).toBeInTheDocument();
     expect(screen.getByText(/28-page structural set/)).toBeInTheDocument();
     expect(screen.getByText("Steel system")).toBeInTheDocument();
     expect(screen.getByText("Typical / repeated conditions")).toBeInTheDocument();
@@ -231,7 +231,7 @@ describe("DrawingSummaryPanel", () => {
 
   it("badges an LLM-polished summary", () => {
     render(<DrawingSummaryPanel profile={base({ drawing_intelligence: di({ method: "llm_enhanced" }) })} />);
-    expect(screen.getByText("summary polished by model")).toBeInTheDocument();
+    expect(screen.getByText(/overview wording by model, checked against the drawing/)).toBeInTheDocument();
   });
 });
 
@@ -315,7 +315,7 @@ function rowOf(mark) {
 describe("DrawingSummaryPanel — evidence view", () => {
   it("groups marks into schedule tables with the shared source in the heading", () => {
     render(<DrawingSummaryPanel profile={evidenceProfile()} documentId="doc_abc" />);
-    expect(screen.getByText("Marks and definitions")).toBeInTheDocument();
+    expect(screen.getByText("Steel marks and definitions")).toBeInTheDocument();
     expect(screen.getByRole("table", { name: "Lintels definitions" })).toBeInTheDocument();
     expect(screen.getByText(/Lintel schedule · S002 · PDF p\. 2 · 2 marks/)).toBeInTheDocument();
     expect(screen.getAllByRole("columnheader", { name: "Defined section / component" }).length).toBe(4);
@@ -379,9 +379,9 @@ describe("DrawingSummaryPanel — evidence view", () => {
 
   it("shows typed rules and actionable items", () => {
     render(<DrawingSummaryPanel profile={evidenceProfile()} />);
-    expect(screen.getByText("Rules affecting interpretation")).toBeInTheDocument();
+    expect(screen.getByText("Drawing notation and interpretation rules")).toBeInTheDocument();
     expect(screen.getByText("Default, U.N.O.")).toBeInTheDocument();
-    expect(screen.getByText("Needs attention")).toBeInTheDocument();
+    expect(screen.getByText("Items needing attention")).toBeInTheDocument();
     expect(screen.getByText(/S102A · PDF pp\. 7, 8, 9, 10/)).toBeInTheDocument();
   });
 
@@ -517,14 +517,16 @@ const withColumns = (extra = {}) => evidenceProfile({ column_schedule: columnSch
 describe("DrawingSummaryPanel — column schedule", () => {
   it("shows one row per schedule column with section, location and plate", () => {
     render(<DrawingSummaryPanel profile={withColumns()} />);
-    expect(screen.getByText("Column schedule")).toBeInTheDocument();
+    expect(screen.getByText("Steel column schedules and plate assignments")).toBeInTheDocument();
     expect(screen.getByText(/S600, S601 · PDF pp. 42, 43 · graphical schedule · printed in 4 parts/)).toBeInTheDocument();
     const row = within(screen.getByText("A.4'-14 +3").closest("tr"));
     expect(row.getByText("4 locations listed")).toBeInTheDocument();
     expect(row.getByText("W12X40")).toBeInTheDocument();
-    expect(row.getByText("1 1/2\" thick × 1'-8\" wide × 1'-8\" long")).toBeInTheDocument();
+    // Width × Length × Thickness, with proper symbols; the printed value on hover.
+    expect(row.getByText("1′-8″ × 1′-8″ × 1½″")).toBeInTheDocument();
+    expect(row.getByText("Width × Length × Thickness")).toBeInTheDocument();
     expect(row.getByText("Base plate BP7")).toBeInTheDocument();
-    expect(row.getByText("resolved via plate schedule")).toBeInTheDocument();
+    expect(row.getByText("Linked through schedule")).toBeInTheDocument();
   });
 
   it("keeps the printed location text next to the parsed grids and offsets", () => {
@@ -538,7 +540,7 @@ describe("DrawingSummaryPanel — column schedule", () => {
   it("opens both the leader mark and the plate schedule row it resolved through", async () => {
     render(<DrawingSummaryPanel profile={withColumns()} documentId="doc_abc" />);
     fireEvent.click(screen.getByRole("button", { name: "Show details for A.4'-14 +3" }));
-    fireEvent.click(screen.getByRole("button", { name: /View S601 · PDF p. 43 for BP7/ }));
+    fireEvent.click(screen.getByRole("button", { name: "View S601 · PDF p. 43 for BP7 dimensions" }));
     const viewer = await screen.findByTestId("pdf-viewer");
     expect(viewer).toHaveAttribute("data-page", "43");
     expect(viewer).toHaveAttribute("data-bbox", "[730,1880,1600,1890]");
@@ -584,7 +586,7 @@ describe("DrawingSummaryPanel — column schedule", () => {
     for (const table of screen.getAllByRole("table", { name: /columns$/ })) {
       expect(within(table).queryByRole("columnheader", { name: /qty|quantity|count|total/i })).not.toBeInTheDocument();
     }
-    expect(screen.getByText(/Schedule entries are definitions — not takeoff\s+quantities/)).toBeInTheDocument();
+    expect(screen.getByText(/A schedule entry is a definition, not an installed column/)).toBeInTheDocument();
   });
 
   it("does not list a scheduled column mark twice", () => {
@@ -597,9 +599,9 @@ describe("DrawingSummaryPanel — column schedule", () => {
 
   it("is hidden when no column schedule was read", () => {
     render(<DrawingSummaryPanel profile={evidenceProfile({ column_schedule: { schedules: [], entries: [] } })} />);
-    expect(screen.queryByText("Column schedule")).not.toBeInTheDocument();
+    expect(screen.queryByText("Steel column schedules and plate assignments")).not.toBeInTheDocument();
     render(<DrawingSummaryPanel profile={evidenceProfile()} />);
-    expect(screen.queryByText("Column schedule")).not.toBeInTheDocument();
+    expect(screen.queryByText("Steel column schedules and plate assignments")).not.toBeInTheDocument();
   });
 });
 
@@ -662,21 +664,22 @@ describe("DrawingSummaryPanel — levels and elevations", () => {
 
   it("shows a schedule level next to a differing plan value without replacing it", () => {
     render(<DrawingSummaryPanel profile={withLevels()} />);
-    expect(screen.getByText("Levels and elevations")).toBeInTheDocument();
-    const row = within(screen.getByText("T.O. SLAB LEVEL 2").closest("tr"));
-    expect(row.getByText("55' - 10\"")).toBeInTheDocument();
-    expect(row.getByText("Top of slab 55'-2\"")).toBeInTheDocument();
-    expect(row.getByText("differs from the schedule")).toBeInTheDocument();
+    expect(screen.getByText("Levels and supported vertical extents")).toBeInTheDocument();
+    const row = within(screen.getByText("T.O. SLAB LEVEL 2", { selector: "td p, td span" }).closest("tr"));
+    expect(row.getByText("55′-10″")).toBeInTheDocument();
+    expect(row.getByText("55′-2″")).toBeInTheDocument();
+    expect(row.getByText("Sources disagree")).toBeInTheDocument();
   });
 
   it("resolves SEE PLAN only to a single plan value", () => {
     render(<DrawingSummaryPanel profile={withLevels()} />);
-    expect(within(screen.getByText("SECOND FLOOR").closest("tr")).getByText("Top of slab 330'-0\" on S102")).toBeInTheDocument();
+    expect(within(screen.getByText("SECOND FLOOR").closest("tr")).getByText((_, el) => el?.tagName === "P" && el.textContent === "Top of slab 330′-0″ on S102")).toBeInTheDocument();
     expect(within(screen.getByText("THIRD FLOOR").closest("tr")).getByText(/2 different values/)).toBeInTheDocument();
   });
 
   it("shows a derived top of steel with its slab value and the note's offset", async () => {
     render(<DrawingSummaryPanel profile={withLevels()} documentId="doc_abc" />);
+    fireEvent.click(screen.getByRole("button", { name: /Supporting schedules and level evidence/ }));
     const row = within(screen.getByText("18'-8\"").closest("tr"));
     expect(row.getByText("derived by note")).toBeInTheDocument();
     expect(row.getByText(/TOP OF SLAB ELEVATION SHALL BE 19'-4" 0'-8" below top of slab/)).toBeInTheDocument();
@@ -695,12 +698,12 @@ describe("DrawingSummaryPanel — levels and elevations", () => {
   it("lists datum relations and project notations", () => {
     render(<DrawingSummaryPanel profile={withLevels()} />);
     expect(screen.getByText(/reference elevation 14'-6" corresponds to true elevation 112'-0"/)).toBeInTheDocument();
-    expect(screen.getByText(/on plan means bottom of base plate, measured from datum/)).toBeInTheDocument();
+    expect(screen.getByText(/on a plan means bottom of base plate, measured from the datum/)).toBeInTheDocument();
   });
 
   it("is hidden without level evidence", () => {
     render(<DrawingSummaryPanel profile={evidenceProfile()} />);
-    expect(screen.queryByText("Levels and elevations")).not.toBeInTheDocument();
+    expect(screen.queryByText("Levels and supported vertical extents")).not.toBeInTheDocument();
   });
 });
 
@@ -715,12 +718,14 @@ describe("DrawingSummaryPanel — column vertical extent", () => {
   it("shows a level-to-level difference as such, never as a column length", () => {
     render(<DrawingSummaryPanel profile={withExtent(
       { top: { position: "at", line: line("T.O. ROOF", "69' - 4\"") }, bottom: { position: "at", line: line("T.O. SLAB LEVEL 1", "38' - 0\"") } },
-      { status: "computed", display: "31'-4\"", upper: { name: "T.O. ROOF", elevation: "69' - 4\"" },
+      { status: "computed", inches: 376, display: "31'-4\"", upper: { name: "T.O. ROOF", elevation: "69' - 4\"" },
         lower: { name: "T.O. SLAB LEVEL 1", elevation: "38' - 0\"" } },
     )} />);
     fireEvent.click(screen.getByRole("button", { name: "Show details for A.4'-14 +3" }));
-    expect(screen.getByText("31'-4\"")).toBeInTheDocument();
-    expect(screen.getByText(/not\s+the column's length/)).toBeInTheDocument();
+    expect(screen.getByText("31′-4″")).toBeInTheDocument();
+    expect(screen.getByText("Calculated from stated values")).toBeInTheDocument();
+    expect(screen.getByText("Fabricated member length unconfirmed.")).toBeInTheDocument();
+    expect(screen.getByText(/not the column's length/)).toBeInTheDocument();
   });
 
   it("shows no height when an end is between level lines", () => {
@@ -800,6 +805,7 @@ describe("DrawingSummaryPanel — level bands and flagged values", () => {
 
   it("shows a flagged value with its printed text and candidate, apart from read values", async () => {
     render(<DrawingSummaryPanel profile={evidenceProfile({ levels: levels() })} documentId="doc_abc" />);
+    fireEvent.click(screen.getByRole("button", { name: /Supporting schedules and level evidence/ }));
     expect(screen.getByText(/notation defined on S2.01/)).toBeInTheDocument();
     expect(screen.getByText("flagged")).toBeInTheDocument();
     expect(screen.getByText(/closing inch mark missing; reads\s+as 30'-8" if completed/)).toBeInTheDocument();
