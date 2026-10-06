@@ -225,3 +225,31 @@ partners (all additive; `summary_api` is now `drawing_intelligence_v3`, and
 | `schedule_grid` rows (non-steel kinds) | display-only `cells[]`; `size_text`, marks and the mark map are unchanged |
 | `existing_new` | `is_renovation` needs framing named both existing and new (or `(E)`/`(N)` members); `basis`, `pages` |
 | `facts[]` (new) | typed, sourced facts `X`/`K`/`C`/`M`/`G` for the optional summary model |
+
+### Completed summary refinement (2026-10-06)
+
+Cache versions: `3.26-summary-coverage` and
+`legend_extractor_v6n-summary-coverage`. The API remains
+`drawing_intelligence_v3`. These additions are display evidence:
+
+| Field | Meaning |
+|---|---|
+| Ruled table `header_paths[column]` | Printed parent-to-leaf headings, reconstructed from actual merged-cell spans; existing production `header` remains unchanged |
+| Ruled table `trailing_column` | REMARKS only when its header, nearest right edge, and each row's top/bottom rules establish the association; `cells` and optional per-row `bboxes` |
+| Grid/display `cells[]` | `{heading, group, path, text, bbox?}`; a blank stays empty. Old profiles fall back to their existing heading/group labels |
+| Grid `printed_rows`, `unread_rows[]` | Number of extracted body rows with a printed mark, plus source rows rejected by production mark selection; never installed quantities or production definitions |
+| Summary `supporting_schedules[]` | `{title, kind, page, sheet, bbox, printed_rows, extracted_rows, unread_rows}`. `extracted_rows` counts displayed interpreted definitions. Unknown printed totals remain unknown |
+| Summary `definitions[].reference` | Printed referral wording, such as W23's SEE SECTION; no reinforcement is inferred |
+| Unresolved `levels.plan_elevations[].levels` | Supported schedule-level references `{schedule_id, name}` linked through that plan, without calculating an elevation or choosing an offset direction |
+| Framing-key `parts[]` | Hidden/partially hidden labels remain unresolved; `hidden_text` is diagnostic only. Only visible definitions enter accepted rule text and the LLM facts packet |
+
+Display row/source bounds include bounded trailing remarks. The raw production
+row fields, row selection, mark map, quantity engine, prediction and exact locks
+are unchanged. OSSE's five precast beam rows remain supporting evidence only.
+The rendered S601 source actually groups R.E. BARS beneath STIRRUPS; TOP BARS
+covers L.E. and F.L. only. The fixture preserves this unusual printed hierarchy.
+
+Source tabs use page, bounds, mark/id and selected location as identity. Same-page
+assignment and dimension regions remain distinct. Tracing one location clears
+previous plan sources; stale responses and responses after unmount are ignored.
+Offset sides retain their own boxes. Existing page rotation conversion is reused.

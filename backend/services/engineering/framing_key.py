@@ -24,7 +24,7 @@ import math
 import re
 from typing import Any, Dict, List, Optional
 
-from services.engineering.column_schedule import _union_boxes
+from services.engineering.column_schedule import _union_boxes, visible_phrases
 from services.engineering.level_evidence import _inside_any
 
 _KEY_HEADING_RE = re.compile(r"\b(?:FRAMING|BEAM|STEEL|MEMBER)\b.*\b(?:KEY|LEGEND)\b|\b(?:KEY|LEGEND)\b.*\bFRAMING\b",
@@ -99,29 +99,92 @@ def _leaders(target: List[float], segments: List[tuple]) -> List[tuple]:
     return out
 
 
-def _label(end: tuple, lines: List[Dict[str, Any]], exclude: List[float]) -> Optional[Dict[str, Any]]:
-    """The printed label a leader ends at, with the lines that continue it
-    (same left edge, next rows): "# OF SHEAR STUDS." + "SEE TYPICAL DETAIL"."""
+def _overlaps(a: list[float], b: list[float], pad: float = 0.0) -> bool:
+    return a[0] - pad < b[2] and b[0] - pad < a[2] and a[1] - pad < b[3] and b[1] - pad < a[3]
 
-    candidates = [ln for ln in lines if ln["bbox"] != exclude and _distance(end, ln["bbox"]) <= _LABEL_REACH]
-    if not candidates:
-        return None
-    first = min(candidates, key=lambda ln: _distance(end, ln["bbox"]))
-    # The whole label block: lines sharing its left edge, stacked with no gap.
-    column = sorted((ln for ln in lines if ln["bbox"] != exclude and abs(ln["bbox"][0] - first["bbox"][0]) < 3),
-                    key=lambda ln: ln["bbox"][1])
-    at = column.index(first)
-    top = bottom = at
-    while top > 0 and -4 <= column[top]["bbox"][1] - column[top - 1]["bbox"][3] < 8:
+
+def _block(first: dict[str, Any], lines: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """The label block around ``first``: lines sharing its left edge, stacked
+    with no gap ("# OF SHEAR STUDS." + "SEE TYPICAL DETAIL")."""
+
+    # A mask can split one printed line horizontally. Keep its hidden fragment
+    # with the visible fragment instead of accepting the surviving words alone.
+    def same_row(a: dict[str, Any], b: dict[str, Any]) -> bool:
+        x, y = a["bbox"], b["bbox"]
+        return ((a["masked"] or b["masked"]) and abs(x[1] - y[1]) < 1.0
+                and max(x[0], y[0]) <= min(x[2], y[2]) + 3)
+
+    column = [ln for ln in lines if abs(ln["bbox"][0] - first["bbox"][0]) < 3]
+    for anchor in column:
+        column.extend(ln for ln in lines if ln not in column and same_row(anchor, ln))
+    column.sort(key=lambda ln: (ln["bbox"][1], ln["bbox"][0]))
+    top = bottom = column.index(first)
+
+    def adjacent(a: dict[str, Any], b: dict[str, Any]) -> bool:
+        return (-4 <= b["bbox"][1] - a["bbox"][3] < 8
+                or (a["masked"] != b["masked"] and _overlaps(a["bbox"], b["bbox"]))
+                or same_row(a, b))
+
+    while top > 0 and adjacent(column[top - 1], column[top]):
         top -= 1
-    while bottom < len(column) - 1 and -4 <= column[bottom + 1]["bbox"][1] - column[bottom]["bbox"][3] < 8:
+    while bottom < len(column) - 1 and adjacent(column[bottom], column[bottom + 1]):
         bottom += 1
-    block = column[top:bottom + 1]
-    return {"text": " ".join(ln["text"] for ln in block), "bbox": _union_boxes([ln["bbox"] for ln in block])}
+    return column[top:bottom + 1]
+
+
+def _label(end: tuple, visible: list[dict[str, Any]], hidden: list[dict[str, Any]],
+           exclude: list[float]) -> dict[str, Any] | None:
+    """The label a leader ends at, as the sheet shows it.
+
+    ``visible`` / ``hidden`` are the page's text runs split by
+    ``column_schedule.visible_phrases`` (text under a later opaque white fill
+    is hidden; a background drawn before the text hides nothing). A label
+    that is hidden -- with no visible text printed over it -- defines
+    nothing; a label partly hidden is not read either (``partial``); a
+    visible replacement printed over a masked one is the label."""
+
+    runs = [{**ln, "masked": False} for ln in visible if ln["bbox"] != exclude]
+    runs += [{**ln, "masked": True} for ln in hidden]
+    near = [ln for ln in runs if _distance(end, ln["bbox"]) <= _LABEL_REACH]
+    if not near:
+        return None
+    first = min(near, key=lambda ln: (_distance(end, ln["bbox"]), ln["masked"]))
+    block = _block(first, runs)
+    shown = [ln for ln in block if not ln["masked"]]
+    masked = [ln for ln in block if ln["masked"]]
+    bbox = _union_boxes([ln["bbox"] for ln in block])
+    hidden_text = " ".join(ln["text"] for ln in masked) or None
+    if not masked:
+        return {"status": "visible", "text": " ".join(ln["text"] for ln in shown), "bbox": bbox}
+    if shown and any(_overlaps(v["bbox"], m["bbox"]) for v in shown for m in masked):
+        # Text printed over the mask replaces what the mask hides.
+        return {"status": "visible", "text": " ".join(ln["text"] for ln in shown),
+                "bbox": _union_boxes([ln["bbox"] for ln in shown]), "hidden_text": hidden_text}
+    if shown:
+        # Part of the label block is masked: the visible words alone may not be the label.
+        return {"status": "partial", "text": None, "hidden_text": hidden_text, "bbox": bbox}
+    return {"status": "hidden", "text": None, "hidden_text": hidden_text, "bbox": bbox}
 
 
 def _field(label: str) -> Optional[str]:
     return next((name for name, pattern in _FIELDS if pattern.search(label)), None)
+
+
+def _visible_runs(page: Any, drawings: list[dict]) -> tuple:
+    """``(visible, hidden)`` text runs of the page (``visible_phrases``), with
+    rounded boxes. Only filled paths can mask text; ``get_cdrawings`` gives
+    their rects as tuples, so they are turned into ``fitz.Rect``."""
+
+    import fitz
+
+    fills = [{**d, "rect": fitz.Rect(d["rect"])} for d in drawings if d.get("fill") is not None]
+    visible, hidden = visible_phrases(page, fills)
+
+    def runs(items: list[dict]) -> list[dict[str, Any]]:
+        return [{"text": " ".join(str(r["text"]).split()), "bbox": [round(float(v), 1) for v in r["bbox"]]}
+                for r in items if str(r.get("text") or "").strip()]
+
+    return runs(visible), runs(hidden)
 
 
 def read_page_keys(page: Any, page_no: int, sheet: Optional[str] = None) -> List[Dict[str, Any]]:
@@ -157,6 +220,9 @@ def read_page_keys(page: Any, page_no: int, sheet: Optional[str] = None) -> List
                 if drawings is None:
                     # get_cdrawings: the same paths, without Python-level conversion.
                     drawings = page.get_cdrawings() if hasattr(page, "get_cdrawings") else page.get_drawings()
+                    visible, hidden = _visible_runs(page, drawings)
+                key_visible = [ln for ln in visible if _inside_any(ln["bbox"], [region])]
+                key_hidden = [ln for ln in hidden if _inside_any(ln["bbox"], [region])]
                 segments = _segments(drawings, region)
             # Each leader belongs to the one part its tip is nearest to.
             owned: Dict[int, List[tuple]] = {}
@@ -166,20 +232,29 @@ def read_page_keys(page: Any, page_no: int, sheet: Optional[str] = None) -> List
                 if _distance(tip, part["bbox"]) <= _TIP_REACH:
                     owned.setdefault(index, []).append((tip, end))
             for index, part in enumerate(parts):
-                labels = [lab for _tip, end in owned.get(index, []) if (lab := _label(end, inside, example["bbox"]))]
+                found = [lab for _tip, end in owned.get(index, [])
+                         if (lab := _label(end, key_visible, key_hidden, example["bbox"]))]
+                labels = [lab for lab in found if lab["status"] == "visible"]
                 texts = {lab["text"] for lab in labels}
+                part["meaning"] = None
                 if len(texts) == 1:
                     part["meaning"] = labels[0]["text"]
                     part["field"] = _field(labels[0]["text"])
                     part["label_bbox"] = labels[0]["bbox"]
                     part["status"] = "defined"
                 elif len(texts) > 1:
-                    part["meaning"] = None
                     part["candidates"] = sorted(texts)
                     part["status"] = "conflicting"
+                elif any(lab["status"] == "partial" for lab in found):
+                    part["status"] = "partially_hidden"
+                elif found:
+                    part["status"] = "hidden_label"
                 else:
-                    part["meaning"] = None
                     part["status"] = "no_leader"
+                # Masked text is kept as a diagnostic only; it never defines a part.
+                masked = [lab["hidden_text"] for lab in found if lab.get("hidden_text")]
+                if masked:
+                    part["hidden_text"] = masked
             keys.append({
                 "title": heading["text"], "page": page_no, "sheet": sheet,
                 "heading_bbox": heading["bbox"], "example": example["text"], "example_bbox": example["bbox"],
@@ -227,4 +302,6 @@ def bracket_definition(keys: List[Dict[str, Any]]) -> Dict[str, Any]:
                 "sources": sources}
     return {"status": "undefined", "sources": [],
             "missing": ("no framing key with a leader from a bracketed number to a printed label" if not found
+                        else "the key's label for the bracketed number is masked on the sheet"
+                        if any(part["status"] in ("hidden_label", "partially_hidden") for _k, part in found)
                         else "the key's bracketed number has no leader to a printed label")}

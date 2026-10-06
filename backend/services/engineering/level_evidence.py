@@ -1004,6 +1004,14 @@ def levels_view(document: Dict[str, Any], sheets: Dict[int, str], *,
                 level["resolved"] = None
                 level["note"] = (f"The matching plan shows {len(slab_values)} different values; the level is not reduced to one."
                                  if slab_values else "No plan with a matching title states this level's elevation.")
+    # An unresolved plan note (top of steel "<0'-5 1/4"> FROM TOP OF SLAB",
+    # direction not printed) names the schedule levels its plan is linked to.
+    for elevation in elevations:
+        if elevation["status"] == "unresolved":
+            elevation["levels"] = [
+                {"schedule_id": level["schedule_id"], "name": level["name"]} for level in levels
+                if any(m["page"] == elevation["page"] and m["association"] == "supported" for m in level["plan_matches"])
+            ]
     datums = [
         {"page": s["page"], "sheet": s["sheet"], "plan": s.get("heading") or s.get("plan"),
          "relation": s["relation"], "status": "read" if s.get("value") else "unresolved", "source": _source(s)}

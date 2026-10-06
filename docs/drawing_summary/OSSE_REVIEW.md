@@ -5,6 +5,123 @@ Branch `bassam/drawing-summary-osse`, from `9522744`. Primary drawing:
 prediction, the schedule mark map, exact catalog locks, QuantityEngine and
 deduplication are unchanged (verified on 15 sets, below).
 
+## Completed refinement — 2026-10-06
+
+Continues the published `f0900c6` work on this feature branch; main remains
+`9522744`. The earlier sections below describe that published checkpoint.
+This section supersedes its masking limitation and verification numbers.
+
+The rendered S601 beam header was checked before accepting the fixture:
+**TOP BARS spans L.E. BARS and F.L. BARS only. R.E. BARS is printed under
+STIRRUPS**, alongside SIZE, TYPE, SPACING and END. This is an unusual source
+layout, preserved without engineering reinterpretation or expanded abbreviations.
+See [the rendered source crop](crops/s601_beam_header_verified.png).
+
+Resolved in this refinement:
+
+- Framing-key labels reuse mask visibility and paint order. Opaque later white
+  fills hide text; earlier backgrounds and transparent fills do not. Visible
+  replacements, including multiple lines, establish their own meaning; partial
+  labels stay unresolved. Normal line stacking keeps its original lower gap
+  bound. Hidden wording is diagnostic, never an accepted LLM definition.
+- Display heading paths follow merged-cell spans. Wall-footing TOP/BOTTOM and
+  LONG/SHORT WAY remain separate. Trailing REMARKS require a matching heading,
+  the nearest bounded right edge and both row rules; cross-row or neighbouring
+  text is excluded. Highlight bounds include associated remarks.
+- W23 shows 23″ width and SEE SECTION FOR REINFORCEMENT; both reinforcement
+  cells stay blank. Beam coverage is **6 printed / 1 interpreted / 5 additional
+  printed rows**. CB16X32 retains separate width, depth, bottom bars, top bars,
+  stirrup fields and blank remarks. The five precast rows remain outside
+  production steel definitions.
+- Orientation is two sentences. Attention precedes steel columns, levels,
+  notation, then supporting groups by purpose. Shared dimension roles replace
+  repeated row explanations; Notes is omitted when empty. At 100% browser zoom
+  (`visualViewport.scale=1`, device pixel ratio 1), main table values compute
+  to 14px. Typography changes are local to the summary.
+- The 8″ Level 2 conflict keeps 55′-10″/S602 and 55′-2″/S122. Roof evidence
+  retains OFFICE. The unresolved 5¼″ from slab and 3″ from deck notes are linked
+  to Level 2 and Roof respectively, without choosing above/below or calculating
+  steel elevations.
+- Search preserves printed grid IDs and expanded entries. CBP-3 and CBP-5 stay
+  distinct despite equal dimensions. Plate dialogs list linked locations as
+  references, not installed counts. Source tabs distinguish page **and bounds**;
+  trace sources also carry location identity. Selecting another location clears
+  old sources and invalidates late responses, including after unmount.
+
+### Current verification
+
+- Focused readers/evidence: 96 passed, 34 subtests. Real-drawing references and
+  production guards: 154 passed, 46 subtests (exact locks, quantity safety,
+  tracing, scale and level evidence).
+- Frontend: 292 passed across 25 files; production build succeeds. Existing Vite
+  large-chunk warning remains. Focused ESLint (recommended correctness rules,
+  JSX-use tracking, React hooks) reports no errors or warnings on changed JSX.
+- Ruff under the existing environment configuration: 765 findings in the changed
+  Python files versus 778 at `f0900c6`; no findings on added/changed lines after
+  review. Existing typing modernization, import-order, closure and style debt
+  was not blanket-disabled or swept into this task.
+- Full backend gate (`python -m pytest -q --continue-on-collection-errors`):
+  **1828 passed, 10 skipped, 527 subtests passed, 23 warnings, one collection
+  error**, in 333.12 s; actual pytest **exit 1**. Main's
+  `test_geometry_evidence_contract.py` independently reproduces the missing
+  `CompletionStatus` import (that single-file run exits 2). No test failures.
+- All 15 PDFs: `schedule_mark_map`, complete production rows excluding only
+  display `cells`, and column entry IDs/sections/plate statuses match `9522744`.
+  Allowed changes are heading paths, remarks, display bounds, coverage, non-steel
+  display definitions, and supported links for unresolved notes. Prediction and
+  quantity paths have no code changes and retain regression coverage.
+
+| Sequential 15-PDF stages | Main `9522744` | Refined feature |
+|---|---:|---:|
+| PDF extraction | 64.90 s | 65.74 s |
+| Schedule grid | 128.44 s | 132.21 s |
+| Summary construction | 21.49 s | 31.53 s |
+
+Same interpreter, source files and comparison script; baseline and feature ran
+sequentially on a shared development machine. These are observed timings, not
+isolated benchmarks. Framing-key-only comparison against `f0900c6` reused the
+same open PDF pages, one cold plus three warm reads: OSSE warm median
+0.143 → 0.201 s; BCPS 0.720 → 1.030 s. Mask-aware visibility adds measurable
+cost. There is no additional model call.
+
+Fresh UI uploads/extractions use `3.26-summary-coverage`, paired 5184 → 8034,
+and `/api/dev/identity` confirms this task worktree. Browser checks cover OSSE
+coverage/blank cells, conflict comparison, source tabs, plates and tracing;
+Yellow Spring rotated sources; and Brandywine multiple locations and offsets.
+Escape restores focus to the launching source button; the comparison opens
+with keyboard Enter. Light desktop and dark 800px layouts were inspected.
+The settled [Yellow Spring highlight](screens/refined_yellow_rotated.png) lands
+on A-24 on rotated PDF p. 13; the [Brandywine offset](screens/refined_brandy_offset.png)
+lands on the column toward grid 7 on S121/p. 12. Browser error logs are empty.
+
+| Before | Refined |
+|---|---|
+| [Original orientation](screens/before_top.png) | [Short orientation and attention](screens/refined_top.png) |
+| [Previous narrow view](screens/after_narrow_800.png) | [Narrow dark layout](screens/refined_narrow_dark.png) |
+| [Previous details](screens/after_details.png) | [Exact plate-source highlight and tabs](screens/refined_plate_source.png) |
+
+Remaining limits: coverage counts extracted marked rows, not every possible
+printed row or installed items. A wholly unrecognized table is not promoted by
+this display layer. Remarks without sufficient row ruling remain unavailable.
+The five precast beam rows need source review; blank reinforcement is unknown.
+Mask interpretation depends on PDF text and paint geometry. Existing limits on
+leaderless keys, building scope, wrapped location offsets, and phone-width app
+navigation remain. No fabricated pieces, member lengths or installed stud/plate
+counts are inferred. Model grounding/fallback and whole-fact omitted counts
+remain tested; no new live model output is required for this deterministic UI.
+
+Run this branch's preview from the repository root:
+
+```powershell
+node scripts/dev.mjs --frontend-port 5184 --backend-port 8034 --python <path-to-supported-python.exe>
+```
+
+Use Upload & Extract, then Drawing Summary. Existing uploads must be extracted
+with the new cache version. Usual 5173/8000 services, Ollama and main are unchanged.
+The preserved untracked OSSE document was copied outside the repository before
+fresh extraction; verification logs and that copy remain in the local
+`aidr-summary-verification-20261006` sibling directory, outside version control.
+
 ## What reproduced, and where it came from
 
 Reproduced on a fresh extraction through the API (`summary_api
@@ -147,8 +264,8 @@ Follow-ups noted in review, deliberately not done here:
   store them on the document like the column schedules.
 * `framing_key._leaders` and `column_trace._leader_ends` both follow
   leaders; merging them would change tracing behaviour, so they stay apart.
-* Key labels are read from the raw text layer, not `visible_phrases` (which
-  needs the slower full drawing pass); a masked key label would still count.
+* Resolved in the completed refinement: key labels now use `visible_phrases`;
+  hidden/partial labels cannot establish meaning. The measured cost is above.
 * Grounding is still pattern-based on the model's wording, scoped by the
   cited fact's type; rendering every value from the fact (model returns ids +
   wording only) would remove most of the patterns.

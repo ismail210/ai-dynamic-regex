@@ -152,12 +152,12 @@ describe("Drawing Summary — OSSE estimator view", () => {
   it("reads in the estimator's order: orientation, attention, steel, levels, notation, supporting", () => {
     renderOsse();
     const headings = screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent);
-    const order = ["Project orientation", "Items needing attention", "Steel column schedules and plate assignments",
-      "Levels and supported vertical extents", "Drawing notation and interpretation rules"];
+    const order = ["Project orientation", "Items needing attention", "Steel column schedules and plates",
+      "Levels and supported vertical extents", "Drawing notation", "Supporting schedules and evidence"];
     expect(order.every((h) => headings.includes(h))).toBe(true);
     for (let i = 1; i < order.length; i += 1) expect(headings.indexOf(order[i])).toBeGreaterThan(headings.indexOf(order[i - 1]));
     // Parking (concrete) and the concrete wall schedule are supporting information.
-    expect(screen.getByRole("button", { name: /Supporting schedules and level evidence · OSSE PARKING - GCS/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Parking and concrete column schedules/ })).toBeInTheDocument();
   });
 
   it("shows the Level 2 conflict with both values, the difference and both sources, resolving nothing", async () => {
@@ -182,14 +182,14 @@ describe("Drawing Summary — OSSE estimator view", () => {
   it("reads a typical steel column with plate roles, extent and an evidence chain to each source", async () => {
     renderOsse();
     fireEvent.click(screen.getByRole("button", { name: "Show details for C.8-8.9" }));
-    expect(screen.getByText(/OSSE BUILDING - GCS · Grid C.8 \/ Grid 8.9/)).toBeInTheDocument();
-    // In the table row and in the details card.
-    expect(screen.getAllByText("Base plate CBP-2")).toHaveLength(2);
-    expect(screen.getByLabelText("Width 12 inches")).toHaveTextContent("12″");
-    expect(screen.getByLabelText("Thickness three quarters of an inch")).toHaveTextContent("¾″");
-    expect(screen.getByText("Vertical extent: Level 1 → Roof")).toBeInTheDocument();
+    expect(screen.getByText("C.8-8.9", { selector: "dd span" })).toBeInTheDocument();
+    expect(screen.getByText("Base plate", { selector: "dt" })).toBeInTheDocument();
+    expect(screen.getAllByText("CBP-2")).toHaveLength(2);
+    expect(screen.getAllByLabelText("width 12 inches, length 18 inches, thickness three quarters of an inch")).toHaveLength(2);
+    expect(screen.getByText("Level 1 to Roof")).toBeInTheDocument();
     expect(screen.getByLabelText("31 feet 4 inches")).toHaveTextContent("31′-4″");
-    expect(screen.getByText("Fabricated member length unconfirmed.")).toBeInTheDocument();
+    expect(screen.getByText("Fabricated length")).toBeInTheDocument();
+    expect(screen.getByText("Unconfirmed")).toBeInTheDocument();
     expect(screen.getByText(/Model note: Check base plate CBP-2/)).toBeInTheDocument();
     const chain = screen.getByRole("list", { name: /Evidence chain/ });
     expect(within(chain).getAllByRole("button").map((b) => b.textContent)).toEqual(
@@ -210,23 +210,26 @@ describe("Drawing Summary — OSSE estimator view", () => {
   it("says why a level has no plan value instead of implying it does not exist", () => {
     renderOsse();
     expect(screen.getByText("No linked plan evidence yet")).toBeInTheDocument();
-    expect(screen.getByText(/Elevation not found in the linked sources \(checked S102\)/)).toBeInTheDocument();
+    expect(screen.getByText("Elevation not found in the linked sources")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Parking \/ concrete schedule levels/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Why this source.*T.O. PARKING DECK SLAB/ }));
+    expect(screen.getByText(/Also checked S102: no elevation stated there/)).toBeInTheDocument();
     expect(screen.queryByText(/No plan with a matching title states/)).not.toBeInTheDocument();
   });
 
   it("links the roof to the office-roof datum with its qualifier and keeps parking sheets out", () => {
     renderOsse();
-    const roof = within(screen.getByText("T.O. ROOF", { selector: "td p" }).closest("tr"));
-    expect(roof.getByText(/The plan names it with “OFFICE”; the schedule does not/)).toBeInTheDocument();
-    expect(roof.getByText(/agrees with the schedule/)).toBeInTheDocument();
-    const first = within(screen.getByText("T.O. SLAB LEVEL 1", { selector: "td p" }).closest("tr"));
-    expect(first.getByText(/Not this building \/ area: S101/)).toBeInTheDocument();
+    const roof = within(screen.getByText("Roof", { selector: "td p" }).closest("tr"));
+    expect(roof.getByText(/Office roof/i)).toBeInTheDocument();
+    expect(roof.getByText("Agrees")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Why this source.*T.O. SLAB LEVEL 1/ }));
+    expect(screen.getByText(/Not this building \/ area: S101/)).toBeInTheDocument();
   });
 
   it("decodes the framing key part by part and never decodes a part without a leader", () => {
     renderOsse();
     expect(screen.getByText(/# of shear studs. see typical detail \(label at the end of its leader\)/i)).toBeInTheDocument();
-    expect(screen.getByText("No leader to a printed label — not decoded")).toBeInTheDocument();
+    expect(screen.getByText("No leader to a visible label — not decoded")).toBeInTheDocument();
     expect(screen.getByText("The key's numbers are an example, not a count of anything.")).toBeInTheDocument();
   });
 
@@ -240,7 +243,7 @@ describe("Drawing Summary — OSSE estimator view", () => {
 
   it("calls a parking C1 precast concrete with its printed size, and other concrete marks nothing", () => {
     renderOsse();
-    fireEvent.click(screen.getByRole("button", { name: /Supporting schedules and level evidence/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Parking and concrete column schedules/ }));
     const c1 = within(screen.getByText("A-1").closest("tr"));
     expect(c1.getByText("Precast concrete · C1")).toBeInTheDocument();
     expect(c1.getByText("24″ × 24″")).toBeInTheDocument();
@@ -252,7 +255,7 @@ describe("Drawing Summary — OSSE estimator view", () => {
 
   it("keeps vertical and horizontal reinforcement as two values even when equal", () => {
     renderOsse();
-    fireEvent.click(screen.getByRole("button", { name: /Supporting schedules and level evidence/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Other non-steel definitions/ }));
     const w1 = within(screen.getByText("W1").closest("tr"));
     expect(w1.getByText("Reinforcement · Vertical")).toBeInTheDocument();
     expect(w1.getByText("Reinforcement · Horizontal")).toBeInTheDocument();
@@ -265,5 +268,52 @@ describe("Drawing Summary — OSSE estimator view", () => {
     expect(screen.queryByText(/installed columns?:/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/\b(?:C1|X1|K1)\b:/)).not.toBeInTheDocument();
     expect(screen.queryByText(/fact id/i)).not.toBeInTheDocument();
+  });
+
+  it("shows source-backed beam coverage and merged paths while keeping blank reinforcement blank", () => {
+    const profile = osseProfile();
+    const cells = [
+      { heading: "WIDTH", path: ["SIZE", "WIDTH"], text: '16"' },
+      { heading: "DEPTH", path: ["SIZE", "DEPTH"], text: '32"' },
+      { heading: "L.E. BARS", path: ["REINFORCEMENT", "TOP BARS", "L.E. BARS"], text: "" },
+      { heading: "F.L. BARS", path: ["REINFORCEMENT", "TOP BARS", "F.L. BARS"], text: "4-#6" },
+      { heading: "R.E. BARS", path: ["REINFORCEMENT", "STIRRUPS", "R.E. BARS"], text: "" },
+      { heading: "REMARKS", path: ["REMARKS"], text: "" },
+    ];
+    profile.drawing_intelligence.definitions = [{ ...profile.drawing_intelligence.definitions[0],
+      mark: "CB16X32", schedule_title: "CONCRETE BEAM SCHEDULE", cells }];
+    profile.drawing_intelligence.supporting_schedules = [{ title: "CONCRETE BEAM SCHEDULE", kind: "beam",
+      page: 25, sheet: "S601", printed_rows: 6, extracted_rows: 1,
+      unread_rows: ["16RB32", "20LB44", "26LB32", "32RB24", "40IT52"].map((printed_mark) => ({
+        printed_mark, cells: cells.map((c) => ({ ...c, text: "" })), bbox: [1, 2, 3, 4] })),
+    }];
+    render(<DrawingSummaryPanel profile={profile} />);
+    fireEvent.click(screen.getByRole("button", { name: /Concrete beams/ }));
+    expect(screen.getByText(/6 printed rows identified · 1 with interpreted details/)).toBeInTheDocument();
+    expect(screen.getByText(/5 additional printed rows are available for review/)).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Top Bars" })).toHaveAttribute("colspan", "2");
+    expect(screen.getByRole("columnheader", { name: "Stirrups" })).toHaveAttribute("colspan", "1");
+    const row = within(screen.getByText("CB16X32").closest("tr")).getAllByRole("cell");
+    expect(row[3]).toBeEmptyDOMElement();
+    expect(row[4]).toHaveTextContent("4-#6");
+    expect(row[5]).toBeEmptyDOMElement();
+  });
+
+  it("keeps unresolved slab and deck offsets distinct in the attention section", () => {
+    const profile = osseProfile();
+    profile.drawing_intelligence.levels.plan_elevations = [
+      { inches: 5.25, relative_to: "top of slab", sheet: "S122", page: 10, name: "T.O. SLAB LEVEL 2" },
+      { inches: 3, relative_to: "top of deck", sheet: "S123", page: 11, name: "T.O. ROOF" },
+    ].map((e) => ({ ...e, status: "unresolved", surface: "top of steel", offset: { inches: e.inches },
+      levels: [{ name: e.name }], rule: `FROM ${e.relative_to}`,
+      source: { page: e.page, sheet: e.sheet, text: `FROM ${e.relative_to}` } }));
+    render(<DrawingSummaryPanel profile={profile} />);
+    const attention = within(screen.getByText("Items needing attention").closest("section"));
+    expect(attention.getByText("5¼″")).toBeInTheDocument();
+    expect(attention.getByText("3″")).toBeInTheDocument();
+    expect(attention.getByText("Whether it is above or below the top of slab")).toBeInTheDocument();
+    expect(attention.getByText("Whether it is above or below the top of deck")).toBeInTheDocument();
+    expect(attention.getByText("Level 2 · S122")).toBeInTheDocument();
+    expect(attention.getByText("Roof · S123")).toBeInTheDocument();
   });
 });

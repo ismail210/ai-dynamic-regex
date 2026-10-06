@@ -1,6 +1,11 @@
 import { Button } from "@mui/material";
 import { FindInPageOutlined } from "@mui/icons-material";
 
+// One sheet can contain several sources with the same label.
+export const sourceIdentity = (source) => JSON.stringify([
+  source.page, source.bbox || null, source.id || source.mark || "", source.location || "",
+]);
+
 export function pagesLabel(pages) {
   if (!pages || pages.length === 0) return "";
   const shown = pages.slice(0, 8).join(", ");

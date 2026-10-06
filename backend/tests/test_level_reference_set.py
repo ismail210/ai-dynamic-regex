@@ -70,9 +70,19 @@ class LevelReferenceTests(unittest.TestCase):
         (fact,) = [f for f in profile["facts"] if f["type"] == "level_conflict"]
         self.assertEqual((fact["level"], fact["schedule_value"], fact["plan_value"], fact["difference"]),
                          (level, schedule_value, plan_value, difference))
-        for mark, cells in expected["wall_cells"].items():
+        # Each printed cell under its full printed heading; blanks stay blank.
+        for mark, cells in expected["definition_cells"].items():
             definition = next(d for d in profile["definitions"] if d["mark"] == mark)
-            self.assertEqual([[c["heading"], c["text"]] for c in definition["cells"] if c["heading"] != "WIDTH"], cells)
+            self.assertEqual([[" > ".join(c["path"]), c["text"]] for c in definition["cells"]], cells)
+        for mark, reference in expected["references"].items():
+            self.assertEqual(next(d for d in profile["definitions"] if d["mark"] == mark).get("reference"), reference)
+        coverage = {s["title"]: [s["printed_rows"], s["extracted_rows"], [u["printed_mark"] for u in s["unread_rows"]]]
+                    for s in profile["supporting_schedules"]}
+        for title, expected_coverage in expected["coverage"].items():
+            self.assertEqual(coverage[title], expected_coverage)
+        unresolved = [[e["sheet"], e["relative_to"], e["offset"]["inches"], [lv["name"] for lv in e["levels"]]]
+                      for e in profile["levels"]["plan_elevations"] if e["status"] == "unresolved"]
+        self.assertEqual(unresolved, expected["unresolved_steel"])
         # Display-only: the production mark map is untouched by the cells.
         self.assertFalse(any("cells" in str(v) for v in (document.get("schedule_mark_map") or {}).values()))
 

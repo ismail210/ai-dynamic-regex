@@ -41,7 +41,26 @@
         "material": {"C1": ["precast concrete", 71]},
         "renovation": false,
         "conflict_fact": ["T.O. SLAB LEVEL 2", "55' - 10\"", "55' - 2\"", "8\""],
-        "wall_cells": {"W1": [["REINFORCEMENT VERTICAL", "#4@12\" O.C. E.F."], ["HORIZONTAL", "#4@12\" O.C. E.F."]]}
+        "definition_cells": {
+          "W1": [["WIDTH", "12\""], ["REINFORCEMENT > VERTICAL", "#4@12\" O.C. E.F."],
+                 ["REINFORCEMENT > HORIZONTAL", "#4@12\" O.C. E.F."], ["REMARKS", ""]],
+          "W23": [["WIDTH", "23\""], ["REINFORCEMENT > VERTICAL", ""], ["REINFORCEMENT > HORIZONTAL", ""],
+                  ["REMARKS", "SEE SECTION FOR REINFORCEMENT"]],
+          "WF1": [["SIZE > WIDTH", "2' - 6\""], ["SIZE > DEPTH", "1' - 0\""],
+                  ["REINFORCEMENT > TOP > LONG WAY", "(4)-#4"], ["REINFORCEMENT > TOP > SHORT WAY", "#4@12\" O.C."],
+                  ["REINFORCEMENT > BOTTOM > LONG WAY", "(4)-#4"], ["REINFORCEMENT > BOTTOM > SHORT WAY", "#4@12\" O.C."],
+                  ["REMARKS", ""]],
+          "CB16X32": [["SIZE > WIDTH", "16\""], ["SIZE > DEPTH", "32\""], ["REINFORCEMENT > BOTTOM BARS", "4-#6"],
+                      ["REINFORCEMENT > TOP BARS > L.E. BARS", ""], ["REINFORCEMENT > TOP BARS > F.L. BARS", "4-#6"],
+                      ["REINFORCEMENT > STIRRUPS > R.E. BARS", ""], ["REINFORCEMENT > STIRRUPS > SIZE", "#4"],
+                      ["REINFORCEMENT > STIRRUPS > TYPE", "2-LEG"], ["REINFORCEMENT > STIRRUPS > SPACING", ""],
+                      ["REINFORCEMENT > STIRRUPS > END", ""], ["REMARKS", ""]]
+        },
+        "references": {"W23": "SEE SECTION FOR REINFORCEMENT"},
+        "coverage": {"CONCRETE WALL SCHEDULE": [6, 6, []],
+                     "CONCRETE BEAM SCHEDULE": [6, 1, ["16RB32", "20LB44", "26LB32", "32RB24", "40IT52"]]},
+        "unresolved_steel": [["S122", "top of slab", 5.25, ["T.O. SLAB LEVEL 2"]],
+                             ["S123", "top of deck", 3.0, ["T.O. ROOF"]]]
       }
     },
     {

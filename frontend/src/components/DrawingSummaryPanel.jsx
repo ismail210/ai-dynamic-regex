@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import {
   Accordion,
   AccordionDetails,
@@ -14,28 +14,31 @@ import {
   DialogTitle,
   Divider,
   IconButton,
+  InputAdornment,
   Paper,
   Stack,
+  Tab,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
+  Tabs,
+  TextField,
   Typography,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { CloseOutlined, ExpandMoreOutlined } from "@mui/icons-material";
+import { CloseOutlined, ExpandMoreOutlined, SearchOutlined } from "@mui/icons-material";
 import { documentPdfUrl, getColumnTrace } from "../api/client";
 import { formatPlate, formatPrintedSize } from "../lib/dimensions";
-import { pagesLabel, ViewPageButton, whereLabel } from "./drawingSummary/sources";
+import { pagesLabel, sourceIdentity, ViewPageButton, whereLabel } from "./drawingSummary/sources";
 import {
   ConflictComparison,
   Dim,
   EvidenceChain,
   LevelDiagram,
   NUMERIC,
-  PlateDims,
   PlateRoles,
   StatusText,
 } from "./drawingSummary/visuals";
@@ -94,6 +97,17 @@ const RULE_LABEL = {
 const COLLAPSED_ROWS = 4;
 const COLLAPSED_RULES = 6;
 
+// The app theme sizes body text for dense tool pages; the summary is read,
+// so its text sits at 14 px (secondary 12.5 px) and table headings in
+// sentence case. Scoped to this panel only.
+const SUMMARY_TYPE = {
+  "& .MuiTypography-body1": { fontSize: "1rem" },
+  "& .MuiTypography-body2, & .MuiTableCell-body": { fontSize: "0.875rem" },
+  "& .MuiTypography-caption": { fontSize: "0.78rem" },
+  "& .MuiTableCell-head": { fontSize: "0.78rem", textTransform: "none", letterSpacing: 0 },
+  "& .MuiButton-sizeSmall": { fontSize: "0.8125rem" },
+};
+
 function ModelNote({ text }) {
   if (!text) return null;
   return (
@@ -117,9 +131,10 @@ function designationOf(item) {
 
 const titleCase = (text) => String(text || "").toLowerCase().replace(/\b[a-z]/g, (c) => c.toUpperCase());
 
-// A printed cell's heading, under its group: "REINFORCEMENT VERTICAL" in the
-// REINFORCEMENT group reads "Reinforcement · Vertical".
+// A printed cell's full heading: REINFORCEMENT > TOP > SHORT WAY reads
+// "Reinforcement · Top · Short Way" (older profiles: heading under its group).
 function cellLabel(cell) {
+  if (cell.path?.length) return cell.path.map(titleCase).join(" · ");
   const heading = String(cell.heading || "").trim();
   const group = String(cell.group || "").trim();
   if (!group || group === heading) return titleCase(heading) || "Value";
@@ -290,7 +305,7 @@ function DefinitionGroup({ label, schedule, items, notes, onView, compact }) {
       >
         <Typography variant="subtitle1" fontWeight={700}>{label}</Typography>
         <Typography variant="body2" color="text.secondary">
-          {schedule}{common ? ` · ${common}` : ""} · {items.length} mark{items.length === 1 ? "" : "s"}
+          {[schedule, common, `${items.length} mark${items.length === 1 ? "" : "s"}`].filter(Boolean).join(" · ")}
         </Typography>
       </Stack>
       {compact ? (
@@ -344,15 +359,16 @@ function MarksAndDefinitions({ definitions, notes, onView, title = "Marks and de
       group = {
         key,
         label: item.schedule_title ? titleCase(item.schedule_title) : item.component_label,
-        schedule: item.schedule_title ? "Schedule" : item.schedule,
+        // A printed title already names the schedule ("Concrete Wall Schedule").
+        schedule: item.schedule_title ? null : item.schedule,
         items: [],
       };
       groups.push(group);
     }
     group.items.push(item);
   }
-  return (
-    <Section title={title}>
+  const content = (
+    <>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
         {intro ||
           "Each row says how to read that mark where it appears on a plan. A schedule row is a definition, not an installed member — it is never a quantity."}
@@ -360,8 +376,9 @@ function MarksAndDefinitions({ definitions, notes, onView, title = "Marks and de
       {groups.map(({ key, ...g }) => (
         <DefinitionGroup key={key} {...g} notes={notes} onView={onView} compact={compact} />
       ))}
-    </Section>
+    </>
   );
+  return title ? <Section title={title}>{content}</Section> : content;
 }
 
 // Column schedules: one row per schedule column -- its section, the printed
@@ -411,13 +428,6 @@ function plateSummary(plate) {
   }
 }
 
-function locationLabel(location) {
-  if (location.status !== "parsed") return location.raw;
-  return location.grids
-    .map((g) => (g.offset ? `${g.label} (${g.offset.raw} offset)` : g.label))
-    .join(" × ");
-}
-
 function columnLabel(entry) {
   if (entry.mark) return entry.mark;
   const [first, ...rest] = entry.locations || [];
@@ -425,121 +435,106 @@ function columnLabel(entry) {
   return rest.length ? `${first.raw} +${rest.length}` : first.raw;
 }
 
-function SourceTrail({ via, onView }) {
-  if (!via?.length) return null;
-  return (
-    <Stack spacing={0.75}>
-      {via.map((source, i) => (
-        <Stack key={`${source.kind}-${i}`} direction="row" spacing={1} sx={{ alignItems: "center", flexWrap: "wrap" }}>
-          <Typography variant="caption" color="text.secondary" sx={{ minWidth: "8.5rem" }}>
-            {source.kind}
-            {source.title ? ` · ${source.title}` : ""}
-          </Typography>
-          <Typography variant="body2" sx={{ fontFamily: "monospace", wordBreak: "break-word" }}>
-            {source.text}
-          </Typography>
-          <ViewPageButton
-            item={{ ...source, mark: source.text }}
-            label={`View ${whereLabel(source)}`}
-            onView={onView}
-          />
-        </Stack>
-      ))}
-    </Stack>
-  );
-}
-
 // Level names as the reader says them: "T.O. SLAB LEVEL 1" -> "Level 1".
 function shortLevel(name) {
   return titleCase(String(name || "").replace(/^\s*(?:T\.?\s*O\.?|TOP OF)\s+(?:SLAB\s+|STEEL\s+|DECK\s+)?/i, "")) || name;
 }
 
-// The answer an estimator looks for first: where, which section, which
-// plate (with each dimension's role), which levels the schedule draws it
-// between -- and that a level-to-level difference is not a member length.
-function ColumnCard({ entry, scheduleName }) {
+const plateHasDims = (plate) => ["read", "resolved"].includes(plate?.status) && plate.dimensions?.length > 0;
+
+// "Level 1 to Roof" when the schedule draws both ends on level lines.
+function extentLabel(extent) {
+  const both = extent && ["top", "bottom"].every((k) => extent[k]?.position === "at");
+  return both ? `${shortLevel(extent.bottom.line.name)} to ${shortLevel(extent.top.line.name)}` : null;
+}
+
+// One column as an estimator reads it: location, section, plate and its
+// dimensions, the levels the schedule draws it between, and the difference
+// of those two printed elevations -- which is not a member length.
+function ColumnCard({ entry }) {
   const plate = entry.plate || {};
-  const designation = entry.sections?.find((s) => s.designation)?.designation;
-  const grids = entry.locations?.length === 1 && entry.locations[0].status === "parsed" ? entry.locations[0].grids : null;
+  const section = entry.sections?.find((s) => s.designation)?.designation || entry.sections?.[0]?.printed;
   const diff = entry.level_difference;
-  const extent = entry.extent;
-  const ends = extent && ["top", "bottom"].every((k) => extent[k]?.position === "at");
+  const extent = extentLabel(entry.extent);
+  const offsets = (entry.locations || []).flatMap((l) =>
+    (l.grids || []).filter((g) => g.offset).map((g) => `${g.offset.raw} from grid ${g.label}`));
+  const dims = plateHasDims(plate) ? formatPlate(plate.dimensions) : null;
+  const rows = [
+    ["Location", (
+      <>
+        <Box component="span" sx={{ fontFamily: "monospace", userSelect: "all" }}>{entry.location_text || columnLabel(entry)}</Box>
+        {offsets.length > 0 && (
+          <Typography component="span" variant="caption" color="text.secondary" sx={{ display: "block" }}>
+            Offset {offsets.join(", ")} — direction not stated
+          </Typography>
+        )}
+      </>
+    )],
+    ["Section", section ? <Box component="span" sx={{ userSelect: "all" }}>{section}</Box> : "—"],
+    ["Base plate", plate.printed || plateSummary(plate).main],
+    ["Dimensions", dims ? (
+      <>
+        <Box component="span" aria-label={dims.spoken} sx={{ ...NUMERIC, fontWeight: 600 }}>{dims.text}</Box>
+        <Typography component="span" variant="caption" color="text.secondary" sx={{ display: "block" }}>{dims.roles}</Typography>
+      </>
+    ) : PLATE_STATUS_TEXT[plate.status] || "Not established"],
+  ];
+  if (entry.extent) {
+    rows.push(["Supported levels", extent || "Not established at both ends"]);
+  }
+  if (diff?.status === "computed") {
+    rows.push(["Elevation difference", (
+      <>
+        <Dim inches={diff.inches} strong />
+        <Typography component="span" variant="caption" color="text.secondary" sx={{ display: "block" }}>
+          Calculated from the two printed level elevations
+        </Typography>
+      </>
+    )]);
+  }
+  if (entry.extent) rows.push(["Fabricated length", "Unconfirmed"]);
   return (
-    <Box>
-      <Typography variant="subtitle1" fontWeight={700} sx={{ userSelect: "text" }}>
-        <Box component="span" sx={{ fontFamily: "monospace" }}>{columnLabel(entry)}</Box>
-        {designation ? ` · ${designation}` : ""}
-      </Typography>
-      <Typography variant="body2" color="text.secondary">
-        {[scheduleName, grids && grids.map((g) => `Grid ${g.label}${g.offset ? ` (offset ${g.offset.raw}, direction not stated)` : ""}`).join(" / ")]
-          .filter(Boolean)
-          .join(" · ")}
-      </Typography>
-      {(plate.printed || plate.dimensions?.length) && (
-        <Box sx={{ mt: 1 }}>
-          <Typography variant="body2" fontWeight={600}>
-            {plateTypeLabel(plate)} {plate.printed || ""}
-          </Typography>
-          {plate.dimensions?.length ? <PlateRoles dimensions={plate.dimensions} /> : (
-            <Typography variant="caption" color="text.secondary">{PLATE_STATUS_TEXT[plate.status] || "Not established"}</Typography>
-          )}
+    <Box component="dl" sx={{ m: 0, display: "grid", gridTemplateColumns: "minmax(8rem, auto) 1fr", columnGap: 2, rowGap: 0.75 }}>
+      {rows.map(([label, value]) => (
+        <Box key={label} sx={{ display: "contents" }}>
+          <Typography component="dt" variant="body2" color="text.secondary">{label}</Typography>
+          <Typography component="dd" variant="body2" sx={{ m: 0, minWidth: 0, wordBreak: "break-word" }}>{value}</Typography>
         </Box>
-      )}
-      {extent && (
-        <Box sx={{ mt: 1 }}>
-          <Typography variant="body2">
-            Vertical extent:{" "}
-            {ends
-              ? `${shortLevel(extent.bottom.line.name)} → ${shortLevel(extent.top.line.name)}`
-              : "not established at both ends"}
-          </Typography>
-          {diff?.status === "computed" ? (
-            <>
-              <Typography variant="body2">
-                Elevation difference: <Dim inches={diff.inches} strong />
-              </Typography>
-              <StatusText status="calculated" />
-              <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
-                Fabricated member length unconfirmed.
-              </Typography>
-            </>
-          ) : null}
-        </Box>
-      )}
+      ))}
     </Box>
   );
 }
 
 function ColumnEntryDetails({ entry, onView, documentId, levels, note, scheduleName }) {
+  // Plan views found by the trace join the schedule and plate sources, so the
+  // source viewer can switch between all of them.
+  const [planSources, setPlanSources] = useState([]);
   const plate = entry.plate;
+  const locations = entry.locations || [];
+  const listLocations = entry.key_role === "location"
+    && (locations.length > 1 || locations.some((l) => l.status !== "parsed") || entry.repeated_label || entry.label_conflict);
+  const bothEnds = extentLabel(entry.extent);
   return (
-    <Stack spacing={1.25} sx={{ py: 1, px: 1.5, bgcolor: "action.hover", borderRadius: 1 }}>
-      <ColumnCard entry={entry} scheduleName={scheduleName} />
-      <EvidenceChain entry={entry} onView={onView} />
+    <Stack spacing={1.5} sx={{ py: 1.5, px: 1.5, bgcolor: "action.hover", borderRadius: 1 }}>
+      <ColumnCard entry={entry} />
+      <EvidenceChain entry={entry} onView={onView} planSources={planSources} />
       {entry.extent && levels?.length > 1 && (
         <LevelDiagram levels={levels} extent={entry.extent} scheduleName={scheduleName} />
       )}
       <ModelNote text={note} />
-      {entry.key_role === "location" ? (
+      {listLocations && (
         <Box>
           <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
             Location text as printed
           </Typography>
-          <Typography variant="body2" sx={{ fontFamily: "monospace", wordBreak: "break-word" }}>
+          <Typography variant="body2" sx={{ fontFamily: "monospace", wordBreak: "break-word", userSelect: "all" }}>
             {entry.location_text}
           </Typography>
           <Box component="ul" sx={{ m: 0, mt: 0.5, pl: 2.5 }}>
-            {entry.locations.map((location) => (
+            {locations.map((location) => (
               <Typography component="li" variant="body2" key={location.raw}>
                 {location.status === "parsed" ? (
-                  <>
-                    Grid {location.grids.map((g) => g.label).join(" and grid ")}
-                    {location.grids.some((g) => g.offset) &&
-                      ` — offset ${location.grids
-                        .filter((g) => g.offset)
-                        .map((g) => `${g.offset.raw} from grid ${g.label}`)
-                        .join(", ")} (direction not stated)`}
-                  </>
+                  <>Grid {location.grids.map((g) => g.label).join(" and grid ")}</>
                 ) : (
                   <>
                     <Box component="span" sx={{ fontFamily: "monospace" }}>{location.raw}</Box> — not a
@@ -560,39 +555,31 @@ function ColumnEntryDetails({ entry, onView, documentId, levels, note, scheduleN
             </Typography>
           )}
         </Box>
-      ) : (
-        <Typography variant="body2">{entry.location_note}</Typography>
       )}
-      <Box>
-        <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: "block" }}>
-          Where the base plate was read
-        </Typography>
-        {plate.via?.length ? (
-          <SourceTrail via={plate.via} onView={onView} />
-        ) : (
-          <Typography variant="body2" color="text.secondary">{plateSummary(plate).sub}</Typography>
-        )}
-        {plate.status === "reference" && (
-          <Stack direction="row" spacing={1} sx={{ alignItems: "center", mt: 0.75 }}>
-            <Typography variant="body2">
-              Detail {plate.reference.detail} / {plate.reference.sheet}
-              {plate.reference.page ? "" : " — sheet not found in this PDF"}
-            </Typography>
-            {plate.reference.page && (
-              <ViewPageButton
-                item={{ page: plate.reference.page, sheet: plate.reference.sheet, mark: `detail ${plate.reference.detail}` }}
-                label={`Open ${plate.reference.sheet}`}
-                onView={onView}
-              />
-            )}
-          </Stack>
-        )}
-        {plate.markers?.length > 0 && (
-          <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block" }}>
-            Printed with the note marker {plate.markers.join(" ")} — check the schedule notes.
+      {entry.key_role !== "location" && entry.location_note && <Typography variant="body2">{entry.location_note}</Typography>}
+      {!plate.via?.length && plate.status !== "not_shown" && (
+        <Typography variant="body2" color="text.secondary">{plateSummary(plate).sub}</Typography>
+      )}
+      {plate.status === "reference" && (
+        <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+          <Typography variant="body2">
+            Detail {plate.reference.detail} / {plate.reference.sheet}
+            {plate.reference.page ? "" : " — sheet not found in this PDF"}
           </Typography>
-        )}
-      </Box>
+          {plate.reference.page && (
+            <ViewPageButton
+              item={{ page: plate.reference.page, sheet: plate.reference.sheet, mark: `detail ${plate.reference.detail}` }}
+              label={`Open ${plate.reference.sheet}`}
+              onView={onView}
+            />
+          )}
+        </Stack>
+      )}
+      {plate.markers?.length > 0 && (
+        <Typography variant="caption" color="text.secondary">
+          Printed with the note marker {plate.markers.join(" ")} — check the schedule notes.
+        </Typography>
+      )}
       {entry.conflicts?.length > 0 && (
         <Alert severity="warning" variant="outlined" sx={{ py: 0 }}>
           {entry.conflicts.join(" ")}
@@ -604,8 +591,8 @@ function ColumnEntryDetails({ entry, onView, documentId, levels, note, scheduleN
           visible drawing was used.
         </Typography>
       )}
-      <ColumnExtent entry={entry} />
-      {documentId && <ColumnTrace entry={entry} documentId={documentId} onView={onView} />}
+      {entry.extent && !bothEnds && <ColumnExtent entry={entry} />}
+      {documentId && <ColumnTrace entry={entry} documentId={documentId} onView={onView} onTraced={setPlanSources} />}
       <Typography variant="caption" color="text.secondary">
         A schedule entry is a definition, not a counted member — it is never a takeoff quantity.
       </Typography>
@@ -644,29 +631,24 @@ function SectionCell({ entry }) {
   ));
 }
 
-function PlateCell({ plate }) {
-  const hasDims = (plate.status === "read" || plate.status === "resolved") && plate.dimensions?.length;
+// The plate mark (or what stands in its place). An ordinary linked plate is
+// just its mark; only states that change how the row is read get a line.
+function PlateCell({ plate, onPlate }) {
+  if (plateHasDims(plate)) {
+    if (!plate.printed) return <Typography variant="body2" color="text.secondary">As printed</Typography>;
+    return onPlate ? (
+      <Button size="small" onClick={() => onPlate(plate.printed)} aria-label={`Plate mark ${plate.printed}: roles, source and locations`}
+        sx={{ px: 0.75, minWidth: 0, fontFamily: "monospace", fontWeight: 700, fontSize: "0.875rem" }}>
+        {plate.printed}
+      </Button>
+    ) : (
+      <Typography variant="body2" fontWeight={700} sx={{ fontFamily: "monospace" }}>{plate.printed}</Typography>
+    );
+  }
   const summary = plateSummary(plate);
   return (
     <Box>
-      {hasDims ? (
-        <>
-          {plate.printed && plate.status === "resolved" && (
-            <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
-              {plateTypeLabel(plate)} {plate.printed}
-            </Typography>
-          )}
-          <PlateDims dimensions={plate.dimensions} />
-        </>
-      ) : (
-        <>
-          <Typography variant="body2" fontWeight={600}>{summary.main}</Typography>
-          {/* The status line below already says "not shown"; no second line for it. */}
-          {plate.status !== "not_shown" && (
-            <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>{summary.sub}</Typography>
-          )}
-        </>
-      )}
+      <Typography variant="body2" fontWeight={plate.status === "not_shown" ? 400 : 600}>{summary.main}</Typography>
       <Typography variant="caption"
         color={PLATE_NEEDS_REVIEW.has(plate.status) ? "warning.main" : "text.secondary"} sx={{ display: "block" }}>
         {PLATE_STATUS_TEXT[plate.status] || "Not established"}
@@ -675,45 +657,58 @@ function PlateCell({ plate }) {
   );
 }
 
-function ColumnEntryRow({ entry, onView, documentId, levels, note, scheduleName }) {
-  const [open, setOpen] = useState(false);
-  const notes = [
-    ...(entry.notes || []),
-    ...(entry.other_plates || []).map((p) => `${p.type}: ${dimensionsText(p)} (schedule note)`),
-  ];
+// Width × Length × Thickness, or a dash: an unresolved plate is never forced
+// into the numeric template.
+function PlateDimsCell({ plate }) {
+  if (!plateHasDims(plate)) return <Typography variant="body2" color="text.secondary" aria-label="Not established">—</Typography>;
+  const dims = formatPlate(plate.dimensions);
+  return (
+    <Typography variant="body2" fontWeight={600} aria-label={dims.spoken} title={dims.roles} sx={NUMERIC}>
+      {dims.text}
+    </Typography>
+  );
+}
+
+const entryNotes = (entry) => [
+  ...(entry.notes || []),
+  ...(entry.other_plates || []).map((p) => `${p.type}: ${dimensionsText(p)} (schedule note)`),
+];
+
+function ColumnEntryRow({ entry, onView, documentId, levels, note, scheduleName, showNotes, onPlate, open, onToggle }) {
   const label = columnLabel(entry);
   return (
     <>
       <TableRow sx={{ "& > td": { borderBottom: open ? 0 : undefined, verticalAlign: "top" } }}>
         <TableCell>
-          <Typography variant="body2" fontWeight={700} sx={{ fontFamily: "monospace" }}>
+          <Typography variant="body2" fontWeight={700} sx={{ fontFamily: "monospace", userSelect: "text" }}>
             {label}
           </Typography>
-          <Typography variant="caption" color="text.secondary">
-            {entry.key_role === "location"
-              ? entry.listed_location_count > 1
-                ? `${entry.listed_location_count} locations listed`
-                : "grid location"
-              : "column mark"}
-          </Typography>
+          {entry.listed_location_count > 1 && (
+            <Typography variant="caption" color="text.secondary">{entry.listed_location_count} locations</Typography>
+          )}
         </TableCell>
         <TableCell>
           <SectionCell entry={entry} />
         </TableCell>
         <TableCell>
-          <PlateCell plate={entry.plate} />
+          <PlateCell plate={entry.plate} onPlate={onPlate} />
         </TableCell>
         <TableCell>
-          {notes.map((n) => (
-            <Typography key={n} variant="body2" color="text.secondary">{n}</Typography>
-          ))}
+          <PlateDimsCell plate={entry.plate} />
         </TableCell>
+        {showNotes && (
+          <TableCell>
+            {entryNotes(entry).map((n) => (
+              <Typography key={n} variant="body2" color="text.secondary">{n}</Typography>
+            ))}
+          </TableCell>
+        )}
         <TableCell align="right" sx={{ width: "1%", whiteSpace: "nowrap" }}>
           <Stack direction="row" spacing={1} sx={{ justifyContent: "flex-end" }}>
-            <ViewPageButton item={{ ...entry, mark: label }} label="View column schedule" onView={onView} />
+            <ViewPageButton item={{ ...entry, mark: label }} label="Source" onView={onView} />
             <Button
               size="small"
-              onClick={() => setOpen(!open)}
+              onClick={onToggle}
               aria-expanded={open}
               aria-label={`${open ? "Hide" : "Show"} details for ${label}`}
             >
@@ -723,10 +718,10 @@ function ColumnEntryRow({ entry, onView, documentId, levels, note, scheduleName 
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell colSpan={5} sx={{ py: 0, borderBottom: open ? undefined : 0 }}>
+        <TableCell colSpan={showNotes ? 6 : 5} sx={{ py: 0, borderBottom: open ? undefined : 0 }}>
           <Collapse in={open} unmountOnExit>
             <Box sx={{ pb: 1.5 }}>
-              <ColumnEntryDetails entry={entry} onView={onView} documentId={documentId} levels={levels} note={note}
+              <ColumnEntryDetails key={`${documentId}-${entry.id}`} entry={entry} onView={onView} documentId={documentId} levels={levels} note={note}
                 scheduleName={scheduleName} />
             </Box>
           </Collapse>
@@ -736,11 +731,13 @@ function ColumnEntryRow({ entry, onView, documentId, levels, note, scheduleName 
   );
 }
 
-function ColumnScheduleBlock({ schedule, entries, onView, documentId, levels, notes = {} }) {
+function ColumnScheduleBlock({ schedule, entries, total, filtered, onView, documentId, levels, notes = {}, onPlate }) {
   const [open, setOpen] = useState(false);
-  const collapsible = entries.length > COLLAPSED_COLUMNS + 1;
+  const [expandedEntries, setExpandedEntries] = useState({});
+  const collapsible = !filtered && entries.length > COLLAPSED_COLUMNS + 1;
   const shown = open || !collapsible ? entries : entries.slice(0, COLLAPSED_COLUMNS);
   const where = whereLabel({ sheet: schedule.sheets.filter(Boolean).join(", "), pages: schedule.pages });
+  const showNotes = entries.some((e) => entryNotes(e).length > 0);
   return (
     <Paper variant="outlined" sx={{ mb: 2, overflow: "hidden" }}>
       <Stack
@@ -754,7 +751,7 @@ function ColumnScheduleBlock({ schedule, entries, onView, documentId, levels, no
             where,
             schedule.layout === "graphical" ? "graphical schedule" : "table",
             schedule.block_count > 1 ? `printed in ${schedule.block_count} parts` : "",
-            `${entries.length} schedule entr${entries.length === 1 ? "y" : "ies"}`,
+            `${total} schedule entr${total === 1 ? "y" : "ies"}`,
           ]
             .filter(Boolean)
             .join(" · ")}
@@ -775,25 +772,33 @@ function ColumnScheduleBlock({ schedule, entries, onView, documentId, levels, no
           )}
         </Box>
       )}
-      <Box sx={{ overflowX: "auto" }}>
-        <Table size="small" aria-label={`${schedule.name} columns`}>
-          <TableHead>
-            <TableRow>
-              <TableCell>{schedule.key_role === "location" ? "Location" : "Mark"}</TableCell>
-              <TableCell>Section</TableCell>
-              <TableCell>Base plate</TableCell>
-              <TableCell>Notes</TableCell>
-              <TableCell align="right">Source</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {shown.map((entry) => (
-              <ColumnEntryRow key={entry.id} entry={entry} onView={onView} documentId={documentId} levels={levels}
-                note={notes[entry.id]} scheduleName={schedule.name} />
-            ))}
-          </TableBody>
-        </Table>
-      </Box>
+      {entries.length === 0 ? (
+        <Typography variant="body2" color="text.secondary" sx={{ px: 2, py: 1.5 }}>No location in this schedule matches.</Typography>
+      ) : (
+        <Box sx={{ overflowX: "auto" }}>
+          <Table size="small" aria-label={`${schedule.name} columns`}>
+            <TableHead>
+              <TableRow>
+                <TableCell>{schedule.key_role === "location" ? "Location" : "Mark"}</TableCell>
+                <TableCell>Section</TableCell>
+                <TableCell>Base plate</TableCell>
+                <TableCell>Dimensions — W × L × T</TableCell>
+                {showNotes && <TableCell>Notes</TableCell>}
+                <TableCell align="right">Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {shown.map((entry) => (
+                <ColumnEntryRow key={entry.id} entry={entry} onView={onView} documentId={documentId} levels={levels}
+                  note={notes[entry.id]} scheduleName={schedule.name} showNotes={showNotes}
+                  open={Boolean(expandedEntries[entry.id])}
+                  onToggle={() => setExpandedEntries((previous) => ({ ...previous, [entry.id]: !previous[entry.id] }))}
+                  onPlate={onPlate && ((mark) => onPlate(schedule, mark))} />
+              ))}
+            </TableBody>
+          </Table>
+        </Box>
+      )}
       {collapsible && (
         <Box sx={{ px: 1.5, pb: 1 }}>
           <Button size="small" onClick={() => setOpen(!open)}>
@@ -805,23 +810,130 @@ function ColumnScheduleBlock({ schedule, entries, onView, documentId, levels, no
   );
 }
 
-function ColumnSchedules({ data, schedules, title, intro, onView, documentId, levelsBySchedule = {}, notes = {} }) {
+// Spacing and case are ignored; primes, decimals and offsets are kept, so
+// "c.8 - 8.9" finds C.8-8.9 but C.8' is not C.8.
+const normalizeLocation = (text) => String(text || "").replace(/\s+/g, "").toUpperCase();
+
+function entryMatches(entry, query) {
+  const q = normalizeLocation(query);
+  if (!q) return true;
+  return [entry.mark, entry.location_text, ...(entry.locations || []).map((l) => l.raw)]
+    .some((text) => normalizeLocation(text).includes(q));
+}
+
+// Everything the schedule says about one plate mark: its dimensions with
+// their roles, where they are printed and the schedule entries it is
+// assigned to. Scoped to one schedule; equal dimensions never merge marks.
+function PlateMarkDialog({ target, entries, onView, onClose }) {
+  if (!target) return null;
+  const assigned = entries.filter((e) => e.schedule_id === target.schedule.id && e.plate?.printed === target.mark);
+  const plate = assigned.find((e) => plateHasDims(e.plate))?.plate || assigned[0]?.plate || {};
+  const dimensions = plate.via?.find((v) => v.kind === "plate schedule");
+  const titleId = "summary-plate-title";
   return (
-    <Section title={title}>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>{intro}</Typography>
-      {schedules.map((schedule) => (
+    <Dialog open onClose={onClose} fullWidth maxWidth="sm" aria-labelledby={titleId}>
+      <DialogTitle id={titleId} sx={{ pr: 6 }}>
+        {plateTypeLabel(plate)} <Box component="span" sx={{ fontFamily: "monospace" }}>{target.mark}</Box>
+      </DialogTitle>
+      <IconButton aria-label="Close plate details" onClick={onClose} sx={{ position: "absolute", right: 8, top: 8 }}>
+        <CloseOutlined />
+      </IconButton>
+      <DialogContent dividers>
+        <Stack spacing={1.5}>
+          {plateHasDims(plate) ? <PlateRoles dimensions={plate.dimensions} /> : (
+            <Typography variant="body2">{PLATE_STATUS_TEXT[plate.status] || "Dimensions not established"}</Typography>
+          )}
+          {dimensions && (
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center", flexWrap: "wrap" }}>
+              <Typography variant="body2" color="text.secondary">
+                Dimensions printed in {dimensions.title ? titleCase(dimensions.title) : "the plate schedule"} ·{" "}
+                {whereLabel(dimensions)}
+              </Typography>
+              <ViewPageButton item={{ ...dimensions, mark: `${target.mark} dimensions` }} label="View plate dimensions"
+                onView={onView} />
+            </Stack>
+          )}
+          <Box>
+            <Typography variant="body2" sx={{ mb: 0.5 }}>
+              Assigned in {target.schedule.name} to {assigned.length} schedule entr{assigned.length === 1 ? "y" : "ies"}:
+            </Typography>
+            <Box component="ul" sx={{ m: 0, p: 0, listStyle: "none", display: "flex", flexWrap: "wrap", gap: 1 }}>
+              {assigned.map((e) => (
+                <Typography key={e.id} component="li" variant="body2" sx={{ fontFamily: "monospace", userSelect: "all" }}>
+                  {(e.locations || []).map((location) => location.raw).join(", ") || columnLabel(e)}
+                </Typography>
+              ))}
+            </Box>
+            <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.75 }}>
+              Schedule entries are definitions, not a count of plates.
+            </Typography>
+          </Box>
+        </Stack>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ColumnSchedules({ data, schedules, title, intro, onView, documentId, levelsBySchedule = {}, notes = {}, searchable }) {
+  const [query, setQuery] = useState("");
+  const [plateTarget, setPlateTarget] = useState(null);
+  const blocks = schedules.map((schedule) => {
+    const all = data.entries.filter((e) => e.schedule_id === schedule.id);
+    return { schedule, all, entries: all.filter((e) => entryMatches(e, query)) };
+  });
+  const matches = blocks.reduce((n, b) => n + b.entries.length, 0);
+  const total = blocks.reduce((n, b) => n + b.all.length, 0);
+  const content = (
+    <>
+      {intro && <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>{intro}</Typography>}
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+        Dimensions: Width × Length × Thickness. Schedule entries are definitions, not installed quantities.
+      </Typography>
+      {searchable && (
+        <Stack direction="row" spacing={1.5} sx={{ mb: 1.5, alignItems: "center", flexWrap: "wrap" }} useFlexGap>
+          <TextField
+            size="small"
+            label="Find a location"
+            placeholder="e.g. C.8-8.9"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            sx={{ width: { xs: "100%", sm: 280 } }}
+            slotProps={{
+              input: {
+                startAdornment: <InputAdornment position="start"><SearchOutlined fontSize="small" /></InputAdornment>,
+                endAdornment: query ? (
+                  <InputAdornment position="end">
+                    <IconButton size="small" aria-label="Clear location search" onClick={() => setQuery("")}>
+                      <CloseOutlined fontSize="small" />
+                    </IconButton>
+                  </InputAdornment>
+                ) : null,
+              },
+            }}
+          />
+          <Typography variant="body2" color="text.secondary" role="status">
+            {query.trim() ? `${matches} of ${total} schedule entries match` : ""}
+          </Typography>
+        </Stack>
+      )}
+      {blocks.map(({ schedule, all, entries }) => (
         <ColumnScheduleBlock
           key={schedule.id}
           schedule={schedule}
-          entries={data.entries.filter((e) => e.schedule_id === schedule.id)}
+          entries={entries}
+          total={all.length}
+          filtered={Boolean(query.trim())}
           onView={onView}
           documentId={documentId}
           levels={levelsBySchedule[schedule.id]}
           notes={notes}
+          onPlate={(s, mark) => setPlateTarget({ schedule: s, mark })}
         />
       ))}
-    </Section>
+      <PlateMarkDialog target={plateTarget} entries={data.entries} onView={onView} onClose={() => setPlateTarget(null)} />
+    </>
   );
+  return title ? <Section title={title}>{content}</Section> : content;
 }
 
 // Column tracing pilot: the schedule column looked for on the framing plans of
@@ -958,18 +1070,43 @@ function TracePlan({ plan, levelName, onView }) {
   );
 }
 
-function ColumnTrace({ entry, documentId, onView }) {
+// Each plan view the trace found, as a source the viewer can switch to.
+function planSourcesOf(trace, location) {
+  if (trace?.status !== "traced") return [];
+  const sources = trace.levels.flatMap((level) => level.plans.flatMap((plan) => plan.candidates.flatMap((c, i) => [{
+    page: c.page,
+    sheet: plan.sheet,
+    bbox: c.symbol?.bbox || c.point_bbox,
+    mark: `${level.name} grid intersection${plan.candidates.length > 1 ? ` ${i + 1}` : ""}`,
+    tab: `Plan ${plan.sheet || `p. ${c.page}`}${plan.candidates.length > 1 ? ` (${i + 1})` : ""}`,
+    location,
+  }, ...(c.offset?.sides || []).map((side) => ({
+    page: c.page, sheet: plan.sheet, bbox: side.symbol?.bbox || side.point_bbox, location,
+    mark: `${location} offset toward grid ${side.toward || "?"}`,
+    tab: `${plan.sheet || `p. ${c.page}`} offset toward ${side.toward || "edge"}`,
+  }))])));
+  return [...new Map(sources.map((source) => [sourceIdentity(source), source])).values()];
+}
+
+function ColumnTrace({ entry, documentId, onView, onTraced }) {
   const [state, setState] = useState({ loading: false, trace: null, error: null });
+  const request = useRef(0);
+  useEffect(() => () => { request.current += 1; }, []);
   const location = entry.location_text || entry.mark;
   if (!location) return null;
   // An entry listing several locations is traced one location at a time.
   const locations = entry.locations?.length > 1 ? entry.locations.map((loc) => loc.raw) : [location];
   const load = async (location) => {
-    setState({ loading: true, trace: null, error: null });
+    const ticket = ++request.current;
+    onTraced?.([]);
+    setState({ loading: true, trace: null, error: null, location });
     try {
       const trace = await getColumnTrace(documentId, location, entry.schedule_id);
-      setState({ loading: false, trace, error: null });
+      if (request.current !== ticket) return;
+      setState({ loading: false, trace, error: null, location });
+      onTraced?.(planSourcesOf(trace, location));
     } catch (error) {
+      if (request.current !== ticket) return;
       setState({ loading: false, trace: null, error: error.friendlyMessage || "The trace could not be loaded." });
     }
   };
@@ -990,8 +1127,9 @@ function ColumnTrace({ entry, documentId, onView }) {
           ))}
         </Stack>
       )}
-      {trace && locations.length > 1 && (
-        <Button size="small" onClick={() => setState({ loading: false, trace: null, error: null })}>
+      {state.location && <Typography variant="body2">Selected location: {state.location}</Typography>}
+      {(trace || state.loading) && locations.length > 1 && (
+        <Button size="small" onClick={() => { request.current += 1; setState({ loading: false, trace: null, error: null }); onTraced?.([]); }}>
           Trace another location
         </Button>
       )}
@@ -1107,102 +1245,130 @@ const ASSOCIATION_EMPTY = {
   unresolved: "No linked plan evidence yet",
 };
 
-function LevelRow({ level, onView, note }) {
+const comparedValue = (match) => match.values.find((v) => v.compared) || match.values[0];
+
+// What the plan says for the level: its name when it agrees ("Office roof ·
+// S123"), its value when it differs ("55′-2″ · S122").
+function LinkedEvidence({ match }) {
+  const value = comparedValue(match);
+  const where = match.sheet || `p. ${match.page}`;
+  if (match.association === "candidate") return <>Candidate: {titleCase(match.plan)} · {where}</>;
+  if (match.comparison === "differs" && value) return <><Dim raw={value.raw || value.display} /> · {where}</>;
+  return <>{titleCase(value?.name || match.plan)} · {where}</>;
+}
+
+function Comparison({ match, difference }) {
+  if (match.association === "candidate") return <Typography variant="body2" color="text.secondary">Not compared — candidate</Typography>;
+  if (match.comparison === "differs") {
+    return (
+      <Typography variant="body2" color="warning.main">
+        Sources disagree{difference !== undefined ? <> — <Dim inches={Math.abs(difference)} /></> : null}
+      </Typography>
+    );
+  }
+  if (match.comparison === "agrees") return <Typography variant="body2">Agrees</Typography>;
+  return <Typography variant="body2" color="text.secondary">Not compared</Typography>;
+}
+
+// Why the plan evidence is (or is not) linked: alternate titles checked,
+// sheets without an elevation, other buildings excluded, the scope reasoning.
+function levelDiagnostics(level) {
+  const matches = level.plan_matches || [];
+  return [
+    `Printed in the schedule as “${level.name}”${level.surface ? ` (${level.surface})` : ""}.`,
+    ...matches.filter((m) => m.plan_qualifiers?.length).map((m) =>
+      `${m.sheet || `p. ${m.page}`} names it “${m.plan_qualifiers.join(" ")}”; the schedule does not.`),
+    ...matches.map((m) => `${m.sheet || `p. ${m.page}`} (${titleCase(m.plan)}): ${
+      m.association === "candidate" ? "title fits, building / area not established" : "same building / area"}.`),
+    level.also_titled?.length ? `Also checked ${level.also_titled.join(", ")}: no elevation stated there.` : null,
+    level.excluded_scope?.length
+      ? `Not this building / area: ${level.excluded_scope
+        .map((x) => `${x.sheet || `p. ${x.page}`}${x.sheet_title ? ` (${titleCase(x.sheet_title)})` : ""}`).join(", ")}.`
+      : null,
+    level.association_note,
+    level.note,
+  ].filter(Boolean);
+}
+
+function LevelRow({ level, onView, note, differences = {} }) {
+  const [open, setOpen] = useState(false);
   const sourceItem = { page: level.page, sheet: level.sheet, bbox: level.bbox, mark: level.name };
   const linked = level.plan_matches || [];
+  const name = shortLevel(level.name) || "Unnamed level line";
   return (
-    <TableRow sx={{ "& > td": { verticalAlign: "top" } }}>
-      <TableCell>
-        <Typography variant="body2" fontWeight={700}>{level.name || "Unnamed level line"}</Typography>
-        {level.surface && (
-          <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>{surfaceLabel(level.surface)}</Typography>
-        )}
-      </TableCell>
-      <TableCell>
-        <Typography variant="body2" fontWeight={600}>{level.printed ? <Dim raw={level.printed} /> : "—"}</Typography>
-        <StatusText status={level.status === "read" ? "read" : "not_established"} />
-        {level.resolved && (
-          <Typography variant="body2" sx={{ mt: 0.5 }}>
-            {surfaceLabel(level.resolved.surface)} <Dim raw={level.resolved.display} /> on {level.resolved.via}
-          </Typography>
-        )}
-        {level.note && (
-          <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>{level.note}</Typography>
-        )}
-      </TableCell>
-      <TableCell>
-        {linked.length === 0 && (
-          <Typography variant="body2" color="text.secondary">
-            {ASSOCIATION_EMPTY[level.association] || ASSOCIATION_EMPTY.unresolved}
-            {level.also_titled?.length > 0 ? ` (checked ${level.also_titled.join(", ")})` : ""}
-          </Typography>
-        )}
-        {linked.map((match) => (
-          <Box key={match.page} sx={{ mb: 0.75 }}>
+    <>
+      <TableRow sx={{ "& > td": { verticalAlign: "top", borderBottom: open ? 0 : undefined } }}>
+        <TableCell>
+          <Typography variant="body2" fontWeight={700}>{name}</Typography>
+        </TableCell>
+        <TableCell>
+          <Typography variant="body2" fontWeight={600}>{level.printed ? <Dim raw={level.printed} /> : "—"}</Typography>
+          {level.status !== "read" && <StatusText status="not_established" />}
+          {level.resolved && (
             <Typography variant="body2">
-              {match.plan} ({match.sheet || `p. ${match.page}`})
+              {surfaceLabel(level.resolved.surface)} <Dim raw={level.resolved.display} /> on {level.resolved.via}
             </Typography>
-            {match.plan_qualifiers?.length > 0 && (
-              <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
-                The plan names it with “{match.plan_qualifiers.join(" ")}”; the schedule does not.
-              </Typography>
-            )}
-            {match.values.map((v, i) => (
-              <Stack key={i} direction="row" spacing={1} sx={{ alignItems: "center", flexWrap: "wrap" }}>
-                <Typography variant="body2">
-                  {surfaceLabel(v.surface)}{v.name ? ` (${titleCase(v.name)})` : ""} <Dim raw={v.raw || v.display} />
-                  {v.status === "derived" ? " (derived)" : ""}
-                </Typography>
-                <ViewPageButton item={{ ...v.source, mark: `${surfaceLabel(v.surface)} ${v.display}` }}
-                  label="View plan note" onView={onView} />
-              </Stack>
-            ))}
-            <StatusText
-              status={match.association === "candidate" ? "candidate" : match.comparison === "differs" ? "disagree" : "linked"}
-            >
-              {match.comparison === "agrees" ? " · agrees with the schedule" : ""}
-            </StatusText>
-          </Box>
-        ))}
-        {linked.length > 0 && level.also_titled?.length > 0 && (
-          <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
-            Also checked {level.also_titled.join(", ")}: no elevation stated there.
-          </Typography>
-        )}
-        {level.excluded_scope?.length > 0 && (
-          <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
-            Not this building / area:{" "}
-            {level.excluded_scope
-              .map((x) => `${x.sheet || `p. ${x.page}`}${x.sheet_title ? ` (${titleCase(x.sheet_title)})` : ""}`)
-              .join(", ")}
-          </Typography>
-        )}
-        <ModelNote text={note} />
-      </TableCell>
-      <TableCell align="right" sx={{ width: "1%" }}>
-        <Stack spacing={0.5} sx={{ alignItems: "flex-end" }}>
-          {(level.occurrences?.length > 1 ? level.occurrences : [sourceItem]).map((o, i, all) => (
-            <ViewPageButton
-              key={i}
-              item={{ ...o, mark: all.length > 1 ? `${level.name} (schedule part ${i + 1})` : level.name }}
-              label={all.length > 1 ? `Part ${i + 1}` : "View level"}
-              onView={onView}
-            />
+          )}
+        </TableCell>
+        <TableCell>
+          {linked.length === 0 && (
+            <Typography variant="body2" color="text.secondary">
+              {ASSOCIATION_EMPTY[level.association] || ASSOCIATION_EMPTY.unresolved}
+            </Typography>
+          )}
+          {linked.map((match) => (
+            <Typography key={match.page} variant="body2"><LinkedEvidence match={match} /></Typography>
           ))}
-        </Stack>
-      </TableCell>
-    </TableRow>
+        </TableCell>
+        <TableCell>
+          {linked.length === 0 ? <Typography variant="body2" color="text.secondary">—</Typography> : linked.map((match) => (
+            <Comparison key={match.page} match={match} difference={differences[match.page]} />
+          ))}
+        </TableCell>
+        <TableCell align="right" sx={{ width: "1%" }}>
+          <Stack direction="row" spacing={0.75} sx={{ justifyContent: "flex-end", flexWrap: "wrap" }} useFlexGap>
+            {(level.occurrences?.length > 1 ? level.occurrences : [sourceItem]).map((o, i, all) => (
+              <ViewPageButton
+                key={i}
+                item={{ ...o, mark: all.length > 1 ? `${level.name} (schedule part ${i + 1})` : level.name }}
+                label={all.length > 1 ? `Schedule ${i + 1}` : "Schedule"}
+                onView={onView}
+              />
+            ))}
+            {linked.map((match) => {
+              const value = comparedValue(match);
+              return value ? (
+                <ViewPageButton key={`p${match.page}`} item={{ ...value.source, mark: `${level.name} on ${match.sheet || `p. ${match.page}`}` }}
+                  label={`Plan ${match.sheet || `p. ${match.page}`}`} onView={onView} />
+              ) : null;
+            })}
+            <Button size="small" onClick={() => setOpen(!open)} aria-expanded={open}
+              aria-label={`Why this source? ${level.name}`}>
+              Why this source?
+            </Button>
+          </Stack>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell colSpan={5} sx={{ py: 0, borderBottom: open ? undefined : 0 }}>
+          <Collapse in={open} unmountOnExit>
+            <Box component="ul" sx={{ m: 0, mb: 1.5, pl: 2.5 }}>
+              {levelDiagnostics(level).map((line) => (
+                <Typography key={line} component="li" variant="body2" color="text.secondary">{line}</Typography>
+              ))}
+            </Box>
+            <ModelNote text={note} />
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </>
   );
 }
 
-const ELEVATION_STATUS = {
-  read: { label: "read from note", color: "success" },
-  derived: { label: "derived by note", color: "info" },
-  unresolved: { label: "not established", color: "default" },
-};
+// Plan elevations in the same plain status words as the rest of the summary.
+const ELEVATION_STATUS = { read: "read", derived: "calculated", unresolved: "not_established" };
 
 function PlanElevationRow({ item, onView }) {
-  const badge = ELEVATION_STATUS[item.status];
   return (
     <TableRow sx={{ "& > td": { verticalAlign: "top" } }}>
       <TableCell>
@@ -1213,11 +1379,8 @@ function PlanElevationRow({ item, onView }) {
       </TableCell>
       <TableCell>{surfaceLabel(item.surface)}</TableCell>
       <TableCell>
-        <Typography variant="body2" fontWeight={600}>{item.value ? item.value.display : "—"}</Typography>
-        {item.value?.raw && item.value.raw !== item.value.display && (
-          <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>printed {item.value.raw}</Typography>
-        )}
-        <Chip size="small" variant="outlined" color={badge.color} label={badge.label} sx={{ mt: 0.5 }} />
+        <Typography variant="body2" fontWeight={600}>{item.value ? <Dim raw={item.value.raw || item.value.display} /> : "—"}</Typography>
+        <StatusText status={ELEVATION_STATUS[item.status]} />
       </TableCell>
       <TableCell>
         {item.status === "derived" && item.offset && (
@@ -1296,7 +1459,37 @@ function levelConflicts(facts, levels) {
   return out;
 }
 
-function LevelsAndElevations({ data, onView, schedules = [], notes = {} }) {
+function LevelTable({ group, onView, notes, differences }) {
+  return (
+    <Paper variant="outlined" sx={{ mb: 2, overflow: "hidden" }}>
+      <Typography variant="subtitle1" fontWeight={700} sx={{ px: 2, py: 1.25, bgcolor: "action.hover" }}>
+        Levels in {group.name}
+      </Typography>
+      <Box sx={{ overflowX: "auto" }}>
+        <Table size="small" aria-label={`Levels in ${group.name}`}>
+          <TableHead>
+            <TableRow>
+              <TableCell>Level</TableCell>
+              <TableCell>Schedule elevation</TableCell>
+              <TableCell>Linked plan evidence</TableCell>
+              <TableCell>Comparison</TableCell>
+              <TableCell align="right">Source actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {group.items.map((level, i) => (
+              <LevelRow key={`${level.name}-${i}`} level={level} onView={onView}
+                note={notes[`${level.schedule_id}|${level.name}`]}
+                differences={differences[`${level.schedule_id}|${level.name}`]} />
+            ))}
+          </TableBody>
+        </Table>
+      </Box>
+    </Paper>
+  );
+}
+
+function LevelsAndElevations({ data, onView, schedules = [], notes = {}, conflicts = [] }) {
   const levels = data.schedule_levels || [];
   const groupOf = Object.fromEntries(schedules.map((s) => [s.id, s.material_group]));
   const bySchedule = [];
@@ -1307,44 +1500,37 @@ function LevelsAndElevations({ data, onView, schedules = [], notes = {} }) {
     }
     group.items.push(level);
   }
-  // Steel schedules first; a concrete / parking schedule's levels stay separate.
-  const rank = { steel: 0, unclassified: 1, concrete: 2 };
-  bySchedule.sort((a, b) => (rank[a.material] ?? 1) - (rank[b.material] ?? 1));
+  // The backend's conflict facts give each disagreement's difference.
+  const differences = {};
+  for (const c of conflicts) {
+    (differences[`${c.level.schedule_id}|${c.level.name}`] ||= {})[c.match.page] = c.difference;
+  }
+  // A concrete / parking schedule's levels are kept in their own group.
+  const main = bySchedule.filter((g) => g.material !== "concrete");
+  const parking = bySchedule.filter((g) => g.material === "concrete");
   return (
     <Section title="Levels and supported vertical extents">
       <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
-        Each schedule level with what the plans state for it in the same building or area. A plan is linked
-        only by its title or datum note and its building / area — never because two elevations happen to be
-        equal. Differing values are both shown. Elevations are read as printed; nothing is measured.
+        Each schedule level with the plan evidence linked to it in the same building or area. Equal elevations
+        never link anything by themselves; when sources differ, both values are shown.
       </Typography>
-      {bySchedule.map((group) => (
-        <Paper key={group.id} variant="outlined" sx={{ mb: 2, overflow: "hidden" }}>
-          <Stack direction="row" spacing={1} sx={{ px: 2, py: 1.25, bgcolor: "action.hover", alignItems: "baseline", flexWrap: "wrap" }}>
-            <Typography variant="subtitle1" fontWeight={700}>Levels in {group.name}</Typography>
-            {group.material === "concrete" && (
-              <Typography variant="body2" color="text.secondary">concrete / parking schedule — kept separate</Typography>
-            )}
-          </Stack>
-          <Box sx={{ overflowX: "auto" }}>
-            <Table size="small" aria-label={`Levels in ${group.name}`}>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Level</TableCell>
-                  <TableCell>Elevation in schedule</TableCell>
-                  <TableCell>Linked plan evidence</TableCell>
-                  <TableCell align="right">Source</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {group.items.map((level, i) => (
-                  <LevelRow key={`${level.name}-${i}`} level={level} onView={onView}
-                    note={notes[`${level.schedule_id}|${level.name}`]} />
-                ))}
-              </TableBody>
-            </Table>
-          </Box>
-        </Paper>
+      {main.map((group) => (
+        <LevelTable key={group.id} group={group} onView={onView} notes={notes} differences={differences} />
       ))}
+      {parking.length > 0 && (
+        <Accordion disableGutters elevation={0} variant="outlined">
+          <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
+            <Typography variant="body2" fontWeight={600}>
+              Parking / concrete schedule levels · {parking.map((g) => g.name).join(", ")}
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            {parking.map((group) => (
+              <LevelTable key={group.id} group={group} onView={onView} notes={notes} differences={differences} />
+            ))}
+          </AccordionDetails>
+        </Accordion>
+      )}
     </Section>
   );
 }
@@ -1492,10 +1678,22 @@ function SourcePdf({ documentId, source, selectionKey }) {
 
 // The uploaded PDF on the source page, with the mark highlighted when its
 // bounding box is known. Reuses the Drawing Review viewer; needs no prediction.
+// A target with ``alternatives`` (a column's schedule, plate assignment,
+// plate dimensions and plan views) gets tabs to switch between them; the
+// row that opened it stays selected and gets focus back on close.
 function SourceViewerDialog({ documentId, target, onClose }) {
   const fullScreen = useMediaQuery(useTheme().breakpoints.down("md"));
   if (!target) return null;
-  const title = [target.mark, whereLabel({ sheet: target.sheet, page: target.page })]
+  return <SourceViewer key={sourceIdentity(target)} documentId={documentId} target={target}
+    onClose={onClose} fullScreen={fullScreen} />;
+}
+
+function SourceViewer({ documentId, target, onClose, fullScreen }) {
+  const alternatives = target.alternatives?.length > 1 ? target.alternatives : null;
+  const [index, setIndex] = useState(() =>
+    Math.max(0, (alternatives || []).findIndex((a) => sourceIdentity(a) === sourceIdentity(target))));
+  const source = alternatives ? alternatives[index] : target;
+  const title = [source.mark, whereLabel({ sheet: source.sheet, page: source.page })]
     .filter(Boolean)
     .join(" — ");
   return (
@@ -1513,12 +1711,30 @@ function SourceViewerDialog({ documentId, target, onClose }) {
       <IconButton aria-label="Close source page" onClick={onClose} sx={{ position: "absolute", right: 8, top: 8 }}>
         <CloseOutlined />
       </IconButton>
-      <DialogContent dividers sx={{ p: 0, height: fullScreen ? "100%" : "78vh" }}>
-        <SourcePdf documentId={documentId} source={target} selectionKey={`${target.id || target.mark || "source"}-${target.page}`} />
+      {alternatives && (
+        <Tabs value={index} onChange={(_event, value) => setIndex(value)} variant="scrollable" allowScrollButtonsMobile
+          aria-label="Sources for this column" sx={{ px: 1, borderBottom: 1, borderColor: "divider" }}>
+          {alternatives.map((a, i) => (
+            <Tab key={sourceIdentity(a)} value={i} label={a.tab || whereLabel(a)}
+              id={`summary-source-tab-${i}`} aria-controls="summary-source-panel" />
+          ))}
+        </Tabs>
+      )}
+      <DialogContent dividers id="summary-source-panel" role={alternatives ? "tabpanel" : undefined}
+        aria-labelledby={alternatives ? `summary-source-tab-${index}` : undefined}
+        sx={{ p: 0, height: fullScreen ? "100%" : "74vh" }}>
+        <SourcePdf documentId={documentId} source={source} selectionKey={sourceIdentity(source)} />
       </DialogContent>
     </Dialog>
   );
 }
+
+// Undecoded key parts, in plain words. A masked label defines nothing.
+const KEY_PART_TEXT = {
+  conflicting: "Two visible labels at its leaders — not decoded",
+  hidden_label: "Its label is masked on the sheet — not decoded",
+  partially_hidden: "Its label is partly masked — not decoded",
+};
 
 // A framing key's callout parts, each with the printed label its leader ends
 // at. A part with no leader to a label is said to be undefined, not guessed.
@@ -1531,9 +1747,7 @@ function FramingKeyParts({ parts }) {
           <Typography component="dd" variant="body2" sx={{ m: 0 }}>
             {part.status === "defined"
               ? `${part.meaning.charAt(0) + part.meaning.slice(1).toLowerCase()} (label at the end of its leader)`
-              : part.status === "conflicting"
-                ? "Two labels at its leaders — not decoded"
-                : "No leader to a printed label — not decoded"}
+              : KEY_PART_TEXT[part.status] || "No leader to a visible label — not decoded"}
           </Typography>
         </Box>
       ))}
@@ -1579,23 +1793,58 @@ function InterpretationRules({ rules, notes, onView, title = "Rules affecting in
   );
 }
 
+// A plan note giving top of steel as an offset from a surface without saying
+// above or below: what is known, what is missing, the note and the level it
+// affects. Never turned into an elevation; "deck" stays deck, not slab.
+function UnresolvedSteelOffsets({ items, onView }) {
+  return (
+    <Box>
+      <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>
+        Top of steel: offset stated, direction not stated
+      </Typography>
+      <Box sx={{ display: "grid", gap: 1, gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}>
+        {items.map((e) => (
+          <Box key={`${e.page}-${e.rule}`} sx={{ p: 1.25, border: 1, borderColor: "divider", borderRadius: 1 }}>
+            <Box component="dl" sx={{ m: 0, mb: 0.75, display: "grid", gridTemplateColumns: "auto 1fr", columnGap: 1.5, rowGap: 0.25 }}>
+              {[
+                ["Level", `${(e.levels || []).map((l) => shortLevel(l.name)).join(", ") || "Not linked to a schedule level"} · ${e.sheet || `p. ${e.page}`}`],
+                ["Known", <><Dim inches={e.offset.inches} strong /> from the {e.relative_to}</>],
+                ["Missing", `Whether it is above or below the ${e.relative_to}`],
+                ["Note", `“${e.rule}”`],
+              ].map(([label, value]) => (
+                <Box key={label} sx={{ display: "contents" }}>
+                  <Typography component="dt" variant="body2" color="text.secondary">{label}</Typography>
+                  <Typography component="dd" variant="body2" sx={{ m: 0, minWidth: 0, wordBreak: "break-word" }}>{value}</Typography>
+                </Box>
+              ))}
+            </Box>
+            <ViewPageButton item={{ ...e.source, mark: `top of steel note on ${e.sheet || `p. ${e.page}`}` }}
+              label="View plan note" onView={onView} />
+          </Box>
+        ))}
+      </Box>
+    </Box>
+  );
+}
+
 // What an estimator must check before relying on the summary: sources that
 // disagree (both values, side by side), items the drawing leaves open, and
 // plates whose dimensions could not be linked. Nothing here is resolved.
-function NeedsAttention({ conflicts = [], items = [], plateIssues = [], notes = {}, onView, onCompare }) {
-  if (!conflicts.length && !items.length && !plateIssues.length) return null;
+function NeedsAttention({ conflicts = [], items = [], plateIssues = [], steelOffsets = [], notes = {}, onView, onCompare }) {
+  if (!conflicts.length && !items.length && !plateIssues.length && !steelOffsets.length) return null;
   return (
     <Section title="Items needing attention">
-      <Stack spacing={1.25}>
+      <Stack spacing={1.5}>
         {conflicts.map((c) => (
           <Box key={`${c.level.schedule_id}-${c.level.name}-${c.match.page}`}>
             <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>
-              {c.level.name} — {c.level.schedule}
+              {shortLevel(c.level.name)} — sources disagree
             </Typography>
             <ConflictComparison {...c} onView={onView} onCompare={onCompare} />
             <ModelNote text={notes[`${c.level.schedule_id}|${c.level.name}`]} />
           </Box>
         ))}
+        {steelOffsets.length > 0 && <UnresolvedSteelOffsets items={steelOffsets} onView={onView} />}
         {items.length > 0 && (
           <Alert severity="warning" variant="outlined" icon={false} sx={{ py: 0.25 }}>
             <Stack component="ul" sx={{ m: 0, pl: 2.5 }} spacing={0.75}>
@@ -1716,6 +1965,137 @@ function RuleItem({ rule }) {
   );
 }
 
+// Supporting (non-steel) schedules, grouped the way an estimator looks for them.
+const SUPPORTING_GROUPS = [
+  { key: "walls", label: "Concrete walls", kinds: ["wall"] },
+  { key: "foundations", label: "Piers and foundations", kinds: ["pier", "footing", "grade_beam"] },
+  { key: "beams", label: "Concrete beams", kinds: ["beam"] },
+];
+
+// Printed heading paths -> header rows. A group heading (REINFORCEMENT, TOP)
+// spans the columns it heads; a column whose path ends early spans the rows
+// below it. Leaf columns never merge, even when their labels match.
+function headerRows(paths) {
+  const depth = Math.max(1, ...paths.map((p) => p.length));
+  const rows = Array.from({ length: depth }, () => []);
+  paths.forEach((path, column) => {
+    path.forEach((label, r) => {
+      const leaf = r === path.length - 1;
+      const last = rows[r][rows[r].length - 1];
+      const prefix = path.slice(0, r + 1).join("\u0000");
+      if (!leaf && last && !last.leaf && last.end === column && paths[last.start].slice(0, r + 1).join("\u0000") === prefix) {
+        last.end += 1;
+        return;
+      }
+      rows[r].push({ label, start: column, end: column + 1, leaf, rowSpan: leaf ? depth - r : 1 });
+    });
+  });
+  return rows;
+}
+
+// A printed value: a length gets symbols; rebar (#4, 4-#6), notes and
+// blanks are shown exactly as printed (a blank stays blank).
+function PrintedValue({ text }) {
+  if (!text) return null;
+  return /\d/.test(text) && /^[\s\d'"′″/-]+$/.test(text) ? <Dim raw={text} /> : text;
+}
+
+function SupportingScheduleTable({ schedule, definitions, onView }) {
+  const rows = [
+    ...definitions.map((d) => ({ key: d.id, mark: d.mark, cells: d.cells || [], bbox: d.bbox, reference: d.reference })),
+    ...(schedule.unread_rows || []).map((u, i) => ({
+      key: `u${i}`, mark: u.printed_mark, cells: u.cells || [], bbox: u.bbox, reference: u.reference, unread: true,
+    })),
+  ].sort((a, b) => (a.bbox?.[1] ?? 0) - (b.bbox?.[1] ?? 0));
+  const paths = (rows.find((r) => r.cells.length)?.cells || []).map((c) => c.path?.length ? c.path : [c.heading]);
+  const header = headerRows([["MARK"], ...paths]);
+  const unread = rows.filter((r) => r.unread);
+  const where = whereLabel(schedule);
+  return (
+    <Paper variant="outlined" sx={{ mb: 2, overflow: "hidden" }}>
+      <Stack direction="row" spacing={1} sx={{ px: 2, py: 1.25, alignItems: "center", flexWrap: "wrap", bgcolor: "action.hover" }} useFlexGap>
+        <Typography variant="subtitle1" fontWeight={700}>{titleCase(schedule.title)}</Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ flexGrow: 1 }}>
+          {where} ·{" "}
+          {schedule.printed_rows != null
+            ? `${schedule.printed_rows} printed rows identified · ${schedule.extracted_rows} with interpreted details`
+            : `${schedule.extracted_rows} rows with interpreted details · printed total not established`}
+        </Typography>
+        <ViewPageButton item={{ ...schedule, mark: schedule.title }} label="View schedule" onView={onView} />
+      </Stack>
+      {unread.length > 0 && (
+        <Typography variant="body2" color="text.secondary" sx={{ px: 2, pt: 1 }}>
+          {unread.length} additional printed row{unread.length === 1 ? " is" : "s are"} available for review
+          ({unread.map((r) => r.mark).join(", ")}). They are shown as printed; nothing is inferred for them
+          {unread.every((r) => r.reference) ? " — their remarks refer to another source" : ""}.
+        </Typography>
+      )}
+      <Box sx={{ overflowX: "auto" }}>
+        <Table size="small" aria-label={titleCase(schedule.title)} sx={{ "& th, & td": { borderRight: 1, borderColor: "divider" } }}>
+          <TableHead>
+            {header.map((cells, r) => (
+              <TableRow key={r}>
+                {cells.map((cell) => (
+                  <TableCell key={`${r}-${cell.start}`} colSpan={cell.end - cell.start} rowSpan={cell.rowSpan}
+                    align={cell.leaf ? "left" : "center"} sx={{ verticalAlign: "bottom" }}>
+                    {titleCase(cell.label)}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableHead>
+          <TableBody>
+            {rows.map((row) => (
+              <TableRow key={row.key} sx={{ "& > td": { verticalAlign: "top" } }}>
+                <TableCell>
+                  {onView && row.bbox ? (
+                    <Button size="small" onClick={() => onView({ page: schedule.page, sheet: schedule.sheet, bbox: row.bbox, mark: row.mark })}
+                      aria-label={`View ${row.mark} in ${titleCase(schedule.title)} (${where})`}
+                      sx={{ px: 0.5, minWidth: 0, fontFamily: "monospace", fontWeight: 700, fontSize: "0.875rem" }}>
+                      {row.mark}
+                    </Button>
+                  ) : (
+                    <Typography variant="body2" fontWeight={700} sx={{ fontFamily: "monospace" }}>{row.mark}</Typography>
+                  )}
+                  {(row.unread || row.reference) && (
+                    <Typography variant="caption" color="text.secondary" sx={{ display: "block", whiteSpace: "nowrap" }}>
+                      {row.unread ? "Printed evidence — not interpreted" : "Refers to another source"}
+                    </Typography>
+                  )}
+                </TableCell>
+                {paths.map((_path, i) => (
+                  <TableCell key={i} sx={{ minWidth: row.cells[i]?.text?.length > 40 ? 260 : undefined }}>
+                    <PrintedValue text={row.cells[i]?.text} />
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Box>
+    </Paper>
+  );
+}
+
+// One expandable group of supporting information; its open state lives in
+// the panel, so it survives re-renders and other groups opening.
+function SupportGroup({ id, title, summary, expanded, onToggle, children }) {
+  return (
+    <Accordion disableGutters elevation={0} variant="outlined" expanded={Boolean(expanded[id])}
+      onChange={(_event, open) => onToggle(id, open)} slotProps={{ transition: { unmountOnExit: true } }}>
+      <AccordionSummary expandIcon={<ExpandMoreOutlined />} aria-controls={`summary-support-${id}`} id={`summary-support-${id}-head`}>
+        <Typography variant="body2" fontWeight={600}>
+          {title}
+          {summary && (
+            <Typography component="span" variant="body2" color="text.secondary"> · {summary}</Typography>
+          )}
+        </Typography>
+      </AccordionSummary>
+      <AccordionDetails id={`summary-support-${id}`}>{children}</AccordionDetails>
+    </Accordion>
+  );
+}
+
 /**
  * "What Estima3D understood about this drawing set" -- renders the
  * deterministic Drawing Intelligence Profile
@@ -1725,6 +2105,7 @@ function RuleItem({ rule }) {
 export default function DrawingSummaryPanel({ profile, documentId = null }) {
   const [sourceTarget, setSourceTarget] = useState(null);
   const [comparePair, setComparePair] = useState(null);
+  const [expanded, setExpanded] = useState({});
   if (!profile) return null;
   const onView = documentId ? setSourceTarget : null;
 
@@ -1803,8 +2184,214 @@ export default function DrawingSummaryPanel({ profile, documentId = null }) {
 
   if (!hasNarrative && !hasRules && !statusMessage) return null;
 
+  // Supporting (non-steel) schedules with their coverage, grouped by kind;
+  // a definition outside every covered table is listed on its own.
+  const coverage = di?.supporting_schedules || [];
+  const coverageKey = (page, title) => `${page}|${title}`;
+  const covered = new Set(coverage.map((s) => coverageKey(s.page, s.title)));
+  const looseSupporting = supportingDefinitions.filter((d) => !covered.has(coverageKey(d.page, d.schedule_title)));
+  const grouped = new Set(SUPPORTING_GROUPS.flatMap((g) => g.kinds));
+  const supportingGroups = [...SUPPORTING_GROUPS, { key: "other-schedules", label: "Other non-steel schedules", kinds: null }]
+    .map((g) => {
+      const tables = coverage.filter((s) => (g.kinds ? g.kinds.includes(s.kind) : !grouped.has(s.kind)));
+      return { ...g, schedules: tables,
+        rows: tables.every((s) => s.printed_rows != null) ? tables.reduce((n, s) => n + s.printed_rows, 0) : null };
+    })
+    .filter((g) => g.schedules.length > 0);
+  const concreteIds = new Set(concreteSchedules.map((s) => s.id));
+  const concreteEntryCount = columnEntries.filter((e) => concreteIds.has(e.schedule_id)).length;
+  // Top-of-steel notes with an offset but no direction (review items).
+  const steelOffsets = (levels?.plan_elevations || []).filter((e) => e.status === "unresolved" && e.offset);
+  const toggle = (id, open) => setExpanded((state) => ({ ...state, [id]: open }));
+
+  const extractionDetails = narrative && (
+    <>
+            <Section title="Structural content">
+              <Para muted>{narrative.structural_content}</Para>
+            </Section>
+
+            <Section title="Steel system">
+              <Para>{narrative.steel_system}</Para>
+              {families.length > 0 && (
+                <Stack direction="row" gap={0.75} sx={{ flexWrap: "wrap", mt: 0.75 }}>
+                  {families.map((f) => (
+                    <Chip
+                      key={f.family}
+                      size="small"
+                      label={`${f.label} · ${f.explicit_occurrences}×`}
+                      title={
+                        f.representative?.length
+                          ? `e.g. ${f.representative.join(", ")}`
+                          : undefined
+                      }
+                    />
+                  ))}
+                </Stack>
+              )}
+            </Section>
+
+            <Section title="Drawing language & project rules">
+              <Para muted={narrative.drawing_language.startsWith("No ")}>
+                {narrative.drawing_language}
+              </Para>
+              {(profile.abbreviation_rules || []).length > 0 && (
+                <Stack direction="row" gap={0.75} sx={{ flexWrap: "wrap", mt: 0.75 }}>
+                  {profile.abbreviation_rules.map((rule, i) => (
+                    <Chip
+                      key={`${rule.lhs}-${i}`}
+                      size="small"
+                      variant="outlined"
+                      color="info"
+                      label={`${rule.lhs} = ${rule.rhs}`}
+                      title={
+                        rule.source_quote
+                          ? `Page ${rule.source_page ?? "?"}: "${rule.source_quote}"`
+                          : `Page ${rule.source_page ?? "?"}`
+                      }
+                    />
+                  ))}
+                </Stack>
+              )}
+              {RULE_SECTIONS.map(({ title, types }) => {
+                const sectionRules = types.flatMap((t) => rulesByType[t] || []);
+                if (sectionRules.length === 0) return null;
+                return (
+                  <Box key={title} sx={{ mt: 1 }}>
+                    <Typography variant="caption" color="text.secondary">
+                      {title}
+                    </Typography>
+                    <Stack spacing={0.5} sx={{ mt: 0.25 }}>
+                      {sectionRules.map((rule, i) => (
+                        <RuleItem key={i} rule={rule} />
+                      ))}
+                    </Stack>
+                  </Box>
+                );
+              })}
+            </Section>
+
+            <Section title="Typical / repeated conditions">
+              <Para muted={typicalActive.length === 0}>{narrative.typical_conditions}</Para>
+              {typicalActive.length > 0 && (
+                <Stack component="ul" sx={{ m: 0, pl: 2.5, mt: 0.5 }} spacing={0.25}>
+                  {typicalActive.map((i, idx) => (
+                    <Typography
+                      key={idx}
+                      component="li"
+                      variant="caption"
+                      color="text.secondary"
+                      title={i.source_text || undefined}
+                    >
+                      {i.value}
+                    </Typography>
+                  ))}
+                </Stack>
+              )}
+            </Section>
+
+            {(schedules.length > 0 || !narrative.schedules.startsWith("No ")) && (
+              <Section title="Schedules">
+                <Stack spacing={0.5}>
+                  {schedules.map((s, i) => (
+                    <Typography key={i} variant="body2">
+                      {s.detail?.label} ({pagesLabel(s.source_pages)}) —{" "}
+                      <Typography component="span" variant="caption" color="text.secondary">
+                        {s.detail?.note}
+                      </Typography>
+                    </Typography>
+                  ))}
+                  {schedules.length === 0 && <Para muted>{narrative.schedules}</Para>}
+                </Stack>
+              </Section>
+            )}
+
+            <Section title="Scope / revision signals" source={scopeActive.length ? "" : ""}>
+              <Para muted={scopeActive.length === 0}>{narrative.scope_revision}</Para>
+              {scopeActive.length > 0 && (
+                <Stack direction="row" gap={0.75} sx={{ flexWrap: "wrap", mt: 0.5 }}>
+                  {scopeActive.map((s, i) => (
+                    <Chip
+                      key={i}
+                      size="small"
+                      color="warning"
+                      variant="outlined"
+                      label={`${s.detail?.label} (${pagesLabel(s.source_pages)})`}
+                      title={s.source_text || undefined}
+                    />
+                  ))}
+                </Stack>
+              )}
+            </Section>
+
+            {narrative.important_notes?.length > 0 && (
+              <Section title="Important structural notes">
+                <Bullets items={narrative.important_notes} />
+              </Section>
+            )}
+
+            {(uncertainties.length > 0 || insights.length > 0) && (
+              <>
+                <Divider sx={{ my: 1.5 }} />
+                {uncertainties.length > 0 && (
+                  <Section title="Uncertainties">
+                    <Alert severity="warning" variant="outlined" icon={false} sx={{ py: 0.25 }}>
+                      <Stack component="ul" sx={{ m: 0, pl: 2.5 }} spacing={0.25}>
+                        {uncertainties.map((u, i) => (
+                          <Typography key={i} component="li" variant="body2">
+                            {u.value}
+                            {u.source_pages?.length > 0 && (
+                              <Typography component="span" variant="caption" color="text.secondary">
+                                {" "}
+                                (PDF {pagesLabel(u.source_pages)})
+                              </Typography>
+                            )}
+                          </Typography>
+                        ))}
+                      </Stack>
+                    </Alert>
+                  </Section>
+                )}
+                {insights.length > 0 && (
+                  <Section title="Derived project insights">
+                    <Stack spacing={0.5}>
+                      {insights.map((insight, i) => (
+                        <Alert
+                          key={i}
+                          severity="info"
+                          variant="outlined"
+                          icon={false}
+                          sx={{ py: 0.25, "& .MuiAlert-message": { width: "100%" } }}
+                        >
+                          <Stack spacing={0.25}>
+                            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+                              <Chip size="small" color="info" label="Project inference" />
+                              <Chip
+                                size="small"
+                                color="warning"
+                                variant="outlined"
+                                label="Not stated directly"
+                              />
+                            </Stack>
+                            <Typography variant="body2">{insight.statement}</Typography>
+                            {insight.impact && (
+                              <Typography variant="caption" color="text.secondary">
+                                Impact: {insight.impact}
+                              </Typography>
+                            )}
+                          </Stack>
+                        </Alert>
+                      ))}
+                    </Stack>
+                  </Section>
+                )}
+              </>
+            )}
+
+    </>
+  );
+
   return (
-    <Paper variant="outlined" sx={{ p: { xs: 1.5, sm: 2.5 } }}>
+    <Paper variant="outlined" sx={{ p: { xs: 1.5, sm: 2.5 }, ...SUMMARY_TYPE }}>
       <Stack direction="row" spacing={1} sx={{ alignItems: "baseline", mb: 0.5, flexWrap: "wrap" }}>
         <Typography variant="subtitle1" component="h2" fontWeight={700}>
           What Estima3D read from this drawing set
@@ -1841,22 +2428,24 @@ export default function DrawingSummaryPanel({ profile, documentId = null }) {
             conflicts={conflicts}
             items={unresolved}
             plateIssues={plateIssues}
+            steelOffsets={steelOffsets}
             notes={modelNotes}
             onView={onView}
             onCompare={documentId ? setComparePair : null}
           />
 
-          {/* C. Steel column schedules and plate assignments */}
+          {/* C. Steel column schedules and plates */}
           {steelSchedules.length > 0 && (
             <ColumnSchedules
               data={columnSchedule}
               schedules={steelSchedules}
-              title="Steel column schedules and plate assignments"
-              intro="Each row is one schedule entry: its location, section and base plate, with the sheet each value was read from. Open Details for the plate's roles, the evidence chain and the levels it is drawn between. A schedule entry is a definition, not an installed column."
+              title="Steel column schedules and plates"
+              intro="One row per schedule entry. Select a plate mark for its roles, source and locations; Details shows the levels a column is drawn between and every source."
               onView={onView}
               documentId={documentId}
               levelsBySchedule={levelsBySchedule}
               notes={modelNotes}
+              searchable
             />
           )}
           {definitions.length > 0 && (
@@ -1866,7 +2455,8 @@ export default function DrawingSummaryPanel({ profile, documentId = null }) {
 
           {/* D. Levels and supported vertical extents */}
           {hasLevels && (
-            <LevelsAndElevations data={levels} onView={onView} schedules={columnSchedules} notes={modelNotes} />
+            <LevelsAndElevations data={levels} onView={onView} schedules={columnSchedules} notes={modelNotes}
+              conflicts={conflicts} />
           )}
 
           {/* E. Drawing notation and interpretation rules */}
@@ -1875,7 +2465,7 @@ export default function DrawingSummaryPanel({ profile, documentId = null }) {
               rules={interpretationRules}
               notes={modelNotes}
               onView={onView}
-              title="Drawing notation and interpretation rules"
+              title="Drawing notation"
             >
               {notations.length > 0 && (
                 <Box sx={{ mt: 1 }}>
@@ -1894,229 +2484,52 @@ export default function DrawingSummaryPanel({ profile, documentId = null }) {
             </InterpretationRules>
           )}
 
-          {/* F. Supporting schedules and detailed extraction evidence */}
-          {(concreteSchedules.length > 0 || supportingDefinitions.length > 0 || hasLevelDetails) && (
-            <Accordion disableGutters elevation={0} variant="outlined" sx={{ mt: 1 }}>
-              <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
-                <Typography variant="body2" fontWeight={600}>
-                  Supporting schedules and level evidence
-                  {concreteSchedules.length > 0 && ` · ${concreteSchedules.map((s) => s.name).join(", ")}`}
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                {concreteSchedules.length > 0 && (
+          {/* F. Supporting schedules and evidence */}
+          {hasEvidence ? (
+            <Section title="Supporting schedules and evidence">
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Counts below are rows and entries printed in the drawings — definitions, not quantities.
+              </Typography>
+              {concreteSchedules.length > 0 && (
+                <SupportGroup id="parking" title="Parking and concrete column schedules" expanded={expanded} onToggle={toggle}
+                  summary={`${concreteEntryCount} schedule entr${concreteEntryCount === 1 ? "y" : "ies"}`}>
                   <ColumnSchedules
                     data={columnSchedule}
                     schedules={concreteSchedules}
-                    title="Concrete / parking column schedules"
                     intro="Kept apart from the steel: the schedule's own note states the material of the labels it names. Labels the note does not name show their printed text only."
                     onView={onView}
                     documentId={documentId}
                     levelsBySchedule={levelsBySchedule}
                     notes={modelNotes}
                   />
-                )}
-                {supportingDefinitions.length > 0 && (
-                  <MarksAndDefinitions
-                    definitions={supportingDefinitions}
-                    notes={modelNotes}
-                    onView={onView}
-                    title="Concrete and other non-steel schedules"
-                    intro="Each printed cell is shown under its own heading. Equal values in two columns are two values."
-                  />
-                )}
-                {hasLevelDetails && (
-                  <Section title="Level evidence details">
-                    <LevelEvidenceDetails data={levels} onView={onView} />
-                  </Section>
-                )}
-              </AccordionDetails>
-            </Accordion>
-          )}
-
-          <SupportingDetails collapsed={hasEvidence}>
-          <Section title="Structural content">
-            <Para muted>{narrative.structural_content}</Para>
-          </Section>
-
-          <Section title="Steel system">
-            <Para>{narrative.steel_system}</Para>
-            {families.length > 0 && (
-              <Stack direction="row" gap={0.75} sx={{ flexWrap: "wrap", mt: 0.75 }}>
-                {families.map((f) => (
-                  <Chip
-                    key={f.family}
-                    size="small"
-                    label={`${f.label} · ${f.explicit_occurrences}×`}
-                    title={
-                      f.representative?.length
-                        ? `e.g. ${f.representative.join(", ")}`
-                        : undefined
-                    }
-                  />
-                ))}
-              </Stack>
-            )}
-          </Section>
-
-          <Section title="Drawing language & project rules">
-            <Para muted={narrative.drawing_language.startsWith("No ")}>
-              {narrative.drawing_language}
-            </Para>
-            {(profile.abbreviation_rules || []).length > 0 && (
-              <Stack direction="row" gap={0.75} sx={{ flexWrap: "wrap", mt: 0.75 }}>
-                {profile.abbreviation_rules.map((rule, i) => (
-                  <Chip
-                    key={`${rule.lhs}-${i}`}
-                    size="small"
-                    variant="outlined"
-                    color="info"
-                    label={`${rule.lhs} = ${rule.rhs}`}
-                    title={
-                      rule.source_quote
-                        ? `Page ${rule.source_page ?? "?"}: "${rule.source_quote}"`
-                        : `Page ${rule.source_page ?? "?"}`
-                    }
-                  />
-                ))}
-              </Stack>
-            )}
-            {RULE_SECTIONS.map(({ title, types }) => {
-              const sectionRules = types.flatMap((t) => rulesByType[t] || []);
-              if (sectionRules.length === 0) return null;
-              return (
-                <Box key={title} sx={{ mt: 1 }}>
-                  <Typography variant="caption" color="text.secondary">
-                    {title}
-                  </Typography>
-                  <Stack spacing={0.5} sx={{ mt: 0.25 }}>
-                    {sectionRules.map((rule, i) => (
-                      <RuleItem key={i} rule={rule} />
-                    ))}
-                  </Stack>
-                </Box>
-              );
-            })}
-          </Section>
-
-          <Section title="Typical / repeated conditions">
-            <Para muted={typicalActive.length === 0}>{narrative.typical_conditions}</Para>
-            {typicalActive.length > 0 && (
-              <Stack component="ul" sx={{ m: 0, pl: 2.5, mt: 0.5 }} spacing={0.25}>
-                {typicalActive.map((i, idx) => (
-                  <Typography
-                    key={idx}
-                    component="li"
-                    variant="caption"
-                    color="text.secondary"
-                    title={i.source_text || undefined}
-                  >
-                    {i.value}
-                  </Typography>
-                ))}
-              </Stack>
-            )}
-          </Section>
-
-          {(schedules.length > 0 || !narrative.schedules.startsWith("No ")) && (
-            <Section title="Schedules">
-              <Stack spacing={0.5}>
-                {schedules.map((s, i) => (
-                  <Typography key={i} variant="body2">
-                    {s.detail?.label} ({pagesLabel(s.source_pages)}) —{" "}
-                    <Typography component="span" variant="caption" color="text.secondary">
-                      {s.detail?.note}
-                    </Typography>
-                  </Typography>
-                ))}
-                {schedules.length === 0 && <Para muted>{narrative.schedules}</Para>}
-              </Stack>
-            </Section>
-          )}
-
-          <Section title="Scope / revision signals" source={scopeActive.length ? "" : ""}>
-            <Para muted={scopeActive.length === 0}>{narrative.scope_revision}</Para>
-            {scopeActive.length > 0 && (
-              <Stack direction="row" gap={0.75} sx={{ flexWrap: "wrap", mt: 0.5 }}>
-                {scopeActive.map((s, i) => (
-                  <Chip
-                    key={i}
-                    size="small"
-                    color="warning"
-                    variant="outlined"
-                    label={`${s.detail?.label} (${pagesLabel(s.source_pages)})`}
-                    title={s.source_text || undefined}
-                  />
-                ))}
-              </Stack>
-            )}
-          </Section>
-
-          {narrative.important_notes?.length > 0 && (
-            <Section title="Important structural notes">
-              <Bullets items={narrative.important_notes} />
-            </Section>
-          )}
-
-          {(uncertainties.length > 0 || insights.length > 0) && (
-            <>
-              <Divider sx={{ my: 1.5 }} />
-              {uncertainties.length > 0 && (
-                <Section title="Uncertainties">
-                  <Alert severity="warning" variant="outlined" icon={false} sx={{ py: 0.25 }}>
-                    <Stack component="ul" sx={{ m: 0, pl: 2.5 }} spacing={0.25}>
-                      {uncertainties.map((u, i) => (
-                        <Typography key={i} component="li" variant="body2">
-                          {u.value}
-                          {u.source_pages?.length > 0 && (
-                            <Typography component="span" variant="caption" color="text.secondary">
-                              {" "}
-                              (PDF {pagesLabel(u.source_pages)})
-                            </Typography>
-                          )}
-                        </Typography>
-                      ))}
-                    </Stack>
-                  </Alert>
-                </Section>
+                </SupportGroup>
               )}
-              {insights.length > 0 && (
-                <Section title="Derived project insights">
-                  <Stack spacing={0.5}>
-                    {insights.map((insight, i) => (
-                      <Alert
-                        key={i}
-                        severity="info"
-                        variant="outlined"
-                        icon={false}
-                        sx={{ py: 0.25, "& .MuiAlert-message": { width: "100%" } }}
-                      >
-                        <Stack spacing={0.25}>
-                          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-                            <Chip size="small" color="info" label="Project inference" />
-                            <Chip
-                              size="small"
-                              color="warning"
-                              variant="outlined"
-                              label="Not stated directly"
-                            />
-                          </Stack>
-                          <Typography variant="body2">{insight.statement}</Typography>
-                          {insight.impact && (
-                            <Typography variant="caption" color="text.secondary">
-                              Impact: {insight.impact}
-                            </Typography>
-                          )}
-                        </Stack>
-                      </Alert>
-                    ))}
-                  </Stack>
-                </Section>
+              {supportingGroups.map((group) => (
+                <SupportGroup key={group.key} id={group.key} title={group.label} expanded={expanded} onToggle={toggle}
+                  summary={`${group.schedules.length} schedule${group.schedules.length === 1 ? "" : "s"}${group.rows == null ? "" : ` · ${group.rows} printed row${group.rows === 1 ? "" : "s"}`}`}>
+                  {group.schedules.map((schedule) => (
+                    <SupportingScheduleTable key={`${schedule.page}-${schedule.title}`} schedule={schedule} onView={onView}
+                      definitions={supportingDefinitions.filter((d) => coverageKey(d.page, d.schedule_title) === coverageKey(schedule.page, schedule.title))} />
+                  ))}
+                </SupportGroup>
+              ))}
+              {looseSupporting.length > 0 && (
+                <SupportGroup id="other" title="Other non-steel definitions" expanded={expanded} onToggle={toggle}
+                  summary={`${looseSupporting.length} mark${looseSupporting.length === 1 ? "" : "s"} · coverage not established`}>
+                  <MarksAndDefinitions definitions={looseSupporting} notes={modelNotes} onView={onView} title={null}
+                    intro="Each printed cell is shown under its own heading. Equal values in two columns are two values." />
+                </SupportGroup>
               )}
-            </>
-          )}
-
-          </SupportingDetails>
+              {hasLevelDetails && (
+                <SupportGroup id="levels" title="Detailed level evidence" expanded={expanded} onToggle={toggle}>
+                  <LevelEvidenceDetails data={levels} onView={onView} />
+                </SupportGroup>
+              )}
+              <SupportGroup id="extraction" title="Original notation and extraction details" expanded={expanded} onToggle={toggle}>
+                {extractionDetails}
+              </SupportGroup>
+            </Section>
+          ) : extractionDetails}
         </>
       )}
       <SourceViewerDialog
@@ -2126,22 +2539,5 @@ export default function DrawingSummaryPanel({ profile, documentId = null }) {
       />
       <CompareSourcesDialog documentId={documentId} pair={comparePair} onClose={() => setComparePair(null)} />
     </Paper>
-  );
-}
-
-// Page make-up, label families, TYP frequencies, scope stamps and page-level
-// uncertainties: useful background, but not the default view once verified
-// definitions exist. Without them (older cached profiles) it renders inline.
-function SupportingDetails({ collapsed, children }) {
-  if (!collapsed) return children;
-  return (
-    <Accordion disableGutters elevation={0} variant="outlined" sx={{ mt: 1 }}>
-      <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
-        <Typography variant="body2" fontWeight={600}>
-          Supporting details
-        </Typography>
-      </AccordionSummary>
-      <AccordionDetails>{children}</AccordionDetails>
-    </Accordion>
   );
 }

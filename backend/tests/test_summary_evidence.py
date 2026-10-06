@@ -18,7 +18,7 @@ import fitz
 from services.engineering.column_schedule import _material
 from services.engineering.drawing_intelligence import build_drawing_intelligence, evidence_packet, summary_facts
 from services.engineering.drawing_summary_llm import _grounded
-from services.engineering.framing_key import bracket_definition, read_page_keys
+from services.engineering.framing_key import _block, bracket_definition, read_page_keys
 from services.engineering.level_evidence import _level_surface, _relation, grid_location_offset, level_keys, levels_view
 
 _LEGEND = "(##' - ##\") BOTTOM OF BASE PLATE ELEVATION RELATIVE TO DATUM"
@@ -95,18 +95,38 @@ class LevelNameTests(unittest.TestCase):
         self.assertIsNone(_level_surface("T.O. ROOF"))
 
 
-def _key_page(leaders=True):
+_WHITE = (1, 1, 1)
+_STUD_LABEL = (96, 168, 200, 196)          # around "# OF SHEAR STUDS." / "SEE TYPICAL DETAIL"
+
+
+def _key_page(leaders=True, *, stud_background=False, mask_studs=None, replacement=None, second_label=None):
     """A framing key in miniature: heading, example callout, three labels and
-    (optionally) arrow-tipped leaders from each part to its label."""
+    (optionally) arrow-tipped leaders from each part to its label.
+
+    ``stud_background``: a white box drawn *before* the stud label (a cell
+    background). ``mask_studs``: a white box drawn *after* it over that rect
+    (an obsolete label masked). ``replacement``: visible text printed over
+    the mask. ``second_label``: another visible label with a second leader
+    from ``[35]`` (two visible definitions)."""
 
     doc = fitz.open()
     page = doc.new_page(width=1200, height=800)
     page.insert_text((300, 100), "STRUCTURAL STEEL FRAMING KEY", fontsize=12)
     page.insert_text((300, 300), "W18X40 [35]  c=1 1/4\"  <+12'-3\">", fontsize=9.6)
+    if stud_background:
+        page.draw_rect(fitz.Rect(*_STUD_LABEL), color=None, fill=_WHITE)
     page.insert_text((100, 180), "# OF SHEAR STUDS.", fontsize=9.6)
     page.insert_text((100, 191), "SEE TYPICAL DETAIL", fontsize=9.6)
+    if mask_studs:
+        page.draw_rect(fitz.Rect(*mask_studs), color=None, fill=_WHITE)
+    if replacement:
+        page.insert_text((100, 180), replacement, fontsize=9.6)
     page.insert_text((620, 180), "CAMBER", fontsize=9.6)
     page.insert_text((620, 230), "TOP OF STEEL ELEVATION", fontsize=9.6)
+    if second_label:
+        page.insert_text((300, 180), second_label, fontsize=9.6)
+        r = page.search_for("[35]")[0]
+        page.draw_line(((r.x0 + r.x1) / 2 + 2, r.y0 - 1), (330, 185), width=0.24)
     if leaders:
         boxes = {t: page.search_for(t)[0] for t in ("[35]", "c=1 1/4\"", "<+12'-3\">")}
         for token, (lx, ly) in (("[35]", (200, 185)), ("c=1 1/4\"", (615, 176)), ("<+12'-3\">", (615, 226))):
@@ -120,7 +140,7 @@ def _key_page(leaders=True):
 
 class FramingKeyTests(unittest.TestCase):
     def test_each_part_means_the_label_its_leader_ends_at(self):
-        _doc_, page = _key_page()
+        _document, page = _key_page()
         (key,) = read_page_keys(page, 2, "S001")
         meanings = {p["token"]: (p["status"], p.get("field")) for p in key["parts"]}
         self.assertEqual(meanings["[35]"], ("defined", "shear_studs"))
@@ -132,13 +152,83 @@ class FramingKeyTests(unittest.TestCase):
         self.assertEqual(definition["sources"][0]["sheet"], "S001")
 
     def test_without_leaders_nothing_is_decoded(self):
-        _doc_, page = _key_page(leaders=False)
+        _document, page = _key_page(leaders=False)
         (key,) = read_page_keys(page, 2, "S001")
         self.assertEqual({p["status"] for p in key["parts"]}, {"no_leader"})
         self.assertEqual(bracket_definition([key])["status"], "undefined")
 
+    def stud_part(self, **kwargs):
+        _document, page = _key_page(**kwargs)
+        (key,) = read_page_keys(page, 2, "S001")
+        return next(p for p in key["parts"] if p["token"] == "[35]"), key
+
+    def test_a_white_background_drawn_before_the_label_hides_nothing(self):
+        part, _key = self.stud_part(stud_background=True)
+        self.assertEqual(part["status"], "defined")
+        self.assertIn("SHEAR STUDS", part["meaning"])
+
+    def test_a_masked_label_defines_nothing_and_keeps_the_warning(self):
+        part, key = self.stud_part(mask_studs=_STUD_LABEL)
+        self.assertEqual((part["status"], part["meaning"]), ("hidden_label", None))
+        self.assertTrue(any("SHEAR STUDS" in t for t in part["hidden_text"]))   # diagnostic only
+        self.assertEqual(bracket_definition([key])["status"], "undefined")
+
+    def test_a_visible_replacement_over_a_mask_is_the_label_without_a_conflict(self):
+        part, key = self.stud_part(mask_studs=_STUD_LABEL, replacement="NUMBER OF STUDS")
+        self.assertEqual((part["status"], part["meaning"]), ("defined", "NUMBER OF STUDS"))
+        self.assertEqual(bracket_definition([key])["status"], "defined")
+
+    def test_a_partly_masked_label_stays_uncertain(self):
+        # Only the second line of the stud label is masked.
+        part, key = self.stud_part(mask_studs=(96, 183, 200, 196))
+        self.assertEqual((part["status"], part["meaning"]), ("partially_hidden", None))
+        self.assertEqual(bracket_definition([key])["status"], "undefined")
+
+    def test_two_visible_definitions_are_a_conflict(self):
+        part, _key = self.stud_part(second_label="CONNECTION REACTION")
+        self.assertEqual(part["status"], "conflicting")
+        self.assertEqual(len(part["candidates"]), 2)
+
+    def test_transparent_white_fill_does_not_hide_a_label(self):
+        _document, page = _key_page()
+        page.draw_rect(fitz.Rect(*_STUD_LABEL), color=None, fill=_WHITE, fill_opacity=0.3)
+        (key,) = read_page_keys(page, 2, "S001")
+        self.assertEqual(bracket_definition([key])["field"], "shear_studs")
+
+    def test_partial_mask_within_a_line_cannot_define_meaning(self):
+        _document, page = _key_page()
+        word = page.search_for("SHEAR")[0]
+        page.draw_rect(word, color=None, fill=_WHITE)
+        (key,) = read_page_keys(page, 2, "S001")
+        self.assertEqual(bracket_definition([key])["status"], "undefined")
+        self.assertEqual(next(p for p in key["parts"] if p["token"] == "[35]")["status"], "partially_hidden")
+
+    def test_multiline_replacement_at_the_masked_second_line(self):
+        _document, page = _key_page(mask_studs=_STUD_LABEL, replacement="CONNECTION")
+        page.insert_text((100, 191), "REACTION", fontsize=9.6)
+        (key,) = read_page_keys(page, 2, "S001")
+        definition = bracket_definition([key])
+        self.assertEqual(definition["meaning"], "CONNECTION REACTION")
+        self.assertEqual(definition["field"], "reaction")
+
+    def test_deeply_overlapping_visible_lines_do_not_join(self):
+        first = {"text": "REACTION", "bbox": [100, 160, 190, 180], "masked": False}
+        other = {"text": "UNRELATED", "bbox": [100, 162, 195, 174], "masked": False}
+        self.assertEqual(_block(first, [first, other]), [first])
+
+    def test_masked_meaning_is_not_an_accepted_model_fact(self):
+        from services.engineering.drawing_intelligence import _key_rules
+
+        _document, page = _key_page(mask_studs=_STUD_LABEL, replacement="CONNECTION REACTION")
+        keys = read_page_keys(page, 2, "S001")
+        profile = build_drawing_intelligence(_doc())
+        profile["interpretation_rules"] = [{**rule, "id": f"R{i}"} for i, rule in enumerate(_key_rules(keys))]
+        packet = evidence_packet(profile)
+        self.assertNotIn("SHEAR STUDS", packet)
+        self.assertIn("CONNECTION REACTION", packet)
+
     def test_keys_that_disagree_stay_a_conflict(self):
-        _doc_, page = _key_page()
+        _document, page = _key_page()
         (key,) = read_page_keys(page, 2, "S001")
         other = {**key, "page": 9, "sheet": "S501",
                  "parts": [{**p, "meaning": "CONNECTION REACTION"} if p["token"] == "[35]" else p for p in key["parts"]]}

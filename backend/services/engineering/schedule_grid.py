@@ -594,9 +594,29 @@ def _ruled_rows_grid(
     # table); ``SIZE WIDTH`` under a SIZE group is the width, not a size cell.
     plate_schedule = kind in _PLATE_CONTEXT_KINDS and not _is_bent_plate_schedule(record)
     groups = record.get("header_groups") or []
+    paths = record.get("header_paths") or []
+    trailing = record.get("trailing_column")
 
     def group_of(column: int) -> str:
         return groups[column] if column < len(groups) else ""
+
+    def display_cells(cells: list[str], index: int) -> list[dict[str, Any]]:
+        # Display only: each printed cell under its full printed heading
+        # (REINFORCEMENT > BOTTOM > SHORT WAY), so equal values in two columns
+        # stay two values; a column outside the ruling read (REMARKS) last.
+        out = [
+            {"heading": header[column], "group": group_of(column) or None,
+             "path": (paths[column] if column < len(paths) else None) or [header[column]],
+             "text": " ".join(cells[column].split())}
+            for column in range(width) if column != mark_col
+        ]
+        if trailing:
+            texts = trailing["cells"]
+            boxes = trailing.get("bboxes") or []
+            out.append({"heading": trailing["heading"], "group": None, "path": [trailing["heading"]],
+                        "text": texts[index] if index < len(texts) else "",
+                        **({"bbox": boxes[index]} if index < len(boxes) and boxes[index] else {})})
+        return out
 
     def other_part(column: int) -> bool:
         return plate_schedule and bool(NOT_PLATE_GROUP_RE.search(f"{group_of(column)} {header[column]}"))
@@ -654,10 +674,16 @@ def _ruled_rows_grid(
         plate_role = "plate"
 
     rows: List[Dict[str, Any]] = []
-    for body_row in body:
+    unread: list[dict[str, Any]] = []
+    for index, body_row in enumerate(body):
         cells = (body_row["cells"] + [""] * width)[:width]
         mark = re.sub(r"\s+", "", cells[mark_col]).upper()
         if not mark or not _is_table_mark(mark, catalog_fn):
+            if mark:
+                # Printed but not taken as a schedule mark (16RB32): kept for
+                # the summary's coverage, never resolved.
+                unread.append({"printed_mark": " ".join(cells[mark_col].split()),
+                               "cells": display_cells(cells, index), "bbox": body_row.get("bbox")})
             continue
 
         def joined(columns: Iterable[Optional[int]]) -> str:
@@ -703,14 +729,8 @@ def _ruled_rows_grid(
         if accessories:
             # Printed as given; kept apart from the plate's own dimensions.
             row["plate_accessories"] = accessories
-        if kind in NON_STEEL_SCHEDULE_KINDS:
-            # Display only: each printed cell under its own heading, so equal
-            # values in two columns (VERTICAL / HORIZONTAL reinforcement) stay
-            # two values. ``size_text`` above is unchanged.
-            row["cells"] = [
-                {"heading": header[column], "group": group_of(column) or None, "text": " ".join(cells[column].split())}
-                for column in range(width) if column != mark_col
-            ]
+        if kind in NON_STEEL_SCHEDULE_KINDS or not (section or plate_mark):
+            row["cells"] = display_cells(cells, index)   # ``size_text`` is unchanged
         _apply_plate_metadata(
             row,
             headed=[(role, cells[column]) for column, role in dim_cols] or None,
@@ -725,6 +745,9 @@ def _ruled_rows_grid(
         "layout": "rows",
         "title": record["title"],
         "bbox": record["bbox"],
+        # Printed rows with a mark cell, read or not (coverage).
+        "printed_rows": len(rows) + len(unread),
+        **({"unread_rows": unread} if unread else {}),
     }
 
 

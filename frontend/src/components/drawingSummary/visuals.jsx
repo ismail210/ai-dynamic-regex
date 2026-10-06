@@ -5,7 +5,7 @@
 import { Box, Button, Stack, Typography, useTheme } from "@mui/material";
 import { ArrowForwardRounded, CompareOutlined } from "@mui/icons-material";
 import { formatLength, formatPlate, spokenLength } from "../../lib/dimensions";
-import { ViewPageButton, whereLabel } from "./sources";
+import { sourceIdentity, ViewPageButton, whereLabel } from "./sources";
 
 export const NUMERIC = { fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" };
 
@@ -88,11 +88,12 @@ export function StatusText({ status, children }) {
 }
 
 /**
- * Column schedule → plate assignment → plate dimensions, each step opening
- * its own source. Built from the plate's own source trail; a missing step is
+ * Column schedule → plate assignment → plate dimensions (→ plan views once
+ * traced), each step opening its own source; the viewer can switch between
+ * all of them. Built from the plate's own source trail; a missing step is
  * shown as not established, never filled in.
  */
-export function EvidenceChain({ entry, onView }) {
+export function EvidenceChain({ entry, onView, planSources = [] }) {
   const plate = entry.plate || {};
   const via = plate.via || [];
   // Where the column is given its plate: a leader to the plate mark, a location
@@ -102,26 +103,30 @@ export function EvidenceChain({ entry, onView }) {
   const steps = [
     {
       key: "schedule", label: "Column schedule", action: "View column schedule",
-      item: { page: entry.page, sheet: entry.sheet, bbox: entry.bbox, mark: entry.location_text || entry.mark },
+      item: { page: entry.page, sheet: entry.sheet, bbox: entry.bbox, mark: entry.location_text || entry.mark,
+        tab: "Column schedule" },
     },
   ];
   if (assignment) {
     steps.push({ key: "assignment", label: `Plate assignment${plate.printed ? ` · ${plate.printed}` : ""}`,
-      action: "View plate assignment", item: { ...assignment, mark: `${plate.printed || "plate"} assignment` } });
+      action: "View plate assignment",
+      item: { ...assignment, mark: `${plate.printed || "plate"} assignment`, tab: "Plate assignment" } });
   } else if (plate.printed && plate.status !== "not_shown") {
     steps.push({ key: "assignment", label: `Plate ${plate.printed} printed in the column schedule`, item: null });
   }
   if (dimensions) {
     steps.push({ key: "dimensions", label: "Plate dimensions", action: "View plate dimensions",
-      item: { ...dimensions, mark: `${plate.printed || "plate"} dimensions` } });
+      item: { ...dimensions, mark: `${plate.printed || "plate"} dimensions`, tab: "Plate dimensions" } });
   } else if (plate.printed) {
     steps.push({ key: "dimensions", label: "Plate dimensions not established", item: null, missing: true });
   }
-  if (steps.length < 2) return null;
+  if (steps.length < 2 && !planSources.length) return null;
+  const sources = [...steps.filter((s) => s.item).map((s) => s.item), ...planSources];
+  const open = onView && ((item) => onView({ ...item, alternatives: sources }));
   return (
     <Box>
       <Typography variant="caption" color="text.secondary" sx={{ display: "block" }} mb={0.5}>
-        Evidence chain
+        Sources
       </Typography>
       <Stack
         component="ol"
@@ -132,13 +137,19 @@ export function EvidenceChain({ entry, onView }) {
         {steps.map((step, i) => (
           <Stack key={step.key} component="li" direction="row" spacing={0.75} sx={{ alignItems: "center" }}>
             {i > 0 && <ArrowForwardRounded fontSize="small" color="disabled" aria-hidden />}
-            {step.item && onView ? (
-              <ViewPageButton item={step.item} label={step.action} onView={onView} />
+            {step.item && open ? (
+              <ViewPageButton item={step.item} label={step.action} onView={open} />
             ) : (
               <Typography variant="body2" color={step.missing ? "text.secondary" : "text.primary"}>
                 {step.label}
               </Typography>
             )}
+          </Stack>
+        ))}
+        {open && planSources.map((item) => (
+          <Stack key={sourceIdentity(item)} component="li" direction="row" spacing={0.75} sx={{ alignItems: "center" }}>
+            <ArrowForwardRounded fontSize="small" color="disabled" aria-hidden />
+            <ViewPageButton item={item} label={item.tab} onView={open} />
           </Stack>
         ))}
       </Stack>

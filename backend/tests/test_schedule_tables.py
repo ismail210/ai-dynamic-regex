@@ -25,7 +25,12 @@ from services.engineering.schedule_grid import (
     schedule_mark_crosscheck,
     schedule_mark_map,
 )
-from services.engineering.schedule_tables import _transposed_record, read_ruled_tables
+from services.engineering.schedule_tables import (
+    _header_paths,
+    _trailing_column,
+    _transposed_record,
+    read_ruled_tables,
+)
 
 
 _SECTIONS = {"W8X24", "W8X31", "W10X33", "W12X65", "HSS6X6X1/2", "W16X36"}
@@ -973,6 +978,71 @@ class TransposedLevelTests(unittest.TestCase):
         self.assertNotIn("level", row)
         self.assertNotIn("level_band", row)
         self.assertEqual(row["plate_text"], "BP1")
+
+
+class ScheduleHeadingDisplayTests(unittest.TestCase):
+    """Display-only reading of printed headings and of rows the grid does not take."""
+
+    def test_merged_header_cells_head_every_column_they_span(self) -> None:
+        # MARK | REINFORCEMENT (over 4) / TOP (over 2) | BOTTOM (over 2) / LONG | SHORT | LONG | SHORT
+        span = lambda c0, c1: (60.0 * c0, 0.0, 60.0 * c1, 10.0)
+        table = SimpleNamespace(rows=[
+            SimpleNamespace(cells=[span(0, 1), span(1, 5), None, None, None]),
+            SimpleNamespace(cells=[None, span(1, 3), None, span(3, 5), None]),
+            SimpleNamespace(cells=[None, span(1, 2), span(2, 3), span(3, 4), span(4, 5)]),
+            SimpleNamespace(cells=[span(c, c + 1) for c in range(5)]),
+        ])
+        raw = [["MARK", "REINFORCEMENT", None, None, None], [None, "TOP", None, "BOTTOM", None],
+               [None, "LONG WAY", "SHORT WAY", "LONG WAY", "SHORT WAY"], ["WF1", "(4)-#4", "#4@12", "(4)-#4", "#4@12"]]
+        self.assertEqual(_header_paths(table, raw, 0, 3), [
+            ["MARK"],
+            ["REINFORCEMENT", "TOP", "LONG WAY"], ["REINFORCEMENT", "TOP", "SHORT WAY"],
+            ["REINFORCEMENT", "BOTTOM", "LONG WAY"], ["REINFORCEMENT", "BOTTOM", "SHORT WAY"],
+        ])
+
+    def test_a_column_outside_the_ruling_read_is_taken_from_the_rule_it_shares(self) -> None:
+        record = {"bbox": [0, 0, 200, 60], "body": [{"bbox": [0, 20, 200, 40]}, {"bbox": [0, 40, 200, 60]}]}
+        line = lambda x0, x1, y: {"items": [("l", fitz.Point(x0, y), fitz.Point(x1, y))]}
+        words = [(250, 5, 300, 15, "REMARKS"), (230, 42, 250, 50, "SEE"), (252, 42, 300, 50, "SECTION"),
+                 (420, 25, 460, 35, "ELSEWHERE")]
+        rules = [line(0, 400, y) for y in (20, 40, 60)]
+        found = _trailing_column(record, words, rules, [])
+        self.assertEqual(found["cells"], ["", "SEE SECTION"])
+        self.assertEqual(found["bboxes"], [[200, 20, 400, 40], [200, 40, 400, 60]])
+        # No rule running past the table: nothing is read beside it.
+        self.assertIsNone(_trailing_column(record, words, [line(0, 200, 60)], []))
+        # Words inside another table read on the page are never taken.
+        self.assertIsNone(_trailing_column(record, words, [line(0, 400, 60)], [[220, 0, 400, 60]]))
+        # A merged remarks cell has no row separator: do not assign its words
+        # to either of the independently ruled production rows.
+        self.assertEqual(_trailing_column(record, words, [line(0, 400, 20), line(0, 400, 60)], [])["cells"], ["", ""])
+        # A distant border and a nearby note are not a remarks heading.
+        self.assertIsNone(_trailing_column(record, [(250, 5, 300, 15, "NOTES"), *words[1:]], rules, []))
+        crossing = [words[0], (230, 35, 300, 46, "CROSSES ROW BOUNDARY")]
+        self.assertEqual(_trailing_column(record, crossing, rules, [])["cells"], ["", ""])
+
+    def test_cells_keep_full_paths_and_rows_not_taken_are_listed(self) -> None:
+        record = _rows_record(
+            "CONCRETE BEAM SCHEDULE",
+            ["MARK", "SIZE WIDTH", "DEPTH", "TOP BARS L.E. BARS", "F.L. BARS"],
+            [["16RB32", "", "", "", ""], ["CB16x32", '16"', '32"', "", "4-#6"]],
+        )
+        record["header_paths"] = [["MARK"], ["SIZE", "WIDTH"], ["SIZE", "DEPTH"],
+                                  ["REINFORCEMENT", "TOP BARS", "L.E. BARS"], ["REINFORCEMENT", "TOP BARS", "F.L. BARS"]]
+        record["trailing_column"] = {"heading": "REMARKS", "cells": ["PRECAST BEAM. SEE PCI TABLES", ""]}
+        (grid,) = _ruled_grids([record], _accept)
+        (row,) = grid["rows"]
+        self.assertEqual(row["mark"], "CB16X32")
+        self.assertEqual([(c["path"], c["text"]) for c in row["cells"]], [
+            (["SIZE", "WIDTH"], '16"'), (["SIZE", "DEPTH"], '32"'),
+            (["REINFORCEMENT", "TOP BARS", "L.E. BARS"], ""), (["REINFORCEMENT", "TOP BARS", "F.L. BARS"], "4-#6"),
+            (["REMARKS"], ""),
+        ])
+        self.assertEqual(grid["printed_rows"], 2)
+        (unread,) = grid["unread_rows"]
+        self.assertEqual(unread["printed_mark"], "16RB32")
+        self.assertEqual(unread["cells"][-1]["text"], "PRECAST BEAM. SEE PCI TABLES")
+        self.assertEqual(schedule_mark_map([grid]), {})
 
 
 if __name__ == "__main__":

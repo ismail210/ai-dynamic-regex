@@ -29,7 +29,7 @@ from dataclasses import asdict, dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
 
 from services.database_loader import catalog_form
-from services.engineering.column_schedule import column_schedule_view
+from services.engineering.column_schedule import _union_boxes, column_schedule_view
 from services.engineering.framing_key import bracket_definition, read_framing_keys
 from services.engineering.level_evidence import format_elevation, levels_view
 from services.engineering.page_space import convert_boxes, display_boxes
@@ -894,6 +894,7 @@ def _definition(
 ) -> Optional[Dict[str, Any]]:
     from services.engineering.schedule_grid import (
         _EMPTY_PLATE_RE,
+        NON_STEEL_SCHEDULE_KINDS,
         is_auxiliary_schedule_mark,
         resolve_auxiliary_schedule_mark,
     )
@@ -941,7 +942,10 @@ def _definition(
             })
         mixed = _mixed_cell(size_text, "")
     else:
-        if not size_text or _EMPTY_PLATE_RE.fullmatch(size_text):
+        # A concrete row whose size sits in dimension columns (W23: WIDTH 23")
+        # is still a printed definition; its cells carry it.
+        printed_cells = grid.get("kind") in NON_STEEL_SCHEDULE_KINDS and any(c["text"] for c in row.get("cells") or [])
+        if (not size_text or _EMPTY_PLATE_RE.fullmatch(size_text)) and not printed_cells:
             return None
         # Printed SIZE is not a catalog steel section (e.g. precast lintel).
         relation, printed = "mark defines non-steel item", size_text
@@ -967,7 +971,7 @@ def _definition(
         "is_definition_not_quantity": True,
         "cell_text_mixed": mixed,
         "source_text": _clean(f"{mark} | {size_text}" + (f" | {plate_text}" if plate_text else ""))[:_SNIPPET_MAX],
-        "bbox": boxes.get(mark),
+        "bbox": _display_row_box(row) if row.get("cells") else boxes.get(mark),
         "evidence": "schedule_grid",
         # The printed table's own title and its cells under their headings
         # (non-steel schedules), so equal values in two columns stay two values.
@@ -1086,6 +1090,7 @@ def _schedule_definitions(
         if page in grid_pages:
             words_by_page[page].append(word)
     definitions: List[Dict[str, Any]] = []
+    supporting: list[dict[str, Any]] = []
     column_locations: List[Dict[str, Any]] = []
     spans: List[Tuple[int, str, float, float]] = []
     for grid in grids:
@@ -1106,10 +1111,21 @@ def _schedule_definitions(
                 and grid_bbox[1] <= (word["bbox"][1] + word["bbox"][3]) / 2 <= grid_bbox[3]
             ]
         boxes = _mark_boxes(page_words, marks)
+        found_here: list[dict[str, Any]] = []
+        skipped: list[dict[str, Any]] = []
         for row in grid["rows"]:
             found = _definition(grid, row, document, sheets, boxes)
             if found:
-                definitions.append(found)
+                reference = _reference(found.get("cells"))
+                if reference:
+                    found["reference"] = reference
+                found_here.append(found)
+            elif row.get("cells"):
+                skipped.append({"printed_mark": row["mark"], "cells": row["cells"], "bbox": row.get("bbox"),
+                                "reason": "no_size"})
+        definitions.extend(found_here)
+        if found_here and all(d.get("status") in NON_STEEL_STATUSES for d in found_here):
+            supporting.append(_schedule_coverage(grid, found_here, skipped, sheets))
         grid_boxes = [boxes[m.upper()] for m in marks if m.upper() in boxes]
         if grid_boxes:
             spans.append((
@@ -1245,6 +1261,44 @@ def _schedule_definitions(
         "interpretation_rules": [{**r, "id": f"R{i}"} for i, r in enumerate(rules, 1)],
         "unresolved": [{**u, "id": f"U{i}"} for i, u in enumerate(unresolved, 1)],
         "column_locations": column_locations,
+        "supporting_schedules": supporting,
+    }
+
+
+# A printed cell that sends the reader elsewhere for the row's content
+# ("SEE SECTION FOR REINFORCEMENT", "DESIGNED BY CONTRACTOR'S ENGINEER").
+_REFERENCE_RE = re.compile(r"\b(?:SEE|REFER\s+TO)\b|\bDESIGNED\s+BY\b|\bBY\s+OTHERS\b", re.IGNORECASE)
+
+
+def _display_row_box(row: dict[str, Any]) -> list[float] | None:
+    boxes = [box for box in [row.get("bbox"), *(c.get("bbox") for c in row.get("cells") or [])] if box]
+    return _union_boxes(boxes) if boxes else None
+
+
+def _reference(cells: list[dict[str, Any]] | None) -> str | None:
+    return next((c["text"] for c in cells or [] if _REFERENCE_RE.search(c.get("text") or "")), None)
+
+
+def _schedule_coverage(grid: dict[str, Any], found: list[dict[str, Any]], skipped: list[dict[str, Any]],
+                       sheets: dict[int, str]) -> dict[str, Any]:
+    """How much of a supporting (non-steel) schedule the summary shows. The
+    printed total is known only for a ruled table, whose body rows were all
+    read with their mark cells; rows not taken are listed as printed, each
+    with any cell that refers to another source. Nothing is inferred for
+    them (a precast beam's size stays the precast designer's)."""
+
+    unread = [{**row, "reason": "mark_not_read"} for row in grid.get("unread_rows") or []] + skipped
+    page = int(grid.get("page") or 0)
+    return {
+        "title": grid.get("title"),
+        "kind": grid.get("kind"),   # wall / pier / footing / beam ... as titled
+        "page": page,
+        "bbox": _union_boxes([b for b in [grid.get("bbox"), *(_display_row_box(r) for r in grid["rows"]),
+                                          *(_display_row_box(r) for r in unread)] if b]),
+        "printed_rows": grid.get("printed_rows"),
+        "extracted_rows": len(found),
+        "unread_rows": [{**row, "bbox": _display_row_box(row), "reference": _reference(row["cells"])} for row in unread],
+        **_where(sheets, page),
     }
 
 
@@ -1263,11 +1317,11 @@ def _key_rules(keys: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         rules.append({
             "relation": "notation key", "kind": "framing_key",
             "text": (f"{key['title'].title()}: in a beam callout such as {key['example']}, {parts}."
-                     + (f" Not defined by a leader: {', '.join(open_parts)}." if open_parts else "")
+                     + (f" Not defined (no leader to a visible label): {', '.join(open_parts)}." if open_parts else "")
                      + " The key's own numbers are an example, not a count."),
             "scope": "project legend", "source_text": key["example"],
             "bbox": key["region"], "page": key["page"], "pages": [key["page"]], "sheet": key["sheet"],
-            "parts": [{k: p.get(k) for k in ("token", "form", "meaning", "field", "status", "bbox", "label_bbox")}
+            "parts": [{k: p.get(k) for k in ("token", "form", "meaning", "field", "status", "bbox", "label_bbox", "hidden_text")}
                       for p in key["parts"]],
         })
     return rules
@@ -1313,58 +1367,40 @@ def _column_location(
     return record
 
 
-def _mark_range(marks: List[str]) -> str:
-    return marks[0] if len(marks) == 1 else f"{marks[0]}–{marks[-1]}"
-
-
 # Definition statuses of marks that are not steel (concrete walls, piers,
 # footings; precast lintels; "N/A" rows).
 NON_STEEL_STATUSES = frozenset({"not steel", "precast", "no steel"})
 
 
 def _deterministic_overview(profile: Dict[str, Any]) -> str:
+    """One or two short sentences: what the set is and where its steel is
+    defined. Details (schedule lists, conflicts) have their own sections."""
+
     stamps = [s["detail"]["label"] for s in profile["scope_signals"] if s["detail"].get("present")]
-    first = f"{profile['page_count']}-page structural set" + (
-        f" ({', '.join(stamps).lower()})" if stamps else ""
-    ) + "."
-    sentences = [first]
-    # Column schedules first: steel apart from concrete (a schedule is
-    # concrete only when its own note says so for its labels).
-    by_group: Dict[str, List[str]] = defaultdict(list)
-    for s in (profile.get("column_schedule") or {}).get("schedules") or []:
-        where = s.get("sheet") or f"PDF p. {s['page']}"
-        by_group[s.get("material_group") or "unclassified"].append(f"{s['name']} ({where})")
-    for group, label in (("steel", "Steel column schedule"), ("concrete", "Concrete column schedule"),
-                         ("unclassified", "Column schedule")):
-        if by_group.get(group):
-            plural = "s" if len(by_group[group]) > 1 else ""
-            sentences.append(f"{label}{plural}: {', '.join(by_group[group])}.")
+    first = f"{profile['page_count']}-page structural set" + (f" ({', '.join(stamps).lower()})" if stamps else "")
+    schedules = (profile.get("column_schedule") or {}).get("schedules") or []
+    steel_sheets = sorted({s.get("sheet") or f"PDF p. {s['page']}" for s in schedules
+                           if s.get("material_group") != "concrete"})
     steel_defs = [d for d in profile["definitions"] if d.get("status") not in NON_STEEL_STATUSES]
-    other_defs = [d for d in profile["definitions"] if d.get("status") in NON_STEEL_STATUSES]
-    by_kind: Dict[str, List[str]] = defaultdict(list)
-    for d in steel_defs:
-        by_kind[d["component"]].append(d["mark"])
-    if by_kind:
+    kinds = [_COMPONENTS[k][2] for k in _COMPONENT_ORDER if any(d["component"] == k for d in steel_defs)]
+    defined = []
+    if steel_sheets:
+        defined.append(("steel column schedules" if len(steel_sheets) > 1 else "a steel column schedule")
+                       + f" on {', '.join(steel_sheets)}")
+    if kinds:
         where = sorted({d["sheet"] or f"PDF p. {d['page']}" for d in steel_defs})
-        parts = [f"{_COMPONENTS[k][2]} marks ({_mark_range(by_kind[k])})" for k in _COMPONENT_ORDER if k in by_kind]
-        listed = ", ".join(parts[:-1]) + (" and " if len(parts) > 1 else "") + parts[-1]
-        sentences.append(f"Schedules on {', '.join(where)} define the {listed} used on the plans.")
-    if other_defs:
-        titles = list(dict.fromkeys(str(d.get("schedule_title") or d["schedule"]).title() for d in other_defs))
-        where = sorted({d["sheet"] or f"PDF p. {d['page']}" for d in other_defs})
-        sentences.append(f"Concrete and other non-steel schedules on {', '.join(where)} "
-                         f"({', '.join(titles[:4])}{', …' if len(titles) > 4 else ''}) are kept with the supporting schedules.")
-    if not (by_group or by_kind or other_defs):
+        defined.append(f"{' and '.join(kinds)} marks defined on {', '.join(where)}")
+    if defined:
+        first += " with " + " and ".join(defined)
+    concrete = any(s.get("material_group") == "concrete" for s in schedules) or len(steel_defs) < len(profile["definitions"])
+    if concrete:
+        first += "; concrete schedules are kept with the supporting information"
+    if not (defined or concrete):
         families = profile["steel_system"]["families"]
-        sentences.append(
-            f"Most explicit section labels are {families[0]['label']}; no MARK/SIZE schedule definitions were read."
-            if families else "No MARK/SIZE schedule definitions and no catalog-valid steel section labels were read.")
-    conflicts = [f for f in profile.get("facts") or [] if f["type"] == "level_conflict"]
-    if conflicts:
-        sentences.append("Sources disagree on " + "; ".join(
-            f"{f['level']} (schedule {f['schedule_value']}, {f['plan_sheet']} plan note {f['plan_value']})"
-            for f in conflicts) + "; both values are shown.")
-    return " ".join(sentences)
+        first += (f". Most explicit section labels are {families[0]['label']}; no MARK/SIZE schedule definitions were read"
+                  if families else ". No MARK/SIZE schedule definitions and no catalog-valid steel section labels were read")
+        return first + "."
+    return first + ". Schedule entries are definitions, not installed quantities."
 
 
 # --------------------------------------------------------------------------

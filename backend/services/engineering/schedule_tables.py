@@ -151,6 +151,11 @@ def _page_records(page: Any, page_number: int, page_words: List[tuple]) -> List[
                     record = None
             if record:
                 records.append(record)
+    for record in records:
+        if record["layout"] == "rows":
+            trailing = _trailing_column(record, page_words, drawings, [o["bbox"] for o in records if o is not record])
+            if trailing:
+                record["trailing_column"] = trailing
     return records
 
 
@@ -399,11 +404,85 @@ def _table_record(table: Any, page_words: Sequence[tuple], page: int) -> Optiona
         "title": title,
         "header": header,
         "header_groups": groups,
+        "header_paths": _header_paths(table, raw, header_index, body_start),
         "body": [
             {"cells": rows[index], "bbox": _row_bbox(table, index)}
             for index in range(body_start, len(rows))
         ],
     }
+
+
+def _header_paths(table: Any, raw: list[list[Any]], header_index: int, body_start: int) -> list[list[str]]:
+    """Each column's printed heading from top to bottom, read from the header
+    cells' own boxes: a merged cell heads every body column whose center it
+    spans, so the wall footing's second SHORT WAY reads REINFORCEMENT > BOTTOM
+    > SHORT WAY. Display only; ``header`` (row roles) is unchanged."""
+
+    width = len(raw[header_index])
+    paths: list[list[str]] = [[] for _ in range(width)]
+    try:
+        body = [table.rows[index].cells for index in range(body_start, len(raw))]
+        heads = [table.rows[index].cells for index in range(header_index, body_start)]
+    except (AttributeError, IndexError):
+        return paths
+    full = next((cells for cells in body if len(cells) == width and all(cells)), None)
+    if full is None:
+        return paths
+    centers = [(cell[0] + cell[2]) / 2.0 for cell in full]
+    for offset, cells in enumerate(heads):
+        for column, cell in enumerate(cells):
+            label = header_label(raw[header_index + offset][column]) if column < width else ""
+            if not cell or not label:
+                continue
+            for target, x in enumerate(centers):
+                if cell[0] - 1.0 <= x <= cell[2] + 1.0:
+                    paths[target].append(label)
+    return paths
+
+
+def _trailing_column(record: dict[str, Any], page_words: Sequence[tuple], drawings: list[dict],
+                     others: list[list[float]]) -> dict[str, Any] | None:
+    """A printed column right of the ruling ``find_tables`` read (OSSE's
+    REMARKS beside the concrete wall and beam schedules): the table's bottom
+    rule runs on to the printed edge, and the column's words sit between the
+    two. Display only; ``schedule_grid`` row selection never sees it."""
+
+    bodies = [row["bbox"] for row in record["body"] if row.get("bbox")]
+    if not bodies:
+        return None
+    _x0, top, x1, bottom = record["bbox"]
+    rules = [(min(item[1].x, item[2].x), max(item[1].x, item[2].x), item[1].y)
+             for path in drawings for item in path["items"]
+             if item[0] == "l" and abs(item[1].y - item[2].y) < 1.0]
+    edge = min(
+        (right for left, right, y in rules
+         if abs(y - bottom) < 3.0 and left <= x1 + 2.0 and right >= x1 + 20.0),
+        default=x1,
+    )
+    if edge < x1 + 20.0:
+        return None
+
+    def inside(word: tuple, y0: float, y1: float) -> bool:
+        cx, cy = (word[0] + word[2]) / 2.0, (word[1] + word[3]) / 2.0
+        return (x1 < cx < edge and y0 <= cy < y1 and word[1] >= y0 - 1 and word[3] <= y1 + 1
+                and not any(o[0] <= cx <= o[2] and o[1] <= cy <= o[3] for o in others))
+
+    def text(y0: float, y1: float) -> str:
+        words = sorted((w for w in page_words if inside(w, y0, y1)), key=lambda w: (round(w[1]), w[0]))
+        return " ".join(str(w[4]) for w in words)
+
+    heading = header_label(text(top, min(b[1] for b in bodies)))
+    if heading != "REMARKS":
+        return None
+
+    def bounded(box: list[float]) -> bool:
+        return all(any(left <= x1 + 2 and right >= edge - 2 and abs(y - boundary) < 3
+                       for left, right, y in rules) for boundary in (box[1], box[3]))
+
+    boxes = [[x1, row["bbox"][1], edge, row["bbox"][3]]
+             if row.get("bbox") and bounded(row["bbox"]) else None for row in record["body"]]
+    return {"heading": heading, "bbox": [x1, top, edge, bottom], "bboxes": boxes,
+            "cells": [text(box[1], box[3]) if box else "" for box in boxes]}
 
 
 def _location_header_index(rows: List[List[str]]) -> Optional[int]:

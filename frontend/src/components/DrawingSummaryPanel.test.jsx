@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import DrawingSummaryPanel from "./DrawingSummaryPanel";
 
@@ -358,6 +358,7 @@ describe("DrawingSummaryPanel — evidence view", () => {
       definition("D3", "BP4", null, { relation: "mark defines plate", printed: '6"x8"x3/4"', status: "verify", role: "bearing plate" }),
     ];
     render(<DrawingSummaryPanel profile={evidenceProfile({ definitions: defs })} />);
+    fireEvent.click(screen.getByRole("button", { name: /Other non-steel definitions/ }));
     expect(screen.getByText("precast · not steel")).toBeInTheDocument();
     expect(screen.getByText("no steel (N/A)")).toBeInTheDocument();
     expect(screen.getByText("verify on sheet")).toBeInTheDocument();
@@ -379,7 +380,7 @@ describe("DrawingSummaryPanel — evidence view", () => {
 
   it("shows typed rules and actionable items", () => {
     render(<DrawingSummaryPanel profile={evidenceProfile()} />);
-    expect(screen.getByText("Drawing notation and interpretation rules")).toBeInTheDocument();
+    expect(screen.getByText("Drawing notation")).toBeInTheDocument();
     expect(screen.getByText("Default, U.N.O.")).toBeInTheDocument();
     expect(screen.getByText("Items needing attention")).toBeInTheDocument();
     expect(screen.getByText(/S102A · PDF pp\. 7, 8, 9, 10/)).toBeInTheDocument();
@@ -395,8 +396,8 @@ describe("DrawingSummaryPanel — evidence view", () => {
 
   it("moves low-value background into collapsed supporting details", () => {
     render(<DrawingSummaryPanel profile={evidenceProfile()} />);
-    expect(screen.getByText("Supporting details")).toBeInTheDocument();
-    const summary = screen.getByText("Supporting details").closest("[aria-expanded]");
+    expect(screen.getByText("Original notation and extraction details")).toBeInTheDocument();
+    const summary = screen.getByText("Original notation and extraction details").closest("[aria-expanded]");
     expect(summary).toHaveAttribute("aria-expanded", "false");
   });
 });
@@ -517,23 +518,23 @@ const withColumns = (extra = {}) => evidenceProfile({ column_schedule: columnSch
 describe("DrawingSummaryPanel — column schedule", () => {
   it("shows one row per schedule column with section, location and plate", () => {
     render(<DrawingSummaryPanel profile={withColumns()} />);
-    expect(screen.getByText("Steel column schedules and plate assignments")).toBeInTheDocument();
+    expect(screen.getByText("Steel column schedules and plates")).toBeInTheDocument();
     expect(screen.getByText(/S600, S601 · PDF pp. 42, 43 · graphical schedule · printed in 4 parts/)).toBeInTheDocument();
     const row = within(screen.getByText("A.4'-14 +3").closest("tr"));
-    expect(row.getByText("4 locations listed")).toBeInTheDocument();
+    expect(row.getByText("4 locations")).toBeInTheDocument();
     expect(row.getByText("W12X40")).toBeInTheDocument();
     // Width × Length × Thickness, with proper symbols; the printed value on hover.
     expect(row.getByText("1′-8″ × 1′-8″ × 1½″")).toBeInTheDocument();
-    expect(row.getByText("Width × Length × Thickness")).toBeInTheDocument();
-    expect(row.getByText("Base plate BP7")).toBeInTheDocument();
-    expect(row.getByText("Linked through schedule")).toBeInTheDocument();
+    expect(screen.getByText(/Width × Length × Thickness/)).toBeInTheDocument();
+    expect(row.getByText("BP7")).toBeInTheDocument();
+
   });
 
   it("keeps the printed location text next to the parsed grids and offsets", () => {
     render(<DrawingSummaryPanel profile={withColumns()} />);
     fireEvent.click(screen.getByRole("button", { name: "Show details for A.4'-14 +3" }));
-    expect(screen.getByText("A.4'-14, B-4.9, E-8(-4'-4\"), C'-15.6")).toBeInTheDocument();
-    expect(screen.getByText(/Grid E and grid 8 — offset -4'-4" from grid 8 \(direction not stated\)/)).toBeInTheDocument();
+    expect(screen.getAllByText("A.4'-14, B-4.9, E-8(-4'-4\"), C'-15.6").length).toBeGreaterThan(0);
+    expect(screen.getByText(/Offset -4'-4" from grid 8 — direction not stated/)).toBeInTheDocument();
     expect(screen.getByText("Grid A.4' and grid 14")).toBeInTheDocument();
   });
 
@@ -544,13 +545,45 @@ describe("DrawingSummaryPanel — column schedule", () => {
     const viewer = await screen.findByTestId("pdf-viewer");
     expect(viewer).toHaveAttribute("data-page", "43");
     expect(viewer).toHaveAttribute("data-bbox", "[730,1880,1600,1890]");
+    const tabs = screen.getAllByRole("tab");
+    fireEvent.click(tabs[0]);
+    expect(screen.getByTestId("pdf-viewer")).toHaveAttribute("data-page", "42");
+    expect(screen.getByTestId("pdf-viewer")).toHaveAttribute("data-bbox", "[843,760,958,860]");
+    fireEvent.click(tabs[1]);
+    expect(screen.getByTestId("pdf-viewer")).toHaveAttribute("data-page", "42");
+    expect(screen.getByTestId("pdf-viewer")).toHaveAttribute("data-bbox", "[880,620,900,650]");
+  });
+
+  it("preserves expanded entries while filtering by a printed grid identifier", () => {
+    render(<DrawingSummaryPanel profile={withColumns()} />);
+    fireEvent.click(screen.getByRole("button", { name: "Show details for A.4'-14 +3" }));
+    const search = screen.getByRole("textbox", { name: "Find a location" });
+    fireEvent.change(search, { target: { value: "C.8-1" } });
+    expect(screen.queryByText("W12X40")).not.toBeInTheDocument();
+    fireEvent.change(search, { target: { value: "C'-15.6" } });
+    expect(screen.getByRole("button", { name: "Hide details for A.4'-14 +3" })).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByText(/Grid A.4' and grid 14/)).toBeInTheDocument();
+  });
+
+  it("keeps equal-sized plate marks distinct and lists every linked location", async () => {
+    const data = columnScheduleData();
+    data.entries[0].plate.printed = "CBP-3";
+    data.entries.push({ ...data.entries[0], id: "S1-9", location_text: "D-9",
+      locations: [parsed("D-9", grid("D"), grid("9"))], listed_location_count: 1,
+      plate: { ...data.entries[0].plate, printed: "CBP-5" } });
+    render(<DrawingSummaryPanel profile={evidenceProfile({ column_schedule: data })} />);
+    fireEvent.click(screen.getByRole("button", { name: "Plate mark CBP-3: roles, source and locations" }));
+    const dialog = within(await screen.findByRole("dialog"));
+    expect(dialog.getByText(/A.4'-14, B-4.9/)).toBeInTheDocument();
+    expect(dialog.queryByText("D-9")).not.toBeInTheDocument();
+    expect(dialog.getByText(/definitions, not a count of plates/)).toBeInTheDocument();
   });
 
   it("shows a detail reference without inventing dimensions, and opens the detail sheet", async () => {
     render(<DrawingSummaryPanel profile={withColumns()} documentId="doc_abc" />);
     const row = within(screen.getByText("A-2").closest("tr"));
     expect(row.getByText("See detail D on S-201")).toBeInTheDocument();
-    expect(row.getByText("Dimensions are on that detail — not read")).toBeInTheDocument();
+    expect(row.getByLabelText("Not established")).toHaveTextContent("—");
     expect(row.getByText("BRACE FRAME COLUMN")).toBeInTheDocument();
     fireEvent.click(row.getByRole("button", { name: "Show details for A-2" }));
     fireEvent.click(screen.getByRole("button", { name: "View S-201 · PDF p. 14 for detail D" }));
@@ -569,13 +602,13 @@ describe("DrawingSummaryPanel — column schedule", () => {
     render(<DrawingSummaryPanel profile={withColumns()} />);
     const row = within(screen.getByText("C.8-1").closest("tr"));
     expect(row.getByText("Blank")).toBeInTheDocument();
-    expect(row.getByText(/SEE TYPICAL DETAILS FOR TRANSFER BASE PLATE DETAIL/)).toBeInTheDocument();
+    expect(screen.getByText(/NOTE: SEE TYPICAL DETAILS FOR TRANSFER BASE PLATE DETAIL/)).toBeInTheDocument();
   });
 
   it("never presents a column mark as a grid intersection", () => {
     render(<DrawingSummaryPanel profile={withColumns()} />);
     const row = within(screen.getByText("C-2").closest("tr"));
-    expect(row.getByText("column mark")).toBeInTheDocument();
+    expect(within(screen.getByText("C-2").closest("table")).getByRole("columnheader", { name: "Mark" })).toBeInTheDocument();
     fireEvent.click(row.getByRole("button", { name: "Show details for C-2" }));
     expect(screen.getByText(/C-2 is a column mark, not a grid intersection/)).toBeInTheDocument();
     expect(screen.queryByText(/Grid C and grid 2/)).not.toBeInTheDocument();
@@ -586,7 +619,8 @@ describe("DrawingSummaryPanel — column schedule", () => {
     for (const table of screen.getAllByRole("table", { name: /columns$/ })) {
       expect(within(table).queryByRole("columnheader", { name: /qty|quantity|count|total/i })).not.toBeInTheDocument();
     }
-    expect(screen.getByText(/A schedule entry is a definition, not an installed column/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Show details for C-2" }));
+    expect(screen.getByText(/A schedule entry is a definition, not a counted member/)).toBeInTheDocument();
   });
 
   it("does not list a scheduled column mark twice", () => {
@@ -599,9 +633,9 @@ describe("DrawingSummaryPanel — column schedule", () => {
 
   it("is hidden when no column schedule was read", () => {
     render(<DrawingSummaryPanel profile={evidenceProfile({ column_schedule: { schedules: [], entries: [] } })} />);
-    expect(screen.queryByText("Steel column schedules and plate assignments")).not.toBeInTheDocument();
+    expect(screen.queryByText("Steel column schedules and plates")).not.toBeInTheDocument();
     render(<DrawingSummaryPanel profile={evidenceProfile()} />);
-    expect(screen.queryByText("Steel column schedules and plate assignments")).not.toBeInTheDocument();
+    expect(screen.queryByText("Steel column schedules and plates")).not.toBeInTheDocument();
   });
 });
 
@@ -665,7 +699,7 @@ describe("DrawingSummaryPanel — levels and elevations", () => {
   it("shows a schedule level next to a differing plan value without replacing it", () => {
     render(<DrawingSummaryPanel profile={withLevels()} />);
     expect(screen.getByText("Levels and supported vertical extents")).toBeInTheDocument();
-    const row = within(screen.getByText("T.O. SLAB LEVEL 2", { selector: "td p, td span" }).closest("tr"));
+    const row = within(screen.getByText("Level 2", { selector: "td p, td span" }).closest("tr"));
     expect(row.getByText("55′-10″")).toBeInTheDocument();
     expect(row.getByText("55′-2″")).toBeInTheDocument();
     expect(row.getByText("Sources disagree")).toBeInTheDocument();
@@ -673,15 +707,16 @@ describe("DrawingSummaryPanel — levels and elevations", () => {
 
   it("resolves SEE PLAN only to a single plan value", () => {
     render(<DrawingSummaryPanel profile={withLevels()} />);
-    expect(within(screen.getByText("SECOND FLOOR").closest("tr")).getByText((_, el) => el?.tagName === "P" && el.textContent === "Top of slab 330′-0″ on S102")).toBeInTheDocument();
-    expect(within(screen.getByText("THIRD FLOOR").closest("tr")).getByText(/2 different values/)).toBeInTheDocument();
+    expect(within(screen.getByText("Second Floor").closest("tr")).getByText((_, el) => el?.tagName === "P" && el.textContent === "Top of slab 330′-0″ on S102")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Why this source.*THIRD FLOOR/ }));
+    expect(screen.getByText(/2 different values/)).toBeInTheDocument();
   });
 
   it("shows a derived top of steel with its slab value and the note's offset", async () => {
     render(<DrawingSummaryPanel profile={withLevels()} documentId="doc_abc" />);
-    fireEvent.click(screen.getByRole("button", { name: /Supporting schedules and level evidence/ }));
-    const row = within(screen.getByText("18'-8\"").closest("tr"));
-    expect(row.getByText("derived by note")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Detailed level evidence/ }));
+    const row = within(screen.getByText("18′-8″").closest("tr"));
+    expect(row.getByText("Calculated from stated values")).toBeInTheDocument();
     expect(row.getByText(/TOP OF SLAB ELEVATION SHALL BE 19'-4" 0'-8" below top of slab/)).toBeInTheDocument();
     expect(row.getByText(/4 local values noted on this sheet/)).toBeInTheDocument();
     fireEvent.click(row.getByRole("button", { name: "View S102C · PDF p. 9 for the value it is derived from" }));
@@ -690,13 +725,15 @@ describe("DrawingSummaryPanel — levels and elevations", () => {
 
   it("leaves an offset with no stated direction unresolved, with no value", () => {
     render(<DrawingSummaryPanel profile={withLevels()} />);
+    fireEvent.click(screen.getByRole("button", { name: /Detailed level evidence/ }));
     const row = within(screen.getByText(/not whether it is above or below/).closest("tr"));
-    expect(row.getByText("not established")).toBeInTheDocument();
+    expect(row.getByText("Not established")).toBeInTheDocument();
     expect(row.getByText("—")).toBeInTheDocument();
   });
 
   it("lists datum relations and project notations", () => {
     render(<DrawingSummaryPanel profile={withLevels()} />);
+    fireEvent.click(screen.getByRole("button", { name: /Detailed level evidence/ }));
     expect(screen.getByText(/reference elevation 14'-6" corresponds to true elevation 112'-0"/)).toBeInTheDocument();
     expect(screen.getByText(/on a plan means bottom of base plate, measured from the datum/)).toBeInTheDocument();
   });
@@ -723,9 +760,9 @@ describe("DrawingSummaryPanel — column vertical extent", () => {
     )} />);
     fireEvent.click(screen.getByRole("button", { name: "Show details for A.4'-14 +3" }));
     expect(screen.getByText("31′-4″")).toBeInTheDocument();
-    expect(screen.getByText("Calculated from stated values")).toBeInTheDocument();
-    expect(screen.getByText("Fabricated member length unconfirmed.")).toBeInTheDocument();
-    expect(screen.getByText(/not the column's length/)).toBeInTheDocument();
+    expect(screen.getByText("Calculated from the two printed level elevations")).toBeInTheDocument();
+    expect(screen.getByText("Unconfirmed")).toBeInTheDocument();
+    expect(screen.getByText("Fabricated length")).toBeInTheDocument();
   });
 
   it("shows no height when an end is between level lines", () => {
@@ -799,13 +836,14 @@ describe("DrawingSummaryPanel — level bands and flagged values", () => {
 
   it("explains that a printed band joins two different levels", () => {
     render(<DrawingSummaryPanel profile={evidenceProfile({ levels: levels() })} />);
+    fireEvent.click(screen.getByRole("button", { name: /Detailed level evidence/ }));
     expect(screen.getByText(/two levels: 14' - 0" is SECOND FLOOR; FIRST FLOOR is at\s+0' - 0"/)).toBeInTheDocument();
     expect(screen.getByText(/the label of 118 schedule rows/)).toBeInTheDocument();
   });
 
   it("shows a flagged value with its printed text and candidate, apart from read values", async () => {
     render(<DrawingSummaryPanel profile={evidenceProfile({ levels: levels() })} documentId="doc_abc" />);
-    fireEvent.click(screen.getByRole("button", { name: /Supporting schedules and level evidence/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Detailed level evidence/ }));
     expect(screen.getByText(/notation defined on S2.01/)).toBeInTheDocument();
     expect(screen.getByText("flagged")).toBeInTheDocument();
     expect(screen.getByText(/closing inch mark missing; reads\s+as 30'-8" if completed/)).toBeInTheDocument();
@@ -869,7 +907,7 @@ describe("DrawingSummaryPanel — column tracing pilot", () => {
     expect(screen.getByText(/Scope: same building \/ area \(datum note\) — OSSE FACILITY ROOF PLAN/)).toBeInTheDocument();
     expect(screen.getByText(/Not this building \/ area: S101 · OSSE PARKING FOUNDATION AND FIRST FLOOR PLAN/)).toBeInTheDocument();
     expect(screen.getByText(/do not establish how many fabricated pieces/)).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /View S123 · PDF p. 11 for T.O. ROOF grid intersection/ }));
+    fireEvent.click(screen.getAllByRole("button", { name: /View S123 · PDF p. 11 for T.O. ROOF grid intersection/ })[0]);
     expect(await screen.findByTestId("pdf-viewer")).toHaveAttribute("data-page", "11");
     spy.mockRestore();
   });
@@ -878,5 +916,24 @@ describe("DrawingSummaryPanel — column tracing pilot", () => {
     render(<DrawingSummaryPanel profile={evidenceProfile({ column_schedule: columnScheduleData() })} />);
     fireEvent.click(screen.getByRole("button", { name: "Show details for A.4'-14 +3" }));
     expect(screen.queryByRole("button", { name: "E-8(-4'-4\")" })).not.toBeInTheDocument();
+  });
+
+  it("ignores a late trace for a previous location and clears its plan sources", async () => {
+    const client = await import("../api/client");
+    let finishFirst;
+    const spy = vi.spyOn(client, "getColumnTrace")
+      .mockImplementationOnce(() => new Promise((resolve) => { finishFirst = resolve; }))
+      .mockResolvedValueOnce({ status: "unresolved", note: "Second location has no supported plan match." });
+    render(<DrawingSummaryPanel profile={withColumns()} documentId="doc_abc" />);
+    fireEvent.click(screen.getByRole("button", { name: "Show details for A.4'-14 +3" }));
+    fireEvent.click(screen.getByRole("button", { name: "A.4'-14" }));
+    fireEvent.click(screen.getByRole("button", { name: "Trace another location" }));
+    fireEvent.click(screen.getByRole("button", { name: "B-4.9" }));
+    await screen.findByText("Second location has no supported plan match.");
+    await act(async () => finishFirst(trace));
+    expect(screen.getByText("Selected location: B-4.9")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /T.O. ROOF grid intersection/ })).not.toBeInTheDocument();
+    expect(screen.queryByText(/column symbol drawn at the grid intersection/)).not.toBeInTheDocument();
+    spy.mockRestore();
   });
 });
