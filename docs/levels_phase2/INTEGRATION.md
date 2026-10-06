@@ -204,3 +204,24 @@ Tests: `tests/test_view_scale.py` (printed/NTS/title-block/validated/
 conflicting/calibrated/several views/slanted/rotation; synthetic plans for
 placed, both sides, neither side, printed-only candidate, no scale; slanted
 crossings) and the Brandywine traces in `test_level_reference_set.py`.
+
+## Drawing Summary review (OSSE, October 2026)
+
+Full write-up: `docs/drawing_summary/OSSE_REVIEW.md`. Contract changes for
+partners (all additive; `summary_api` is now `drawing_intelligence_v3`, and
+`EXTRACTION_VERSION` / `EXTRACTOR_VERSION` were bumped so caches rebuild):
+
+| Field | Change |
+|---|---|
+| `levels.noted_on_plans` | no longer includes grid-location offsets (`C.1(-6")-7.3`) or a legend's own example |
+| `levels.location_offsets` (new) | `{location, grid, offset{raw, inches}, text, context, page, sheet, bbox}` |
+| `levels.legend_examples` (new) | values inside a framing key's own example |
+| `levels.schedule_levels[]` | `association` (`linked` / `checked_no_value` / `unresolved`), `association_note`, `surface`, `excluded_scope[]`; each `plan_matches[]` gains `association` (`supported` / `candidate`), `scope`, `name_relation`, `plan_qualifiers`, and values gain `inches`, `name`, `compared` |
+| `interpretation_rules[]` | a `notation key` rule (`kind: framing_key`) with `parts[]` read from the key's leaders |
+| `unresolved[]` | `undefined_bracket_tag` only when no note and no framing key defines the bracket; `conflicting_bracket_definition` when keys disagree |
+| `column_schedule.schedules[]` | `material_group` (`steel` / `concrete` / `unclassified`), `entry_count` |
+| `column_schedule.entries[]` | `material` (`{status: read, material, mark, size, source}` from a schedule note, or `{status: catalog section, material: steel}`) |
+| `definitions[]` | `schedule_title`; non-steel ruled rows carry `cells[] {heading, group, text}` |
+| `schedule_grid` rows (non-steel kinds) | display-only `cells[]`; `size_text`, marks and the mark map are unchanged |
+| `existing_new` | `is_renovation` needs framing named both existing and new (or `(E)`/`(N)` members); `basis`, `pages` |
+| `facts[]` (new) | typed, sourced facts `X`/`K`/`C`/`M`/`G` for the optional summary model |
