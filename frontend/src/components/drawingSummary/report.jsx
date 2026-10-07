@@ -95,12 +95,14 @@ function PlanCell({ entry, scope, plans }) {
 
 // Where the row's values were printed: the section by its schedule, the plate
 // through the location table and the plate type schedule that define it.
+const sheetPage = (item) => [item?.sheet, item?.page ? `p. ${item.page}` : null].filter(Boolean).join(" ");
+
 function SourceCell({ entry }) {
-  const plate = [...new Set((entry.plate?.via || []).map(where))];
+  const plate = [...new Set((entry.plate?.via || []).map(sheetPage))];
   if (!plate.length) return where(entry);
   return (
     <>
-      <div>Section: {where(entry)}</div>
+      <div>Section: {sheetPage(entry)}</div>
       <div className="muted">Plate: {plate.join("; ")}</div>
     </>
   );
@@ -110,13 +112,13 @@ function ColumnTable({ entries, concrete, scope, plans }) {
   return (
     <table>
       <colgroup>
-        <col style={{ width: concrete ? "16%" : "15%" }} />
-        <col style={{ width: concrete ? "24%" : "13%" }} />
+        <col style={{ width: concrete ? "12%" : "14%" }} />
+        <col style={{ width: concrete ? "24%" : "12%" }} />
         {!concrete && <col style={{ width: "8%" }} />}
-        {!concrete && <col style={{ width: "12%" }} />}
-        <col style={{ width: concrete ? "24%" : "17%" }} />
-        <col style={{ width: concrete ? "18%" : "17%" }} />
-        <col style={{ width: "18%" }} />
+        {!concrete && <col style={{ width: "15%" }} />}
+        <col style={{ width: concrete ? "20%" : "13%" }} />
+        <col style={{ width: concrete ? "28%" : "20%" }} />
+        <col style={{ width: concrete ? "16%" : "18%" }} />
       </colgroup>
       <thead>
         <tr>
@@ -238,9 +240,12 @@ export function SummaryReport({ di, document, mode }) {
   const listedSchedules = schedules.filter((s) => full || s.material_group !== "concrete");
   const targets = listedSchedules.flatMap((s) => entries.filter((e) => e.schedule_id === s.id)
     .flatMap((e) => locateTargets(e).map((location) => ({ scope: scopeOf(s), location }))));
-  const pending = targets.filter((t) => !["done", "pending"].includes(plans[locateKey(t.scope, t.location)]?.status));
-  if (pending.length) {
-    omitted.push(`Plan locations of ${plural(pending.length, "listed location")} (not yet looked up; Locate runs on demand)`);
+  const statusOf = (t) => plans[locateKey(t.scope, t.location)]?.status;
+  const pending = targets.filter((t) => !["done", "pending"].includes(statusOf(t)));
+  const inFlight = targets.filter((t) => statusOf(t) === "pending").length;
+  const notDone = targets.filter((t) => statusOf(t) !== "done").length;
+  if (notDone) {
+    omitted.push(`Plan locations of ${plural(notDone, "listed location")} (not yet looked up; Locate runs on demand)`);
   }
   // Locate runs on demand only, one location at a time (each plan page is read once on the server).
   const lookUp = async () => {
@@ -295,8 +300,9 @@ export function SummaryReport({ di, document, mode }) {
 
       <h2>Columns, plates and plan locations</h2>
       <div className="toolbar">
-        <button type="button" onClick={lookUp} disabled={!pending.length || !document?.document_id}>
-          {pending.length ? `Look up plan locations (${pending.length})` : "Plan locations looked up"}
+        <button type="button" onClick={lookUp} disabled={!pending.length || inFlight > 0 || !document?.document_id}>
+          {inFlight ? `Looking up plan locations (${targets.length - notDone} of ${targets.length})…`
+            : pending.length ? `Look up plan locations (${pending.length})` : "Plan locations looked up"}
         </button>
         <span className="muted">Sections are as printed in each column schedule; each plate&apos;s source shows the
           location table and plate type schedule it comes through.</span>

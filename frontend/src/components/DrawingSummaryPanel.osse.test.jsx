@@ -546,7 +546,7 @@ describe("Drawing Summary — OSSE locations, coverage and review", () => {
       mode="concise" />);
     const row = within(screen.getByText("C.8-8.9").closest("tr"));
     expect(row.getByText("Not yet looked up")).toBeInTheDocument();
-    expect(row.getByText(/Plate: S601 · PDF p. 25/)).toBeInTheDocument();
+    expect(row.getByText(/Plate: S601 p. 25/)).toBeInTheDocument();
     expect(screen.getByText(/Plan locations of \d+ listed locations? \(not yet looked up/)).toBeInTheDocument();
     expect(locateOnPlan).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: /Look up plan locations/ }));
