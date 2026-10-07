@@ -1291,20 +1291,70 @@ def _label_mark(text: Any) -> str | None:
     return match.group(1).replace("-", "") if match else None
 
 
+def _table_rows(profile: dict[str, Any], table: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
+    """``(mark, row)`` for every printed row of one supporting schedule --
+    its definitions and its rows shown as printed -- as the original dicts."""
+
+    return [*((d["mark"], d) for d in profile.get("definitions") or []
+              if d.get("page") == table["page"] and d.get("schedule_title") == table["title"]),
+            *((u["printed_mark"], u) for u in table.get("unread_rows") or [])]
+
+
+def _is_slab_schedule(title: Any) -> bool:
+    return bool(re.search(r"SLAB|DECK", str(title or "")))
+
+
 def _supporting_rows(profile: dict[str, Any]) -> list[dict[str, Any]]:
     """Every printed row of the supporting schedules -- interpreted
     definitions and rows shown as printed -- with its table and source."""
 
-    rows = []
+    return [{"mark": mark, "cells": row.get("cells") or [], "bbox": row.get("bbox"), "material": row.get("material"),
+             "reference": row.get("reference"), "table": table["title"], "kind": table.get("kind"),
+             "page": table["page"], "sheet": table.get("sheet")}
+            for table in profile.get("supporting_schedules") or [] for mark, row in _table_rows(profile, table)]
+
+
+# What a slab / deck row is made of, from its own printed composition (the
+# first rule that matches).
+_SLAB_MATERIALS = (
+    (re.compile(r"\bGRATING\b"), "steel grating"),
+    (re.compile(r"\bCONCRETE\b.*?\bCOMPOSITE\b.*?\bDECK\b"), "composite: concrete on metal deck"),
+    (re.compile(r"\bROOF\s+DECK\b"), "steel roof deck"),
+    (re.compile(r"\b(?:METAL|STEEL|FLOOR)\s+DECK\b"), "steel deck"),
+    (re.compile(r"\bSLAB\s+ON\s+GRADE\b"), "concrete slab on grade"),
+    (re.compile(r"\bCONCRETE\b|#\d+\s*@"), "concrete slab"),
+)
+
+
+def slab_material(cells: list[dict[str, Any]]) -> str | None:
+    text = " ".join(str(c.get("text") or "") for c in cells).upper()
+    return next((label for pattern, label in _SLAB_MATERIALS if pattern.search(text)), None)
+
+
+def _annotate_supporting(profile: dict[str, Any]) -> None:
+    """Per supporting schedule, in separate counts (``completeness``): rows
+    printed, rows whose cells were read as properties (heading: value -- no
+    AISC section is needed for a concrete definition to carry dimensions),
+    rows a printed label in the set links to, and rows referring to another
+    source that stay unresolved here. A slab / deck row also gets the
+    material its composition prints (G2.5 grating, R3 roof deck, S5.25
+    composite) -- a slab schedule is not all concrete."""
+
+    linked = {(d["schedule_title"], d["page"], d["mark"])
+              for entry in (profile.get("column_schedule") or {}).get("entries") or []
+              for item in [entry, *(entry.get("supports") or [])] if (d := item.get("definition"))}
     for table in profile.get("supporting_schedules") or []:
-        defined = [d for d in profile.get("definitions") or []
-                   if d.get("page") == table["page"] and d.get("schedule_title") == table["title"]]
-        for item in [*({"mark": d["mark"], "cells": d.get("cells") or [], "bbox": d.get("bbox")} for d in defined),
-                     *({"mark": u["printed_mark"], "cells": u.get("cells") or [], "bbox": u.get("bbox")}
-                       for u in table.get("unread_rows") or [])]:
-            rows.append({**item, "table": table["title"], "kind": table.get("kind"), "page": table["page"],
-                         "sheet": table.get("sheet")})
-    return rows
+        rows = _table_rows(profile, table)
+        if _is_slab_schedule(table.get("title")):
+            for _mark, row in rows:
+                if material := slab_material(row.get("cells") or []):
+                    row["material"] = material
+            table["materials"] = dict(Counter(row["material"] for _mark, row in rows if row.get("material")))
+        table["completeness"] = {
+            "properties_read": sum(1 for _mark, row in rows if any(c.get("text") for c in row.get("cells") or [])),
+            "linked": sum(1 for mark, _row in rows if (table["title"], table["page"], mark) in linked),
+            "references": sum(1 for _mark, row in rows if row.get("reference")),
+        }
 
 
 def _link_printed_labels(profile: dict[str, Any]) -> None:
@@ -1375,12 +1425,16 @@ def _attach_level_reviews(profile: dict[str, Any], document: dict[str, Any], she
     the schedule, everything else the set prints about it (``level_review``).
     Attached to the level as ``review`` and listed in ``level_reviews``."""
 
+    from services.engineering.level_evidence import _page_lines
     from services.engineering.level_review import (
         STEP_RE,
         boxed_values,
         elevation_markers,
+        general_note_value,
         level_review,
         plan_callouts,
+        related_occurrences,
+        tag_key,
     )
 
     levels = profile.get("levels") or {}
@@ -1397,21 +1451,22 @@ def _attach_level_reviews(profile: dict[str, Any], document: dict[str, Any], she
         boxed_by_page = boxed_values(document, path, {m["page"] for _lv, m in conflicted}) if path else {}
     except Exception:  # noqa: BLE001 - a missing or unreadable PDF leaves the local values unread
         boxed_by_page = {}
-    slab_rows = [r for r in _supporting_rows(profile) if re.search(r"SLAB|DECK", str(r["table"]))]
-    tag_rows = {re.sub(r"\s+", "", str(r["mark"])).upper(): r for r in slab_rows}
+    # Slab / deck tags printed anywhere in the set, by page (PDF space), read once.
+    tag_rows = {tag_key(r["mark"]): r for r in _supporting_rows(profile) if _is_slab_schedule(r["table"])}
+    tag_words: dict[int, list[dict[str, Any]]] = defaultdict(list)
+    for word in document.get("words") or []:
+        row = tag_rows.get(tag_key(word.get("text")))
+        if row and len(word.get("bbox") or []) >= 4:
+            tag_words[int(word.get("page_number") or 0)].append(
+                {"mark": row["mark"], "bbox": [round(v, 1) for v in word["bbox"][:4]], "row": row})
+    page_lines = _page_lines(document)
+    related_by_value: dict[float, list[dict[str, Any]]] = {}
     for level, match in conflicted:
         page = match["page"]
         boxed = convert_boxes([{**b, "page": page} for b in boxed_by_page.get(str(page), [])], box)
-        tags = []
-        for word in document.get("words") or []:
-            if int(word.get("page_number") or 0) != page:
-                continue
-            row = tag_rows.get(re.sub(r"\s+", "", str(word.get("text") or "")).upper())
-            if row and len(word.get("bbox") or []) >= 4:
-                tags.append({"mark": row["mark"], "page": page, "bbox": [round(v, 1) for v in word["bbox"][:4]],
-                             "definition": {"table": row["table"], "page": row["page"], "sheet": row["sheet"],
-                                            "bbox": row["bbox"], "cells": row["cells"]}})
-        tags = convert_boxes(tags, box)
+        tags = convert_boxes([{"mark": t["mark"], "page": page, "bbox": t["bbox"], "material": t["row"].get("material"),
+                               "definition": {key: t["row"][key] for key in ("table", "page", "sheet", "bbox", "cells")}}
+                              for t in tag_words.get(page, [])], box)
         steps = convert_boxes([{"text": _clean(b.get("text")), "page": page, "bbox": b["bbox"][:4]}
                                for b in document.get("blocks") or []
                                if int(b.get("page_number") or 0) == page and len(_clean(b.get("text"))) <= 60
@@ -1422,9 +1477,13 @@ def _attach_level_reviews(profile: dict[str, Any], document: dict[str, Any], she
         others = [{"level": lv["name"], "sheet": m.get("sheet"), "comparison": m.get("comparison")}
                   for lv in schedule_levels if lv is not level and lv["schedule_id"] == level["schedule_id"]
                   for m in lv.get("plan_matches") or [] if m.get("association") == "supported"]
+        inches = round(general_note_value(match)["inches"], 4)
+        if inches not in related_by_value:
+            related_by_value[inches] = convert_boxes(related_occurrences(inches, page_lines, tag_words, sheets), box)
+        related = related_by_value[inches]
         review = level_review(level, match, markers=markers, boxed=boxed,
                               callouts=convert_boxes(plan_callouts(document, page), box),
-                              tags=tags, steps=steps, steel_rule=rule, other_levels=others)
+                              tags=tags, steps=steps, steel_rule=rule, other_levels=others, related=related)
         level["review"] = review
         profile["level_reviews"].append(review)
 
@@ -1813,6 +1872,7 @@ def build_drawing_intelligence(
                               legend_regions={k["page"]: [box(k["page"], k["region"])] for k in keys}),
     }
     _link_printed_labels(profile)
+    _annotate_supporting(profile)
     _attach_level_reviews(profile, document, sheets, box)
     profile["facts"] = summary_facts(profile)
     profile["narrative"] = _render_narrative(profile)

@@ -32,8 +32,15 @@ import {
 import { CloseOutlined, ExpandMoreOutlined, PrintOutlined, SearchOutlined } from "@mui/icons-material";
 import { getColumnTrace } from "../api/client";
 import { formatPlate, formatPrintedSize } from "../lib/dimensions";
-import { directoryRows, ScheduleDirectory, supportingGroupsOf } from "./drawingSummary/directory";
-import { LevelReview } from "./drawingSummary/levelReview";
+import {
+  completenessText,
+  directoryRows,
+  printedRowsText,
+  ScheduleDirectory,
+  supportingGroupsOf,
+  supportingRowsOf,
+} from "./drawingSummary/directory";
+import { LevelReview, reviewSourcesText } from "./drawingSummary/levelReview";
 import { LocateButton, LocateDialog, LocationProvider, locateSources, PlanPreview, useLocation } from "./drawingSummary/locate";
 import { SourcePdf } from "./drawingSummary/pdf";
 import { pagesLabel, sourceIdentity, ViewPageButton, whereLabel } from "./drawingSummary/sources";
@@ -516,7 +523,7 @@ function ColumnCard({ entry, onView }) {
       onView={onView} />]);
   }
   if (entry.extent) {
-    rows.push(["Supported levels", extent || "Not established at both ends"]);
+    rows.push(["Supported levels", extent || "Ends not established"]);
   } else if (entry.extent_note) {
     rows.push(["Vertical extent", entry.extent_note]);
   }
@@ -1434,6 +1441,11 @@ function LevelRow({ level, onView, note, differences = {} }) {
           {linked.map((match) => (
             <Typography key={match.page} variant="body2"><LinkedEvidence match={match} /></Typography>
           ))}
+          {level.review && (
+            <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
+              All printed sources: {reviewSourcesText(level.review)} (see Items needing attention)
+            </Typography>
+          )}
         </TableCell>
         <TableCell>
           {linked.length === 0 ? <Typography variant="body2" color="text.secondary">—</Typography> : linked.map((match) => (
@@ -2097,12 +2109,7 @@ function PrintedValue({ text }) {
 }
 
 function SupportingScheduleTable({ schedule, definitions, onView }) {
-  const rows = [
-    ...definitions.map((d) => ({ key: d.id, mark: d.mark, cells: d.cells || [], bbox: d.bbox, reference: d.reference })),
-    ...(schedule.unread_rows || []).map((u, i) => ({
-      key: `u${i}`, mark: u.printed_mark, cells: u.cells || [], bbox: u.bbox, reference: u.reference, unread: true,
-    })),
-  ].sort((a, b) => (a.bbox?.[1] ?? 0) - (b.bbox?.[1] ?? 0));
+  const rows = supportingRowsOf(schedule, definitions);
   const paths = (rows.find((r) => r.cells.length)?.cells || []).map((c) => c.path?.length ? c.path : [c.heading]);
   const header = headerRows([["MARK"], ...paths]);
   const unread = rows.filter((r) => r.unread);
@@ -2113,16 +2120,15 @@ function SupportingScheduleTable({ schedule, definitions, onView }) {
         <Typography variant="subtitle1" fontWeight={700}>{titleCase(schedule.title)}</Typography>
         <Typography variant="body2" color="text.secondary" sx={{ flexGrow: 1 }}>
           {where} ·{" "}
-          {schedule.printed_rows != null
-            ? `${schedule.printed_rows} printed rows identified · ${schedule.extracted_rows} with interpreted details`
-            : `${schedule.extracted_rows} rows with interpreted details · printed total not established`}
+          {printedRowsText(schedule)} · {completenessText([schedule])}
         </Typography>
         <ViewPageButton item={{ ...schedule, mark: schedule.title }} label="View schedule" onView={onView} />
       </Stack>
       {unread.length > 0 && (
         <Typography variant="body2" color="text.secondary" sx={{ px: 2, pt: 1 }}>
-          {unread.length} additional printed row{unread.length === 1 ? " is" : "s are"} available for review
-          ({unread.map((r) => r.mark).join(", ")}). They are shown as printed; nothing is inferred for them
+          {unread.length} printed row{unread.length === 1 ? " is" : "s are"} not used as takeoff label
+          definitions ({unread.map((r) => r.mark).join(", ")}); their cells are read and shown as printed, and
+          nothing is inferred for them
           {unread.every((r) => r.reference) ? " — their remarks refer to another source" : ""}.
         </Typography>
       )}
@@ -2153,9 +2159,12 @@ function SupportingScheduleTable({ schedule, definitions, onView }) {
                   ) : (
                     <Typography variant="body2" fontWeight={700} sx={{ fontFamily: "monospace" }}>{row.mark}</Typography>
                   )}
+                  {row.material && (
+                    <Typography variant="caption" sx={{ display: "block" }}>{row.material}</Typography>
+                  )}
                   {(row.unread || row.reference) && (
                     <Typography variant="caption" color="text.secondary" sx={{ display: "block", whiteSpace: "nowrap" }}>
-                      {row.unread ? "Printed evidence — not interpreted" : "Refers to another source"}
+                      {row.reference ? "Refers to another source" : "Shown as printed"}
                     </Typography>
                   )}
                 </TableCell>

@@ -40,8 +40,23 @@ function tagSummary(tag) {
   return text.join("; ");
 }
 
-// Printed feet-inch values in the sentence with proper symbols (55'-2" -> 55′-2″).
-const withLengths = (text) => String(text || "").replace(/\d+'\s*-\s*\d+(?:\s+\d+\/\d+)?"/g, (m) => formatLength(m));
+// Printed feet-inch values in the sentence with proper symbols (55'-2" -> 55′-2″, 2 1/2" -> 2½″).
+export const withLengths = (text) => String(text || "")
+  .replace(/\d+'\s*-\s*\d+(?:\s+\d+\/\d+)?"|(?<![\d'/.-])\d+\s+\d+\/\d+"/g, (m) => formatLength(m));
+
+// Every printed source of a review in one line, for compact tables:
+// "general note 55′-2″ · S122; local annotation 55′-10″ · S122; Section 1 55′-10″ · S421 ...".
+export const RELATED_HEADING =
+  "The general note's value printed elsewhere (not evidence for this level)";
+
+export function reviewSourcesText(review) {
+  return (review?.items || []).filter((i) => i.role !== "schedule").map((i) => {
+    const sheet = i.source?.sheet || (i.source?.page ? `p. ${i.source.page}` : "");
+    const name = { general_note: "general note", local_annotation: "local annotation" }[i.role]
+      || String(i.label || "").split(" · ")[0];
+    return `${name} ${formatLength(i.value)} · ${sheet}${i.role === "section_local" ? " (local condition)" : ""}`;
+  }).join("; ");
+}
 
 export function LevelReview({ review, onView, onCompare }) {
   const general = review.items.find((i) => i.role === "general_note");
@@ -76,7 +91,7 @@ export function LevelReview({ review, onView, onCompare }) {
                   <Typography variant="body2">{item.scope}</Typography>
                   {item.tag && (
                     <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
-                      {item.tag.mark} per {item.tag.definition?.table?.toLowerCase()}: {tagSummary(item.tag)}
+                      {item.tag.mark}{item.tag.material ? ` (${item.tag.material})` : ""} per {item.tag.definition?.table?.toLowerCase()}: {withLengths(tagSummary(item.tag))}
                     </Typography>
                   )}
                 </TableCell>
@@ -124,6 +139,22 @@ export function LevelReview({ review, onView, onCompare }) {
           )}
         </Box>
       )}
+      {review.related?.length > 0 && (
+        <Box sx={{ mt: 1.5 }}>
+          <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>{RELATED_HEADING}</Typography>
+          {review.related.map((r) => (
+            <Stack key={`${r.source.page}-${r.source.bbox}`} direction="row" spacing={1} useFlexGap
+              sx={{ alignItems: "center", flexWrap: "wrap" }}>
+              <Typography variant="body2">{withLengths(r.note)}</Typography>
+              <ViewPageButton item={{ ...r.source, mark: `${r.value}${r.tag ? ` beside ${r.tag.mark}` : ""}` }}
+                label={r.source.sheet || "View"} onView={onView} />
+              {r.tag?.definition?.page && (
+                <ViewPageButton item={{ ...r.tag.definition, mark: `${r.tag.mark} definition` }} label={r.tag.mark} onView={onView} />
+              )}
+            </Stack>
+          ))}
+        </Box>
+      )}
       {review.explanations?.length > 0 && (
         <Box sx={{ mt: 1.5 }}>
           <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
@@ -136,7 +167,7 @@ export function LevelReview({ review, onView, onCompare }) {
                 <Box component="span" sx={{ color: EXPLANATION_STATUS[e.status]?.color, fontWeight: 600 }}>
                   {EXPLANATION_STATUS[e.status]?.label || e.status}
                 </Box>
-                <Typography component="span" variant="body2" color="text.secondary">. {e.basis}</Typography>
+                <Typography component="span" variant="body2" color="text.secondary">. {withLengths(e.basis)}</Typography>
               </Typography>
             ))}
           </Box>

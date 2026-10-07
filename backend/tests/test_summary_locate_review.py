@@ -17,17 +17,21 @@ import fitz
 from services.engineering import column_trace as ct
 from services.engineering.column_schedule import column_schedule_view
 from services.engineering.drawing_intelligence import (
+    _annotate_supporting,
     _link_printed_labels,
     _representative_columns,
     evidence_packet,
+    slab_material,
     summary_facts,
 )
 from services.engineering.drawing_summary_llm import _claims_ok, _grounded, summarize
+from services.engineering.level_evidence import _page_lines
 from services.engineering.level_review import (
     boxed_values,
     elevation_markers,
     level_review,
     plan_callouts,
+    related_occurrences,
 )
 from services.engineering.schedule_tables import (
     _title_above,
@@ -263,15 +267,16 @@ class LevelMarkerTests(unittest.TestCase):
         self.assertEqual([(c["view"], c["sheet_ref"]) for c in plan_callouts(self.document(), 10)], [("3", "S-421-O")])
 
 
-def _level2_review(markers, boxed=(), callouts=(), steps=(), others=None):
+def _level2_review(markers, boxed=(), callouts=(), steps=(), others=None, related=(), tags=()):
     level = {"name": "T.O. SLAB LEVEL 2", "schedule": "OSSE BUILDING - GCS", "schedule_id": "S2", "printed": "55' - 10\"",
              "elevation": {"inches": 670.0}, "surface": "top of slab", "page": 26, "sheet": "S602", "bbox": [1, 2, 3, 4]}
     match = {"page": 10, "sheet": "S122", "values": [{"raw": "55' - 2\"", "inches": 662.0, "surface": "top of slab",
                                                       "compared": True, "source": {"page": 10, "sheet": "S122", "bbox": [9, 9, 9, 9]}}]}
     rule = {"offset": {"raw": "<0' - 5 1/4\">", "inches": 5.25}, "source": {"page": 10, "sheet": "S122", "text": "TOP OF STEEL ..."}}
-    return level_review(level, match, markers=markers, boxed=list(boxed), callouts=list(callouts), tags=[],
+    return level_review(level, match, markers=markers, boxed=list(boxed), callouts=list(callouts), tags=list(tags),
                         steps=list(steps), steel_rule=rule,
-                        other_levels=others if others is not None else [{"level": "T.O. ROOF", "sheet": "S123", "comparison": "agrees"}])
+                        other_levels=others if others is not None else [{"level": "T.O. ROOF", "sheet": "S123", "comparison": "agrees"}],
+                        related=list(related))
 
 
 class LevelReviewTests(unittest.TestCase):
@@ -312,6 +317,67 @@ class LevelReviewTests(unittest.TestCase):
         self.assertEqual({e["id"]: e["status"] for e in stepped["explanations"]}["local_elevations"], "supported")
         lone = _level2_review(self.markers(), others=[])
         self.assertEqual({e["id"]: e["status"] for e in lone["explanations"]}["datum"], "unresolved")
+
+    def test_the_general_notes_value_printed_elsewhere_is_a_separate_condition(self):
+        # S103: 55' - 2" beside grating tag G2.5 (2 1/2" deep), members around it at <54' - 11 1/2">.
+        def line(text, bbox, page=7):
+            return {"text": text, "bbox": bbox, "page_number": page}
+        document = {"lines": [line("55' - 2\"", [885, 1390, 914, 1399]),
+                              line("W8X21 < 54' - 11 1/2\" >", [844, 1351, 948, 1361]),
+                              line("< 54' - 11 1/2\" >", [788, 1391, 797, 1457]),
+                              line("55' - 2\"", [100, 100, 130, 110], page=3)]}
+        grating = {"mark": "G2.5", "table": "SLAB/DECK SCHEDULE", "page": 25, "sheet": "S601", "bbox": [1, 2, 3, 4],
+                   "material": "steel grating",
+                   "cells": [{"heading": "TOTAL DEPTH", "path": ["TOTAL DEPTH"], "text": "2 1/2\""}]}
+        tags = {7: [{"mark": "G2.5", "bbox": [846, 1418, 856, 1439], "row": grating}]}
+        found = related_occurrences(662.0, _page_lines(document), tags, {7: "S103", 3: "S101"})
+        # The page-3 value has no tag and no elevation near it: it may be a dimension, so it is not listed.
+        self.assertEqual([(o["sheet"], o["text"]) for o in found], [("S103", "55' - 2\"")])
+        review = _level2_review(self.markers(), related=found)
+        related = review["related"][0]
+        self.assertEqual(related["result"], "54'-11 1/2\"")
+        self.assertEqual(related["printed_count"], 2)
+        self.assertIn("beside G2.5 (steel grating, total depth 2 1/2\")", related["note"])
+        self.assertTrue(related["separate"])
+        self.assertIn("does not resolve them", related["note"])
+        self.assertNotIn("local_annotation", [i["role"] for i in review["items"]])
+        basis = next(e for e in review["explanations"] if e["id"] == "inconsistent")["basis"]
+        self.assertIn("In the reviewed evidence", basis)
+        self.assertIn("also printed on S103 beside G2.5", basis)
+        self.assertNotIn("printed only", basis)
+        # Beside the review's own tag, the same value is not declared a separate condition.
+        own = [{"text": "55' - 10\"", "inches": 670.0, "box_bbox": [100, 100, 140, 112]}]
+        same = _level2_review(self.markers(), boxed=own, tags=[{"mark": "G2.5", "bbox": [100, 115, 110, 125]}], related=found)
+        self.assertFalse(same["related"][0]["separate"])
+        self.assertIn("is not established", same["related"][0]["note"])
+
+
+class SupportingCompletenessTests(unittest.TestCase):
+    def test_a_slab_schedule_is_not_all_concrete(self):
+        cases = {"19-W-2-2\" x 3/16 GALV. STEEL GRATING W/ BANDED EDGES": "steel grating",
+                 "18 GA. GALV. TYPE N ROOF DECK. PROVIDE 3/4\" PUDDLE WELD": "steel roof deck",
+                 "3.25\" CONCRETE ON 2\" -18 GA COMPOSITE GALVANIZED METAL FLOOR DECK": "composite: concrete on metal deck",
+                 "SLAB ON GRADE. REINFORCE WITH 6\"X6\"W.2.9XW2.9": "concrete slab on grade",
+                 "#6 @ 10\" O.C. E.A. WAY BOTTOM": "concrete slab"}
+        for text, label in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(slab_material([{"text": text}]), label)
+        self.assertIsNone(slab_material([{"text": "SEE PLAN"}]))
+
+    def test_rows_read_linked_and_referring_elsewhere_are_counted_apart(self):
+        cells = [{"heading": "WIDTH", "text": "24\""}]
+        profile = {
+            "supporting_schedules": [{"title": "CONCRETE SCHEDULE", "page": 25, "sheet": "S601", "printed_rows": 3,
+                                      "unread_rows": [{"printed_mark": "RC1", "cells": cells},
+                                                      {"printed_mark": "RC2", "cells": cells, "reference": "SEE DETAIL"},
+                                                      {"printed_mark": "RC3", "cells": [{"heading": "WIDTH", "text": ""}]}]}],
+            "definitions": [],
+            "column_schedule": {"entries": [{"definition": {"schedule_title": "CONCRETE SCHEDULE", "page": 25, "mark": "RC1"},
+                                             "supports": []}]},
+        }
+        _annotate_supporting(profile)
+        self.assertEqual(profile["supporting_schedules"][0]["completeness"],
+                         {"properties_read": 2, "linked": 1, "references": 1})
 
 
 class BoxedValueTests(unittest.TestCase):

@@ -34,7 +34,40 @@ export function supportingGroupsOf(coverage) {
 
 const MATERIAL = { steel: "Steel", concrete: "Concrete", unclassified: "Not classified" };
 
-const plural = (n, word, many = `${word}s`) => `${n} ${n === 1 ? word : many}`;
+// What a supporting group is made of: the materials its rows print (a slab /
+// deck schedule mixes grating, roof deck, composite and concrete), else concrete.
+function groupSystem(group) {
+  const materials = [...new Set(group.schedules.flatMap((s) => Object.keys(s.materials || {})))];
+  if (materials.length) return materials.map((m, i) => (i ? m : m[0].toUpperCase() + m.slice(1))).join(", ");
+  return group.key === "other-schedules" ? "Concrete / not classified" : "Concrete";
+}
+
+// Separate counts, never one "interpreted" figure: rows whose cells were read
+// as properties, rows a printed label links to, rows referring elsewhere.
+export function completenessText(schedules) {
+  const sum = (key) => schedules.reduce((n, s) => n + (s.completeness?.[key] || 0), 0);
+  const [read, linked, references] = [sum("properties_read"), sum("linked"), sum("references")];
+  return [
+    `${plural(read, "row")} with properties read`,
+    linked ? `${linked} linked from a printed label` : null,
+    references ? `${references} refer${references === 1 ? "s" : ""} to another source (unresolved)` : null,
+  ].filter(Boolean).join(" · ");
+}
+
+export const printedRowsText = (schedule) => (schedule.printed_rows != null
+  ? plural(schedule.printed_rows, "printed row") : "printed total not established");
+
+/** A supporting schedule's printed rows -- definitions and rows shown as printed -- in printed order. */
+export function supportingRowsOf(schedule, definitions) {
+  return [
+    ...definitions.map((d) => ({ key: d.id, mark: d.mark, cells: d.cells || [], bbox: d.bbox, reference: d.reference,
+      material: d.material })),
+    ...(schedule.unread_rows || []).map((u, i) => ({ key: `u${i}`, mark: u.printed_mark, cells: u.cells || [], bbox: u.bbox,
+      reference: u.reference, material: u.material, unread: true })),
+  ].sort((a, b) => (a.bbox?.[1] ?? 0) - (b.bbox?.[1] ?? 0));
+}
+
+export const plural = (n, word, many = `${word}s`) => `${n} ${n === 1 ? word : many}`;
 
 /** Directory rows from the profile (also used by the printed report). */
 export function directoryRows(di, supportingGroups = []) {
@@ -92,10 +125,10 @@ export function directoryRows(di, supportingGroups = []) {
   for (const g of supportingGroups) {
     rows.push({
       key: `support-${g.key}`, anchor: `summary-support-${g.key}-head`, group: g.key,
-      title: g.label, kind: plural(g.schedules.length, "schedule"), system: "Concrete / foundations",
+      title: g.label, kind: plural(g.schedules.length, "schedule"), system: groupSystem(g),
       sheet: [...new Set(g.schedules.map((s) => s.sheet || `p. ${s.page}`))].join(", "),
       printed: g.rows == null ? "—" : plural(g.rows, "printed row"),
-      linked: `${g.schedules.reduce((n, s) => n + (s.extracted_rows || 0), 0)} interpreted · shown as printed`,
+      linked: completenessText(g.schedules),
     });
   }
   return rows;

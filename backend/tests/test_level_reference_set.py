@@ -122,6 +122,12 @@ class LevelReferenceTests(unittest.TestCase):
         self.assertTrue(all(not c["printed"] for c in review["checks"] if c is not check))
         status = {e["id"]: e["status"] for e in review["explanations"]}
         self.assertEqual({k: status[k] for k in spec["explanations"]}, spec["explanations"])
+        # The general note's value printed elsewhere (S103 beside grating G2.5) is a separate condition.
+        self.assertEqual([[r["source"]["sheet"], r["tag"]["mark"], r["tag"]["material"], r["result"], r["printed_count"]]
+                          for r in review["related"]], spec["related"])
+        self.assertTrue(all(r["separate"] for r in review["related"]))
+        slab = next(s for s in profile["supporting_schedules"] if "SLAB" in s["title"])
+        self.assertEqual(slab["materials"], spec["slab_materials"])
         self.assertEqual(sorted({p for s in profile["schedule_insights"] for p in s["source_pages"]}),
                          expected["schedule_insight_pages"])
 

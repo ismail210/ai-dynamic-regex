@@ -28,6 +28,7 @@ from collections import defaultdict
 from typing import Any
 
 from services.engineering.level_evidence import (
+    _ENCLOSED_RE,
     _clean,
     format_elevation,
     level_keys,
@@ -189,18 +190,93 @@ def _near(a: list[float], b: list[float], reach: float) -> bool:
     return a[0] - reach <= b[2] and b[0] - reach <= a[2] and a[1] - reach <= b[3] and b[1] - reach <= a[3]
 
 
+def general_note_value(match: dict[str, Any]) -> dict[str, Any]:
+    """The plan's datum-note value a level is compared with."""
+
+    return next((v for v in match["values"] if v.get("compared")), match["values"][0])
+
+
+def tag_key(text: Any) -> str:
+    """A slab / deck tag as printed (``S5.25``, ``G 2.5``), for lookup."""
+
+    return re.sub(r"\s+", "", str(text or "")).upper()
+
+
+def related_occurrences(inches: float, page_lines: dict[int, list[dict[str, Any]]],
+                        tag_words: dict[int, list[dict[str, Any]]], sheets: dict[int, str]) -> list[dict[str, Any]]:
+    """Other places the set prints a datum value as a bare elevation -- S103
+    ``55' - 2"`` beside grating tag G2.5 -- with the slab / deck tag printed
+    beside it (``tag_words``: tags by page) and the ``< >`` member elevations
+    printed around it. A bare value counts only with such context (otherwise
+    it may be a dimension). PDF space. Observations only."""
+
+    out = []
+    for page, lines in sorted(page_lines.items()):
+        for line in lines:
+            text = _clean(line.get("text"))
+            value = parse_elevation(text) if text and text[0].isdigit() else None
+            if not (value and value["unit"] == "ft-in" and not value["enclosure"] and abs(value["inches"] - inches) < 0.01):
+                continue
+            bbox = line["bbox"][:4]
+            tag = next((t for t in tag_words.get(page, []) if _near(bbox, t["bbox"], _TAG_REACH)), None)
+            nearby = [v["inches"] for other in lines if other is not line and _near(bbox, other["bbox"][:4], _LOCAL_REACH)
+                      for m in _ENCLOSED_RE.finditer(_clean(other.get("text")))
+                      if (v := parse_elevation(m.group(0))) and v["enclosure"] == "<" and v["unit"] == "ft-in"
+                      and abs(v["inches"] - inches) <= _LEVEL_REACH]
+            if tag or nearby:
+                out.append({"page": page, "sheet": sheets.get(page), "text": text, "inches": value["inches"],
+                            "bbox": [round(c, 1) for c in bbox], "tag": tag, "nearby": nearby})
+    return out
+
+
+def _related(occurrence: dict[str, Any], own_tags: set) -> dict[str, Any]:
+    """One related occurrence with its tag's printed depth checked against
+    the member elevations printed around it (numbers only). It is a separate
+    condition only when its tag is not one the review's own sources carry."""
+
+    tag = occurrence["tag"]
+    row = (tag or {}).get("row") or {}
+    depth_cell = next((c for c in row.get("cells") or []
+                       if re.search(r"DEPTH|THICKNESS", (c.get("path") or [c.get("heading") or ""])[-1], re.IGNORECASE)
+                       and c.get("text")), None)
+    depth = parse_elevation(depth_cell["text"]) if depth_cell else None
+    result = occurrence["inches"] - depth["inches"] if depth else None
+    printed = sum(1 for n in occurrence["nearby"] if result is not None and abs(n - result) < 0.01)
+    separate = bool(tag) and tag["mark"] not in own_tags
+    details = [d for d in (row.get("material"), depth_cell and f"total depth {depth_cell['text']}") if d]
+    beside = f" beside {tag['mark']}" + (f" ({', '.join(details)})" if details else "") if tag else ""
+    note = f"Printed on {occurrence.get('sheet') or 'p. ' + str(occurrence['page'])}{beside}"
+    if printed:
+        depth_text = format_elevation(depth["inches"]).removeprefix("0'-")
+        note += (f": {format_elevation(occurrence['inches'])} − {depth_text} = {format_elevation(result)}, "
+                 f"the bracketed member elevation printed {printed} time{'s' if printed != 1 else ''} around it")
+    note += (". A separate condition from the slab statements above; it does not resolve them." if separate
+             else ". Whether it states the same condition as the sources above is not established.")
+    return {
+        "value": occurrence["text"], "separate": separate,
+        "source": {"page": occurrence["page"], "sheet": occurrence.get("sheet"), "bbox": occurrence["bbox"]},
+        "tag": ({"mark": tag["mark"], "material": row.get("material"),
+                 "definition": {"table": row.get("table"), "page": row.get("page"), "sheet": row.get("sheet"),
+                                "bbox": row.get("bbox")}} if tag else None),
+        "result": format_elevation(result) if result is not None else None,
+        "printed_count": printed,
+        "note": note,
+    }
+
+
 def level_review(level: dict[str, Any], match: dict[str, Any], *, markers: list[dict[str, Any]],
                  boxed: list[dict[str, Any]], callouts: list[dict[str, Any]], tags: list[dict[str, Any]],
                  steps: list[dict[str, Any]], steel_rule: dict[str, Any] | None,
-                 other_levels: list[dict[str, Any]]) -> dict[str, Any]:
+                 other_levels: list[dict[str, Any]], related: list[dict[str, Any]] = ()) -> dict[str, Any]:
     """Everything printed about one schedule level whose linked plan's datum
     note disagrees with the schedule. ``boxed`` / ``tags`` / ``steps`` are on
-    the plan's page; all boxes are display space."""
+    the plan's page; ``related`` (``related_occurrences``) are other places
+    the general note's value is printed; all boxes are display space."""
 
     keys = level_keys(level["name"])
     ordinals = {k[1] for k in keys if k[1] is not None}
     surface = level.get("surface")
-    note = next((v for v in match["values"] if v.get("compared")), match["values"][0])
+    note = general_note_value(match)
     items: list[dict[str, Any]] = [
         {"role": "schedule", "label": f"Column schedule · {level['schedule']}", "value": level["printed"],
          "inches": level["elevation"]["inches"], "surface": surface,
@@ -272,7 +348,9 @@ def level_review(level: dict[str, Any], match: dict[str, Any], *, markers: list[
     general = round(note["inches"], 4)
     others = [i for i in items if i["role"] in ("schedule", "local_annotation", "section")
               and round(i["inches"], 4) != general]
-    explanations = _explanations(items, note, others, other_levels, checks)
+    own_tags = {i["tag"]["mark"] for i in items if i.get("tag")}
+    related_items = [_related(o, own_tags) for o in related]
+    explanations = _explanations(items, note, others, other_levels, checks, related_items)
     headline = (f"{_short(level['name'])} elevation requires review: the general datum note states "
                 f"{format_elevation(note['inches'])}, while "
                 + _join([_describe(i) for i in others]) + f" state{'s' if len(others) == 1 else ''} "
@@ -280,6 +358,7 @@ def level_review(level: dict[str, Any], match: dict[str, Any], *, markers: list[
                 + ". Their applicable areas have not been fully reconciled.") if others else None
     return {"level": level["name"], "schedule_id": level["schedule_id"], "plan_page": match["page"],
             "headline": headline, "items": items, "checks": checks, "explanations": explanations,
+            "related": related_items,
             "distinct_values": len(values)}
 
 
@@ -299,7 +378,8 @@ def _join(parts: list[str]) -> str:
 
 
 def _explanations(items: list[dict[str, Any]], note: dict[str, Any], others: list[dict[str, Any]],
-                  other_levels: list[dict[str, Any]], checks: list[dict[str, Any]]) -> list[dict[str, Any]]:
+                  other_levels: list[dict[str, Any]], checks: list[dict[str, Any]],
+                  related: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Candidate explanations with what the printed evidence says about each.
     ``supported`` / ``not_supported`` need printed evidence; everything else
     stays ``unresolved``."""
@@ -308,6 +388,17 @@ def _explanations(items: list[dict[str, Any]], note: dict[str, Any], others: lis
     steps = [s for i in local for s in i.get("local_steps") or []]
     surfaces = {i.get("surface") for i in items if i["role"] in ("general_note", "section") and i.get("surface")}
     agreeing = [o for o in other_levels if o.get("comparison") == "agrees"]
+    value = format_elevation(note["inches"])
+    stated = (f"In the reviewed evidence, {value} is stated for this level only in the general note; {len(others)} "
+              f"other source{'s' if len(others) != 1 else ''} state{'s' if len(others) == 1 else ''} "
+              + _join(sorted({format_elevation(i["inches"]) for i in others})) + ".")
+    also = ""
+    if related:
+        elsewhere = _join([(r["source"].get("sheet") or f"p. {r['source']['page']}")
+                           + (f" beside {r['tag']['mark']}" if r.get("tag") else "") for r in related])
+        also = f" {value} is also printed on {elsewhere}" + (
+            " — a separate condition (below), not a statement about the slab." if all(r["separate"] for r in related)
+            else " (below); whether that states the same condition is not established.")
     out = [
         {"id": "local_elevations", "label": "Different local slab elevations",
          "status": "supported" if steps else "unresolved",
@@ -329,10 +420,7 @@ def _explanations(items: list[dict[str, Any]], note: dict[str, Any], others: lis
                   "at particular places. Which areas each covers is not stated."},
         {"id": "inconsistent", "label": "An inconsistent annotation",
          "status": "unresolved",
-         "basis": (f"{format_elevation(note['inches'])} is printed only in the general note; "
-                   f"{len(others)} other source{'s' if len(others) != 1 else ''} print "
-                   + _join(sorted({format_elevation(i['inches']) for i in others}))
-                   + ". Printing a value more often does not make it govern.")},
+         "basis": stated + also + " Printing a value more often does not make it govern."},
     ]
     printed = [c for c in checks if c["printed"]]
     unprinted = [c for c in checks if not c["printed"]]

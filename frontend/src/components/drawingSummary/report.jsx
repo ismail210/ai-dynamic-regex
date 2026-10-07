@@ -2,8 +2,11 @@
 // from what happens to be expanded on screen. "concise" lists every steel and
 // table-only column entry and summarises the rest; "full" lists every record
 // the summary holds. Both end with what was left out.
+import { useState } from "react";
 import { formatLength, formatPlate, formatPrintedSize } from "../../lib/dimensions";
-import { directoryRows, supportingGroupsOf } from "./directory";
+import { completenessText, directoryRows, plural, printedRowsText, supportingGroupsOf, supportingRowsOf } from "./directory";
+import { RELATED_HEADING, reviewSourcesText, withLengths } from "./levelReview";
+import { fetchLocation, LOCATE_STATE } from "./locate";
 
 const where = (item) => [item?.sheet, item?.page ? `PDF p. ${item.page}` : null].filter(Boolean).join(" · ");
 const titleCase = (text) => String(text || "").toLowerCase().replace(/\b[a-z]/g, (c) => c.toUpperCase());
@@ -62,20 +65,58 @@ function levelsText(entry) {
     const diff = entry.level_difference?.status === "computed" ? `; elevation difference ${formatLength(entry.level_difference.inches)} (calculated, not a member length)` : "";
     return `${shortLevel(ext.bottom.line.name)} to ${shortLevel(ext.top.line.name)}${diff}`;
   }
-  if (ext) return "Not established at both ends";
+  if (ext) return "Ends not established";
   return entry.extent_note ? "Not given (table only)" : "—";
 }
 
-function ColumnTable({ entries, concrete }) {
+// The grid locations Locate can look for on an entry (one, or each of several).
+const locateTargets = (entry) => (entry.key_role === "location"
+  ? (entry.locations || []).filter((l) => l.status === "parsed").map((l) => l.raw) : []);
+const locateKey = (scope, location) => `${scope || ""}|${location}`;
+
+// A looked-up location in a few words; nothing looked up is never "not found".
+function planText(found) {
+  if (!found) return "Not yet looked up";
+  if (found.status === "pending") return "Looking up…";
+  if (found.status === "error") return "Lookup failed — retry";
+  const result = found.result;
+  if (result.status === "plan_not_found") return `Not found: ${result.note || "no plan prints both grid labels"}`;
+  if (result.status === "not_a_grid_location") return "Not a grid location";
+  const view = (result.views || [])[0];
+  return view ? `${view.sheet || `p. ${view.page}`} — ${LOCATE_STATE[view.state] || view.state}` : "Not found";
+}
+
+function PlanCell({ entry, scope, plans }) {
+  const targets = locateTargets(entry);
+  if (!targets.length) return "—";
+  if (targets.length === 1) return planText(plans[locateKey(scope, targets[0])]);
+  return targets.map((t) => <div key={t}><span className="mono">{t}</span>: {planText(plans[locateKey(scope, t)])}</div>);
+}
+
+// Where the row's values were printed: the section by its schedule, the plate
+// through the location table and the plate type schedule that define it.
+function SourceCell({ entry }) {
+  const plate = [...new Set((entry.plate?.via || []).map(where))];
+  if (!plate.length) return where(entry);
+  return (
+    <>
+      <div>Section: {where(entry)}</div>
+      <div className="muted">Plate: {plate.join("; ")}</div>
+    </>
+  );
+}
+
+function ColumnTable({ entries, concrete, scope, plans }) {
   return (
     <table>
       <colgroup>
-        <col style={{ width: "22%" }} />
-        <col style={{ width: concrete ? "30%" : "16%" }} />
-        {!concrete && <col style={{ width: "10%" }} />}
-        {!concrete && <col style={{ width: "14%" }} />}
-        <col style={{ width: concrete ? "30%" : "24%" }} />
-        <col style={{ width: concrete ? "18%" : "14%" }} />
+        <col style={{ width: concrete ? "16%" : "15%" }} />
+        <col style={{ width: concrete ? "24%" : "13%" }} />
+        {!concrete && <col style={{ width: "8%" }} />}
+        {!concrete && <col style={{ width: "12%" }} />}
+        <col style={{ width: concrete ? "24%" : "17%" }} />
+        <col style={{ width: concrete ? "18%" : "17%" }} />
+        <col style={{ width: "18%" }} />
       </colgroup>
       <thead>
         <tr>
@@ -84,6 +125,7 @@ function ColumnTable({ entries, concrete }) {
           {!concrete && <th>Base plate</th>}
           {!concrete && <th>Plate W × L × T</th>}
           <th>{concrete ? "Linked definition" : "Levels (schedule)"}</th>
+          <th>Plan location</th>
           <th>Source</th>
         </tr>
       </thead>
@@ -105,7 +147,8 @@ function ColumnTable({ entries, concrete }) {
                 </div>
               ))}
             </td>
-            <td>{where(e)}</td>
+            <td><PlanCell entry={e} scope={scope} plans={plans} /></td>
+            <td><SourceCell entry={e} /></td>
           </tr>
         ))}
       </tbody>
@@ -116,7 +159,7 @@ function ColumnTable({ entries, concrete }) {
 function LevelReviewBlock({ review }) {
   return (
     <div>
-      <p><strong>{review.headline}</strong></p>
+      <p><strong>{withLengths(review.headline)}</strong></p>
       <table>
         <colgroup><col style={{ width: "26%" }} /><col style={{ width: "14%" }} /><col style={{ width: "40%" }} /><col style={{ width: "20%" }} /></colgroup>
         <thead><tr><th>Source</th><th>Value</th><th>What it covers</th><th>Sheet / page</th></tr></thead>
@@ -125,7 +168,7 @@ function LevelReviewBlock({ review }) {
             <tr key={n}>
               <td>{i.label}</td>
               <td className="num">{formatLength(i.value)}</td>
-              <td>{i.scope}{i.tag ? ` (${i.tag.mark})` : ""}</td>
+              <td>{i.scope}{i.tag?.material ? ` — ${i.tag.material}` : ""}</td>
               <td>{where(i.source)}</td>
             </tr>
           ))}
@@ -140,18 +183,27 @@ function LevelReviewBlock({ review }) {
       <p className="muted">Possible explanations (not confirmed):</p>
       <ul>
         {(review.explanations || []).filter((e) => e.status !== "observation").map((e) => (
-          <li key={e.id}>{e.label} — {e.status.replace("_", " ")}. <span className="muted">{e.basis}</span></li>
+          <li key={e.id}>{e.label} — {e.status.replace("_", " ")}. <span className="muted">{withLengths(e.basis)}</span></li>
         ))}
       </ul>
+      {(review.related || []).length > 0 && (
+        <>
+          <p className="muted">{RELATED_HEADING}:</p>
+          <ul>
+            {review.related.map((r) => (
+              <li key={`${r.source.page}-${r.source.bbox}`}>
+                {withLengths(r.note)} <span className="muted">({where(r.source)}{r.tag?.definition ? `; ${r.tag.mark}: ${where(r.tag.definition)}` : ""})</span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
     </div>
   );
 }
 
 function SupportingTable({ table, definitions }) {
-  const rows = [
-    ...definitions.map((d) => ({ mark: d.mark, cells: d.cells || [], y: d.bbox?.[1] ?? 0 })),
-    ...(table.unread_rows || []).map((u) => ({ mark: u.printed_mark, cells: u.cells || [], y: u.bbox?.[1] ?? 0, unread: true })),
-  ].sort((a, b) => a.y - b.y);
+  const rows = supportingRowsOf(table, definitions);
   return (
     <table>
       <colgroup><col style={{ width: "18%" }} /><col style={{ width: "82%" }} /></colgroup>
@@ -159,7 +211,8 @@ function SupportingTable({ table, definitions }) {
       <tbody>
         {rows.map((r, n) => (
           <tr key={n}>
-            <td className="mono">{r.mark}{r.unread ? <div className="muted">shown as printed</div> : null}</td>
+            <td className="mono">{r.mark}{r.material ? <div>{r.material}</div> : null}
+              {r.reference ? <div className="muted">refers to another source</div> : r.unread ? <div className="muted">shown as printed</div> : null}</td>
             <td>{r.cells.filter((c) => c.text).map((c) => `${(c.path || [c.heading]).map(titleCase).join(" › ")}: ${c.text}`).join(" · ") || "—"}</td>
           </tr>
         ))}
@@ -170,6 +223,8 @@ function SupportingTable({ table, definitions }) {
 
 export function SummaryReport({ di, document, mode }) {
   const full = mode === "full";
+  const [plans, setPlans] = useState({});
+  const [locateCache] = useState(() => new Map());
   const column = di.column_schedule || {};
   const schedules = column.schedules || [];
   const entries = column.entries || [];
@@ -179,6 +234,27 @@ export function SummaryReport({ di, document, mode }) {
   const levels = di.levels || {};
   const reviews = di.level_reviews || [];
   const omitted = [];
+  const scopeOf = (s) => s.scope_schedule_id || s.id;
+  const listedSchedules = schedules.filter((s) => full || s.material_group !== "concrete");
+  const targets = listedSchedules.flatMap((s) => entries.filter((e) => e.schedule_id === s.id)
+    .flatMap((e) => locateTargets(e).map((location) => ({ scope: scopeOf(s), location }))));
+  const pending = targets.filter((t) => !["done", "pending"].includes(plans[locateKey(t.scope, t.location)]?.status));
+  if (pending.length) {
+    omitted.push(`Plan locations of ${plural(pending.length, "listed location")} (not yet looked up; Locate runs on demand)`);
+  }
+  // Locate runs on demand only, one location at a time (each plan page is read once on the server).
+  const lookUp = async () => {
+    setPlans((p) => ({ ...p, ...Object.fromEntries(pending.map((t) => [locateKey(t.scope, t.location), { status: "pending" }])) }));
+    for (const { scope, location } of pending) {
+      const key = locateKey(scope, location);
+      try {
+        const result = await fetchLocation(document?.document_id, location, scope, locateCache);
+        setPlans((p) => ({ ...p, [key]: { status: "done", result } }));
+      } catch {
+        setPlans((p) => ({ ...p, [key]: { status: "error" } }));
+      }
+    }
+  };
   if (!full && coverage.length) {
     omitted.push(`The individual rows of ${coverage.length} supporting schedules (counted here; listed in the full evidence report)`);
   }
@@ -218,6 +294,13 @@ export function SummaryReport({ di, document, mode }) {
       {!reviews.length && !(di.unresolved || []).length && <p className="muted">None.</p>}
 
       <h2>Columns, plates and plan locations</h2>
+      <div className="toolbar">
+        <button type="button" onClick={lookUp} disabled={!pending.length || !document?.document_id}>
+          {pending.length ? `Look up plan locations (${pending.length})` : "Plan locations looked up"}
+        </button>
+        <span className="muted">Sections are as printed in each column schedule; each plate&apos;s source shows the
+          location table and plate type schedule it comes through.</span>
+      </div>
       {schedules.map((s) => {
         const own = entries.filter((e) => e.schedule_id === s.id);
         const concrete = s.material_group === "concrete";
@@ -231,7 +314,7 @@ export function SummaryReport({ di, document, mode }) {
           omitted.push(`${own.length} entries of ${s.name} are summarised by label, not listed`);
           return (
             <div key={s.id}>
-              <h3>{s.name} <span className="muted">({where(s)} · {own.length} printed entries)</span></h3>
+              <h3>{s.name} <span className="muted">({where(s)} · {plural(own.length, "printed entry", "printed entries")})</span></h3>
               <p>{Object.entries(labels).map(([label, n]) => `${label} (${n})`).join("; ")}.</p>
               <p className="muted">Listed in full in the full evidence report.</p>
             </div>
@@ -239,12 +322,12 @@ export function SummaryReport({ di, document, mode }) {
         }
         return (
           <div key={s.id}>
-            <h3>{s.name} <span className="muted">({where(s)} · {own.length} printed entries)</span></h3>
+            <h3>{s.name} <span className="muted">({where(s)} · {plural(own.length, "printed entry", "printed entries")})</span></h3>
             {s.source === "location_table" && (
               <p className="muted">Listed only in this table, which assigns a section and a base plate and gives no levels.</p>
             )}
             {s.notes?.map((n) => <p key={n} className="muted">{n}</p>)}
-            <ColumnTable entries={listed} concrete={concrete} />
+            <ColumnTable entries={listed} concrete={concrete} scope={scopeOf(s)} plans={plans} />
           </div>
         );
       })}
@@ -259,7 +342,7 @@ export function SummaryReport({ di, document, mode }) {
                 <tr key={r.mark}>
                   <td className="mono">{r.mark}</td>
                   <td className="num">{r.dimensions?.length ? formatPlate(r.dimensions).text : "—"}</td>
-                  <td>{(t.unused_marks || []).includes(r.mark) ? "Not assigned to a listed location" : `${entries.filter((e) => e.plate?.printed === r.mark).length} listed entries`}</td>
+                  <td>{(t.unused_marks || []).includes(r.mark) ? "Not assigned to a listed location" : plural(entries.filter((e) => e.plate?.printed === r.mark).length, "listed entry", "listed entries")}</td>
                 </tr>
               ))}
             </tbody>
@@ -281,7 +364,7 @@ export function SummaryReport({ di, document, mode }) {
                   <tr key={l.name}>
                     <td>{shortLevel(l.name)}<div className="muted">{l.name}</div></td>
                     <td className="num">{l.printed ? formatLength(l.printed) : "—"}</td>
-                    <td>{(l.plan_matches || []).map((m) => {
+                    <td>{l.review ? `${reviewSourcesText(l.review)} (see Items needing attention)` : (l.plan_matches || []).map((m) => {
                       const v = (m.values || []).find((x) => x.compared) || (m.values || [])[0];
                       return `${m.comparison === "differs" && v ? formatLength(v.raw || v.display) : titleCase(v?.name || m.plan)} · ${m.sheet}`;
                     }).join("; ") || "No linked plan evidence yet"}</td>
@@ -298,20 +381,20 @@ export function SummaryReport({ di, document, mode }) {
       <h2>Supporting schedules</h2>
       {groups.map((g) => (
         <div key={g.key}>
-          <h3>{g.label} <span className="muted">({g.schedules.length} schedules{g.rows != null ? ` · ${g.rows} printed rows` : ""})</span></h3>
+          <h3>{g.label} <span className="muted">({plural(g.schedules.length, "schedule")}{g.rows != null ? ` · ${plural(g.rows, "printed row")}` : ""})</span></h3>
           {g.schedules.map((t) => {
             const defs = (di.definitions || []).filter((d) => d.page === t.page && d.schedule_title === t.title);
             if (!full) {
               return (
                 <p key={`${t.page}-${t.title}`}>
-                  {titleCase(t.title)} ({where(t)}): {t.printed_rows ?? t.extracted_rows} printed rows; {t.extracted_rows} interpreted
-                  {t.unread_rows?.length ? `; ${t.unread_rows.length} shown as printed (${t.unread_rows.map((u) => u.printed_mark).slice(0, 6).join(", ")}${t.unread_rows.length > 6 ? ", …" : ""})` : ""}.
+                  {titleCase(t.title)} ({where(t)}): {printedRowsText(t)}; {completenessText([t])}
+                  {t.materials ? ` · ${Object.entries(t.materials).map(([m, n]) => `${m} (${n})`).join(", ")}` : ""}.
                 </p>
               );
             }
             return (
               <div key={`${t.page}-${t.title}`}>
-                <p><strong>{titleCase(t.title)}</strong> <span className="muted">({where(t)} · {t.printed_rows ?? "?"} printed rows)</span></p>
+                <p><strong>{titleCase(t.title)}</strong> <span className="muted">({where(t)} · {printedRowsText(t)} · {completenessText([t])})</span></p>
                 <SupportingTable table={t} definitions={defs} />
               </div>
             );
@@ -335,9 +418,15 @@ export function SummaryReport({ di, document, mode }) {
       )}
 
       <h2>What this report leaves out</h2>
+      <p className="muted">“Properties read” counts rows whose printed cells were read as heading: value — a concrete
+        definition carries its dimensions without an AISC section. “Linked” counts rows a printed label in the set refers
+        to; rows that refer to another source stay unresolved here.</p>
       {full ? (
-        <p>Every record the summary holds is listed. Printed tables the reader does not read (such as development-length
-          tables) and anything the extraction did not read are not shown; the directory above lists the schedules read.</p>
+        <>
+          <p>Every record the summary holds is listed. Printed tables the reader does not read (such as development-length
+            tables) and anything the extraction did not read are not shown; the directory above lists the schedules read.</p>
+          {omitted.length > 0 && <ul>{[...new Set(omitted)].map((o) => <li key={o}>{o}</li>)}</ul>}
+        </>
       ) : (
         <ul>
           {[...new Set(omitted)].map((o) => <li key={o}>{o}</li>)}

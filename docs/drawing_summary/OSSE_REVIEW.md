@@ -5,6 +5,70 @@ Branch `bassam/drawing-summary-osse`, from `9522744`. Primary drawing:
 prediction, the schedule mark map, exact catalog locks, QuantityEngine and
 deduplication are unchanged (verified on 15 sets, below).
 
+## Report corrections — 2026-10-08
+
+Continues the published `376bf59` on this feature branch. Display and evidence
+only; the 15-set protected comparison is repeated below.
+
+**55′-2″ outside the general note.** S103 (PDF p. 7) prints `55' - 2"` beside the
+G2.5 tag; S601 defines G2.5 as 2½″ galvanised steel grating; the members around
+it print `<54' - 11 1/2">` (seven places). 55′-2″ − 2½″ = 54′-11½″. The review
+now lists this as a related observation of the general note's value — a separate
+grating condition, not a Level 2 slab statement and not a resolution of the
+slab discrepancy. `level_review.related_occurrences` finds a bare value equal to
+the note only with a slab / deck tag or bracketed elevations beside it (a bare
+value alone may be a dimension). The "inconsistent annotation" basis is scoped:
+"In the reviewed evidence, 55′-2″ is stated for this level only in the general
+note … also printed on S103 beside G2.5 — a separate condition". The S122
+HSS6X4X1/4 relationship stays unresolved; both R13 offset locations stay
+unresolved where scale evidence is insufficient.
+
+**Slab / deck materials.** Each slab / deck row's material comes from its own
+printed composition, with the matched words kept as the basis: G2.5 steel
+grating, R3 steel roof deck, S5.25 composite (concrete on metal deck), S12
+concrete slab, S.O.G. 5 / 6 / 10 concrete slab on grade. The directory's
+system column reads these instead of "Concrete / foundations".
+
+**Completeness.** "Interpreted" is replaced by separate counts per supporting
+schedule (`completeness`): printed rows; rows whose cells were read as
+properties (a concrete definition needs no AISC section to carry dimensions);
+rows a printed label links to (RC1 → CONCRETE SCHEDULE, P1 → PIER SCHEDULE);
+rows that refer to another source and stay unresolved.
+
+**Report.** Each steel row's source names the section's schedule (S602) and the
+plate's S601 location table / plate type schedule. A plan-location column
+shows "Not yet looked up" until the reader runs "Look up plan locations" (Locate
+stays on demand); "Not found" appears only for a `plan_not_found` result, and
+unlooked-up locations are listed among the omissions. The levels table lists
+every source a level review holds (general note, local annotation, sections),
+matching the review card. Headline and basis lengths use ′ ″ and fraction
+glyphs, the duplicated "(S5.25)" is gone, unknown extents read "Ends not
+established", and counts are singular / plural.
+
+Contract additions (display only): `level_reviews[].related`,
+`supporting_schedules[].completeness` / `.materials`, slab / deck rows'
+`material`, level-review tags' `material`. Legend profile cache
+`legend_extractor_v6t-summary-related-materials`; extraction contract unchanged
+(`3.29-summary-locate-review`).
+
+Verification on the committed tree (2026-10-08):
+
+- Backend: `python -m pytest -q --continue-on-collection-errors` — 1858 passed,
+  10 skipped, 534 subtests passed, 1 collection error; **pytest exit 1**. The
+  error is the baseline `test_geometry_evidence_contract.py` import of
+  `CompletionStatus`, unchanged from `e32cc5b` / `376bf59`.
+- Real-drawing references (`test_level_reference_set`, 8 passed) include the
+  S103 / G2.5 related observation and the slab / deck materials.
+- Frontend: 304 passed (25 files); production build succeeds (existing Vite
+  large-chunk warning); ESLint on changed JSX: no errors or warnings; Ruff on
+  changed Python: 288 findings before and after, none new.
+- 15-set protected comparison against `e32cc5b`: no differences in mark map
+  (12), schedule-grid rows (970) or column entries (1,183). Stage totals
+  80.8 / 169.0 / 36.9 s (extract / grid / summary) against 69.1 / 145.3 /
+  31.9 s; every stage rose ~16% on unchanged extraction code, i.e. machine load.
+- The real configured model was not re-run for this change; the UI LLM setting
+  stays off and the summary shown is deterministic.
+
 ## Completion of the interrupted refinement - 2026-10-07
 
 Starting feature and incoming main: `e32cc5ba6f872d98b752d0b54026e23512c86f7e`.
@@ -58,7 +122,7 @@ exact catalog locks, QuantityEngine, prediction and deduplication are unchanged
 | P1 - 18 x 20 (S602 at C.8-8.9) | label in the column's drawn extent | 1 | dropped by the reader | kept as a support label; linked to S601 PIER SCHEDULE P1 (18″ × 24″); sizes differ → review item, both kept | PDF reading (classification) |
 | CONCRETE SCHEDULE (S601) | RC1 definition (24″ × 24″, 12-#7, #3@12″ O.C.) | 1 row | not read (mark `RC1 - 24" x 24"` is not a production mark) | display-only table; the 3 RC1 parking entries link to it | classification |
 | FOOTING SCHEDULE (S601) | footing definitions | 20 rows | read, every row dropped (marks such as `F3.0`), table absent | display-only table, rows shown as printed | classification |
-| SLAB/DECK, MAT FOUNDATION (S601) | slab / deck and mat definitions | 7 / 2 rows | header (MARK + TOTAL DEPTH / THICKNESS) never searched | display-only reader; S5.25 = total depth 5¼″, 3.25″ concrete on 2″ deck | PDF reading |
+| SLAB/DECK, MAT FOUNDATION (S601) | slab / deck and mat definitions | 7 / 2 rows | header (MARK + TOTAL DEPTH / THICKNESS) never searched | display-only reader; S5.25 = total depth 5¼″, 3.25″ concrete on 2″ deck; each slab / deck row's material from its own composition (2026-10-08) | PDF reading |
 | Walls, retaining walls, piers, beams (S601) | definitions | as printed | shown | unchanged (slabs and decks now a separate group) | — |
 | Development / lap-splice length tables (S601) | reference data, no marks | 5 tables | not read | not read (no marks to define); listed here only | out of scope |
 | S502 p. 19 / S503 p. 20 | references to schedules ("SEE SCHEDULE") | — | legacy list called them "Column schedule (p. 19)", "Beam / framing schedule (p. 20)" | a column / beam schedule is claimed only for a page whose table was read; p. 19/20 are references | narrative |
@@ -100,7 +164,7 @@ Alternative explanations:
 | Different physical surfaces | not supported — note, schedule and sections all name the top of slab |
 | Different datum systems | not supported — the same datum notes agree with the schedule for Level 1 (S121, 38′-0″) and Roof (S123, 69′-4″) |
 | The general note does not govern a local condition | unresolved — the note names no area; the 55′-10″ values are printed at particular places |
-| An inconsistent annotation | unresolved — 55′-2″ appears only in the general note; printing a value more often does not make it govern |
+| An inconsistent annotation | unresolved — in the reviewed evidence 55′-2″ is stated for Level 2 only in the general note; S103 also prints 55′-2″ beside G2.5 grating, a separate condition (see the 2026-10-08 section); printing a value more often does not make it govern |
 
 No revision explanation is established by this review. The summary states: "Level 2 elevation requires
 review: the general datum note states 55′-2″, while the column schedule, a

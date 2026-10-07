@@ -261,7 +261,7 @@ This work continues `e32cc5b` on `bassam/drawing-summary-osse`; publication is
 feature-only. See `docs/drawing_summary/OSSE_REVIEW.md` for evidence and results.
 
 Cache contracts: extraction `3.29-summary-locate-review`, legend profile
-`legend_extractor_v6s-summary-locate-review`; summary API remains
+`legend_extractor_v6t-summary-related-materials` (2026-10-08; was v6s); summary API remains
 `drawing_intelligence_v3`. Re-extract via the existing extraction route to
 refresh both contracts; no cache-directory deletion is needed.
 

@@ -298,13 +298,14 @@ describe("Drawing Summary — OSSE estimator view", () => {
       mark: "CB16X32", schedule_title: "CONCRETE BEAM SCHEDULE", cells }];
     profile.drawing_intelligence.supporting_schedules = [{ title: "CONCRETE BEAM SCHEDULE", kind: "beam",
       page: 25, sheet: "S601", printed_rows: 6, extracted_rows: 1,
+      completeness: { printed_rows: 6, properties_read: 1, linked: 0, references: 0 },
       unread_rows: ["16RB32", "20LB44", "26LB32", "32RB24", "40IT52"].map((printed_mark) => ({
         printed_mark, cells: cells.map((c) => ({ ...c, text: "" })), bbox: [1, 2, 3, 4] })),
     }];
     render(<DrawingSummaryPanel profile={profile} />);
     fireEvent.click(screen.getByRole("button", { name: /^Concrete beams/ }));
-    expect(screen.getByText(/6 printed rows identified · 1 with interpreted details/)).toBeInTheDocument();
-    expect(screen.getByText(/5 additional printed rows are available for review/)).toBeInTheDocument();
+    expect(screen.getByText(/6 printed rows · 1 row with properties read/)).toBeInTheDocument();
+    expect(screen.getByText(/5 printed rows are not used as takeoff label/)).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Top Bars" })).toHaveAttribute("colspan", "2");
     expect(screen.getByRole("columnheader", { name: "Stirrups" })).toHaveAttribute("colspan", "1");
     const row = within(screen.getByText("CB16X32").closest("tr")).getAllByRole("cell");
@@ -360,7 +361,8 @@ function withReview(profile) {
         source: { page: 10, sheet: "S122", bbox: [2555, 371, 2876, 555] } },
       { role: "local_annotation", label: "Local plan annotation · S122", value: "55' - 10\"",
         scope: "printed in a box at one place on the plan, beside slab tag S5.25",
-        tag: { mark: "S5.25", definition: { table: "SLAB/DECK SCHEDULE", page: 25, sheet: "S601", bbox: [1, 2, 3, 4],
+        tag: { mark: "S5.25", material: "composite: concrete on metal deck",
+          definition: { table: "SLAB/DECK SCHEDULE", page: 25, sheet: "S601", bbox: [1, 2, 3, 4],
           cells: [{ heading: "TOTAL DEPTH", path: ["TOTAL DEPTH"], text: "5 1/4\"" }] } },
         source: { page: 10, sheet: "S122", bbox: [1757, 1172, 1797, 1185] } },
       { role: "section", label: "Section 1 · S421", value: "55' - 10\"", name: "T.O. SLAB LEVEL 2", scope: "names this level",
@@ -375,6 +377,11 @@ function withReview(profile) {
       { id: "surfaces", label: "Different physical surfaces", status: "not_supported", basis: "All name the top of slab." },
       { id: "inconsistent", label: "An inconsistent annotation", status: "unresolved", basis: "Not confirmed." },
     ],
+    related: [{ value: "55' - 2\"", inches: 662, source: { page: 7, sheet: "S103", bbox: [885, 1390, 914, 1399] },
+      separate: true, printed_count: 7, tag: { mark: "G2.5", material: "steel grating",
+        definition: { table: "SLAB/DECK SCHEDULE", page: 25, sheet: "S601", bbox: [5, 6, 7, 8] } },
+      result: "54'-11 1/2\"",
+      note: "Printed on S103 beside G2.5 (steel grating, total depth 2 1/2\"): 55'-2\" − 2 1/2\" = 54'-11 1/2\", the bracketed member elevation printed 7 times around it. A separate condition from the slab statements above; it does not resolve them." }],
   };
   di.level_reviews = [level2.review];
   return profile;
@@ -483,7 +490,9 @@ describe("Drawing Summary — OSSE locations, coverage and review", () => {
     const evidence = within(attention.getByRole("table", { name: /Printed evidence for T.O. SLAB LEVEL 2/ }));
     expect(evidence.getByText("General datum note")).toBeInTheDocument();
     expect(evidence.getByText("Local plan annotation")).toBeInTheDocument();
-    expect(evidence.getByText(/S5.25 per slab\/deck schedule: total depth 5 1\/4"/)).toBeInTheDocument();
+    expect(evidence.getByText(/S5.25 \(composite: concrete on metal deck\) per slab\/deck schedule: total depth 5¼″/)).toBeInTheDocument();
+    expect(attention.getByText(/beside G2.5 \(steel grating, total depth 2½″\): 55′-2″ − 2½″ = 54′-11½″/)).toBeInTheDocument();
+    expect(attention.getByRole("button", { name: /S103 · PDF p. 7 for 55' - 2" beside G2.5/ })).toBeInTheDocument();
     expect(evidence.getByText("Section")).toBeInTheDocument();
     expect(attention.getByText(/not found among the extracted level markers/)).toBeInTheDocument();
     expect(attention.getByText(/printed as T.O. STEEL LEVEL 2 on S221/)).toBeInTheDocument();
@@ -523,6 +532,30 @@ describe("Drawing Summary — OSSE locations, coverage and review", () => {
     expect(screen.getAllByText("12″ × 18″ × ¾″").length).toBeGreaterThan(0);
     // A concrete column's size is never under the plate's W × L × T.
     expect(screen.getByText(/precast concrete · C1 · 24″ × 24″ column section/)).toBeInTheDocument();
+  });
+
+  it("keeps plan locations on demand, tells not looked up from not found and names each value's source", async () => {
+    locateOnPlan.mockReset();
+    locateOnPlan.mockImplementation((_doc, location) => Promise.resolve(location === "C.8-8.9"
+      ? { status: "column_symbol", views: [{ page: 9, sheet: "S121", state: "column_symbol" }] }
+      : { status: "plan_not_found", note: "No plan in the set prints both grid labels.", views: [] }));
+    const profile = withTableOnly(withReview(osseProfile()));
+    const steel = profile.drawing_intelligence.column_schedule.entries[2];
+    steel.plate = { ...steel.plate, via: [{ kind: "location table", page: 25, sheet: "S601", title: "BASE PLATE SCHEDULE" }] };
+    render(<SummaryReport di={profile.drawing_intelligence} document={{ document_id: "doc_report", source_file: "OSSE - ST.pdf" }}
+      mode="concise" />);
+    const row = within(screen.getByText("C.8-8.9").closest("tr"));
+    expect(row.getByText("Not yet looked up")).toBeInTheDocument();
+    expect(row.getByText(/Plate: S601 · PDF p. 25/)).toBeInTheDocument();
+    expect(screen.getByText(/Plan locations of \d+ listed locations? \(not yet looked up/)).toBeInTheDocument();
+    expect(locateOnPlan).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: /Look up plan locations/ }));
+    expect(await row.findByText("S121 — Column symbol identified")).toBeInTheDocument();
+    expect(await screen.findAllByText(/^Not found: No plan in the set prints both grid labels/)).not.toHaveLength(0);
+    expect(locateOnPlan).toHaveBeenCalledWith("doc_report", "C.8-8.9", "S2");
+    // The levels table lists every printed source the review holds, not one value per sheet.
+    expect(screen.getByText(/general note 55′-2″ · S122; local annotation 55′-10″ · S122; Section 1 55′-10″ · S421/))
+      .toBeInTheDocument();
   });
 });
 
