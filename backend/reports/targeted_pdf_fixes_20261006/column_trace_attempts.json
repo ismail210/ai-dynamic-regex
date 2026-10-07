@@ -1,0 +1,176 @@
+{
+  "tried": [
+    {
+      "location": "A-9",
+      "status": "traced",
+      "sections": [
+        "HSS6X6X1/4"
+      ],
+      "plans": [],
+      "notes": [],
+      "summary": {
+        "levels_spanned": [
+          "LEVEL 1"
+        ],
+        "levels_with_symbol": [],
+        "logical_stack_only": true,
+        "note": "Observations describe one logical column stack at this location; they do not establish how many fabricated pieces it is made of."
+      }
+    },
+    {
+      "location": "A.1'-18",
+      "status": "traced",
+      "sections": [
+        "HSS6X6X5/16"
+      ],
+      "plans": [],
+      "notes": [],
+      "summary": {
+        "levels_spanned": [
+          "LEVEL 1"
+        ],
+        "levels_with_symbol": [],
+        "logical_stack_only": true,
+        "note": "Observations describe one logical column stack at this location; they do not establish how many fabricated pieces it is made of."
+      }
+    },
+    {
+      "location": "A.2'-12",
+      "status": "traced",
+      "sections": [
+        "HSS6X6X5/16"
+      ],
+      "plans": [],
+      "notes": [],
+      "summary": {
+        "levels_spanned": [
+          "LEVEL 1"
+        ],
+        "levels_with_symbol": [],
+        "logical_stack_only": true,
+        "note": "Observations describe one logical column stack at this location; they do not establish how many fabricated pieces it is made of."
+      }
+    },
+    {
+      "location": "A.2'-13.1",
+      "status": "traced",
+      "sections": [
+        "HSS6X6X5/16"
+      ],
+      "plans": [],
+      "notes": [],
+      "summary": {
+        "levels_spanned": [
+          "LEVEL 1"
+        ],
+        "levels_with_symbol": [],
+        "logical_stack_only": true,
+        "note": "Observations describe one logical column stack at this location; they do not establish how many fabricated pieces it is made of."
+      }
+    },
+    {
+      "location": "A.3'-19",
+      "status": "traced",
+      "sections": [
+        "W12X40"
+      ],
+      "plans": [
+        {
+          "level": "LEVEL 4",
+          "page": 21,
+          "sheet": "S140",
+          "plan": "OVERALL LEVEL 4 FRAMING PLAN",
+          "candidates": 1,
+          "first_point": [
+            1829.1,
+            348.3,
+            1835.1,
+            354.3
+          ]
+        },
+        {
+          "level": "LEVEL 4",
+          "page": 23,
+          "sheet": "S142",
+          "plan": "LEVEL 4 FRAMING PLAN",
+          "candidates": 1,
+          "first_point": [
+            1907.1,
+            311.6,
+            1913.1,
+            317.6
+          ]
+        },
+        {
+          "level": "LEVEL 3",
+          "page": 16,
+          "sheet": "S130",
+          "plan": "LEVEL 3 FRAMING PLAN",
+          "candidates": 1,
+          "first_point": [
+            1829.1,
+            348.3,
+            1835.1,
+            354.3
+          ]
+        },
+        {
+          "level": "LEVEL 3",
+          "page": 18,
+          "sheet": "S132",
+          "plan": "LEVEL 3 FRAMING PLAN",
+          "candidates": 1,
+          "first_point": [
+            1907.4,
+            291.6,
+            1913.4,
+            297.6
+          ]
+        },
+        {
+          "level": "LEVEL 2",
+          "page": 11,
+          "sheet": "S120",
+          "plan": "LEVEL 2 FRAMING PLAN",
+          "candidates": 1,
+          "first_point": [
+            1829.1,
+            348.3,
+            1835.1,
+            354.3
+          ]
+        },
+        {
+          "level": "LEVEL 2",
+          "page": 13,
+          "sheet": "S122",
+          "plan": "LEVEL 2 FRAMING PLAN",
+          "candidates": 1,
+          "first_point": [
+            1909.4,
+            301.3,
+            1915.4,
+            307.3
+          ]
+        }
+      ],
+      "notes": [],
+      "summary": {
+        "levels_spanned": [
+          "LEVEL 4",
+          "LEVEL 3",
+          "LEVEL 2",
+          "LEVEL 1"
+        ],
+        "levels_with_symbol": [
+          "LEVEL 4",
+          "LEVEL 3",
+          "LEVEL 2"
+        ],
+        "logical_stack_only": true,
+        "note": "Observations describe one logical column stack at this location; they do not establish how many fabricated pieces it is made of."
+      }
+    }
+  ],
+  "hit_location": "A.3'-19"
+}

@@ -32,6 +32,8 @@ import {
 import { CloseOutlined, ExpandMoreOutlined, SearchOutlined } from "@mui/icons-material";
 import { documentPdfUrl, getColumnTrace } from "../api/client";
 import { formatPlate, formatPrintedSize } from "../lib/dimensions";
+import EngineeringIntelligence from "./drawingSummary/EngineeringIntelligence";
+import SheetIndex from "./drawingSummary/SheetIndex";
 import { pagesLabel, sourceIdentity, ViewPageButton, whereLabel } from "./drawingSummary/sources";
 import {
   ConflictComparison,
@@ -2141,6 +2143,7 @@ export default function DrawingSummaryPanel({ profile, documentId = null }) {
     return acc;
   }, {});
   const hasLevels = scheduleLevels.length > 0;
+  const sheetPages = di?.sheet_index?.pages || [];
   const hasLevelDetails = Boolean(
     levels && ["plan_elevations", "datums", "noted_on_plans", "level_bands"].some((key) => levels[key]?.length),
   );
@@ -2206,9 +2209,11 @@ export default function DrawingSummaryPanel({ profile, documentId = null }) {
 
   const extractionDetails = narrative && (
     <>
-            <Section title="Structural content">
-              <Para muted>{narrative.structural_content}</Para>
-            </Section>
+            {sheetPages.length === 0 && (
+              <Section title="Structural content">
+                <Para muted>{narrative.structural_content}</Para>
+              </Section>
+            )}
 
             <Section title="Steel system">
               <Para>{narrative.steel_system}</Para>
@@ -2423,6 +2428,9 @@ export default function DrawingSummaryPanel({ profile, documentId = null }) {
             <Typography variant="body1">{narrative.project_overview}</Typography>
           </Section>
 
+          <SheetIndex index={di.sheet_index} onView={onView} />
+          <EngineeringIntelligence data={di.engineering_intelligence} onView={onView} />
+
           {/* B. Items needing attention */}
           <NeedsAttention
             conflicts={conflicts}
@@ -2457,6 +2465,11 @@ export default function DrawingSummaryPanel({ profile, documentId = null }) {
           {hasLevels && (
             <LevelsAndElevations data={levels} onView={onView} schedules={columnSchedules} notes={modelNotes}
               conflicts={conflicts} />
+          )}
+          {!hasLevels && (levels?.plan_elevations || []).length > 0 && (
+            <Section title="Elevations stated on plans" source="Local plan notes, not a building-level list">
+              <LevelEvidenceDetails data={levels} onView={onView} />
+            </Section>
           )}
 
           {/* E. Drawing notation and interpretation rules */}
@@ -2520,7 +2533,7 @@ export default function DrawingSummaryPanel({ profile, documentId = null }) {
                     intro="Each printed cell is shown under its own heading. Equal values in two columns are two values." />
                 </SupportGroup>
               )}
-              {hasLevelDetails && (
+              {hasLevelDetails && (hasLevels || (levels?.plan_elevations || []).length === 0) && (
                 <SupportGroup id="levels" title="Detailed level evidence" expanded={expanded} onToggle={toggle}>
                   <LevelEvidenceDetails data={levels} onView={onView} />
                 </SupportGroup>

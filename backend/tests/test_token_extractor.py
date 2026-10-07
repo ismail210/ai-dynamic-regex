@@ -31,6 +31,27 @@ class AngleTokenExtractionTests(unittest.TestCase):
         self.assertEqual(core_section_token('L4x3x1/4x6"'), "L4X3X1/4")
         self.assertEqual(core_section_token("L4X4X1/4"), "L4X4X1/4")
 
+    def test_core_section_strips_spacing_suffix_and_separators(self):
+        cases = {
+            "L3x3x1/4@8'": "L3X3X1/4",
+            "L3x3x1/4 @ 8'": "L3X3X1/4",
+            "L3x3x1/4@8',": "L3X3X1/4",
+            "L6x6x1/2@2'-0\"": "L6X6X1/2",
+            "L3x3x1/4@4'-0\" O.C.": "L3X3X1/4",
+            "2L4x4x1/4@16\"": "2L4X4X1/4",
+            "L3X3X5/16,": "L3X3X5/16",
+            "L6x6x5/16;": "L6X6X5/16",
+            # Incomplete stays incomplete -- no thickness appears.
+            "L4x4@8'": "L4X4",
+            "2L4x4@16\"": "2L4X4",
+            "L4x4,": "L4X4",
+            # An inch mark is not a list separator; it is left alone.
+            'L5x5x5/16"': 'L5X5X5/16"',
+        }
+        for raw, expected in cases.items():
+            with self.subTest(raw=raw):
+                self.assertEqual(core_section_token(raw), expected)
+
     def test_records_normalize_to_catalog_core(self):
         words = [
             {

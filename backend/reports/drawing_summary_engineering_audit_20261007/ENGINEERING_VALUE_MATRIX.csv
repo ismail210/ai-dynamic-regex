@@ -1,0 +1,36 @@
+extraction,engineering_value,estimator_value,construction_value,evidence_strength,reliability,safety_level,implementation_complexity,quantity_impact,recommended_priority
+Sheet index already extracted but not shown,high,high,high,strong,high,A,low,none,1
+Page role taken from the sheet title,high,high,high,strong,high once titles are used,A,low,none,1
+Issue phrase and issue date shown separately from revision rows,high,high,high,strong,high in the profile; the orientation sentence is unreliable,A,low,none,1
+Revision rows per sheet including blank numbers,high,medium,high,strong,high on the four sets,A,low,none,1
+Column schedule section plate and printed location,high,high,medium,strong,high as a definition,A,already built,none,1
+Level value with source and conflict left intact,high,high,high,strong,high on OSSE Burrville and Brandywine,A,already built,none,1
+Unmatched levels left unmatched,high,medium,medium,strong,high,A,low,none,1
+Steel versus precast pier footing wall,high,high,medium,strong,high on OSSE and Furley,A,already built,none,1
+Plate mark without a size kept unresolved,high,high,medium,strong,high on Brandywine BP1-BP9,A,already built,none,1
+Framing key read from printed leaders,high,medium,medium,strong,high on OSSE,A,already built,none,2
+View title number and scale,high,high,high,moderate,not built; sheet scale is the wrong object,A for printed text,medium,none,2
+Reference bubble to target sheet,high,high,high,moderate,not built; TYP and SEE PLAN are not references,B,medium,none,2
+Target view match,high,high,medium,moderate,not built,B,medium,none,2
+View extent box,medium,medium,medium,weak,not built,B,high,none until a separate exclusion gate,3
+Occurrence ledger for schedule marks,high,high,medium,moderate,not built; Furley locations are zero,B,medium,none until a comparison gate,2
+Grid bubble registry,high,high,medium,moderate,not built,A for the printed name,medium,none,3
+Grid intersection on a member,high,high,low,weak,not built,B,high,none,4
+Level stamped on a plan occurrence,medium,high,medium,moderate,partial via plan title,B,medium,none,3
+Defined-but-not-seen marks,high,high,low,moderate,not built,B,medium,none,2
+Duplicate member detection,medium,medium,low,weak,not built,C,high,none,5
+Member tier from printed schedule lines,medium,medium,medium,moderate,not shown,B,medium,none,4
+Scope words as review flags,medium,medium,high,moderate,current permit detector is a false positive on Brandywine,B,low,none,1
+Scope words as inclusion or exclusion,low,low,low,weak,unsafe,C,low,do not,do not
+Full general-note transcription,low,low,low,strong,would be a dump of S-000 and S-001,A,high,none,5
+Selected structural notes already captured,medium,medium,medium,moderate,partial,A,already built,none,3
+Connection hardware inferred from a detail,low,low,medium,weak,unsafe,C,high,do not,do not
+Base and bearing plate sizes when printed,high,high,medium,strong,high on Furley; absent on Brandywine marks,A,already built,none,1
+Joist designations from a loading plan,medium,high,low,weak,not extracted; do not count joists from the plan title,B,medium,none,4
+Dimensions as grid names,low,low,low,weak,unsafe,C,low,do not,do not
+Leader assigned to a member in general,low,medium,low,weak,only the OSSE key pattern is reliable,C,high,do not,do not
+Geometry as member identity,low,low,low,weak,not cleared,C,high,do not,do not
+Family text-hit chips (801x 1588x),low,low,low,strong as a text count,misleading as a quantity,A as a diagnostic,already built,must not feed takeoff,hide
+Callouts that are the word TYP or SEE PLAN,low,low,low,strong as a word count,not a reference,A as a word,already built,none,hide
+BBX sheet view grid level on a prediction,medium,high,medium,absent,not ready,B,high,none,4
+External fabrication exchange,low,medium,medium,absent,no contract in this repository,C,high,do not,do not

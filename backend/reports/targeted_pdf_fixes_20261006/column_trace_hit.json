@@ -1,0 +1,865 @@
+{
+  "status": "traced",
+  "pilot": true,
+  "schedule": {
+    "id": "S1",
+    "title": "COLUMN SCHEDULE",
+    "page": 42,
+    "sheet": "S600",
+    "bbox": [
+      633.1,
+      775.0,
+      705.1,
+      847.9
+    ]
+  },
+  "location_text": "A.3'-19",
+  "location": "A.3'-19",
+  "grids": [
+    {
+      "name": "A.3'",
+      "offset": null
+    },
+    {
+      "name": "19",
+      "offset": null
+    }
+  ],
+  "sections": [
+    "W12X40"
+  ],
+  "ends": {
+    "top": {
+      "state": "established",
+      "level": "LEVEL 4",
+      "elevation": "42'-0\"",
+      "by": "drawn on the schedule's level line",
+      "plan_annotations": []
+    },
+    "bottom": {
+      "state": "unresolved",
+      "position": "between",
+      "note": "The schedule draws the bottom end between two level lines; it is not moved to the nearest line.",
+      "plan_annotations": []
+    }
+  },
+  "levels": [
+    {
+      "name": "LEVEL 4",
+      "elevation": "42'-0\"",
+      "plans": [
+        {
+          "page": 21,
+          "sheet": "S140",
+          "plan": "OVERALL LEVEL 4 FRAMING PLAN",
+          "matched_by": "plan name",
+          "ambiguous_match": false,
+          "grid_axes": [
+            1,
+            1
+          ],
+          "candidates": [
+            {
+              "point_bbox": [
+                1829.1,
+                348.3,
+                1835.1,
+                354.3
+              ],
+              "symbol": {
+                "bbox": [
+                  1830.6,
+                  349.3,
+                  1833.6,
+                  353.3
+                ]
+              },
+              "annotations": [],
+              "nearby_text": [
+                {
+                  "text": "19",
+                  "bbox": [
+                    1810.7,
+                    281.7,
+                    1831.8,
+                    300.7
+                  ],
+                  "how": "nearby"
+                },
+                {
+                  "text": "A.4'",
+                  "bbox": [
+                    1864.2,
+                    356.4,
+                    1896.1,
+                    375.3
+                  ],
+                  "how": "nearby"
+                },
+                {
+                  "text": "18",
+                  "bbox": [
+                    1770.5,
+                    288.8,
+                    1791.6,
+                    307.8
+                  ],
+                  "how": "nearby"
+                }
+              ],
+              "page": 21,
+              "scope": {
+                "view_title": "OVERALL LEVEL 4 FRAMING PLAN",
+                "sheet_title": null,
+                "scope_words": [],
+                "schedule_scope": [],
+                "view_title_bbox": [
+                  329.6,
+                  1968.1,
+                  744.3,
+                  1993.1
+                ],
+                "status": "single_schedule",
+                "note": "The set has one column schedule; scope is not compared."
+              },
+              "scale": {
+                "printed": {
+                  "raw": "1\" = 20'-0\"",
+                  "points_per_inch": 0.3,
+                  "nts": false
+                },
+                "sheet": {
+                  "raw": "SCALE : 1/8\" = 1'-0\"",
+                  "points_per_inch": 0.75
+                },
+                "calibration": null,
+                "points_per_inch": null,
+                "status": "printed",
+                "note": "Printed for the view; no printed grid dimension to check it against. The title block says SCALE : 1/8\" = 1'-0\"."
+              },
+              "column_observed": true
+            }
+          ],
+          "observation": "column_symbol"
+        },
+        {
+          "page": 23,
+          "sheet": "S142",
+          "plan": "LEVEL 4 FRAMING PLAN",
+          "matched_by": "plan name",
+          "ambiguous_match": false,
+          "grid_axes": [
+            1,
+            1
+          ],
+          "candidates": [
+            {
+              "point_bbox": [
+                1907.1,
+                311.6,
+                1913.1,
+                317.6
+              ],
+              "symbol": {
+                "bbox": [
+                  1906.4,
+                  309.7,
+                  1913.9,
+                  319.6
+                ]
+              },
+              "annotations": [],
+              "nearby_text": [
+                {
+                  "text": "19",
+                  "bbox": [
+                    1888.3,
+                    242.5,
+                    1909.4,
+                    261.5
+                  ],
+                  "how": "nearby"
+                },
+                {
+                  "text": "10'' CMU SHEAR WALL",
+                  "bbox": [
+                    2362.5,
+                    657.7,
+                    2465.9,
+                    685.1
+                  ],
+                  "how": "leader ends at the column"
+                },
+                {
+                  "text": "W21X48<41'-8\">",
+                  "bbox": [
+                    824.3,
+                    537.7,
+                    892.3,
+                    558.4
+                  ],
+                  "how": "leader ends at the column"
+                }
+              ],
+              "page": 23,
+              "scope": {
+                "view_title": "LEVEL 4 FRAMING PLAN - AREA B",
+                "sheet_title": null,
+                "scope_words": [
+                  "B"
+                ],
+                "schedule_scope": [],
+                "view_title_bbox": [
+                  268.6,
+                  1833.2,
+                  674.9,
+                  1858.2
+                ],
+                "status": "single_schedule",
+                "note": "The set has one column schedule; scope is not compared."
+              },
+              "scale": {
+                "printed": {
+                  "raw": "1/8\" = 1'-0\"",
+                  "points_per_inch": 0.75,
+                  "nts": false
+                },
+                "sheet": {
+                  "raw": "SCALE : 1/8\" = 1'-0\"",
+                  "points_per_inch": 0.75
+                },
+                "calibration": {
+                  "points_per_inch": 0.74989,
+                  "bays": [
+                    {
+                      "ratio": 0.7498520724291872,
+                      "grids": [
+                        "E",
+                        "D"
+                      ],
+                      "printed": "33'-10\"",
+                      "gap_points": 304.4
+                    },
+                    {
+                      "ratio": 0.7503899908685064,
+                      "grids": [
+                        "D",
+                        "C"
+                      ],
+                      "printed": "12'-10\"",
+                      "gap_points": 115.6
+                    },
+                    {
+                      "ratio": 0.75,
+                      "grids": [
+                        "C",
+                        "B"
+                      ],
+                      "printed": "33'-4\"",
+                      "gap_points": 300.0
+                    },
+                    {
+                      "ratio": 0.7498426117021416,
+                      "grids": [
+                        "2\"",
+                        "3\""
+                      ],
+                      "printed": "26'-4\"",
+                      "gap_points": 237.0
+                    },
+                    {
+                      "ratio": 0.7502242971253624,
+                      "grids": [
+                        "A.3'",
+                        "B'"
+                      ],
+                      "printed": "34'-0\"",
+                      "gap_points": 306.1
+                    },
+                    {
+                      "ratio": 0.7483807032875315,
+                      "grids": [
+                        "D'",
+                        "E'"
+                      ],
+                      "printed": "33'-10\"",
+                      "gap_points": 303.8
+                    }
+                  ],
+                  "bay_count": 19,
+                  "disagreeing_bays": 12,
+                  "several_views": false
+                },
+                "points_per_inch": 0.74989,
+                "status": "validated",
+                "note": "1/8\" = 1'-0\" agrees with 19 printed grid dimensions."
+              },
+              "column_observed": true
+            }
+          ],
+          "observation": "column_symbol"
+        }
+      ],
+      "other_titled_sheets": [
+        "S141",
+        "S143"
+      ],
+      "other_scope_views": []
+    },
+    {
+      "name": "LEVEL 3",
+      "elevation": "28'-0\"",
+      "plans": [
+        {
+          "page": 16,
+          "sheet": "S130",
+          "plan": "LEVEL 3 FRAMING PLAN",
+          "matched_by": "plan name",
+          "ambiguous_match": false,
+          "grid_axes": [
+            1,
+            1
+          ],
+          "candidates": [
+            {
+              "point_bbox": [
+                1829.1,
+                348.3,
+                1835.1,
+                354.3
+              ],
+              "symbol": {
+                "bbox": [
+                  1830.6,
+                  349.3,
+                  1833.6,
+                  353.3
+                ]
+              },
+              "annotations": [],
+              "nearby_text": [
+                {
+                  "text": "19",
+                  "bbox": [
+                    1810.7,
+                    281.7,
+                    1831.8,
+                    300.7
+                  ],
+                  "how": "nearby"
+                },
+                {
+                  "text": "A.4'",
+                  "bbox": [
+                    1864.2,
+                    356.4,
+                    1896.1,
+                    375.3
+                  ],
+                  "how": "nearby"
+                },
+                {
+                  "text": "18",
+                  "bbox": [
+                    1770.5,
+                    288.8,
+                    1791.6,
+                    307.8
+                  ],
+                  "how": "nearby"
+                }
+              ],
+              "page": 16,
+              "scope": {
+                "view_title": "LEVEL 3 FRAMING PLAN - OVERALL",
+                "sheet_title": null,
+                "scope_words": [],
+                "schedule_scope": [],
+                "view_title_bbox": [
+                  360.5,
+                  1961.3,
+                  790.4,
+                  1986.2
+                ],
+                "status": "single_schedule",
+                "note": "The set has one column schedule; scope is not compared."
+              },
+              "scale": {
+                "printed": {
+                  "raw": "1\" = 20'-0\"",
+                  "points_per_inch": 0.3,
+                  "nts": false
+                },
+                "sheet": {
+                  "raw": "SCALE : 1/8\" = 1'-0\"",
+                  "points_per_inch": 0.75
+                },
+                "calibration": null,
+                "points_per_inch": null,
+                "status": "printed",
+                "note": "Printed for the view; no printed grid dimension to check it against. The title block says SCALE : 1/8\" = 1'-0\"."
+              },
+              "column_observed": true
+            }
+          ],
+          "observation": "column_symbol"
+        },
+        {
+          "page": 18,
+          "sheet": "S132",
+          "plan": "LEVEL 3 FRAMING PLAN",
+          "matched_by": "plan name",
+          "ambiguous_match": false,
+          "grid_axes": [
+            1,
+            1
+          ],
+          "candidates": [
+            {
+              "point_bbox": [
+                1907.4,
+                291.6,
+                1913.4,
+                297.6
+              ],
+              "symbol": {
+                "bbox": [
+                  1906.7,
+                  289.8,
+                  1914.1,
+                  299.6
+                ]
+              },
+              "annotations": [],
+              "nearby_text": [
+                {
+                  "text": "10'' CMU SHEAR WALL",
+                  "bbox": [
+                    2355.7,
+                    638.5,
+                    2459.2,
+                    665.9
+                  ],
+                  "how": "leader ends at the column"
+                }
+              ],
+              "page": 18,
+              "scope": {
+                "view_title": "LEVEL 3 FRAMING PLAN - AREA B",
+                "sheet_title": null,
+                "scope_words": [
+                  "B"
+                ],
+                "schedule_scope": [],
+                "view_title_bbox": [
+                  268.0,
+                  2032.0,
+                  674.3,
+                  2056.9
+                ],
+                "status": "single_schedule",
+                "note": "The set has one column schedule; scope is not compared."
+              },
+              "scale": {
+                "printed": {
+                  "raw": "1/8\" = 1'-0\"",
+                  "points_per_inch": 0.75,
+                  "nts": false
+                },
+                "sheet": {
+                  "raw": "SCALE : 1/8\" = 1'-0\"",
+                  "points_per_inch": 0.75
+                },
+                "calibration": {
+                  "points_per_inch": 0.74997,
+                  "bays": [
+                    {
+                      "ratio": 0.7498425520157473,
+                      "grids": [
+                        "2\"",
+                        "3\""
+                      ],
+                      "printed": "26'-4\"",
+                      "gap_points": 237.0
+                    },
+                    {
+                      "ratio": 0.7501208348944675,
+                      "grids": [
+                        "14.2'",
+                        "16'"
+                      ],
+                      "printed": "19'-3\"",
+                      "gap_points": 173.3
+                    },
+                    {
+                      "ratio": 0.7501208348944675,
+                      "grids": [
+                        "14.2'",
+                        "16'"
+                      ],
+                      "printed": "19'-3\"",
+                      "gap_points": 173.3
+                    },
+                    {
+                      "ratio": 0.7494590154349384,
+                      "grids": [
+                        "13.1",
+                        "13.2"
+                      ],
+                      "printed": "7'-2\"",
+                      "gap_points": 64.5
+                    },
+                    {
+                      "ratio": 0.7501471816856922,
+                      "grids": [
+                        "14",
+                        "15"
+                      ],
+                      "printed": "9'-5\"",
+                      "gap_points": 84.8
+                    },
+                    {
+                      "ratio": 0.7499691324249348,
+                      "grids": [
+                        "15",
+                        "15.6"
+                      ],
+                      "printed": "17'-9\"",
+                      "gap_points": 159.7
+                    }
+                  ],
+                  "bay_count": 21,
+                  "disagreeing_bays": 31,
+                  "several_views": false
+                },
+                "points_per_inch": 0.74997,
+                "status": "validated",
+                "note": "1/8\" = 1'-0\" agrees with 21 printed grid dimensions."
+              },
+              "column_observed": true
+            }
+          ],
+          "observation": "column_symbol"
+        }
+      ],
+      "other_titled_sheets": [
+        "S131",
+        "S133",
+        "S134"
+      ],
+      "other_scope_views": []
+    },
+    {
+      "name": "LEVEL 2",
+      "elevation": "14'-0\"",
+      "plans": [
+        {
+          "page": 11,
+          "sheet": "S120",
+          "plan": "LEVEL 2 FRAMING PLAN",
+          "matched_by": "plan name",
+          "ambiguous_match": false,
+          "grid_axes": [
+            1,
+            1
+          ],
+          "candidates": [
+            {
+              "point_bbox": [
+                1829.1,
+                348.3,
+                1835.1,
+                354.3
+              ],
+              "symbol": {
+                "bbox": [
+                  1830.6,
+                  349.3,
+                  1833.6,
+                  353.3
+                ]
+              },
+              "annotations": [],
+              "nearby_text": [
+                {
+                  "text": "19",
+                  "bbox": [
+                    1810.7,
+                    281.7,
+                    1831.8,
+                    300.7
+                  ],
+                  "how": "nearby"
+                },
+                {
+                  "text": "A.4'",
+                  "bbox": [
+                    1864.2,
+                    356.4,
+                    1896.1,
+                    375.3
+                  ],
+                  "how": "nearby"
+                },
+                {
+                  "text": "18",
+                  "bbox": [
+                    1770.5,
+                    288.8,
+                    1791.6,
+                    307.8
+                  ],
+                  "how": "nearby"
+                }
+              ],
+              "page": 11,
+              "scope": {
+                "view_title": "LEVEL 2 FRAMING PLAN - OVERALL",
+                "sheet_title": null,
+                "scope_words": [],
+                "schedule_scope": [],
+                "view_title_bbox": [
+                  358.0,
+                  1961.8,
+                  787.9,
+                  1986.7
+                ],
+                "status": "single_schedule",
+                "note": "The set has one column schedule; scope is not compared."
+              },
+              "scale": {
+                "printed": {
+                  "raw": "1\" = 20'-0\"",
+                  "points_per_inch": 0.3,
+                  "nts": false
+                },
+                "sheet": {
+                  "raw": "SCALE : 1/8\" = 1'-0\"",
+                  "points_per_inch": 0.75
+                },
+                "calibration": null,
+                "points_per_inch": null,
+                "status": "printed",
+                "note": "Printed for the view; no printed grid dimension to check it against. The title block says SCALE : 1/8\" = 1'-0\"."
+              },
+              "column_observed": true
+            }
+          ],
+          "observation": "column_symbol"
+        },
+        {
+          "page": 13,
+          "sheet": "S122",
+          "plan": "LEVEL 2 FRAMING PLAN",
+          "matched_by": "plan name",
+          "ambiguous_match": false,
+          "grid_axes": [
+            1,
+            1
+          ],
+          "candidates": [
+            {
+              "point_bbox": [
+                1909.4,
+                301.3,
+                1915.4,
+                307.3
+              ],
+              "symbol": null,
+              "annotations": [],
+              "nearby_text": [
+                {
+                  "text": "W12X16",
+                  "bbox": [
+                    1826.1,
+                    260.1,
+                    1860.1,
+                    274.9
+                  ],
+                  "how": "nearby"
+                },
+                {
+                  "text": "<13'-10 1/2\">",
+                  "bbox": [
+                    1831.2,
+                    270.3,
+                    1882.7,
+                    288.1
+                  ],
+                  "how": "nearby"
+                },
+                {
+                  "text": "W10X12",
+                  "bbox": [
+                    1857.7,
+                    291.4,
+                    1872.4,
+                    325.5
+                  ],
+                  "how": "nearby"
+                },
+                {
+                  "text": "<13'-10 1/2\">",
+                  "bbox": [
+                    1844.6,
+                    296.5,
+                    1862.3,
+                    348.0
+                  ],
+                  "how": "nearby"
+                },
+                {
+                  "text": "W12X26",
+                  "bbox": [
+                    1905.1,
+                    252.7,
+                    1919.8,
+                    286.7
+                  ],
+                  "how": "printed at the column"
+                },
+                {
+                  "text": "<13'-10 1/2\">",
+                  "bbox": [
+                    1892.0,
+                    257.7,
+                    1909.7,
+                    309.3
+                  ],
+                  "how": "printed at the column"
+                }
+              ],
+              "page": 13,
+              "scope": {
+                "view_title": "LEVEL 2 FRAMING PLAN - AREA B",
+                "sheet_title": null,
+                "scope_words": [
+                  "B"
+                ],
+                "schedule_scope": [],
+                "view_title_bbox": [
+                  268.3,
+                  1977.6,
+                  674.7,
+                  2002.5
+                ],
+                "status": "single_schedule",
+                "note": "The set has one column schedule; scope is not compared."
+              },
+              "scale": {
+                "printed": {
+                  "raw": "1/8\" = 1'-0\"",
+                  "points_per_inch": 0.75,
+                  "nts": false
+                },
+                "sheet": {
+                  "raw": "SCALE : 1/8\" = 1'-0\"",
+                  "points_per_inch": 0.75
+                },
+                "calibration": {
+                  "points_per_inch": 0.74996,
+                  "bays": [
+                    {
+                      "ratio": 0.7499598954665482,
+                      "grids": [
+                        "2\"",
+                        "3\""
+                      ],
+                      "printed": "26'-4\"",
+                      "gap_points": 237.0
+                    },
+                    {
+                      "ratio": 0.7500304940747277,
+                      "grids": [
+                        "14.2'",
+                        "16'"
+                      ],
+                      "printed": "19'-3\"",
+                      "gap_points": 173.3
+                    },
+                    {
+                      "ratio": 0.7499591671182327,
+                      "grids": [
+                        "14",
+                        "15"
+                      ],
+                      "printed": "9'-5\"",
+                      "gap_points": 84.7
+                    },
+                    {
+                      "ratio": 0.7502928220760281,
+                      "grids": [
+                        "15",
+                        "15.6"
+                      ],
+                      "printed": "17'-9\"",
+                      "gap_points": 159.8
+                    },
+                    {
+                      "ratio": 0.7495410485904189,
+                      "grids": [
+                        "15.6",
+                        "16"
+                      ],
+                      "printed": "11'-0\"",
+                      "gap_points": 98.9
+                    },
+                    {
+                      "ratio": 0.7504445733696279,
+                      "grids": [
+                        "16",
+                        "17"
+                      ],
+                      "printed": "13'-2\"",
+                      "gap_points": 118.6
+                    }
+                  ],
+                  "bay_count": 20,
+                  "disagreeing_bays": 49,
+                  "several_views": false
+                },
+                "points_per_inch": 0.74996,
+                "status": "validated",
+                "note": "1/8\" = 1'-0\" agrees with 20 printed grid dimensions."
+              },
+              "column_observed": false
+            }
+          ],
+          "observation": "not_detected",
+          "note": "No column symbol was detected at the intersection; this is not evidence of absence."
+        }
+      ],
+      "other_titled_sheets": [
+        "S121",
+        "S123",
+        "S124"
+      ],
+      "other_scope_views": []
+    },
+    {
+      "name": "LEVEL 1",
+      "elevation": "0\"",
+      "plans": [],
+      "other_titled_sheets": [],
+      "other_scope_views": [],
+      "note": "No plan names this level or states its elevation."
+    }
+  ],
+  "notes": [],
+  "directional_evidence": [],
+  "summary": {
+    "levels_spanned": [
+      "LEVEL 4",
+      "LEVEL 3",
+      "LEVEL 2",
+      "LEVEL 1"
+    ],
+    "levels_with_symbol": [
+      "LEVEL 4",
+      "LEVEL 3",
+      "LEVEL 2"
+    ],
+    "logical_stack_only": true,
+    "note": "Observations describe one logical column stack at this location; they do not establish how many fabricated pieces it is made of."
+  }
+}

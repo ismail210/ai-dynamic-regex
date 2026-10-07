@@ -111,6 +111,9 @@ _FAB_TAIL_RE = re.compile(
     r"(?:X\d+['’]\-?\d+(?:/\d+)?\"?|X\d+\-\d+\"?|X\d+\")$",
     re.I,
 )
+# Spacing / piece-length callout after the designation: @8', @2'-0", @16" O.C.
+_SPACING_TAIL_RE = re.compile(r"@\d+(?:\-\d+(?:/\d+)?)?\"?(?:O\.?C\.?)?$", re.I)
+_TRAILING_SEPARATOR_RE = re.compile(r"[,;]+$")
 
 
 def normalize_engineering_token(text: str) -> str:
@@ -166,13 +169,15 @@ def canonical_extracted_token(text: str) -> str:
 
 
 def core_section_token(text: str) -> str:
-    """Catalog core of a token, stripping an optional shop-cut length suffix."""
+    """Catalog core of a token, stripping an optional shop-cut length or
+    ``@`` spacing suffix and trailing list separators."""
 
     compact = normalize_engineering_token(text).replace("'", "").replace("’", "")
+    compact = _TRAILING_SEPARATOR_RE.sub("", compact)
     inch = _inch_angle_canonical(compact)
     if inch:
         return inch
-    stripped = _FAB_TAIL_RE.sub("", compact)
+    stripped = _FAB_TAIL_RE.sub("", _SPACING_TAIL_RE.sub("", compact))
     core = stripped or compact
     if core.startswith("HSS"):
         return core.replace('"', "").replace("″", "")

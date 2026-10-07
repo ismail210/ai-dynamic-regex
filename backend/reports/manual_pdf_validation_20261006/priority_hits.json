@@ -1,0 +1,598 @@
+[
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/Structural4__3aa51f661bdf.pdf",
+    "hits": [
+      {
+        "page": 6,
+        "keys": [
+          "COLUMN SCHEDULE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 11,
+        "keys": [
+          "COLUMN SCHEDULE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 16,
+        "keys": [
+          "COLUMN SCHEDULE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 21,
+        "keys": [
+          "COLUMN SCHEDULE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 25,
+        "keys": [
+          "COLUMN SCHEDULE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 26,
+        "keys": [
+          "COLUMN SCHEDULE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 27,
+        "keys": [
+          "COLUMN SCHEDULE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 31,
+        "keys": [
+          "COLUMN SCHEDULE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 32,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 34,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 35,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 38,
+        "keys": [
+          "COLUMN SCHEDULE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 39,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 42,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "COLUMN LOCATIONS"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 43,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE",
+          "COLUMN LOCATIONS"
+        ],
+        "rot": 0
+      }
+    ],
+    "first_lines": "GENERAL NOTES: | 1.  | ALL DETAILS, SECTIONS, AND NOTES SHOWN ON THE DRAWINGS ARE INTENDED TO BE TYPICAL AND SHALL  APPLY TO SIMILAR "
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/Burrville ES - ST.pdf",
+    "hits": [
+      {
+        "page": 1,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 15,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE",
+          "COLUMN LOCATIONS"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 18,
+        "keys": [
+          "COLUMN SCHEDULE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 28,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE",
+          "COLUMN LOCATIONS"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 29,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE",
+          "COLUMN LOCATIONS"
+        ],
+        "rot": 0
+      }
+    ],
+    "first_lines": "1' | +16 | -37"
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/ST - Springhill Lake__f6ddc4a7e233.pdf",
+    "hits": [
+      {
+        "page": 1,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 12,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 26,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE",
+          "COLUMN LOCATIONS"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 27,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE",
+          "COLUMN LOCATIONS"
+        ],
+        "rot": 0
+      }
+    ],
+    "first_lines": "1' | +16 | -35"
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/Struct.pdf",
+    "hits": [
+      {
+        "page": 2,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 15,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0
+      }
+    ],
+    "first_lines": "FOUNDATION AND SLAB ON GRADE: | NOTE: 1 | FOOTINGS ARE DESIGNED FOR A BEARING CAPACITY OF 3000 PSF BASED ON THE "
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/Struct__889d35dfc3cf.pdf",
+    "hits": [
+      {
+        "page": 2,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 15,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0
+      }
+    ],
+    "first_lines": "FOUNDATION AND SLAB ON GRADE: | NOTE: 1 | FOOTINGS ARE DESIGNED FOR A BEARING CAPACITY OF 3000 PSF BASED ON THE "
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/Structure - Copy.pdf",
+    "hits": [
+      {
+        "page": 1,
+        "keys": [
+          "COLUMN SCHEDULE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 3,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 4,
+        "keys": [
+          "COLUMN SCHEDULE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 9,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 16,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0
+      }
+    ],
+    "first_lines": "GENERAL | NOTIFY ENGINEER IN WRITING OF ANY DISCREPANCIES OR OMISSIONS NOTED ON THE DRAWINGS OR IN THE  | SPECIFICATIONS.  ENGINEER WILL SEND WRITTEN INSTRUCTIONS TO ALL CONCERNED."
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/ST.pdf",
+    "hits": [
+      {
+        "page": 3,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 7,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 8,
+        "keys": [
+          "COLUMN SCHEDULE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 15,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 22,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0
+      }
+    ],
+    "first_lines": "\u00a9 COPYRIGHT 2024 | Professional Certification. | I hereby certify that these "
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/ST__3fe7f145b516.pdf",
+    "hits": [
+      {
+        "page": 3,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 7,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0
+      }
+    ],
+    "first_lines": "FILE NAME: | Consultants | Seal"
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/ST-Elmer Wolfe ES__0cbd857dc6c2.pdf",
+    "hits": [
+      {
+        "page": 4,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 6,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0
+      }
+    ],
+    "first_lines": "FOUNDATION AND SLAB ON GRADE: | NOTE: 1 | FOOTINGS AT THE ADDITION ARE DESIGNED TO BE SUPPORTED ON HELICAL "
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/ST-Robert Moton ES__258cb166b79f.pdf",
+    "hits": [
+      {
+        "page": 3,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 7,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0
+      }
+    ],
+    "first_lines": "FOUNDATION AND SLAB ON GRADE: | NOTE: 1 | FOOTINGS AT THE ADDITION ARE DESIGNED TO BE SUPPORTED ON HELICAL PILES "
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/ST-Runnymede ES__4ff5b14a268a.pdf",
+    "hits": [
+      {
+        "page": 3,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 5,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0
+      }
+    ],
+    "first_lines": "FOUNDATION AND SLAB ON GRADE: | NOTE: 1 | FOOTINGS ARE DESIGNED FOR A BEARING CAPACITY OF 2,500 PSF BASED ON THE "
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/ST-Spring Garden ES__5dab28f47ceb.pdf",
+    "hits": [
+      {
+        "page": 3,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 4,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0
+      }
+    ],
+    "first_lines": "FOUNDATION AND SLAB ON GRADE: | NOTE: 1 | FOOTINGS ARE DESIGNED FOR A BEARING CAPACITY OF 2,000 PSF BASED ON THE "
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/1200 K_Permit_Bid_Dwgs - Structural.pdf",
+    "hits": [
+      {
+        "page": 29,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 32,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 36,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 38,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0
+      }
+    ],
+    "first_lines": "6\" | 8\" | @"
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/03 - SFSLS_251029_ISSUED FOR BID_2A_STRUCTURAL complied thru add 2__6a9a9684bb19.pdf",
+    "hits": [
+      {
+        "page": 1,
+        "keys": [
+          "COLUMN SCHEDULE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 7,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 24,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE",
+          "COLUMN LOCATIONS"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 26,
+        "keys": [
+          "COLUMN SCHEDULE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 32,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 33,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 43,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE",
+          "COLUMN LOCATIONS"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 44,
+        "keys": [
+          "COLUMN LOCATIONS"
+        ],
+        "rot": 0
+      }
+    ],
+    "first_lines": "One Thomas Circle NW, Suite 200  | Washington, DC 20005  | T. +1 202 861 1325 "
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/GCDC Building 4 - ST1__47dc7ef27f6e.pdf",
+    "hits": [
+      {
+        "page": 1,
+        "keys": [
+          "COLUMN SCHEDULE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 3,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 5,
+        "keys": [
+          "COLUMN SCHEDULE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 58,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 59,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 77,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 78,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0
+      },
+      {
+        "page": 79,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0
+      }
+    ],
+    "first_lines": "\u00a9          Gensler | Date | Description"
+  }
+]

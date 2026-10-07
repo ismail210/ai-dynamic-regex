@@ -20,6 +20,7 @@ from services.engineering.column_schedule import (
     parse_drawing_reference,
     parse_grid_location,
     parse_plate_cell,
+    plate_count_checks,
     plate_index,
     split_locations,
     visible_phrases,
@@ -478,6 +479,42 @@ class PlateTableTests(unittest.TestCase):
         self.assertEqual(row["mark"], "BP1")
         self.assertEqual([(d["label"], d["raw"]) for d in row["dimensions"]],
                          [("thickness", '1 1/4"'), ("width", "1'-6\""), ("length", "1'-6\"")])
+
+    def test_plate_quantity_ignores_anchor_rod_counts(self):
+        header = ["TYPE", "QTY", "BASE PLATE SIZE THICKNESS", "WIDTH", "LENGTH", "ANCHOR ROD QTY"]
+        groups = ["TYPE", "TYPE", "BASE PLATE SIZE", "BASE PLATE SIZE", "BASE PLATE SIZE", "ANCHOR ROD"]
+        record = self._record(
+            "BASE PLATE SCHEDULE", header, groups,
+            [["BP1", "3", '1"', "1'-0\"", "1'-0\"", "4"], ["BP2", "", '1"', "1'-0\"", "1'-0\"", "4"]],
+        )
+        quantities = {row["mark"]: row["quantity"] for row in _plate_table(record)["rows"]}
+        self.assertEqual(quantities, {"BP1": 3, "BP2": None})
+        no_quantity = self._record(
+            "BASE PLATE SCHEDULE", header[:1] + header[2:], groups[:1] + groups[2:],
+            [["BP1", '1"', "1'-0\"", "1'-0\"", "4"]],
+        )
+        self.assertIsNone(_plate_table(no_quantity)["rows"][0]["quantity"])
+
+    def test_plate_count_check_is_a_warning_not_a_quantity(self):
+        table = {
+            "page": 43,
+            "rows": [
+                {"mark": "BP1", "quantity": 3}, {"mark": "BP2", "quantity": 2},
+                {"mark": "BP3", "quantity": None},
+            ],
+        }
+
+        def entry(mark, count):
+            return {"plate": {"status": "resolved", "printed": mark}, "listed_location_count": count}
+
+        checks = plate_count_checks(
+            [entry("BP1", 2), entry("BP1", 1), entry("BP2", 3), {"plate": {"status": "unresolved", "printed": "BP3"}}],
+            [table],
+        )
+        self.assertEqual(
+            [(c["mark"], c["scheduled_quantity"], c["listed_locations"], c["status"]) for c in checks],
+            [("BP1", 3, 3, "match"), ("BP2", 2, 3, "mismatch"), ("BP3", None, 0, "no_quantity_printed")],
+        )
 
     def test_conflicting_definitions_do_not_resolve(self):
         a = self._record("BASE PLATE SCHEDULE", ["MARK", "SIZE"], ["MARK", "SIZE"], [["BP1", '14"x14"x3/4"']])

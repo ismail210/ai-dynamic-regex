@@ -1,0 +1,101 @@
+{
+  "furley": {
+    "pages": 24,
+    "pages_with_own_sheet_id": 24,
+    "distinct_own_sheet_ids": 24,
+    "cross_sheet_target_in_pdf": 259,
+    "cross_sheet_detail_number_found_on_target": 259,
+    "own_sheet_view_title": 137,
+    "missing_targets": []
+  },
+  "burrville": {
+    "pages": 29,
+    "pages_with_own_sheet_id": 29,
+    "distinct_own_sheet_ids": 29,
+    "cross_sheet_target_in_pdf": 144,
+    "cross_sheet_detail_number_found_on_target": 144,
+    "own_sheet_view_title": 46,
+    "missing_targets": []
+  },
+  "brandywine": {
+    "pages": 43,
+    "pages_with_own_sheet_id": 43,
+    "distinct_own_sheet_ids": 43,
+    "own_sheet_view_title": 164,
+    "cross_sheet_target_in_pdf": 245,
+    "cross_sheet_detail_number_found_on_target": 242,
+    "cross_sheet_detail_number_not_found": 3,
+    "missing_targets": []
+  },
+  "springhill": {
+    "pages": 28,
+    "pages_with_own_sheet_id": 28,
+    "distinct_own_sheet_ids": 28,
+    "cross_sheet_target_in_pdf": 225,
+    "cross_sheet_detail_number_found_on_target": 225,
+    "own_sheet_view_title": 110,
+    "missing_targets": []
+  },
+  "osse": {
+    "pages": 26,
+    "pages_with_own_sheet_id": 26,
+    "distinct_own_sheet_ids": 21,
+    "own_sheet_view_title": 75,
+    "cross_sheet_target_missing": 8,
+    "cross_sheet_target_in_pdf": 48,
+    "cross_sheet_detail_number_found_on_target": 48,
+    "missing_targets": [
+      [
+        "S121O",
+        3
+      ],
+      [
+        "S101O",
+        1
+      ],
+      [
+        "S102O",
+        1
+      ],
+      [
+        "S122O",
+        1
+      ],
+      [
+        "S123O",
+        1
+      ],
+      [
+        "S401",
+        1
+      ]
+    ]
+  },
+  "yellowspring": {
+    "pages": 40,
+    "pages_with_own_sheet_id": 40,
+    "distinct_own_sheet_ids": 40,
+    "cross_sheet_target_in_pdf": 11,
+    "cross_sheet_detail_number_found_on_target": 11,
+    "own_sheet_view_title": 166,
+    "missing_targets": []
+  },
+  "washlatin": {
+    "pages": 23,
+    "pages_with_own_sheet_id": 23,
+    "distinct_own_sheet_ids": 23,
+    "own_sheet_view_title": 117,
+    "cross_sheet_target_in_pdf": 151,
+    "cross_sheet_detail_number_found_on_target": 151,
+    "missing_targets": []
+  },
+  "fortdavis": {
+    "pages": 20,
+    "pages_with_own_sheet_id": 20,
+    "distinct_own_sheet_ids": 20,
+    "own_sheet_view_title": 112,
+    "cross_sheet_target_in_pdf": 88,
+    "cross_sheet_detail_number_found_on_target": 88,
+    "missing_targets": []
+  }
+}

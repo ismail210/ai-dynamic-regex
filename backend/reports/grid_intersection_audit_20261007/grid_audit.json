@@ -1,0 +1,1524 @@
+{
+  "burrville": {
+    "pages": 29,
+    "plan_pages": 10,
+    "plan_sheet_ids": [
+      "S-101A",
+      "S-101B",
+      "S-101C",
+      "S-102A",
+      "S-102B",
+      "S-102C",
+      "S-103A",
+      "S-103B",
+      "S-103C",
+      "S-104"
+    ],
+    "diagnostics": {
+      "grid_label_candidates": 385,
+      "confirmed_grid_labels": 14,
+      "candidate_grid_labels": 124,
+      "review_grid_labels": 4,
+      "grid_lines_detected": 14,
+      "grid_intersections": 11,
+      "objects_allocated": 3,
+      "objects_unresolved": 117,
+      "objects_ambiguous": 0,
+      "false_positive_rejections": 916
+    },
+    "confirmed_label_counts": [
+      [
+        "4",
+        3
+      ],
+      [
+        "C",
+        3
+      ],
+      [
+        "B",
+        3
+      ],
+      [
+        "1",
+        2
+      ],
+      [
+        "2",
+        1
+      ],
+      [
+        "3",
+        1
+      ],
+      [
+        "A",
+        1
+      ]
+    ],
+    "confirmed_samples": [
+      {
+        "sheet": "S-101A",
+        "label": "1",
+        "orientation": "horizontal",
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1334.9,
+          "start": 1675.0,
+          "end": 2084.8
+        }
+      },
+      {
+        "sheet": "S-101A",
+        "label": "4",
+        "orientation": "vertical",
+        "line": {
+          "orientation": "vertical",
+          "axis": 1970.7,
+          "start": 674.0,
+          "end": 1440.8
+        }
+      },
+      {
+        "sheet": "S-101A",
+        "label": "C",
+        "orientation": "horizontal",
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1071.9,
+          "start": 1675.0,
+          "end": 2084.8
+        }
+      },
+      {
+        "sheet": "S-101A",
+        "label": "B",
+        "orientation": "horizontal",
+        "line": {
+          "orientation": "horizontal",
+          "axis": 701.8,
+          "start": 331.1,
+          "end": 808.0
+        }
+      },
+      {
+        "sheet": "S-102A",
+        "label": "4",
+        "orientation": "vertical",
+        "line": {
+          "orientation": "vertical",
+          "axis": 1942.3,
+          "start": 635.6,
+          "end": 1410.4
+        }
+      },
+      {
+        "sheet": "S-102A",
+        "label": "C",
+        "orientation": "horizontal",
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1065.2,
+          "start": 1528.2,
+          "end": 2033.8
+        }
+      },
+      {
+        "sheet": "S-102A",
+        "label": "B",
+        "orientation": "horizontal",
+        "line": {
+          "orientation": "horizontal",
+          "axis": 702.0,
+          "start": 1304.2,
+          "end": 2069.8
+        }
+      },
+      {
+        "sheet": "S-103A",
+        "label": "1",
+        "orientation": "vertical",
+        "line": {
+          "orientation": "vertical",
+          "axis": 1832.6,
+          "start": 702.0,
+          "end": 1335.0
+        }
+      }
+    ],
+    "intersection_samples": [
+      {
+        "sheet": "S-101A",
+        "display": "4/1",
+        "status": "confirmed",
+        "point": [
+          1970.7,
+          1334.9
+        ]
+      },
+      {
+        "sheet": "S-101A",
+        "display": "4/C",
+        "status": "confirmed",
+        "point": [
+          1970.7,
+          1071.9
+        ]
+      },
+      {
+        "sheet": "S-102A",
+        "display": "4/C",
+        "status": "confirmed",
+        "point": [
+          1942.3,
+          1065.2
+        ]
+      },
+      {
+        "sheet": "S-102A",
+        "display": "4/B",
+        "status": "confirmed",
+        "point": [
+          1942.3,
+          702.0
+        ]
+      },
+      {
+        "sheet": "S-103A",
+        "display": "1/C",
+        "status": "confirmed",
+        "point": [
+          1832.6,
+          1064.3
+        ]
+      },
+      {
+        "sheet": "S-103A",
+        "display": "1/B",
+        "status": "confirmed",
+        "point": [
+          1832.6,
+          702.0
+        ]
+      },
+      {
+        "sheet": "S-103A",
+        "display": "2/A",
+        "status": "confirmed",
+        "point": [
+          1143.4,
+          271.3
+        ]
+      },
+      {
+        "sheet": "S-103A",
+        "display": "3/B",
+        "status": "confirmed",
+        "point": [
+          1411.2,
+          702.0
+        ]
+      }
+    ],
+    "allocations": [
+      {
+        "sheet": "S-101A",
+        "mark": "F7",
+        "location": null,
+        "status": "unresolved",
+        "distance": 211.4
+      },
+      {
+        "sheet": "S-101A",
+        "mark": "F7",
+        "location": "4/1",
+        "status": "confirmed",
+        "distance": 56.1
+      },
+      {
+        "sheet": "S-101A",
+        "mark": "F5",
+        "location": null,
+        "status": "unresolved",
+        "distance": 1325.8
+      },
+      {
+        "sheet": "S-101A",
+        "mark": "F7",
+        "location": null,
+        "status": "unresolved",
+        "distance": 1058.3
+      },
+      {
+        "sheet": "S-101A",
+        "mark": "F6",
+        "location": null,
+        "status": "unresolved",
+        "distance": 793.1
+      },
+      {
+        "sheet": "S-101A",
+        "mark": "F6",
+        "location": null,
+        "status": "unresolved",
+        "distance": 605.5
+      },
+      {
+        "sheet": "S-101A",
+        "mark": "F6",
+        "location": null,
+        "status": "unresolved",
+        "distance": 582.6
+      },
+      {
+        "sheet": "S-101A",
+        "mark": "F7",
+        "location": null,
+        "status": "unresolved",
+        "distance": 798.3
+      },
+      {
+        "sheet": "S-101A",
+        "mark": "F6",
+        "location": null,
+        "status": "unresolved",
+        "distance": 974.6
+      },
+      {
+        "sheet": "S-101A",
+        "mark": "F6",
+        "location": null,
+        "status": "unresolved",
+        "distance": 1141.1
+      },
+      {
+        "sheet": "S-101A",
+        "mark": "F6",
+        "location": null,
+        "status": "unresolved",
+        "distance": 1601.1
+      },
+      {
+        "sheet": "S-101A",
+        "mark": "F6",
+        "location": null,
+        "status": "unresolved",
+        "distance": 1443.7
+      },
+      {
+        "sheet": "S-101A",
+        "mark": "F5",
+        "location": null,
+        "status": "unresolved",
+        "distance": 1504.1
+      },
+      {
+        "sheet": "S-101A",
+        "mark": "F5",
+        "location": null,
+        "status": "unresolved",
+        "distance": 1469.8
+      },
+      {
+        "sheet": "S-101A",
+        "mark": "F6",
+        "location": null,
+        "status": "unresolved",
+        "distance": 1407.8
+      },
+      {
+        "sheet": "S-101A",
+        "mark": "F6",
+        "location": null,
+        "status": "unresolved",
+        "distance": 995.3
+      }
+    ],
+    "rejection_reasons": {
+      "member_mark": 40
+    }
+  },
+  "osse": {
+    "pages": 26,
+    "plan_pages": 6,
+    "plan_sheet_ids": [
+      "S-101-O",
+      "S-102-O",
+      "S-103-O",
+      "S-121-O",
+      "S-122-O",
+      "S-123-O"
+    ],
+    "diagnostics": {
+      "grid_label_candidates": 372,
+      "confirmed_grid_labels": 132,
+      "candidate_grid_labels": 12,
+      "review_grid_labels": 27,
+      "grid_lines_detected": 132,
+      "grid_intersections": 740,
+      "objects_allocated": 6,
+      "objects_unresolved": 18,
+      "objects_ambiguous": 1,
+      "false_positive_rejections": 577
+    },
+    "confirmed_label_counts": [
+      [
+        "C",
+        6
+      ],
+      [
+        "7",
+        6
+      ],
+      [
+        "C.1",
+        5
+      ],
+      [
+        "C.4",
+        5
+      ],
+      [
+        "C.5",
+        5
+      ],
+      [
+        "C.7",
+        5
+      ],
+      [
+        "D",
+        5
+      ],
+      [
+        "4",
+        5
+      ],
+      [
+        "C.3",
+        5
+      ],
+      [
+        "C.2",
+        5
+      ],
+      [
+        "5",
+        4
+      ],
+      [
+        "D.3",
+        4
+      ],
+      [
+        "C.45",
+        4
+      ],
+      [
+        "C.8",
+        4
+      ],
+      [
+        "N",
+        4
+      ],
+      [
+        "1",
+        4
+      ],
+      [
+        "6",
+        3
+      ],
+      [
+        "8",
+        3
+      ],
+      [
+        "3",
+        3
+      ],
+      [
+        "B.9",
+        3
+      ]
+    ],
+    "confirmed_samples": [
+      {
+        "sheet": "S-101-O",
+        "label": "C.1",
+        "orientation": "horizontal",
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1198.9,
+          "start": 238.0,
+          "end": 2476.4
+        }
+      },
+      {
+        "sheet": "S-101-O",
+        "label": "C.4",
+        "orientation": "horizontal",
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1291.0,
+          "start": 238.0,
+          "end": 2451.1
+        }
+      },
+      {
+        "sheet": "S-101-O",
+        "label": "C.5",
+        "orientation": "horizontal",
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1348.7,
+          "start": 238.0,
+          "end": 2476.4
+        }
+      },
+      {
+        "sheet": "S-101-O",
+        "label": "C.7",
+        "orientation": "horizontal",
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1411.5,
+          "start": 238.0,
+          "end": 2476.4
+        }
+      },
+      {
+        "sheet": "S-101-O",
+        "label": "2",
+        "orientation": "vertical",
+        "line": {
+          "orientation": "vertical",
+          "axis": 433.8,
+          "start": 244.8,
+          "end": 1743.4
+        }
+      },
+      {
+        "sheet": "S-101-O",
+        "label": "6",
+        "orientation": "vertical",
+        "line": {
+          "orientation": "vertical",
+          "axis": 849.2,
+          "start": 244.8,
+          "end": 1743.4
+        }
+      },
+      {
+        "sheet": "S-101-O",
+        "label": "8",
+        "orientation": "vertical",
+        "line": {
+          "orientation": "vertical",
+          "axis": 1057.1,
+          "start": 244.8,
+          "end": 1743.4
+        }
+      },
+      {
+        "sheet": "S-101-O",
+        "label": "9",
+        "orientation": "vertical",
+        "line": {
+          "orientation": "vertical",
+          "axis": 1160.6,
+          "start": 244.8,
+          "end": 1743.4
+        }
+      }
+    ],
+    "intersection_samples": [
+      {
+        "sheet": "S-101-O",
+        "display": "2/C.1",
+        "status": "confirmed",
+        "point": [
+          433.8,
+          1198.9
+        ]
+      },
+      {
+        "sheet": "S-101-O",
+        "display": "2/C.4",
+        "status": "confirmed",
+        "point": [
+          433.8,
+          1291.0
+        ]
+      },
+      {
+        "sheet": "S-101-O",
+        "display": "2/C.5",
+        "status": "confirmed",
+        "point": [
+          433.8,
+          1348.7
+        ]
+      },
+      {
+        "sheet": "S-101-O",
+        "display": "2/C.7",
+        "status": "confirmed",
+        "point": [
+          433.8,
+          1411.5
+        ]
+      },
+      {
+        "sheet": "S-101-O",
+        "display": "2/D",
+        "status": "confirmed",
+        "point": [
+          433.8,
+          1487.7
+        ]
+      },
+      {
+        "sheet": "S-101-O",
+        "display": "2/B",
+        "status": "confirmed",
+        "point": [
+          433.8,
+          867.2
+        ]
+      },
+      {
+        "sheet": "S-101-O",
+        "display": "2/A",
+        "status": "confirmed",
+        "point": [
+          433.8,
+          546.5
+        ]
+      },
+      {
+        "sheet": "S-101-O",
+        "display": "2/C.3",
+        "status": "confirmed",
+        "point": [
+          433.8,
+          1257.4
+        ]
+      }
+    ],
+    "allocations": [
+      {
+        "sheet": "S-103-O",
+        "mark": "P4",
+        "location": null,
+        "status": "unresolved",
+        "distance": 452.6
+      },
+      {
+        "sheet": "S-103-O",
+        "mark": "P4",
+        "location": null,
+        "status": "unresolved",
+        "distance": 458.6
+      },
+      {
+        "sheet": "S-103-O",
+        "mark": "P4",
+        "location": null,
+        "status": "unresolved",
+        "distance": 240.2
+      },
+      {
+        "sheet": "S-103-O",
+        "mark": "P4",
+        "location": null,
+        "status": "unresolved",
+        "distance": 138.6
+      },
+      {
+        "sheet": "S-103-O",
+        "mark": "P4",
+        "location": null,
+        "status": "unresolved",
+        "distance": 202.9
+      },
+      {
+        "sheet": "S-103-O",
+        "mark": "P4",
+        "location": "6/C",
+        "status": "review_required",
+        "distance": 32.7
+      },
+      {
+        "sheet": "S-121-O",
+        "mark": "P1",
+        "location": "N/C.7",
+        "status": "candidate",
+        "distance": 33.0
+      },
+      {
+        "sheet": "S-121-O",
+        "mark": "P1",
+        "location": null,
+        "status": "unresolved",
+        "distance": 382.8
+      },
+      {
+        "sheet": "S-121-O",
+        "mark": "P2",
+        "location": "N/C.3",
+        "status": "candidate",
+        "distance": 56.5
+      },
+      {
+        "sheet": "S-121-O",
+        "mark": "P1",
+        "location": null,
+        "status": "unresolved",
+        "distance": 65.9
+      },
+      {
+        "sheet": "S-121-O",
+        "mark": "P8",
+        "location": null,
+        "status": "unresolved",
+        "distance": 412.2
+      },
+      {
+        "sheet": "S-121-O",
+        "mark": "P1",
+        "location": null,
+        "status": "unresolved",
+        "distance": 432.1
+      },
+      {
+        "sheet": "S-121-O",
+        "mark": "P1",
+        "location": null,
+        "status": "unresolved",
+        "distance": 755.0
+      },
+      {
+        "sheet": "S-121-O",
+        "mark": "P1",
+        "location": null,
+        "status": "unresolved",
+        "distance": 752.5
+      },
+      {
+        "sheet": "S-121-O",
+        "mark": "P7",
+        "location": null,
+        "status": "unresolved",
+        "distance": 727.1
+      },
+      {
+        "sheet": "S-121-O",
+        "mark": "P1",
+        "location": null,
+        "status": "unresolved",
+        "distance": 722.8
+      }
+    ],
+    "rejection_reasons": {
+      "dimension": 40
+    }
+  },
+  "struct": {
+    "pages": 24,
+    "plan_pages": 12,
+    "plan_sheet_ids": [
+      "S101A",
+      "S101B",
+      "S101C",
+      "S101D",
+      "S102A",
+      "S102B",
+      "S102C",
+      "S102D",
+      "S103A",
+      "S103B",
+      "S103C",
+      "S103D"
+    ],
+    "diagnostics": {
+      "grid_label_candidates": 982,
+      "confirmed_grid_labels": 260,
+      "candidate_grid_labels": 195,
+      "review_grid_labels": 201,
+      "grid_lines_detected": 260,
+      "grid_intersections": 335,
+      "objects_allocated": 32,
+      "objects_unresolved": 294,
+      "objects_ambiguous": 48,
+      "false_positive_rejections": 864
+    },
+    "confirmed_label_counts": [
+      [
+        "4",
+        17
+      ],
+      [
+        "B",
+        14
+      ],
+      [
+        "A",
+        13
+      ],
+      [
+        "12",
+        11
+      ],
+      [
+        "8",
+        11
+      ],
+      [
+        "15",
+        11
+      ],
+      [
+        "H",
+        10
+      ],
+      [
+        "14",
+        10
+      ],
+      [
+        "11",
+        9
+      ],
+      [
+        "C",
+        9
+      ],
+      [
+        "13",
+        9
+      ],
+      [
+        "10",
+        8
+      ],
+      [
+        "F",
+        7
+      ],
+      [
+        "6",
+        7
+      ],
+      [
+        "16",
+        7
+      ],
+      [
+        "9",
+        7
+      ],
+      [
+        "E",
+        6
+      ],
+      [
+        "J",
+        6
+      ],
+      [
+        "K.8",
+        6
+      ],
+      [
+        "L",
+        5
+      ]
+    ],
+    "confirmed_samples": [
+      {
+        "sheet": "S101A",
+        "label": "F",
+        "orientation": "horizontal",
+        "line": {
+          "orientation": "horizontal",
+          "axis": 699.5,
+          "start": 2230.7,
+          "end": 2660.9
+        }
+      },
+      {
+        "sheet": "S101A",
+        "label": "A",
+        "orientation": "horizontal",
+        "line": {
+          "orientation": "horizontal",
+          "axis": 796.8,
+          "start": 157.2,
+          "end": 2660.9
+        }
+      },
+      {
+        "sheet": "S101A",
+        "label": "4",
+        "orientation": "vertical",
+        "line": {
+          "orientation": "vertical",
+          "axis": 2338.7,
+          "start": 1705.9,
+          "end": 2114.9
+        }
+      },
+      {
+        "sheet": "S101A",
+        "label": "6",
+        "orientation": "vertical",
+        "line": {
+          "orientation": "vertical",
+          "axis": 2041.2,
+          "start": 791.2,
+          "end": 1254.0
+        }
+      },
+      {
+        "sheet": "S101A",
+        "label": "10",
+        "orientation": "vertical",
+        "line": {
+          "orientation": "vertical",
+          "axis": 1433.7,
+          "start": 311.5,
+          "end": 1407.7
+        }
+      },
+      {
+        "sheet": "S101A",
+        "label": "11",
+        "orientation": "vertical",
+        "line": {
+          "orientation": "vertical",
+          "axis": 1279.1,
+          "start": 820.9,
+          "end": 1231.8
+        }
+      },
+      {
+        "sheet": "S101A",
+        "label": "12",
+        "orientation": "vertical",
+        "line": {
+          "orientation": "vertical",
+          "axis": 1104.6,
+          "start": 846.7,
+          "end": 1282.1
+        }
+      },
+      {
+        "sheet": "S101A",
+        "label": "16",
+        "orientation": "vertical",
+        "line": {
+          "orientation": "vertical",
+          "axis": 525.9,
+          "start": 311.5,
+          "end": 1371.7
+        }
+      }
+    ],
+    "intersection_samples": [
+      {
+        "sheet": "S101A",
+        "display": "4/A",
+        "status": "confirmed",
+        "point": [
+          2338.7,
+          2114.9
+        ]
+      },
+      {
+        "sheet": "S101A",
+        "display": "4/C",
+        "status": "confirmed",
+        "point": [
+          2338.7,
+          1743.4
+        ]
+      },
+      {
+        "sheet": "S101A",
+        "display": "6/A",
+        "status": "confirmed",
+        "point": [
+          2041.2,
+          796.8
+        ]
+      },
+      {
+        "sheet": "S101A",
+        "display": "6/F",
+        "status": "confirmed",
+        "point": [
+          2041.2,
+          1246.0
+        ]
+      },
+      {
+        "sheet": "S101A",
+        "display": "10/A",
+        "status": "confirmed",
+        "point": [
+          1433.7,
+          796.8
+        ]
+      },
+      {
+        "sheet": "S101A",
+        "display": "10/F",
+        "status": "confirmed",
+        "point": [
+          1433.7,
+          1246.0
+        ]
+      },
+      {
+        "sheet": "S101A",
+        "display": "10/L",
+        "status": "confirmed",
+        "point": [
+          1433.7,
+          412.5
+        ]
+      },
+      {
+        "sheet": "S101A",
+        "display": "11/F",
+        "status": "confirmed",
+        "point": [
+          1279.1,
+          1246.0
+        ]
+      }
+    ],
+    "allocations": [
+      {
+        "sheet": "S101A",
+        "mark": "C4",
+        "location": null,
+        "status": "unresolved",
+        "distance": 159.0
+      },
+      {
+        "sheet": "S101A",
+        "mark": "P24",
+        "location": null,
+        "status": "unresolved",
+        "distance": 174.0
+      },
+      {
+        "sheet": "S101A",
+        "mark": "C4",
+        "location": "11/A",
+        "status": "candidate",
+        "distance": 76.4
+      },
+      {
+        "sheet": "S101A",
+        "mark": "P24",
+        "location": "11/A",
+        "status": "candidate",
+        "distance": 68.2
+      },
+      {
+        "sheet": "S101A",
+        "mark": "P24",
+        "location": null,
+        "status": "unresolved",
+        "distance": 193.7
+      },
+      {
+        "sheet": "S101A",
+        "mark": "P24",
+        "location": "10/A",
+        "status": "review_required",
+        "distance": 121.4
+      },
+      {
+        "sheet": "S101A",
+        "mark": "F60",
+        "location": null,
+        "status": "unresolved",
+        "distance": 194.6
+      },
+      {
+        "sheet": "S101A",
+        "mark": "P22",
+        "location": "11/A",
+        "status": "candidate",
+        "distance": 116.5
+      },
+      {
+        "sheet": "S101A",
+        "mark": "F70",
+        "location": "11/A",
+        "status": "candidate",
+        "distance": 121.1
+      },
+      {
+        "sheet": "S101A",
+        "mark": "C1",
+        "location": "11/A",
+        "status": "candidate",
+        "distance": 116.5
+      },
+      {
+        "sheet": "S101A",
+        "mark": "P22",
+        "location": "4/F",
+        "status": "review_required",
+        "distance": 54.7
+      },
+      {
+        "sheet": "S101A",
+        "mark": "F50",
+        "location": "4/A",
+        "status": "review_required",
+        "distance": 62.1
+      },
+      {
+        "sheet": "S101A",
+        "mark": "C3",
+        "location": "4/F",
+        "status": "confirmed",
+        "distance": 47.7
+      },
+      {
+        "sheet": "S101A",
+        "mark": "P22",
+        "location": "4/H",
+        "status": "review_required",
+        "distance": 74.4
+      },
+      {
+        "sheet": "S101A",
+        "mark": "F40",
+        "location": "4/H",
+        "status": "review_required",
+        "distance": 67.7
+      },
+      {
+        "sheet": "S101A",
+        "mark": "C3",
+        "location": "4/A",
+        "status": "review_required",
+        "distance": 67.9
+      }
+    ],
+    "rejection_reasons": {
+      "member_mark": 37,
+      "dimension": 3
+    }
+  },
+  "brandywine": {
+    "pages": 43,
+    "plan_pages": 20,
+    "plan_sheet_ids": [
+      "S-110",
+      "S-111",
+      "S-112",
+      "S-113",
+      "S-114",
+      "S-120",
+      "S-121",
+      "S-122",
+      "S-123",
+      "S-124",
+      "S-130",
+      "S-131",
+      "S-132",
+      "S-133",
+      "S-134",
+      "S-140",
+      "S-141",
+      "S-142",
+      "S-143",
+      "S-400"
+    ],
+    "diagnostics": {
+      "grid_label_candidates": 696,
+      "confirmed_grid_labels": 159,
+      "candidate_grid_labels": 227,
+      "review_grid_labels": 29,
+      "grid_lines_detected": 159,
+      "grid_intersections": 164,
+      "objects_allocated": 18,
+      "objects_unresolved": 120,
+      "objects_ambiguous": 0,
+      "false_positive_rejections": 1007
+    },
+    "confirmed_label_counts": [
+      [
+        "5",
+        20
+      ],
+      [
+        "C",
+        16
+      ],
+      [
+        "1",
+        15
+      ],
+      [
+        "4",
+        13
+      ],
+      [
+        "E",
+        12
+      ],
+      [
+        "D",
+        12
+      ],
+      [
+        "E.4",
+        8
+      ],
+      [
+        "B.2",
+        8
+      ],
+      [
+        "B",
+        8
+      ],
+      [
+        "A",
+        5
+      ],
+      [
+        "D.1",
+        5
+      ],
+      [
+        "3",
+        4
+      ],
+      [
+        "C.6",
+        4
+      ],
+      [
+        "11",
+        4
+      ],
+      [
+        "F",
+        3
+      ],
+      [
+        "10",
+        3
+      ],
+      [
+        "G",
+        3
+      ],
+      [
+        "G.2",
+        3
+      ],
+      [
+        "13",
+        2
+      ],
+      [
+        "12",
+        2
+      ]
+    ],
+    "confirmed_samples": [
+      {
+        "sheet": "S-110",
+        "label": "A",
+        "orientation": "horizontal",
+        "line": {
+          "orientation": "horizontal",
+          "axis": 437.2,
+          "start": 733.8,
+          "end": 1383.8
+        }
+      },
+      {
+        "sheet": "S-110",
+        "label": "E",
+        "orientation": "horizontal",
+        "line": {
+          "orientation": "horizontal",
+          "axis": 719.8,
+          "start": 382.0,
+          "end": 1766.0
+        }
+      },
+      {
+        "sheet": "S-110",
+        "label": "E.4",
+        "orientation": "horizontal",
+        "line": {
+          "orientation": "horizontal",
+          "axis": 752.1,
+          "start": 382.0,
+          "end": 2086.1
+        }
+      },
+      {
+        "sheet": "S-110",
+        "label": "C",
+        "orientation": "horizontal",
+        "line": {
+          "orientation": "horizontal",
+          "axis": 547.3,
+          "start": 382.0,
+          "end": 1383.8
+        }
+      },
+      {
+        "sheet": "S-110",
+        "label": "D",
+        "orientation": "horizontal",
+        "line": {
+          "orientation": "horizontal",
+          "axis": 606.3,
+          "start": 382.0,
+          "end": 1559.6
+        }
+      },
+      {
+        "sheet": "S-110",
+        "label": "D.1",
+        "orientation": "horizontal",
+        "line": {
+          "orientation": "horizontal",
+          "axis": 623.9,
+          "start": 408.6,
+          "end": 809.3
+        }
+      },
+      {
+        "sheet": "S-110",
+        "label": "B.2",
+        "orientation": "horizontal",
+        "line": {
+          "orientation": "horizontal",
+          "axis": 456.8,
+          "start": 382.0,
+          "end": 789.5
+        }
+      },
+      {
+        "sheet": "S-110",
+        "label": "5",
+        "orientation": "horizontal",
+        "line": {
+          "orientation": "horizontal",
+          "axis": 2107.1,
+          "start": 124.4,
+          "end": 2950.4
+        }
+      }
+    ],
+    "intersection_samples": [
+      {
+        "sheet": "S-110",
+        "display": "4/A",
+        "status": "confirmed",
+        "point": [
+          880.0,
+          437.2
+        ]
+      },
+      {
+        "sheet": "S-110",
+        "display": "4/E",
+        "status": "confirmed",
+        "point": [
+          880.0,
+          719.8
+        ]
+      },
+      {
+        "sheet": "S-110",
+        "display": "4/E.4",
+        "status": "confirmed",
+        "point": [
+          880.0,
+          752.1
+        ]
+      },
+      {
+        "sheet": "S-110",
+        "display": "4/C",
+        "status": "confirmed",
+        "point": [
+          880.0,
+          547.3
+        ]
+      },
+      {
+        "sheet": "S-110",
+        "display": "4/D",
+        "status": "confirmed",
+        "point": [
+          880.0,
+          606.3
+        ]
+      },
+      {
+        "sheet": "S-110",
+        "display": "3/E",
+        "status": "confirmed",
+        "point": [
+          1438.8,
+          719.8
+        ]
+      },
+      {
+        "sheet": "S-110",
+        "display": "3/E.4",
+        "status": "confirmed",
+        "point": [
+          1438.8,
+          752.1
+        ]
+      },
+      {
+        "sheet": "S-110",
+        "display": "3/D",
+        "status": "confirmed",
+        "point": [
+          1438.8,
+          606.3
+        ]
+      }
+    ],
+    "allocations": [
+      {
+        "sheet": "S-111",
+        "mark": "P1",
+        "location": null,
+        "status": "unresolved",
+        "distance": 1189.1
+      },
+      {
+        "sheet": "S-111",
+        "mark": "P1",
+        "location": null,
+        "status": "unresolved",
+        "distance": 1431.9
+      },
+      {
+        "sheet": "S-111",
+        "mark": "P1",
+        "location": null,
+        "status": "unresolved",
+        "distance": 1653.7
+      },
+      {
+        "sheet": "S-111",
+        "mark": "P1",
+        "location": null,
+        "status": "unresolved",
+        "distance": 980.1
+      },
+      {
+        "sheet": "S-111",
+        "mark": "P1",
+        "location": null,
+        "status": "unresolved",
+        "distance": 978.8
+      },
+      {
+        "sheet": "S-111",
+        "mark": "P1",
+        "location": null,
+        "status": "unresolved",
+        "distance": 1188.1
+      },
+      {
+        "sheet": "S-111",
+        "mark": "P1",
+        "location": null,
+        "status": "unresolved",
+        "distance": 1431.1
+      },
+      {
+        "sheet": "S-111",
+        "mark": "P1",
+        "location": null,
+        "status": "unresolved",
+        "distance": 1653.0
+      },
+      {
+        "sheet": "S-111",
+        "mark": "P2",
+        "location": null,
+        "status": "unresolved",
+        "distance": 471.0
+      },
+      {
+        "sheet": "S-111",
+        "mark": "P2",
+        "location": null,
+        "status": "unresolved",
+        "distance": 201.0
+      },
+      {
+        "sheet": "S-111",
+        "mark": "P1",
+        "location": null,
+        "status": "unresolved",
+        "distance": 647.6
+      },
+      {
+        "sheet": "S-111",
+        "mark": "P1",
+        "location": null,
+        "status": "unresolved",
+        "distance": 1877.9
+      },
+      {
+        "sheet": "S-111",
+        "mark": "P1",
+        "location": null,
+        "status": "unresolved",
+        "distance": 1877.3
+      },
+      {
+        "sheet": "S-111",
+        "mark": "P1",
+        "location": null,
+        "status": "unresolved",
+        "distance": 1873.0
+      },
+      {
+        "sheet": "S-111",
+        "mark": "P1",
+        "location": null,
+        "status": "unresolved",
+        "distance": 2055.2
+      },
+      {
+        "sheet": "S-111",
+        "mark": "P1",
+        "location": null,
+        "status": "unresolved",
+        "distance": 1888.1
+      }
+    ],
+    "rejection_reasons": {
+      "dimension": 22,
+      "member_mark": 18
+    }
+  }
+}

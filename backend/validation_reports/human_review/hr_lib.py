@@ -376,11 +376,23 @@ def compute_a7_metrics(doc: Dict[str, Any]) -> Dict[str, Any]:
             "precision_excluding_ambiguous": _rate(c, c + w),
         }
 
+    if n_rev == 0:
+        note = "Human review is ready; accuracy/precision is not yet measured."
+    elif n_rev < 100:
+        note = (
+            f"Partial review ({n_rev}/100): association precision not measurable due to "
+            "insufficient human-labeled gold; rates describe the reviewed links only."
+        )
+    else:
+        note = "Metrics use reviewed denominator only; precision excludes AMBIGUOUS."
+
     return {
         "total": 100,
         "reviewed": n_rev,
         "remaining": 100 - n_rev,
         "coverage": _rate(n_rev, 100),
+        # The release gate needs all 100 links labeled before precision counts.
+        "precision_status": "measured" if n_rev == 100 else "not_measurable_insufficient_gold",
         "correct": correct if n_rev else _na(),
         "wrong": wrong if n_rev else _na(),
         "ambiguous": ambiguous if n_rev else _na(),
@@ -390,11 +402,7 @@ def compute_a7_metrics(doc: Dict[str, Any]) -> Dict[str, Any]:
         "precision_excluding_ambiguous": precision,
         "wrong_association_rate": _rate(wrong, n_rev),
         "by_method": by_method,
-        "note": (
-            "Human review is ready; accuracy/precision is not yet measured."
-            if n_rev == 0
-            else "Metrics use reviewed denominator only; precision excludes AMBIGUOUS."
-        ),
+        "note": note,
     }
 
 
@@ -434,6 +442,7 @@ def render_combined_report(a2_metrics: Dict[str, Any], a7_metrics: Dict[str, Any
         f"- wrong = {fmt(a7_metrics['wrong'])}",
         f"- ambiguous = {fmt(a7_metrics['ambiguous'])}",
         f"- overall CORRECT/reviewed = {fmt(a7_metrics['correct_rate'])}",
+        f"- precision status = {a7_metrics['precision_status']}",
         f"- precision excluding ambiguous = {fmt(a7_metrics['precision_excluding_ambiguous'])}",
         f"- breakdown by method = {a7_metrics['by_method']}",
         f"- note: {a7_metrics['note']}",

@@ -1,0 +1,75 @@
+{
+  "chosen": {
+    "location": "A-9",
+    "page": 42,
+    "sheet": "S600",
+    "sections": [
+      "HSS6X6X1/4"
+    ]
+  },
+  "trace": {
+    "status": "traced",
+    "pilot": true,
+    "schedule": {
+      "id": "S1",
+      "title": "COLUMN SCHEDULE",
+      "page": 42,
+      "sheet": "S600",
+      "bbox": [
+        344.0,
+        775.0,
+        417.1,
+        847.9
+      ]
+    },
+    "location_text": "A-9",
+    "location": "A-9",
+    "grids": [
+      {
+        "name": "A",
+        "offset": null
+      },
+      {
+        "name": "9",
+        "offset": null
+      }
+    ],
+    "sections": [
+      "HSS6X6X1/4"
+    ],
+    "ends": {
+      "top": {
+        "state": "unresolved",
+        "position": "between",
+        "note": "The schedule draws the top end between two level lines; it is not moved to the nearest line.",
+        "plan_annotations": []
+      },
+      "bottom": {
+        "state": "unresolved",
+        "position": "between",
+        "note": "The schedule draws the bottom end between two level lines; it is not moved to the nearest line.",
+        "plan_annotations": []
+      }
+    },
+    "levels": [
+      {
+        "name": "LEVEL 1",
+        "elevation": "0\"",
+        "plans": [],
+        "other_titled_sheets": [],
+        "other_scope_views": [],
+        "note": "No plan names this level or states its elevation."
+      }
+    ],
+    "notes": [],
+    "directional_evidence": [],
+    "summary": {
+      "levels_spanned": [
+        "LEVEL 1"
+      ],
+      "levels_with_symbol": [],
+      "logical_stack_only": true,
+      "note": "Observations describe one logical column stack at this location; they do not establish how many fabricated pieces it is made of."
+    }
+  }
+}

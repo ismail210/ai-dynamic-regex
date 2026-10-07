@@ -92,7 +92,17 @@ PROFILE_VERSION = "legend_profile_v4"
 #      level bands, flagged malformed values, structured schedule plates.
 # v6l: schedule rows carry level_band pairings; plate schedules keep
 #      accessories apart and read SIZE WIDTH as width.
-EXTRACTOR_VERSION = "legend_extractor_v6n-summary-coverage"
+# v6n: summary evidence (framing keys, location offsets, materials, coverage).
+# v6o: also display-only sheet_index (title-block sheet number, title, issue,
+#      revisions, scale per page). Newer than either parent so neither cache
+#      is replayed.
+# v6p: sheet role from the printed title, and the overview quotes that issue.
+#      A v6o cache has no role fields and the old overview wording.
+# v6t: logical grid axes. Dashed runs, labels just outside the margin, and
+#      grid bubbles past the title cut can confirm when a line supports them.
+# v6u: closest label owns the line. A letter stacked on a sheet id, and a
+#      digit beside a foot station, are not grids. A v6t cache lacks both.
+EXTRACTOR_VERSION = "legend_extractor_v6u-grid-context"
 SCHEMA_VERSION = "project_rule_schema_v1"
 
 STATUS_PROPOSED_INFERENCE = "PROPOSED_INFERENCE"

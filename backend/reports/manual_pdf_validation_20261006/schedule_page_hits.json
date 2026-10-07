@@ -1,0 +1,1617 @@
+[
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/Structure - Copy.pdf",
+    "name": "Structure - Copy.pdf",
+    "pages": 17,
+    "bytes": 5467322,
+    "rotated": 0,
+    "schedule_pages": [
+      {
+        "page": 1,
+        "keys": [
+          "COLUMN SCHEDULE"
+        ],
+        "rot": 0,
+        "chars": 56589
+      },
+      {
+        "page": 3,
+        "keys": [
+          "BASE PLATE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 8068
+      },
+      {
+        "page": 4,
+        "keys": [
+          "COLUMN SCHEDULE"
+        ],
+        "rot": 0,
+        "chars": 5260
+      },
+      {
+        "page": 5,
+        "keys": [
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 5862
+      },
+      {
+        "page": 9,
+        "keys": [
+          "BASE PLATE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 3428
+      },
+      {
+        "page": 16,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 2476
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/William Winchester ES - Bid Set - Drawings - 01-30-26__1d5e2cb2e21d.pdf",
+    "name": "William Winchester ES - Bid Set - Drawings - 01-30-26__1d5e2cb2e21d.pdf",
+    "pages": 88,
+    "bytes": 98453207,
+    "rotated": 46,
+    "schedule_pages": [
+      {
+        "page": 33,
+        "keys": [
+          "COLUMN LOCATIONS"
+        ],
+        "rot": 90,
+        "chars": 3206
+      },
+      {
+        "page": 34,
+        "keys": [
+          "COLUMN LOCATIONS"
+        ],
+        "rot": 90,
+        "chars": 3322
+      },
+      {
+        "page": 35,
+        "keys": [
+          "COLUMN LOCATIONS"
+        ],
+        "rot": 0,
+        "chars": 3827
+      },
+      {
+        "page": 56,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 4559
+      },
+      {
+        "page": 58,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 9899
+      },
+      {
+        "page": 60,
+        "keys": [
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 4283
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/Struct__889d35dfc3cf.pdf",
+    "name": "Struct__889d35dfc3cf.pdf",
+    "pages": 24,
+    "bytes": 9391071,
+    "rotated": 0,
+    "schedule_pages": [
+      {
+        "page": 2,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 16402
+      },
+      {
+        "page": 15,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 6166
+      },
+      {
+        "page": 18,
+        "keys": [
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 11169
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/1200 K_Permit_Bid_Dwgs - Structural__240bd2541fbc.pdf",
+    "name": "1200 K_Permit_Bid_Dwgs - Structural__240bd2541fbc.pdf",
+    "pages": 39,
+    "bytes": 18403354,
+    "rotated": 0,
+    "schedule_pages": [
+      {
+        "page": 29,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 5189
+      },
+      {
+        "page": 32,
+        "keys": [
+          "BASE PLATE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 2275
+      },
+      {
+        "page": 36,
+        "keys": [
+          "BASE PLATE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 4385
+      },
+      {
+        "page": 38,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 3780
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/ST__0bfc2d61245d.pdf",
+    "name": "ST__0bfc2d61245d.pdf",
+    "pages": 23,
+    "bytes": 3297427,
+    "rotated": 0,
+    "schedule_pages": [
+      {
+        "page": 3,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 13878
+      },
+      {
+        "page": 7,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 5521
+      },
+      {
+        "page": 8,
+        "keys": [
+          "COLUMN SCHEDULE"
+        ],
+        "rot": 0,
+        "chars": 8521
+      },
+      {
+        "page": 11,
+        "keys": [
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 7857
+      },
+      {
+        "page": 12,
+        "keys": [
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 6083
+      },
+      {
+        "page": 15,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 3610
+      },
+      {
+        "page": 22,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 13414
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/Structure - Copy__9414716bffc6.pdf",
+    "name": "Structure - Copy__9414716bffc6.pdf",
+    "pages": 17,
+    "bytes": 5467322,
+    "rotated": 0,
+    "schedule_pages": [
+      {
+        "page": 1,
+        "keys": [
+          "COLUMN SCHEDULE"
+        ],
+        "rot": 0,
+        "chars": 56589
+      },
+      {
+        "page": 3,
+        "keys": [
+          "BASE PLATE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 8068
+      },
+      {
+        "page": 4,
+        "keys": [
+          "COLUMN SCHEDULE"
+        ],
+        "rot": 0,
+        "chars": 5260
+      },
+      {
+        "page": 5,
+        "keys": [
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 5862
+      },
+      {
+        "page": 9,
+        "keys": [
+          "BASE PLATE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 3428
+      },
+      {
+        "page": 16,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 2476
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/ST-Elmer Wolfe ES__0cbd857dc6c2__0cbd857dc6c2.pdf",
+    "name": "ST-Elmer Wolfe ES__0cbd857dc6c2__0cbd857dc6c2.pdf",
+    "pages": 9,
+    "bytes": 1295723,
+    "rotated": 0,
+    "schedule_pages": [
+      {
+        "page": 4,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 4384
+      },
+      {
+        "page": 6,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 10051
+      },
+      {
+        "page": 8,
+        "keys": [
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 3977
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/03 - SFSLS_251029_ISSUED FOR BID_2A_STRUCTURAL complied thru add 2__6a9a9684bb19.pdf",
+    "name": "03 - SFSLS_251029_ISSUED FOR BID_2A_STRUCTURAL complied thru add 2__6a9a9684bb19.pdf",
+    "pages": 45,
+    "bytes": 13283044,
+    "rotated": 0,
+    "schedule_pages": [
+      {
+        "page": 1,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 17098
+      },
+      {
+        "page": 7,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 31254
+      },
+      {
+        "page": 24,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE",
+          "STEEL COLUMN",
+          "COLUMN LOCATIONS"
+        ],
+        "rot": 0,
+        "chars": 5659
+      },
+      {
+        "page": 26,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 6880
+      },
+      {
+        "page": 32,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 4823
+      },
+      {
+        "page": 33,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 2334
+      },
+      {
+        "page": 43,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 4894
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/ST.pdf",
+    "name": "ST.pdf",
+    "pages": 23,
+    "bytes": 3297427,
+    "rotated": 0,
+    "schedule_pages": [
+      {
+        "page": 3,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 13878
+      },
+      {
+        "page": 7,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 5521
+      },
+      {
+        "page": 8,
+        "keys": [
+          "COLUMN SCHEDULE"
+        ],
+        "rot": 0,
+        "chars": 8521
+      },
+      {
+        "page": 11,
+        "keys": [
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 7857
+      },
+      {
+        "page": 12,
+        "keys": [
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 6083
+      },
+      {
+        "page": 15,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 3610
+      },
+      {
+        "page": 22,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 13414
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/2025-12-18_100 DD SET-current (1)__e7accb41fb73.pdf",
+    "name": "2025-12-18_100 DD SET-current (1)__e7accb41fb73.pdf",
+    "pages": 99,
+    "bytes": 92573529,
+    "rotated": 39,
+    "schedule_pages": [
+      {
+        "page": 22,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "COLUMN LOCATIONS"
+        ],
+        "rot": 0,
+        "chars": 4781
+      },
+      {
+        "page": 24,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "COLUMN LOCATIONS"
+        ],
+        "rot": 0,
+        "chars": 4782
+      },
+      {
+        "page": 26,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "COLUMN LOCATIONS"
+        ],
+        "rot": 0,
+        "chars": 3806
+      },
+      {
+        "page": 61,
+        "keys": [
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 2450
+      },
+      {
+        "page": 62,
+        "keys": [
+          "BASE PLATE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 4343
+      },
+      {
+        "page": 65,
+        "keys": [
+          "BASE PLATE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 8435
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/1200 K_Permit_Bid_Dwgs - Structural.pdf",
+    "name": "1200 K_Permit_Bid_Dwgs - Structural.pdf",
+    "pages": 39,
+    "bytes": 18403354,
+    "rotated": 0,
+    "schedule_pages": [
+      {
+        "page": 29,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 5189
+      },
+      {
+        "page": 32,
+        "keys": [
+          "BASE PLATE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 2275
+      },
+      {
+        "page": 36,
+        "keys": [
+          "BASE PLATE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 4385
+      },
+      {
+        "page": 38,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 3780
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/Burrville ES - ST__0d910a43b4a0.pdf",
+    "name": "Burrville ES - ST__0d910a43b4a0.pdf",
+    "pages": 29,
+    "bytes": 1819259,
+    "rotated": 0,
+    "schedule_pages": [
+      {
+        "page": 1,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 30550
+      },
+      {
+        "page": 14,
+        "keys": [
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 7494
+      },
+      {
+        "page": 15,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE",
+          "COLUMN LOCATIONS"
+        ],
+        "rot": 0,
+        "chars": 6761
+      },
+      {
+        "page": 18,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 4804
+      },
+      {
+        "page": 28,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 3913
+      },
+      {
+        "page": 29,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 3684
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/Burrville ES - ST.pdf",
+    "name": "Burrville ES - ST.pdf",
+    "pages": 29,
+    "bytes": 1819259,
+    "rotated": 0,
+    "schedule_pages": [
+      {
+        "page": 1,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 30550
+      },
+      {
+        "page": 14,
+        "keys": [
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 7494
+      },
+      {
+        "page": 15,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE",
+          "COLUMN LOCATIONS"
+        ],
+        "rot": 0,
+        "chars": 6761
+      },
+      {
+        "page": 18,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 4804
+      },
+      {
+        "page": 28,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 3913
+      },
+      {
+        "page": 29,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 3684
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/ST-Spring Garden ES__5dab28f47ceb.pdf",
+    "name": "ST-Spring Garden ES__5dab28f47ceb.pdf",
+    "pages": 8,
+    "bytes": 1211545,
+    "rotated": 0,
+    "schedule_pages": [
+      {
+        "page": 3,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 6583
+      },
+      {
+        "page": 4,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 9897
+      },
+      {
+        "page": 6,
+        "keys": [
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 5091
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/Arch - Springhill Lake__4c0040cf041b.pdf",
+    "name": "Arch - Springhill Lake__4c0040cf041b.pdf",
+    "pages": 120,
+    "bytes": 49124031,
+    "rotated": 0,
+    "schedule_pages": [
+      {
+        "page": 3,
+        "keys": [
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 5001
+      },
+      {
+        "page": 81,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 5250
+      },
+      {
+        "page": 82,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 6003
+      },
+      {
+        "page": 83,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 6362
+      },
+      {
+        "page": 84,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 6346
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs__e61363091934.pdf",
+    "name": "A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs__e61363091934.pdf",
+    "pages": 215,
+    "bytes": 94634754,
+    "rotated": 34,
+    "schedule_pages": [
+      {
+        "page": 15,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 22104
+      },
+      {
+        "page": 22,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 5244
+      },
+      {
+        "page": 119,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 2996
+      },
+      {
+        "page": 133,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 90,
+        "chars": 6511
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/GCDC Building 4 - ST1__47dc7ef27f6e.pdf",
+    "name": "GCDC Building 4 - ST1__47dc7ef27f6e.pdf",
+    "pages": 81,
+    "bytes": 44857498,
+    "rotated": 0,
+    "schedule_pages": [
+      {
+        "page": 1,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 7638
+      },
+      {
+        "page": 5,
+        "keys": [
+          "COLUMN SCHEDULE"
+        ],
+        "rot": 0,
+        "chars": 21337
+      },
+      {
+        "page": 56,
+        "keys": [
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 4661
+      },
+      {
+        "page": 58,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 6380
+      },
+      {
+        "page": 59,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 5359
+      },
+      {
+        "page": 63,
+        "keys": [
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 7057
+      },
+      {
+        "page": 77,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 5999
+      },
+      {
+        "page": 78,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 4629
+      },
+      {
+        "page": 79,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 4422
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/ST-Robert Moton ES__258cb166b79f.pdf",
+    "name": "ST-Robert Moton ES__258cb166b79f.pdf",
+    "pages": 11,
+    "bytes": 1523759,
+    "rotated": 0,
+    "schedule_pages": [
+      {
+        "page": 3,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 3536
+      },
+      {
+        "page": 7,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 10047
+      },
+      {
+        "page": 9,
+        "keys": [
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 4977
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/20251015_2100 Crystal Drive - Addendum 1_ID__25c9ecc49b4e.pdf",
+    "name": "20251015_2100 Crystal Drive - Addendum 1_ID__25c9ecc49b4e.pdf",
+    "pages": 120,
+    "bytes": 88412667,
+    "rotated": 0,
+    "schedule_pages": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/Struct__683e6eef0a94.pdf",
+    "name": "Struct__683e6eef0a94.pdf",
+    "pages": 24,
+    "bytes": 9337901,
+    "rotated": 0,
+    "schedule_pages": [
+      {
+        "page": 2,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 16402
+      },
+      {
+        "page": 15,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 6166
+      },
+      {
+        "page": 18,
+        "keys": [
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 11169
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/ST-Elmer Wolfe ES__0cbd857dc6c2.pdf",
+    "name": "ST-Elmer Wolfe ES__0cbd857dc6c2.pdf",
+    "pages": 9,
+    "bytes": 1295723,
+    "rotated": 0,
+    "schedule_pages": [
+      {
+        "page": 4,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 4384
+      },
+      {
+        "page": 6,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 10051
+      },
+      {
+        "page": 8,
+        "keys": [
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 3977
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/Struct.pdf",
+    "name": "Struct.pdf",
+    "pages": 24,
+    "bytes": 9337901,
+    "rotated": 0,
+    "schedule_pages": [
+      {
+        "page": 2,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 16402
+      },
+      {
+        "page": 15,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 6166
+      },
+      {
+        "page": 18,
+        "keys": [
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 11169
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/ST - Springhill Lake__f6ddc4a7e233.pdf",
+    "name": "ST - Springhill Lake__f6ddc4a7e233.pdf",
+    "pages": 28,
+    "bytes": 2372925,
+    "rotated": 0,
+    "schedule_pages": [
+      {
+        "page": 1,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 30375
+      },
+      {
+        "page": 11,
+        "keys": [
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 7213
+      },
+      {
+        "page": 12,
+        "keys": [
+          "BASE PLATE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 9920
+      },
+      {
+        "page": 26,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 4814
+      },
+      {
+        "page": 27,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 4639
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/Struct__42f986ebcbbe.pdf",
+    "name": "Struct__42f986ebcbbe.pdf",
+    "pages": 24,
+    "bytes": 9348718,
+    "rotated": 0,
+    "schedule_pages": [
+      {
+        "page": 2,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 16402
+      },
+      {
+        "page": 15,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 6166
+      },
+      {
+        "page": 18,
+        "keys": [
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 11169
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/20251015_2100 Crystal Drive - Addendum 1_Arch__b7fdb02599c0.pdf",
+    "name": "20251015_2100 Crystal Drive - Addendum 1_Arch__b7fdb02599c0.pdf",
+    "pages": 181,
+    "bytes": 120004697,
+    "rotated": 0,
+    "schedule_pages": [
+      {
+        "page": 144,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 7348
+      },
+      {
+        "page": 150,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 4480
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/Structural4__3aa51f661bdf.pdf",
+    "name": "Structural4__3aa51f661bdf.pdf",
+    "pages": 43,
+    "bytes": 4379184,
+    "rotated": 0,
+    "schedule_pages": [
+      {
+        "page": 6,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 4230
+      },
+      {
+        "page": 11,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 4644
+      },
+      {
+        "page": 16,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 4537
+      },
+      {
+        "page": 21,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 4320
+      },
+      {
+        "page": 25,
+        "keys": [
+          "COLUMN SCHEDULE"
+        ],
+        "rot": 0,
+        "chars": 4620
+      },
+      {
+        "page": 26,
+        "keys": [
+          "COLUMN SCHEDULE"
+        ],
+        "rot": 0,
+        "chars": 4676
+      },
+      {
+        "page": 27,
+        "keys": [
+          "COLUMN SCHEDULE"
+        ],
+        "rot": 0,
+        "chars": 5527
+      },
+      {
+        "page": 30,
+        "keys": [
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 4545
+      },
+      {
+        "page": 31,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 4784
+      },
+      {
+        "page": 32,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 8342
+      },
+      {
+        "page": 34,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 6703
+      },
+      {
+        "page": 35,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 7968
+      },
+      {
+        "page": 39,
+        "keys": [
+          "BASE PLATE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 5462
+      },
+      {
+        "page": 42,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "COLUMN LOCATIONS"
+        ],
+        "rot": 0,
+        "chars": 4228
+      },
+      {
+        "page": 43,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 5733
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/ST__3fe7f145b516.pdf",
+    "name": "ST__3fe7f145b516.pdf",
+    "pages": 13,
+    "bytes": 5210192,
+    "rotated": 0,
+    "schedule_pages": [
+      {
+        "page": 3,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 2255
+      },
+      {
+        "page": 7,
+        "keys": [
+          "BASE PLATE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 5871
+      },
+      {
+        "page": 8,
+        "keys": [
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 3749
+      },
+      {
+        "page": 13,
+        "keys": [
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 5092
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/ST-Runnymede ES__4ff5b14a268a.pdf",
+    "name": "ST-Runnymede ES__4ff5b14a268a.pdf",
+    "pages": 9,
+    "bytes": 1399589,
+    "rotated": 0,
+    "schedule_pages": [
+      {
+        "page": 3,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 4597
+      },
+      {
+        "page": 5,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 9895
+      },
+      {
+        "page": 7,
+        "keys": [
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 4957
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/.cursor/projects/Users-hibareda-Desktop-ai-dynamic-regex/attachments/d1afdd3b-8557-422c-9391-bf7614f37ec9/Structural4.pdf",
+    "name": "Structural4.pdf",
+    "pages": 43,
+    "bytes": 4379184,
+    "rotated": 0,
+    "schedule_pages": [
+      {
+        "page": 6,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 4230
+      },
+      {
+        "page": 11,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 4644
+      },
+      {
+        "page": 16,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 4537
+      },
+      {
+        "page": 21,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 4320
+      },
+      {
+        "page": 25,
+        "keys": [
+          "COLUMN SCHEDULE"
+        ],
+        "rot": 0,
+        "chars": 4620
+      },
+      {
+        "page": 26,
+        "keys": [
+          "COLUMN SCHEDULE"
+        ],
+        "rot": 0,
+        "chars": 4676
+      },
+      {
+        "page": 27,
+        "keys": [
+          "COLUMN SCHEDULE"
+        ],
+        "rot": 0,
+        "chars": 5527
+      },
+      {
+        "page": 30,
+        "keys": [
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 4545
+      },
+      {
+        "page": 31,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 4784
+      },
+      {
+        "page": 32,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 8342
+      },
+      {
+        "page": 34,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 6703
+      },
+      {
+        "page": 35,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 7968
+      },
+      {
+        "page": 39,
+        "keys": [
+          "BASE PLATE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 5462
+      },
+      {
+        "page": 42,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "COLUMN LOCATIONS"
+        ],
+        "rot": 0,
+        "chars": 4228
+      },
+      {
+        "page": 43,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE",
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 5733
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/.cursor/projects/Users-hibareda-Desktop-ai-dynamic-regex/attachments/283e42c8-6e6c-40d0-a4db-ee47cefda594/Struct_1.pdf",
+    "name": "Struct_1.pdf",
+    "pages": 24,
+    "bytes": 9348718,
+    "rotated": 0,
+    "schedule_pages": [
+      {
+        "page": 2,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 16402
+      },
+      {
+        "page": 15,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 6166
+      },
+      {
+        "page": 18,
+        "keys": [
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 11169
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/.cursor/projects/Users-hibareda-Desktop-ai-dynamic-regex/attachments/283e42c8-6e6c-40d0-a4db-ee47cefda594/Struct.pdf",
+    "name": "Struct.pdf",
+    "pages": 24,
+    "bytes": 9348718,
+    "rotated": 0,
+    "schedule_pages": [
+      {
+        "page": 2,
+        "keys": [
+          "COLUMN SCHEDULE",
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 16402
+      },
+      {
+        "page": 15,
+        "keys": [
+          "BASE PLATE"
+        ],
+        "rot": 0,
+        "chars": 6166
+      },
+      {
+        "page": 18,
+        "keys": [
+          "STEEL COLUMN"
+        ],
+        "rot": 0,
+        "chars": 11169
+      }
+    ]
+  }
+]

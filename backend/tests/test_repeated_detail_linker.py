@@ -167,6 +167,7 @@ class RepeatedDetailLinkerTests(unittest.TestCase):
         # Schema 2.0 has no ``predicted_aggregates``: the validation-only member
         # must contribute no predicted quantity at all.
         self.assertEqual(report["metrics"]["predicted_total"], 0)
+        self.assertEqual(report["metrics"]["predicted_unique_sections"], 0)
         self.assertEqual(report["extra_elements"], [])
         missing = [
             row

@@ -1,0 +1,279 @@
+{
+  "burrville": {
+    "overview": "29-page structural set (issue: 50% DESIGN DEVELOPMENT) with a steel column schedule on S-501; concrete schedules are kept with the supporting information. Schedule entries are definitions, not installed quantities.",
+    "families": [
+      [
+        "W",
+        801
+      ],
+      [
+        "HSS",
+        83
+      ],
+      [
+        "L",
+        60
+      ],
+      [
+        "C",
+        5
+      ],
+      [
+        "2L",
+        2
+      ],
+      [
+        "WT",
+        1
+      ]
+    ],
+    "families_match_audit": true,
+    "column_entries": 121,
+    "column_entries_audit": 121,
+    "mark_map": 0,
+    "mark_map_audit": 0,
+    "issue": "50% DESIGN DEVELOPMENT",
+    "pages": 29,
+    "read_roles": 29,
+    "review": [],
+    "sheet_ids": [
+      "S-001",
+      "S-002",
+      "S-003",
+      "S-101A",
+      "S-101B",
+      "S-101C",
+      "S-102A",
+      "S-102B",
+      "S-102C",
+      "S-103A",
+      "S-103B",
+      "S-103C",
+      "S-104",
+      "S-201",
+      "S-202",
+      "S-203",
+      "S-204",
+      "S-205",
+      "S-206",
+      "S-207",
+      "S-208",
+      "S-301",
+      "S-311",
+      "S-321",
+      "S-322",
+      "S-401",
+      "S-402",
+      "S-501",
+      "S-502"
+    ]
+  },
+  "osse": {
+    "overview": "26-page structural set (issue: Permit Submission) with a steel column schedule on S-602-O; concrete schedules are kept with the supporting information. Schedule entries are definitions, not installed quantities.",
+    "families": [
+      [
+        "W",
+        280
+      ],
+      [
+        "HSS",
+        155
+      ],
+      [
+        "L",
+        29
+      ],
+      [
+        "C",
+        8
+      ]
+    ],
+    "families_match_audit": true,
+    "column_entries": 100,
+    "column_entries_audit": 100,
+    "mark_map": 0,
+    "mark_map_audit": 0,
+    "issue": "Permit Submission",
+    "pages": 26,
+    "read_roles": 24,
+    "review": [
+      [
+        "S-002-O",
+        "DESIGN TABLES",
+        "printed title does not name a sheet type"
+      ],
+      [
+        "S-104-O",
+        "NORTH STAIR & ELEVATOR PLANS AND ELEVATIONS",
+        "title names more than one sheet type"
+      ]
+    ],
+    "sheet_ids": [
+      "S-000-O",
+      "S-001-O",
+      "S-002-O",
+      "S-003-O",
+      "S-101-O",
+      "S-102-O",
+      "S-103-O",
+      "S-104-O",
+      "S-121-O",
+      "S-122-O",
+      "S-123-O",
+      "S-221-O",
+      "S-222-O",
+      "S-301-O",
+      "S-401-O",
+      "S-411-O",
+      "S-421-O",
+      "S-501-O",
+      "S-502-O",
+      "S-503-O",
+      "S-504-O",
+      "S-505-O",
+      "S-506-O",
+      "S-507-O",
+      "S-601-O",
+      "S-602-O"
+    ]
+  },
+  "struct": {
+    "overview": "24-page structural set (issue: BID SET) with a steel column schedule on S002 and lintel and column and bearing plate and ICF lintel marks defined on S002; concrete schedules are kept with the supporting information. Schedule entries are definitions, not installed quantities.",
+    "families": [
+      [
+        "W",
+        991
+      ],
+      [
+        "L",
+        106
+      ],
+      [
+        "HSS",
+        59
+      ],
+      [
+        "C",
+        20
+      ],
+      [
+        "WT",
+        1
+      ]
+    ],
+    "families_match_audit": true,
+    "column_entries": 6,
+    "column_entries_audit": 6,
+    "mark_map": 12,
+    "mark_map_audit": 12,
+    "issue": "BID SET",
+    "pages": 24,
+    "read_roles": 24,
+    "review": [],
+    "sheet_ids": [
+      "S001",
+      "S002",
+      "S101A",
+      "S101B",
+      "S101C",
+      "S101D",
+      "S102A",
+      "S102B",
+      "S102C",
+      "S102D",
+      "S103A",
+      "S103B",
+      "S103C",
+      "S103D",
+      "S301",
+      "S302",
+      "S303",
+      "S304",
+      "S401",
+      "S501",
+      "S502",
+      "S503",
+      "S504",
+      "S505"
+    ]
+  },
+  "brandywine": {
+    "overview": "43-page structural set (issue: 65% DESIGN DEVELOPMENT) with a steel column schedule on S-600; concrete schedules are kept with the supporting information. Schedule entries are definitions, not installed quantities.",
+    "families": [
+      [
+        "W",
+        1588
+      ],
+      [
+        "HSS",
+        118
+      ],
+      [
+        "L",
+        55
+      ],
+      [
+        "C",
+        13
+      ],
+      [
+        "WT",
+        1
+      ]
+    ],
+    "families_match_audit": true,
+    "column_entries": 105,
+    "column_entries_audit": 105,
+    "mark_map": 0,
+    "mark_map_audit": 0,
+    "issue": "65% DESIGN DEVELOPMENT",
+    "pages": 43,
+    "read_roles": 43,
+    "review": [],
+    "sheet_ids": [
+      "S-000",
+      "S-001",
+      "S-002",
+      "S-003",
+      "S-004",
+      "S-110",
+      "S-111",
+      "S-112",
+      "S-113",
+      "S-114",
+      "S-120",
+      "S-121",
+      "S-122",
+      "S-123",
+      "S-124",
+      "S-130",
+      "S-131",
+      "S-132",
+      "S-133",
+      "S-134",
+      "S-140",
+      "S-141",
+      "S-142",
+      "S-143",
+      "S-200",
+      "S-201",
+      "S-202",
+      "S-300",
+      "S-301",
+      "S-302",
+      "S-400",
+      "S-500",
+      "S-501",
+      "S-502",
+      "S-510",
+      "S-511",
+      "S-512",
+      "S-513",
+      "S-514",
+      "S-530",
+      "S-531",
+      "S-600",
+      "S-601"
+    ]
+  }
+}

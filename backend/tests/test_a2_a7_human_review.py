@@ -175,6 +175,27 @@ class A7HumanReviewTests(unittest.TestCase):
         self.assertEqual(metrics["precision_excluding_ambiguous"], "N/A — no reviewed samples")
         self.assertIn("not yet measured", metrics["note"])
 
+    def test_partial_coverage_precision_not_measurable(self):
+        doc = _blank(self.review, "links")
+        for link in doc["links"][:4]:
+            link["human_review"]["verdict"] = "CORRECT"
+        metrics = compute_a7_metrics(doc)
+        self.assertEqual(metrics["reviewed"], 4)
+        self.assertEqual(metrics["precision_status"], "not_measurable_insufficient_gold")
+        self.assertIn("association precision not measurable", metrics["note"])
+        self.assertEqual(
+            compute_a7_metrics(_blank(self.review, "links"))["precision_status"],
+            "not_measurable_insufficient_gold",
+        )
+
+    def test_full_coverage_precision_measured(self):
+        doc = _blank(self.review, "links")
+        for link in doc["links"]:
+            link["human_review"]["verdict"] = "CORRECT"
+        metrics = compute_a7_metrics(doc)
+        self.assertEqual(metrics["precision_status"], "measured")
+        self.assertEqual(metrics["precision_excluding_ambiguous"], 1.0)
+
     def test_precision_excludes_ambiguous(self):
         doc = copy.deepcopy(self.blank)
         doc["links"][0]["human_review"]["verdict"] = "CORRECT"

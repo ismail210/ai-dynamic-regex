@@ -839,6 +839,13 @@ def _plate_table(record: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         (c for c, label in enumerate(header) if c != mark_col and re.search(r"SIZE|DIMENSION", label)), None,
     )
     remark_col = next((c for c, label in enumerate(header) if re.search(r"REMARK|COMMENT|NOTE", label)), None)
+    # Plate quantity only: ANCHOR ROD QTY / WELD / WASHER columns count other parts.
+    qty_col = next(
+        (c for c, label in enumerate(header)
+         if c != mark_col and re.search(r"\b(?:QTY|QUANTITY)\b", label)
+         and not _NOT_PLATE_GROUP_RE.search(f"{groups[c] if c < len(groups) else ''} {label}")),
+        None,
+    )
     rows = []
     for row in body:
         cells = row["cells"] + [""] * len(header)
@@ -855,9 +862,11 @@ def _plate_table(record: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         else:
             continue
         remark = " ".join(cells[remark_col].split()) if remark_col is not None else ""
+        quantity = cells[qty_col].strip() if qty_col is not None else ""
         rows.append({
             "mark": mark,
             "dimensions": dimensions,
+            "quantity": int(quantity) if quantity.isdigit() else None,
             "reference": parse_drawing_reference(remark) if remark else None,
             "source_text": _row_text(row["cells"]),
             "bbox": row.get("bbox"),
@@ -1205,6 +1214,30 @@ def _material(entry: Dict[str, Any], rules: List[Dict[str, Any]]) -> Optional[Di
     return None
 
 
+def plate_count_checks(entries: List[Dict[str, Any]], tables: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Plate quantity printed in a plate schedule against the column locations
+    that name the mark. A warning for review: nothing here is a takeoff quantity."""
+
+    from services.engineering.schedule_grid import normalize_schedule_mark
+
+    listed: Dict[str, int] = {}
+    for entry in entries:
+        plate = entry.get("plate") or {}
+        if plate.get("status") == "resolved":
+            mark = normalize_schedule_mark(plate["printed"])
+            listed[mark] = listed.get(mark, 0) + int(entry.get("listed_location_count") or 0)
+    checks = []
+    for table in tables:
+        for row in table["rows"]:
+            quantity, count = row.get("quantity"), listed.get(normalize_schedule_mark(row["mark"]), 0)
+            checks.append({
+                "mark": row["mark"], "page": table["page"], "scheduled_quantity": quantity,
+                "listed_locations": count,
+                "status": "no_quantity_printed" if quantity is None else "match" if quantity == count else "mismatch",
+            })
+    return checks
+
+
 def column_schedule_view(document: Dict[str, Any], sheets: Dict[int, str]) -> Dict[str, Any]:
     """Reviewable column entries: section, locations, plate, notes, sources.
 
@@ -1341,6 +1374,7 @@ def column_schedule_view(document: Dict[str, Any], sheets: Dict[int, str]) -> Di
     return {
         "schedules": schedules_out,
         "entries": entries,
+        "plate_counts": plate_count_checks(entries, tables),
         "plate_tables": [
             {"kind": t["kind"], "title": t["title"], "page": t["page"], "sheet": sheets.get(t["page"]),
              "marks": [r["mark"] for r in t["rows"]]}

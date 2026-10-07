@@ -1,0 +1,234 @@
+project,page,rotation,sheet_id,sheet_id_status,legacy_sheet_id,sheet_title,title_status,issue,issue_date,issue_status,scale,scale_status,scale_candidates,revision_status,revision_rows
+furley,1,0,S001,read,S001,GENERAL NOTES,read_unlabeled,BID SET,11/14/2022,read,,not_shown,[],none_printed,[]
+furley,2,0,S002,read,S002,INSPECTION TABLES AND SCHEDULES,read_unlabeled,BID SET,11/14/2022,read,,not_shown,[],none_printed,[]
+furley,3,0,S101A,read,S101A,FOUNDATION AND SLAB ON GRADE PLAN - AREA A,read_unlabeled,BID SET,11/14/2022,read,,not_shown,[],none_printed,[]
+furley,4,0,S101B,read,S101B,FOUNDATION AND SLAB ON GRADE PLAN - AREA B,read_unlabeled,BID SET,11/14/2022,read,,not_shown,[],none_printed,[]
+furley,5,0,S101C,read,S101C,FOUNDATION AND SLAB ON GRADE PLAN - AREA C,read_unlabeled,BID SET,11/14/2022,read,,not_shown,[],none_printed,[]
+furley,6,0,S101D,read,S101D,FOUNDATION AND SLAB ON GRADE PLAN - AREA D,read_unlabeled,BID SET,11/14/2022,read,,not_shown,[],none_printed,[]
+furley,7,0,S102A,read,S102A,LOW ROOF FRAMING - AREA A,read_unlabeled,BID SET,11/14/2022,read,,not_shown,[],none_printed,[]
+furley,8,0,S102B,read,S102B,LOW ROOF FRAMING - AREA B,read_unlabeled,BID SET,11/14/2022,read,,not_shown,[],none_printed,[]
+furley,9,0,S102C,read,S102C,SECOND FLOOR FRAMING - AREA C,read_unlabeled,BID SET,11/14/2022,read,,not_shown,[],none_printed,[]
+furley,10,0,S102D,read,S102D,SECOND FLOOR FRAMING - AREA D,read_unlabeled,BID SET,11/14/2022,read,,not_shown,[],none_printed,[]
+furley,11,0,S103A,read,S103A,ROOF FRAMING PLAN - AREA A,read_unlabeled,BID SET,11/14/2022,read,,not_shown,[],none_printed,[]
+furley,12,0,S103B,read,S103B,ROOF FRAMING PLAN - AREA B,read_unlabeled,BID SET,11/14/2022,read,,not_shown,[],none_printed,[]
+furley,13,0,S103C,read,S103C,ROOF FRAMING PLAN - AREA C,read_unlabeled,BID SET,11/14/2022,read,,not_shown,[],none_printed,[]
+furley,14,0,S103D,read,S103D,ROOF FRAMING PLAN - AREA D,read_unlabeled,BID SET,11/14/2022,read,,not_shown,[],none_printed,[]
+furley,15,0,S301,read,S301,TYPICAL DETAILS,read_unlabeled,BID SET,11/14/2022,read,,not_shown,[],none_printed,[]
+furley,16,0,S302,read,S302,TYPICAL DETAILS,read_unlabeled,BID SET,11/14/2022,read,,not_shown,[],none_printed,[]
+furley,17,0,S303,read,S303,TYPICAL DETAILS,read_unlabeled,BID SET,11/14/2022,read,,not_shown,[],none_printed,[]
+furley,18,0,S304,read,S304,TYPICAL DETAILS,read_unlabeled,BID SET,11/14/2022,read,,not_shown,[],none_printed,[]
+furley,19,0,S401,read,S401,FOUNDATION SECTIONS,read_unlabeled,BID SET,11/14/2022,read,,not_shown,[],none_printed,[]
+furley,20,0,S501,read,S501,FRAMING SECTIONS,read_unlabeled,BID SET,11/14/2022,read,,not_shown,[],none_printed,[]
+furley,21,0,S502,read,S502,FRAMING SECTIONS,read_unlabeled,BID SET,11/14/2022,read,,not_shown,[],none_printed,[]
+furley,22,0,S503,read,S503,FRAMING SECTIONS,read_unlabeled,BID SET,11/14/2022,read,,not_shown,[],none_printed,[]
+furley,23,0,S504,read,S504,FRAMING SECTIONS,read_unlabeled,BID SET,11/14/2022,read,,not_shown,[],none_printed,[]
+furley,24,0,S505,read,S505,FRAMING SECTIONS,read_unlabeled,BID SET,11/14/2022,read,,not_shown,[],none_printed,[]
+burrville,1,0,S-001,read,S001,GENERAL NOTES,read,50% DESIGN DEVELOPMENT,4/7/2026,read,As indicated,read,"[""As indicated""]",none_printed,[]
+burrville,2,0,S-002,read,S002,GENERAL NOTES,read,50% DESIGN DEVELOPMENT,4/7/2026,read,As indicated,read,"[""As indicated""]",none_printed,[]
+burrville,3,0,S-003,read,S003,STATEMENT OF SPECIAL INSPECTIONS FORM,read,50% DESIGN DEVELOPMENT,4/7/2026,read,,not_shown,[],none_printed,[]
+burrville,4,0,S-101A,read,S101A,FOUNDATION AND 1ST FLOOR FRAMING PLAN PART A,read,50% DESIGN DEVELOPMENT,4/7/2026,read,As indicated,read,"[""As indicated""]",none_printed,[]
+burrville,5,0,S-101B,read,S101B,FOUNDATION AND 1ST FLOOR FRAMING PLAN PART B,read,50% DESIGN DEVELOPMENT,4/7/2026,read,As indicated,read,"[""As indicated""]",none_printed,[]
+burrville,6,0,S-101C,read,S101C,FOUNDATION AND 1ST FLOOR FRAMING PLAN PART C,read,50% DESIGN DEVELOPMENT,4/7/2026,read,As indicated,read,"[""As indicated""]",none_printed,[]
+burrville,7,0,S-102A,read,S102A,UPPER FLOOR FRAMING PLAN PART A,read,50% DESIGN DEVELOPMENT,4/7/2026,read,As indicated,read,"[""As indicated""]",none_printed,[]
+burrville,8,0,S-102B,read,S102B,UPPER FLOOR FRAMING PLAN PART B,read,50% DESIGN DEVELOPMENT,4/7/2026,read,As indicated,read,"[""As indicated""]",none_printed,[]
+burrville,9,0,S-102C,read,S102C,UPPER FLOOR FRAMING PLAN PART C,read,50% DESIGN DEVELOPMENT,4/7/2026,read,As indicated,read,"[""As indicated""]",none_printed,[]
+burrville,10,0,S-103A,read,S103A,ROOF FRAMING PLAN PART A,read,50% DESIGN DEVELOPMENT,4/7/2026,read,As indicated,read,"[""As indicated""]",none_printed,[]
+burrville,11,0,S-103B,read,S103B,ROOF FRAMING PLAN PART B,read,50% DESIGN DEVELOPMENT,4/7/2026,read,As indicated,read,"[""As indicated""]",none_printed,[]
+burrville,12,0,S-103C,read,S103C,ROOF FRAMING PLAN PART C,read,50% DESIGN DEVELOPMENT,4/7/2026,read,As indicated,read,"[""As indicated""]",none_printed,[]
+burrville,13,0,S-104,read,S104,UPPER ROOF FRAMING PLAN,read,50% DESIGN DEVELOPMENT,4/7/2026,read,As indicated,read,"[""As indicated""]",none_printed,[]
+burrville,14,0,S-201,read,S201,TYPICAL DETAILS,read,50% DESIGN DEVELOPMENT,4/7/2026,read,As indicated,read,"[""As indicated""]",none_printed,[]
+burrville,15,0,S-202,read,S202,TYPICAL DETAILS,read,50% DESIGN DEVELOPMENT,4/7/2026,read,As indicated,read,"[""As indicated""]",none_printed,[]
+burrville,16,0,S-203,read,S203,TYPICAL DETAILS,read,50% DESIGN DEVELOPMENT,4/7/2026,read,As indicated,read,"[""As indicated""]",none_printed,[]
+burrville,17,0,S-204,read,S204,TYPICAL DETAILS,read,50% DESIGN DEVELOPMENT,4/7/2026,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",none_printed,[]
+burrville,18,0,S-205,read,S205,TYPICAL DETAILS,read,50% DESIGN DEVELOPMENT,4/7/2026,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",none_printed,[]
+burrville,19,0,S-206,read,S206,TYPICAL DETAILS,read,50% DESIGN DEVELOPMENT,4/7/2026,read,As indicated,read,"[""As indicated""]",none_printed,[]
+burrville,20,0,S-207,read,S207,TYPICAL DETAILS,read,50% DESIGN DEVELOPMENT,4/7/2026,read,As indicated,read,"[""As indicated""]",none_printed,[]
+burrville,21,0,S-208,read,S208,TYPICAL DETAILS,read,50% DESIGN DEVELOPMENT,4/7/2026,read,As indicated,read,"[""As indicated""]",none_printed,[]
+burrville,22,0,S-301,read,S301,SECTIONS,read,50% DESIGN DEVELOPMENT,4/7/2026,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",none_printed,[]
+burrville,23,0,S-311,read,S311,SECTIONS,read,50% DESIGN DEVELOPMENT,4/7/2026,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",none_printed,[]
+burrville,24,0,S-321,read,S321,SECTIONS,read,50% DESIGN DEVELOPMENT,4/7/2026,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",none_printed,[]
+burrville,25,0,S-322,read,S322,SECTIONS,read,50% DESIGN DEVELOPMENT,4/7/2026,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",none_printed,[]
+burrville,26,0,S-401,read,S401,ELEVATIONS,read,50% DESIGN DEVELOPMENT,4/7/2026,read,"3/16"" = 1'-0""",read,"[""3/16\"" = 1'-0\""""]",none_printed,[]
+burrville,27,0,S-402,read,S402,ELEVATIONS,read,50% DESIGN DEVELOPMENT,4/7/2026,read,"3/16"" = 1'-0""",read,"[""3/16\"" = 1'-0\""""]",none_printed,[]
+burrville,28,0,S-501,read,S501,COLUMN SCHEDULE,read,50% DESIGN DEVELOPMENT,4/7/2026,read,"1/8"" = 1'-0""",read,"[""1/8\"" = 1'-0\""""]",none_printed,[]
+burrville,29,0,S-502,read,S502,COLUMN SCHEDULE,read,50% DESIGN DEVELOPMENT,4/7/2026,read,"1/8"" = 1'-0""",read,"[""1/8\"" = 1'-0\""""]",none_printed,[]
+brandywine,1,0,S-000,read,S000,GENERAL NOTES,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,"1"" = 1'-0""",read,"[""1\"" = 1'-0\"""", ""1/8\"" = 1'-0\""""]",read,"[["""", ""35% DD"", ""11/22/2023""], ["""", ""FTG PERMIT"", ""12/11/2024""], ["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,2,0,S-001,read,S001,GENERAL NOTES & ABBREVIATIONS,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""FTG PERMIT"", ""12/11/2024""], ["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,3,0,S-002,read,S002,SPECIAL INSPECTIONS,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""FTG PERMIT"", ""12/11/2024""], ["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,4,0,S-003,read,S003,FLOOR LOADING PLAN,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,"1"" = 30'-0""",read,"[""1\"" = 30'-0\"""", ""1/8\"" = 1'-0\""""]",read,"[["""", ""FTG PERMIT"", ""12/11/2024""], ["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,5,0,S-004,read,S004,ROOF JOIST LOADING PLAN,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""FTG PERMIT"", ""12/11/2024""], ["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,6,0,S-110,read,S110,FOUNDATION PLAN - OVERALL,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""FTG PERMIT"", ""12/11/2024""], ["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,7,0,S-111,read,S111,FOUNDATION PLAN - AREA A,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,8,0,S-112,read,S112,FOUNDATION PLAN - AREA B,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,9,0,S-113,read,S113,FOUNDATION PLAN - AREA C,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,10,0,S-114,read,S114,FOUNDATION PLAN - AREA D,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,11,0,S-120,read,S120,LEVEL 2 FRAMING PLAN - OVERALL,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""FTG PERMIT"", ""12/11/2024""], ["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,12,0,S-121,read,S121,LEVEL 2 FRAMING PLAN - AREA A,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,13,0,S-122,read,S122,LEVEL 2 FRAMING PLAN - AREA B,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,14,0,S-123,read,S123,LEVEL 2 FRAMING PLAN - AREA C,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,15,0,S-124,read,S124,LEVEL 2 FRAMING PLAN - AREA D,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,16,0,S-130,read,S130,LEVEL 3 FRAMING PLAN - OVERALL,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""FTG PERMIT"", ""12/11/2024""], ["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,17,0,S-131,read,S131,LEVEL 3 FRAMING PLAN - AREA A,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,18,0,S-132,read,S132,LEVEL 3 FRAMING PLAN - AREA B,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,19,0,S-133,read,S133,LEVEL 3 FRAMING PLAN - AREA C,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,20,0,S-134,read,S134,LEVEL 3 FRAMING PLAN - AREA D,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,21,0,S-140,read,S140,HIGH ROOF FRAMING PLAN - OVERALL,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""FTG PERMIT"", ""12/11/2024""], ["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,22,0,S-141,read,S141,HIGH ROOF FRAMING PLAN - AREA A,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,23,0,S-142,read,S142,HIGH ROOF FRAMING PLAN - AREA B,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,24,0,S-143,read,S143,HIGH ROOF FRAMING PLAN - AREA C,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,25,0,S-200,read,S200,BRACED FRAME ELEVATIONS,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""FTG PERMIT"", ""12/11/2024""], ["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,26,0,S-201,read,S201,BRACED FRAME ELEVATIONS,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""FTG PERMIT"", ""12/11/2024""], ["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,27,0,S-202,read,S202,BRACED FRAME ELEVATIONS,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""FTG PERMIT"", ""12/11/2024""], ["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,28,0,S-300,read,S300,SECTIONS,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,29,0,S-301,read,S301,SECTIONS,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\"""", ""1/8\"" = 1'-0\""""]",read,"[["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,30,0,S-302,read,S302,SECTIONS,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,31,0,S-400,read,S400,ENLARGED FRAMING PLANS,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,32,0,S-500,read,S500,TYPICAL FOUNDATION DETAILS,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""FTG PERMIT"", ""12/11/2024""], ["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,33,0,S-501,read,S501,TYPICAL FOUNDATION DETAILS,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""FTG PERMIT"", ""12/11/2024""], ["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,34,0,S-502,read,S502,TYPICAL SLAB ON GRADE DETAILS,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""FTG PERMIT"", ""12/11/2024""], ["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,35,0,S-510,read,S510,TYPICAL STEEL FRAMING DETAILS,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,36,0,S-511,read,S511,TYPICAL COMPOSITE FRAMING DETAILS,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,37,0,S-512,read,S512,TYPICAL STEEL JOIST FRAMING DETAILS,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,38,0,S-513,read,S513,STEEL MOMENT FRAME DETAILS,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,"1"" = 1'-0""",read,"[""1\"" = 1'-0\"""", ""1/8\"" = 1'-0\""""]",read,"[["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,39,0,S-514,read,S514,BRACED FRAME DETAILS,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,"1"" = 1'-0""",read,"[""1\"" = 1'-0\"""", ""1/8\"" = 1'-0\""""]",read,"[["""", ""FTG PERMIT"", ""12/11/2024""], ["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,40,0,S-530,read,S530,MASONRY DETAILS,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,41,0,S-531,read,S531,MASONRY PARTITION BRACING DETAILS,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,"1"" = 1'-0""",read,"[""1\"" = 1'-0\"""", ""1/8\"" = 1'-0\""""]",read,"[["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,42,0,S-600,read,S600,COLUMN SCHEDULE,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,"1/8"" = 1'-0""",read,"[""1/8\"" = 1'-0\"""", ""1/8\"" = 1'-0\""""]",read,"[["""", ""FTG PERMIT"", ""12/11/2024""], ["""", ""65% DD"", ""01/28/2025""]]"
+brandywine,43,0,S-601,read,S601,COLUMN SCHEDULE,read,65% DESIGN DEVELOPMENT,28 JANUARY 2025,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[["""", ""FTG PERMIT"", ""12/11/2024""], ["""", ""65% DD"", ""01/28/2025""]]"
+springhill,1,0,S-001,read,S001,GENERAL NOTES,read,FINAL CONSTRUCTION DOCUMENTS,06 APRIL 2026,read,NOT TO SCALE,read,"[""NOT TO SCALE""]",read,"[[""1"", ""65% DD"", ""2025/09/26""], [""2"", ""95% DD"", ""2025/12/17""], [""3"", ""BLDG. PERMIT"", ""2026/1/16""], [""4"", ""FTG PERMIT"", ""2026/03/20""], [""5"", ""FINAL CONSTRUCTION DOCUMENTS"", ""2026/04/06""]]"
+springhill,2,0,S-002,read,S002,GENERAL NOTES,read,FINAL CONSTRUCTION DOCUMENTS,06 APRIL 2026,read,NOT TO SCALE,read,"[""NOT TO SCALE""]",read,"[[""1"", ""65% DD"", ""2025/09/26""], [""2"", ""95% DD"", ""2025/12/17""], [""3"", ""BLDG. PERMIT"", ""2026/1/16""], [""4"", ""FTG PERMIT"", ""2026/03/20""], [""5"", ""FINAL CONSTRUCTION DOCUMENTS"", ""2026/04/06""]]"
+springhill,3,0,S-003,read,S003,LOAD PLANS,read,FINAL CONSTRUCTION DOCUMENTS,06 APRIL 2026,read,"1/16"" = 1'-0""",read,"[""1/16\"" = 1'-0\"""", ""1/16\"" = 1'-0\""""]",read,"[[""1"", ""65% DD"", ""2025/09/26""], [""2"", ""95% DD"", ""2025/12/17""], [""3"", ""BLDG. PERMIT"", ""2026/1/16""], [""4"", ""FTG PERMIT"", ""2026/03/20""], [""5"", ""FINAL CONSTRUCTION DOCUMENTS"", ""2026/04/06""]]"
+springhill,4,0,S-004,read,S004,STATEMENT OF SPECIAL INSPECTION FORM,read,FINAL CONSTRUCTION DOCUMENTS,06 APRIL 2026,read,NOT TO SCALE,read,"[""NOT TO SCALE""]",read,"[[""1"", ""65% DD"", ""2025/09/26""], [""2"", ""95% DD"", ""2025/12/17""], [""3"", ""BLDG. PERMIT"", ""2026/1/16""], [""4"", ""FTG PERMIT"", ""2026/03/20""], [""5"", ""FINAL CONSTRUCTION DOCUMENTS"", ""2026/04/06""]]"
+springhill,5,0,S-111A,read,S111A,FOUNDATION AND FIRST FLOOR FRAMING PLAN - PART A,read,FINAL CONSTRUCTION DOCUMENTS,06 APRIL 2026,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[[""1"", ""65% DD"", ""2025/09/26""], [""2"", ""95% DD"", ""2025/12/17""], [""3"", ""BLDG. PERMIT"", ""2026/1/16""], [""4"", ""FTG PERMIT"", ""2026/03/20""], [""5"", ""FINAL CONSTRUCTION DOCUMENTS"", ""2026/04/06""]]"
+springhill,6,0,S-111B,read,S111B,FOUNDATION AND FIRST FLOOR FRAMING PLAN - PART B,read,FINAL CONSTRUCTION DOCUMENTS,06 APRIL 2026,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[[""1"", ""65% DD"", ""2025/09/26""], [""2"", ""95% DD"", ""2025/12/17""], [""3"", ""BLDG. PERMIT"", ""2026/1/16""], [""4"", ""FTG PERMIT"", ""2026/03/20""], [""5"", ""FINAL CONSTRUCTION DOCUMENTS"", ""2026/04/06""]]"
+springhill,7,0,S-112A,read,S112A,SECOND FLOOR FRAMING PLAN - PART A,read,FINAL CONSTRUCTION DOCUMENTS,06 APRIL 2026,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[[""1"", ""65% DD"", ""2025/09/26""], [""2"", ""95% DD"", ""2025/12/17""], [""3"", ""BLDG. PERMIT"", ""2026/1/16""], [""4"", ""FINAL CONSTRUCTION DOCUMENTS"", ""2026/04/06""]]"
+springhill,8,0,S-112B,read,S112B,SECOND FLOOR FRAMING PLAN - PART B,read,FINAL CONSTRUCTION DOCUMENTS,06 APRIL 2026,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[[""1"", ""65% DD"", ""2025/09/26""], [""2"", ""95% DD"", ""2025/12/17""], [""3"", ""BLDG. PERMIT"", ""2026/1/16""], [""4"", ""FINAL CONSTRUCTION DOCUMENTS"", ""2026/04/06""]]"
+springhill,9,0,S-113A,read,S113A,ROOF FRAMING PLAN - PART A,read,FINAL CONSTRUCTION DOCUMENTS,06 APRIL 2026,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[[""1"", ""65% DD"", ""2025/09/26""], [""2"", ""95% DD"", ""2025/12/17""], [""3"", ""BLDG. PERMIT"", ""2026/1/16""], [""4"", ""FINAL CONSTRUCTION DOCUMENTS"", ""2026/04/06""]]"
+springhill,10,0,S-113B,read,S113B,ROOF FRAMING PLAN - PART B,read,FINAL CONSTRUCTION DOCUMENTS,06 APRIL 2026,read,As indicated,read,"[""As indicated"", ""1/8\"" = 1'-0\""""]",read,"[[""1"", ""65% DD"", ""2025/09/26""], [""2"", ""95% DD"", ""2025/12/17""], [""3"", ""BLDG. PERMIT"", ""2026/1/16""], [""4"", ""FINAL CONSTRUCTION DOCUMENTS"", ""2026/04/06""]]"
+springhill,11,0,S-201,read,S201,TYPICAL DETAILS,read,FINAL CONSTRUCTION DOCUMENTS,06 APRIL 2026,read,NOT TO SCALE,read,"[""NOT TO SCALE""]",read,"[[""1"", ""65% DD"", ""2025/09/26""], [""2"", ""95% DD"", ""2025/12/17""], [""3"", ""BLDG. PERMIT"", ""2026/1/16""], [""4"", ""FTG PERMIT"", ""2026/03/20""], [""5"", ""FINAL CONSTRUCTION DOCUMENTS"", ""2026/04/06""]]"
+springhill,12,0,S-202,read,S202,TYPICAL DETAILS,read,FINAL CONSTRUCTION DOCUMENTS,06 APRIL 2026,read,NOT TO SCALE,read,"[""NOT TO SCALE""]",read,"[[""1"", ""65% DD"", ""2025/09/26""], [""2"", ""95% DD"", ""2025/12/17""], [""3"", ""BLDG. PERMIT"", ""2026/1/16""], [""4"", ""FTG PERMIT"", ""2026/03/20""], [""5"", ""FINAL CONSTRUCTION DOCUMENTS"", ""2026/04/06""]]"
+springhill,13,0,S-203,read,S203,TYPICAL DETAILS,read,FINAL CONSTRUCTION DOCUMENTS,06 APRIL 2026,read,NOT TO SCALE,read,"[""NOT TO SCALE""]",read,"[[""1"", ""65% DD"", ""2025/09/26""], [""2"", ""95% DD"", ""2025/12/17""], [""3"", ""BLDG. PERMIT"", ""2026/1/16""], [""4"", ""FINAL CONSTRUCTION DOCUMENTS"", ""2026/04/06""]]"
+springhill,14,0,S-204,read,S204,TYPICAL DETAILS,read,FINAL CONSTRUCTION DOCUMENTS,06 APRIL 2026,read,NOT TO SCALE,read,"[""NOT TO SCALE""]",read,"[[""1"", ""65% DD"", ""2025/09/26""], [""2"", ""95% DD"", ""2025/12/17""], [""3"", ""BLDG. PERMIT"", ""2026/1/16""], [""4"", ""FINAL CONSTRUCTION DOCUMENTS"", ""2026/04/06""]]"
+springhill,15,0,S-205,read,S205,TYPICAL DETAILS,read,FINAL CONSTRUCTION DOCUMENTS,06 APRIL 2026,read,NOT TO SCALE,read,"[""NOT TO SCALE""]",read,"[[""1"", ""65% DD"", ""2025/09/26""], [""2"", ""95% DD"", ""2025/12/17""], [""3"", ""BLDG. PERMIT"", ""2026/1/16""], [""4"", ""FINAL CONSTRUCTION DOCUMENTS"", ""2026/04/06""]]"
+springhill,16,0,S-206,read,S206,TYPICAL DETAILS,read,FINAL CONSTRUCTION DOCUMENTS,06 APRIL 2026,read,NOT TO SCALE,read,"[""NOT TO SCALE""]",read,"[[""1"", ""65% DD"", ""2025/09/26""], [""2"", ""95% DD"", ""2025/12/17""], [""3"", ""BLDG. PERMIT"", ""2026/1/16""], [""4"", ""FINAL CONSTRUCTION DOCUMENTS"", ""2026/04/06""]]"
+springhill,17,0,S-301,read,S301,SECTIONS,read,FINAL CONSTRUCTION DOCUMENTS,06 APRIL 2026,read,As indicated,read,"[""As indicated"", ""3/4\"" = 1'-0\"""", ""1/2\"" = 1'-0\""""]",read,"[[""1"", ""65% DD"", ""2025/09/26""], [""2"", ""95% DD"", ""2025/12/17""], [""3"", ""BLDG. PERMIT"", ""2026/1/16""], [""4"", ""FTG PERMIT"", ""2026/03/20""], [""5"", ""FINAL CONSTRUCTION DOCUMENTS"", ""2026/04/06""]]"
+springhill,18,0,S-311,read,S311,SECTIONS,read,FINAL CONSTRUCTION DOCUMENTS,06 APRIL 2026,read,As indicated,read,"[""As indicated"", ""3/4\"" = 1'-0\"""", ""1/2\"" = 1'-0\""""]",read,"[[""1"", ""65% DD"", ""2025/09/26""], [""2"", ""95% DD"", ""2025/12/17""], [""3"", ""BLDG. PERMIT"", ""2026/1/16""], [""4"", ""FINAL CONSTRUCTION DOCUMENTS"", ""2026/04/06""]]"
+springhill,19,0,S-312,read,S312,SECTIONS,read,FINAL CONSTRUCTION DOCUMENTS,06 APRIL 2026,read,As indicated,read,"[""As indicated"", ""3/4\"" = 1'-0\"""", ""1/2\"" = 1'-0\""""]",read,"[[""1"", ""65% DD"", ""2025/09/26""], [""2"", ""95% DD"", ""2025/12/17""], [""3"", ""BLDG. PERMIT"", ""2026/1/16""], [""4"", ""FINAL CONSTRUCTION DOCUMENTS"", ""2026/04/06""]]"
+springhill,20,0,S-321,read,S321,SECTIONS,read,FINAL CONSTRUCTION DOCUMENTS,06 APRIL 2026,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\"""", ""3/4\"" = 1'-0\"""", ""1/2\"" = 1'-0\""""]",read,"[[""1"", ""65% DD"", ""2025/09/26""], [""2"", ""95% DD"", ""2025/12/17""], [""3"", ""BLDG. PERMIT"", ""2026/1/16""], [""4"", ""FINAL CONSTRUCTION DOCUMENTS"", ""2026/04/06""]]"
+springhill,21,0,S-322,read,S322,SECTIONS,read,FINAL CONSTRUCTION DOCUMENTS,06 APRIL 2026,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\"""", ""3/4\"" = 1'-0\"""", ""1/2\"" = 1'-0\""""]",read,"[[""1"", ""65% DD"", ""2025/09/26""], [""2"", ""95% DD"", ""2025/12/17""], [""3"", ""BLDG. PERMIT"", ""2026/1/16""], [""4"", ""FINAL CONSTRUCTION DOCUMENTS"", ""2026/04/06""]]"
+springhill,22,0,S-401,read,S401,ELEVATIONS,read,FINAL CONSTRUCTION DOCUMENTS,06 APRIL 2026,read,As indicated,read,"[""As indicated""]",read,"[[""1"", ""65% DD"", ""2025/09/26""], [""2"", ""95% DD"", ""2025/12/17""], [""3"", ""BLDG. PERMIT"", ""2026/1/16""], [""4"", ""FTG PERMIT"", ""2026/03/20""], [""5"", ""FINAL CONSTRUCTION DOCUMENTS"", ""2026/04/06""]]"
+springhill,23,0,S-402,read,S402,ELEVATIONS,read,FINAL CONSTRUCTION DOCUMENTS,06 APRIL 2026,read,"3/16"" = 1'-0""",read,"[""3/16\"" = 1'-0\""""]",read,"[[""1"", ""65% DD"", ""2025/09/26""], [""2"", ""95% DD"", ""2025/12/17""], [""3"", ""BLDG. PERMIT"", ""2026/1/16""], [""4"", ""FTG PERMIT"", ""2026/03/20""], [""5"", ""FINAL CONSTRUCTION DOCUMENTS"", ""2026/04/06""]]"
+springhill,24,0,S-403,read,S403,ELEVATIONS,read,FINAL CONSTRUCTION DOCUMENTS,06 APRIL 2026,read,"3/16"" = 1'-0""",read,"[""3/16\"" = 1'-0\""""]",read,"[[""1"", ""65% DD"", ""2025/09/26""], [""2"", ""95% DD"", ""2025/12/17""], [""3"", ""BLDG. PERMIT"", ""2026/1/16""], [""4"", ""FTG PERMIT"", ""2026/03/20""], [""5"", ""FINAL CONSTRUCTION DOCUMENTS"", ""2026/04/06""]]"
+springhill,25,0,S-404,read,S404,JOIST LOADING DIAGRAMS,read,FINAL CONSTRUCTION DOCUMENTS,06 APRIL 2026,read,NOT TO SCALE,read,"[""NOT TO SCALE""]",read,"[[""1"", ""65% DD"", ""2025/09/26""], [""2"", ""95% DD"", ""2025/12/17""], [""3"", ""BLDG. PERMIT"", ""2026/1/16""], [""4"", ""FINAL CONSTRUCTION DOCUMENTS"", ""2026/04/06""]]"
+springhill,26,0,S-501,read,S501,COLUMN SCHEDULE,read,FINAL CONSTRUCTION DOCUMENTS,06 APRIL 2026,read,"1/8"" = 1'-0""",read,"[""1/8\"" = 1'-0\"""", ""1/8\"" = 1'-0\""""]",read,"[[""1"", ""65% DD"", ""2025/09/26""], [""2"", ""95% DD"", ""2025/12/17""], [""3"", ""BLDG. PERMIT"", ""2026/1/16""], [""4"", ""FTG PERMIT"", ""2026/03/20""], [""5"", ""FINAL CONSTRUCTION DOCUMENTS"", ""2026/04/06""]]"
+springhill,27,0,S-502,read,S502,COLUMN SCHEDULE,read,FINAL CONSTRUCTION DOCUMENTS,06 APRIL 2026,read,"1/8"" = 1'-0""",read,"[""1/8\"" = 1'-0\"""", ""1/8\"" = 1'-0\""""]",read,"[[""1"", ""65% DD"", ""2025/09/26""], [""2"", ""95% DD"", ""2025/12/17""], [""3"", ""BLDG. PERMIT"", ""2026/1/16""], [""4"", ""FTG PERMIT"", ""2026/03/20""], [""5"", ""FINAL CONSTRUCTION DOCUMENTS"", ""2026/04/06""]]"
+springhill,28,0,S-601,read,S601,STORAGE SHED FRAMING PLANS AND SECTIONS,read,FINAL CONSTRUCTION DOCUMENTS,06 APRIL 2026,read,As indicated,read,"[""As indicated"", ""3/4\"" = 1'-0\""""]",read,"[[""1"", ""65% DD"", ""2025/09/26""], [""2"", ""95% DD"", ""2025/12/17""], [""3"", ""BLDG. PERMIT"", ""2026/1/16""], [""4"", ""FTG PERMIT"", ""2026/03/20""], [""5"", ""FINAL CONSTRUCTION DOCUMENTS"", ""2026/04/06""]]"
+osse,1,0,S-000-O,read,S000,GENERAL NOTES,read,Permit Submission,10/12/2023,read,,not_shown,[],none_printed,[]
+osse,2,0,S-001-O,read,S001,"SPECIAL INSPECTIONS, LEGEND, ABBREVIATIONS AND NOTATIONS",read,Permit Submission,10/12/2023,read,,not_shown,[],read,"[[""2"", ""PERMIT REVISION 2"", ""04/19/2024""]]"
+osse,3,0,S-002-O,read,S002,DESIGN TABLES,read,Permit Submission,10/12/2023,read,,not_shown,[],none_printed,[]
+osse,4,0,S-003-O,read,S003,LOADING PLANS,read,Permit Submission,10/12/2023,read,,not_shown,[],none_printed,[]
+osse,5,0,S-101-O,read,S101,OSSE PARKING FOUNDATION AND FIRST FLOOR PLAN,read,Permit Submission,10/12/2023,read,,not_shown,[],none_printed,[]
+osse,6,0,S-102-O,read,S102,OSSE PARKING SECOND FLOOR PLAN,read,Permit Submission,10/12/2023,read,,not_shown,[],none_printed,[]
+osse,7,0,S-103-O,read,S103,OSSE PARKING FOUNDATION & SOUTH STAIR - PART PLAN,read,Permit Submission,10/12/2023,read,,not_shown,[],none_printed,[]
+osse,8,0,S-104-O,read,S104,NORTH STAIR & ELEVATOR PLANS AND ELEVATIONS,read,Permit Submission,10/12/2023,read,,not_shown,[],none_printed,[]
+osse,9,0,S-121-O,read,S121,OSSE FACILITY FOUNDATION AND FIRST FLOOR PLAN,read,Permit Submission,10/12/2023,read,,not_shown,[],none_printed,[]
+osse,10,0,S-122-O,read,S122,OSSE FACILITY SECOND FLOOR PLAN,read,Permit Submission,10/12/2023,read,,not_shown,[],none_printed,[]
+osse,11,0,S-123-O,read,S123,OSSE FACILITY ROOF PLAN,read,Permit Submission,10/12/2023,read,,not_shown,[],none_printed,[]
+osse,12,0,S-221-O,read,S221,OSSE BUILDING ELEVATIONS,read,Permit Submission,10/12/2023,read,,not_shown,[],none_printed,[]
+osse,13,0,S-222-O,read,S222,OSSE BUILDING SCREEN WALL ELEVATIONS,read,Permit Submission,10/12/2023,read,,not_shown,[],none_printed,[]
+osse,14,0,S-301-O,read,S301,FOUNDATION SECTIONS,read,Permit Submission,10/12/2023,read,,not_shown,[],none_printed,[]
+osse,15,0,S-401-O,read,S401,SUPERSTURCTURE SECTIONS,read,Permit Submission,10/12/2023,read,,not_shown,[],none_printed,[]
+osse,16,0,S-411-O,read,S411,SUPERSTURCTURE SECTIONS,read,Permit Submission,10/12/2023,read,,not_shown,[],none_printed,[]
+osse,17,0,S-421-O,read,S421,SUPERSTURCTURE SECTIONS,read,Permit Submission,10/12/2023,read,,not_shown,[],none_printed,[]
+osse,18,0,S-501-O,read,S501,CONCRETE TYPICAL DETAILS,read,Permit Submission,10/12/2023,read,,not_shown,[],none_printed,[]
+osse,19,0,S-502-O,read,S502,CONCRETE TYPICAL DETAILS,read,Permit Submission,10/12/2023,read,,not_shown,[],none_printed,[]
+osse,20,0,S-503-O,read,S503,MASONRY TYPICAL DETAILS,read,Permit Submission,10/12/2023,read,,not_shown,[],none_printed,[]
+osse,21,0,S-504-O,read,S504,STEEL TYPICAL DETAILS,read,Permit Submission,10/12/2023,read,,not_shown,[],none_printed,[]
+osse,22,0,S-505-O,read,S505,STEEL TYPICAL DETAILS,read,Permit Submission,10/12/2023,read,,not_shown,[],none_printed,[]
+osse,23,0,S-506-O,read,S506,STEEL TYPICAL DETAILS,read,Permit Submission,10/12/2023,read,,not_shown,[],none_printed,[]
+osse,24,0,S-507-O,read,S507,TYPICAL DETAILS,read,Permit Submission,10/12/2023,read,,not_shown,[],none_printed,[]
+osse,25,0,S-601-O,read,S601,SCHEDULES,read,Permit Submission,10/12/2023,read,,not_shown,[],none_printed,[]
+osse,26,0,S-602-O,read,S602,OSSE PARKING AND OSSE BUILDING COLUMN SCHEDULE,read,Permit Submission,10/12/2023,read,,not_shown,[],none_printed,[]
+yellowspring,1,90,S0.01,read,S0.01,GENERAL NOTES,read,,03/20/25,read,"1/8"" = 1'-0""",read,"[""1/8\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,2,90,S1.01,read,S1.01,FOUNDATION PLAN - AREA A,read,,03/20/25,read,As indicated,read,"[""As indicated""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,3,90,S1.02,read,S1.02,FOUNDATION PLAN - AREA B,read,,03/20/25,read,"1/8"" = 1'-0""",read,"[""1/8\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,4,90,S1.03,read,S1.03,FOUNDATION PLAN - AREA C,read,,03/20/25,read,"1/8"" = 1'-0""",read,"[""1/8\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,5,90,S2.01,read,S2.01,PARTIAL FLOOR AND ROOF FRAMING PLAN - AREA A,read,,03/20/25,read,As indicated,read,"[""As indicated""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,6,90,S2.02,read,S2.02,PARTIAL FOUNDATION AND FLOOR FRAMING PLAN - AREA B,read,,03/20/25,read,"1/8"" = 1'-0""",read,"[""1/8\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,7,90,S2.03,read,S2.03,PARTIAL FOUNDATION AND FLOOR FRAMING PLAN - AREA C,read,,03/20/25,read,"1/8"" = 1'-0""",read,"[""1/8\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,8,90,S2.04,read,S2.04,PARTIAL ROOF FRAMING PLAN - AREA A,read,,03/20/25,read,"1/8"" = 1'-0""",read,"[""1/8\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,9,90,S2.05,read,S2.05,PARTIAL ROOF FRAMING PLAN - AREA B,read,,03/20/25,read,"1/8"" = 1'-0""",read,"[""1/8\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,10,90,S2.06,read,S2.06,PARTIAL ROOF FRAMING PLAN - AREA C,read,,03/20/25,read,"1/8"" = 1'-0""",read,"[""1/8\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,11,90,S2.07,read,S2.07,COLLECTOR TRUSS LOADS,read,,03/20/25,read,As indicated,read,"[""As indicated""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,12,90,S2.08,read,S2.08,MECHANICAL CATWALK PLAN,read,,03/20/25,read,As indicated,read,"[""As indicated""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,13,90,S2.09,read,S2.09,COLUMN SCHEDULE,read,,03/20/25,read,"1/8"" = 1'-0""",read,"[""1/8\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,14,90,S2.10,read,S2.10,COLUMN SCHEDULE,read,,03/20/25,read,"1/8"" = 1'-0""",read,"[""1/8\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,15,90,S3.01,read,S3.01,SECTIONS,read,,03/20/25,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,16,90,S3.02,read,S3.02,SECTIONS,read,,03/20/25,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,17,90,S3.03,read,S3.03,SECTIONS,read,,03/20/25,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,18,90,S3.04,read,S3.04,SECTIONS,read,,03/20/25,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,19,90,S3.05,read,S3.05,SECTIONS,read,,03/20/25,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,20,90,S3.06,read,S3.06,SECTIONS,read,,03/20/25,read,As indicated,read,"[""As indicated""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,21,90,S3.07,read,S3.07,SECTIONS,read,,03/20/25,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,22,90,S3.08,read,S3.08,SECTIONS,read,,03/20/25,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,23,90,S3.09,read,S3.09,SECTIONS,read,,03/20/25,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,24,90,S3.10,read,S3.10,SECTIONS,read,,03/20/25,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,25,90,S3.11,read,S3.11,SECTIONS,read,,03/20/25,read,As indicated,read,"[""As indicated""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,26,90,S3.12,read,S3.12,SECTIONS,read,,03/20/25,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,27,90,S3.13,read,S3.13,SECTIONS,read,,03/20/25,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,28,90,S3.14,read,S3.14,SECTIONS,read,,03/20/25,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,29,90,S3.15,read,S3.15,SECTIONS,read,,03/20/25,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,30,90,S3.16,read,S3.16,SECTIONS,read,,03/20/25,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,31,90,S3.17,read,S3.17,SECTIONS,read,,03/20/25,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,32,90,S3.18,read,S3.18,SECTIONS,read,,03/20/25,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,33,90,S3.19,read,S3.19,SECTIONS,read,,03/20/25,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,34,90,S3.20,read,S3.20,SECTIONS,read,,03/20/25,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,35,90,S4.01,read,S4.01,TYPICAL DETAILS,read,,03/20/25,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,36,90,S4.02,read,S4.02,TYPICAL DETAILS,read,,03/20/25,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,37,90,S4.03,read,S4.03,TYPICAL DETAILS,read,,03/20/25,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,38,90,S4.04,read,S4.04,TYPICAL DETAILS,read,,03/20/25,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,39,90,S4.05,read,S4.05,TYPICAL DETAILS,read,,03/20/25,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+yellowspring,40,90,S4.06,read,S4.06,TYPICAL DETAILS AND SPECIAL JOIST DIAGRAMS,read,,03/20/25,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",read,"[[""1"", ""BID SET"", ""03/20/25""]]"
+washlatin,1,0,S-001,read,S001,STRUCTURAL NOTES,read,100% CONSTRUCTION DOCUMENTS,"JANUARY 12, 2024",read,"1/8"" = 1'-0""",read,"[""1/8\"" = 1'-0\""""]",read,"[[""1"", ""ADDENDUM"", ""11/29/2023""], [""2"", ""ADDENDUM 2"", ""12/15/2023""]]"
+washlatin,2,0,S-002,read,S002,SPECIAL INSPECTIONS,read,100% CONSTRUCTION DOCUMENTS,"JANUARY 12, 2024",read,"1/8"" = 1'-0""",read,"[""1/8\"" = 1'-0\""""]",read,"[[""2"", ""ADDENDUM 2"", ""12/15/2023""]]"
+washlatin,3,0,S-003,read,S003,TYPICAL DETAILS,read,100% CONSTRUCTION DOCUMENTS,"JANUARY 12, 2024",read,As indicated,read,"[""As indicated""]",read,"[[""2"", ""ADDENDUM 2"", ""12/15/2023""]]"
+washlatin,4,0,S-004,read,S004,TYPICAL DETAILS,read,100% CONSTRUCTION DOCUMENTS,"JANUARY 12, 2024",read,As indicated,read,"[""As indicated""]",read,"[[""2"", ""ADDENDUM 2"", ""12/15/2023""]]"
+washlatin,5,0,S-005,read,S005,TYPICAL DETAILS,read,100% CONSTRUCTION DOCUMENTS,"JANUARY 12, 2024",read,As indicated,read,"[""As indicated""]",none_printed,[]
+washlatin,6,0,S-006,read,S006,TYPICAL DETAILS,read,100% CONSTRUCTION DOCUMENTS,"JANUARY 12, 2024",read,As indicated,read,"[""As indicated""]",read,"[[""1"", ""ADDENDUM"", ""11/29/2023""], [""2"", ""ADDENDUM 2"", ""12/15/2023""]]"
+washlatin,7,0,S-007,read,S007,TYPICAL DETAILS,read,100% CONSTRUCTION DOCUMENTS,"JANUARY 12, 2024",read,"1/2"" = 1'-0""",read,"[""1/2\"" = 1'-0\""""]",read,"[[""2"", ""ADDENDUM 2"", ""12/15/2023""]]"
+washlatin,8,0,S-100,read,S100,GROUND FLOOR FOUNDATION PLAN,read,100% CONSTRUCTION DOCUMENTS,"JANUARY 12, 2024",read,"1/8"" = 1'-0""",read,"[""1/8\"" = 1'-0\""""]",read,"[[""1"", ""ADDENDUM"", ""11/29/2023""], [""2"", ""ADDENDUM 2"", ""12/15/2023""]]"
+washlatin,9,0,S-101,read,S101,FIRST FLOOR FRAMING PLAN,read,100% CONSTRUCTION DOCUMENTS,"JANUARY 12, 2024",read,"1/8"" = 1'-0""",read,"[""1/8\"" = 1'-0\""""]",read,"[[""1"", ""ADDENDUM"", ""11/29/2023""], [""2"", ""ADDENDUM 2"", ""12/15/2023""]]"
+washlatin,10,0,S-102,read,S102,SECOND FLOOR FRAMING PLAN,read,100% CONSTRUCTION DOCUMENTS,"JANUARY 12, 2024",read,"1/8"" = 1'-0""",read,"[""1/8\"" = 1'-0\""""]",read,"[[""1"", ""ADDENDUM"", ""11/29/2023""], [""2"", ""ADDENDUM 2"", ""12/15/2023""]]"
+washlatin,11,0,S-103,read,S103,THIRD FLOOR FRAMING PLAN,read,100% CONSTRUCTION DOCUMENTS,"JANUARY 12, 2024",read,"1/8"" = 1'-0""",read,"[""1/8\"" = 1'-0\""""]",read,"[[""1"", ""ADDENDUM"", ""11/29/2023""], [""2"", ""ADDENDUM 2"", ""12/15/2023""]]"
+washlatin,12,0,S-104,read,S104,FOURTH FLOOR FRAMING PLAN,read,100% CONSTRUCTION DOCUMENTS,"JANUARY 12, 2024",read,"1/8"" = 1'-0""",read,"[""1/8\"" = 1'-0\""""]",read,"[[""1"", ""ADDENDUM"", ""11/29/2023""], [""2"", ""ADDENDUM 2"", ""12/15/2023""]]"
+washlatin,13,0,S-105,read,S105,ROOF FRAMING PLAN,read,100% CONSTRUCTION DOCUMENTS,"JANUARY 12, 2024",read,"1/8"" = 1'-0""",read,"[""1/8\"" = 1'-0\""""]",read,"[[""1"", ""ADDENDUM"", ""11/29/2023""], [""2"", ""ADDENDUM 2"", ""12/15/2023""]]"
+washlatin,14,0,S-201,read,S201,COLUMN DETAILS,read,100% CONSTRUCTION DOCUMENTS,"JANUARY 12, 2024",read,As indicated,read,"[""As indicated""]",read,"[[""2"", ""ADDENDUM 2"", ""12/15/2023""]]"
+washlatin,15,0,S-202,read,S202,COLUMN SCHEDULE,read,100% CONSTRUCTION DOCUMENTS,"JANUARY 12, 2024",read,"1/8"" = 1'-0""",read,"[""1/8\"" = 1'-0\""""]",read,"[[""1"", ""ADDENDUM"", ""11/29/2023""], [""2"", ""ADDENDUM 2"", ""12/15/2023""]]"
+washlatin,16,0,S-231,read,S231,BRACED FRAME DETAILS,read,100% CONSTRUCTION DOCUMENTS,"JANUARY 12, 2024",read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",read,"[[""2"", ""ADDENDUM 2"", ""12/15/2023""]]"
+washlatin,17,0,S-232,read,S232,BRACED FRAME ELEVATIONS,read,100% CONSTRUCTION DOCUMENTS,"JANUARY 12, 2024",read,As indicated,read,"[""As indicated""]",read,"[[""1"", ""ADDENDUM"", ""11/29/2023""]]"
+washlatin,18,0,S-301,read,S301,FOUNDATION SECTIONS,read,100% CONSTRUCTION DOCUMENTS,"JANUARY 12, 2024",read,As indicated,read,"[""As indicated""]",read,"[[""2"", ""ADDENDUM 2"", ""12/15/2023""]]"
+washlatin,19,0,S-401,read,S401,GRAVITY BRACE,read,100% CONSTRUCTION DOCUMENTS,"JANUARY 12, 2024",read,As indicated,read,"[""As indicated""]",none_printed,[]
+washlatin,20,0,S-501,read,S501,SECTIONS,read,100% CONSTRUCTION DOCUMENTS,"JANUARY 12, 2024",read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",read,"[[""1"", ""ADDENDUM"", ""11/29/2023""]]"
+washlatin,21,0,S-502,read,S502,SECTIONS,read,100% CONSTRUCTION DOCUMENTS,"JANUARY 12, 2024",read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",read,"[[""1"", ""ADDENDUM"", ""11/29/2023""]]"
+washlatin,22,0,S-503,read,S503,SECTIONS,read,100% CONSTRUCTION DOCUMENTS,"JANUARY 12, 2024",read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",read,"[[""1"", ""ADDENDUM"", ""11/29/2023""], [""2"", ""ADDENDUM 2"", ""12/15/2023""]]"
+washlatin,23,0,S-504,read,S504,SECTIONS,read,100% CONSTRUCTION DOCUMENTS,"JANUARY 12, 2024",read,As indicated,read,"[""As indicated""]",read,"[[""1"", ""ADDENDUM"", ""11/29/2023""], [""2"", ""ADDENDUM 2"", ""12/15/2023""]]"
+fortdavis,1,0,S001,read,S001,STRUCTURAL NOTES,read,50% CONSTRUCTION DOCUMENTS,2025/06/18,read,1 : 1,read,"[""1 : 1""]",none_printed,[]
+fortdavis,2,0,S002,read,S002,STRUCTURAL NOTES,read,50% CONSTRUCTION DOCUMENTS,2025/06/18,read,1 : 1,read,"[""1 : 1""]",none_printed,[]
+fortdavis,3,0,S003,read,S003,SPECIAL INSPECTIONS,read,50% CONSTRUCTION DOCUMENTS,2025/06/18,read,1 : 1,read,"[""1 : 1""]",none_printed,[]
+fortdavis,4,0,S010,read,S010,LIVE LOAD DIAGRAMS,read,50% CONSTRUCTION DOCUMENTS,2025/06/18,read,As indicated,read,"[""As indicated""]",none_printed,[]
+fortdavis,5,0,S011,read,S011,WIND LOAD DIAGRAMS,read,50% CONSTRUCTION DOCUMENTS,2025/06/18,read,As indicated,read,"[""As indicated""]",none_printed,[]
+fortdavis,6,0,S100,read,S100,FOUNDATION PLAN,read,50% CONSTRUCTION DOCUMENTS,2025/06/18,read,As indicated,read,"[""As indicated""]",none_printed,[]
+fortdavis,7,0,S101,read,S101,MEZZANINE FRAMING PLAN,read,50% CONSTRUCTION DOCUMENTS,2025/06/18,read,As indicated,read,"[""As indicated""]",none_printed,[]
+fortdavis,8,0,S102,read,S102,SECOND FLOOR FRAMING PLAN,read,50% CONSTRUCTION DOCUMENTS,2025/06/18,read,As indicated,read,"[""As indicated""]",none_printed,[]
+fortdavis,9,0,S103,read,S103,ROOF FRAMING PLAN,read,50% CONSTRUCTION DOCUMENTS,2025/06/18,read,As indicated,read,"[""As indicated""]",none_printed,[]
+fortdavis,10,0,S120,read,S120,BUILDING ELEVATIONS,read,50% CONSTRUCTION DOCUMENTS,2025/06/18,read,"1/8"" = 1'-0""",read,"[""1/8\"" = 1'-0\""""]",none_printed,[]
+fortdavis,11,0,S201,read,S201,FOUNDATION SECTIONS,read,50% CONSTRUCTION DOCUMENTS,2025/06/18,read,As indicated,read,"[""As indicated""]",none_printed,[]
+fortdavis,12,0,S202,read,S202,FOUNDATION SECTIONS,read,50% CONSTRUCTION DOCUMENTS,2025/06/18,read,"1/2"" = 1'-0""",read,"[""1/2\"" = 1'-0\""""]",none_printed,[]
+fortdavis,13,0,S203,read,S203,SECTIONS,read,50% CONSTRUCTION DOCUMENTS,2025/06/18,read,"1/2"" = 1'-0""",read,"[""1/2\"" = 1'-0\""""]",none_printed,[]
+fortdavis,14,0,S210,read,S210,SITE SECTIONS,read,50% CONSTRUCTION DOCUMENTS,2025/06/18,read,"1/2"" = 1'-0""",read,"[""1/2\"" = 1'-0\""""]",none_printed,[]
+fortdavis,15,0,S301,read,S301,STEEL AND CONCRETE COLUMN LOCATION PLAN AND SCHEDULE,read,50% CONSTRUCTION DOCUMENTS,2025/06/18,read,As indicated,read,"[""As indicated""]",none_printed,[]
+fortdavis,16,0,S302,read,S302,BRACED FRAME ELEVATIONS,read,50% CONSTRUCTION DOCUMENTS,2025/06/18,read,As indicated,read,"[""As indicated""]",none_printed,[]
+fortdavis,17,0,S310,read,S310,FRAMING SECTIONS,read,50% CONSTRUCTION DOCUMENTS,2025/06/18,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",none_printed,[]
+fortdavis,18,0,S311,read,S311,FRAMING SECTIONS,read,50% CONSTRUCTION DOCUMENTS,2025/06/18,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",none_printed,[]
+fortdavis,19,0,S401,read,S401,ROOF FRAMING SECTIONS,read,50% CONSTRUCTION DOCUMENTS,2025/06/18,read,"3/4"" = 1'-0""",read,"[""3/4\"" = 1'-0\""""]",none_printed,[]
+fortdavis,20,0,S402,read,S402,ROOF FRAMING SECTIONS,read,50% CONSTRUCTION DOCUMENTS,2025/06/18,read,As indicated,read,"[""As indicated""]",none_printed,[]
