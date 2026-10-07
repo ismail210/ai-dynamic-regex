@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Accordion,
   AccordionDetails,
@@ -29,9 +29,13 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { CloseOutlined, ExpandMoreOutlined, SearchOutlined } from "@mui/icons-material";
-import { documentPdfUrl, getColumnTrace } from "../api/client";
+import { CloseOutlined, ExpandMoreOutlined, PrintOutlined, SearchOutlined } from "@mui/icons-material";
+import { getColumnTrace } from "../api/client";
 import { formatPlate, formatPrintedSize } from "../lib/dimensions";
+import { directoryRows, ScheduleDirectory, supportingGroupsOf } from "./drawingSummary/directory";
+import { LevelReview } from "./drawingSummary/levelReview";
+import { LocateButton, LocateDialog, LocationProvider, locateSources, PlanPreview, useLocation } from "./drawingSummary/locate";
+import { SourcePdf } from "./drawingSummary/pdf";
 import { pagesLabel, sourceIdentity, ViewPageButton, whereLabel } from "./drawingSummary/sources";
 import {
   ConflictComparison,
@@ -42,9 +46,6 @@ import {
   PlateRoles,
   StatusText,
 } from "./drawingSummary/visuals";
-
-// pdf.js only loads when a source page is actually opened.
-const PdfDocumentViewer = lazy(() => import("./pdf/PdfDocumentViewer"));
 
 // User-facing message only for statuses worth actively telling the user
 // about -- DISABLED / NO_CONTEXT_PAGES / SUCCESS render nothing extra when
@@ -385,6 +386,9 @@ function MarksAndDefinitions({ definitions, notes, onView, title = "Marks and de
 // location(s), the base plate and notes, each with where it was read.
 // Definitions only: a listed location is never a takeoff quantity.
 const COLLAPSED_COLUMNS = 8;
+// A schedule this short is shown whole: hiding a few rows behind "Show all"
+// hides real coverage (OSSE's later D / R locations).
+const SHOW_WHOLE_UP_TO = 30;
 
 const dimensionsText = (plate) => formatPlate(plate.dimensions).text;
 const capitalize = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
@@ -422,7 +426,7 @@ function plateSummary(plate) {
     case "not_applicable":
       return { main: plate.printed || "N/A", sub: "Printed as not applicable" };
     case "not_shown":
-      return { main: "—", sub: "Not given in this schedule" };
+      return { main: "—", sub: plate.note || "Not given in this schedule" };
     default:
       return { main: plate.printed || "—", sub: plate.note || "Could not be read" };
   }
@@ -448,10 +452,34 @@ function extentLabel(extent) {
   return both ? `${shortLevel(extent.bottom.line.name)} to ${shortLevel(extent.top.line.name)}` : null;
 }
 
+// "18" × 24" · 6-#8 · #3@12" O.C." -- a linked definition row's printed cells.
+const definitionCells = (definition) => (definition?.cells || []).filter((c) => c.text)
+  .map((c) => `${(c.path || [c.heading]).slice(-1)[0].toLowerCase()} ${c.text}`).join(" · ");
+
+// A label printed on the column (pier P1, concrete RC1) and the supporting
+// row that defines the same mark; differing sizes are both shown.
+function DefinitionLink({ label, definition, onView }) {
+  return (
+    <>
+      {label}
+      {definition && (
+        <Typography component="span" variant="caption" color={definition.sizes === "differ" ? "warning.main" : "text.secondary"}
+          sx={{ display: "block" }}>
+          {definition.mark} in the {titleCase(definition.schedule_title)}: {definitionCells(definition)}
+          {definition.sizes === "differ" ? " — sizes differ from the label; both are kept" : ""}
+          {" "}
+          <ViewPageButton item={{ ...definition, mark: `${definition.mark} definition` }} label={definition.sheet || "View"}
+            onView={onView} />
+        </Typography>
+      )}
+    </>
+  );
+}
+
 // One column as an estimator reads it: location, section, plate and its
 // dimensions, the levels the schedule draws it between, and the difference
 // of those two printed elevations -- which is not a member length.
-function ColumnCard({ entry }) {
+function ColumnCard({ entry, onView }) {
   const plate = entry.plate || {};
   const section = entry.sections?.find((s) => s.designation)?.designation || entry.sections?.[0]?.printed;
   const diff = entry.level_difference;
@@ -465,22 +493,32 @@ function ColumnCard({ entry }) {
         <Box component="span" sx={{ fontFamily: "monospace", userSelect: "all" }}>{entry.location_text || columnLabel(entry)}</Box>
         {offsets.length > 0 && (
           <Typography component="span" variant="caption" color="text.secondary" sx={{ display: "block" }}>
-            Offset {offsets.join(", ")} — direction not stated
+            Offset {offsets.join(", ")} — the printed sign is not a direction on the sheet
           </Typography>
         )}
       </>
     )],
-    ["Section", section ? <Box component="span" sx={{ userSelect: "all" }}>{section}</Box> : "—"],
-    ["Base plate", plate.printed || plateSummary(plate).main],
-    ["Dimensions", dims ? (
+    ["Section", entry.definition
+      ? <DefinitionLink label={section} definition={entry.definition} onView={onView} />
+      : section ? <Box component="span" sx={{ userSelect: "all" }}>{section}</Box> : "—"],
+  ];
+  if (entry.material?.status !== "read" || plate.status !== "not_shown") {
+    rows.push(["Base plate", plate.printed || plateSummary(plate).main]);
+    rows.push(["Dimensions", dims ? (
       <>
         <Box component="span" aria-label={dims.spoken} sx={{ ...NUMERIC, fontWeight: 600 }}>{dims.text}</Box>
         <Typography component="span" variant="caption" color="text.secondary" sx={{ display: "block" }}>{dims.roles}</Typography>
       </>
-    ) : PLATE_STATUS_TEXT[plate.status] || "Not established"],
-  ];
+    ) : PLATE_STATUS_TEXT[plate.status] || "Not established"]);
+  }
+  for (const support of entry.supports || []) {
+    rows.push(["Printed below", <DefinitionLink key={support.printed} label={support.printed} definition={support.definition}
+      onView={onView} />]);
+  }
   if (entry.extent) {
     rows.push(["Supported levels", extent || "Not established at both ends"]);
+  } else if (entry.extent_note) {
+    rows.push(["Vertical extent", entry.extent_note]);
   }
   if (diff?.status === "computed") {
     rows.push(["Elevation difference", (
@@ -492,7 +530,7 @@ function ColumnCard({ entry }) {
       </>
     )]);
   }
-  if (entry.extent) rows.push(["Fabricated length", "Unconfirmed"]);
+  if (entry.extent || entry.extent_note) rows.push(["Fabricated length", "Unconfirmed"]);
   return (
     <Box component="dl" sx={{ m: 0, display: "grid", gridTemplateColumns: "minmax(8rem, auto) 1fr", columnGap: 2, rowGap: 0.75 }}>
       {rows.map(([label, value]) => (
@@ -505,19 +543,25 @@ function ColumnCard({ entry }) {
   );
 }
 
-function ColumnEntryDetails({ entry, onView, documentId, levels, note, scheduleName }) {
-  // Plan views found by the trace join the schedule and plate sources, so the
-  // source viewer can switch between all of them.
-  const [planSources, setPlanSources] = useState([]);
+function ColumnEntryDetails({ entry, onView, documentId, levels, note, scheduleName, scopeId, onLocate }) {
   const plate = entry.plate;
   const locations = entry.locations || [];
+  const single = entry.key_role === "location" && locations.length === 1 && locations[0].status === "parsed"
+    ? locations[0].raw : null;
+  // The plan views "Locate on plan" found join the schedule and plate sources,
+  // so the source viewer can switch between all of them.
+  const { result } = useLocation(documentId, single, scopeId, Boolean(single));
+  // A multi-location entry has no single intersection: its traced plan views are the sources.
+  const [tracedSources, setTracedSources] = useState([]);
+  const planSources = single ? locateSources(result, single) : tracedSources;
   const listLocations = entry.key_role === "location"
     && (locations.length > 1 || locations.some((l) => l.status !== "parsed") || entry.repeated_label || entry.label_conflict);
   const bothEnds = extentLabel(entry.extent);
   return (
     <Stack spacing={1.5} sx={{ py: 1.5, px: 1.5, bgcolor: "action.hover", borderRadius: 1 }}>
-      <ColumnCard entry={entry} />
+      <ColumnCard entry={entry} onView={onView} />
       <EvidenceChain entry={entry} onView={onView} planSources={planSources} />
+      {single && <PlanPreview documentId={documentId} location={single} scheduleId={scopeId} onOpen={onLocate} />}
       {entry.extent && levels?.length > 1 && (
         <LevelDiagram levels={levels} extent={entry.extent} scheduleName={scheduleName} />
       )}
@@ -534,7 +578,10 @@ function ColumnEntryDetails({ entry, onView, documentId, levels, note, scheduleN
             {locations.map((location) => (
               <Typography component="li" variant="body2" key={location.raw}>
                 {location.status === "parsed" ? (
-                  <>Grid {location.grids.map((g) => g.label).join(" and grid ")}</>
+                  <>
+                    Grid {location.grids.map((g) => g.label).join(" and grid ")}{" "}
+                    <LocateButton location={location.raw} onLocate={onLocate} />
+                  </>
                 ) : (
                   <>
                     <Box component="span" sx={{ fontFamily: "monospace" }}>{location.raw}</Box> — not a
@@ -557,8 +604,8 @@ function ColumnEntryDetails({ entry, onView, documentId, levels, note, scheduleN
         </Box>
       )}
       {entry.key_role !== "location" && entry.location_note && <Typography variant="body2">{entry.location_note}</Typography>}
-      {!plate.via?.length && plate.status !== "not_shown" && (
-        <Typography variant="body2" color="text.secondary">{plateSummary(plate).sub}</Typography>
+      {(!plate.via?.length || plate.status === "not_shown") && plate.note && (
+        <Typography variant="body2" color="text.secondary">{plate.note}</Typography>
       )}
       {plate.status === "reference" && (
         <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
@@ -592,10 +639,9 @@ function ColumnEntryDetails({ entry, onView, documentId, levels, note, scheduleN
         </Typography>
       )}
       {entry.extent && !bothEnds && <ColumnExtent entry={entry} />}
-      {documentId && <ColumnTrace entry={entry} documentId={documentId} onView={onView} onTraced={setPlanSources} />}
-      <Typography variant="caption" color="text.secondary">
-        A schedule entry is a definition, not a counted member — it is never a takeoff quantity.
-      </Typography>
+      {documentId && !entry.assignment_only && (
+        <ColumnTrace entry={entry} documentId={documentId} onView={onView} onTraced={setTracedSources} />
+      )}
     </Stack>
   );
 }
@@ -613,7 +659,7 @@ function SectionCell({ entry }) {
         </Typography>
         {material.size ? (
           <Typography variant="body2" sx={NUMERIC} title={`As printed: ${material.size.raw}`}>
-            {formatPrintedSize(material.size.raw)}
+            {formatPrintedSize(material.size.raw)} column section
           </Typography>
         ) : null}
         <Typography variant="caption" color="text.secondary">Per the schedule note · not steel</Typography>
@@ -625,7 +671,9 @@ function SectionCell({ entry }) {
     <Box key={`${s.printed}-${i}`}>
       <Typography variant="body2" fontWeight={600} sx={{ userSelect: "all" }}>{s.designation || s.printed}</Typography>
       {!s.designation && (
-        <Typography variant="caption" color="text.secondary">Printed text; no catalog section</Typography>
+        <Typography variant="caption" color="text.secondary">
+          {entry.definition ? `Defined in the ${titleCase(entry.definition.schedule_title)}` : "Printed text; no catalog section"}
+        </Typography>
       )}
     </Box>
   ));
@@ -674,29 +722,66 @@ const entryNotes = (entry) => [
   ...(entry.other_plates || []).map((p) => `${p.type}: ${dimensionsText(p)} (schedule note)`),
 ];
 
-function ColumnEntryRow({ entry, onView, documentId, levels, note, scheduleName, showNotes, onPlate, open, onToggle }) {
+// The printed location: one "Locate" per listed location (each is its own
+// intersection); a mark (C-1) is never treated as a grid location.
+function LocationCell({ entry, onLocate }) {
+  const parsed = (entry.locations || []).filter((l) => l.status === "parsed");
+  const several = entry.key_role === "location" && parsed.length > 1;
+  return (
+    <>
+      <Typography variant="body2" fontWeight={700} sx={{ fontFamily: "monospace", userSelect: "text" }}>
+        {columnLabel(entry)}
+      </Typography>
+      {entry.assignment_only && <Typography variant="caption" color="text.secondary">table only · no levels</Typography>}
+      {entry.listed_location_count > 1 && (
+        <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
+          {entry.listed_location_count} locations
+        </Typography>
+      )}
+      {several && onLocate && (
+        <Stack spacing={0} sx={{ alignItems: "flex-start" }}>
+          {parsed.map((location) => (
+            <LocateButton key={location.raw} location={location.raw} onLocate={onLocate} compact />
+          ))}
+        </Stack>
+      )}
+    </>
+  );
+}
+
+function ColumnEntryRow({ entry, onView, documentId, levels, note, scheduleName, showNotes, onPlate, open, onToggle,
+  concrete, scopeId, onLocate }) {
   const label = columnLabel(entry);
+  const single = entry.key_role === "location" && entry.locations?.length === 1 && entry.locations[0].status === "parsed";
+  const columns = concrete ? 4 : showNotes ? 6 : 5;
   return (
     <>
       <TableRow sx={{ "& > td": { borderBottom: open ? 0 : undefined, verticalAlign: "top" } }}>
         <TableCell>
-          <Typography variant="body2" fontWeight={700} sx={{ fontFamily: "monospace", userSelect: "text" }}>
-            {label}
-          </Typography>
-          {entry.listed_location_count > 1 && (
-            <Typography variant="caption" color="text.secondary">{entry.listed_location_count} locations</Typography>
-          )}
+          <LocationCell entry={entry} onLocate={onLocate} />
         </TableCell>
         <TableCell>
           <SectionCell entry={entry} />
         </TableCell>
-        <TableCell>
-          <PlateCell plate={entry.plate} onPlate={onPlate} />
-        </TableCell>
-        <TableCell>
-          <PlateDimsCell plate={entry.plate} />
-        </TableCell>
-        {showNotes && (
+        {concrete ? (
+          <TableCell>
+            {entry.definition ? (
+              <Typography variant="body2">{definitionCells(entry.definition)}</Typography>
+            ) : (
+              <Typography variant="body2" color="text.secondary" aria-label="No linked definition">—</Typography>
+            )}
+          </TableCell>
+        ) : (
+          <>
+            <TableCell>
+              <PlateCell plate={entry.plate} onPlate={onPlate} />
+            </TableCell>
+            <TableCell>
+              <PlateDimsCell plate={entry.plate} />
+            </TableCell>
+          </>
+        )}
+        {!concrete && showNotes && (
           <TableCell>
             {entryNotes(entry).map((n) => (
               <Typography key={n} variant="body2" color="text.secondary">{n}</Typography>
@@ -704,8 +789,10 @@ function ColumnEntryRow({ entry, onView, documentId, levels, note, scheduleName,
           </TableCell>
         )}
         <TableCell align="right" sx={{ width: "1%", whiteSpace: "nowrap" }}>
-          <Stack direction="row" spacing={1} sx={{ justifyContent: "flex-end" }}>
-            <ViewPageButton item={{ ...entry, mark: label }} label="Source" onView={onView} />
+          <Stack direction="row" spacing={0.5} sx={{ justifyContent: "flex-end" }}>
+            {single && <LocateButton location={entry.locations[0].raw} onLocate={onLocate} />}
+            <ViewPageButton item={{ ...entry, mark: label }} label={entry.assignment_only ? "Table row" : "Schedule"}
+              onView={onView} />
             <Button
               size="small"
               onClick={onToggle}
@@ -718,11 +805,11 @@ function ColumnEntryRow({ entry, onView, documentId, levels, note, scheduleName,
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell colSpan={showNotes ? 6 : 5} sx={{ py: 0, borderBottom: open ? undefined : 0 }}>
+        <TableCell colSpan={columns} sx={{ py: 0, borderBottom: open ? undefined : 0 }}>
           <Collapse in={open} unmountOnExit>
             <Box sx={{ pb: 1.5 }}>
-              <ColumnEntryDetails key={`${documentId}-${entry.id}`} entry={entry} onView={onView} documentId={documentId} levels={levels} note={note}
-                scheduleName={scheduleName} />
+              <ColumnEntryDetails key={`${documentId}-${entry.id}`} entry={entry} onView={onView} documentId={documentId}
+                levels={levels} note={note} scheduleName={scheduleName} scopeId={scopeId} onLocate={onLocate} />
             </Box>
           </Collapse>
         </TableCell>
@@ -731,15 +818,19 @@ function ColumnEntryRow({ entry, onView, documentId, levels, note, scheduleName,
   );
 }
 
-function ColumnScheduleBlock({ schedule, entries, total, filtered, onView, documentId, levels, notes = {}, onPlate }) {
+function ColumnScheduleBlock({ schedule, entries, total, filtered, onView, documentId, levels, notes = {}, onPlate,
+  onLocate, scopeName }) {
   const [open, setOpen] = useState(false);
   const [expandedEntries, setExpandedEntries] = useState({});
-  const collapsible = !filtered && entries.length > COLLAPSED_COLUMNS + 1;
+  const concrete = schedule.material_group === "concrete";
+  const collapsible = !filtered && entries.length > SHOW_WHOLE_UP_TO;
   const shown = open || !collapsible ? entries : entries.slice(0, COLLAPSED_COLUMNS);
   const where = whereLabel({ sheet: schedule.sheets.filter(Boolean).join(", "), pages: schedule.pages });
   const showNotes = entries.some((e) => entryNotes(e).length > 0);
+  const scopeId = schedule.scope_schedule_id || schedule.id;
+  const locate = onLocate && ((location) => onLocate(location, scopeId));
   return (
-    <Paper variant="outlined" sx={{ mb: 2, overflow: "hidden" }}>
+    <Paper variant="outlined" sx={{ mb: 2, overflow: "hidden", scrollMarginTop: 72 }} id={`summary-schedule-${schedule.id}`}>
       <Stack
         direction="row"
         spacing={1}
@@ -749,17 +840,25 @@ function ColumnScheduleBlock({ schedule, entries, total, filtered, onView, docum
         <Typography variant="body2" color="text.secondary" sx={{ flexGrow: 1 }}>
           {[
             where,
-            schedule.layout === "graphical" ? "graphical schedule" : "table",
+            schedule.source === "location_table" ? "location table" : schedule.layout === "graphical" ? "graphical schedule" : "table",
             schedule.block_count > 1 ? `printed in ${schedule.block_count} parts` : "",
-            `${total} schedule entr${total === 1 ? "y" : "ies"}`,
+            `${total} printed entr${total === 1 ? "y" : "ies"}`,
           ]
             .filter(Boolean)
             .join(" · ")}
         </Typography>
-        <ViewPageButton item={{ ...schedule, mark: schedule.name }} label="View column schedule" onView={onView} />
+        <ViewPageButton item={{ ...schedule, mark: schedule.name }}
+          label={schedule.source === "location_table" ? "View table" : "View column schedule"} onView={onView} />
       </Stack>
-      {(schedule.notes.length > 0 || schedule.hidden_text.length > 0) && (
+      {(schedule.notes.length > 0 || schedule.hidden_text.length > 0 || schedule.source === "location_table") && (
         <Box sx={{ px: 2, pt: 1 }}>
+          {schedule.source === "location_table" && (
+            <Typography variant="body2" color="text.secondary">
+              These locations are listed only in this table, which assigns a section and a base plate; no column schedule
+              prints them and no levels are given.{schedule.scope_basis && scopeName
+                ? ` Looked for on the plans of ${scopeName}: ${schedule.scope_basis}.` : ""}
+            </Typography>
+          )}
           {schedule.notes.map((n) => (
             <Typography key={n} variant="body2" color="text.secondary">{n}</Typography>
           ))}
@@ -780,18 +879,22 @@ function ColumnScheduleBlock({ schedule, entries, total, filtered, onView, docum
             <TableHead>
               <TableRow>
                 <TableCell>{schedule.key_role === "location" ? "Location" : "Mark"}</TableCell>
-                <TableCell>Section</TableCell>
-                <TableCell>Base plate</TableCell>
-                <TableCell>Dimensions — W × L × T</TableCell>
-                {showNotes && <TableCell>Notes</TableCell>}
+                <TableCell>{concrete ? "Section / label" : "Section"}</TableCell>
+                {concrete ? <TableCell>Linked definition</TableCell> : (
+                  <>
+                    <TableCell>Base plate</TableCell>
+                    <TableCell>Plate — W × L × T</TableCell>
+                  </>
+                )}
+                {!concrete && showNotes && <TableCell>Notes</TableCell>}
                 <TableCell align="right">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {shown.map((entry) => (
                 <ColumnEntryRow key={entry.id} entry={entry} onView={onView} documentId={documentId} levels={levels}
-                  note={notes[entry.id]} scheduleName={schedule.name} showNotes={showNotes}
-                  open={Boolean(expandedEntries[entry.id])}
+                  note={notes[entry.id]} scheduleName={schedule.name} showNotes={showNotes} concrete={concrete}
+                  open={Boolean(expandedEntries[entry.id])} scopeId={scopeId} onLocate={locate}
                   onToggle={() => setExpandedEntries((previous) => ({ ...previous, [entry.id]: !previous[entry.id] }))}
                   onPlate={onPlate && ((mark) => onPlate(schedule, mark))} />
               ))}
@@ -800,11 +903,14 @@ function ColumnScheduleBlock({ schedule, entries, total, filtered, onView, docum
         </Box>
       )}
       {collapsible && (
-        <Box sx={{ px: 1.5, pb: 1 }}>
+        <Stack direction="row" spacing={1} sx={{ px: 2, py: 1, alignItems: "center", flexWrap: "wrap" }}>
+          <Typography variant="body2" color="text.secondary" role="status">
+            {open ? `All ${entries.length} printed entries shown` : `Showing ${COLLAPSED_COLUMNS} of ${entries.length} printed entries — the search covers all of them`}
+          </Typography>
           <Button size="small" onClick={() => setOpen(!open)}>
             {open ? "Show fewer" : `Show all ${entries.length}`}
           </Button>
-        </Box>
+        </Stack>
       )}
     </Paper>
   );
@@ -817,7 +923,9 @@ const normalizeLocation = (text) => String(text || "").replace(/\s+/g, "").toUpp
 function entryMatches(entry, query) {
   const q = normalizeLocation(query);
   if (!q) return true;
-  return [entry.mark, entry.location_text, ...(entry.locations || []).map((l) => l.raw)]
+  return [entry.mark, entry.location_text, ...(entry.locations || []).map((l) => l.raw),
+    ...(entry.sections || []).flatMap((s) => [s.printed, s.designation]), entry.plate?.printed,
+    entry.material?.mark, entry.definition?.mark, ...(entry.supports || []).map((s) => s.printed)]
     .some((text) => normalizeLocation(text).includes(q));
 }
 
@@ -865,7 +973,8 @@ function PlateMarkDialog({ target, entries, onView, onClose }) {
               ))}
             </Box>
             <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.75 }}>
-              Schedule entries are definitions, not a count of plates.
+              Schedule entries are definitions, not a count of plates. Plate marks with the same dimensions stay
+              separate marks.
             </Typography>
           </Box>
         </Stack>
@@ -874,7 +983,8 @@ function PlateMarkDialog({ target, entries, onView, onClose }) {
   );
 }
 
-function ColumnSchedules({ data, schedules, title, intro, onView, documentId, levelsBySchedule = {}, notes = {}, searchable }) {
+function ColumnSchedules({ data, schedules, title, intro, onView, documentId, levelsBySchedule = {}, notes = {}, searchable,
+  onLocate }) {
   const [query, setQuery] = useState("");
   const [plateTarget, setPlateTarget] = useState(null);
   const blocks = schedules.map((schedule) => {
@@ -883,17 +993,16 @@ function ColumnSchedules({ data, schedules, title, intro, onView, documentId, le
   });
   const matches = blocks.reduce((n, b) => n + b.entries.length, 0);
   const total = blocks.reduce((n, b) => n + b.all.length, 0);
+  const filtered = Boolean(query.trim());
+  const nameOf = (id) => schedules.find((s) => s.id === id)?.name;
   const content = (
     <>
       {intro && <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>{intro}</Typography>}
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
-        Dimensions: Width × Length × Thickness. Schedule entries are definitions, not installed quantities.
-      </Typography>
       {searchable && (
         <Stack direction="row" spacing={1.5} sx={{ mb: 1.5, alignItems: "center", flexWrap: "wrap" }} useFlexGap>
           <TextField
             size="small"
-            label="Find a location"
+            label="Find a location, section or plate"
             placeholder="e.g. C.8-8.9"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
@@ -912,7 +1021,11 @@ function ColumnSchedules({ data, schedules, title, intro, onView, documentId, le
             }}
           />
           <Typography variant="body2" color="text.secondary" role="status">
-            {query.trim() ? `${matches} of ${total} schedule entries match` : ""}
+            {filtered
+              ? `${matches} of ${total} printed entries match` + (matches
+                ? ` (${blocks.filter((b) => b.entries.length).map((b) => `${b.entries.length} in ${b.schedule.name}`).join("; ")})`
+                : "")
+              : `Searches all ${total} printed entries in ${blocks.length} group${blocks.length === 1 ? "" : "s"}`}
           </Typography>
         </Stack>
       )}
@@ -922,18 +1035,20 @@ function ColumnSchedules({ data, schedules, title, intro, onView, documentId, le
           schedule={schedule}
           entries={entries}
           total={all.length}
-          filtered={Boolean(query.trim())}
+          filtered={filtered}
           onView={onView}
           documentId={documentId}
           levels={levelsBySchedule[schedule.id]}
           notes={notes}
+          onLocate={onLocate}
+          scopeName={nameOf(schedule.scope_schedule_id)}
           onPlate={(s, mark) => setPlateTarget({ schedule: s, mark })}
         />
       ))}
       <PlateMarkDialog target={plateTarget} entries={data.entries} onView={onView} onClose={() => setPlateTarget(null)} />
     </>
   );
-  return title ? <Section title={title}>{content}</Section> : content;
+  return title ? <Section title={title} id="summary-columns">{content}</Section> : content;
 }
 
 // Column tracing pilot: the schedule column looked for on the framing plans of
@@ -1657,25 +1772,6 @@ function NonElevationBrackets({ offsets, examples, onView }) {
   );
 }
 
-// One source page of the uploaded PDF with its box highlighted (pdf.js loads lazily).
-function SourcePdf({ documentId, source, selectionKey }) {
-  return (
-    <Suspense
-      fallback={(
-        <Box sx={{ display: "grid", placeItems: "center", height: "100%" }}>
-          <CircularProgress size={28} />
-        </Box>
-      )}
-    >
-      <PdfDocumentViewer
-        fileUrl={documentPdfUrl(documentId)}
-        pageWindow={1}
-        selection={{ key: selectionKey, pageNumber: source.page, boundingBox: source.bbox || null }}
-      />
-    </Suspense>
-  );
-}
-
 // The uploaded PDF on the source page, with the mark highlighted when its
 // bounding box is known. Reuses the Drawing Review viewer; needs no prediction.
 // A target with ``alternatives`` (a column's schedule, plate assignment,
@@ -1838,9 +1934,11 @@ function NeedsAttention({ conflicts = [], items = [], plateIssues = [], steelOff
         {conflicts.map((c) => (
           <Box key={`${c.level.schedule_id}-${c.level.name}-${c.match.page}`}>
             <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>
-              {shortLevel(c.level.name)} — sources disagree
+              {shortLevel(c.level.name)} — {c.level.review ? "elevation requires review" : "sources disagree"}
             </Typography>
-            <ConflictComparison {...c} onView={onView} onCompare={onCompare} />
+            {c.level.review && c.level.review.plan_page === c.match.page
+              ? <LevelReview review={c.level.review} onView={onView} onCompare={onCompare} />
+              : <ConflictComparison {...c} onView={onView} onCompare={onCompare} />}
             <ModelNote text={notes[`${c.level.schedule_id}|${c.level.name}`]} />
           </Box>
         ))}
@@ -1851,10 +1949,15 @@ function NeedsAttention({ conflicts = [], items = [], plateIssues = [], steelOff
               {items.map((u) => (
                 <Typography key={u.id} component="li" variant="body2">
                   {u.text}{" "}
-                  <Typography component="span" variant="caption" color="text.secondary">
-                    ({whereLabel(u)})
-                  </Typography>{" "}
-                  <ViewPageButton item={{ ...u, page: u.page || u.pages?.[0] }} onView={onView} />
+                  {!u.sources?.length && (
+                    <Typography component="span" variant="caption" color="text.secondary">
+                      ({whereLabel(u)})
+                    </Typography>
+                  )}{" "}
+                  {u.sources?.length ? u.sources.map((src, i) => (
+                    <ViewPageButton key={i} item={{ ...src, mark: src.label }} label={src.sheet || `p. ${src.page}`}
+                      onView={onView} />
+                  )) : <ViewPageButton item={{ ...u, page: u.page || u.pages?.[0] }} onView={onView} />}
                   <ModelNote text={notes[u.id]} />
                 </Typography>
               ))}
@@ -1901,9 +2004,9 @@ function CompareSourcesDialog({ documentId, pair, onClose }) {
   );
 }
 
-function Section({ title, source, children }) {
+function Section({ title, source, children, id }) {
   return (
-    <Box component="section" sx={{ mb: 2.5 }}>
+    <Box component="section" id={id} sx={{ mb: 2.5, scrollMarginTop: 72 }}>
       <Stack direction="row" spacing={1} sx={{ alignItems: "baseline" }}>
         <Typography variant="subtitle1" component="h3" fontWeight={700} sx={{ display: "block" }}>
           {title}
@@ -1964,13 +2067,6 @@ function RuleItem({ rule }) {
     </Stack>
   );
 }
-
-// Supporting (non-steel) schedules, grouped the way an estimator looks for them.
-const SUPPORTING_GROUPS = [
-  { key: "walls", label: "Concrete walls", kinds: ["wall"] },
-  { key: "foundations", label: "Piers and foundations", kinds: ["pier", "footing", "grade_beam"] },
-  { key: "beams", label: "Concrete beams", kinds: ["beam"] },
-];
 
 // Printed heading paths -> header rows. A group heading (REINFORCEMENT, TOP)
 // spans the columns it heads; a column whose path ends early spans the rows
@@ -2102,12 +2198,32 @@ function SupportGroup({ id, title, summary, expanded, onToggle, children }) {
  * (services/engineering/drawing_intelligence.py), optionally LLM-polished.
  * Nothing here changes a predicted section, candidate or takeoff quantity.
  */
+// Focus goes back to the control that opened a dialog when it closes.
+function useOpener(setter) {
+  const opener = useRef(null);
+  const open = (value) => {
+    opener.current = typeof document !== "undefined" ? document.activeElement : null;
+    setter(value);
+  };
+  const close = () => {
+    setter(null);
+    const node = opener.current;
+    if (node && typeof node.focus === "function") setTimeout(() => node.isConnected && node.focus(), 0);
+  };
+  return [open, close];
+}
+
 export default function DrawingSummaryPanel({ profile, documentId = null }) {
   const [sourceTarget, setSourceTarget] = useState(null);
   const [comparePair, setComparePair] = useState(null);
+  const [locateRequest, setLocateRequest] = useState(null);
   const [expanded, setExpanded] = useState({});
+  const [openSource, closeSource] = useOpener(setSourceTarget);
+  const [openCompare, closeCompare] = useOpener(setComparePair);
+  const [openLocate, closeLocate] = useOpener(setLocateRequest);
   if (!profile) return null;
-  const onView = documentId ? setSourceTarget : null;
+  const onView = documentId ? openSource : null;
+  const onLocate = documentId ? (location, scheduleId) => openLocate({ location, scheduleId }) : null;
 
   const di = profile.drawing_intelligence || null;
   const narrative = di?.narrative || null;
@@ -2190,16 +2306,12 @@ export default function DrawingSummaryPanel({ profile, documentId = null }) {
   const coverageKey = (page, title) => `${page}|${title}`;
   const covered = new Set(coverage.map((s) => coverageKey(s.page, s.title)));
   const looseSupporting = supportingDefinitions.filter((d) => !covered.has(coverageKey(d.page, d.schedule_title)));
-  const grouped = new Set(SUPPORTING_GROUPS.flatMap((g) => g.kinds));
-  const supportingGroups = [...SUPPORTING_GROUPS, { key: "other-schedules", label: "Other non-steel schedules", kinds: null }]
-    .map((g) => {
-      const tables = coverage.filter((s) => (g.kinds ? g.kinds.includes(s.kind) : !grouped.has(s.kind)));
-      return { ...g, schedules: tables,
-        rows: tables.every((s) => s.printed_rows != null) ? tables.reduce((n, s) => n + s.printed_rows, 0) : null };
-    })
-    .filter((g) => g.schedules.length > 0);
-  const concreteIds = new Set(concreteSchedules.map((s) => s.id));
-  const concreteEntryCount = columnEntries.filter((e) => concreteIds.has(e.schedule_id)).length;
+  const supportingGroups = supportingGroupsOf(coverage);
+  const directory = directoryRows(di, supportingGroups);
+  const goTo = (row) => {
+    if (row.group) setExpanded((state) => ({ ...state, [row.group]: true }));
+    setTimeout(() => document.getElementById(row.anchor)?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+  };
   // Top-of-steel notes with an offset but no direction (review items).
   const steelOffsets = (levels?.plan_elevations || []).filter((e) => e.status === "unresolved" && e.offset);
   const toggle = (id, open) => setExpanded((state) => ({ ...state, [id]: open }));
@@ -2391,6 +2503,7 @@ export default function DrawingSummaryPanel({ profile, documentId = null }) {
   );
 
   return (
+    <LocationProvider profile={profile}>
     <Paper variant="outlined" sx={{ p: { xs: 1.5, sm: 2.5 }, ...SUMMARY_TYPE }}>
       <Stack direction="row" spacing={1} sx={{ alignItems: "baseline", mb: 0.5, flexWrap: "wrap" }}>
         <Typography variant="subtitle1" component="h2" fontWeight={700}>
@@ -2398,6 +2511,14 @@ export default function DrawingSummaryPanel({ profile, documentId = null }) {
         </Typography>
         {method === "llm_enhanced" && (
           <Typography variant="caption" color="text.secondary">overview wording by model, checked against the drawing</Typography>
+        )}
+        {hasNarrative && (
+          <Stack direction="row" spacing={1} sx={{ ml: "auto" }}>
+            <Button size="small" startIcon={<PrintOutlined fontSize="small" />} href="/drawing-summary/report?mode=concise">
+              Print summary
+            </Button>
+            <Button size="small" href="/drawing-summary/report?mode=full">Full evidence report</Button>
+          </Stack>
         )}
       </Stack>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2, display: "block" }}>
@@ -2418,9 +2539,10 @@ export default function DrawingSummaryPanel({ profile, documentId = null }) {
 
       {hasNarrative && (
         <>
-          {/* A. Short project orientation */}
-          <Section title="Project orientation">
+          {/* A. Project and scope: orientation and the schedule directory */}
+          <Section title="Project and scope">
             <Typography variant="body1">{narrative.project_overview}</Typography>
+            <ScheduleDirectory rows={directory} onGo={goTo} />
           </Section>
 
           {/* B. Items needing attention */}
@@ -2431,20 +2553,21 @@ export default function DrawingSummaryPanel({ profile, documentId = null }) {
             steelOffsets={steelOffsets}
             notes={modelNotes}
             onView={onView}
-            onCompare={documentId ? setComparePair : null}
+            onCompare={documentId ? openCompare : null}
           />
 
-          {/* C. Steel column schedules and plates */}
-          {steelSchedules.length > 0 && (
+          {/* C. Columns, plates and plan locations: every column group, steel first */}
+          {columnSchedules.length > 0 && (
             <ColumnSchedules
               data={columnSchedule}
-              schedules={steelSchedules}
-              title="Steel column schedules and plates"
-              intro="One row per schedule entry. Select a plate mark for its roles, source and locations; Details shows the levels a column is drawn between and every source."
+              schedules={[...steelSchedules, ...concreteSchedules]}
+              title="Columns, plates and plan locations"
+              intro="One row per printed entry — a definition, not an installed column. Locate on plan finds the grid intersection on the plans; a plate mark opens its roles and locations; Details lists every source."
               onView={onView}
               documentId={documentId}
               levelsBySchedule={levelsBySchedule}
               notes={modelNotes}
+              onLocate={onLocate}
               searchable
             />
           )}
@@ -2490,20 +2613,6 @@ export default function DrawingSummaryPanel({ profile, documentId = null }) {
               <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                 Counts below are rows and entries printed in the drawings — definitions, not quantities.
               </Typography>
-              {concreteSchedules.length > 0 && (
-                <SupportGroup id="parking" title="Parking and concrete column schedules" expanded={expanded} onToggle={toggle}
-                  summary={`${concreteEntryCount} schedule entr${concreteEntryCount === 1 ? "y" : "ies"}`}>
-                  <ColumnSchedules
-                    data={columnSchedule}
-                    schedules={concreteSchedules}
-                    intro="Kept apart from the steel: the schedule's own note states the material of the labels it names. Labels the note does not name show their printed text only."
-                    onView={onView}
-                    documentId={documentId}
-                    levelsBySchedule={levelsBySchedule}
-                    notes={modelNotes}
-                  />
-                </SupportGroup>
-              )}
               {supportingGroups.map((group) => (
                 <SupportGroup key={group.key} id={group.key} title={group.label} expanded={expanded} onToggle={toggle}
                   summary={`${group.schedules.length} schedule${group.schedules.length === 1 ? "" : "s"}${group.rows == null ? "" : ` · ${group.rows} printed row${group.rows === 1 ? "" : "s"}`}`}>
@@ -2535,9 +2644,11 @@ export default function DrawingSummaryPanel({ profile, documentId = null }) {
       <SourceViewerDialog
         documentId={documentId}
         target={sourceTarget}
-        onClose={() => setSourceTarget(null)}
+        onClose={closeSource}
       />
-      <CompareSourcesDialog documentId={documentId} pair={comparePair} onClose={() => setComparePair(null)} />
+      <CompareSourcesDialog documentId={documentId} pair={comparePair} onClose={closeCompare} />
+      <LocateDialog documentId={documentId} request={locateRequest} onClose={closeLocate} />
     </Paper>
+    </LocationProvider>
   );
 }

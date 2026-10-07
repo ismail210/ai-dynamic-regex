@@ -13,6 +13,7 @@ import AppLayout from "./layout/AppLayout";
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const UploadExtractPage = lazy(() => import("./pages/UploadExtractPage"));
 const DrawingSummaryPage = lazy(() => import("./pages/DrawingSummaryPage"));
+const DrawingSummaryReportPage = lazy(() => import("./pages/DrawingSummaryReportPage"));
 const AnalysisResultsPage = lazy(() => import("./pages/AnalysisResultsPage"));
 const DrawingReviewPage = lazy(() => import("./pages/DrawingReviewPage"));
 const SemanticReviewPage = lazy(() => import("./pages/SemanticReviewPage"));
@@ -93,6 +94,8 @@ export default function App() {
               <Route path="/unknown" element={<RedirectWithSearch to="/review" />} />
               <Route path="/retrain" element={<RedirectWithSearch to="/training" />} />
             </Route>
+            {/* Printable report: no application shell, so a print carries no navigation. */}
+            <Route path="/drawing-summary/report" element={<DrawingSummaryReportPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>

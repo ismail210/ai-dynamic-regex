@@ -1,0 +1,63 @@
+{
+  "sets": 15,
+  "differences": [],
+  "baseline": "e32cc5b",
+  "excluded_fields": [
+    "schedule rows: cells",
+    "column entries: supports"
+  ],
+  "timings_seconds": {
+    "extract": 96.89,
+    "grid": 191.9,
+    "summary": 46.14
+  },
+  "notes": [
+    "Final protected-output comparison ran after the scope and skew-offset fixes. The later RC1 fix changes only display definition size comparison, not any compared output.",
+    "Only cells on schedule rows and supports on column entries are excluded; no production fields are dropped."
+  ],
+  "source_sha256": {
+    "backend/services/engineering/column_schedule.py": "763ec2fa4d95fe00a733000bb7012a20fc659b910c7ba7ac1ae54e5c44af625a",
+    "backend/services/engineering/column_trace.py": "d1e7a7bcca69137ceb12fff943e5df94d1e50dbb58589dcabc161225256dcbf2",
+    "backend/services/engineering/drawing_intelligence.py": "0d7080651e420d02758da47ed40145e48cf73808a4de970370a17f57d735f0bc",
+    "backend/services/engineering/drawing_summary_llm.py": "e59575d61b3eff896c1ce4b466ff2a600cab963c516af08302f67fd90f37a747",
+    "backend/services/engineering/level_review.py": "11d7b804c7bc64fc6c014c66bc11f6c6f2cbd170a1b645f027ecb4544d49b423",
+    "backend/services/engineering/schedule_grid.py": "c4f102dd0007d45f12860129b6905a7cdf62d8e70373147ab4afad0183f38704",
+    "backend/services/engineering/schedule_tables.py": "382a3beaf2190aabd769b7d2f5b17c8b694fcd3e780f1aea0bb96521d398d92e"
+  },
+  "backend": {
+    "passed": 1855,
+    "skipped": 10,
+    "subtests_passed": 529,
+    "collection_errors": 1,
+    "exit_code": 1,
+    "baseline_error": "ImportError: CompletionStatus from services.prediction.semantic_contract (also reproduces on e32cc5b)"
+  },
+  "frontend": {
+    "passed": 303,
+    "exit_code": 0,
+    "production_build_exit_code": 0
+  },
+  "report": {
+    "full_display_entries": [
+      74,
+      26,
+      7
+    ],
+    "full_pages": 12,
+    "concise_pages": 5,
+    "concise_omits_parking_rows": 74
+  },
+  "performance": {
+    "summary_seconds": 3.319,
+    "locate_cold_seconds": 7.551,
+    "locate_warm_seconds": 0.011,
+    "method": "isolated process, real artifact, FastAPI TestClient requests; no full-suite or model job running"
+  },
+  "scripted_model": {
+    "method": "llm_enhanced",
+    "error": null,
+    "latency_ms": 22313.0,
+    "dropped_claims": [],
+    "ui_llm_enabled": false
+  }
+}

@@ -61,7 +61,8 @@ class LevelReferenceTests(unittest.TestCase):
         self.assertEqual({p["token"]: p["meaning"] for p in key["parts"]}, expected["framing_key"])
         self.assertEqual([u["kind"] for u in profile["unresolved"]], expected["unresolved_kinds"])
         schedules = profile["column_schedule"]["schedules"]
-        self.assertEqual({s["name"]: s["material_group"] for s in schedules}, expected["schedule_groups"])
+        self.assertEqual({s["name"]: s["material_group"] for s in schedules if s["name"] in expected["schedule_groups"]},
+                         expected["schedule_groups"])
         for mark, (material, count) in expected["material"].items():
             found = [e for e in profile["column_schedule"]["entries"] if (e.get("material") or {}).get("mark") == mark]
             self.assertEqual((found[0]["material"]["material"], len(found)), (material, count))
@@ -83,8 +84,46 @@ class LevelReferenceTests(unittest.TestCase):
         unresolved = [[e["sheet"], e["relative_to"], e["offset"]["inches"], [lv["name"] for lv in e["levels"]]]
                       for e in profile["levels"]["plan_elevations"] if e["status"] == "unresolved"]
         self.assertEqual(unresolved, expected["unresolved_steel"])
+        if "table_only" in expected:
+            self._check_review(expected, profile)
         # Display-only: the production mark map is untouched by the cells.
         self.assertFalse(any("cells" in str(v) for v in (document.get("schedule_mark_map") or {}).values()))
+
+    def _check_review(self, expected, profile):
+        """OSSE coverage audit: table-only locations, table reconciliation,
+        plate marks, labels linked to definitions and the Level 2 review."""
+
+        column = profile["column_schedule"]
+        table_only = [[e["location_text"], e["sections"][0]["designation"], e["plate"]["printed"]]
+                      for e in column["entries"] if e.get("assignment_only")]
+        self.assertEqual(table_only, expected["table_only"])
+        title, rows, matched, only = expected["location_table"]
+        (table,) = column["location_tables"]
+        self.assertEqual([table["title"], table["rows"], table["matched"], table["assignment_only"]], [title, rows, matched, only])
+        building = next(s for s in column["schedules"] if "BUILDING" in s["name"])
+        self.assertEqual({k: building["coverage"][k] for k in expected["building_coverage"]}, expected["building_coverage"])
+        self.assertEqual(column["plate_tables"][0]["unused_marks"], expected["unused_plates"])
+        location, printed, schedule, sizes = expected["support"]
+        support = next(e for e in column["entries"] if e["location_text"] == location)["supports"][0]
+        self.assertEqual([support["printed"], support["definition"]["schedule_title"], support["definition"]["sizes"]],
+                         [printed, schedule, sizes])
+        rc1_title, rc1_count = expected["rc1_definition"]
+        self.assertEqual(len([e for e in column["entries"] if (e.get("definition") or {}).get("schedule_title") == rc1_title]),
+                         rc1_count)
+        printed_rows = {s["title"]: s["printed_rows"] for s in profile["supporting_schedules"]}
+        for title, count in expected["more_coverage"].items():
+            self.assertEqual(printed_rows[title], count, title)
+        (review,) = profile["level_reviews"]
+        spec = expected["level_review"]
+        self.assertEqual([[i["role"], i["source"]["sheet"]] for i in review["items"]], spec["roles"])
+        self.assertEqual(next(i for i in review["items"] if i["role"] == "local_annotation")["tag"]["mark"], spec["tag"])
+        check = next(c for c in review["checks"] if c["printed"])
+        self.assertEqual(sorted({p["sheet"] for p in check["printed"]}), spec["steel_printed_on"])
+        self.assertTrue(all(not c["printed"] for c in review["checks"] if c is not check))
+        status = {e["id"]: e["status"] for e in review["explanations"]}
+        self.assertEqual({k: status[k] for k in spec["explanations"]}, spec["explanations"])
+        self.assertEqual(sorted({p for s in profile["schedule_insights"] for p in s["source_pages"]}),
+                         expected["schedule_insight_pages"])
 
     def _check(self, spec):
         if not (_ROOT / spec["pdf"]).is_file():
@@ -177,6 +216,16 @@ class LevelReferenceTests(unittest.TestCase):
                               [{k: a[k] for k in ("part", "heading", "text")} for a in rows[mark]["plate_accessories"]])
         if spec.get("summary"):
             self._check_summary(spec["summary"], document, profile)
+        if (spec.get("summary") or {}).get("locate"):
+            from services.engineering.column_trace import (
+                locate_context,
+                locate_location,
+            )
+
+            context = locate_context(document, str(_ROOT / spec["pdf"]))
+            for location, (sheet, state) in spec["summary"]["locate"].items():
+                found = locate_location(context, location, "S2")
+                self.assertEqual([found["views"][0]["sheet"], found["views"][0]["state"]], [sheet, state], location)
         if spec.get("traces"):
             from services.engineering.column_trace import trace_column
 

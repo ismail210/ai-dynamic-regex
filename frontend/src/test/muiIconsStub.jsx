@@ -43,6 +43,7 @@ export const ManageSearchOutlined = IconStub;
 export const ModelTrainingOutlined = IconStub;
 export const PictureAsPdfOutlined = IconStub;
 export const PlaceOutlined = IconStub;
+export const PrintOutlined = IconStub;
 export const PlayArrowOutlined = IconStub;
 export const PlayArrowRounded = IconStub;
 export const RadioButtonUncheckedOutlined = IconStub;

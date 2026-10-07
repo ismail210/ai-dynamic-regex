@@ -35,9 +35,9 @@ logger = logging.getLogger("takeoff.drawing_summary_llm")
 # v4: typed column / plate, level, conflict, material and notation facts
 # (X / K / C / M / G ids) join the packet, and grounding also checks
 # dimensions, elevations, grid locations and forbidden certainty claims.
-SUMMARY_PROMPT_VERSION = "drawing_summary_v4"
+SUMMARY_PROMPT_VERSION = "drawing_summary_v5"
 
-SYSTEM_PROMPT = """You are a senior structural-steel estimator. You receive an EVIDENCE PACKET extracted from one project's structural drawings. Every usable fact has an id in square brackets: [X#] conflicts between two sources, [K#] schedule levels linked to plan notes, [C#] selected steel column entries with their plate, [M#] materials a schedule note states, [G#] location notation, [D#] schedule definitions, [R#] rules affecting interpretation, [U#] unresolved items.
+SYSTEM_PROMPT = """You are a senior structural-steel estimator. You receive an EVIDENCE PACKET extracted from one project's structural drawings. Every usable fact has an id in square brackets: [I#] complete coverage counts per schedule and table, [X#] disagreements between different sources, [K#] schedule levels linked to plan notes, [C#] representative column entries with their plate, [M#] materials a schedule note states, [G#] location notation, [D#] schedule definitions, [R#] rules affecting interpretation, [U#] unresolved items.
 
 Your job is to SELECT the facts an estimator needs before a steel takeoff and explain each in one short sentence. You cannot add facts.
 
@@ -45,11 +45,11 @@ RULES:
 - Cite facts only by their ids. Never write a mark, section, plate size, dimension, elevation, grid location, sheet or page that is not in the fact you cite.
 - Keep marks distinct: L1 and L1A are different marks even when the section is the same. Keep each mark in its own schedule: C1 is a column mark, CL1 an ICF lintel mark, BP1 a bearing plate mark, L1 a lintel mark.
 - A schedule entry or definition explains how to read the drawing. It is NOT a member count and NOT an installed member. Never state or estimate how many beams, columns, lintels, plates or studs there are.
-- A conflict [X#] has two printed values. Never say which is correct, never average them and never call either a typo.
+- A conflict [X#] is between different sources (a plan note, a schedule, a section), never inside one schedule. Never say which value is correct, never average them and never call either a typo.
 - An elevation difference between two levels is NOT a column or member length.
 - A column the facts call precast or concrete is not steel.
 - A grid offset is part of a location; it does not confirm where a member is placed.
-- [C#] facts are selected examples, not the complete schedule.
+- [C#] facts are selected examples, not the complete schedule; only [I#] facts give complete counts, and those count printed records, not members.
 - TYP, U.N.O. and SIM apply only to the condition they annotate.
 - "why" must say what the fact changes when reading the plans (which section or plate a callout means, which value to check, what to confirm). Do not just restate the fact.
 
@@ -59,7 +59,7 @@ Return ONLY this JSON object:
   "key_facts": [{"id": "C1", "why": "max 25 words: why this matters for takeoff"}],
   "cautions": [{"id": "X1", "why": "max 25 words: what to check or confirm"}]
 }
-key_facts: up to 8 ids of [C#], [K#], [M#], [G#], [D#] or [R#] facts. cautions: up to 5 ids of [X#], [R#] or [U#] facts."""
+key_facts: up to 8 ids of [I#], [C#], [K#], [M#], [G#], [D#] or [R#] facts. cautions: up to 5 ids of [X#], [R#] or [U#] facts."""
 
 _ITEM_SCHEMA: Dict[str, Any] = {
     "type": "array",
@@ -79,7 +79,7 @@ RESPONSE_SCHEMA: Dict[str, Any] = {
     "required": ["overview", "key_facts", "cautions"],
 }
 
-_LISTS = {"key_facts": (("C", "K", "M", "G", "D", "R"), 8), "cautions": (("X", "R", "U"), 5)}
+_LISTS = {"key_facts": (("I", "C", "K", "M", "G", "D", "R"), 8), "cautions": (("X", "R", "U"), 5)}
 _MAX_WHY_CHARS = 220
 _MAX_OVERVIEW_CHARS = 420
 # Anything the model could state as a fact: a designation, a schedule mark, a
@@ -98,7 +98,7 @@ _QUANTITY_RE = re.compile(
     r"(?<![\w/.\-\"])(?<!LEVEL\s)(?<!FLOOR\s)(?<!GRID\s)"
     r"(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|several|many)\s+"
     r"(?:[a-z-]+\s+){0,2}(?:beams?|columns?|lintels?|members?|pieces?|plates?|studs?|angles?|girders?|joists?)\b"
-    r"|\b(?:quantity|quantities|count of|total of|number of)\b",
+    r"|\b(?:quantity|quantities|(count of|total of|number of))\b",
     re.I,
 )
 
@@ -156,6 +156,12 @@ _CLAIM_RULES = (
 )
 
 
+_INSIDE_SCHEDULE_RE = re.compile(
+    r"\bschedules?\b[^.]{0,30}\b(?:has|have|contains?|shows?|lists?|gives?)\b[^.]{0,25}\b(?:conflict\w*|inconsistent|"
+    r"contradict\w*)|\b(?:conflict\w*|inconsisten\w*|contradict\w*)[^.]{0,40}\b(?:in|within|inside)\s+(?:the\s+)?"
+    r"(?:column\s+)?schedules?\b", re.IGNORECASE)
+
+
 # A value cut off mid-way: "(55' - 10" -- feet and inches without the inch
 # mark, or a bracket that never closes.
 _PARTIAL_MEASURE_RE = re.compile(r"\d+\s*['′]\s*-\s*\d+(?:\s+\d+/\d+)?(?!\s*(?:\d+/\d+\s*)?[\"″])(?!\d)")
@@ -175,9 +181,12 @@ def _claims_ok(text: str, fact: str, kind: Optional[str] = None) -> bool:
     if (kind in ("X", "overview") and re.search(r"\b(?:conflict\w*|disagree\w*|differs|differing)\b", text, re.I)
             and not re.search(r"\b(?:plan|plans|sources?|between|versus|vs\.?|against)\b", text, re.I)):
         return False
+    # ... and never inside the schedule ("the schedule has conflicting elevations").
+    if kind in ("X", "overview") and _INSIDE_SCHEDULE_RE.search(text):
+        return False
     # A fact that says precast / concrete: the text may not call those columns steel.
-    if (kind in ("M", "D", "overview") and re.search(r"\b(?:precast|concrete)\b", fact, re.I)
-            and re.search(r"\b(?:are|is|as)\s+(?:an?\s+)?(?:\w+\s+)?steel\b|\bsteel\s+columns?\b", text, re.I)
+    if (kind in ("M", "D", "I", "C", "overview") and re.search(r"\b(?:precast|concrete)\b", fact, re.I)
+            and re.search(r"\b(?:are|is|as)\s+(?:an?\s+)?(?:\w+\s+)?steel\b|\bsteel\s+columns?\b(?!\s+schedule)", text, re.I)
             and not re.search(r"\bnot\s+(?:\w+\s+)?steel\b", text, re.I)):
         return False
     return True
@@ -202,7 +211,17 @@ def _grounded(text: str, evidence: str, limit: int, kind: Optional[str] = None) 
     quantity; otherwise ``None``."""
 
     text = re.sub(r"\s+", " ", str(text or "")).strip()
-    if not text or len(text) > limit or _QUANTITY_RE.search(text) or not _claims_ok(text, evidence, kind):
+    # An [I#] fact is a count of printed records, so "count of" may name it; a member count never passes.
+    quantity = any(
+        m.group(1) is None or kind != "I"
+        or not re.match(r"\s+printed\s+(?:location\s+)?(?:entries|records|rows)\b", text[m.end():], re.IGNORECASE)
+        for m in _QUANTITY_RE.finditer(text)
+    )
+    if not text or len(text) > limit or quantity or not _claims_ok(text, evidence, kind):
+        return None
+    record_counts = re.findall(r"\b(\d+)\s+printed\s+(?:location\s+)?(?:entries|records|rows)\b", text, re.IGNORECASE)
+    if any(not re.search(rf"\b{count}\s+printed\s+(?:location\s+)?(?:entries|records|rows)\b", evidence, re.IGNORECASE)
+           for count in record_counts):
         return None
     # A mark named only to rule it out ("..., not L1") asserts nothing about it.
     asserted = re.sub(r"\bnot\s+(?:an?\s+)?[A-Z]{1,4}[-_]?\d{1,5}[A-Z]{0,2}\b", " ", text)
@@ -248,6 +267,8 @@ def summarize(
         for item in items:
             item = item if isinstance(item, dict) else {}
             fact_id = str(item.get("id") or "").strip().upper()
+            if re.fullmatch(r"\[[A-Z]\d+\]", fact_id):
+                fact_id = fact_id[1:-1]  # the model may echo a known id as "[C1]"
             why = str(item.get("why") or "")
             grounded = None
             if (fact_id in facts and fact_id.startswith(prefixes)

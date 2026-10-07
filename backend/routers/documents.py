@@ -21,6 +21,7 @@ from services.staged_pipeline import (
     analysis_response,
     load_cached_analysis,
     load_cached_extraction,
+    locate_document_location,
     run_analysis_stage,
     run_extraction_stage,
     trace_scheduled_column,
@@ -118,6 +119,50 @@ def column_trace(
     if result is None:
         raise HTTPException(status_code=404, detail="Extraction not found")
     return result
+
+
+@router.get("/documents/{document_id}/locate")
+def locate_on_plan(
+    document_id: str,
+    location: str = Query(..., min_length=1, max_length=80),
+    schedule: str | None = Query(None, max_length=20),
+):
+    """Where one printed grid location is on the plans (Drawing Summary)."""
+
+    try:
+        document_source(document_id)
+    except (FileNotFoundError, ValueError) as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    result = locate_document_location(document_id, location, schedule)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Extraction not found")
+    return result
+
+
+@router.get("/documents/{document_id}/page-crop")
+def page_crop(
+    document_id: str,
+    page: int = Query(..., ge=1, le=5000),
+    x0: float = Query(...), y0: float = Query(...), x1: float = Query(...), y1: float = Query(...),
+    width: int = Query(480, ge=64, le=1200),
+):
+    """A small PNG of one region of a page (display space, as the viewer
+    highlights it): the Drawing Summary's plan preview around a location."""
+
+    from fastapi.responses import Response
+    from services.pdf_pages import render_page_crop
+
+    try:
+        source = document_source(document_id)
+    except (FileNotFoundError, ValueError) as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    try:
+        png = render_page_crop(source, page, (x0, y0, x1, y1), width)
+    except IndexError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return Response(content=png, media_type="image/png", headers={"Cache-Control": "private, max-age=3600"})
 
 
 @router.post("/documents/{document_id}/analyze")

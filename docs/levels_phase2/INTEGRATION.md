@@ -253,3 +253,37 @@ Source tabs use page, bounds, mark/id and selected location as identity. Same-pa
 assignment and dimension regions remain distinct. Tracing one location clears
 previous plan sources; stale responses and responses after unmount are ignored.
 Offset sides retain their own boxes. Existing page rotation conversion is reused.
+
+
+### Drawing Summary completion (2026-10-07)
+
+This work continues `e32cc5b` on `bassam/drawing-summary-osse`; publication is
+feature-only. See `docs/drawing_summary/OSSE_REVIEW.md` for evidence and results.
+
+Cache contracts: extraction `3.29-summary-locate-review`, legend profile
+`legend_extractor_v6s-summary-locate-review`; summary API remains
+`drawing_intelligence_v3`. Re-extract via the existing extraction route to
+refresh both contracts; no cache-directory deletion is needed.
+
+New display data: `display_schedule_grid`, column `supports` and `definition`,
+assignment-only schedules (`source: location_table`, explicit unknown extent),
+per-schedule `coverage`, `location_tables`, `plate_tables[].unused_marks`, and
+`level_reviews` with separately sourced observations and unresolved explanations.
+These fields never enter production mark resolution or installed quantities.
+
+`GET /api/documents/{id}/locate?location=...&schedule=...` is level independent.
+It reuses existing axis, symbol, scope and scale readers. The bounded backend
+context cache is keyed by document artifact modification time and extraction
+version. Cached geometry contains values, not live PDF pages or documents.
+The frontend cache is scoped to the current profile and refreshes after a new
+extraction response, including the same document id.
+
+`GET /api/documents/{id}/page-crop?page=...&x0=...&y0=...&x1=...&y1=...&width=...`
+uses one-based pages and display-space coordinates. Empty/non-finite regions
+return 422, unknown documents/pages 404; output dimensions are bounded to
+1200px. Both new routes use existing access middleware and registered-document
+resolution. Preview blobs are fetched with authorization and released on cleanup.
+
+The standalone summary report route offers concise/full modes independent of
+accordion state. Concise mode states its omissions; full mode lists all display
+entries. Neither mode calls printed-record counts installed quantities.

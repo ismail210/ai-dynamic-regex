@@ -1,6 +1,16 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { fetchPageCrop, locateOnPlan } from "../api/client";
 import DrawingSummaryPanel from "./DrawingSummaryPanel";
+import { LocationProvider, PlanPreview } from "./drawingSummary/locate";
+import { SummaryReport } from "./drawingSummary/report";
+
+vi.mock("../api/client", async (importOriginal) => ({
+  ...(await importOriginal()),
+  locateOnPlan: vi.fn(() => Promise.resolve({ status: "plan_not_found", views: [], other_scope_views: [] })),
+  getColumnTrace: vi.fn(),
+  fetchPageCrop: vi.fn(() => Promise.resolve(new Blob(["png"], { type: "image/png" }))),
+}));
 
 // Drawing Summary review on OSSE (October 2026): reading order, conflict
 // comparison, evidence chain, level schematic, scope / association states,
@@ -149,15 +159,17 @@ function osseProfile() {
 const renderOsse = (documentId = "doc_osse") => render(<DrawingSummaryPanel profile={osseProfile()} documentId={documentId} />);
 
 describe("Drawing Summary — OSSE estimator view", () => {
-  it("reads in the estimator's order: orientation, attention, steel, levels, notation, supporting", () => {
+  it("reads in the estimator's order: scope, attention, columns, levels, notation, supporting", () => {
     renderOsse();
     const headings = screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent);
-    const order = ["Project orientation", "Items needing attention", "Steel column schedules and plates",
+    const order = ["Project and scope", "Items needing attention", "Columns, plates and plan locations",
       "Levels and supported vertical extents", "Drawing notation", "Supporting schedules and evidence"];
     expect(order.every((h) => headings.includes(h))).toBe(true);
     for (let i = 1; i < order.length; i += 1) expect(headings.indexOf(order[i])).toBeGreaterThan(headings.indexOf(order[i - 1]));
-    // Parking (concrete) and the concrete wall schedule are supporting information.
-    expect(screen.getByRole("button", { name: /Parking and concrete column schedules/ })).toBeInTheDocument();
+    // Building and parking column groups are both discoverable in the columns section.
+    const columns = within(screen.getByText("Columns, plates and plan locations").closest("section"));
+    expect(columns.getByText("OSSE BUILDING - GCS")).toBeInTheDocument();
+    expect(columns.getByText("OSSE PARKING - GCS")).toBeInTheDocument();
   });
 
   it("shows the Level 2 conflict with both values, the difference and both sources, resolving nothing", async () => {
@@ -243,10 +255,12 @@ describe("Drawing Summary — OSSE estimator view", () => {
 
   it("calls a parking C1 precast concrete with its printed size, and other concrete marks nothing", () => {
     renderOsse();
-    fireEvent.click(screen.getByRole("button", { name: /Parking and concrete column schedules/ }));
     const c1 = within(screen.getByText("A-1").closest("tr"));
     expect(c1.getByText("Precast concrete · C1")).toBeInTheDocument();
-    expect(c1.getByText("24″ × 24″")).toBeInTheDocument();
+    // A concrete column's size is its section, never a plate's W × L × T.
+    expect(c1.getByText("24″ × 24″ column section")).toBeInTheDocument();
+    const parking = screen.getByRole("table", { name: "OSSE PARKING - GCS columns" });
+    expect(within(parking).queryByRole("columnheader", { name: /W × L × T/ })).not.toBeInTheDocument();
     const rc1 = within(screen.getByText("RA.1-R13").closest("tr"));
     expect(rc1.getByText("RC1 - 24\" x 24\"")).toBeInTheDocument();
     expect(rc1.queryByText(/Precast/)).not.toBeInTheDocument();
@@ -264,7 +278,7 @@ describe("Drawing Summary — OSSE estimator view", () => {
 
   it("counts schedule entries, never installed columns, and shows no model identifiers", () => {
     renderOsse();
-    expect(screen.getByText(/1 schedule entry/)).toBeInTheDocument();
+    expect(screen.getAllByText(/1 printed entry/).length).toBeGreaterThan(0);
     expect(screen.queryByText(/installed columns?:/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/\b(?:C1|X1|K1)\b:/)).not.toBeInTheDocument();
     expect(screen.queryByText(/fact id/i)).not.toBeInTheDocument();
@@ -288,7 +302,7 @@ describe("Drawing Summary — OSSE estimator view", () => {
         printed_mark, cells: cells.map((c) => ({ ...c, text: "" })), bbox: [1, 2, 3, 4] })),
     }];
     render(<DrawingSummaryPanel profile={profile} />);
-    fireEvent.click(screen.getByRole("button", { name: /Concrete beams/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^Concrete beams/ }));
     expect(screen.getByText(/6 printed rows identified · 1 with interpreted details/)).toBeInTheDocument();
     expect(screen.getByText(/5 additional printed rows are available for review/)).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Top Bars" })).toHaveAttribute("colspan", "2");
@@ -316,4 +330,230 @@ describe("Drawing Summary — OSSE estimator view", () => {
     expect(attention.getByText("Level 2 · S122")).toBeInTheDocument();
     expect(attention.getByText("Roof · S123")).toBeInTheDocument();
   });
+});
+
+// ---------------------------------------------------------------------------
+// Locate on plan, table-only locations, the multi-source level review,
+// honest coverage counts and the printable report.
+// ---------------------------------------------------------------------------
+
+const locateResult = {
+  status: "column_symbol", location: "C.8-8.9", default: 0, other_scope_views: [],
+  views: [
+    { page: 9, sheet: "S121", view_title: null, scope: { status: "supported_by_datum", note: "Datum ties the view." },
+      state: "column_symbol", target_bbox: [100, 200, 110, 210], nearby_text: [{ text: "P1", bbox: [1, 1, 2, 2] }] },
+    { page: 10, sheet: "S122", view_title: null, scope: { status: "consistent_by_sheet_family", note: "Same family." },
+      state: "intersection_only", target_bbox: [300, 400, 306, 406], nearby_text: [] },
+  ],
+};
+
+function withReview(profile) {
+  const di = profile.drawing_intelligence;
+  const level2 = di.levels.schedule_levels.find((l) => l.name === "T.O. SLAB LEVEL 2");
+  level2.review = {
+    level: level2.name, schedule_id: "S2", plan_page: 10,
+    headline: "Level 2 elevation requires review: the general datum note states 55'-2\", while the column schedule, a local slab annotation and a section state 55'-10\". Their applicable areas have not been fully reconciled.",
+    items: [
+      { role: "schedule", label: "Column schedule · OSSE BUILDING - GCS", value: "55' - 10\"", scope: "the schedule's level line",
+        source: { page: 26, sheet: "S602", bbox: [160, 1533, 245, 1571] } },
+      { role: "general_note", label: "General datum note · S122", value: "55' - 2\"", scope: "the sheet's datum statement (no area named)",
+        source: { page: 10, sheet: "S122", bbox: [2555, 371, 2876, 555] } },
+      { role: "local_annotation", label: "Local plan annotation · S122", value: "55' - 10\"",
+        scope: "printed in a box at one place on the plan, beside slab tag S5.25",
+        tag: { mark: "S5.25", definition: { table: "SLAB/DECK SCHEDULE", page: 25, sheet: "S601", bbox: [1, 2, 3, 4],
+          cells: [{ heading: "TOTAL DEPTH", path: ["TOTAL DEPTH"], text: "5 1/4\"" }] } },
+        source: { page: 10, sheet: "S122", bbox: [1757, 1172, 1797, 1185] } },
+      { role: "section", label: "Section 1 · S421", value: "55' - 10\"", name: "T.O. SLAB LEVEL 2", scope: "names this level",
+        source: { page: 17, sheet: "S421", bbox: [550, 287, 636, 307] } },
+    ],
+    checks: [
+      { slab: "55'-2\"", offset_inches: 5.25, result: "54'-8 3/4\"", printed: [], rule_source: { page: 10, sheet: "S122", text: "TOP OF STEEL ..." } },
+      { slab: "55'-10\"", offset_inches: 5.25, result: "55'-4 3/4\"",
+        printed: [{ page: 12, sheet: "S221", bbox: [1, 1, 2, 2], name: "T.O. STEEL LEVEL 2" }] },
+    ],
+    explanations: [
+      { id: "surfaces", label: "Different physical surfaces", status: "not_supported", basis: "All name the top of slab." },
+      { id: "inconsistent", label: "An inconsistent annotation", status: "unresolved", basis: "Not confirmed." },
+    ],
+  };
+  di.level_reviews = [level2.review];
+  return profile;
+}
+
+function withTableOnly(profile) {
+  const column = profile.drawing_intelligence.column_schedule;
+  column.schedules.push({ id: "L1", name: "BASE PLATE SCHEDULE — locations not in a column schedule", layout: "location_table",
+    source: "location_table", key_role: "location", pages: [25], sheets: ["S601"], page: 25, sheet: "S601", bbox: [1, 2, 3, 4],
+    block_count: 1, levels: [], notes: [], hidden_text: [], scope_schedule_id: "S2",
+    scope_basis: "22 of its 29 rows are locations of that schedule", material_group: "steel", entry_count: 1,
+    coverage: { entries: 1, plates_linked: 1 } });
+  column.entries.push({ id: "L1-1", schedule_id: "L1", key_role: "location", assignment_only: true, page: 25, sheet: "S601",
+    bbox: [1134, 1360, 1353, 1372], mark: null, location_text: "C.4(1' - 7 3/8\")-7.5(-2' - 4 1/2\")",
+    locations: [{ raw: "C.4(1' - 7 3/8\")-7.5(-2' - 4 1/2\")", status: "parsed",
+      grids: [{ label: "C.4", offset: { raw: "1' - 7 3/8\"" } }, { label: "7.5", offset: { raw: "-2' - 4 1/2\"" } }] }],
+    listed_location_count: 1, sections: [{ designation: "HSS16X4X5/8", printed: "HSS16X4X5/8" }],
+    plate: { status: "resolved", printed: "CBP-3", type: "base plate",
+      dimensions: [{ label: "width", raw: "16\"" }, { label: "length", raw: "18\"" }, { label: "thickness", raw: "1 1/4\"" }], via: [] },
+    other_plates: [], notes: [], conflicts: [], hidden_text: [], extent: null, level_difference: null,
+    extent_note: "The table assigns a section and base plate only; it gives no levels, so the column's vertical extent is not established.",
+    material: { status: "catalog section", material: "steel" } });
+  column.location_tables = [{ title: "BASE PLATE SCHEDULE", page: 25, sheet: "S601", rows: 29, matched: { S2: 22 },
+    assignment_only: 7, assignment_only_schedule_id: "L1" }];
+  column.plate_tables = [{ kind: "base plate", title: "BASE PLATE TYPE SCHEDULE", page: 25, sheet: "S601", marks: ["CBP-2", "CBP-7"],
+    unused_marks: ["CBP-7"], rows: [{ mark: "CBP-2", dimensions: [{ label: "width", raw: "12\"" }] }, { mark: "CBP-7", dimensions: [] }] }];
+  return profile;
+}
+
+describe("Drawing Summary — OSSE locations, coverage and review", () => {
+  beforeEach(() => {
+    locateOnPlan.mockReset();
+    locateOnPlan.mockResolvedValue(locateResult);
+  });
+
+  it("locates a grid intersection on the default plan, switches plans and returns focus", async () => {
+    renderOsse("doc_locate");
+    const button = screen.getByRole("button", { name: "Locate C.8-8.9 on plan" });
+    button.focus();
+    fireEvent.click(button);
+    expect(await screen.findByText("Column symbol identified")).toBeInTheDocument();
+    expect(locateOnPlan).toHaveBeenCalledWith("doc_locate", "C.8-8.9", "S2");
+    expect(screen.getByTestId("pdf-viewer")).toHaveAttribute("data-page", "9");
+    expect(screen.getByText(/Printed at the location: P1/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "S122" }));
+    expect(screen.getByText("Grid intersection identified; column not confirmed")).toBeInTheDocument();
+    expect(screen.getByTestId("pdf-viewer")).toHaveAttribute("data-page", "10");
+    fireEvent.click(screen.getByRole("button", { name: "Close plan view" }));
+    await waitFor(() => expect(button).toHaveFocus());
+  });
+
+  it("shows a plan preview and the plan views as sources in a column's details", async () => {
+    renderOsse("doc_preview");
+    fireEvent.click(screen.getByRole("button", { name: "Show details for C.8-8.9" }));
+    URL.createObjectURL = vi.fn(() => "blob:plan-preview");
+    URL.revokeObjectURL = vi.fn();
+    const preview = await screen.findByRole("img", { name: "Plan S121 around C.8-8.9" });
+    expect(preview.getAttribute("src")).toBe("blob:plan-preview");
+    expect(fetchPageCrop).toHaveBeenCalledWith("doc_preview", 9, expect.any(Array), 360);
+    const chain = screen.getByRole("list", { name: /Evidence chain/ });
+    expect(within(chain).getByRole("button", { name: /for C.8-8.9 on S121/ })).toHaveTextContent("Plan S121");
+  });
+
+  it("lists table-only locations apart, with their source, offsets on both axes and no levels", () => {
+    render(<DrawingSummaryPanel profile={withTableOnly(osseProfile())} documentId="doc_osse" />);
+    const block = within(document.getElementById("summary-schedule-L1"));
+    expect(block.getByText(/listed only in this table/)).toBeInTheDocument();
+    expect(block.getByText("C.4(1' - 7 3/8\")-7.5(-2' - 4 1/2\")")).toBeInTheDocument();
+    expect(block.getByText("table only · no levels")).toBeInTheDocument();
+    fireEvent.click(block.getByRole("button", { name: /Show details for C.4/ }));
+    expect(block.getByText(/1' - 7 3\/8" from grid C.4, -2' - 4 1\/2" from grid 7.5/)).toBeInTheDocument();
+    expect(block.getByText(/vertical extent is not established/)).toBeInTheDocument();
+    expect(block.queryByText(/On the framing plans \(pilot\)/)).not.toBeInTheDocument();
+    // The building schedule keeps its own rows; the table-only post is not one of them.
+    expect(within(screen.getByRole("table", { name: "OSSE BUILDING - GCS columns" })).queryByText(/C\.4\(/)).not.toBeInTheDocument();
+  });
+
+  it("lists every schedule in a directory with printed counts, table matches and unused plate marks", () => {
+    render(<DrawingSummaryPanel profile={withTableOnly(osseProfile())} documentId="doc_osse" />);
+    const directory = within(screen.getByRole("table", { name: "Schedules read from this drawing set" }));
+    expect(directory.getByText("OSSE PARKING - GCS")).toBeInTheDocument();
+    expect(directory.getByText("29 rows")).toBeInTheDocument();
+    expect(directory.getByText("22 in OSSE BUILDING - GCS · 7 in no column schedule")).toBeInTheDocument();
+    expect(directory.getByText("CBP-7 not assigned to a listed location")).toBeInTheDocument();
+  });
+
+  it("shows a long schedule's preview honestly and searches the rows it hides", () => {
+    const profile = osseProfile();
+    const column = profile.drawing_intelligence.column_schedule;
+    const template = column.entries[0];
+    column.entries = [...Array.from({ length: 40 }, (_, i) => ({
+      ...template, id: `S1-${i + 1}`, location_text: `E-${i + 1}`,
+      locations: [{ raw: `E-${i + 1}`, status: "parsed", grids: [] }] })), column.entries[2]];
+    render(<DrawingSummaryPanel profile={profile} documentId="doc_osse" />);
+    expect(screen.getByText("Showing 8 of 40 printed entries — the search covers all of them")).toBeInTheDocument();
+    expect(screen.queryByText("E-40")).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Find a location, section or plate"), { target: { value: "e - 40" } });
+    expect(screen.getByText("E-40")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("1 of 41 printed entries match (1 in OSSE PARKING - GCS)");
+  });
+
+  it("reviews Level 2 with every printed source, a check of printed numbers and unconfirmed explanations", async () => {
+    render(<DrawingSummaryPanel profile={withReview(osseProfile())} documentId="doc_osse" />);
+    const attention = within(screen.getByText("Items needing attention").closest("section"));
+    expect(attention.getByText(/Level 2 elevation requires review/)).toBeInTheDocument();
+    const evidence = within(attention.getByRole("table", { name: /Printed evidence for T.O. SLAB LEVEL 2/ }));
+    expect(evidence.getByText("General datum note")).toBeInTheDocument();
+    expect(evidence.getByText("Local plan annotation")).toBeInTheDocument();
+    expect(evidence.getByText(/S5.25 per slab\/deck schedule: total depth 5 1\/4"/)).toBeInTheDocument();
+    expect(evidence.getByText("Section")).toBeInTheDocument();
+    expect(attention.getByText(/not found among the extracted level markers/)).toBeInTheDocument();
+    expect(attention.getByText(/printed as T.O. STEEL LEVEL 2 on S221/)).toBeInTheDocument();
+    expect(attention.getByText("Not supported by printed evidence")).toBeInTheDocument();
+    expect(attention.getByText("Unresolved")).toBeInTheDocument();
+    fireEvent.click(evidence.getByRole("button", { name: /S421 · PDF p. 17 for Section 1/ }));
+    expect(await screen.findByTestId("pdf-viewer")).toHaveAttribute("data-page", "17");
+  });
+
+  it("keeps a pier label and the pier schedule apart when their sizes differ", () => {
+    const profile = osseProfile();
+    const steel = profile.drawing_intelligence.column_schedule.entries[2];
+    steel.supports = [{ printed: "P1 - 18 x 20", mark: "P1", page: 26, sheet: "S602", bbox: [1, 2, 3, 4],
+      definition: { schedule_title: "PIER SCHEDULE", mark: "P1", page: 25, sheet: "S601", bbox: [5, 6, 7, 8], sizes: "differ",
+        cells: [{ heading: "WIDTH", path: ["SIZE", "WIDTH"], text: "18\"" }, { heading: "LENGTH", path: ["SIZE", "LENGTH"], text: "24\"" }] } }];
+    render(<DrawingSummaryPanel profile={profile} documentId="doc_osse" />);
+    fireEvent.click(screen.getByRole("button", { name: "Show details for C.8-8.9" }));
+    expect(screen.getByText("P1 - 18 x 20")).toBeInTheDocument();
+    expect(screen.getByText(/P1 in the Pier Schedule: width 18" · length 24" — sizes differ from the label; both are kept/))
+      .toBeInTheDocument();
+  });
+
+  it("prints every selected record: the full report lists all rows, the concise one says what it leaves out", () => {
+    const profile = withTableOnly(withReview(osseProfile()));
+    const di = profile.drawing_intelligence;
+    const { unmount } = render(<SummaryReport di={di} document={{ source_file: "OSSE - ST.pdf" }} mode="concise" />);
+    expect(screen.getByText(/2 entries of OSSE PARKING - GCS are summarised by label, not listed/)).toBeInTheDocument();
+    expect(screen.getByText("C.8-8.9")).toBeInTheDocument();
+    expect(screen.getByText("C.4(1' - 7 3/8\")-7.5(-2' - 4 1/2\")")).toBeInTheDocument();
+    expect(screen.getByText(/Level 2 elevation requires review/)).toBeInTheDocument();
+    expect(screen.queryByText("A-1")).not.toBeInTheDocument();
+    unmount();
+    render(<SummaryReport di={di} document={{ source_file: "OSSE - ST.pdf" }} mode="full" />);
+    expect(screen.getByText("A-1")).toBeInTheDocument();
+    expect(screen.getByText("RA.1-R13")).toBeInTheDocument();
+    expect(screen.getByText(/Every record the summary holds is listed/)).toBeInTheDocument();
+    expect(screen.getAllByText("12″ × 18″ × ¾″").length).toBeGreaterThan(0);
+    // A concrete column's size is never under the plate's W × L × T.
+    expect(screen.getByText(/precast concrete · C1 · 24″ × 24″ column section/)).toBeInTheDocument();
+  });
+});
+
+
+it("refreshes Locate after re-extracting the same document", async () => {
+  locateOnPlan.mockReset();
+  locateOnPlan.mockResolvedValue({ status: "plan_not_found", views: [] });
+  const first = {};
+  const preview = (profile) => <LocationProvider profile={profile}>
+    <PlanPreview documentId="same-document" location="A-2" scheduleId="S1" />
+  </LocationProvider>;
+  const { rerender } = render(preview(first));
+  await screen.findByText("Relevant plan not found");
+  expect(locateOnPlan).toHaveBeenCalledTimes(1);
+  rerender(preview(first));
+  expect(locateOnPlan).toHaveBeenCalledTimes(1);
+  locateOnPlan.mockResolvedValue({ status: "not_a_grid_location", views: [] });
+  rerender(preview({}));
+  await screen.findByText("Not a grid location");
+  expect(locateOnPlan).toHaveBeenCalledTimes(2);
+});
+
+
+it("searches column sections and plate marks across schedule groups", () => {
+  render(<DrawingSummaryPanel profile={osseProfile()} documentId="search-types" />);
+  const search = screen.getByRole("textbox", { name: "Find a location, section or plate" });
+  fireEvent.change(search, { target: { value: "W10X33" } });
+  expect(screen.getByRole("button", { name: "Show details for C.8-8.9" })).toBeInTheDocument();
+  fireEvent.change(search, { target: { value: "CBP-2" } });
+  expect(screen.getByRole("button", { name: "Show details for C.8-8.9" })).toBeInTheDocument();
+  fireEvent.change(search, { target: { value: "C1" } });
+  expect(screen.queryByRole("button", { name: "Show details for C.8-8.9" })).not.toBeInTheDocument();
+  expect(screen.getByRole("status")).not.toHaveTextContent("0 of");
 });

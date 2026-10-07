@@ -100,7 +100,7 @@ describe("DrawingSummaryPanel", () => {
   it("renders the deterministic narrative sections", () => {
     render(<DrawingSummaryPanel profile={base()} />);
     expect(screen.getByText(TITLE)).toBeInTheDocument();
-    expect(screen.getByText("Project orientation")).toBeInTheDocument();
+    expect(screen.getByText("Project and scope")).toBeInTheDocument();
     expect(screen.getByText(/28-page structural set/)).toBeInTheDocument();
     expect(screen.getByText("Steel system")).toBeInTheDocument();
     expect(screen.getByText("Typical / repeated conditions")).toBeInTheDocument();
@@ -518,23 +518,33 @@ const withColumns = (extra = {}) => evidenceProfile({ column_schedule: columnSch
 describe("DrawingSummaryPanel — column schedule", () => {
   it("shows one row per schedule column with section, location and plate", () => {
     render(<DrawingSummaryPanel profile={withColumns()} />);
-    expect(screen.getByText("Steel column schedules and plates")).toBeInTheDocument();
+    expect(screen.getByText("Columns, plates and plan locations")).toBeInTheDocument();
     expect(screen.getByText(/S600, S601 · PDF pp. 42, 43 · graphical schedule · printed in 4 parts/)).toBeInTheDocument();
     const row = within(screen.getByText("A.4'-14 +3").closest("tr"));
     expect(row.getByText("4 locations")).toBeInTheDocument();
     expect(row.getByText("W12X40")).toBeInTheDocument();
     // Width × Length × Thickness, with proper symbols; the printed value on hover.
     expect(row.getByText("1′-8″ × 1′-8″ × 1½″")).toBeInTheDocument();
-    expect(screen.getByText(/Width × Length × Thickness/)).toBeInTheDocument();
+    expect(screen.getAllByRole("columnheader", { name: "Plate — W × L × T" }).length).toBeGreaterThan(0);
     expect(row.getByText("BP7")).toBeInTheDocument();
 
+  });
+
+  it("gives each listed location of a multi-location entry its own Locate action", () => {
+    render(<DrawingSummaryPanel profile={withColumns()} documentId="doc_abc" />);
+    const row = within(screen.getByText("A.4'-14 +3").closest("tr"));
+    for (const location of ["A.4'-14", "B-4.9", "E-8(-4'-4\")", "C'-15.6"]) {
+      expect(row.getByRole("button", { name: `Locate ${location} on plan` })).toHaveTextContent(location);
+    }
+    // A column mark is never offered as a grid intersection.
+    expect(screen.queryByRole("button", { name: /Locate C-2 on plan/ })).not.toBeInTheDocument();
   });
 
   it("keeps the printed location text next to the parsed grids and offsets", () => {
     render(<DrawingSummaryPanel profile={withColumns()} />);
     fireEvent.click(screen.getByRole("button", { name: "Show details for A.4'-14 +3" }));
     expect(screen.getAllByText("A.4'-14, B-4.9, E-8(-4'-4\"), C'-15.6").length).toBeGreaterThan(0);
-    expect(screen.getByText(/Offset -4'-4" from grid 8 — direction not stated/)).toBeInTheDocument();
+    expect(screen.getByText(/Offset -4'-4" from grid 8 — the printed sign is not a direction on the sheet/)).toBeInTheDocument();
     expect(screen.getByText("Grid A.4' and grid 14")).toBeInTheDocument();
   });
 
@@ -557,7 +567,7 @@ describe("DrawingSummaryPanel — column schedule", () => {
   it("preserves expanded entries while filtering by a printed grid identifier", () => {
     render(<DrawingSummaryPanel profile={withColumns()} />);
     fireEvent.click(screen.getByRole("button", { name: "Show details for A.4'-14 +3" }));
-    const search = screen.getByRole("textbox", { name: "Find a location" });
+    const search = screen.getByRole("textbox", { name: "Find a location, section or plate" });
     fireEvent.change(search, { target: { value: "C.8-1" } });
     expect(screen.queryByText("W12X40")).not.toBeInTheDocument();
     fireEvent.change(search, { target: { value: "C'-15.6" } });
@@ -620,7 +630,7 @@ describe("DrawingSummaryPanel — column schedule", () => {
       expect(within(table).queryByRole("columnheader", { name: /qty|quantity|count|total/i })).not.toBeInTheDocument();
     }
     fireEvent.click(screen.getByRole("button", { name: "Show details for C-2" }));
-    expect(screen.getByText(/A schedule entry is a definition, not a counted member/)).toBeInTheDocument();
+    expect(screen.getByText(/a definition, not an installed column/)).toBeInTheDocument();
   });
 
   it("does not list a scheduled column mark twice", () => {
@@ -633,9 +643,9 @@ describe("DrawingSummaryPanel — column schedule", () => {
 
   it("is hidden when no column schedule was read", () => {
     render(<DrawingSummaryPanel profile={evidenceProfile({ column_schedule: { schedules: [], entries: [] } })} />);
-    expect(screen.queryByText("Steel column schedules and plates")).not.toBeInTheDocument();
+    expect(screen.queryByText("Columns, plates and plan locations")).not.toBeInTheDocument();
     render(<DrawingSummaryPanel profile={evidenceProfile()} />);
-    expect(screen.queryByText("Steel column schedules and plates")).not.toBeInTheDocument();
+    expect(screen.queryByText("Columns, plates and plan locations")).not.toBeInTheDocument();
   });
 });
 
