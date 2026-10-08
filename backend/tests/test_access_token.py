@@ -63,6 +63,17 @@ class AccessTokenTests(unittest.TestCase):
             self.assertEqual(preflight.status_code, 200)
             self.assertEqual(self.client.get("/health/live").status_code, 200)
 
+    def test_version_reports_the_image_build_behind_the_token(self):
+        built = replace(settings, api_access_token="s3cret", source_revision="abc1234", build_id="abc1234-dirty")
+        with mock.patch("app.settings", built):
+            self.assertEqual(self.client.get("/api/version").status_code, 401)
+            reply = self.client.get("/api/version", headers={"Authorization": "Bearer s3cret"}).json()
+        self.assertEqual((reply["revision"], reply["build_id"]), ("abc1234", "abc1234-dirty"))
+        self.assertTrue(reply["summary_api"].startswith("drawing_intelligence_"))
+        with mock.patch.dict(os.environ, {"APP_SOURCE_REVISION": "abc1234", "APP_BUILD_ID": "b1"}):
+            configured = Settings()
+        self.assertEqual((configured.source_revision, configured.build_id), ("abc1234", "b1"))
+
     def test_origin_regex_and_token_are_read_from_the_environment(self):
         env = {
             "CORS_ALLOW_ORIGIN_REGEX": r"^https://estima3d-[a-z0-9-]+\.vercel\.app$",

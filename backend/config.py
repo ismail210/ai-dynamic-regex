@@ -565,6 +565,12 @@ class Settings:
     api_access_token: str | None = field(
         default_factory=lambda: os.getenv("API_ACCESS_TOKEN") or None
     )
+    # Set by the container build (backend/Dockerfile) from the same values as
+    # the frontend image, and reported by /api/version.
+    source_revision: str | None = field(
+        default_factory=lambda: os.getenv("APP_SOURCE_REVISION") or None
+    )
+    build_id: str | None = field(default_factory=lambda: os.getenv("APP_BUILD_ID") or None)
 
 
 settings = Settings()

@@ -19,8 +19,8 @@ const client = axios.create({
   timeout: 35 * 60 * 1000,
 });
 
-// Development only: refuse to talk to a backend from another worktree (see
-// devIdentity.js) instead of rendering its responses as if they were ours.
+// Refuse to talk to a backend from another worktree (dev) or an incompatible
+// image (containers), see devIdentity.js, instead of rendering its responses.
 client.interceptors.request.use(async (config) => {
   const identity = await checkBackendIdentity({ fresh: config.method !== "get" });
   if (!identity.ok) {

@@ -53,10 +53,14 @@ export default defineConfig(({ command, mode }) => {
 
   return {
     plugins: [react()],
+    // Dev server: its worktree. Container builds (SOURCE_REVISION / BUILD_ID,
+    // see frontend/Dockerfile): the revision the backend image reports too.
     define:
       command === "serve" && mode !== "test"
         ? { __DEV_PAIR__: JSON.stringify(devPair(target)) }
-        : {},
+        : command === "build" && env.SOURCE_REVISION
+          ? { __APP_BUILD__: JSON.stringify({ revision: env.SOURCE_REVISION, build_id: env.BUILD_ID || null }) }
+          : {},
     test: {
       environment: "jsdom",
       globals: true,

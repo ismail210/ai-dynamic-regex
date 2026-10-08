@@ -92,3 +92,6 @@ CLAUDE.local.md
 
 # Claude Code / Playwright MCP — local session recordings
 frontend/.playwright-mcp/
+
+# Docker volume backups (contain uploaded drawings)
+backups/

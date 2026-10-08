@@ -74,3 +74,36 @@ describe("checkBackendIdentity under the dev server", () => {
     expect(listener).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("checkBackendIdentity in a container build", () => {
+  const build = { revision: "dcca690aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", build_id: "dcca690" };
+  async function load(fetchImpl) {
+    vi.resetModules();
+    vi.stubGlobal("__APP_BUILD__", build);
+    vi.stubGlobal("fetch", vi.fn(fetchImpl));
+    return import("./devIdentity");
+  }
+  const respond = (status, body) => async () => ({ ok: status === 200, status, json: async () => body });
+
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("matches the API image's revision and build from /api/version", async () => {
+    const identity = await load(respond(200, { ...build, summary_api: EXPECTED_SUMMARY_API }));
+    await expect(identity.checkBackendIdentity()).resolves.toEqual({ ok: true });
+    expect(fetch.mock.calls[0][0]).toBe("/api/version");
+  });
+
+  it("warns when the images were built from different revisions or builds", async () => {
+    const identity = await load(respond(200, { revision: "376bf59bbbbbbbbbbbbbbb", build_id: "376bf59", summary_api: EXPECTED_SUMMARY_API }));
+    const result = await identity.checkBackendIdentity();
+    expect(result.ok).toBe(true);
+    expect(result.warning).toMatch(/376bf59.*dcca690/);
+  });
+
+  it("blocks an incompatible summary API and waits for the access key on 401", async () => {
+    const old = await load(respond(200, { ...build, summary_api: "drawing_intelligence_v1" }));
+    expect((await old.checkBackendIdentity()).ok).toBe(false);
+    const locked = await load(respond(401, {}));
+    await expect(locked.checkBackendIdentity()).resolves.toEqual({ ok: true });
+  });
+});

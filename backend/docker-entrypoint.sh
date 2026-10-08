@@ -22,6 +22,14 @@ if [ -n "$DATA_DIR" ]; then
   fi
   as_app mkdir -p "$DATA_DIR/uploads" "$DATA_DIR/training"
   as_app cp -Rn /app/training.image/. "$DATA_DIR/training/"
+  # Which image seeded this disk: a later image adds new files only, so say so
+  # when its models / catalog may differ from the ones already on the disk.
+  seeded="$DATA_DIR/.seeded-from"
+  [ -e "$seeded" ] || echo "${APP_SOURCE_REVISION:-unknown}" | as_app tee "$seeded" >/dev/null
+  if [ "$(cat "$seeded")" != "${APP_SOURCE_REVISION:-unknown}" ]; then
+    echo "entrypoint: data seeded from $(cat "$seeded"), image is ${APP_SOURCE_REVISION:-unknown};" \
+      "changed files in /app/training.image are not applied (docs/DOCKER.md, Updating)." >&2
+  fi
   ln -sfn "$DATA_DIR/training" /app/training
   ln -sfn "$DATA_DIR/uploads" /app/uploads
 elif [ ! -e /app/training ]; then
