@@ -14,7 +14,9 @@
 #>
 param([switch]$Up)
 
-$ErrorActionPreference = "Stop"
+# Not "Stop": Windows PowerShell 5.1 turns docker's progress output on stderr
+# into terminating errors. Native failures are caught by $LASTEXITCODE below.
+$ErrorActionPreference = "Continue"
 $root = Split-Path -Parent $PSScriptRoot
 Push-Location $root
 try {
