@@ -68,14 +68,14 @@ export function useLocation(documentId, location, scheduleId, enabled = true) {
 
 // Result states in plain words. "Not detected" is never "absent".
 export const LOCATE_STATE = {
-  column_symbol: "Column symbol identified",
-  column_symbol_at_offset: "Column symbol identified at the printed offset",
+  column_symbol: "Possible column symbol drawn here",
+  column_symbol_at_offset: "Possible column symbol drawn at the printed offset",
   intersection_only: "Grid intersection identified; column not confirmed",
-  offset_candidate: "Column drawn at the offset; scale only printed, not validated",
+  offset_candidate: "Possible column symbol near the offset; scale only printed, not validated",
   offset_unresolved: "Offset direction or scale unresolved",
 };
 const STATUS_TEXT = {
-  column_symbol: "Column symbol identified on the plan",
+  column_symbol: "Possible column symbol drawn on the plan",
   intersection_only: "Grid intersection identified; no column symbol confirmed",
   offset_unresolved: "Offset direction or scale unresolved",
   plan_not_found: "Relevant plan not found",

@@ -1,5 +1,5 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 import EngineeringIntelligence from "./EngineeringIntelligence";
 
 describe("EngineeringIntelligence", () => {
@@ -24,6 +24,7 @@ describe("EngineeringIntelligence", () => {
     expect(screen.getByText(/LEVEL 2/)).toBeInTheDocument();
     expect(screen.getByText("conflict")).toBeInTheDocument();
     expect(screen.getByText("target sheet only")).toBeInTheDocument();
+    expect(screen.getByText("S101A · N/S401 · S401 is in the set. View N is not a printed title.")).toBeInTheDocument();
     expect(screen.getByText(/DETAIL D/)).toBeInTheDocument();
     expect(screen.getByText(/not a grid/)).toBeInTheDocument();
   });
@@ -51,8 +52,50 @@ describe("EngineeringIntelligence", () => {
         }}
       />,
     );
-    expect(screen.getByText(/1 grid labels are aligned/)).toBeInTheDocument();
-    expect(screen.getByText(/C1 → 1\/A/)).toBeInTheDocument();
-    expect(screen.getByText(/C2 → unresolved/)).toBeInTheDocument();
+    expect(screen.getByText(/1 grid labels sit on a drawn grid line/)).toBeInTheDocument();
+    expect(screen.getByText(/not a column, a beam, or a quantity/)).toBeInTheDocument();
+    expect(screen.getByText(/C1 · nearest grid crossing 1\/A/)).toBeInTheDocument();
+    expect(screen.getByText("closest crossing")).toBeInTheDocument();
+    expect(screen.getByText("no crossing nearby")).toBeInTheDocument();
+    expect(screen.queryByText("confirmed")).not.toBeInTheDocument();
+    expect(screen.queryByText(/marks allocated/)).not.toBeInTheDocument();
+  });
+
+  it("opens the printed view and does not offer a target for a sheet-only reference", () => {
+    const onView = vi.fn();
+    render(
+      <EngineeringIntelligence
+        onView={onView}
+        data={{
+          views: [],
+          references: [
+            {
+              reference_text: "N/S502", source_sheet: "S102A", source_page: 7, target_sheet: "S502",
+              target_number: "N", target_page: 21, target_view_type: "section", status: "target_view_found",
+              bbox: [1, 2, 3, 4], target_bbox: [5, 6, 7, 8],
+            },
+            {
+              reference_text: "H/S302", source_sheet: "S102D", source_page: 10, target_sheet: "S302",
+              target_number: "H", status: "target_sheet_only", bbox: [1, 2, 3, 4],
+            },
+            { reference_text: "4/S-401", source_page: 15, status: "target_missing", bbox: [1, 2, 3, 4] },
+            {
+              reference_text: "6/S-301", source_sheet: "S101", source_page: 4, target_sheet: "S-301",
+              target_number: "6", status: "ambiguous", bbox: [1, 2, 3, 4],
+            },
+          ],
+          levels: { building_levels: [] },
+          warnings: [],
+        }}
+      />,
+    );
+    expect(screen.getByText("S102A · N/S502 · section N is printed on S502.")).toBeInTheDocument();
+    expect(screen.getByText("S102D · H/S302 · S302 is in the set. View H is not a printed title.")).toBeInTheDocument();
+    expect(screen.getByText("4/S-401 · no sheet with that id.")).toBeInTheDocument();
+    expect(screen.getByText("S101 · 6/S-301 · more than one printed view uses 6.")).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /H\/S302/ })).toHaveLength(1);
+    expect(screen.getAllByRole("button", { name: /4\/S-401/ })).toHaveLength(1);
+    fireEvent.click(screen.getByRole("button", { name: "View S502 · PDF p. 21 for N/S502" }));
+    expect(onView).toHaveBeenCalledWith(expect.objectContaining({ page: 21, bbox: [5, 6, 7, 8] }));
   });
 });

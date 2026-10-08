@@ -104,7 +104,15 @@ PROFILE_VERSION = "legend_profile_v4"
 #      digit beside a foot station, are not grids. A v6t cache lacks both.
 # v6v: also Bassam's summary locate/review and related materials. A v6u cache
 #      has no level-review fields; a v6t-summary cache has no grid axes.
-EXTRACTOR_VERSION = "legend_extractor_v6v-grid-and-summary"
+# v6w: a SECTION or DETAIL title takes the view number printed beside it on
+#      the same row. A v6v cache has no such view numbers.
+#      INTELLIGENCE_VERSION is not part of this key. A change to view pairing,
+#      grid display, or reference resolution stays stale until this string moves.
+# v6x: a detail number printed above its sheet id is a callout. A v6w cache
+#      has only the inline form.
+# v6y: ``6.1/S-103`` is not the callout ``1/S-103``. A SEE note with no sheet
+#      and no view number is not a reference. A v6x cache still has both.
+EXTRACTOR_VERSION = "legend_extractor_v6y-callout-boundaries"
 SCHEMA_VERSION = "project_rule_schema_v1"
 
 STATUS_PROPOSED_INFERENCE = "PROPOSED_INFERENCE"

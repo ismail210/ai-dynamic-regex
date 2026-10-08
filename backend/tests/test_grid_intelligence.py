@@ -93,6 +93,20 @@ class GridGeometryTests(unittest.TestCase):
         self.assertEqual(allocation["allocation_status"], "confirmed")
         self.assertTrue(allocation["evidence"])
 
+    def test_two_separated_copies_of_one_mark_both_stay(self):
+        # Furley prints P24 twice, about 88 pt apart, both nearest to one crossing.
+        # Same text and same crossing are still two marks; neither is dropped.
+        layer = _page([
+            _line("A", (40, 200, 60, 216)),
+            _line("1", (400, 20, 420, 36)),
+            _line("P24", (400, 180, 430, 196)),
+            _line("P24", (400, 250, 430, 266)),
+        ], [_h(208, 100, 900), _v(410, 40, 700)])
+        marks = [item for item in layer["grid_allocations"] if item["mark"] == "P24"]
+        self.assertEqual(len(marks), 2)
+        self.assertEqual({item["grid_location"] for item in marks}, {"1/A"})
+        self.assertGreater(abs(marks[0]["bbox"][1] - marks[1]["bbox"][1]), 40)
+
     def test_equal_distance_stays_review_required(self):
         layer = _page([
             _line("A", (40, 200, 60, 216)),
