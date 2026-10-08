@@ -3,8 +3,9 @@ import { Alert, AlertTitle, Button } from "@mui/material";
 import { checkBackendIdentity, onBackendIdentity } from "../../api/devIdentity";
 
 /**
- * Development only: states why API calls are refused when this frontend is not
- * paired with its own worktree's backend. Renders nothing when paired.
+ * States why API calls are refused (or warns) when this frontend is not paired
+ * with its own backend: its worktree's in development, its image build in
+ * containers. Renders nothing when paired.
  */
 export default function BackendIdentityBanner() {
   const [identity, setIdentity] = useState(null);

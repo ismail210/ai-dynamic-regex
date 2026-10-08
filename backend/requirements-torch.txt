@@ -1,0 +1,7 @@
+# Optional: PyTorch for geometry / graph / fusion training (services/multimodal/torch_runtime.py).
+# Not part of the API image. Torch 2.2 is built against NumPy 1.x, so install it in a separate
+# training environment, not in the one created from requirements.txt.
+torch==2.2.2
+torchvision==0.17.2
+numpy==1.26.4
+scipy==1.13.1
