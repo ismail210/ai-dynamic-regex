@@ -1,0 +1,3279 @@
+{
+  "burrville:S-101A": {
+    "confirmed": [
+      {
+        "label": "1",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          321.7,
+          1311.6,
+          327.0,
+          1321.2
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1334.9,
+          "start": 1675.0,
+          "end": 2084.8
+        }
+      },
+      {
+        "label": "4",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          1933.0,
+          25.7,
+          1942.2,
+          45.8
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 1970.7,
+          "start": 674.0,
+          "end": 1440.8
+        }
+      },
+      {
+        "label": "C",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          118.3,
+          1066.6,
+          130.3,
+          1086.7
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1071.9,
+          "start": 1675.0,
+          "end": 2084.8
+        }
+      },
+      {
+        "label": "B",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          118.3,
+          667.3,
+          129.4,
+          687.5
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 701.8,
+          "start": 331.1,
+          "end": 808.0
+        }
+      }
+    ],
+    "review": [
+      {
+        "label": "A",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          1940.5,
+          104.2,
+          1947.0,
+          113.9
+        ],
+        "line": null
+      },
+      {
+        "label": "A",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          118.3,
+          256.5,
+          129.4,
+          276.6
+        ],
+        "line": null
+      }
+    ],
+    "candidate": [
+      "5",
+      "7",
+      "1",
+      "1",
+      "8",
+      "1",
+      "2",
+      "3",
+      "5",
+      "E",
+      "D",
+      "1"
+    ],
+    "intersections": [
+      "4/1",
+      "4/C"
+    ],
+    "n_ix": 2
+  },
+  "burrville:S-101B": {
+    "confirmed": [],
+    "review": [],
+    "candidate": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "E",
+      "D",
+      "C",
+      "B",
+      "A",
+      "1"
+    ],
+    "intersections": [],
+    "n_ix": 0
+  },
+  "burrville:S-102A": {
+    "confirmed": [
+      {
+        "label": "4",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          1933.0,
+          25.7,
+          1942.2,
+          45.8
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 1942.3,
+          "start": 635.6,
+          "end": 1410.4
+        }
+      },
+      {
+        "label": "C",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          118.3,
+          1066.6,
+          130.3,
+          1086.7
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1065.2,
+          "start": 1528.2,
+          "end": 2033.8
+        }
+      },
+      {
+        "label": "B",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          118.3,
+          667.3,
+          129.4,
+          687.5
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 702.0,
+          "start": 1304.2,
+          "end": 2069.8
+        }
+      }
+    ],
+    "review": [
+      {
+        "label": "A",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          1855.7,
+          127.2,
+          1862.1,
+          136.8
+        ],
+        "line": null
+      },
+      {
+        "label": "A",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          118.3,
+          256.5,
+          129.4,
+          276.6
+        ],
+        "line": null
+      }
+    ],
+    "candidate": [
+      "5",
+      "1",
+      "2",
+      "3",
+      "5",
+      "E",
+      "D",
+      "1"
+    ],
+    "intersections": [
+      "4/C",
+      "4/B"
+    ],
+    "n_ix": 2
+  },
+  "osse:S-101-O": {
+    "confirmed": [
+      {
+        "label": "C.1",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          212.5,
+          1192.0,
+          232.2,
+          1204.6
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1198.9,
+          "start": 238.0,
+          "end": 2476.4
+        }
+      },
+      {
+        "label": "C.4",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          212.5,
+          1285.4,
+          232.2,
+          1298.1
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1291.0,
+          "start": 238.0,
+          "end": 2451.1
+        }
+      },
+      {
+        "label": "C.5",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          212.5,
+          1343.3,
+          232.2,
+          1355.9
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1348.7,
+          "start": 238.0,
+          "end": 2476.4
+        }
+      },
+      {
+        "label": "C.7",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          212.5,
+          1406.2,
+          232.2,
+          1418.8
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1411.5,
+          "start": 238.0,
+          "end": 2476.4
+        }
+      },
+      {
+        "label": "2",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          430.3,
+          223.4,
+          437.4,
+          236.1
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 433.8,
+          "start": 244.8,
+          "end": 1743.4
+        }
+      },
+      {
+        "label": "6",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          845.8,
+          223.4,
+          852.8,
+          236.1
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 849.2,
+          "start": 244.8,
+          "end": 1743.4
+        }
+      },
+      {
+        "label": "8",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          1053.5,
+          223.4,
+          1060.5,
+          236.1
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 1057.1,
+          "start": 244.8,
+          "end": 1743.4
+        }
+      },
+      {
+        "label": "9",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          1157.4,
+          223.4,
+          1164.5,
+          236.1
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 1160.6,
+          "start": 244.8,
+          "end": 1743.4
+        }
+      },
+      {
+        "label": "10",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          1267.6,
+          223.5,
+          1281.6,
+          236.1
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 1274.6,
+          "start": 244.8,
+          "end": 1743.4
+        }
+      },
+      {
+        "label": "11",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          1353.5,
+          223.5,
+          1367.5,
+          236.1
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 1378.4,
+          "start": 280.8,
+          "end": 1743.4
+        }
+      },
+      {
+        "label": "12",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          1461.1,
+          223.5,
+          1475.1,
+          236.1
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 1482.4,
+          "start": 280.8,
+          "end": 1743.4
+        }
+      },
+      {
+        "label": "13",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          1579.2,
+          223.5,
+          1593.2,
+          236.1
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 1586.2,
+          "start": 244.8,
+          "end": 1743.4
+        }
+      },
+      {
+        "label": "14",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          1683.1,
+          223.5,
+          1697.1,
+          236.1
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 1690.1,
+          "start": 244.8,
+          "end": 1743.4
+        }
+      },
+      {
+        "label": "15",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          1786.9,
+          223.5,
+          1800.9,
+          236.1
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 1794.0,
+          "start": 244.8,
+          "end": 1743.4
+        }
+      },
+      {
+        "label": "16",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          1890.8,
+          223.5,
+          1904.8,
+          236.1
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 1897.8,
+          "start": 244.8,
+          "end": 1743.4
+        }
+      },
+      {
+        "label": "21",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          2326.9,
+          223.5,
+          2340.9,
+          236.1
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 2352.3,
+          "start": 280.8,
+          "end": 1743.4
+        }
+      },
+      {
+        "label": "D",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          217.8,
+          1491.7,
+          227.0,
+          1504.4
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1487.7,
+          "start": 238.0,
+          "end": 2476.4
+        }
+      },
+      {
+        "label": "C",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          217.8,
+          1158.7,
+          227.0,
+          1171.4
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1161.9,
+          "start": 741.0,
+          "end": 1182.8
+        }
+      },
+      {
+        "label": "B",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          218.0,
+          861.7,
+          226.5,
+          874.3
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 867.2,
+          "start": 238.0,
+          "end": 2451.1
+        }
+      },
+      {
+        "label": "A",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          218.0,
+          546.7,
+          226.5,
+          559.3
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 546.5,
+          "start": 238.0,
+          "end": 2470.9
+        }
+      },
+      {
+        "label": "17",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          1994.6,
+          223.5,
+          2008.6,
+          236.1
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 2001.2,
+          "start": 244.8,
+          "end": 1743.4
+        }
+      },
+      {
+        "label": "18",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          2098.6,
+          223.5,
+          2112.6,
+          236.1
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 2105.6,
+          "start": 244.8,
+          "end": 1743.4
+        }
+      },
+      {
+        "label": "19",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          2202.5,
+          223.5,
+          2216.5,
+          236.1
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 2209.4,
+          "start": 244.8,
+          "end": 1743.4
+        }
+      },
+      {
+        "label": "20",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          2252.6,
+          223.5,
+          2266.6,
+          236.1
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 2260.6,
+          "start": 222.0,
+          "end": 1743.4
+        }
+      },
+      {
+        "label": "5",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          741.8,
+          223.5,
+          748.9,
+          236.1
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 745.3,
+          "start": 244.8,
+          "end": 1743.4
+        }
+      },
+      {
+        "label": "4",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          638.0,
+          223.5,
+          645.1,
+          236.1
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 641.6,
+          "start": 244.8,
+          "end": 1743.4
+        }
+      },
+      {
+        "label": "3",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          534.1,
+          223.5,
+          541.2,
+          236.1
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 537.7,
+          "start": 244.8,
+          "end": 1743.4
+        }
+      },
+      {
+        "label": "C.3",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          212.5,
+          1251.3,
+          232.2,
+          1263.9
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1257.4,
+          "start": 238.0,
+          "end": 2476.4
+        }
+      },
+      {
+        "label": "D.3",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          212.5,
+          1521.0,
+          232.2,
+          1533.6
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1526.8,
+          "start": 238.0,
+          "end": 2476.4
+        }
+      },
+      {
+        "label": "E",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          218.0,
+          1638.0,
+          226.5,
+          1650.6
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1643.8,
+          "start": 238.0,
+          "end": 2470.9
+        }
+      },
+      {
+        "label": "D.8",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          212.5,
+          1611.0,
+          232.2,
+          1623.6
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1612.0,
+          "start": 238.0,
+          "end": 2476.4
+        }
+      },
+      {
+        "label": "B.1",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          212.8,
+          927.0,
+          231.8,
+          939.6
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 932.5,
+          "start": 238.0,
+          "end": 2451.1
+        }
+      },
+      {
+        "label": "B.5",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          212.8,
+          1026.4,
+          231.8,
+          1039.0
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1031.9,
+          "start": 238.0,
+          "end": 2451.1
+        }
+      },
+      {
+        "label": "B.9",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          212.8,
+          1108.1,
+          231.8,
+          1120.7
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1130.9,
+          "start": 264.8,
+          "end": 2417.3
+        }
+      },
+      {
+        "label": "C.2",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          212.4,
+          1221.3,
+          232.0,
+          1233.9
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1226.9,
+          "start": 238.0,
+          "end": 2451.1
+        }
+      },
+      {
+        "label": "C.45",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          208.9,
+          1321.1,
+          235.5,
+          1333.7
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1312.3,
+          "start": 261.2,
+          "end": 2451.1
+        }
+      },
+      {
+        "label": "7",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          931.7,
+          223.4,
+          938.7,
+          236.1
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 953.2,
+          "start": 280.8,
+          "end": 1601.4
+        }
+      },
+      {
+        "label": "D.6",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          212.5,
+          1579.9,
+          232.2,
+          1592.5
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1568.6,
+          "start": 1705.8,
+          "end": 2099.5
+        }
+      }
+    ],
+    "review": [
+      {
+        "label": "C.8",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          212.5,
+          1465.4,
+          232.2,
+          1478.1
+        ],
+        "line": null
+      },
+      {
+        "label": "1",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          326.4,
+          223.5,
+          333.5,
+          236.1
+        ],
+        "line": null
+      },
+      {
+        "label": "1",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          270.1,
+          530.9,
+          275.5,
+          540.6
+        ],
+        "line": null
+      },
+      {
+        "label": "1",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          230.6,
+          1867.6,
+          236.0,
+          1877.2
+        ],
+        "line": null
+      }
+    ],
+    "candidate": [
+      "1",
+      "1",
+      "N"
+    ],
+    "intersections": [
+      "2/C.1",
+      "2/C.4",
+      "2/C.5",
+      "2/C.7",
+      "2/D",
+      "2/B",
+      "2/A",
+      "2/C.3",
+      "2/D.3",
+      "2/E",
+      "2/D.8",
+      "2/B.1",
+      "2/B.5",
+      "2/B.9",
+      "2/C.2",
+      "2/C.45",
+      "6/C.1",
+      "6/C.4",
+      "6/C.5",
+      "6/C.7",
+      "6/D",
+      "6/C",
+      "6/B",
+      "6/A",
+      "6/C.3",
+      "6/D.3",
+      "6/E",
+      "6/D.8",
+      "6/B.1",
+      "6/B.5",
+      "6/B.9",
+      "6/C.2",
+      "6/C.45",
+      "8/C.1",
+      "8/C.4",
+      "8/C.5",
+      "8/C.7",
+      "8/D",
+      "8/C",
+      "8/B",
+      "8/A",
+      "8/C.3",
+      "8/D.3",
+      "8/E",
+      "8/D.8",
+      "8/B.1",
+      "8/B.5",
+      "8/B.9",
+      "8/C.2",
+      "8/C.45",
+      "9/C.1",
+      "9/C.4",
+      "9/C.5",
+      "9/C.7",
+      "9/D",
+      "9/C",
+      "9/B",
+      "9/A",
+      "9/C.3",
+      "9/D.3",
+      "9/E",
+      "9/D.8",
+      "9/B.1",
+      "9/B.5",
+      "9/B.9",
+      "9/C.2",
+      "9/C.45",
+      "10/C.1",
+      "10/C.4",
+      "10/C.5",
+      "10/C.7",
+      "10/D",
+      "10/B",
+      "10/A",
+      "10/C.3",
+      "10/D.3",
+      "10/E",
+      "10/D.8",
+      "10/B.1",
+      "10/B.5",
+      "10/B.9",
+      "10/C.2",
+      "10/C.45",
+      "11/C.1",
+      "11/C.4",
+      "11/C.5",
+      "11/C.7",
+      "11/D",
+      "11/B",
+      "11/A",
+      "11/C.3",
+      "11/D.3",
+      "11/E",
+      "11/D.8",
+      "11/B.1",
+      "11/B.5",
+      "11/B.9",
+      "11/C.2",
+      "11/C.45",
+      "12/C.1",
+      "12/C.4",
+      "12/C.5",
+      "12/C.7",
+      "12/D",
+      "12/B",
+      "12/A",
+      "12/C.3",
+      "12/D.3",
+      "12/E",
+      "12/D.8",
+      "12/B.1",
+      "12/B.5",
+      "12/B.9",
+      "12/C.2",
+      "12/C.45",
+      "13/C.1",
+      "13/C.4",
+      "13/C.5",
+      "13/C.7",
+      "13/D",
+      "13/B",
+      "13/A",
+      "13/C.3",
+      "13/D.3",
+      "13/E",
+      "13/D.8",
+      "13/B.1",
+      "13/B.5",
+      "13/B.9",
+      "13/C.2",
+      "13/C.45",
+      "14/C.1",
+      "14/C.4",
+      "14/C.5",
+      "14/C.7",
+      "14/D",
+      "14/B",
+      "14/A",
+      "14/C.3",
+      "14/D.3",
+      "14/E",
+      "14/D.8",
+      "14/B.1",
+      "14/B.5",
+      "14/B.9",
+      "14/C.2",
+      "14/C.45",
+      "14/D.6",
+      "15/C.1",
+      "15/C.4",
+      "15/C.5",
+      "15/C.7",
+      "15/D",
+      "15/B",
+      "15/A",
+      "15/C.3",
+      "15/D.3",
+      "15/E",
+      "15/D.8",
+      "15/B.1",
+      "15/B.5",
+      "15/B.9",
+      "15/C.2",
+      "15/C.45",
+      "15/D.6",
+      "16/C.1",
+      "16/C.4",
+      "16/C.5",
+      "16/C.7",
+      "16/D",
+      "16/B",
+      "16/A",
+      "16/C.3",
+      "16/D.3",
+      "16/E",
+      "16/D.8",
+      "16/B.1",
+      "16/B.5",
+      "16/B.9",
+      "16/C.2",
+      "16/C.45",
+      "16/D.6",
+      "21/C.1",
+      "21/C.4",
+      "21/C.5",
+      "21/C.7",
+      "21/D",
+      "21/B",
+      "21/A",
+      "21/C.3",
+      "21/D.3",
+      "21/E",
+      "21/D.8",
+      "21/B.1",
+      "21/B.5",
+      "21/B.9",
+      "21/C.2",
+      "21/C.45",
+      "17/C.1",
+      "17/C.4",
+      "17/C.5",
+      "17/C.7",
+      "17/D",
+      "17/B",
+      "17/A",
+      "17/C.3",
+      "17/D.3",
+      "17/E",
+      "17/D.8",
+      "17/B.1",
+      "17/B.5",
+      "17/B.9",
+      "17/C.2",
+      "17/C.45",
+      "17/D.6",
+      "18/C.1",
+      "18/C.4",
+      "18/C.5",
+      "18/C.7",
+      "18/D",
+      "18/B",
+      "18/A",
+      "18/C.3",
+      "18/D.3",
+      "18/E",
+      "18/D.8",
+      "18/B.1",
+      "18/B.5",
+      "18/B.9",
+      "18/C.2",
+      "18/C.45",
+      "18/D.6",
+      "19/C.1",
+      "19/C.4",
+      "19/C.5",
+      "19/C.7",
+      "19/D",
+      "19/B",
+      "19/A",
+      "19/C.3",
+      "19/D.3",
+      "19/E",
+      "19/D.8",
+      "19/B.1",
+      "19/B.5",
+      "19/B.9",
+      "19/C.2",
+      "19/C.45",
+      "20/C.1",
+      "20/C.4",
+      "20/C.5",
+      "20/C.7",
+      "20/D",
+      "20/B",
+      "20/A",
+      "20/C.3",
+      "20/D.3",
+      "20/E",
+      "20/D.8",
+      "20/B.1",
+      "20/B.5",
+      "20/B.9",
+      "20/C.2",
+      "20/C.45",
+      "5/C.1",
+      "5/C.4",
+      "5/C.5",
+      "5/C.7",
+      "5/D",
+      "5/C",
+      "5/B",
+      "5/A",
+      "5/C.3",
+      "5/D.3",
+      "5/E",
+      "5/D.8",
+      "5/B.1",
+      "5/B.5",
+      "5/B.9",
+      "5/C.2",
+      "5/C.45",
+      "4/C.1",
+      "4/C.4",
+      "4/C.5",
+      "4/C.7",
+      "4/D",
+      "4/B",
+      "4/A",
+      "4/C.3",
+      "4/D.3",
+      "4/E",
+      "4/D.8",
+      "4/B.1",
+      "4/B.5",
+      "4/B.9",
+      "4/C.2",
+      "4/C.45",
+      "3/C.1",
+      "3/C.4",
+      "3/C.5",
+      "3/C.7",
+      "3/D",
+      "3/B",
+      "3/A",
+      "3/C.3",
+      "3/D.3",
+      "3/E",
+      "3/D.8",
+      "3/B.1",
+      "3/B.5",
+      "3/B.9",
+      "3/C.2",
+      "3/C.45",
+      "7/C.1",
+      "7/C.4",
+      "7/C.5",
+      "7/C.7",
+      "7/D",
+      "7/C",
+      "7/B",
+      "7/A",
+      "7/C.3",
+      "7/D.3",
+      "7/D.8",
+      "7/B.1",
+      "7/B.5",
+      "7/B.9",
+      "7/C.2",
+      "7/C.45"
+    ],
+    "n_ix": 329
+  },
+  "osse:S-122-O": {
+    "confirmed": [
+      {
+        "label": "C.1",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          311.9,
+          391.1,
+          331.5,
+          403.7
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 396.7,
+          "start": 337.3,
+          "end": 2332.0
+        }
+      },
+      {
+        "label": "C.4",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          311.9,
+          764.5,
+          331.5,
+          777.1
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 770.2,
+          "start": 337.3,
+          "end": 2332.0
+        }
+      },
+      {
+        "label": "C.5",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          311.9,
+          996.4,
+          331.5,
+          1009.0
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1001.9,
+          "start": 337.3,
+          "end": 2332.0
+        }
+      },
+      {
+        "label": "C.7",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          311.9,
+          1247.5,
+          331.5,
+          1260.1
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1253.2,
+          "start": 337.3,
+          "end": 2332.0
+        }
+      },
+      {
+        "label": "C.8",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          311.9,
+          1484.5,
+          331.5,
+          1497.1
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1490.0,
+          "start": 337.3,
+          "end": 2332.0
+        }
+      },
+      {
+        "label": "D",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          317.0,
+          1589.9,
+          326.2,
+          1602.5
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1595.4,
+          "start": 337.3,
+          "end": 2332.0
+        }
+      },
+      {
+        "label": "C",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          317.0,
+          329.9,
+          326.2,
+          342.5
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 335.5,
+          "start": 337.3,
+          "end": 2332.0
+        }
+      },
+      {
+        "label": "D.2",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          311.9,
+          1691.6,
+          331.5,
+          1704.3
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1697.3,
+          "start": 337.3,
+          "end": 2332.0
+        }
+      },
+      {
+        "label": "C.3",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          311.9,
+          628.1,
+          331.5,
+          640.7
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 633.7,
+          "start": 337.3,
+          "end": 2332.0
+        }
+      },
+      {
+        "label": "C.2",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          311.6,
+          508.1,
+          331.3,
+          520.7
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 513.6,
+          "start": 337.3,
+          "end": 2332.0
+        }
+      },
+      {
+        "label": "C.45",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          308.2,
+          850.1,
+          334.8,
+          862.7
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 855.7,
+          "start": 337.3,
+          "end": 2332.0
+        }
+      },
+      {
+        "label": "3",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          1413.6,
+          297.2,
+          1419.0,
+          306.8
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 1396.8,
+          "start": 192.6,
+          "end": 1777.6
+        }
+      },
+      {
+        "label": "7",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          1321.2,
+          171.2,
+          1328.3,
+          183.9
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 1325.0,
+          "start": 169.8,
+          "end": 1777.6
+        }
+      },
+      {
+        "label": "N",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          2154.4,
+          1941.2,
+          2164.9,
+          1949.5
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 2173.8,
+          "start": 192.6,
+          "end": 1777.6
+        }
+      },
+      {
+        "label": "1",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          283.7,
+          1837.1,
+          289.1,
+          1846.8
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1849.1,
+          "start": 266.5,
+          "end": 2392.9
+        }
+      }
+    ],
+    "review": [],
+    "candidate": [],
+    "intersections": [
+      "3/C.1",
+      "3/C.4",
+      "3/C.5",
+      "3/C.7",
+      "3/C.8",
+      "3/D",
+      "3/C",
+      "3/D.2",
+      "3/C.3",
+      "3/C.2",
+      "3/C.45",
+      "7/C.1",
+      "7/C.4",
+      "7/C.5",
+      "7/C.7",
+      "7/C.8",
+      "7/D",
+      "7/C",
+      "7/D.2",
+      "7/C.3",
+      "7/C.2",
+      "7/C.45",
+      "N/C.1",
+      "N/C.4",
+      "N/C.5",
+      "N/C.7",
+      "N/C.8",
+      "N/D",
+      "N/C",
+      "N/D.2",
+      "N/C.3",
+      "N/C.2",
+      "N/C.45"
+    ],
+    "n_ix": 33
+  },
+  "struct:S101A": {
+    "confirmed": [
+      {
+        "label": "F",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          368.4,
+          681.6,
+          373.2,
+          691.2
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 699.5,
+          "start": 2230.7,
+          "end": 2660.9
+        }
+      },
+      {
+        "label": "A",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          365.8,
+          805.6,
+          371.0,
+          815.1
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 796.8,
+          "start": 157.2,
+          "end": 2660.9
+        }
+      },
+      {
+        "label": "4",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          2342.9,
+          2123.9,
+          2350.8,
+          2140.3
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 2338.7,
+          "start": 1705.9,
+          "end": 2114.9
+        }
+      },
+      {
+        "label": "6",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          2040.7,
+          2123.9,
+          2048.6,
+          2140.3
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 2041.2,
+          "start": 791.2,
+          "end": 1254.0
+        }
+      },
+      {
+        "label": "10",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          1429.1,
+          2123.9,
+          1444.8,
+          2140.3
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 1433.7,
+          "start": 311.5,
+          "end": 1407.7
+        }
+      },
+      {
+        "label": "11",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          1278.0,
+          2123.9,
+          1293.7,
+          2140.3
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 1279.1,
+          "start": 820.9,
+          "end": 1231.8
+        }
+      },
+      {
+        "label": "12",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          1126.9,
+          2123.9,
+          1142.6,
+          2140.3
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 1104.6,
+          "start": 846.7,
+          "end": 1282.1
+        }
+      },
+      {
+        "label": "16",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          523.1,
+          2123.9,
+          538.8,
+          2140.3
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 525.9,
+          "start": 311.5,
+          "end": 1371.7
+        }
+      },
+      {
+        "label": "4",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          2342.9,
+          26.9,
+          2350.8,
+          43.3
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 2357.5,
+          "start": 333.5,
+          "end": 1407.7
+        }
+      },
+      {
+        "label": "6",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          2040.7,
+          26.9,
+          2048.6,
+          43.3
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 2051.0,
+          "start": 817.2,
+          "end": 1244.5
+        }
+      },
+      {
+        "label": "11",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          1278.0,
+          26.9,
+          1293.7,
+          43.3
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 1266.0,
+          "start": 311.5,
+          "end": 1371.7
+        }
+      },
+      {
+        "label": "A",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          70.7,
+          2096.4,
+          80.1,
+          2112.8
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 2114.9,
+          "start": 63.0,
+          "end": 2979.0
+        }
+      },
+      {
+        "label": "B",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          70.7,
+          1923.9,
+          80.1,
+          1940.4
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 90.0,
+          "start": 44.9,
+          "end": 2114.9
+        }
+      },
+      {
+        "label": "C",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          69.4,
+          1751.4,
+          79.6,
+          1767.8
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1743.4,
+          "start": 2338.7,
+          "end": 2808.1
+        }
+      },
+      {
+        "label": "F",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          71.4,
+          1233.9,
+          80.1,
+          1250.4
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1246.0,
+          "start": 157.2,
+          "end": 2624.9
+        }
+      },
+      {
+        "label": "H",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          69.8,
+          888.9,
+          80.1,
+          905.4
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 898.0,
+          "start": 2230.7,
+          "end": 2624.9
+        }
+      },
+      {
+        "label": "L",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          72.2,
+          371.4,
+          80.1,
+          387.8
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 412.5,
+          "start": 1172.6,
+          "end": 2264.3
+        }
+      }
+    ],
+    "review": [
+      {
+        "label": "17",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          372.0,
+          2123.9,
+          387.7,
+          2140.3
+        ],
+        "line": null
+      },
+      {
+        "label": "18",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          220.9,
+          2123.9,
+          236.6,
+          2140.3
+        ],
+        "line": null
+      },
+      {
+        "label": "10",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          1429.1,
+          26.9,
+          1444.8,
+          43.3
+        ],
+        "line": null
+      },
+      {
+        "label": "12",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          1126.9,
+          26.9,
+          1142.6,
+          43.3
+        ],
+        "line": null
+      },
+      {
+        "label": "16",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          523.1,
+          26.9,
+          538.8,
+          43.3
+        ],
+        "line": null
+      },
+      {
+        "label": "17",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          372.0,
+          26.9,
+          387.7,
+          43.3
+        ],
+        "line": null
+      },
+      {
+        "label": "18",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          220.9,
+          26.9,
+          236.6,
+          43.3
+        ],
+        "line": null
+      },
+      {
+        "label": "J",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          73.0,
+          716.4,
+          80.1,
+          732.8
+        ],
+        "line": null
+      },
+      {
+        "label": "M",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          68.5,
+          198.9,
+          80.3,
+          215.4
+        ],
+        "line": null
+      }
+    ],
+    "candidate": [
+      "C",
+      "0",
+      "5",
+      "7",
+      "8",
+      "9",
+      "13",
+      "14",
+      "15",
+      "5",
+      "7",
+      "8",
+      "9",
+      "13",
+      "14",
+      "15",
+      "D",
+      "E",
+      "G",
+      "K"
+    ],
+    "intersections": [
+      "4/A",
+      "4/C",
+      "6/A",
+      "6/F",
+      "10/A",
+      "10/F",
+      "10/L",
+      "11/F",
+      "12/F",
+      "16/A",
+      "16/F",
+      "4/F",
+      "4/A",
+      "4/F",
+      "4/H",
+      "6/F",
+      "11/A",
+      "11/F",
+      "11/L",
+      "B/A"
+    ],
+    "n_ix": 20
+  },
+  "struct:S102C": {
+    "confirmed": [
+      {
+        "label": "A.5",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          501.0,
+          1948.9,
+          524.3,
+          1967.8
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 512.6,
+          "start": 113.8,
+          "end": 1939.2
+        }
+      },
+      {
+        "label": "B",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          598.7,
+          1948.9,
+          609.0,
+          1967.8
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 604.0,
+          "start": 113.8,
+          "end": 1939.2
+        }
+      },
+      {
+        "label": "E",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          1094.4,
+          1948.9,
+          1104.7,
+          1967.8
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 1099.7,
+          "start": 113.8,
+          "end": 1939.2
+        }
+      },
+      {
+        "label": "G",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          1224.0,
+          1948.8,
+          1236.1,
+          1967.8
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 1239.2,
+          "start": 912.8,
+          "end": 1675.0
+        }
+      },
+      {
+        "label": "K.8",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          1632.1,
+          1948.9,
+          1655.4,
+          1967.8
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 1644.0,
+          "start": 113.8,
+          "end": 1939.2
+        }
+      },
+      {
+        "label": "D",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          953.4,
+          1948.9,
+          964.6,
+          1967.8
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 959.2,
+          "start": 113.8,
+          "end": 1939.2
+        }
+      },
+      {
+        "label": "J",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          1411.4,
+          1948.8,
+          1419.2,
+          1967.8
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 1415.4,
+          "start": 113.8,
+          "end": 1939.2
+        }
+      },
+      {
+        "label": "J.5",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          1483.7,
+          1948.9,
+          1504.3,
+          1967.8
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 1486.4,
+          "start": 113.8,
+          "end": 1903.2
+        }
+      },
+      {
+        "label": "G.5",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          1330.7,
+          1948.9,
+          1355.6,
+          1967.8
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 1339.4,
+          "start": 113.8,
+          "end": 1903.2
+        }
+      },
+      {
+        "label": "C.2",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          851.6,
+          1948.9,
+          875.9,
+          1967.8
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 863.9,
+          "start": 113.8,
+          "end": 1939.2
+        }
+      },
+      {
+        "label": "J.8",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          1519.6,
+          1948.9,
+          1540.2,
+          1967.8
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 1529.7,
+          "start": 113.8,
+          "end": 1939.2
+        }
+      },
+      {
+        "label": "J.2",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          1448.0,
+          1948.9,
+          1468.7,
+          1967.8
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 1458.5,
+          "start": 113.8,
+          "end": 1939.2
+        }
+      },
+      {
+        "label": "T",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          2197.2,
+          210.2,
+          2202.0,
+          219.7
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 2218.9,
+          "start": 182.4,
+          "end": 1236.5
+        }
+      },
+      {
+        "label": "0",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          2164.2,
+          2078.8,
+          2169.4,
+          2089.7
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 2175.8,
+          "start": 146.5,
+          "end": 1236.5
+        }
+      },
+      {
+        "label": "4",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          2342.9,
+          2123.9,
+          2350.8,
+          2140.3
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 2339.1,
+          "start": 1705.6,
+          "end": 2114.5
+        }
+      },
+      {
+        "label": "6",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          2040.7,
+          2123.9,
+          2048.6,
+          2140.3
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 2070.4,
+          "start": 146.5,
+          "end": 1200.5
+        }
+      },
+      {
+        "label": "10",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          1429.1,
+          2123.9,
+          1444.8,
+          2140.3
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 1450.1,
+          "start": 1242.5,
+          "end": 1675.0
+        }
+      },
+      {
+        "label": "11",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          1278.0,
+          2123.9,
+          1293.7,
+          2140.3
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 1308.5,
+          "start": 113.8,
+          "end": 1939.2
+        }
+      },
+      {
+        "label": "13",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          976.0,
+          2123.9,
+          991.6,
+          2140.3
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 972.7,
+          "start": 921.6,
+          "end": 1447.2
+        }
+      },
+      {
+        "label": "15",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          673.9,
+          2123.9,
+          689.6,
+          2140.3
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 666.5,
+          "start": 921.6,
+          "end": 1764.8
+        }
+      },
+      {
+        "label": "4",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          2342.9,
+          26.9,
+          2350.8,
+          43.3
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 2355.6,
+          "start": 146.5,
+          "end": 1236.5
+        }
+      },
+      {
+        "label": "A",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          70.7,
+          2096.4,
+          80.1,
+          2112.8
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 2114.8,
+          "start": 63.0,
+          "end": 2979.0
+        }
+      },
+      {
+        "label": "B",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          70.7,
+          1923.9,
+          80.1,
+          1940.4
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 90.0,
+          "start": 44.9,
+          "end": 2114.9
+        }
+      },
+      {
+        "label": "M",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          68.5,
+          198.9,
+          80.3,
+          215.4
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 191.3,
+          "start": 176.0,
+          "end": 1763.5
+        }
+      }
+    ],
+    "review": [
+      {
+        "label": "C",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          840.1,
+          1948.9,
+          851.3,
+          1967.8
+        ],
+        "line": null
+      },
+      {
+        "label": "H",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          1372.9,
+          1948.9,
+          1384.1,
+          1967.8
+        ],
+        "line": null
+      },
+      {
+        "label": "K",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          1589.9,
+          1948.9,
+          1600.2,
+          1967.8
+        ],
+        "line": null
+      },
+      {
+        "label": "L",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          1678.3,
+          1948.9,
+          1686.9,
+          1967.8
+        ],
+        "line": null
+      },
+      {
+        "label": "F",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          1167.8,
+          1948.9,
+          1177.3,
+          1967.8
+        ],
+        "line": null
+      },
+      {
+        "label": "G.2",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          1257.2,
+          1948.9,
+          1282.2,
+          1967.8
+        ],
+        "line": null
+      },
+      {
+        "label": "5",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          2191.9,
+          2123.9,
+          2199.8,
+          2140.3
+        ],
+        "line": null
+      },
+      {
+        "label": "9",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          1587.8,
+          2123.9,
+          1595.7,
+          2140.3
+        ],
+        "line": null
+      },
+      {
+        "label": "12",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          1126.9,
+          2123.9,
+          1142.6,
+          2140.3
+        ],
+        "line": null
+      },
+      {
+        "label": "14",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          825.1,
+          2123.9,
+          840.8,
+          2140.3
+        ],
+        "line": null
+      },
+      {
+        "label": "16",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          523.1,
+          2123.9,
+          538.8,
+          2140.3
+        ],
+        "line": null
+      },
+      {
+        "label": "17",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          372.0,
+          2123.9,
+          387.7,
+          2140.3
+        ],
+        "line": null
+      },
+      {
+        "label": "18",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          220.9,
+          2123.9,
+          236.6,
+          2140.3
+        ],
+        "line": null
+      },
+      {
+        "label": "5",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          2191.9,
+          26.9,
+          2199.8,
+          43.3
+        ],
+        "line": null
+      },
+      {
+        "label": "6",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          2040.7,
+          26.9,
+          2048.6,
+          43.3
+        ],
+        "line": null
+      },
+      {
+        "label": "9",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          1587.8,
+          26.9,
+          1595.7,
+          43.3
+        ],
+        "line": null
+      },
+      {
+        "label": "10",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          1429.1,
+          26.9,
+          1444.8,
+          43.3
+        ],
+        "line": null
+      },
+      {
+        "label": "11",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          1278.0,
+          26.9,
+          1293.7,
+          43.3
+        ],
+        "line": null
+      },
+      {
+        "label": "12",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          1126.9,
+          26.9,
+          1142.6,
+          43.3
+        ],
+        "line": null
+      },
+      {
+        "label": "13",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          976.0,
+          26.9,
+          991.6,
+          43.3
+        ],
+        "line": null
+      },
+      {
+        "label": "14",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          825.1,
+          26.9,
+          840.8,
+          43.3
+        ],
+        "line": null
+      },
+      {
+        "label": "15",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          673.9,
+          26.9,
+          689.6,
+          43.3
+        ],
+        "line": null
+      },
+      {
+        "label": "16",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          523.1,
+          26.9,
+          538.8,
+          43.3
+        ],
+        "line": null
+      },
+      {
+        "label": "17",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          372.0,
+          26.9,
+          387.7,
+          43.3
+        ],
+        "line": null
+      },
+      {
+        "label": "18",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          220.9,
+          26.9,
+          236.6,
+          43.3
+        ],
+        "line": null
+      },
+      {
+        "label": "C",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          69.4,
+          1751.4,
+          79.6,
+          1767.8
+        ],
+        "line": null
+      },
+      {
+        "label": "F",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          71.4,
+          1233.9,
+          80.1,
+          1250.4
+        ],
+        "line": null
+      },
+      {
+        "label": "H",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          69.8,
+          888.9,
+          80.1,
+          905.4
+        ],
+        "line": null
+      },
+      {
+        "label": "K",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          70.7,
+          543.9,
+          80.1,
+          560.4
+        ],
+        "line": null
+      },
+      {
+        "label": "L",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          72.2,
+          371.4,
+          80.1,
+          387.8
+        ],
+        "line": null
+      }
+    ],
+    "candidate": [
+      "10",
+      "11",
+      "B",
+      "B",
+      "G",
+      "H",
+      "7",
+      "8",
+      "7",
+      "8",
+      "D",
+      "E",
+      "G",
+      "J"
+    ],
+    "intersections": [
+      "A.5/M",
+      "B/M",
+      "E/M",
+      "K.8/M",
+      "D/M",
+      "J/M",
+      "J.5/M",
+      "G.5/M",
+      "C.2/M",
+      "J.8/M",
+      "J.2/M",
+      "4/A",
+      "11/M",
+      "B/A"
+    ],
+    "n_ix": 14
+  },
+  "brandywine:S-110": {
+    "confirmed": [
+      {
+        "label": "A",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          357.5,
+          415.4,
+          370.1,
+          434.4
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 437.2,
+          "start": 733.8,
+          "end": 1383.8
+        }
+      },
+      {
+        "label": "E",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          357.5,
+          719.6,
+          370.1,
+          738.6
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 719.8,
+          "start": 382.0,
+          "end": 1766.0
+        }
+      },
+      {
+        "label": "E.4",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          349.6,
+          756.8,
+          377.8,
+          775.8
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 752.1,
+          "start": 382.0,
+          "end": 2086.1
+        }
+      },
+      {
+        "label": "C",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          356.9,
+          551.6,
+          370.6,
+          570.6
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 547.3,
+          "start": 382.0,
+          "end": 1383.8
+        }
+      },
+      {
+        "label": "D",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          356.9,
+          597.8,
+          370.6,
+          616.8
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 606.3,
+          "start": 382.0,
+          "end": 1559.6
+        }
+      },
+      {
+        "label": "D.1",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          349.1,
+          629.4,
+          378.5,
+          648.3
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 623.9,
+          "start": 408.6,
+          "end": 809.3
+        }
+      },
+      {
+        "label": "B.2",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          349.6,
+          453.2,
+          377.8,
+          472.2
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 456.8,
+          "start": 382.0,
+          "end": 789.5
+        }
+      },
+      {
+        "label": "5",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          375.0,
+          2121.3,
+          384.1,
+          2141.3
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 2107.1,
+          "start": 124.4,
+          "end": 2950.4
+        }
+      },
+      {
+        "label": "4",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          917.9,
+          2121.3,
+          927.0,
+          2141.3
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 880.0,
+          "start": 345.4,
+          "end": 797.6
+        }
+      },
+      {
+        "label": "3",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          1407.1,
+          2121.3,
+          1416.2,
+          2141.3
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 1438.8,
+          "start": 604.7,
+          "end": 1000.9
+        }
+      },
+      {
+        "label": "1",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          329.5,
+          1969.4,
+          336.4,
+          1981.9
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1982.6,
+          "start": 314.9,
+          "end": 2398.4
+        }
+      }
+    ],
+    "review": [
+      {
+        "label": "D",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          98.9,
+          665.9,
+          110.7,
+          686.0
+        ],
+        "line": null
+      }
+    ],
+    "candidate": [
+      "19",
+      "21",
+      "20",
+      "18",
+      "2",
+      "1",
+      "A",
+      "B",
+      "C",
+      "E"
+    ],
+    "intersections": [
+      "4/A",
+      "4/E",
+      "4/E.4",
+      "4/C",
+      "4/D",
+      "3/E",
+      "3/E.4",
+      "3/D"
+    ],
+    "n_ix": 8
+  },
+  "brandywine:S-111": {
+    "confirmed": [
+      {
+        "label": "A",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          294.2,
+          655.2,
+          306.9,
+          674.1
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 663.6,
+          "start": 318.6,
+          "end": 2368.3
+        }
+      },
+      {
+        "label": "E.4",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          286.3,
+          1463.8,
+          314.6,
+          1482.7
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1468.9,
+          "start": 318.6,
+          "end": 1112.4
+        }
+      },
+      {
+        "label": "C",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          293.6,
+          995.7,
+          307.3,
+          1014.7
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1004.0,
+          "start": 318.6,
+          "end": 2583.8
+        }
+      },
+      {
+        "label": "C.6",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          286.0,
+          1063.3,
+          315.4,
+          1082.3
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1059.6,
+          "start": 440.0,
+          "end": 1124.2
+        }
+      },
+      {
+        "label": "D.1",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          285.7,
+          1160.8,
+          315.2,
+          1179.7
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1169.2,
+          "start": 318.6,
+          "end": 1201.2
+        }
+      },
+      {
+        "label": "B.2",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          286.4,
+          749.8,
+          314.7,
+          768.7
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 754.2,
+          "start": 318.6,
+          "end": 1284.2
+        }
+      },
+      {
+        "label": "5",
+        "status": "confirmed",
+        "orientation": "vertical",
+        "bbox": [
+          375.0,
+          2121.3,
+          384.1,
+          2141.3
+        ],
+        "line": {
+          "orientation": "vertical",
+          "axis": 379.3,
+          "start": 656.9,
+          "end": 1478.9
+        }
+      },
+      {
+        "label": "B",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          98.9,
+          1485.2,
+          109.8,
+          1505.2
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1483.1,
+          "start": 548.2,
+          "end": 1057.2
+        }
+      },
+      {
+        "label": "C",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          98.9,
+          1065.2,
+          110.7,
+          1085.2
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 1074.2,
+          "start": 318.6,
+          "end": 1153.7
+        }
+      },
+      {
+        "label": "D",
+        "status": "confirmed",
+        "orientation": "horizontal",
+        "bbox": [
+          98.9,
+          665.9,
+          110.7,
+          686.0
+        ],
+        "line": {
+          "orientation": "horizontal",
+          "axis": 692.9,
+          "start": 1278.2,
+          "end": 1802.5
+        }
+      }
+    ],
+    "review": [
+      {
+        "label": "D.2",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          285.7,
+          1197.8,
+          315.2,
+          1216.8
+        ],
+        "line": null
+      },
+      {
+        "label": "1",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          2414.8,
+          2121.3,
+          2423.9,
+          2141.3
+        ],
+        "line": null
+      },
+      {
+        "label": "1",
+        "status": "review_required",
+        "orientation": "unknown",
+        "bbox": [
+          398.6,
+          1916.4,
+          405.6,
+          1928.9
+        ],
+        "line": null
+      }
+    ],
+    "candidate": [
+      "4",
+      "3",
+      "2",
+      "A",
+      "E"
+    ],
+    "intersections": [
+      "5/A",
+      "5/E.4",
+      "5/C",
+      "5/D.1",
+      "5/B.2",
+      "5/C"
+    ],
+    "n_ix": 6
+  }
+}

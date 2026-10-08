@@ -1,0 +1,121 @@
+{
+  "stats": {
+    "sheet_id": {
+      "correct": 40,
+      "wrong": 0,
+      "unresolved": 0
+    },
+    "title": {
+      "correct": 40,
+      "wrong": 0,
+      "unresolved": 0
+    },
+    "issue": {
+      "correct": 40,
+      "wrong": 0,
+      "unresolved": 0
+    },
+    "issue_date": {
+      "correct": 40,
+      "wrong": 0,
+      "unresolved": 0
+    },
+    "scale": {
+      "correct": 40,
+      "wrong": 0,
+      "unresolved": 0
+    },
+    "revision": {
+      "correct": 23,
+      "wrong": 0,
+      "unresolved": 0
+    },
+    "legacy_sheet_id": {
+      "correct": 35,
+      "wrong": 5,
+      "unresolved": 0
+    }
+  },
+  "layouts": {
+    "furley": {
+      "layout": "right_column",
+      "stable_text_count": 21,
+      "slot": [
+        0.952,
+        0.943
+      ],
+      "pages_in_slot": 24,
+      "pages": 24
+    },
+    "burrville": {
+      "layout": "right_column",
+      "stable_text_count": 54,
+      "slot": [
+        0.942,
+        0.932
+      ],
+      "pages_in_slot": 29,
+      "pages": 29
+    },
+    "brandywine": {
+      "layout": "right_column",
+      "stable_text_count": 75,
+      "slot": [
+        0.936,
+        0.933
+      ],
+      "pages_in_slot": 43,
+      "pages": 43
+    },
+    "springhill": {
+      "layout": "right_column",
+      "stable_text_count": 69,
+      "slot": [
+        0.942,
+        0.932
+      ],
+      "pages_in_slot": 28,
+      "pages": 28
+    },
+    "osse": {
+      "layout": "right_column",
+      "stable_text_count": 22,
+      "slot": [
+        0.937,
+        0.94
+      ],
+      "pages_in_slot": 26,
+      "pages": 26
+    },
+    "yellowspring": {
+      "layout": "right_column",
+      "stable_text_count": 60,
+      "slot": [
+        0.953,
+        0.97
+      ],
+      "pages_in_slot": 40,
+      "pages": 40
+    },
+    "washlatin": {
+      "layout": "bottom_strip",
+      "stable_text_count": 36,
+      "slot": [
+        0.971,
+        0.976
+      ],
+      "pages_in_slot": 23,
+      "pages": 23
+    },
+    "fortdavis": {
+      "layout": "right_column",
+      "stable_text_count": 55,
+      "slot": [
+        0.942,
+        0.933
+      ],
+      "pages_in_slot": 20,
+      "pages": 20
+    }
+  }
+}

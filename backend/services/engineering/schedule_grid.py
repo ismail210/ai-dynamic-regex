@@ -19,7 +19,14 @@ from typing import Any, Callable, Dict, Iterable, List, Optional
 from services.engineering.drawing_intelligence import _DEMO_RE, _EXISTING_RE, _NEW_RE
 from services.engineering.member_geometry import _union_bbox as _union_boxes
 from services.engineering.column_schedule import _NOT_PLATE_GROUP_RE as NOT_PLATE_GROUP_RE
-from services.engineering.column_schedule import _band_key, band_readings, build_column_schedules, parse_dimension
+from services.engineering.column_schedule import (
+    _band_key,
+    band_readings,
+    build_column_schedules,
+    parse_dimension,
+    split_locations,
+)
+from services.engineering.context_scope import drawing_title_by_page
 from services.engineering.schedule_tables import (
     MARK_HEADERS,
     SIZE_HEADERS,
@@ -463,6 +470,102 @@ def build_document_schedule_grids(
     return attach_resolved_plates(merged)
 
 
+def column_level_endpoints(grids: Iterable[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Named levels a scheduled column starts and stops at, as printed.
+
+    A section printed in the band between two level lines runs from the lower
+    line to the upper one. Bands of one schedule column that touch join into a
+    single run; a missing band is a gap, and a band with no level line on an
+    end leaves that end open. No elevation is converted or subtracted.
+    """
+
+    endpoints: List[Dict[str, Any]] = []
+    for grid in grids:
+        order = {line["name"]: index for index, line in enumerate(grid.get("level_lines") or [])}
+        if not order:
+            continue
+        bands: Dict[str, List[tuple]] = {}
+        for row in grid.get("rows") or []:
+            span = row.get("level_span")
+            if not span or row.get("mark_role") != "grid_location":
+                continue
+            upper, lower = span["upper"], span["lower"]
+            top = order[upper["name"]] if upper else -1
+            bottom = order[lower["name"]] if lower else len(order)
+            bands.setdefault(row["mark"], []).append((top, bottom, upper, lower, row["section"]))
+        for location, found in bands.items():
+            found.sort(key=lambda band: band[0])
+            joined = all(a[1] == b[0] for a, b in zip(found, found[1:]))
+            start, stop = found[-1][3], found[0][2]
+            endpoints.append(
+                {
+                    "page": grid["page"],
+                    "location_text": location,
+                    "sections": sorted({band[4] for band in found}),
+                    "bands": len(found),
+                    "start_level": start,
+                    "stop_level": stop,
+                    "status": "gap" if not joined else "open_end" if not (start and stop) else "complete",
+                }
+            )
+    return endpoints
+
+
+# Graphic scale bar printed after a sheet title: ``8' 4' 16' 24' 0'``.
+_SCALE_BAR_TAIL_RE = re.compile(r"(?:\s+\d+'){2,}\s*$")
+
+
+def link_level_names_to_plans(
+    document: Dict[str, Any], grids: Iterable[Dict[str, Any]]
+) -> List[Dict[str, Any]]:
+    """Plan sheets whose drawing title names a level printed in a schedule.
+
+    The link is the printed level name found whole in the title, with the
+    schedule's own printed elevation text. No synonym is guessed (``HIGH ROOF``
+    is not ``LEVEL 4``), a title naming two levels is ambiguous, and nothing
+    is measured: no height, scale, or column length comes from this.
+    """
+
+    levels: Dict[str, Dict[str, Any]] = {}
+    for grid in grids:
+        for line in grid.get("level_lines") or []:
+            found = levels.setdefault(line["name"], {"elevations": set(), "pages": set()})
+            found["elevations"].add(line["elevation_text"])
+            found["pages"].add(int(grid.get("page") or 0))
+    if not levels:
+        return []
+    links: List[Dict[str, Any]] = []
+    for page, title in sorted(drawing_title_by_page(document).items()):
+        title = _SCALE_BAR_TAIL_RE.sub("", " ".join(title.upper().split()))
+        matches = [
+            name
+            for name in levels
+            if re.search(rf"(?<![A-Z0-9]){re.escape(name)}(?![A-Z0-9])", title)
+        ]
+        matches = [
+            name for name in matches
+            if not any(name != other and name in other for other in matches)
+        ]
+        if not matches:
+            continue
+        if len(matches) > 1:
+            links.append({"page": page, "title": title, "status": "ambiguous", "candidates": sorted(matches)})
+            continue
+        found = levels[matches[0]]
+        elevations = sorted(found["elevations"])
+        links.append(
+            {
+                "page": page,
+                "title": title,
+                "level_name": matches[0],
+                "elevation_text": elevations[0] if len(elevations) == 1 else None,
+                "status": "linked" if len(elevations) == 1 else "conflicting_elevation",
+                "schedule_pages": sorted(found["pages"]),
+            }
+        )
+    return links
+
+
 def attach_schedule_grid(
     document: Dict[str, Any], *, pdf_path: Optional[str] = None
 ) -> Dict[str, Any]:
@@ -477,6 +580,8 @@ def attach_schedule_grid(
     records = read_ruled_tables(pdf_path, words) if pdf_path else []
     grids = build_document_schedule_grids(words, pdf_path=pdf_path, ruled_records=records)
     document["schedule_grid"] = grids
+    document["level_links"] = link_level_names_to_plans(document, grids)
+    document["column_level_endpoints"] = column_level_endpoints(grids)
     # Display-only: SLAB/DECK, MAT FOUNDATION and similar tables for the
     # Drawing Summary. Never part of ``schedule_grid`` or the mark map.
     document["display_schedule_grid"] = _display_grids(grids, records, pdf_path, words) if pdf_path else []
@@ -764,6 +869,18 @@ def _ruled_rows_grid(
             headed=[(role, cells[column]) for column, role in dim_cols] or None,
             plate_schedule=plate_schedule,
         )
+        if kind == "pier":
+            # A masonry/concrete pier width is not a steel plate. Length and
+            # thickness stay empty when the sheet does not print them.
+            # ``plate_text`` keeps the raw width cell; ``size_text`` keeps the
+            # reinforcement. Neither becomes a section or a quantity.
+            row["plate_role"] = None
+            dims = (row.get("parsed_plate") or {}).get("dimensions") or {}
+            if row.get("plate_status") == "present" and not all(
+                dims.get(name) for name in ("length", "width", "thickness")
+            ):
+                row["plate_status"] = "unresolved"
+                row["parsed_plate"]["uncertain"] = True
         rows.append(row)
     return {
         "page": record["page"],
@@ -795,12 +912,35 @@ _LOCATION_DIMENSION_RE = re.compile(
     rf"|\d+(?:\s+\d+/\d+)?\s*{_INCH_MARK}"
     rf")$"
 )
+# Primes, single or double, are part of the printed grid name (``F"``, ``K.9'``).
 _GRID_ATOM = (
-    rf"(?:[A-Z][A-Z0-9]*(?:\.[A-Z0-9]+)*|\d+(?:\.[A-Z0-9]+)*)(?:{_FOOT_MARK}+)?"
+    rf"(?:[A-Z][A-Z0-9]*(?:\.[A-Z0-9]+)*|\d+(?:\.[A-Z0-9]+)*)"
+    rf"(?:{_FOOT_MARK}+|{_INCH_MARK}+)?"
 )
 _ONE_GRID_RE = re.compile(rf"^{_GRID_ATOM}$", re.IGNORECASE)
 _TWO_GRID_RE = re.compile(
     rf"^(?P<a>{_GRID_ATOM})\s*-\s*(?P<b>{_GRID_ATOM})$", re.IGNORECASE
+)
+# A grid offset in parentheses beside its grid: ``E-8(-4'-4")``, ``C.6(1'-10")-1``.
+# A direction word is kept only when the cell prints one inside the parentheses.
+_OFFSET_DIRECTIONS = (
+    r"H|V|N|S|E|W|LEFT|RIGHT|UP|DOWN|HORIZ(?:ONTAL)?|VERT(?:ICAL)?"
+)
+
+
+def _paren_offset(tag: str) -> str:
+    return (
+        rf"(?:\(\s*(?P<o{tag}>[+-]?\s*(?:"
+        rf"\d{{1,4}}\s*{_FOOT_MARK}(?:\s*-?\s*{_INCH_BODY}\s*{_INCH_MARK})?"
+        rf"|{_INCH_BODY}\s*{_INCH_MARK}"
+        rf"))(?:\s+(?P<d{tag}>{_OFFSET_DIRECTIONS}))?\s*\))?"
+    )
+
+
+_PAREN_LOCATION_RE = re.compile(
+    rf"^(?P<g1>{_GRID_ATOM})\s*{_paren_offset('1')}"
+    rf"(?:\s*-\s*(?P<g2>{_GRID_ATOM})\s*{_paren_offset('2')})?$",
+    re.IGNORECASE,
 )
 _SIGNED_OFFSET_RE = re.compile(
     rf"\s*(?P<signed>[+-]\s*(?:"
@@ -809,7 +949,7 @@ _SIGNED_OFFSET_RE = re.compile(
     rf"))\s*$",
     re.IGNORECASE,
 )
-_NUMERIC_PRIME_RE = re.compile(rf"^\d+{_FOOT_MARK}+$")
+_NUMERIC_PRIME_RE = re.compile(rf"^\d+(?:{_FOOT_MARK}+|{_INCH_MARK}+)$")
 _OFFSET_LABELS = frozenset({"OFFSET", "OFFSETS", "GRID OFFSET"})
 
 
@@ -826,11 +966,7 @@ def parse_column_location(text: str) -> Dict[str, Any]:
         return {"raw": "", "kind": "unparsed", "occurrences": [], "uncertain": True}
     if _LOCATION_DIMENSION_RE.fullmatch(raw):
         return {"raw": raw, "kind": "dimension", "occurrences": [], "uncertain": False}
-    pieces = (
-        [part.strip() for part in re.split(r"\s*[,;]\s*", raw) if part.strip()]
-        if re.search(r"[,;]", raw)
-        else [raw]
-    )
+    pieces = split_locations(raw)
     occurrences = [_dedupe_location_piece(piece) for piece in pieces]
     occurrences = _dedupe_location_occurrences(occurrences)
     uncertain = any(item["uncertain"] for item in occurrences) or not occurrences
@@ -852,9 +988,30 @@ def _dedupe_location_piece(piece: str) -> Dict[str, Any]:
 def _parse_location_piece(piece: str) -> Dict[str, Any]:
     if _LOCATION_DIMENSION_RE.fullmatch(piece):
         return {"raw": piece, "grids": [], "offset": None, "uncertain": True}
+    paren = _PAREN_LOCATION_RE.match(piece) if "(" in piece else None
+    if paren and (paren["o1"] or paren["o2"]):
+        grids = [grid for grid in (paren["g1"], paren["g2"]) if grid]
+        return {
+            "raw": piece,
+            "grids": grids,
+            "offset": None,
+            "grid_offsets": [
+                {
+                    "grid": paren[f"g{tag}"],
+                    "offset": " ".join(paren[f"o{tag}"].split()),
+                    "direction": paren[f"d{tag}"],
+                }
+                for tag in ("1", "2")
+                if paren[f"o{tag}"]
+            ],
+            "uncertain": any(_NUMERIC_PRIME_RE.fullmatch(grid) for grid in grids),
+        }
     offset = None
     body = piece
     match = _SIGNED_OFFSET_RE.search(piece)
+    # A sign glued to the grid (``D"-3"``) is the grid hyphen, not an offset.
+    if match and match.start() == match.start("signed") and _grids_of(piece)[1]:
+        match = None
     if match:
         offset = match.group("signed").strip()
         body = piece[: match.start()].strip()
@@ -887,7 +1044,12 @@ def _dedupe_location_occurrences(items: List[Dict[str, Any]]) -> List[Dict[str, 
         if not item["grids"]:
             kept.append(item)
             continue
-        key = (tuple(item["grids"]), item["offset"], item["uncertain"])
+        key = (
+            tuple(item["grids"]),
+            item["offset"],
+            item["uncertain"],
+            str(item.get("grid_offsets")),
+        )
         if key in seen:
             continue
         seen.add(key)
@@ -905,6 +1067,7 @@ def _apply_location_offset(
         not offset_text
         or len(occurrences) != 1
         or occurrences[0].get("offset")
+        or occurrences[0].get("grid_offsets")
     ):
         return parsed
     return {
@@ -913,9 +1076,12 @@ def _apply_location_offset(
     }
 
 
-# Leading datum on a transposed column-schedule row label, as printed:
-# ``14' - 6" GROUND LEVEL``. A datum later in the label is not a prefix.
-_TRANSPOSED_LEVEL_DATUM_RE = re.compile(r"\d+' - \d+\"")
+# Leading architectural elevation on a transposed row label. Spaces around
+# the dash are optional (``14'-0"`` and ``14' - 0"``); a fraction may follow
+# the inches. A datum that is not a single leading prefix stays unresolved.
+_TRANSPOSED_LEVEL_DATUM_RE = re.compile(
+    r"-?\d+\s*'\s*-\s*\d+(?:\s+\d+/\d+)?\s*\""
+)
 
 
 def _split_transposed_level_label(level: str) -> Dict[str, Any]:
@@ -961,6 +1127,22 @@ def attach_level_bands(grids: List[Dict[str, Any]], column_schedules: Dict[str, 
                 band.update(level=reading["level"], elevation_of=reading["elevation_of"], name_of=reading["name_of"])
 
 
+def _level_span(record: Dict[str, Any], cell: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """Paired level lines on the upper and lower edge of this cell's band."""
+
+    lines, band = record.get("level_lines") or [], cell.get("band")
+    if not lines or not band:
+        return None
+
+    def at(edge: float) -> Optional[Dict[str, str]]:
+        line = min(lines, key=lambda item: abs(item["edge"] - edge))
+        if abs(line["edge"] - edge) > 2.0:
+            return None
+        return {"name": line["name"], "elevation_text": line["elevation_text"]}
+
+    return {"upper": at(band[0]), "lower": at(band[1])}
+
+
 def _transposed_grid(
     record: Dict[str, Any], catalog_fn: CatalogFn
 ) -> Optional[Dict[str, Any]]:
@@ -1003,6 +1185,12 @@ def _transposed_grid(
         if not section:
             continue
         level = cell["row_label"]
+        # level_band is the row contract. level_span is extra evidence from
+        # the paired lines on this cell's edges; it does not replace the band.
+        level_fields = _split_transposed_level_label(level)
+        span = _level_span(record, cell)
+        if span:
+            level_fields["level_span"] = span
         rows.append(
             {
                 "mark": location,
@@ -1011,7 +1199,7 @@ def _transposed_grid(
                 "section": section,
                 "catalog_valid": True,
                 "level": level,
-                **_split_transposed_level_label(level),
+                **level_fields,
                 "plate_text": "",
                 "plate_role": None,
                 "member_plate_roles": [],
@@ -1030,7 +1218,7 @@ def _transposed_grid(
         if extra:
             row["parsed_location"] = _apply_location_offset(row["parsed_location"], extra)
         _apply_plate_metadata(row)
-    return {
+    grid = {
         "page": record["page"],
         "kind": "column",
         "rows": rows,
@@ -1039,6 +1227,9 @@ def _transposed_grid(
         "title": record["title"],
         "bbox": record["bbox"],
     }
+    if record.get("level_lines"):
+        grid["level_lines"] = record["level_lines"]
+    return grid
 
 
 def schedule_mark_crosscheck(document: Dict[str, Any]) -> Dict[str, Any]:
@@ -1321,6 +1512,17 @@ def _auxiliary_size_display(text: str) -> str:
     return ""
 
 
+def _short_unparsed_display(raw: str) -> str:
+    """A short SIZE cell with no parsed dimension, kept as its own text.
+
+    ``N/A`` in that cell is an empty angle or plate, not a size.
+    """
+
+    if not raw or len(raw) > 40 or re.search(r"\bN/?A\b", raw, re.IGNORECASE):
+        return ""
+    return raw
+
+
 def resolve_auxiliary_schedule_mark(
     text: str,
     document: Optional[Dict[str, Any]],
@@ -1362,9 +1564,7 @@ def resolve_auxiliary_schedule_mark(
         ):
             plate_text = ""
         raw_display = plate_text or size_text
-        display = _auxiliary_size_display(raw_display) or (
-            raw_display if raw_display and len(raw_display) <= 40 else ""
-        )
+        display = _auxiliary_size_display(raw_display) or _short_unparsed_display(raw_display)
         kind = role if role in {"base_plate", "bearing_plate"} else "plate"
         if not display or _EMPTY_PLATE_RE.fullmatch(display) or _plate_not_applicable(display):
             return {
@@ -1403,9 +1603,7 @@ def resolve_auxiliary_schedule_mark(
     if plate_text and _EMPTY_PLATE_RE.fullmatch(plate_text):
         plate_text = ""
     raw_display = plate_text or size_text
-    display = _auxiliary_size_display(raw_display) or (
-        raw_display if raw_display and len(raw_display) <= 40 else ""
-    )
+    display = _auxiliary_size_display(raw_display) or _short_unparsed_display(raw_display)
     if not display or _EMPTY_PLATE_RE.fullmatch(display):
         return {
             "mark": mark,
@@ -1507,6 +1705,7 @@ def _grids_on_page(
             body_rows.append(rows[index])
             last_y = rows[index]["y"]
             index += 1
+        body_rows = _with_wrapped_lines(body_rows)
         for bands, kind_hint in all_groups:
             _kind, plate_role, title = _schedule_kind(rows, header_index)
             if kind_hint:
@@ -1702,6 +1901,106 @@ def _compact_mark(text: Any) -> str:
     return re.sub(r"\s+", "", str(text or "")).upper()
 
 
+def _line_has_schedule_mark(words: List[dict]) -> bool:
+    for word in words:
+        compact = _compact_mark(word.get("text"))
+        if compact and (
+            _LEGACY_ROW_MARK_RE.fullmatch(compact) or is_schedule_table_mark(compact)
+        ):
+            return True
+    return False
+
+
+_WRAP_STOP_RE = re.compile(r"\b(?:SCHEDULE|NOTES?)\b", re.IGNORECASE)
+
+
+def _read_line(word: dict, line: int) -> dict:
+    copied = dict(word)
+    copied["_read_line"] = line
+    return copied
+
+
+def _reading_order(word: dict) -> tuple:
+    return (int(word.get("_read_line") or 0), float(word["bbox"][0]))
+
+
+def _is_wrapped_continuation(words: List[dict]) -> bool:
+    """A later baseline of the same cell, not the next table title or a note."""
+
+    if _line_has_schedule_mark(words) or _WRAP_STOP_RE.search(_text(words)):
+        return False
+    return True
+
+
+def _xspan(words: List[dict]) -> Optional[tuple]:
+    xs = [float(word["bbox"][0]) for word in words if word.get("bbox")]
+    if not xs:
+        return None
+    return min(xs), max(xs)
+
+
+def _spans_overlap(left: Optional[tuple], right: Optional[tuple]) -> bool:
+    if left is None or right is None:
+        return False
+    return left[0] <= right[1] + _BAND_LEFT_SLACK and right[0] <= left[1] + _BAND_LEFT_SLACK
+
+
+def _with_wrapped_lines(body_rows: List[dict]) -> List[dict]:
+    """Join a following line that has no mark into the mark line it belongs to.
+
+    A wrapped stirrup or ``WELDED TO PLATE`` sits in the same ruled cell, on
+    the next baseline. It joins only the nearest line that overlaps its x span
+    and already has a schedule mark, and only within ``_ROW_GAP``. A line in
+    another table, the next mark, a schedule title, or a NOTES line is left
+    alone. Continuation words keep a later reading line so they follow the
+    first line instead of interleaving by x.
+    """
+
+    merged: List[dict] = []
+    for row in body_rows:
+        words = list(row["words"])
+        attached = False
+        if _is_wrapped_continuation(words):
+            span = _xspan(words)
+            for prev in reversed(merged):
+                if not _spans_overlap(_xspan(prev["words"]), span):
+                    continue
+                last_y = float(prev.get("_last_y", prev["y"]))
+                if (
+                    _line_has_schedule_mark(prev["words"])
+                    and 0 < float(row["y"]) - last_y <= _ROW_GAP
+                ):
+                    line = max(int(word.get("_read_line") or 0) for word in prev["words"]) + 1
+                    prev["words"] = list(prev["words"]) + [_read_line(word, line) for word in words]
+                    prev["_last_y"] = float(row["y"])
+                    attached = True
+                break
+        if not attached:
+            merged.append({
+                **row,
+                "words": [_read_line(word, 0) for word in words],
+                "_last_y": float(row["y"]),
+            })
+    return merged
+
+
+def _words_in_header_span(words: List[dict], bands: Dict[str, float]) -> List[dict]:
+    """Body words from the MARK header through the rightmost header.
+
+    Words further left or right are a neighboring table on the same line.
+    The slack is the same window the non-auxiliary row already uses.
+    """
+
+    if "mark" not in bands:
+        return list(words)
+    mark_x = float(bands["mark"])
+    right_x = max(float(value) for value in bands.values())
+    return [
+        word for word in words
+        if mark_x - _BAND_LEFT_SLACK <= float(word["bbox"][0]) <= right_x + _BAND_RIGHT_SLACK
+    ]
+
+
 def _split_row(
     words: List[dict], bands: Dict[str, float], mark_re: "re.Pattern[str]"
 ) -> Optional[tuple]:
@@ -1711,7 +2010,7 @@ def _split_row(
     """
 
     cells: Dict[str, List[dict]] = {name: [] for name in bands}
-    for word in sorted(words, key=lambda word: float(word["bbox"][0])):
+    for word in sorted(words, key=_reading_order):
         cells.setdefault(_column_for(float(word["bbox"][0]), bands), []).append(word)
     mark_cell = cells.get("mark") or []
     mark_word = next(
@@ -1733,7 +2032,7 @@ def _parse_body_row(
 ) -> Optional[dict]:
     # Preserve the pre-ruled-table BP/CL input contract. These rows are also
     # used by the Results resolver, whose behavior this integration retains.
-    auxiliary = _split_row(words, bands, _LEGACY_ROW_MARK_RE)
+    auxiliary = _split_row(_words_in_header_span(words, bands), bands, _LEGACY_ROW_MARK_RE)
     if auxiliary is not None and is_auxiliary_schedule_mark(auxiliary[1].get("text")):
         cells, mark_word, size_words = auxiliary
         size_text = _text(size_words).strip()
@@ -1755,7 +2054,7 @@ def _parse_body_row(
     cells: Dict[str, List[str]] = {name: [] for name in bands}
     mark_x = float(bands["mark"]) if "mark" in bands else None
     right_x = max(bands.values()) if bands else None
-    ordered = sorted(words, key=lambda word: float(word["bbox"][0]))
+    ordered = sorted(words, key=_reading_order)
     scoped: List[dict] = []
     for word in ordered:
         x = float(word["bbox"][0])

@@ -19,7 +19,11 @@ from services.pdf_parser import extract_document_structure
 
 # Bumped whenever extraction output changes, so cached documents are rebuilt
 # instead of replaying stale artifacts.
-EXTRACTION_VERSION = "3.29-summary-locate-review"
+# 3.26 added summary coverage (header paths, trailing remarks). 3.27 kept
+# pier width off the plate. 3.28 (sheet / grid line) and 3.29 (summary
+# locate / level review line) each lack the other's output; this tree has
+# both, so neither cache is reused.
+EXTRACTION_VERSION = "3.30-summary-and-sheet-grid"
 
 
 def extract_engineering_document(

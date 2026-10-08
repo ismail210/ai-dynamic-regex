@@ -1,0 +1,722 @@
+[
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/Structure - Copy.pdf",
+    "bytes": 5467322,
+    "pages": 17,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/burrville_SEMANTIC_DAMAGE_TEST__06009aaef052__06009aaef052.pdf",
+    "bytes": 1830596,
+    "pages": 29,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/William Winchester ES - Bid Set - Drawings - 01-30-26__1d5e2cb2e21d.pdf",
+    "bytes": 98453207,
+    "pages": 88,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 46,
+    "rotated_pages_sample": [
+      {
+        "page": 1,
+        "rotation": 90
+      },
+      {
+        "page": 2,
+        "rotation": 90
+      },
+      {
+        "page": 13,
+        "rotation": 270
+      },
+      {
+        "page": 20,
+        "rotation": 270
+      },
+      {
+        "page": 23,
+        "rotation": 270
+      },
+      {
+        "page": 26,
+        "rotation": 90
+      },
+      {
+        "page": 27,
+        "rotation": 90
+      },
+      {
+        "page": 28,
+        "rotation": 90
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/Struct__889d35dfc3cf.pdf",
+    "bytes": 9391071,
+    "pages": 24,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/verify_fraction_spacing.pdf",
+    "bytes": 1201,
+    "pages": 1,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/1200 K_Permit_Bid_Dwgs - Structural__240bd2541fbc.pdf",
+    "bytes": 18403354,
+    "pages": 39,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/spacing_debug.pdf",
+    "bytes": 935,
+    "pages": 1,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/ST__0bfc2d61245d.pdf",
+    "bytes": 3297427,
+    "pages": 23,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/Structure - Copy__9414716bffc6.pdf",
+    "bytes": 5467322,
+    "pages": 17,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/ST-Elmer Wolfe ES__0cbd857dc6c2__0cbd857dc6c2.pdf",
+    "bytes": 1295723,
+    "pages": 9,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/03 - SFSLS_251029_ISSUED FOR BID_2A_STRUCTURAL complied thru add 2__6a9a9684bb19.pdf",
+    "bytes": 13283044,
+    "pages": 45,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/ST.pdf",
+    "bytes": 3297427,
+    "pages": 23,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/fraction_spacing_demo__cda64ab70c6b.pdf",
+    "bytes": 1349,
+    "pages": 1,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/2025-12-18_100 DD SET-current (1)__e7accb41fb73.pdf",
+    "bytes": 92573529,
+    "pages": 99,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 39,
+    "rotated_pages_sample": [
+      {
+        "page": 4,
+        "rotation": 270
+      },
+      {
+        "page": 6,
+        "rotation": 270
+      },
+      {
+        "page": 7,
+        "rotation": 270
+      },
+      {
+        "page": 8,
+        "rotation": 270
+      },
+      {
+        "page": 12,
+        "rotation": 270
+      },
+      {
+        "page": 13,
+        "rotation": 270
+      },
+      {
+        "page": 67,
+        "rotation": 270
+      },
+      {
+        "page": 68,
+        "rotation": 270
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/1200 K_Permit_Bid_Dwgs - Structural.pdf",
+    "bytes": 18403354,
+    "pages": 39,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/Burrville ES - ST__0d910a43b4a0.pdf",
+    "bytes": 1819259,
+    "pages": 29,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/st_CONTROLLED_DAMAGE_TEST__9e5f06f64b5b.pdf",
+    "bytes": 244277,
+    "pages": 3,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/Burrville ES - ST.pdf",
+    "bytes": 1819259,
+    "pages": 29,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/ST-Spring Garden ES__5dab28f47ceb.pdf",
+    "bytes": 1211545,
+    "pages": 8,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/Arch - Springhill Lake__4c0040cf041b.pdf",
+    "bytes": 49124031,
+    "pages": 120,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/verify_accept_all.pdf",
+    "bytes": 1062,
+    "pages": 1,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs__e61363091934.pdf",
+    "bytes": 94634754,
+    "pages": 215,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 34,
+    "rotated_pages_sample": [
+      {
+        "page": 127,
+        "rotation": 90
+      },
+      {
+        "page": 128,
+        "rotation": 90
+      },
+      {
+        "page": 129,
+        "rotation": 90
+      },
+      {
+        "page": 130,
+        "rotation": 90
+      },
+      {
+        "page": 131,
+        "rotation": 90
+      },
+      {
+        "page": 133,
+        "rotation": 90
+      },
+      {
+        "page": 134,
+        "rotation": 90
+      },
+      {
+        "page": 135,
+        "rotation": 90
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/GCDC Building 4 - ST1__47dc7ef27f6e.pdf",
+    "bytes": 44857498,
+    "pages": 81,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/st_SEMANTIC_DAMAGE_TEST__4a167ac3d049.pdf",
+    "bytes": 3307698,
+    "pages": 23,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/ST-Robert Moton ES__258cb166b79f.pdf",
+    "bytes": 1523759,
+    "pages": 11,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/20251015_2100 Crystal Drive - Addendum 1_ID__25c9ecc49b4e.pdf",
+    "bytes": 88412667,
+    "pages": 120,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/Struct__683e6eef0a94.pdf",
+    "bytes": 9337901,
+    "pages": 24,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/ST-Elmer Wolfe ES__0cbd857dc6c2.pdf",
+    "bytes": 1295723,
+    "pages": 9,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/burrville_SEMANTIC_DAMAGE_TEST__06009aaef052.pdf",
+    "bytes": 1830596,
+    "pages": 29,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/GCDC_ST1_pages1_5_CONTROLLED_DAMAGE_TEST__9c0d4785f832.pdf",
+    "bytes": 24639498,
+    "pages": 2,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/Struct.pdf",
+    "bytes": 9337901,
+    "pages": 24,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/burrville_CONTROLLED_DAMAGE_TEST__c147a1f2e759.pdf",
+    "bytes": 272399,
+    "pages": 3,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/structure_SEMANTIC_DAMAGE_TEST__4ed3038af56e.pdf",
+    "bytes": 5475944,
+    "pages": 17,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/ST - Springhill Lake__f6ddc4a7e233.pdf",
+    "bytes": 2372925,
+    "pages": 28,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/Struct__42f986ebcbbe.pdf",
+    "bytes": 9348718,
+    "pages": 24,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/20251015_2100 Crystal Drive - Addendum 1_Arch__b7fdb02599c0.pdf",
+    "bytes": 120004697,
+    "pages": 181,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/upload_smoke.pdf",
+    "bytes": 1397,
+    "pages": 1,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/Structural4__3aa51f661bdf.pdf",
+    "bytes": 4379184,
+    "pages": 43,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/ST__3fe7f145b516.pdf",
+    "bytes": 5210192,
+    "pages": 13,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/burrville_CONTROLLED_DAMAGE_TEST__c147a1f2e759__c147a1f2e759.pdf",
+    "bytes": 272399,
+    "pages": 3,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/ST-Runnymede ES__4ff5b14a268a.pdf",
+    "bytes": 1399589,
+    "pages": 9,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/engineering/Structure - Copy.pdf",
+    "bytes": 5467322,
+    "pages": 17,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/engineering/ST__0bfc2d61245d.pdf",
+    "bytes": 3297427,
+    "pages": 23,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/engineering/1200 K_Permit_Bid_Dwgs - Structural.pdf",
+    "bytes": 18403354,
+    "pages": 39,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/engineering/Burrville ES - ST.pdf",
+    "bytes": 1819259,
+    "pages": 29,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/uploads/engineering/upload_smoke.pdf",
+    "bytes": 1397,
+    "pages": 1,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/Testing Projects/51 - Burrvile ES/Burrville_DD Pricing Set_260317.pdf",
+    "bytes": 206260462,
+    "pages": 248,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 76,
+    "rotated_pages_sample": [
+      {
+        "page": 1,
+        "rotation": 90
+      },
+      {
+        "page": 2,
+        "rotation": 90
+      },
+      {
+        "page": 3,
+        "rotation": 90
+      },
+      {
+        "page": 4,
+        "rotation": 90
+      },
+      {
+        "page": 5,
+        "rotation": 90
+      },
+      {
+        "page": 6,
+        "rotation": 270
+      },
+      {
+        "page": 7,
+        "rotation": 270
+      },
+      {
+        "page": 8,
+        "rotation": 270
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/Testing Projects/41 - SOME/2025-12-18_100 DD SET-current (1).pdf",
+    "bytes": 92573529,
+    "pages": 99,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 39,
+    "rotated_pages_sample": [
+      {
+        "page": 4,
+        "rotation": 270
+      },
+      {
+        "page": 6,
+        "rotation": 270
+      },
+      {
+        "page": 7,
+        "rotation": 270
+      },
+      {
+        "page": 8,
+        "rotation": 270
+      },
+      {
+        "page": 12,
+        "rotation": 270
+      },
+      {
+        "page": 13,
+        "rotation": 270
+      },
+      {
+        "page": 67,
+        "rotation": 270
+      },
+      {
+        "page": 68,
+        "rotation": 270
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/Testing Projects/18 - River Road/A-2025-09-19_252003_Addendum A - 4400 Base Bldg Dwgs.pdf",
+    "bytes": 94634754,
+    "pages": 215,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 34,
+    "rotated_pages_sample": [
+      {
+        "page": 127,
+        "rotation": 90
+      },
+      {
+        "page": 128,
+        "rotation": 90
+      },
+      {
+        "page": 129,
+        "rotation": 90
+      },
+      {
+        "page": 130,
+        "rotation": 90
+      },
+      {
+        "page": 131,
+        "rotation": 90
+      },
+      {
+        "page": 133,
+        "rotation": 90
+      },
+      {
+        "page": 134,
+        "rotation": 90
+      },
+      {
+        "page": 135,
+        "rotation": 90
+      }
+    ]
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/tests/fixtures/semantic_test_pdfs/burrville_SEMANTIC_DAMAGE_TEST.pdf",
+    "bytes": 1830596,
+    "pages": 29,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/tests/fixtures/semantic_test_pdfs/structure_SEMANTIC_DAMAGE_TEST.pdf",
+    "bytes": 5475944,
+    "pages": 17,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/tests/fixtures/semantic_test_pdfs/st_SEMANTIC_DAMAGE_TEST.pdf",
+    "bytes": 3307698,
+    "pages": 23,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/training/eval_cache_backups/june_phase3/page_extracts/burrville_phase3_extract.pdf",
+    "bytes": 1110078,
+    "pages": 7,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/training/eval_cache_backups/june_phase3/page_extracts/river_road_phase3_extract.pdf",
+    "bytes": 4616695,
+    "pages": 7,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/Desktop/ai-dynamic-regex/backend/training/eval_cache_backups/june_phase3/page_extracts/some_phase3_extract.pdf",
+    "bytes": 271083,
+    "pages": 2,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/.cursor/projects/Users-hibareda-Desktop-ai-dynamic-regex/attachments/d1afdd3b-8557-422c-9391-bf7614f37ec9/Structural4.pdf",
+    "bytes": 4379184,
+    "pages": 43,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/.cursor/projects/Users-hibareda-Desktop-ai-dynamic-regex/attachments/283e42c8-6e6c-40d0-a4db-ee47cefda594/Struct_1.pdf",
+    "bytes": 9348718,
+    "pages": 24,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  },
+  {
+    "path": "/Users/hibareda/.cursor/projects/Users-hibareda-Desktop-ai-dynamic-regex/attachments/283e42c8-6e6c-40d0-a4db-ee47cefda594/Struct.pdf",
+    "bytes": 9348718,
+    "pages": 24,
+    "rotations": [],
+    "error": null,
+    "rotated_page_count": 0,
+    "rotated_pages_sample": []
+  }
+]

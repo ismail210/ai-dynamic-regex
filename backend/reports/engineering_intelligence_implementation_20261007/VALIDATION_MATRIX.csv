@@ -1,0 +1,45 @@
+capability,project,status,evidence,engineering_value,unresolved,notes
+sheet_id,burrville,verified,29/29 title-block ids including S-101A,high,0,shown in the summary
+sheet_id,osse,verified,26/26 including S-122-O and S-602-O,high,0,hyphen and -O kept
+sheet_id,struct,verified,24/24 including S101A,high,0,Furley ids have no hyphen
+sheet_id,brandywine,verified,43/43 including S-600,high,0,shown in the summary
+sheet_title,burrville,verified,title_status read,high,0,used as the role source
+sheet_title,osse,verified,title_status read,high,0,SUPERSTURCTURE kept as printed
+sheet_title,struct,verified,title_status read_unlabeled,high,0,summary says the block does not label the title
+sheet_title,brandywine,verified,title_status read,high,0,HIGH ROOF not renamed Level 4
+sheet_role,burrville,verified,29 read 0 review,high,0,foundation and framing kept as one printed role
+sheet_role,osse,verified,24 read 2 review,high,2,DESIGN TABLES; PLANS AND ELEVATIONS
+sheet_role,struct,verified,24 read 0 review,high,0,FRAMING SECTIONS classified as section
+sheet_role,brandywine,verified,43 read 0 review,high,0,loading separated from roof framing
+issue_sentence,burrville,verified,50% DESIGN DEVELOPMENT,high,0,was omitted
+issue_sentence,osse,verified,Permit Submission,high,0,revision 2 stays on the revision row
+issue_sentence,struct,verified,BID SET,high,0,matches the title block
+issue_sentence,brandywine,verified,65% DESIGN DEVELOPMENT,high,0,FTG PERMIT is not the issue
+revision_rows,brandywine,verified,FTG PERMIT and 35% DD remain rows,high,0,not promoted to issue
+plan_elevations_without_schedule_levels,struct,verified,main summary section when schedule_levels is empty,medium,0,labeled local plan notes
+plan_elevations_without_schedule_levels,burrville,unsupported,schedule levels exist so the existing level section is used,medium,0,no change to level pairing
+level_conflict,osse,verified,both 55'-2 and 55'-10 still stored,high,1,not resolved by this checkpoint
+family_hits,burrville,verified,801/83/60/5/2/1 unchanged,low,0,not a quantity
+family_hits,osse,verified,280/155/29/8 unchanged,low,0,not a quantity
+family_hits,struct,verified,991/106/59/20/1 unchanged,low,0,not a quantity
+family_hits,brandywine,verified,1588/118/55/13/1 unchanged,low,0,not a quantity
+column_entries,burrville,verified,121=121,high,0,definitions not quantities
+column_entries,osse,verified,100=100,high,0,includes precast parking rows
+column_entries,struct,verified,6=6,high,0,mark map still 12
+column_entries,brandywine,verified,105=105,high,0,BP sizes still unresolved
+view_index,burrville,read,45 printed titles and 20 sheet-title fallbacks,medium,view extent,title line only; SECTION A on S-201
+view_index,osse,read,36 printed titles and 18 sheet-title fallbacks,medium,view extent,ELEVATION with a scale counts; bare word without a scale does not
+view_index,struct,candidate,2 printed titles and 22 sheet-title fallbacks,medium,detail letters,N is not a view title line
+view_index,brandywine,read,15 printed titles and 35 sheet-title fallbacks,medium,view extent,PLAN lines without a number
+reference_objects,struct,target_sheet_only,16 sheet-only and 24 ambiguous; target_view_found 0,high,view N,N/S502 finds S502 and does not invent view N
+reference_objects,osse,target_sheet_only,3 sheet-only 1 missing 84 ambiguous,high,4/S-401,missing -O is not filled in
+reference_objects,burrville,ambiguous,88 SEE notes with no sheet,medium,all 88,not resolved targets
+reference_objects,brandywine,ambiguous,175 SEE notes with no sheet,medium,all 175,not resolved targets
+grid_registry,burrville,candidate,80 capped labels; feet-inch rejected,low,confirmation,not bubbles
+occurrence_ledger,struct,candidate,46 text hits and 4 not seen; quantity null,medium,grid and level,must not change quantity
+incomplete_label,burrville,review-required,L6X3 and L4X3 unfinished,high,thickness,not completed
+level_conflict_warning,osse,verified,both values in the warning text,high,1,neither selected
+quantity_engine,burrville,verified,engine not edited; upstream counters unchanged,n/a,0,totals not regenerated
+quantity_engine,osse,verified,engine not edited; upstream counters unchanged,n/a,0,totals not regenerated
+quantity_engine,struct,verified,engine not edited; upstream counters unchanged,n/a,0,totals not regenerated
+quantity_engine,brandywine,verified,engine not edited; upstream counters unchanged,n/a,0,totals not regenerated

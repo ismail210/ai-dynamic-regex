@@ -33,6 +33,9 @@ from services.engineering.column_schedule import _union_boxes, column_schedule_v
 from services.engineering.framing_key import bracket_definition, read_framing_keys
 from services.engineering.level_evidence import format_elevation, levels_view
 from services.engineering.page_space import convert_boxes, display_boxes
+from services.engineering.intelligence_layer import build_engineering_intelligence
+from services.engineering.sheet_index import sheet_index
+from services.engineering.sheet_navigation import annotate_sheet_roles, printed_issue
 
 DRAWING_INTELLIGENCE_VERSION = "drawing_intelligence_v3"
 
@@ -1585,12 +1588,22 @@ def _deterministic_overview(profile: Dict[str, Any]) -> str:
     """One or two short sentences: what the set is and where its steel is
     defined. Details (schedule lists, conflicts) have their own sections."""
 
-    stamps = [s["detail"]["label"] for s in profile["scope_signals"] if s["detail"].get("present")]
-    first = f"{profile['page_count']}-page structural set" + (f" ({', '.join(stamps).lower()})" if stamps else "")
+    pages = (profile.get("sheet_index") or {}).get("pages") or []
+    issue = printed_issue(pages)
+    first = f"{profile['page_count']}-page structural set" + (f" (issue: {issue})" if issue else "")
+    by_page = {
+        p.get("page"): p["sheet_id"]
+        for p in pages
+        if p.get("sheet_id_status") == "read" and p.get("sheet_id")
+    }
     schedules = (profile.get("column_schedule") or {}).get("schedules") or []
-    steel_sheets = sorted({s.get("sheet") or f"PDF p. {s['page']}" for s in schedules
+
+    def _sheet_name(item: Dict[str, Any]) -> str:
+        return by_page.get(item.get("page")) or item.get("sheet") or f"PDF p. {item.get('page')}"
+
+    steel_sheets = sorted({_sheet_name(s) for s in schedules
                            if s.get("material_group") != "concrete" and s.get("source") != "location_table"})
-    table_sheets = sorted({s.get("sheet") or f"PDF p. {s['page']}" for s in schedules if s.get("source") == "location_table"})
+    table_sheets = sorted({_sheet_name(s) for s in schedules if s.get("source") == "location_table"})
     steel_defs = [d for d in profile["definitions"] if d.get("status") not in NON_STEEL_STATUSES]
     kinds = [_COMPONENTS[k][2] for k in _COMPONENT_ORDER if any(d["component"] == k for d in steel_defs)]
     defined = []
@@ -1600,7 +1613,7 @@ def _deterministic_overview(profile: Dict[str, Any]) -> str:
     if table_sheets:
         defined.append(f"a column location table on {', '.join(table_sheets)}")
     if kinds:
-        where = sorted({d["sheet"] or f"PDF p. {d['page']}" for d in steel_defs})
+        where = sorted({_sheet_name(d) for d in steel_defs})
         defined.append(f"{' and '.join(kinds)} marks defined on {', '.join(where)}")
     if defined:
         first += " with " + " and ".join(defined)
@@ -1870,6 +1883,9 @@ def build_drawing_intelligence(
         # A framing key's own example is a definition, not a plan observation.
         "levels": levels_view(document, sheets,
                               legend_regions={k["page"]: [box(k["page"], k["region"])] for k in keys}),
+        # Sheet number, title, issue, revisions and scale per page from the
+        # title block, boxes already in display space; display-only.
+        "sheet_index": annotate_sheet_roles(sheet_index(document)),
     }
     _link_printed_labels(profile)
     _annotate_supporting(profile)
@@ -1881,6 +1897,7 @@ def build_drawing_intelligence(
         if profile["existing_new"].get("is_renovation") else ""
     )
     profile["overview"] = profile["narrative"]["project_overview"]
+    profile["engineering_intelligence"] = build_engineering_intelligence(document, profile)
     return profile
 
 

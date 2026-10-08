@@ -135,6 +135,52 @@ class CrossFamilyDecoyTests(unittest.TestCase):
                 self.assertEqual(r["section_resolution"], "explicit_catalog_exact")
 
 
+class AngleSpacingSuffixTests(unittest.TestCase):
+    """An ``@`` spacing / piece-length callout is not part of the section:
+    the printed angle locks and a decoy thickness or 2L cannot replace it."""
+
+    CASES = [
+        ("L3x3x1/4@8'", "L3X3X1/4", "L3X3X3/8"),
+        ("L4x4x1/4@6'", "L4X4X1/4", "L4X4X3/8"),
+        ("L6x6x1/2@2'-0\"", "L6X6X1/2", "2L6X6X1/2"),
+        ("L3x3x1/4 @ 8'", "L3X3X1/4", "L3X3X3/8"),
+        ("L3x3x1/4@8',", "L3X3X1/4", "L3X3X3/8"),
+        ("2L4x4x1/4@16\"", "2L4X4X1/4", "2L4X4X3/8"),
+    ]
+
+    def test_spacing_suffix_locks_printed_angle(self):
+        for raw, expected, decoy in self.CASES:
+            with self.subTest(raw=raw):
+                self.assertEqual(resolve_trusted_explicit_section(raw), expected)
+                with patch(
+                    "services.prediction.orchestrator.unified_multimodal_fusion.predict",
+                    return_value=_fake_fusion(decoy, confidence=0.6),
+                ):
+                    r = predict_token(raw, queue_unknown=False, persist_learning=False)
+                self.assertEqual(r["section"], expected)
+                self.assertEqual(r["section_resolution"], "explicit_catalog_exact")
+                self.assertFalse(r["needs_review"])
+
+    def test_incomplete_angle_with_spacing_suffix_still_abstains(self):
+        for raw in ["L4x4@8'", "2L4x4@16\"", "L4x4,"]:
+            with self.subTest(raw=raw):
+                self.assertIsNone(resolve_trusted_explicit_section(raw))
+                with patch(
+                    "services.prediction.orchestrator.unified_multimodal_fusion.predict",
+                    return_value=_fake_fusion("L4X4X1/4", confidence=0.9),
+                ):
+                    r = predict_token(raw, queue_unknown=False, persist_learning=False)
+                self.assertNotIn("X1/4", r["section"])
+                self.assertEqual(r["completion_status"], "missing_thickness")
+                self.assertFalse(r["takeoff_eligible"])
+
+    def test_catalog_invalid_angle_with_spacing_suffix_is_not_locked(self):
+        r = predict_token("L6x4x1/4@8'", queue_unknown=False, persist_learning=False)
+        self.assertNotEqual(r.get("section_resolution"), "explicit_catalog_exact")
+        self.assertTrue(r["needs_review"])
+        self.assertFalse(r["takeoff_eligible"])
+
+
 class NegativeSafetyTests(unittest.TestCase):
     """Section 18: exact protection must never become unsafe auto-completion."""
 

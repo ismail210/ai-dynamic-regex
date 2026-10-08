@@ -62,10 +62,10 @@ _HEADER_PARTNERS = frozenset(
 _LOCATION_LABEL = "COLUMNLOCATION"
 _PLATE_ROW_LABEL = "BASE PLATE SIZE"
 _INCHES = r'(?:\d+(?:[-\s]+\d+/\d+)?|\d+/\d+)"?'
-# Whole-cell base plate size, with an optional trailing note star.
+# Whole-cell base plate size, with optional trailing note stars.
 # x / X / × are the same separator. The pattern does not assign thickness.
 _BASE_PLATE_SIZE_RE = re.compile(
-    rf"{_INCHES}\s*[xX×]\s*{_INCHES}\s*[xX×]\s*{_INCHES}(?:\s*\*)?"
+    rf"{_INCHES}\s*[xX×]\s*{_INCHES}\s*[xX×]\s*{_INCHES}(?:\s*\*+)?"
 )
 _MERGED_PLATE_LABEL_RE = re.compile(r"BASE PLATE (?:SIZE )?(.+?)(?: SIZE)?", re.IGNORECASE)
 _GRID_LOCATION_RE = re.compile(r"(?:^|[A-Z0-9.'])-[A-Z0-9.]", re.IGNORECASE)
@@ -398,15 +398,97 @@ def _is_column_locations_label(x0: float, y0: float, page_words: Sequence[tuple]
     return locations >= 2
 
 
+def _overlap_ratio(a: Sequence[float], b: Sequence[float]) -> float:
+    ix0, iy0 = max(float(a[0]), float(b[0])), max(float(a[1]), float(b[1]))
+    ix1, iy1 = min(float(a[2]), float(b[2])), min(float(a[3]), float(b[3]))
+    if ix1 <= ix0 or iy1 <= iy0:
+        return 0.0
+    inter = (ix1 - ix0) * (iy1 - iy0)
+    area_a = max((float(a[2]) - float(a[0])) * (float(a[3]) - float(a[1])), 1e-6)
+    area_b = max((float(b[2]) - float(b[0])) * (float(b[3]) - float(b[1])), 1e-6)
+    return inter / min(area_a, area_b)
+
+
+def _collapse_overlapping_copies(
+    table: Any, rows: List[List[str]], page_words: Sequence[tuple]
+) -> List[List[str]]:
+    """Read one copy of a word drawn twice on top of itself.
+
+    ``table.extract()`` interleaves the two copies. The text layer still has
+    each copy intact. A word is a second copy only when its text matches and
+    most of its box covers a word already kept. Anything else keeps the
+    extracted string.
+    """
+
+    try:
+        table_rows = table.rows
+    except AttributeError:
+        return rows
+    repaired: List[List[str]] = []
+    for row_index, row in enumerate(rows):
+        repaired.append([
+            _cell_without_overlapping_copy(table_rows, row_index, column, text, page_words)
+            for column, text in enumerate(row)
+        ])
+    return repaired
+
+
+def _cell_without_overlapping_copy(
+    table_rows: Any, row_index: int, column: int, text: str, page_words: Sequence[tuple]
+) -> str:
+    if not str(text or "").strip():
+        return text
+    try:
+        cell = table_rows[row_index].cells[column]
+    except (AttributeError, IndexError, TypeError):
+        return text
+    if not cell:
+        return text
+    x0, y0, x1, y1 = (float(cell[0]), float(cell[1]), float(cell[2]), float(cell[3]))
+    inside = [
+        word for word in page_words
+        if x0 <= (float(word[0]) + float(word[2])) / 2.0 <= x1
+        and y0 <= (float(word[1]) + float(word[3])) / 2.0 <= y1
+        and str(word[4]).strip()
+    ]
+    if len(inside) < 2:
+        return text
+    kept: List[tuple] = []
+    dropped = False
+    for word in sorted(inside, key=lambda item: (float(item[1]), float(item[0]))):
+        if any(
+            str(word[4]) == str(other[4]) and _overlap_ratio(word, other) >= 0.5
+            for other in kept
+        ):
+            dropped = True
+            continue
+        kept.append(word)
+    if not dropped:
+        return text
+    lines: List[List[tuple]] = []
+    for word in kept:
+        if lines and abs(float(word[1]) - float(lines[-1][0][1])) <= 2.0:
+            lines[-1].append(word)
+        else:
+            lines.append([word])
+    reading = " ".join(
+        " ".join(str(word[4]) for word in sorted(line, key=lambda item: float(item[0])))
+        for line in lines
+    ).strip()
+    return reading or text
+
+
 def _table_record(table: Any, page_words: Sequence[tuple], page: int) -> Optional[Dict[str, Any]]:
     raw = table.extract()
-    rows = [[str(cell or "") for cell in row] for row in raw]
+    rows = _collapse_overlapping_copies(
+        table, [[str(cell or "") for cell in row] for row in raw], page_words
+    )
     if len(rows) < 2:
         return None
     bbox = [round(float(value), 2) for value in table.bbox]
     for index, row in enumerate(rows):
         if _LOCATION_LABEL in re.sub(r"\s+", "", row[0]).upper():
-            return _transposed_record(table, rows, index, page, bbox)
+            return _transposed_record(table, rows, index, page, bbox, page_words)
     # Column schedules whose edge column holds the row labels (MARK ... BASE
     # PLATE, or COLUMN LOCATIONS on the right), read by ``column_schedule``
     # only; ``schedule_grid`` never sees them. A MARK | SIZE table has no
@@ -593,8 +675,98 @@ def _cell_center_x(table: Any, row: int, column: int) -> Optional[float]:
     return (float(cell[0]) + float(cell[2])) / 2.0
 
 
+_LEVEL_ELEVATION_RE = re.compile(r"-?\d+\s*'\s*-\s*\d+(?:\s+\d+/\d+)?\s*\"|-?\d+\s*\"")
+_LEVEL_LINE_GAP = 30.0
+_LEVEL_LINE_TOLERANCE = 3.0
+
+
+def _level_lines(
+    table: Any, location_row: int, page_words: Sequence[tuple]
+) -> List[Dict[str, Any]]:
+    """Level name / elevation pairs drawn on either side of a band edge.
+
+    Some sheets print ``LEVEL 4`` above a level line and ``42'-0"`` below it, so
+    the two land in different table rows and the cell texts glue an elevation to
+    the next level's name. The pairs come from the label column's own words: a
+    name line followed by an elevation line with a row edge between them. Every
+    label line must belong to a pair, otherwise nothing is paired.
+    """
+
+    try:
+        bands = [
+            (index, row.bbox, row.cells[0])
+            for index, row in enumerate(table.rows)
+            if index != location_row and row.cells and row.cells[0] and row.bbox
+        ]
+    except (AttributeError, TypeError):
+        return []
+    if not bands:
+        return []
+    x0 = min(cell[0] for _index, _box, cell in bands)
+    x1 = max(cell[2] for _index, _box, cell in bands)
+    spans = [(float(box[1]), float(box[3])) for _index, box, _cell in bands]
+    edges = sorted({edge for span in spans for edge in span})
+    words = [
+        word
+        for word in page_words
+        if x0 <= (word[0] + word[2]) / 2.0 <= x1
+        and any(top <= (word[1] + word[3]) / 2.0 <= bottom for top, bottom in spans)
+    ]
+    lines: List[Dict[str, Any]] = []
+    for word in sorted(words, key=lambda item: (item[1], item[0])):
+        if lines and abs(word[1] - lines[-1]["top"]) <= _LEVEL_LINE_TOLERANCE:
+            lines[-1]["words"].append(word)
+            lines[-1]["bottom"] = max(lines[-1]["bottom"], word[3])
+        else:
+            lines.append({"top": word[1], "bottom": word[3], "words": [word]})
+    for line in lines:
+        line["text"] = " ".join(
+            str(word[4]) for word in sorted(line["words"], key=lambda item: item[0])
+        )
+    def edges_between(upper: float, lower: float) -> List[float]:
+        return [edge for edge in edges if upper - 1.0 <= edge <= lower + 1.0]
+
+    pairs: List[Dict[str, Any]] = []
+    index = 0
+    while index < len(lines):
+        # A name that wraps (LOWER / LEVEL) is one name: no band edge splits it.
+        name = [lines[index]]
+        index += 1
+        while (
+            index < len(lines)
+            and not _LEVEL_ELEVATION_RE.fullmatch(lines[index]["text"])
+            and not edges_between(name[-1]["bottom"], lines[index]["top"])
+        ):
+            name.append(lines[index])
+            index += 1
+        if index >= len(lines) or _LEVEL_ELEVATION_RE.fullmatch(name[0]["text"]):
+            return []
+        datum = lines[index]
+        between = edges_between(name[-1]["bottom"], datum["top"])
+        if (
+            not _LEVEL_ELEVATION_RE.fullmatch(datum["text"])
+            or not between
+            or datum["top"] - name[-1]["bottom"] > _LEVEL_LINE_GAP
+        ):
+            return []
+        pairs.append(
+            {
+                "name": header_label(" ".join(line["text"] for line in name)),
+                "elevation_text": " ".join(datum["text"].split()),
+                "edge": round(between[0], 2),
+            }
+        )
+        index += 1
+    return pairs
+
+
 def _transposed_record(
-    table: Any, rows: List[List[str]], location_row: int, page: int, bbox: List[float]
+    table: Any,
+    rows: List[List[str]],
+    location_row: int,
+    page: int,
+    bbox: List[float],
+    page_words: Sequence[tuple] = (),
 ) -> Dict[str, Any]:
     """Revit column schedule: levels down the side, grid locations along the bottom."""
 
@@ -610,11 +782,13 @@ def _transposed_record(
             locations.append({"location": location, "raw": printed, "x": center})
     labelled_plates = any("BASE PLATE" in header_label(row[0]) for row in rows)
     inferred_rows = set() if labelled_plates else _unlabelled_plate_rows(rows, location_row)
+    level_lines = _level_lines(table, location_row, page_words)
     cells, inferred = [], []
     for row_index, row in enumerate(rows):
         if row_index == location_row:
             continue
         row_label = header_label(row[0])
+        row_box = _row_bbox(table, row_index) if level_lines else None
         for column, text in enumerate(row[1:], start=1):
             center = _cell_center_x(table, row_index, column)
             if not text.strip() or center is None:
@@ -624,9 +798,12 @@ def _transposed_record(
                     {"text": _strip_plate_label(text), "x": center, "row_label": _PLATE_ROW_LABEL}
                 )
             else:
-                cells.append({"text": text, "x": center, "row_label": row_label})
+                cell = {"text": text, "x": center, "row_label": row_label}
+                if row_box:
+                    cell["band"] = [row_box[1], row_box[3]]
+                cells.append(cell)
     cells.extend(_without_conflicting_plates(inferred, locations))
-    return {
+    record = {
         "page": page,
         "bbox": bbox,
         "layout": "transposed",
@@ -634,6 +811,9 @@ def _transposed_record(
         "locations": locations,
         "cells": cells,
     }
+    if level_lines:
+        record["level_lines"] = level_lines
+    return record
 
 
 def _strip_plate_label(text: str) -> str:

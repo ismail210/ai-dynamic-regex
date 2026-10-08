@@ -1,0 +1,8 @@
+{
+  "EXTRACTION_VERSION": "3.26-cell-text-levels",
+  "schedule_grid_enabled": true,
+  "schedule_ruled_tables_enabled": true,
+  "schedule_mark_map_enabled": true,
+  "schedule_mark_conflict_guard_enabled": false,
+  "schedule_evidence_shadow_enabled": false
+}

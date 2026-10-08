@@ -1,0 +1,729 @@
+{
+  "burrville": {
+    "families_match": true,
+    "families": [
+      [
+        "W",
+        801
+      ],
+      [
+        "HSS",
+        83
+      ],
+      [
+        "L",
+        60
+      ],
+      [
+        "C",
+        5
+      ],
+      [
+        "2L",
+        2
+      ],
+      [
+        "WT",
+        1
+      ]
+    ],
+    "columns": 121,
+    "columns_audit": 121,
+    "marks": 0,
+    "marks_audit": 0,
+    "overview": "29-page structural set (issue: 50% DESIGN DEVELOPMENT) with a steel column schedule on S-501; concrete schedules are kept with the supporting information. Schedule entries are definitions, not installed quantities.",
+    "views": {
+      "sheet_title": 20,
+      "read": 45
+    },
+    "view_types_read": {
+      "section": 27,
+      "plan": 6,
+      "elevation": 12
+    },
+    "references": {
+      "ambiguous": 88
+    },
+    "reference_count": 88,
+    "grids": 80,
+    "dimensions": 266,
+    "notes": 0,
+    "incomplete": [
+      "L6X3",
+      "L4X3"
+    ],
+    "scope_counts": {
+      "temporary": 5,
+      "existing": 6,
+      "alternate": 8
+    },
+    "conflicts": [],
+    "samples": [],
+    "ambiguous_samples": [
+      [
+        "S-002",
+        "SEE SCHEDULE"
+      ],
+      [
+        "S-101A",
+        "SEE SECTION"
+      ],
+      [
+        "S-101B",
+        "SEE SECTION"
+      ],
+      [
+        "S-201",
+        "SEE PLAN"
+      ],
+      [
+        "S-201",
+        "SEE PLAN"
+      ],
+      [
+        "S-201",
+        "SEE PLAN"
+      ]
+    ],
+    "read_views": [
+      [
+        "S-201",
+        "SECTION A",
+        "A",
+        null
+      ],
+      [
+        "S-202",
+        "PLAN",
+        null,
+        null
+      ],
+      [
+        "S-202",
+        "PLAN",
+        null,
+        null
+      ],
+      [
+        "S-202",
+        "PLAN",
+        null,
+        null
+      ],
+      [
+        "S-202",
+        "PLAN",
+        null,
+        null
+      ],
+      [
+        "S-206",
+        "PLAN",
+        null,
+        null
+      ],
+      [
+        "S-301",
+        "SECTION",
+        null,
+        "SCALE: 3/4\" = 1'-0\""
+      ],
+      [
+        "S-301",
+        "SECTION",
+        null,
+        "SCALE: 3/4\" = 1'-0\""
+      ],
+      [
+        "S-301",
+        "SECTION",
+        null,
+        "SCALE: 3/4\" = 1'-0\""
+      ],
+      [
+        "S-301",
+        "SECTION",
+        null,
+        "SCALE: 3/4\" = 1'-0\""
+      ],
+      [
+        "S-301",
+        "SECTION",
+        null,
+        "SCALE: 3/4\" = 1'-0\""
+      ],
+      [
+        "S-301",
+        "SECTION",
+        null,
+        "SCALE: 3/4\" = 1'-0\""
+      ]
+    ],
+    "warning_types": {
+      "unresolved_reference": 30,
+      "incomplete_label": 2
+    },
+    "occurrences": {
+      "defined_and_seen": 15,
+      "defined_but_not_seen": 1
+    },
+    "schedules": 4,
+    "false_sheets": []
+  },
+  "osse": {
+    "families_match": true,
+    "families": [
+      [
+        "W",
+        280
+      ],
+      [
+        "HSS",
+        155
+      ],
+      [
+        "L",
+        29
+      ],
+      [
+        "C",
+        8
+      ]
+    ],
+    "columns": 100,
+    "columns_audit": 100,
+    "marks": 0,
+    "marks_audit": 0,
+    "overview": "26-page structural set (issue: Permit Submission) with a steel column schedule on S-602-O; concrete schedules are kept with the supporting information. Schedule entries are definitions, not installed quantities.",
+    "views": {
+      "sheet_title": 18,
+      "read": 36
+    },
+    "view_types_read": {
+      "elevation": 6,
+      "plan": 6,
+      "section": 22,
+      "roof_plan": 2
+    },
+    "references": {
+      "ambiguous": 84,
+      "target_sheet_only": 3,
+      "target_missing": 1
+    },
+    "reference_count": 88,
+    "grids": 80,
+    "dimensions": 660,
+    "notes": 73,
+    "incomplete": [
+      "L4X3",
+      "L6X3"
+    ],
+    "scope_counts": {
+      "temporary": 1,
+      "existing": 7,
+      "alternate": 12
+    },
+    "conflicts": [
+      "T.O. SLAB LEVEL 2 has more than one printed value (S602: 55' - 10\", S122: 55' - 2\"). Neither is selected."
+    ],
+    "samples": [
+      [
+        "S-401-O",
+        "4/S-401-O",
+        "target_sheet_only",
+        "S-401-O",
+        "4"
+      ],
+      [
+        "S-401-O",
+        "4/S-401",
+        "target_missing",
+        "S-401",
+        "4"
+      ],
+      [
+        "S-401-O",
+        "4/S-401-O",
+        "target_sheet_only",
+        "S-401-O",
+        "4"
+      ],
+      [
+        "S-421-O",
+        "8/S-421-O",
+        "target_sheet_only",
+        "S-421-O",
+        "8"
+      ]
+    ],
+    "ambiguous_samples": [
+      [
+        "S-001-O",
+        "SEE DETAIL"
+      ],
+      [
+        "S-001-O",
+        "SEE DETAIL"
+      ],
+      [
+        "S-001-O",
+        "SEE SCHEDULE"
+      ],
+      [
+        "S-001-O",
+        "SEE SCHEDULE"
+      ],
+      [
+        "S-001-O",
+        "SEE SCHEDULE"
+      ],
+      [
+        "S-001-O",
+        "SEE SCHEDULE"
+      ]
+    ],
+    "read_views": [
+      [
+        "S-103-O",
+        "ELEVATION",
+        null,
+        "1/4\" = 1'-0\""
+      ],
+      [
+        "S-103-O",
+        "ELEVATION",
+        null,
+        "1/4\" = 1'-0\""
+      ],
+      [
+        "S-103-O",
+        "ELEVATION",
+        null,
+        "1/4\" = 1'-0\""
+      ],
+      [
+        "S-221-O",
+        "ELEVATION",
+        null,
+        "1/4\" = 1'-0\""
+      ],
+      [
+        "S-221-O",
+        "ELEVATION",
+        null,
+        "1/4\" = 1'-0\""
+      ],
+      [
+        "S-221-O",
+        "ELEVATION",
+        null,
+        "1/4\" = 1'-0\""
+      ],
+      [
+        "S-301-O",
+        "PLAN",
+        null,
+        null
+      ],
+      [
+        "S-301-O",
+        "SECTION",
+        null,
+        "3/4\" = 1'-0\""
+      ],
+      [
+        "S-301-O",
+        "SECTION",
+        null,
+        "1/2\" = 1'-0\""
+      ],
+      [
+        "S-301-O",
+        "SECTION",
+        null,
+        "1/2\" = 1'-0\""
+      ],
+      [
+        "S-301-O",
+        "SECTION",
+        null,
+        "1/2\" = 1'-0\""
+      ],
+      [
+        "S-301-O",
+        "SECTION",
+        null,
+        "3/4\" = 1'-0\""
+      ]
+    ],
+    "warning_types": {
+      "level_conflict": 1,
+      "ambiguous_sheet": 2,
+      "unresolved_reference": 30,
+      "incomplete_label": 2
+    },
+    "occurrences": {
+      "defined_but_not_seen": 1,
+      "defined_and_seen": 26
+    },
+    "schedules": 9,
+    "false_sheets": []
+  },
+  "struct": {
+    "families_match": true,
+    "families": [
+      [
+        "W",
+        991
+      ],
+      [
+        "L",
+        106
+      ],
+      [
+        "HSS",
+        59
+      ],
+      [
+        "C",
+        20
+      ],
+      [
+        "WT",
+        1
+      ]
+    ],
+    "columns": 6,
+    "columns_audit": 6,
+    "marks": 12,
+    "marks_audit": 12,
+    "overview": "24-page structural set (issue: BID SET) with a steel column schedule on S002 and lintel and column and bearing plate and ICF lintel marks defined on S002; concrete schedules are kept with the supporting information. Schedule entries are definitions, not installed quantities.",
+    "views": {
+      "sheet_title": 22,
+      "read": 2
+    },
+    "view_types_read": {
+      "framing_plan": 1,
+      "plan": 1
+    },
+    "references": {
+      "target_sheet_only": 16,
+      "ambiguous": 24
+    },
+    "reference_count": 40,
+    "grids": 80,
+    "dimensions": 317,
+    "notes": 0,
+    "incomplete": [],
+    "scope_counts": {
+      "existing": 3,
+      "alternate": 4,
+      "temporary": 4
+    },
+    "conflicts": [],
+    "samples": [
+      [
+        "S002",
+        "S/S502",
+        "target_sheet_only",
+        "S502",
+        "S"
+      ],
+      [
+        "S102A",
+        "N/S502",
+        "target_sheet_only",
+        "S502",
+        "N"
+      ],
+      [
+        "S102A",
+        "L/S303",
+        "target_sheet_only",
+        "S303",
+        "L"
+      ],
+      [
+        "S102D",
+        "N/S502",
+        "target_sheet_only",
+        "S502",
+        "N"
+      ],
+      [
+        "S102D",
+        "L/S303",
+        "target_sheet_only",
+        "S303",
+        "L"
+      ],
+      [
+        "S102D",
+        "H/S302",
+        "target_sheet_only",
+        "S302",
+        "H"
+      ],
+      [
+        "S103A",
+        "N/S502",
+        "target_sheet_only",
+        "S502",
+        "N"
+      ],
+      [
+        "S103A",
+        "L/S303",
+        "target_sheet_only",
+        "S303",
+        "L"
+      ],
+      [
+        "S103A",
+        "H/S302",
+        "target_sheet_only",
+        "S302",
+        "H"
+      ],
+      [
+        "S103C",
+        "N/S502",
+        "target_sheet_only",
+        "S502",
+        "N"
+      ],
+      [
+        "S103C",
+        "L/S303",
+        "target_sheet_only",
+        "S303",
+        "L"
+      ],
+      [
+        "S103C",
+        "H/S302",
+        "target_sheet_only",
+        "S302",
+        "H"
+      ]
+    ],
+    "ambiguous_samples": [
+      [
+        "S002",
+        "REFER TO DETAIL"
+      ],
+      [
+        "S301",
+        "SEE PLAN AND"
+      ],
+      [
+        "S301",
+        "SEE PLAN"
+      ],
+      [
+        "S301",
+        "SEE PLAN"
+      ],
+      [
+        "S301",
+        "SEE PLAN AND"
+      ],
+      [
+        "S301",
+        "SEE PLAN"
+      ]
+    ],
+    "read_views": [
+      [
+        "S102C",
+        "FLOOR FRAMING",
+        null,
+        null
+      ],
+      [
+        "S304",
+        "PLAN",
+        null,
+        null
+      ]
+    ],
+    "warning_types": {
+      "unresolved_reference": 30,
+      "defined_but_not_seen": 1
+    },
+    "occurrences": {
+      "defined_and_seen": 46,
+      "defined_but_not_seen": 4
+    },
+    "schedules": 5,
+    "false_sheets": []
+  },
+  "brandywine": {
+    "families_match": true,
+    "families": [
+      [
+        "W",
+        1588
+      ],
+      [
+        "HSS",
+        118
+      ],
+      [
+        "L",
+        55
+      ],
+      [
+        "C",
+        13
+      ],
+      [
+        "WT",
+        1
+      ]
+    ],
+    "columns": 105,
+    "columns_audit": 105,
+    "marks": 0,
+    "marks_audit": 0,
+    "overview": "43-page structural set (issue: 65% DESIGN DEVELOPMENT) with a steel column schedule on S-600; concrete schedules are kept with the supporting information. Schedule entries are definitions, not installed quantities.",
+    "views": {
+      "sheet_title": 35,
+      "read": 15
+    },
+    "view_types_read": {
+      "plan": 11,
+      "foundation_plan": 1,
+      "framing_plan": 1,
+      "section": 1,
+      "detail": 1
+    },
+    "references": {
+      "ambiguous": 175
+    },
+    "reference_count": 175,
+    "grids": 80,
+    "dimensions": 835,
+    "notes": 35,
+    "incomplete": [
+      "L4X3",
+      "L5X3"
+    ],
+    "scope_counts": {
+      "existing": 12,
+      "temporary": 1,
+      "alternate": 1
+    },
+    "conflicts": [],
+    "samples": [],
+    "ambiguous_samples": [
+      [
+        "S-000",
+        "SEE PLAN"
+      ],
+      [
+        "S-000",
+        "SEE PLAN"
+      ],
+      [
+        "S-111",
+        "SEE DETAIL"
+      ],
+      [
+        "S-111",
+        "SEE DETAIL"
+      ],
+      [
+        "S-111",
+        "SEE DETAIL"
+      ],
+      [
+        "S-112",
+        "SEE DETAIL"
+      ]
+    ],
+    "read_views": [
+      [
+        "S-300",
+        "PLAN",
+        null,
+        null
+      ],
+      [
+        "S-300",
+        "PLAN",
+        null,
+        null
+      ],
+      [
+        "S-302",
+        "PLAN",
+        null,
+        null
+      ],
+      [
+        "S-500",
+        "FOUNDATION PLAN",
+        null,
+        null
+      ],
+      [
+        "S-510",
+        "PLAN",
+        null,
+        null
+      ],
+      [
+        "S-510",
+        "FLOOR FRAMING",
+        null,
+        null
+      ],
+      [
+        "S-511",
+        "PLAN",
+        null,
+        null
+      ],
+      [
+        "S-511",
+        "PLAN",
+        null,
+        null
+      ],
+      [
+        "S-512",
+        "PLAN",
+        null,
+        null
+      ],
+      [
+        "S-512",
+        "PLAN",
+        null,
+        null
+      ],
+      [
+        "S-512",
+        "SECTION A",
+        "A",
+        null
+      ],
+      [
+        "S-512",
+        "PLAN",
+        null,
+        null
+      ]
+    ],
+    "warning_types": {
+      "unresolved_reference": 30,
+      "incomplete_label": 2
+    },
+    "occurrences": {
+      "defined_and_seen": 4
+    },
+    "schedules": 2,
+    "false_sheets": []
+  }
+}
