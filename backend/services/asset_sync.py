@@ -126,16 +126,22 @@ class Assets:
         """The applied record: this image's entry for every file now equal to
         it, the previous entry for files left as they were."""
 
-        previous = (self.applied() or {}).get("files") or {}
+        before = self.applied() or {}
+        previous = before.get("files") or {}
         files = {}
         for rel in plan["current"] + plan["missing"]:
             files[rel] = self.manifest["files"][rel]
         for rel in plan["update"] + plan["modified"]:
             if rel in previous:
                 files[rel] = previous[rel]
+        # The record names this image's release only once nothing of it is
+        # waiting; until then it keeps the release the volume was last brought to.
+        settled = not plan["update"] or not before
         _write_json(self.applied_path, {
-            "format": ASSET_FORMAT, "revision": self.manifest["revision"],
-            "asset_version": self.manifest["asset_version"], "files": files,
+            "format": ASSET_FORMAT,
+            "revision": self.manifest["revision"] if settled else before.get("revision"),
+            "asset_version": self.manifest["asset_version"] if settled else before.get("asset_version"),
+            "files": files,
             "updated_at": dt.datetime.now(dt.timezone.utc).isoformat(), **(extra or {}),
         })
 

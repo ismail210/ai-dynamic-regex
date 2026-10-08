@@ -43,6 +43,7 @@ class AssetSyncTests(unittest.TestCase):
         self.assertEqual(plan["modified"], ["history.csv"])
         self.assertEqual(plan["missing"], ["new.json"])
         self.assertEqual((self.live("model.pkl"), self.live("new.json")), ("m1", "{}"))   # only new files added
+        self.assertEqual(a.Assets(self.v2, self.data).applied()["revision"], "rev1")  # rev2 not applied yet
 
     def test_apply_backs_up_replaces_updates_keeps_user_changes_and_rolls_back(self):
         a.Assets(self.v1, self.data).startup()
