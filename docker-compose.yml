@@ -35,6 +35,8 @@ services:
       UPLOAD_ANALYSIS_TIMEOUT_SECONDS: ${UPLOAD_ANALYSIS_TIMEOUT_SECONDS:-1800}
       ARTIFACT_RETENTION_DOCUMENTS: ${ARTIFACT_RETENTION_DOCUMENTS:-3}
       ARTIFACT_MIN_FREE_BYTES: ${ARTIFACT_MIN_FREE_BYTES:-419430400}
+      # Plan pages Locate keeps per cached document (estimated MiB; 2 documents).
+      LOCATE_PLAN_CACHE_MB: ${LOCATE_PLAN_CACHE_MB:-256}
       # Optional LLM polish; the deterministic summary always runs without it.
       DRAWING_SUMMARY_LLM_ENABLED: ${DRAWING_SUMMARY_LLM_ENABLED:-false}
       LEGEND_PROFILE_LLM_ENABLED: ${LEGEND_PROFILE_LLM_ENABLED:-false}

@@ -565,6 +565,11 @@ class Settings:
     api_access_token: str | None = field(
         default_factory=lambda: os.getenv("API_ACCESS_TOKEN") or None
     )
+    # Memory budget (MiB, estimated) for the plan pages each cached document
+    # keeps for Locate (column_trace.PlanPages); two documents cached at most.
+    locate_plan_cache_mb: float = field(
+        default_factory=lambda: float(os.getenv("LOCATE_PLAN_CACHE_MB", "256"))
+    )
     # Set by the container build (backend/Dockerfile) from the same values as
     # the frontend image, and reported by /api/version.
     source_revision: str | None = field(

@@ -40,6 +40,8 @@ ENV APP_SOURCE_REVISION=${SOURCE_REVISION} \
 LABEL org.opencontainers.image.title="estima3d-api" \
       org.opencontainers.image.revision="${SOURCE_REVISION}" \
       org.opencontainers.image.version="${BUILD_ID}"
+# Manifest of the shipped assets (SHA-256 per file), read by asset_sync.
+RUN python -m services.asset_sync manifest
 
 EXPOSE 8000
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
