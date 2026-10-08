@@ -119,6 +119,24 @@ export async function getColumnTrace(documentId, location, scheduleId = null) {
   return data;
 }
 
+/** Where one printed grid location is on the plans (Drawing Summary). */
+export async function locateOnPlan(documentId, location, scheduleId = null) {
+  const { data } = await client.get(
+    `/api/documents/${encodeURIComponent(documentId)}/locate`,
+    { params: { location, ...(scheduleId ? { schedule: scheduleId } : {}) } },
+  );
+  return data;
+}
+
+/** PNG of one display-space region of a page (plan preview). */
+export async function fetchPageCrop(documentId, page, bbox, width = 480) {
+  const [x0, y0, x1, y1] = bbox.map((v) => Math.round(v * 10) / 10);
+  const { data } = await client.get(`/api/documents/${encodeURIComponent(documentId)}/page-crop`, {
+    params: { page, x0, y0, x1, y1, width }, responseType: "blob",
+  });
+  return data;
+}
+
 /** Same-origin URL for the registered drawing PDF (proxied in Vite). */
 export function documentPdfUrl(documentId) {
   return `${baseURL}/api/documents/${encodeURIComponent(documentId)}/pdf`;

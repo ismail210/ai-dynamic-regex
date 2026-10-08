@@ -19,9 +19,9 @@ from services.pdf_parser import extract_document_structure
 
 # Bumped whenever extraction output changes, so cached documents are rebuilt
 # instead of replaying stale artifacts.
-# 3.26 added summary coverage (header paths, trailing remarks). 3.27 kept
-# pier width off the plate. This tree has both, so neither cache is reused.
-EXTRACTION_VERSION = "3.28-summary-coverage-pier-wrap"
+# 3.28 kept pier width off the plate. 3.29 added summary locate/review.
+# This tree has both, plus the grid-axis extract, so neither cache is reused.
+EXTRACTION_VERSION = "3.30-grid-and-locate"
 
 
 def extract_engineering_document(

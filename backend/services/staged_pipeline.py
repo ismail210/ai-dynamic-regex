@@ -192,6 +192,41 @@ def trace_scheduled_column(
     return trace_column(document, str(document_source(document_id)), location, schedule_id)
 
 
+# Locate-on-plan context per document revision: the extracted document,
+# plan scope and analysed plan pages, reused across location requests
+# instead of re-reading ``document.json`` (tens of MB) for each one. Keyed by
+# the artifact's modification time and the extraction contract, so a new
+# extraction never serves stale evidence.
+_LOCATE_CONTEXTS: dict[str, tuple] = {}
+_LOCATE_CONTEXT_LIMIT = 2
+
+
+def locate_document_location(
+    document_id: str, location: str, schedule_id: str | None = None
+) -> dict[str, Any] | None:
+    """Where one printed grid location is on the plans (evidence for review;
+    nothing is stored). ``None`` without a current extraction."""
+
+    from services.artifact_store import artifact_path
+    from services.engineering.column_trace import locate_context, locate_location
+
+    path = artifact_path(document_id, "document.json")
+    if not path.is_file():
+        return None
+    revision = (path.stat().st_mtime_ns, EXTRACTION_VERSION)
+    cached = _LOCATE_CONTEXTS.get(document_id)
+    if cached is None or cached[0] != revision:
+        document = _current_document(document_id)
+        if document is None:
+            return None
+        cached = (revision, locate_context(document, str(document_source(document_id))))
+        _LOCATE_CONTEXTS.pop(document_id, None)
+        while len(_LOCATE_CONTEXTS) >= _LOCATE_CONTEXT_LIMIT:
+            _LOCATE_CONTEXTS.pop(next(iter(_LOCATE_CONTEXTS)))
+        _LOCATE_CONTEXTS[document_id] = cached
+    return locate_location(cached[1], location, schedule_id)
+
+
 def load_cached_extraction(document_id: str) -> Optional[Dict[str, Any]]:
     """Return the persisted extraction without starting extraction."""
 

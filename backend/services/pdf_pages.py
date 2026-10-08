@@ -12,12 +12,32 @@ instead of returning HTTP 500.
 from __future__ import annotations
 
 import logging
+import math
 from typing import Any, Generator, Iterable, List, Optional, Tuple
 
 import fitz
 
 
 logger = logging.getLogger("takeoff.pdf")
+
+
+def render_page_crop(path: str, page_number: int, bounds: tuple, width: int = 480) -> bytes:
+    """Render display-space bounds, with both output dimensions capped at 1200px."""
+    if not all(math.isfinite(v) for v in bounds):
+        raise ValueError("Crop coordinates must be finite")
+    if not 64 <= width <= 1200:
+        raise ValueError("Crop width must be between 64 and 1200")
+    with fitz.open(str(path)) as pdf:
+        if not 1 <= page_number <= pdf.page_count:
+            raise IndexError("Page not found")
+        sheet = pdf[page_number - 1]
+        x0, y0, x1, y1 = bounds
+        shown = fitz.Rect(min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1)) & sheet.rect
+        if shown.is_empty or shown.width < 4 or shown.height < 4:
+            raise ValueError("Empty region")
+        zoom = min(width / shown.width, 1200 / shown.height)
+        # get_pixmap clips in rotated display space, just like the PDF viewer.
+        return sheet.get_pixmap(matrix=fitz.Matrix(zoom, zoom), clip=shown).tobytes("png")
 
 
 def iter_pdf_pages(

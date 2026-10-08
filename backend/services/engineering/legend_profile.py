@@ -102,7 +102,9 @@ PROFILE_VERSION = "legend_profile_v4"
 #      grid bubbles past the title cut can confirm when a line supports them.
 # v6u: closest label owns the line. A letter stacked on a sheet id, and a
 #      digit beside a foot station, are not grids. A v6t cache lacks both.
-EXTRACTOR_VERSION = "legend_extractor_v6u-grid-context"
+# v6v: also Bassam's summary locate/review and related materials. A v6u cache
+#      has no level-review fields; a v6t-summary cache has no grid axes.
+EXTRACTOR_VERSION = "legend_extractor_v6v-grid-and-summary"
 SCHEMA_VERSION = "project_rule_schema_v1"
 
 STATUS_PROPOSED_INFERENCE = "PROPOSED_INFERENCE"

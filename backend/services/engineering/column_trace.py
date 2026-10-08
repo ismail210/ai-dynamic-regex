@@ -323,34 +323,54 @@ def _spanned(entry: Dict[str, Any], lines: List[Dict[str, Any]]) -> tuple:
     return spanned, ends, names
 
 
-def _analyse_plan(page: Any, page_no: int, names: List[str], lines: List[Dict[str, Any]],
-                  section_names: set) -> Optional[tuple]:
-    """``(record, context)`` for one plan page: the grid axes, the observations
-    at their crossings, and (context, not output) every labelled grid axis,
-    the grid-dimension calibration and the vectors for offset placement.
-    ``None`` when neither grid label is printed there (no vectors are read)."""
+def plan_geometry(page: Any, lines: list[dict[str, Any]]) -> dict[str, Any]:
+    """One plan page's vectors and labelled grid axes, read once and reusable
+    for every location looked for on that page."""
 
     words = page.get_text("words")
-    if not any(_norm(w[4]) in names for w in words):
-        return None
     drawings = page.get_drawings()
     segments = _segments(drawings)
     index = _segment_index(segments)
     circles = _circles(drawings)
-    by_name: Dict[str, List[tuple]] = defaultdict(list)
+    by_name: dict[str, list[tuple]] = defaultdict(list)
     for w in words:
         by_name[_norm(w[4])].append(w)
-    labels = {name for name in by_name if _GRID_LABEL_RE.match(name)} | set(names)
+    labels = {name for name in by_name if _GRID_LABEL_RE.match(name)}
     all_axes = {name: found for name in labels if (found := _axes(_bubbles(by_name[name], circles, name), index))}
+    return {"words": words, "drawings": drawings, "segments": segments, "index": index, "circles": circles,
+            "by_name": by_name, "all_axes": all_axes, "calibration": grid_calibration(all_axes, lines)}
+
+
+def _analyse_plan(page: Any, page_no: int, names: list[str], lines: list[dict[str, Any]],
+                  section_names: set, geometry: dict[str, Any] | None = None) -> tuple | None:
+    """``(record, context)`` for one plan page: the grid axes, the observations
+    at their crossings, and (context, not output) every labelled grid axis,
+    the grid-dimension calibration and the vectors for offset placement.
+    ``None`` when neither grid label is printed there (no vectors are read).
+    ``geometry`` (``plan_geometry``) reuses a page already read."""
+
+    if geometry is None:
+        if not any(_norm(w[4]) in names for w in page.get_text("words")):
+            return None
+        geometry = plan_geometry(page, lines)
+    drawings, segments, by_name = geometry["drawings"], geometry["segments"], geometry["by_name"]
+    if not any(name in by_name for name in names):
+        return None
+    all_axes = dict(geometry["all_axes"])
+    for name in names:
+        if name not in all_axes:
+            found = _axes(_bubbles(by_name.get(name, []), geometry["circles"], name), geometry["index"])
+            if found:
+                all_axes[name] = found
     axes = [all_axes.get(name, []) for name in names]
     if not any(axes):
         return None
     pairs = [(a, b, at) for a in axes[0] for b in axes[1] if (at := _crossing(a, b))]
     # Per candidate (same order): its crossing and the two axes, for offset placement.
-    context = {"axes": all_axes, "calibration": grid_calibration(all_axes, lines), "drawings": drawings,
+    context = {"axes": all_axes, "calibration": geometry["calibration"], "drawings": drawings,
                "segments": segments, "lines": lines,
                "crossings": [((x, y), {names[0]: a, names[1]: b}) for a, b, (x, y) in pairs]}
-    record: Dict[str, Any] = {"grid_axes": [len(a) for a in axes], "candidates": [
+    record: dict[str, Any] = {"grid_axes": [len(a) for a in axes], "candidates": [
         {**_observe(x, y, lines, drawings, segments, section_names), "page": page_no} for _a, _b, (x, y) in pairs]}
     if not pairs:
         record.update(observation="grids_not_found", note="Both grid lines were not found on this plan.")
@@ -609,3 +629,202 @@ def trace_column(document: Dict[str, Any], pdf_path: str, location: str,
                 "how many fabricated pieces it is made of.",
     }
     return convert_boxes(trace, display_boxes(document))
+
+
+# --------------------------------------------------------------------------
+# Locate on plan: one printed location, on every plan view that prints both
+# of its grid labels -- independent of levels, so a location a table assigns
+# (no schedule extent) or a stair part plan (no level in its title) is found
+# too. The grid names are literal axes: C.1-5.1 is where the axis labelled
+# C.1 crosses the axis labelled 5.1; a decimal is part of the name, never an
+# offset. Scale matters only for a parenthesized offset.
+# --------------------------------------------------------------------------
+
+
+def locate_context(document: dict[str, Any], pdf_path: str) -> dict[str, Any]:
+    """Document-level evidence a location lookup reuses: sheet ids, display
+    space, plan scope, scales and each page's grid labels. Built once per
+    document revision (the caller caches it); plan pages are analysed lazily
+    and remembered here."""
+
+    from services.engineering.drawing_intelligence import _sheet_ids
+
+    shown = displayed(document)
+    sheets = _sheet_ids(document)
+    statements = plan_statements(shown, sheets)
+    elevations = plan_elevations(statements, spot_elevations(shown, sheets), plan_values(shown, statements, sheets))
+    # Every short printed word per page: a page is a candidate when it prints
+    # both grid names exactly (R13, D2.5 and RA.1 included).
+    labels: dict[int, set] = defaultdict(set)
+    for word in document.get("words") or []:
+        name = _norm(word.get("text") or "")
+        if 0 < len(name) <= 10:
+            labels[int(word.get("page_number") or 0)].add(name)
+    lines_by_page: dict[int, list[dict[str, Any]]] = defaultdict(list)
+    for ln in document.get("lines") or []:
+        if len(ln.get("bbox") or []) >= 4:
+            lines_by_page[int(ln.get("page_number") or 0)].append(ln)
+    shown_lines: dict[int, list[dict[str, Any]]] = defaultdict(list)
+    for ln in shown.get("lines") or []:
+        if ln.get("bbox"):
+            shown_lines[int(ln.get("page_number") or 0)].append(ln)
+    schedule_pages = {p for s in (document.get("column_schedules") or {}).get("schedules") or [] for p in s.get("pages") or []}
+    return {
+        "pdf_path": pdf_path, "sheets": sheets, "box": display_boxes(document),
+        "scopes": ScopeResolver(document, elevations, shown), "labels": labels,
+        "lines_by_page": lines_by_page, "shown_lines": shown_lines, "title_block_scale": sheet_scales(document),
+        "schedule_pages": schedule_pages, "analysed": {}, "geometry": {}, "view_scales": {},
+        "schedule_names": {s["id"]: s.get("caption") or s.get("title")
+                           for s in (document.get("column_schedules") or {}).get("schedules") or []},
+    }
+
+
+def _place_two_offsets(crossing: tuple, offsets: dict[str, dict[str, Any]], scale: dict[str, Any],
+                       context: dict[str, Any]) -> dict[str, Any]:
+    """A column offset from both of its grids (``C.4(1' - 7 3/8")-7.5(-2' - 4 1/2")``):
+    each offset runs perpendicular to its own grid. Printed signs are not
+    screen directions, so all four combinations are looked at; one is
+    established only when the view's scale is validated or calibrated and a
+    column is drawn at exactly one of them."""
+
+    record: dict[str, Any] = {"grids": [{"grid": g, "printed": o.get("raw"), "inches": abs(float(o["inches"]))}
+                                        for g, o in offsets.items()], "scale_status": scale["status"], "sides": []}
+    usable = scale["points_per_inch"] or ((scale.get("printed") or {}).get("points_per_inch")
+                                         if scale["status"] == "printed" else None)
+    if not usable:
+        return {**record, "status": "unresolved_scale", "note": f"The offsets are not placed: {scale['note']}"}
+    (x, y), axes = crossing
+    shifts = []
+    for g, o in offsets.items():
+        nx, ny = _normal(axes[g]["angle"])
+        shifts.append((g, abs(float(o["inches"])) * usable, nx, ny))
+    for s1 in (-1, 1):
+        for s2 in (-1, 1):
+            (_g1, d1, n1x, n1y), (_g2, d2, n2x, n2y) = shifts
+            determinant = n1x * n2y - n1y * n2x
+            if abs(determinant) < 0.01:
+                return {**record, "status": "unresolved_direction",
+                        "note": "The grid axes are too nearly parallel to place both offsets reliably."}
+            # Solve both perpendicular-distance constraints, including skew grids.
+            px = x + (s1 * d1 * n2y - s2 * d2 * n1y) / determinant
+            py = y + (n1x * s2 * d2 - n2x * s1 * d1) / determinant
+            seen = _observe(px, py, context["lines"], context["drawings"], context["segments"], set())
+            record["sides"].append({"toward": None, "signs": [s1, s2], "point_bbox": seen["point_bbox"],
+                                    "symbol": seen["symbol"], "annotations": seen["annotations"]})
+    drawn = [side for side in record["sides"] if side["symbol"]]
+    if len(drawn) == 1 and scale["status"] in PLACES:
+        return {**record, "status": "placed", "placed_bbox": drawn[0]["point_bbox"],
+                "note": f"A column is drawn at one of the four offset positions, at the view's {scale['status']} scale."}
+    if len(drawn) == 1:
+        return {**record, "status": "candidate", "placed_bbox": drawn[0]["point_bbox"],
+                "note": "A column is drawn at one offset position, but the view's scale is only printed, not validated."}
+    return {**record, "status": "unresolved_direction",
+            "note": (f"A column is drawn at {len(drawn)} of the four offset positions; the directions are not established."
+                     if drawn else "No column symbol is drawn at any of the four offset positions; the directions "
+                                   "are not established.")}
+
+
+def _view_scale(context: dict[str, Any], page: int, scope: dict[str, Any], plan_context: dict[str, Any]) -> dict[str, Any]:
+    key = (page, tuple(scope.get("view_title_bbox") or ()))
+    if key not in context["view_scales"]:
+        context["view_scales"][key] = resolve_view_scale(
+            printed_view_scale(context["shown_lines"].get(page, []), scope.get("view_title_bbox")),
+            context["title_block_scale"].get(page), plan_context["calibration"])
+    return context["view_scales"][key]
+
+
+def locate_location(context: dict[str, Any], location: str, schedule_id: str | None = None) -> dict[str, Any]:
+    """Where one printed grid location is on the plans.
+
+    Every plan view printing both grid labels is analysed: the two labelled
+    axes, their crossing(s), a column symbol there and, for a printed offset,
+    the offset placed perpendicular to its own grid at the view's scale.
+    ``schedule_id`` scopes views by building / area (``view_scope``); a view
+    titled for another schedule's scope is listed apart, never dropped
+    silently. Results are ordered: in scope with a column first."""
+
+    from services.engineering.column_schedule import parse_grid_location
+
+    parsed = parse_grid_location(location)
+    grids = parsed.get("grids") or []
+    result: dict[str, Any] = {"location": location, "grids": [{"name": g["label"], "offset": (g.get("offset") or {}).get("raw")}
+                                                              for g in grids],
+                              "schedule_id": schedule_id, "views": [], "other_scope_views": []}
+    if parsed["status"] != "parsed" or len(grids) != 2:
+        return {**result, "status": "not_a_grid_location",
+                "note": "The printed location is not two grid names, so there is no intersection to look for."}
+    names = [_norm(g["label"]) for g in grids]
+    offsets = {_norm(g["label"]): g["offset"] for g in grids if g.get("offset")}
+    sheets = context["sheets"]
+    pages = sorted(p for p, found in context["labels"].items()
+                   if all(n in found for n in names) and p not in context["schedule_pages"])
+    if not pages:
+        return {**result, "status": "plan_not_found",
+                "note": f"No plan in the set prints both grid labels {grids[0]['label']} and {grids[1]['label']}."}
+    scopes: ScopeResolver = context["scopes"]
+    with fitz.open(context["pdf_path"]) as pdf:
+        for page_no in pages:
+            key = (page_no, tuple(names))
+            if key not in context["analysed"]:
+                lines = context["lines_by_page"].get(page_no, [])
+                if page_no not in context["geometry"]:
+                    context["geometry"][page_no] = plan_geometry(pdf[page_no - 1], lines)
+                context["analysed"][key] = _analyse_plan(pdf[page_no - 1], page_no, names, lines, set(),
+                                                         context["geometry"][page_no])
+            found, plan_context = context["analysed"][key] or (None, None)
+            if found is None or not found["candidates"]:
+                continue
+            for candidate, crossing in zip(found["candidates"], plan_context["crossings"]):
+                if schedule_id:
+                    scope = scopes.scope(schedule_id, page_no, candidate["point_bbox"])
+                else:
+                    view = scopes._view_title(page_no, candidate["point_bbox"])
+                    scope = {"status": "not_compared", "view_title": view and view["text"],
+                             "view_title_bbox": view and view["bbox"],
+                             "sheet_title": (scopes.sheet_titles.get(page_no) or {}).get("text"),
+                             "note": "No schedule given; the view's building / area is not compared."}
+                item = {"page": page_no, "sheet": sheets.get(page_no), "view_title": scope.get("view_title"),
+                        "sheet_title": scope.get("sheet_title"), "scope": {k: scope.get(k) for k in ("status", "note")},
+                        **candidate}
+                if scope["status"] == "conflicting":
+                    result["other_scope_views"].append(item)
+                    continue
+                scale = _view_scale(context, page_no, scope, plan_context)
+                item["scale"] = {"status": scale["status"], "note": scale.get("note")}
+                if len(offsets) == 2:
+                    placed = _place_two_offsets(crossing, offsets, scale, plan_context)
+                elif offsets:
+                    (grid_name, offset), = offsets.items()
+                    placed = _place_offset(crossing, grid_name, offset, scale, plan_context, set())
+                else:
+                    placed = None
+                if placed:
+                    item["offset"] = placed
+                    item["state"] = {"placed": "column_symbol_at_offset", "candidate": "offset_candidate"}.get(
+                        placed["status"], "offset_unresolved")
+                    item["target_bbox"] = placed.get("placed_bbox") or candidate["point_bbox"]
+                else:
+                    item["state"] = "column_symbol" if candidate["symbol"] else "intersection_only"
+                    item["target_bbox"] = (candidate["symbol"] or {}).get("bbox") or candidate["point_bbox"]
+                result["views"].append(item)
+    rank = {"column_symbol": 0, "column_symbol_at_offset": 0, "offset_candidate": 1, "intersection_only": 2,
+            "offset_unresolved": 2}
+    result["views"].sort(key=lambda v: (v["scope"]["status"] not in COUNTS and v["scope"]["status"] != "not_compared",
+                                        rank.get(v["state"], 3), v["page"]))
+    observed = [v for v in result["views"] if v["state"] in ("column_symbol", "column_symbol_at_offset")]
+    pages_observed = {v["page"] for v in observed}
+    if not result["views"]:
+        status = "plan_not_found"
+        result["note"] = ("Plans printing both grid labels were found, but none in this schedule's building / area."
+                          if result["other_scope_views"] else "The two grid lines do not cross on any plan that prints them.")
+    elif observed:
+        status = "column_symbol"
+    elif any(v["state"] == "offset_unresolved" for v in result["views"]):
+        status = "offset_unresolved"
+    else:
+        status = "intersection_only"
+    if len(observed) > len(pages_observed):
+        result["note"] = "On some plans the grids cross at more than one place; every candidate is listed, none is chosen."
+    result["status"] = status
+    result["default"] = 0 if result["views"] else None
+    return convert_boxes(result, context["box"])

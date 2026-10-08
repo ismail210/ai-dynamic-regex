@@ -76,6 +76,7 @@ _MAX_HEADER_ROW = 4
 _HEADER_WORD_GAP = 150.0
 _HEADER_STACK = 14.0
 _TITLE_GAP = 40.0
+_TITLE_WORD_GAP = 12.0
 
 
 def header_label(text: Any) -> str:
@@ -103,6 +104,46 @@ def read_ruled_tables(
     return records
 
 
+# Header words that pair with MARK only in non-member schedules (SLAB/DECK
+# "MARK | TOTAL DEPTH", MAT FOUNDATION "MARK | THICKNESS").
+_DISPLAY_PARTNERS = frozenset({"DEPTH", "THICKNESS"})
+
+
+def read_display_tables(pdf_path: str, words: Iterable[dict[str, Any]],
+                        read: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Ruled tables the production reader does not look for (its header
+    pairs MARK with a depth or a thickness, not a size), for the Drawing
+    Summary only: they never reach ``schedule_grid`` or the mark map. Only
+    regions the production pass did not search are read, and a table that
+    overlaps one already ``read`` is skipped."""
+
+    by_page = _words_by_page(words)
+    regions: dict[int, list[tuple]] = {}
+    for page, found in by_page.items():
+        known = {(round(r.x0), round(r.y0)) for r, _y in _schedule_regions(found)}
+        extra = [(r, y) for r, y in _schedule_regions(found, _HEADER_PARTNERS | _DISPLAY_PARTNERS)
+                 if (round(r.x0), round(r.y0)) not in known]
+        if extra:
+            regions[page] = extra
+    if not regions:
+        return []
+    taken: dict[int, list[fitz.Rect]] = {}
+    for record in read:
+        if record.get("bbox"):
+            taken.setdefault(record["page"], []).append(fitz.Rect(record["bbox"]))
+    records: list[dict[str, Any]] = []
+    with fitz.open(pdf_path) as document:
+        for page_number, found in sorted(regions.items()):
+            if not 1 <= page_number <= document.page_count:
+                continue
+            page = document[page_number - 1]
+            for record in _page_records(page, page_number, page.get_text("words"), found):
+                box = fitz.Rect(record["bbox"])
+                if record["layout"] == "rows" and not any(box.intersects(t) for t in taken.get(page_number, [])):
+                    records.append({**record, "display_only": True})
+    return records
+
+
 def _words_by_page(words: Iterable[Dict[str, Any]], wanted: Optional[set] = None) -> Dict[int, List[tuple]]:
     by_page: Dict[int, List[tuple]] = {}
     for word in words:
@@ -113,19 +154,20 @@ def _words_by_page(words: Iterable[Dict[str, Any]], wanted: Optional[set] = None
     return by_page
 
 
-def _page_records(page: Any, page_number: int, page_words: List[tuple]) -> List[Dict[str, Any]]:
+def _page_records(page: Any, page_number: int, page_words: list[tuple],
+                  regions: list[tuple] | None = None) -> list[dict[str, Any]]:
     drawings = page.get_drawings()
     rules = _vertical_rules(drawings, page.rect.height)
-    phrases: Optional[tuple] = None
+    phrases: tuple | None = None
     fitted = [
         clip
         for clip in (
             _fit_to_rules(region, anchor_y, rules)
-            for region, anchor_y in _schedule_regions(page_words)
+            for region, anchor_y in (_schedule_regions(page_words) if regions is None else regions)
         )
         if clip is not None
     ]
-    records: List[Dict[str, Any]] = []
+    records: list[dict[str, Any]] = []
     seen: set[tuple] = set()
     for clip in _merge_overlapping(fitted, page.rect):
         try:
@@ -275,7 +317,7 @@ def _fit_to_rules(
     return fitz.Rect(region.x0, max(region.y0, top - 2.0), region.x1, min(region.y1, bottom + 2.0))
 
 
-def _schedule_regions(page_words: Sequence[tuple]) -> List[tuple]:
+def _schedule_regions(page_words: Sequence[tuple], partners: frozenset = _HEADER_PARTNERS) -> List[tuple]:
     """``(region, anchor_y)`` around schedule header rows and Revit location rows.
 
     ``find_tables`` costs seconds on a full dense sheet, so it only looks here.
@@ -301,7 +343,7 @@ def _schedule_regions(page_words: Sequence[tuple]) -> List[tuple]:
                 if left - right > _HEADER_WORD_GAP:
                     break
                 right = max(right, end)
-                has_partner = has_partner or word in _HEADER_PARTNERS
+                has_partner = has_partner or word in partners
             if has_partner:
                 # Width of the header line; titles sit above, body rows below.
                 regions.append(
@@ -602,7 +644,18 @@ def _title_above(bbox: List[float], page_words: Sequence[tuple]) -> str:
         and word[2] > bbox[0]
         and word[0] < bbox[2]
     ]
-    return header_label(" ".join(str(word[4]) for word in sorted(line, key=lambda w: w[0])))
+    # A title centred over a table whose ruling was read only in part (OSSE
+    # "BASE PLATE SCHEDULE" over a clipped REMARKS column) runs on past the
+    # box: the words that continue the same line, word by word.
+    line.sort(key=lambda w: w[0])
+    while line:
+        last = line[-1]
+        follow = [w for w in page_words if w[0] >= last[2] and w[0] - last[2] < _TITLE_WORD_GAP
+                  and abs(w[1] - last[1]) < 2.0 and w not in line]
+        if not follow:
+            break
+        line.append(min(follow, key=lambda w: w[0]))
+    return header_label(" ".join(str(word[4]) for word in line))
 
 
 def _row_bbox(table: Any, index: int) -> Optional[List[float]]:

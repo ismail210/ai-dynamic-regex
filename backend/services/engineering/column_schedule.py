@@ -16,6 +16,7 @@ intersection, plate size or sheet reference keeps its raw text and an
 from __future__ import annotations
 
 import re
+from collections import Counter
 from fractions import Fraction
 from typing import Any, Dict, List, Optional
 
@@ -551,6 +552,7 @@ def read_column_matrix(
         sections: List[Dict[str, Any]] = []
         plate_marks: List[Dict[str, Any]] = []
         notes: List[Dict[str, Any]] = []
+        supports: list[dict[str, Any]] = []
         for phrase in band:
             index = row_of(phrase)
             if index is not None and categories[index] != "level":
@@ -567,6 +569,11 @@ def read_column_matrix(
                 continue
             elif _SIZE_LIKE_RE.search(text) and not _PIER_RE.match(compact):
                 sections.append({"printed": text, "section": None, "label_band": level, "bbox": phrase["bbox"]})
+            elif _PIER_RE.match(compact):
+                # A pier drawn under the column (OSSE C.8-8.9 "P1 - 18 x 20"):
+                # what supports it, kept as printed; never a column section.
+                supports.append({"printed": text, "mark": _PIER_RE.match(compact).group(0),
+                                 "label_band": level, "bbox": phrase["bbox"]})
             elif re.search(r"[A-Z]{2,}", text.upper()):
                 notes.append({"text": text, "bbox": phrase["bbox"]})
         plates: List[Dict[str, Any]] = []
@@ -594,6 +601,7 @@ def read_column_matrix(
             "plate_marks": plate_marks,
             "plates": plates,
             "notes": notes,
+            "supports": supports,
             "supplementary": supplementary,
             "suppressed_text": [p["text"] for p in hidden if _inside(p["bbox"], band_rect)],
             "bbox": _box(band_rect),
@@ -1247,17 +1255,29 @@ def column_schedule_view(document: Dict[str, Any], sheets: Dict[int, str]) -> Di
 
     from services.engineering.drawing_intelligence import _catalog_designation
     from services.engineering.level_evidence import level_difference
-    from services.engineering.schedule_grid import _catalog_accepts, section_from_size_text
+    from services.engineering.schedule_grid import _catalog_accepts, normalize_schedule_mark, section_from_size_text
 
     data = document.get("column_schedules") or {}
     tables = data.get("plate_tables") or []
     index = plate_index(tables)
     pages_by_sheet = {_sheet_key(sheet): page for page, sheet in sheets.items()}
+
+    def table_section(text: str) -> str | None:
+        # A designation wrapped onto two lines in its cell (``HSS3-1/2X3-1/2``
+        # / ``X3/8``) reads as one once the break is closed; an exact catalog
+        # row (display only) covers fractional HSS sizes the size parser skips.
+        compact = re.sub(r"\s+", "", text)
+        return (section_from_size_text(text, _catalog_accepts)
+                or section_from_size_text(compact, _catalog_accepts)
+                or _catalog_designation(compact))
+
+    location_tables = data.get("location_tables") or []
     location_rows: Dict[tuple, List[tuple]] = {}
-    for table in data.get("location_tables") or []:
-        for row in table["rows"]:
-            row = {**row, "section": section_from_size_text(row["section_text"], _catalog_accepts)}
+    for t, table in enumerate(location_tables):
+        for r, row in enumerate(table["rows"]):
+            row = {**row, "section": table_section(row["section_text"]), "_key": (t, r)}
             location_rows.setdefault(_location_identity(parse_grid_location(row["location"])), []).append((table, row))
+    matched_by: dict[tuple, set[str]] = {}   # location-table row -> the column schedule listing it
     plans: Dict[int, str] = {}
     cap_rules: Dict[int, List[Dict[str, Any]]] = {}
     for block in document.get("blocks") or []:
@@ -1311,7 +1331,9 @@ def column_schedule_view(document: Dict[str, Any], sheets: Dict[int, str]) -> Di
                     if identity not in seen:
                         seen.add(identity)
                         entry["locations"].append(parsed)
-                        matches.extend((parsed, match) for match in location_rows.get(identity, []))
+                        for match in location_rows.get(identity, []):
+                            matches.append((parsed, match))
+                            matched_by.setdefault(match[1]["_key"], set()).add(schedule["id"])
                 repeats = [split_locations(r) for r in column.get("key_repeats") or []]
                 entry.update({
                     "location_text": column["key"],
@@ -1345,6 +1367,9 @@ def column_schedule_view(document: Dict[str, Any], sheets: Dict[int, str]) -> Di
                 f"{label}: {text}" for label, text in (column.get("supplementary") or {}).items()
                 if re.search(r"QTY|QUANTITY", label, re.IGNORECASE)
             ]
+            if column.get("supports"):
+                entry["supports"] = [{**support, "page": column["page"], "sheet": sheets.get(column["page"])}
+                                     for support in column["supports"]]
             exact = {s["designation"] for s in entry["sections"] if s["designation"]}
             entry["conflicts"] = [
                 f"{table['title'].title()} lists {location['raw']} as {row['section_text']}"
@@ -1371,13 +1396,113 @@ def column_schedule_view(document: Dict[str, Any], sheets: Dict[int, str]) -> Di
             "steel" if "steel" in materials else
             "concrete" if any(m and "concrete" in m for m in materials) else "unclassified")
         schedules_out[-1]["entry_count"] = len(own)
+        schedules_out[-1]["coverage"] = _schedule_coverage(own)
+
+    # Locations a location table assigns a section and plate to that no
+    # column schedule prints (OSSE S601 HSS posts): entries of their own,
+    # with the table as their only source -- no levels, no column stack.
+    table_records = []
+    for t, table in enumerate(location_tables):
+        rows = list(enumerate(table["rows"]))
+        listed = Counter(sid for r, _row in rows for sid in matched_by.get((t, r), set()))
+        # Shared labels across schedules do not establish one building scope.
+        scope_id, shared = next(iter(listed.items())) if len(listed) == 1 else (None, 0)
+        record = {"title": table.get("title"), "page": table["page"], "sheet": sheets.get(table["page"]),
+                  "bbox": table.get("bbox"), "rows": len(rows), "matched": dict(listed),
+                  "scope_schedule_id": scope_id,
+                  "scope_basis": (f"{shared} of its {len(rows)} rows are locations of that schedule"
+                                  if scope_id else None)}
+        only = [row for r, row in rows if (t, r) not in matched_by]
+        record["assignment_only"] = len(only)
+        if only:
+            sid = f"L{t + 1}"
+            record["assignment_only_schedule_id"] = sid
+            own = [_assignment_entry(f"{sid}-{n}", sid, table, row, table_section(row["section_text"]), index,
+                                     sheets, _catalog_designation)
+                   for n, row in enumerate(only, 1)]
+            materials = [(e.get("material") or {}).get("material") for e in own]
+            schedules_out.append({
+                "id": sid, "name": f"{table.get('title') or 'Location table'} — locations not in a column schedule",
+                "layout": "location_table", "key_role": "location", "source": "location_table",
+                "pages": [table["page"]], "sheets": [sheets.get(table["page"])], "page": table["page"],
+                "sheet": sheets.get(table["page"]), "bbox": table.get("bbox"), "block_count": 1, "levels": [],
+                "notes": [], "hidden_text": [], "scope_schedule_id": scope_id, "scope_basis": record["scope_basis"],
+                "material_group": "steel" if "steel" in materials else "unclassified",
+                "entry_count": len(own), "coverage": _schedule_coverage(own),
+            })
+            entries.extend(own)
+        table_records.append(record)
+
+    # A plate shown as "not shown" says where else it was looked for.
+    if location_tables:
+        searched = [{"title": t.get("title"), "page": t["page"], "sheet": sheets.get(t["page"]),
+                     "rows": len(t["rows"])} for t in location_tables]
+        where = "; ".join(f"{t['title'] or 'location table'} ({t['sheet'] or 'p. ' + str(t['page'])}, "
+                          f"{t['rows']} location rows)" for t in searched)
+        for entry in entries:
+            if entry["plate"]["status"] == "not_shown" and not entry.get("assignment_only"):
+                entry["plate"]["note"] = f"No plate is printed for this column, and no row of {where} lists this location."
+                entry["plate"]["searched"] = searched
+    used = {normalize_schedule_mark(e["plate"]["printed"]) for e in entries if e["plate"].get("printed")}
     return {
         "schedules": schedules_out,
         "entries": entries,
         "plate_counts": plate_count_checks(entries, tables),
+        "location_tables": table_records,
         "plate_tables": [
             {"kind": t["kind"], "title": t["title"], "page": t["page"], "sheet": sheets.get(t["page"]),
-             "marks": [r["mark"] for r in t["rows"]]}
+             "bbox": t.get("bbox"), "marks": [r["mark"] for r in t["rows"]],
+             "rows": [{"mark": r["mark"], "dimensions": r["dimensions"], "source_text": r["source_text"], "bbox": r["bbox"]}
+                      for r in t["rows"]],
+             # Defined but assigned to no listed column: shown, never given a location.
+             "unused_marks": [r["mark"] for r in t["rows"] if normalize_schedule_mark(r["mark"]) not in used]}
             for t in tables
         ],
     }
+
+
+def _schedule_coverage(entries: list[dict[str, Any]]) -> dict[str, int]:
+    """Printed entries of one schedule and how far each is linked (counts of
+    printed records, never of installed members)."""
+
+    statuses = Counter(e["plate"]["status"] for e in entries)
+    return {
+        "entries": len(entries),
+        "plates_linked": statuses["resolved"] + statuses["read"],
+        "plates_not_shown": statuses["not_shown"],
+        "plates_unresolved": sum(statuses[s] for s in ("conflict", "unresolved", "unreadable")),
+        "sections_in_catalog": sum(1 for e in entries if any(s.get("designation") for s in e["sections"])),
+    }
+
+
+def _assignment_entry(entry_id: str, schedule_id: str, table: dict[str, Any], row: dict[str, Any],
+                      section: str | None, index: dict[str, list[tuple]], sheets: dict[int, str],
+                      designation_of: Any) -> dict[str, Any]:
+    """A location-table row as an entry: the location, section and plate the
+    table assigns. The table gives no levels, so no extent is read."""
+
+    parsed = parse_grid_location(row["location"])
+    source = _source("location table", row["source_text"], table["page"], sheets, row["bbox"], table.get("title"))
+    designation = designation_of(section) if section else None
+    plate: dict[str, Any] = {"type": None, "status": "not_shown", "printed": "", "dimensions": [], "via": [source],
+                             "note": "The table assigns no plate to this location."}
+    if row["plate_mark"]:
+        found = lookup_plate_mark(row["plate_mark"], index, sheets)
+        plate = {"printed": row["plate_mark"], "via": [source] + found["sources"], "status": found["status"],
+                 "type": found.get("type"), "dimensions": found.get("dimensions") or []}
+        if found["status"] != "resolved":
+            plate["note"] = found["reason"]
+    entry = {
+        "id": entry_id, "schedule_id": schedule_id, "key_role": "location", "assignment_only": True,
+        "page": table["page"], "sheet": sheets.get(table["page"]), "bbox": row["bbox"],
+        "is_definition_not_quantity": True, "mark": None, "location_text": row["location"],
+        "locations": [parsed], "listed_location_count": 1, "repeated_label": False, "label_conflict": None,
+        "sections": [{"designation": designation, "printed": row["section_text"]}],
+        "plate": plate, "other_plates": [], "notes": [], "conflicts": [], "hidden_text": [],
+        "extent": None, "level_difference": None,
+        "extent_note": "The table assigns a section and base plate only; it gives no levels, so the column's "
+                       "vertical extent is not established.",
+    }
+    if designation:
+        entry["material"] = {"status": "catalog section", "material": "steel"}
+    return entry

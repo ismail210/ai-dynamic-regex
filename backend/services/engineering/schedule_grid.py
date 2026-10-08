@@ -30,6 +30,7 @@ from services.engineering.context_scope import drawing_title_by_page
 from services.engineering.schedule_tables import (
     MARK_HEADERS,
     SIZE_HEADERS,
+    read_display_tables,
     read_rotated_column_schedules,
     read_ruled_tables,
 )
@@ -581,6 +582,9 @@ def attach_schedule_grid(
     document["schedule_grid"] = grids
     document["level_links"] = link_level_names_to_plans(document, grids)
     document["column_level_endpoints"] = column_level_endpoints(grids)
+    # Display-only: SLAB/DECK, MAT FOUNDATION and similar tables for the
+    # Drawing Summary. Never part of ``schedule_grid`` or the mark map.
+    document["display_schedule_grid"] = _display_grids(grids, records, pdf_path, words) if pdf_path else []
     # Display/evidence only: never read by prediction or quantities.
     rotated = read_rotated_column_schedules(pdf_path, words) if pdf_path else []
     document["column_schedules"] = build_column_schedules(records + rotated, grids)
@@ -599,6 +603,30 @@ def attach_schedule_grid(
         )
     document["schedule_crosscheck"] = schedule_mark_crosscheck(document)
     return document
+
+
+def _display_grids(grids: list[dict[str, Any]], records: list[dict[str, Any]], pdf_path: str,
+                   words: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Printed schedules the production grid leaves out, for the Drawing
+    Summary only: ruled tables with printed rows none of which reads as a
+    mark (OSSE FOOTING SCHEDULE ``F3.0``, CONCRETE SCHEDULE ``RC1 - 24" x 24"``)
+    and tables only the display reader looks for (SLAB/DECK, MAT FOUNDATION)."""
+
+    shown = {(g.get("page"), g.get("title")) for g in grids}
+    out = []
+    for record in records:
+        if record.get("layout") != "rows" or (record["page"], record.get("title")) in shown:
+            continue
+        grid = _ruled_rows_grid(record, _catalog_accepts)
+        if grid and not grid["rows"] and grid.get("unread_rows"):
+            out.append(grid)
+    for record in read_display_tables(pdf_path, words, records):
+        grid = _ruled_rows_grid(record, _catalog_accepts)
+        if grid and (grid["rows"] or grid.get("unread_rows")):
+            out.append(grid)
+    # A table of catalog steel sections is a member schedule: not shown as a
+    # supporting schedule the production grid does not read.
+    return [{**grid, "display_only": True} for grid in out if not any(r.get("section") for r in grid["rows"])]
 
 
 def schedule_kind_from_title(title: str) -> str:
