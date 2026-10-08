@@ -101,19 +101,39 @@ docker compose up -d                # recreates containers on the new :current i
 docker compose ps
 ```
 
-Data stays on the volume. The volume's `training/` was seeded from the image
-that first started on it; later images add new seed files but never overwrite
-existing ones (learning state, promoted models and histories live there). The
-backend logs `data seeded from <rev>, image is <rev>` when they differ. To
-apply a newer shipped model or catalog file deliberately:
+Data stays on the volume. Shipped models and catalogs follow the asset steps
+below; nothing on the volume is replaced by an update alone.
+
+### Assets: shipped models and catalogs
+
+The image carries `training/` with a manifest (`.asset-manifest.json`: SHA-256
+and size of every shipped file, an asset version and the source revision).
+The volume's `training/` started as a copy and is then changed by the
+application (review state, histories, learning data, promoted models), so the
+two are reconciled explicitly by `services/asset_sync.py`:
+
+| On every start (automatic) | `apply` (explicit) | `rollback <backup>` (explicit) |
+| --- | --- | --- |
+| adds shipped files the volume lacks; records what is applied in `/data/.assets/applied.json`; logs files with a newer version waiting and files changed on the volume. **Replaces nothing.** | backs up every file it will replace to `/data/.assets/backups/<time>-from-<release>/`, copies each new version to a temporary name, verifies its SHA-256 (and parses JSON), then renames it into place; the applied record is written last. Files changed on the volume are **kept** unless `--replace-modified`. | restores the backed-up files and the previous applied record. |
 
 ```powershell
-docker compose exec backend ls /app/training.image          # the new image's seed
-docker compose exec backend cp /app/training.image/<file> /data/training/<file>
-docker compose restart backend
+docker compose logs backend | Select-String asset_sync        # what the last start found
+docker compose exec backend python -m services.asset_sync status
+docker compose stop backend                                    # no requests while files change
+docker compose run --rm backend python -m services.asset_sync apply
+docker compose start backend
+docker compose run --rm backend python -m services.asset_sync backups
+docker compose run --rm backend python -m services.asset_sync rollback <backup-name>
 ```
 
-Back up first (section 6).
+An interrupted `apply` leaves each file either old or new and the record
+unchanged; running `apply` again completes it. Uploads, documents and review
+decisions are never touched. If the volume's assets were applied by a newer
+asset format than an image reads (rolling back an image after an update), that
+image refuses to start and its log names the revision to run or the backup to
+restore. Take a section-6 backup before `apply`; verified 2026-10-08 on a
+disposable copy of the live volume (update, user-edited file kept, rollback,
+newer-format refusal).
 
 ## 6. Backup and restore
 
@@ -202,11 +222,16 @@ docker compose --profile test run --rm backend-tests python -m pytest -q tests/t
 
 The test service mounts, read-only, what tests read but no image contains:
 `docs/` (as `/docs`), `backend/training/eval_cache_backups/` and the backend
-tree as `/backend` for tests that address `<repo>/backend/...`. Two results
-differ from a developer checkout by design: `test_dev_identity` needs `git` and
-a work tree (the dev-only pairing route; containers use `/api/version`), and
-`test_geometry_evidence_contract.py` has the repository's existing
-`CompletionStatus` collection error. pytest therefore exits 1.
+tree as `/backend` for tests that address `<repo>/backend/...`.
+`test_dev_identity` is skipped there with its reason: the development pairing
+route needs `git` and a work tree, so it runs in a developer checkout
+(`cd backend; python -m pytest tests/test_dev_identity.py`), while the image's
+identity is `/api/version` (tested in `test_access_token.py` and checked live).
+`test_sheet_index_reference_set.py` fails 5 Burrville subtests on this
+machine's copy of that PDF exactly as on `main` (its ground truth came from a
+different Burrville file), so pytest exits 1 (integrated tree, 2026-10-08:
+1974 passed, 13 skipped, 5 failed). The former `CompletionStatus` collection
+error is fixed on `main` (56a0bbc).
 
 Frontend tests and the production build: `cd frontend; npm ci; npm run test; npm run build`
 (the image build runs `npm ci` + `npm run build` itself).
@@ -217,8 +242,9 @@ Frontend tests and the production build: `cd frontend; npm ci; npm run test; npm
 per-document state (`documents/`), extraction and analysis artifacts
 (`engineering_artifacts/`, regenerable, capped by `ARTIFACT_RETENTION_DOCUMENTS`),
 legend-profile cache, review and learning state, histories, registries, and the
-models / datasets seeded from the image. `/data/.seeded-from` — the revision
-that seeded it. Nothing else in the backend container is written except `/tmp`.
+models / datasets seeded from the image. `/data/.assets/` — the applied asset
+record and the backups `apply` takes. Nothing else in the backend container is
+written except `/tmp`.
 
 Kept out of every image (`backend/.dockerignore`, `frontend/.dockerignore`):
 `.env*`, virtual environments, `node_modules`, uploads, per-document runtime
@@ -263,43 +289,47 @@ first (see docs/DEPLOYMENT.md, "Scaling constraint").
 - **Monitoring**: `docker compose ps` health, `/healthz`, disk free on the
   volume, `docker stats` memory against the 3 GB ceiling; logs via
   `docker compose logs` or the host's journald driver.
-- **Updates**: section 5 after a backup; rollback per section 7.
-- **Before release of the combined product**: the summary branch this image
-  set was built from has not yet been integrated with the newer partner work
-  on `main` (section 14).
+- **Updates**: section 5 after a backup (assets: `status`, then `apply`);
+  rollback per section 7 and `asset_sync rollback`.
 
-## 13. Measured on Docker Desktop (Windows 11, WSL 2, 16 CPUs / 7.4 GB VM)
+## 13. Memory and the Locate cache (Docker Desktop, Windows 11, WSL 2, 7.4 GB VM)
 
-Fresh uploads into an empty `estima3d_data` volume, LLM off, one at a time:
+Integrated build (`main` + summary + Docker), fresh uploads into an empty
+volume, LLM off, one job at a time:
 
-| Step | Time | Backend memory (peak) |
+| Step | Time | Backend memory |
 | --- | --- | --- |
-| First start, empty volume (seed 401 MB of `training/`) | healthy in ~7 s | 233 MiB idle |
-| OSSE - ST.pdf, 26 pages, 16 MB: upload + extraction | 14.3 s | 366 MiB |
-| Yellow Spring ST1.pdf, 40 pages: extraction | 30.1 s | 697 MiB |
-| Brandywine Structural4.pdf, 43 pages: extraction | 36.1 s | 821 MiB |
-| Cached extraction after container recreation | 1.2–2.2 s | — |
-| OSSE report: Locate for 33 listed locations | 4 s | 631 MiB |
-| Locate across many plan views (Brandywine) | first page ~2–3 s | 1.34 GB, then ~1.17 GB held |
+| First start, empty volume (135 shipped files seeded) | healthy in ~10 s | ~230 MiB idle |
+| OSSE (26 pages, 16 MB) / Yellow Spring (40) / Brandywine (43): fresh extraction | 15.9 / 25.5 / 30.1 s | < 850 MiB |
+| Cached extraction (also after container recreation) | 0.6–1.5 s | — |
+| OSSE full report: Locate for all 107 entries, then Locate on all three sets | 17 s | peak 711 MiB, 556 MiB held after |
 | nginx | — | < 15 MiB |
 
-Locate keeps each analysed plan page in a per-process cache that is not
-evicted, so the backend's resident memory steps up with the plan pages looked
-at and stays there until the container restarts. The 3 GB ceiling
-(`BACKEND_MEMORY_LIMIT`) covers the measured peaks with room for analysis
-(~1.6 GB measured earlier on a 24-page set); a restart releases the cache.
-Run one heavy job (extraction, analysis, a full-report lookup, the test suite)
-at a time on an 8 GB machine. Image sizes: `estima3d-api` ~3.1 GB (Python
-packages 1.6 GB, `training/` seed 420 MB), `estima3d-web` 78 MB.
+Locate keeps each document's analysed plan pages for reuse (two documents at
+most). A cached page keeps only its line segments, grid labels and the paths
+that can be a column symbol, 1.6–5.2 MiB, and the pages a document keeps stay
+within `LOCATE_PLAN_CACHE_MB` (default 256, estimated from each page's segment
+count), least recently used first out; a re-extracted or removed document is
+dropped. Measured in-process on OSSE + Brandywine (12 locations, 41 plan
+pages, three rounds): the previous unbounded cache held 802 MiB; the bounded
+one holds 309 MiB at the default with warm rounds of 1.3 s, and 187 MiB at
+32 MiB, where pages are re-read on each request (about 2 minutes a round).
+Results are identical in all three. Raise the budget on larger sets if repeat
+Locate requests slow down; lower it on small hosts.
 
-## 14. Release prerequisite: integrate with `main`
+The 3 GB ceiling (`BACKEND_MEMORY_LIMIT`) also covers analysis (~1.6 GB
+measured on a 24-page set). Run one heavy job (extraction, analysis, a
+full-report lookup, the test suite) at a time on an 8 GB machine. Image sizes:
+`estima3d-api` ~3.0 GB (Python packages 1.6 GB, `training/` seed 420 MB),
+`estima3d-web` 78 MB.
 
-These images are built from `bassam/drawing-summary-osse` (summary work at
-`dcca690`) plus this containerization branch. `origin/main` has moved on with
-partner work (`56a0bbc`, `68bb739`: sheet index, grid intelligence,
-engineering intelligence) that is not in this branch; a trial merge conflicts
-in six files. The combined product must be integrated through the repository's
-user-invoked `/git-integrate` flow, with new cache versions above both sides,
-before an image of it is released. The containerization changes no file that
-the partner commits change (checked against `e32cc5b..68bb739`), so it carries
-over to the integrated tree; rebuild and re-verify the images there.
+## 14. What these images contain
+
+`main` with the partner's sheet index, reference navigation, grid and
+engineering intelligence (`56a0bbc`, `68bb739`), the Drawing Summary line
+(`376bf59`..`dcca690`) and this Docker setup, merged on
+`integrate/summary-main`. Cache contracts: extraction
+`3.30-summary-and-sheet-grid`, legend profile
+`legend_extractor_v6v-summary-and-grid`; re-extract documents after upgrading
+from an earlier image (`POST /api/documents/{id}/extract?force=true`, or
+Re-extract in the app).
