@@ -325,11 +325,12 @@ full-report lookup, the test suite) at a time on an 8 GB machine. Image sizes:
 
 ## 14. What these images contain
 
-`main` with the partner's sheet index, reference navigation, grid and
-engineering intelligence (`56a0bbc`, `68bb739`), the Drawing Summary line
-(`376bf59`..`dcca690`) and this Docker setup, merged on
-`integrate/summary-main`. Cache contracts: extraction
-`3.30-summary-and-sheet-grid`, legend profile
-`legend_extractor_v6v-summary-and-grid`; re-extract documents after upgrading
-from an earlier image (`POST /api/documents/{id}/extract?force=true`, or
-Re-extract in the app).
+`main`: the partner's sheet index, reference navigation, grid and
+engineering intelligence (`56a0bbc`, `68bb739`), stacked plan callouts and
+evidence-only offsets (`feee364`), the Drawing Summary line
+(`376bf59`..`dcca690`) and this Docker setup. Build from a checkout of `main`.
+Cache contracts: extraction `3.31-callout-boundaries`, legend profile
+`legend_extractor_v6y-callout-boundaries`. A document cached by an earlier
+image is extracted again on first use, so its Drawing Summary picks up the
+new references; `POST /api/documents/{id}/extract?force=true` (or Re-extract
+in the app) does it on demand.
