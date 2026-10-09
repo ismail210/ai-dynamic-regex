@@ -227,16 +227,54 @@ def locate_document_location(
     return locate_location(cached[1], location, schedule_id)
 
 
+def legend_profile_current(document: Dict[str, Any]) -> bool:
+    """The saved drawing summary was built by the extractor now running."""
+
+    from services.engineering.legend_profile import EXTRACTOR_VERSION
+
+    profile = document.get("legend_profile") or {}
+    return str(profile.get("extractor_version") or "") == EXTRACTOR_VERSION
+
+
+def refresh_legend_profile(document_id: str, document: Dict[str, Any]) -> bool:
+    """Replace a stale drawing summary. The extracted PDF text is kept.
+
+    ``EXTRACTOR_VERSION`` invalidates the legend cache, but a re-extract
+    returns the saved document before that cache is consulted. Rebuilding
+    here is what makes a new summary appear. Returns True when one was written.
+    """
+
+    if legend_profile_current(document):
+        return False
+    from services.engineering.legend_profile_hook import attach_legend_profile
+
+    logger.info("legend profile for %s is stale; rebuilding the drawing summary", document_id)
+    attach_legend_profile(document)
+    write_artifact(document_id, "document.json", document)
+    _write_extraction_view(document)
+    return True
+
+
 def load_cached_extraction(document_id: str) -> Optional[Dict[str, Any]]:
     """Return the persisted extraction without starting extraction."""
 
     view = read_artifact(document_id, "extraction.json")
     if view is not None and str(view.get("extraction_version") or "") == EXTRACTION_VERSION:
-        return view
+        if legend_profile_current({"legend_profile": view.get("legend_profile")}):
+            return view
+        document = _current_document(document_id)
+        if document is None:
+            return view
+        refresh_legend_profile(document_id, document)
+        return {
+            **extraction_response(document),
+            "extraction_version": EXTRACTION_VERSION,
+        }
     document = _current_document(document_id)
     if document is None:
         return None
-    _write_extraction_view(document)
+    if not refresh_legend_profile(document_id, document):
+        _write_extraction_view(document)
     return {
         **extraction_response(document),
         "extraction_version": EXTRACTION_VERSION,
@@ -629,6 +667,7 @@ def run_extraction_stage(
     source = document_source(document_id)
     cached = None if force else _current_document(document_id)
     if cached is not None:
+        refresh_legend_profile(document_id, cached)
         update_document(
             document_id,
             stage="extracted",

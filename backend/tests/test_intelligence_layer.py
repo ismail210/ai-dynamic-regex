@@ -150,6 +150,160 @@ class AdjacentViewNumberTests(unittest.TestCase):
         self.assertEqual(by_text["4/S-401-O"]["target_sheet"], "S-401-O")
         self.assertEqual(by_text["4/S-401-O"]["target_number"], "4")
 
+    def test_a_circle_number_beside_a_scaled_section_is_that_view(self):
+        profile = {"sheet_index": {"pages": [
+            _sheet(4, "S-101A", "FRAMING PLAN", "framing_plan"),
+            _sheet(22, "S-301", "SECTIONS", "section"),
+        ]}}
+        document = {
+            "pages": _pages((4, None), (22, None)),
+            "lines": [
+                _line("7/S-301", (100, 100, 180, 114), page=4),
+                _line("SECTION", (1564, 1337, 1649, 1356), page=22),
+                _line("7", (1698, 1338, 1716, 1356), page=22),
+                _line('SCALE: 3/4" = 1\'-0"', (1564, 1367, 1649, 1377), page=22),
+            ],
+        }
+        layer = build_engineering_intelligence(document, profile)
+        view = next(v for v in layer["views"] if v.get("view_number") == "7")
+        self.assertEqual(view["view_type"], "section")
+        ref = next(r for r in layer["references"] if r["reference_text"] == "7/S-301")
+        self.assertEqual(ref["status"], "target_view_found")
+        self.assertEqual(ref["target_view"], view["view_id"])
+        self.assertIn("target_bbox", ref)
+
+    def test_an_elevation_number_beside_the_title_is_that_view(self):
+        profile = {"sheet_index": {"pages": [
+            _sheet(4, "S-101A", "FRAMING PLAN", "framing_plan"),
+            _sheet(26, "S-401", "ELEVATIONS", "elevation"),
+        ]}}
+        document = {
+            "pages": _pages((4, None), (26, None)),
+            "lines": [
+                _line("2/S-401", (100, 100, 190, 114), page=4),
+                _line("ELEVATION", (564, 656, 670, 675), page=26),
+                _line("2", (705, 658, 720, 675), page=26),
+                _line('SCALE: 3/16" = 1\'-0"', (571, 686, 661, 697), page=26),
+            ],
+        }
+        layer = build_engineering_intelligence(document, profile)
+        view = next(v for v in layer["views"] if v.get("view_number") == "2")
+        self.assertEqual(view["view_type"], "elevation")
+        ref = next(r for r in layer["references"] if r["reference_text"] == "2/S-401")
+        self.assertEqual(ref["status"], "target_view_found")
+        self.assertEqual(ref["target_view_type"], "elevation")
+
+    def test_an_abbreviation_legend_is_not_a_view_number(self):
+        profile = {"sheet_index": {"pages": [
+            _sheet(2, "S-001", "GENERAL NOTES", "general_notes"),
+        ]}}
+        document = {
+            "pages": _pages((2, None)),
+            "lines": [
+                _line("EL", (2143, 1333, 2156, 1346), page=2),
+                _line("ELEVATION", (2206, 1333, 2265, 1346), page=2),
+            ],
+        }
+        layer = build_engineering_intelligence(document, profile)
+        self.assertFalse(any(v.get("view_number") == "EL" for v in layer["views"]))
+
+    def test_a_detail_title_takes_the_number_on_its_row(self):
+        profile = {"sheet_index": {"pages": [
+            _sheet(7, "S-111", "FOUNDATION PLAN", "foundation_plan"),
+            _sheet(32, "S-500", "TYPICAL FOUNDATION DETAILS", "detail"),
+        ]}}
+        document = {
+            "pages": _pages((7, None), (32, None)),
+            "lines": [
+                _line("4/S-500", (100, 100, 190, 114), page=7),
+                _line("4", (180, 1417, 196, 1430), page=32),
+                _line("TYPICAL FOUNDATION WALL DETAIL", (216, 1408, 520, 1432), page=32),
+                _line('1" = 1\'-0"', (220, 1436, 280, 1448), page=32),
+            ],
+        }
+        layer = build_engineering_intelligence(document, profile)
+        view = next(v for v in layer["views"] if v.get("view_number") == "4")
+        self.assertEqual(view["view_title"], "TYPICAL FOUNDATION WALL DETAIL")
+        ref = next(r for r in layer["references"] if r["reference_text"] == "4/S-500")
+        self.assertEqual(ref["status"], "target_view_found")
+        self.assertEqual(ref["target_view"], view["view_id"])
+        self.assertIn("target_bbox", ref)
+
+    def test_a_number_printed_against_the_title_word_is_that_view(self):
+        profile = {"sheet_index": {"pages": [
+            _sheet(8, "S-112", "FOUNDATION PLAN", "foundation_plan"),
+            _sheet(34, "S-502", "TYPICAL SLAB ON GRADE DETAILS", "detail"),
+        ]}}
+        document = {
+            "pages": _pages((8, None), (34, None)),
+            "lines": [
+                _line("11/S-502", (100, 100, 200, 114), page=8),
+                _line("11TYPICAL EQUIPMENT PAD DETAIL", (200, 1490, 520, 1508), page=34),
+                _line('1/2" = 1\'-0"', (200, 1512, 280, 1524), page=34),
+            ],
+        }
+        layer = build_engineering_intelligence(document, profile)
+        view = next(v for v in layer["views"] if v.get("view_number") == "11")
+        self.assertEqual(view["view_title"], "TYPICAL EQUIPMENT PAD DETAIL")
+        ref = next(r for r in layer["references"] if r["reference_text"] == "11/S-502")
+        self.assertEqual(ref["status"], "target_view_found")
+
+    def test_a_file_path_beside_a_number_is_not_a_view(self):
+        profile = {"sheet_index": {"pages": [
+            _sheet(25, "S-200", "BRACED FRAME ELEVATIONS", "elevation"),
+        ]}}
+        document = {
+            "pages": _pages((25, None)),
+            "lines": [
+                _line("4", (100, 400, 114, 414), page=25),
+                _line("Autodesk Docs://building/model.rvt", (134, 398, 500, 416), page=25),
+                _line('1/8" = 1\'-0"', (134, 420, 230, 432), page=25),
+            ],
+        }
+        layer = build_engineering_intelligence(document, profile)
+        self.assertFalse(any(v.get("view_number") == "4" for v in layer["views"]))
+
+    def test_the_plan_title_with_a_number_is_that_view(self):
+        profile = {"sheet_index": {"pages": [
+            _sheet(4, "S-003", "FLOOR LOADING PLAN", "loading_plan"),
+            _sheet(7, "S-111", "FOUNDATION PLAN - AREA A", "foundation_plan"),
+        ]}}
+        document = {
+            "pages": _pages((4, None), (7, None)),
+            "lines": [
+                _line("1/S-111", (100, 100, 190, 114), page=4),
+                _line("1", (180, 200, 194, 214), page=7),
+                _line("FOUNDATION PLAN - AREA A", (214, 198, 520, 216), page=7),
+                _line('1/8" = 1\'-0"', (214, 220, 310, 232), page=7),
+            ],
+        }
+        layer = build_engineering_intelligence(document, profile)
+        view = next(v for v in layer["views"] if v.get("view_number") == "1")
+        self.assertEqual(view["view_title"], "FOUNDATION PLAN - AREA A")
+        ref = next(r for r in layer["references"] if r["reference_text"] == "1/S-111")
+        self.assertEqual(ref["status"], "target_view_found")
+        self.assertEqual(ref["target_sheet"], "S-111")
+
+    def test_a_mixed_inch_scale_still_marks_the_detail(self):
+        profile = {"sheet_index": {"pages": [
+            _sheet(7, "S-111", "FOUNDATION PLAN", "foundation_plan"),
+            _sheet(40, "S-530", "MASONRY DETAILS", "detail"),
+        ]}}
+        document = {
+            "pages": _pages((7, None), (40, None)),
+            "lines": [
+                _line("1/S-530", (100, 100, 190, 114), page=7),
+                _line("1", (144, 449, 151, 462), page=40),
+                _line("CMU CONTROL JOINT", (171, 440, 435, 465), page=40),
+                _line('1 1/2" = 1\'-0"', (175, 465, 250, 477), page=40),
+            ],
+        }
+        layer = build_engineering_intelligence(document, profile)
+        view = next(v for v in layer["views"] if v.get("view_number") == "1" and v.get("sheet_id") == "S-530")
+        self.assertEqual(view["view_title"], "CMU CONTROL JOINT")
+        ref = next(r for r in layer["references"] if r["reference_text"] == "1/S-530")
+        self.assertEqual(ref["status"], "target_view_found")
+
 
 class GridAndLabelTests(unittest.TestCase):
     def test_dimensions_are_not_grids(self):

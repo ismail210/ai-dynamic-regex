@@ -34,10 +34,13 @@ _VIEW_LINE = re.compile(
 _SCALE_LINE = re.compile(
     r"^(?:SCALE\s*[:=]?\s*)?(?:"
     r"\d+\s*/\s*\d+\s*\"?\s*=\s*\d+\s*'\s*-?\s*\d+\s*\"?"
+    r"|\d+\s+\d+\s*/\s*\d+\s*\"?\s*=\s*\d+\s*'\s*-?\s*\d+\s*\"?"
+    r"|\d+\s*\"\s*=\s*\d+\s*'\s*-?\s*\d+\s*\"?"
     r"|AS\s+INDICATED|NOT\s+TO\s+SCALE|N\.?T\.?S\.?"
     r")$",
     re.I,
 )
+_GLUED_VIEW_NUMBER = re.compile(r"^(?P<num>\d{1,2})(?P<title>[A-Z].+)$")
 _SHEET_TOKEN = r"S[-.]?\d(?:[-.0-9A-Z]{0,12})?"
 _BUBBLE = re.compile(
     # ``6.1/S-103`` must not match the inner ``1/S-103``. A digit or a decimal
@@ -241,11 +244,14 @@ _STACK_GAP = 8.0
 _CALLOUT_LABEL = re.compile(r"^(?:[A-Z]{1,2}|\d{1,2})$")
 _SHEET_LINE = re.compile(rf"^{_SHEET_TOKEN}$", re.I)
 _FOOT_STATION = re.compile(r"^\d+\s*'$")
-_BARE_DETAIL_OR_SECTION = re.compile(r"^(?:SECTION|DETAIL)$", re.I)
+_BARE_DETAIL_OR_SECTION = re.compile(r"^(?:SECTION|DETAIL|ELEVATION)$", re.I)
 _ADJACENT_VIEW_NUMBER = re.compile(r"^(?:[A-Z]{1,2}|\d{1,2})$")
 # Furley and OSSE print the letter or number on the same row, about 24–28px
 # to the left of the word SECTION. A sheet id sits below that row.
 _ADJACENT_NUMBER_GAP = 40.0
+# Burrville prints the circle number about 45–50px to the right of SECTION,
+# with the scale under the title. An abbreviation legend has no scale line.
+_SCALED_NUMBER_GAP = 56.0
 
 
 def _callout_reason(line, page_lines) -> Optional[str]:
@@ -326,24 +332,34 @@ def build_engineering_intelligence(document: Dict[str, Any], profile: Dict[str, 
             # sheets is still drawing: Furley prints SECTION N there.
             if width and line.box[0] >= 0.84 * width:
                 continue
-            if sheet_id and line.text.upper() == str(record.get("sheet_title") or "").upper():
-                continue
+            # The sheet name in the title block is not a view. The same words
+            # under a detail number, with a scale, are the plan the callout names.
+            is_sheet_title = bool(
+                sheet_id and line.text.upper() == str(record.get("sheet_title") or "").upper()
+            )
             in_bottom = bool(height and line.box[1] >= 0.72 * height)
             scale = _nearby_scale(line, page_lines)
             classified = classify_view_title(line.text, scale_nearby=bool(scale))
             number_line = _paired_view_number(line, page_lines, classified)
-            if in_bottom and number_line is None:
+            if number_line is None and scale:
+                number_line = _paired_view_number(line, page_lines, classified, titled=True)
+            glued = _GLUED_VIEW_NUMBER.match(str(line.text or "").strip()) if number_line is None and scale else None
+            if in_bottom and number_line is None and glued is None:
                 continue
             if number_line is not None:
                 if classified is None:
                     classified = classify_view_title(line.text, scale_nearby=True)
-                if classified is not None and not classified.get("view_number"):
+                if classified is None and scale and _title_line_for_number(line.text):
+                    classified = _view_from_printed_title(line.text, number_line.text)
+                elif classified is not None and not classified.get("view_number"):
                     classified = {
                         **classified,
                         "view_number": number_line.text,
                         "evidence": "printed view number beside the title",
                     }
-            if classified is None:
+            elif glued is not None and classified is None and _title_line_for_number(glued.group("title")):
+                classified = _view_from_printed_title(glued.group("title"), glued.group("num"))
+            if classified is None or (is_sheet_title and not classified.get("view_number")):
                 continue
             view_seq += 1
             interior.append({
@@ -544,17 +560,47 @@ def build_engineering_intelligence(document: Dict[str, Any], profile: Dict[str, 
     }
 
 
-def _paired_view_number(title, page_lines, classified: Optional[Dict[str, Any]]):
-    """The one short line beside a bare DETAIL or SECTION title, or None.
+def _title_line_for_number(text: str) -> bool:
+    """A detail title may carry the bubble number. A path, scale, or sheet id may not."""
+
+    raw = str(text or "").strip()
+    if not raw or len(raw) > 80 or "://" in raw:
+        return False
+    if _ADJACENT_VIEW_NUMBER.fullmatch(raw) or _SCALE_LINE.match(raw) or _SHEET_LINE.fullmatch(raw):
+        return False
+    return not is_dimension_text(raw)
+
+
+def _view_from_printed_title(text: str, number: str) -> Dict[str, Any]:
+    raw = " ".join(str(text).split())
+    return {
+        "view_number": str(number),
+        "view_title": raw,
+        "view_type": _view_type(raw),
+        "status": "read",
+        "evidence": "printed view number beside the title",
+    }
+
+
+def _paired_view_number(title, page_lines, classified: Optional[Dict[str, Any]], *, titled: bool = False):
+    """The one short line beside a view title, or None.
 
     Zero neighbors leave the title unchanged. Two or more neighbors are not a
     view number: the caller keeps ``target_sheet_only`` rather than picking one.
-    A number already printed on the title line is left as it is.
+    A number already printed on the title line is left as it is. A gap past
+    40px counts only for a bare title when a scale line is printed under it.
     """
 
     if classified is not None and classified.get("view_number"):
         return None
-    if not _BARE_DETAIL_OR_SECTION.fullmatch(str(title.text or "").strip()):
+    bare = _BARE_DETAIL_OR_SECTION.fullmatch(str(title.text or "").strip())
+    if titled:
+        if bare or not _title_line_for_number(title.text):
+            return None
+        limit = _ADJACENT_NUMBER_GAP
+    elif bare:
+        limit = _SCALED_NUMBER_GAP if _nearby_scale(title, page_lines) else _ADJACENT_NUMBER_GAP
+    else:
         return None
     found = []
     for other in page_lines:
@@ -565,8 +611,14 @@ def _paired_view_number(title, page_lines, classified: Optional[Dict[str, Any]])
             continue
         gap_left = title.box[0] - other.box[2]
         gap_right = other.box[0] - title.box[2]
+        # On a full title the bubble sits just to the left. A number to the
+        # right belongs to the next detail.
+        if titled:
+            if 0 <= gap_left <= limit:
+                found.append(other)
+            continue
         gap = gap_left if gap_left >= 0 else gap_right
-        if 0 <= gap <= _ADJACENT_NUMBER_GAP:
+        if 0 <= gap <= limit:
             found.append(other)
     return found[0] if len(found) == 1 else None
 

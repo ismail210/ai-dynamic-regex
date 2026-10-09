@@ -112,7 +112,15 @@ PROFILE_VERSION = "legend_profile_v4"
 #      has only the inline form.
 # v6y: ``6.1/S-103`` is not the callout ``1/S-103``. A SEE note with no sheet
 #      and no view number is not a reference. A v6x cache still has both.
-EXTRACTOR_VERSION = "legend_extractor_v6y-callout-boundaries"
+# v6z: a circle number about 50px from SECTION counts when a scale is under
+#      the title, and ELEVATION takes the number beside it. A v6y cache
+#      leaves those views unnumbered.
+# v7a: a detail title with a scale under it takes the one number on that row.
+#      An inch scale such as 1" = 1'-0" counts. A v6z cache leaves those
+#      callouts at target_sheet_only.
+# v7b: that number is the one to the left of the title. The number to the
+#      right belongs to the next detail.
+EXTRACTOR_VERSION = "legend_extractor_v7b-titled-view-numbers"
 SCHEMA_VERSION = "project_rule_schema_v1"
 
 STATUS_PROPOSED_INFERENCE = "PROPOSED_INFERENCE"

@@ -29,6 +29,7 @@ export const DownloadOutlined = IconStub;
 export const EditOutlined = IconStub;
 export const ErrorOutlineRounded = IconStub;
 export const ErrorOutlined = IconStub;
+export const ExpandLessOutlined = IconStub;
 export const ExpandMoreOutlined = IconStub;
 export const FactCheckOutlined = IconStub;
 export const FileDownloadOutlined = IconStub;

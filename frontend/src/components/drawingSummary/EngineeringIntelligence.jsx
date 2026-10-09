@@ -1,5 +1,9 @@
-import { Chip, Stack, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
+import { Button, Chip, Stack, Typography } from "@mui/material";
+import { ExpandLessOutlined, ExpandMoreOutlined } from "@mui/icons-material";
 import { ViewPageButton } from "./sources";
+
+const PAGE_SIZE = 12;
 
 const STATUS_COLOR = {
   target_view_found: "default",
@@ -16,7 +20,7 @@ function referenceSentence(ref) {
   const source = ref.source_sheet || `p. ${ref.source_page}`;
   const text = ref.reference_text;
   if (ref.status === "target_view_found") {
-    const kind = ref.target_view_type === "detail" ? "detail" : ref.target_view_type === "section" ? "section" : "view";
+    const kind = {detail: "detail", section: "section", elevation: "elevation"}[ref.target_view_type] || "view";
     return `${source} · ${text} · ${kind} ${ref.target_number} is printed on ${ref.target_sheet}.`;
   }
   if (ref.status === "target_sheet_only") {
@@ -46,6 +50,57 @@ const ALLOCATION_LABEL = {
   review_required: "review required",
   unresolved: "no crossing nearby",
 };
+
+function ListWindow({ items, noun, renderItem, note }) {
+  const resetKey = `${items.length}:${items[0]?.view_id || ""}:${items[0]?.reference_text || ""}:${items[0]?.source_page || ""}`;
+  const [shown, setShown] = useState(PAGE_SIZE);
+  useEffect(() => {
+    setShown(PAGE_SIZE);
+  }, [resetKey]);
+  if (items.length === 0) return null;
+  const visibleCount = Math.min(shown, items.length);
+  const remaining = items.length - visibleCount;
+  const next = Math.min(PAGE_SIZE, remaining);
+  return (
+    <Stack spacing={0.5} sx={{ mt: 1 }}>
+      {items.slice(0, visibleCount).map(renderItem)}
+      {items.length > PAGE_SIZE && (
+        <Stack direction="row" spacing={1} sx={{ alignItems: "center", flexWrap: "wrap" }}>
+          <Typography variant="caption" color="text.secondary">
+            {visibleCount < items.length
+              ? `Showing ${visibleCount} of ${items.length} ${noun}`
+              : `Showing all ${items.length} ${noun}`}
+          </Typography>
+          {remaining > 0 && (
+            <Button
+              size="small"
+              variant="text"
+              startIcon={<ExpandMoreOutlined />}
+              onClick={() => setShown((count) => Math.min(items.length, count + PAGE_SIZE))}
+              aria-label={`Show ${next} more ${noun}`}
+            >
+              Show more ({next})
+            </Button>
+          )}
+          {visibleCount > PAGE_SIZE && (
+            <Button
+              size="small"
+              variant="text"
+              startIcon={<ExpandLessOutlined />}
+              onClick={() => setShown(PAGE_SIZE)}
+              aria-label={`Show the first ${PAGE_SIZE} ${noun}`}
+            >
+              Show less
+            </Button>
+          )}
+          {note && (
+            <Typography variant="caption" color="text.secondary">{note}</Typography>
+          )}
+        </Stack>
+      )}
+    </Stack>
+  );
+}
 
 export default function EngineeringIntelligence({ data, onView }) {
   if (!data) return null;
@@ -78,39 +133,35 @@ export default function EngineeringIntelligence({ data, onView }) {
           {warning.message}
         </Typography>
       ))}
-      {views.length > 0 && (
-        <Stack spacing={0.5} sx={{ mt: 1 }}>
-          {views.slice(0, 12).map((view) => (
-            <Stack key={view.view_id} direction="row" spacing={1} sx={{ alignItems: "center", flexWrap: "wrap" }}>
-              <Typography variant="body2">
-                {view.sheet_id || `p. ${view.pdf_page}`} · {view.view_title}
-                {view.view_number ? ` (${view.view_number})` : ""}
-                {view.scale ? ` · ${view.scale}` : ""}
-              </Typography>
-              <ViewPageButton item={{ page: view.pdf_page, bbox: view.bbox, sheet: view.sheet_id, mark: view.view_title }} label="View" onView={onView} />
-            </Stack>
-          ))}
-        </Stack>
-      )}
-      {references.length > 0 && (
-        <Stack spacing={0.5} sx={{ mt: 1 }}>
-          {references.slice(0, 12).map((ref, index) => (
-            <Stack key={`${ref.reference_text}-${index}`} direction="row" spacing={1} sx={{ alignItems: "center", flexWrap: "wrap" }}>
-              <Typography variant="body2">{referenceSentence(ref)}</Typography>
-              <Chip size="small" variant="outlined" color={STATUS_COLOR[ref.status] || "default"} label={statusLabel(ref.status)} />
-              <ViewPageButton item={{ page: ref.source_page, bbox: ref.bbox, sheet: ref.source_sheet, mark: ref.reference_text }} label="Source" onView={onView} />
-              {ref.status === "target_view_found" && ref.target_bbox && (
-                <ViewPageButton item={{ page: ref.target_page, bbox: ref.target_bbox, sheet: ref.target_sheet, mark: ref.reference_text }} label="Target" onView={onView} />
-              )}
-            </Stack>
-          ))}
-          {(data.reference_count || references.length) > 12 && (
-            <Typography variant="caption" color="text.secondary">
-              {data.reference_count || references.length} references. Unresolved targets stay unresolved.
+      <ListWindow
+        items={views}
+        noun="views"
+        renderItem={(view) => (
+          <Stack key={view.view_id} direction="row" spacing={1} sx={{ alignItems: "center", flexWrap: "wrap" }}>
+            <Typography variant="body2">
+              {view.sheet_id || `p. ${view.pdf_page}`} · {view.view_title}
+              {view.view_number ? ` (${view.view_number})` : ""}
+              {view.scale ? ` · ${view.scale}` : ""}
             </Typography>
-          )}
-        </Stack>
-      )}
+            <ViewPageButton item={{ page: view.pdf_page, bbox: view.bbox, sheet: view.sheet_id, mark: view.view_title }} label="View" onView={onView} />
+          </Stack>
+        )}
+      />
+      <ListWindow
+        items={references}
+        noun="references"
+        note={references.some((ref) => ref.status !== "target_view_found") ? "Unresolved targets stay unresolved." : null}
+        renderItem={(ref, index) => (
+          <Stack key={`${ref.reference_text}-${index}`} direction="row" spacing={1} sx={{ alignItems: "center", flexWrap: "wrap" }}>
+            <Typography variant="body2">{referenceSentence(ref)}</Typography>
+            <Chip size="small" variant="outlined" color={STATUS_COLOR[ref.status] || "default"} label={statusLabel(ref.status)} />
+            <ViewPageButton item={{ page: ref.source_page, bbox: ref.bbox, sheet: ref.source_sheet, mark: ref.reference_text }} label="Source" onView={onView} />
+            {ref.status === "target_view_found" && ref.target_bbox && (
+              <ViewPageButton item={{ page: ref.target_page, bbox: ref.target_bbox, sheet: ref.target_sheet, mark: ref.reference_text }} label="Target" onView={onView} />
+            )}
+          </Stack>
+        )}
+      />
       {(data.grids || []).length > 0 && (
         <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 1 }}>
           {(data.grid_diagnostics?.confirmed_grid_labels ?? 0) > 0
