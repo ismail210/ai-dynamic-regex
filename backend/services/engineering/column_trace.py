@@ -28,7 +28,8 @@ from __future__ import annotations
 
 import math
 import re
-from collections import defaultdict
+import threading
+from collections import OrderedDict, defaultdict
 from typing import Any, Dict, List, Optional
 
 import fitz
@@ -279,13 +280,17 @@ def _leader_ends(target: List[float], segments: List[tuple]) -> List[tuple]:
     return ends
 
 
+def _symbol_path(path: dict) -> bool:
+    """A heavy, small path: what a drawn column symbol is made of."""
+
+    return (float(path.get("width") or 0.0) >= _SYMBOL_MIN_WIDTH
+            and max(path["rect"].width, path["rect"].height) <= _SYMBOL_MAX)
+
+
 def _observe(x: float, y: float, lines: List[Dict[str, Any]], drawings: List[dict],
              segments: List[tuple], section_names: set) -> Dict[str, Any]:
     point = [round(x - 3, 1), round(y - 3, 1), round(x + 3, 1), round(y + 3, 1)]
-    symbol = [path["rect"] for path in drawings
-              if float(path.get("width") or 0.0) >= _SYMBOL_MIN_WIDTH
-              and max(path["rect"].width, path["rect"].height) <= _SYMBOL_MAX
-              and _near(path["rect"], x, y, _SYMBOL_REACH)]
+    symbol = [path["rect"] for path in drawings if _symbol_path(path) and _near(path["rect"], x, y, _SYMBOL_REACH)]
     symbol_box = [round(v, 1) for v in _union_boxes(tuple(r) for r in symbol)] if symbol else None
     target = symbol_box or point
     ends = _leader_ends(target, segments)
@@ -386,19 +391,26 @@ def _spanned(entry: Dict[str, Any], lines: List[Dict[str, Any]]) -> tuple:
 
 def plan_geometry(page: Any, lines: list[dict[str, Any]]) -> dict[str, Any]:
     """One plan page's vectors and labelled grid axes, read once and reusable
-    for every location looked for on that page."""
+    for every location looked for on that page.
+
+    The raw drawing list is reduced as soon as segments and circles are taken
+    from it: ``drawings`` keeps only the paths ``_observe`` can take for a
+    column symbol (its own filter, so results are unchanged), which is most of
+    the memory a cached page would otherwise hold."""
 
     words = page.get_text("words")
-    drawings = page.get_drawings()
-    segments = _segments(drawings)
+    raw = page.get_drawings()
+    segments = _segments(raw)
     index = _segment_index(segments)
-    circles = _circles(drawings)
+    circles = _circles(raw)
+    drawings = [{"rect": path["rect"], "width": path.get("width")} for path in raw if _symbol_path(path)]
+    del raw
     by_name: dict[str, list[tuple]] = defaultdict(list)
     for w in words:
         by_name[_norm(w[4])].append(w)
     labels = {name for name in by_name if _GRID_LABEL_RE.match(name)}
     all_axes = {name: found for name in labels if (found := _axes(_bubbles(by_name[name], circles, name), index))}
-    return {"words": words, "drawings": drawings, "segments": segments, "index": index, "circles": circles,
+    return {"drawings": drawings, "segments": segments, "index": index, "circles": circles,
             "by_name": by_name, "all_axes": all_axes, "calibration": grid_calibration(all_axes, lines)}
 
 
@@ -704,11 +716,60 @@ def trace_column(document: Dict[str, Any], pdf_path: str, location: str,
 # --------------------------------------------------------------------------
 
 
+# Python memory one cached segment costs (a page keeps its line segments, their
+# index, circles, words and the few symbol-sized paths): calibrated on OSSE and
+# Brandywine plans (docs/DOCKER.md, "Memory").
+_BYTES_PER_SEGMENT = 600
+
+
+class PlanPages:
+    """The plan pages one document's Locate requests have analysed, kept
+    within ``budget_mb`` (estimated from each page's drawing count), least
+    recently used first out, never fewer than the page in use. A page's
+    vectors and every location analysed on it leave together, so an evicted
+    page is really released. Common one-character grid names (A, 1) are
+    printed on most sheets, so one request can touch many pages: without a
+    bound every one stayed in memory. Requests that still use an evicted page
+    keep their own references; no PDF or native handle is held here."""
+
+    def __init__(self, budget_mb: float) -> None:
+        self.budget = max(0.0, budget_mb) * 2 ** 20
+        self._pages: OrderedDict[int, dict[str, Any]] = OrderedDict()
+        self.size = 0
+        self.built = self.evicted = 0
+
+    @staticmethod
+    def _weight(geometry: dict[str, Any]) -> int:
+        return len(geometry.get("segments") or []) * _BYTES_PER_SEGMENT
+
+    def page(self, page_no: int, build: Any) -> dict[str, Any]:
+        entry = self._pages.get(page_no)
+        if entry is not None:
+            self._pages.move_to_end(page_no)
+            return entry
+        geometry = build()
+        entry = {"geometry": geometry, "analysed": {}, "weight": self._weight(geometry)}
+        self.built += 1
+        self._pages[page_no] = entry
+        self.size += entry["weight"]
+        while self.size > self.budget and len(self._pages) > 1:
+            _page, old = self._pages.popitem(last=False)
+            self.size -= old["weight"]
+            self.evicted += 1
+        return entry
+
+    def __len__(self) -> int:
+        return len(self._pages)
+
+
 def locate_context(document: dict[str, Any], pdf_path: str) -> dict[str, Any]:
     """Document-level evidence a location lookup reuses: sheet ids, display
     space, plan scope, scales and each page's grid labels. Built once per
     document revision (the caller caches it); plan pages are analysed lazily
-    and remembered here."""
+    and the most recent ones remembered (``PlanPages``). ``lock`` serialises
+    the requests that share it."""
+
+    from config import settings
 
     from services.engineering.drawing_intelligence import _sheet_ids
 
@@ -736,7 +797,8 @@ def locate_context(document: dict[str, Any], pdf_path: str) -> dict[str, Any]:
         "pdf_path": pdf_path, "sheets": sheets, "box": display_boxes(document),
         "scopes": ScopeResolver(document, elevations, shown), "labels": labels,
         "lines_by_page": lines_by_page, "shown_lines": shown_lines, "title_block_scale": sheet_scales(document),
-        "schedule_pages": schedule_pages, "analysed": {}, "geometry": {}, "view_scales": {},
+        "schedule_pages": schedule_pages, "plans": PlanPages(settings.locate_plan_cache_mb),
+        "view_scales": {}, "lock": threading.Lock(),
         "schedule_names": {s["id"]: s.get("caption") or s.get("title")
                            for s in (document.get("column_schedules") or {}).get("schedules") or []},
     }
@@ -829,16 +891,14 @@ def locate_location(context: dict[str, Any], location: str, schedule_id: str | N
         return {**result, "status": "plan_not_found",
                 "note": f"No plan in the set prints both grid labels {grids[0]['label']} and {grids[1]['label']}."}
     scopes: ScopeResolver = context["scopes"]
-    with fitz.open(context["pdf_path"]) as pdf:
+    with context["lock"], fitz.open(context["pdf_path"]) as pdf:
         for page_no in pages:
-            key = (page_no, tuple(names))
-            if key not in context["analysed"]:
-                lines = context["lines_by_page"].get(page_no, [])
-                if page_no not in context["geometry"]:
-                    context["geometry"][page_no] = plan_geometry(pdf[page_no - 1], lines)
-                context["analysed"][key] = _analyse_plan(pdf[page_no - 1], page_no, names, lines, set(),
-                                                         context["geometry"][page_no])
-            found, plan_context = context["analysed"][key] or (None, None)
+            lines = context["lines_by_page"].get(page_no, [])
+            plan = context["plans"].page(page_no, lambda: plan_geometry(pdf[page_no - 1], lines))  # noqa: B023
+            if tuple(names) not in plan["analysed"]:
+                plan["analysed"][tuple(names)] = _analyse_plan(pdf[page_no - 1], page_no, names, lines, set(),
+                                                               plan["geometry"])
+            found, plan_context = plan["analysed"][tuple(names)] or (None, None)
             if found is None or not found["candidates"]:
                 continue
             for candidate, crossing in zip(found["candidates"], plan_context["crossings"]):

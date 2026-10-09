@@ -2,20 +2,16 @@
 
 ## Container deployment
 
-1. Copy `.env.example` to `.env`.
-2. Set `CORS_ALLOW_ORIGINS` to the exact HTTPS frontend origin.
-3. Confirm promoted artifacts exist in `backend/training/`.
-4. Build and start:
+Docker Compose runbook (configuration, build, health, updates, backup /
+restore, rollback, optional Ollama, private Linux pilot): **docs/DOCKER.md**.
 
-```bash
-docker compose up --build -d
-docker compose ps
-curl -fsS http://localhost/healthz
-curl -fsS http://localhost:8000/health/ready
-```
+1. Copy `.env.example` to `.env` and set `API_ACCESS_TOKEN`.
+2. `scripts/docker-build.ps1` (or `.sh`) builds both images from one revision.
+3. `docker compose up -d`; open `http://127.0.0.1:${HTTP_PORT:-8080}`.
 
-Only the frontend is published by default. Nginx proxies API traffic to the
-private backend service.
+Only the frontend is published, on localhost. Nginx proxies API traffic to the
+private backend service; uploads and `training/` live on the `estima3d_data`
+volume.
 
 ## Deploying through the company Vercel account (handoff)
 

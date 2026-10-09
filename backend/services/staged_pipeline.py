@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import threading
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -196,9 +197,19 @@ def trace_scheduled_column(
 # plan scope and analysed plan pages, reused across location requests
 # instead of re-reading ``document.json`` (tens of MB) for each one. Keyed by
 # the artifact's modification time and the extraction contract, so a new
-# extraction never serves stale evidence.
+# extraction never serves stale evidence. At most two documents, each with a
+# bounded page cache (column_trace.PlanPages); a re-extracted or removed
+# document is dropped. Building a context happens outside the lock.
 _LOCATE_CONTEXTS: dict[str, tuple] = {}
 _LOCATE_CONTEXT_LIMIT = 2
+_LOCATE_LOCK = threading.Lock()
+
+
+def forget_locate_context(document_id: str) -> None:
+    """Drop a document's Locate context (re-extraction, removed artifacts)."""
+
+    with _LOCATE_LOCK:
+        _LOCATE_CONTEXTS.pop(document_id, None)
 
 
 def locate_document_location(
@@ -212,18 +223,25 @@ def locate_document_location(
 
     path = artifact_path(document_id, "document.json")
     if not path.is_file():
+        forget_locate_context(document_id)
         return None
     revision = (path.stat().st_mtime_ns, EXTRACTION_VERSION)
-    cached = _LOCATE_CONTEXTS.get(document_id)
+    with _LOCATE_LOCK:
+        cached = _LOCATE_CONTEXTS.get(document_id)
+        if cached is not None:
+            _LOCATE_CONTEXTS[document_id] = _LOCATE_CONTEXTS.pop(document_id)  # most recently used last
     if cached is None or cached[0] != revision:
+        forget_locate_context(document_id)
         document = _current_document(document_id)
         if document is None:
             return None
         cached = (revision, locate_context(document, str(document_source(document_id))))
-        _LOCATE_CONTEXTS.pop(document_id, None)
-        while len(_LOCATE_CONTEXTS) >= _LOCATE_CONTEXT_LIMIT:
-            _LOCATE_CONTEXTS.pop(next(iter(_LOCATE_CONTEXTS)))
-        _LOCATE_CONTEXTS[document_id] = cached
+        del document
+        with _LOCATE_LOCK:
+            _LOCATE_CONTEXTS.pop(document_id, None)
+            while len(_LOCATE_CONTEXTS) >= _LOCATE_CONTEXT_LIMIT:
+                _LOCATE_CONTEXTS.pop(next(iter(_LOCATE_CONTEXTS)))
+            _LOCATE_CONTEXTS[document_id] = cached
     return locate_location(cached[1], location, schedule_id)
 
 
@@ -681,6 +699,7 @@ def run_extraction_stage(
             source, document_id=document_id
         )
         artifact = write_artifact(document_id, "document.json", document)
+        forget_locate_context(document_id)
         view_path = _write_extraction_view(document)
         if artifact is None and view_path is None:
             # Extraction itself succeeded; only the disk cache failed. Return
@@ -826,12 +845,17 @@ def run_analysis_stage(
             reviewed_ids,
             document_id=document_id,
         )
+        # A reviewer's saved selection wins here too, as on read
+        # (load_cached_analysis): a re-run analysis (stale cache after an
+        # EXTRACTION_VERSION change, forced, or with Excel) must not serve the
+        # pre-review section.
+        served = _apply_human_selections(document_id, served)
         # status_tags was computed inside analysis_response() above, BEFORE
-        # project-rule resolution ran -- a resolved row's tags must reflect
-        # the FINAL state (task Section 3: classify after all enrichment),
-        # not the pre-resolution snapshot it would otherwise still carry.
-        if rule_resolutions:
-            resolved_ids = {r.get("object_id") for r in rule_resolutions}
+        # project-rule resolution and the human overlay ran -- a resolved
+        # row's tags must reflect the FINAL state (task Section 3: classify
+        # after all enrichment), not the snapshot it would otherwise carry.
+        resolved_ids = {r.get("object_id") for r in rule_resolutions} | reviewed_ids
+        if resolved_ids:
             served = [
                 {**p, "status_tags": status_tags_list(p)}
                 if p.get("object_id") in resolved_ids

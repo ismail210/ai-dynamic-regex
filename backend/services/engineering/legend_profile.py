@@ -102,8 +102,9 @@ PROFILE_VERSION = "legend_profile_v4"
 #      grid bubbles past the title cut can confirm when a line supports them.
 # v6u: closest label owns the line. A letter stacked on a sheet id, and a
 #      digit beside a foot station, are not grids. A v6t cache lacks both.
-# v6v: also Bassam's summary locate/review and related materials. A v6u cache
-#      has no level-review fields; a v6t-summary cache has no grid axes.
+# The summary line used its own v6p..v6t names (locate, level review, related
+# occurrences, slab materials) in parallel; neither line's cache has the other.
+# v6v: both lines merged.
 # v6w: a SECTION or DETAIL title takes the view number printed beside it on
 #      the same row. A v6v cache has no such view numbers.
 #      INTELLIGENCE_VERSION is not part of this key. A change to view pairing,

@@ -12,6 +12,7 @@ import {
 import {
   ArrowForwardRounded,
   ManageSearchOutlined,
+  UploadFileOutlined,
 } from "@mui/icons-material";
 import { extractDocument } from "../api/client";
 import { useAnalysis } from "../context/AnalysisContext";
@@ -28,7 +29,7 @@ import { TipButton } from "../components/ui/ActionButtons";
  * when Analysis runs. Continues to Drawing Summary.
  */
 export default function UploadExtractPage() {
-  const { document, extraction, excelFile, setExcelFile, setExtraction, setData } =
+  const { document, extraction, excelFile, setExcelFile, setExtraction, setData, startNewAnalysis } =
     useAnalysis();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -65,12 +66,23 @@ export default function UploadExtractPage() {
       {document && (
         <Paper variant="outlined" sx={{ p: 2.5 }}>
           <Stack spacing={2}>
-            <Box>
-              <Typography fontWeight={700}>{document.source_file}</Typography>
-              <Typography variant="body2" color="text.secondary">
-                {document.document_id} · {document.page_count} pages
-              </Typography>
-            </Box>
+            <Stack direction="row" spacing={2} sx={{ alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap" }} useFlexGap>
+              <Box>
+                <Typography fontWeight={700}>{document.source_file}</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {document.document_id} · {document.page_count} pages
+                </Typography>
+              </Box>
+              {/* A refresh restores the last document; this brings the PDF chooser back. */}
+              <Button
+                size="small"
+                startIcon={<UploadFileOutlined />}
+                onClick={startNewAnalysis}
+                disabled={loading}
+              >
+                Upload a different PDF
+              </Button>
+            </Stack>
 
             <Button
               variant="outlined"

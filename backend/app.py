@@ -21,6 +21,7 @@ from routers.learning import router as learning_router
 from routers.semantic import router as semantic_router
 from routers.takeoff import router as takeoff_router
 from routers.upload import router as upload_router
+from services.engineering.drawing_intelligence import DRAWING_INTELLIGENCE_VERSION
 
 # Application loggers are attached to uvicorn's stream so upload progress and
 # tracebacks appear in the same console as request logs.
@@ -117,6 +118,19 @@ def liveness():
     """Process liveness probe; does not touch external artifacts."""
 
     return {"status": "alive"}
+
+
+@app.get("/api/version", tags=["Health"])
+def version():
+    """The source revision and build this API image was built from. Under /api,
+    so it carries the access key like any API call; the frontend compares it
+    with its own build."""
+
+    return {
+        "revision": settings.source_revision,
+        "build_id": settings.build_id,
+        "summary_api": DRAWING_INTELLIGENCE_VERSION,
+    }
 
 
 @app.get("/health/ready", tags=["Health"])

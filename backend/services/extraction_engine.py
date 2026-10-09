@@ -19,9 +19,13 @@ from services.pdf_parser import extract_document_structure
 
 # Bumped whenever extraction output changes, so cached documents are rebuilt
 # instead of replaying stale artifacts.
-# 3.28 kept pier width off the plate. 3.29 added summary locate/review.
-# This tree has both, plus the grid-axis extract, so neither cache is reused.
-EXTRACTION_VERSION = "3.30-grid-and-locate"
+# 3.26 added summary coverage (header paths, trailing remarks). 3.27 kept
+# pier width off the plate. 3.28 (sheet / grid line) and 3.29 (summary
+# locate / level review line) each lack the other's output; this tree has
+# both, so neither cache is reused. 3.31: stacked callouts, view numbers and
+# callout boundaries (legend v6y). The cached document carries the Drawing
+# Summary's engineering intelligence, and only this string rebuilds it.
+EXTRACTION_VERSION = "3.31-callout-boundaries"
 
 
 def extract_engineering_document(

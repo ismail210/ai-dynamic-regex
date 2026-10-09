@@ -458,9 +458,58 @@ class LocateTests(unittest.TestCase):
         self.assertEqual(offset["views"][0]["offset"]["status"], "unresolved_scale")
 
     def test_page_geometry_is_read_once_per_page(self):
-        ct.locate_location(self.context, "A-2")
-        ct.locate_location(self.context, "A.1-2")
-        self.assertEqual(list(self.context["geometry"]), [1])
+        context = ct.locate_context(_plan_pdf(self.pdf), str(self.pdf))
+        ct.locate_location(context, "A-2")
+        ct.locate_location(context, "A.1-2")
+        self.assertEqual((len(context["plans"]), context["plans"].built), (1, 1))
+
+    def test_an_evicted_page_is_rebuilt_with_the_same_result(self):
+        context = ct.locate_context(_plan_pdf(self.pdf), str(self.pdf))
+        first = ct.locate_location(context, "A.1-2")
+        context["plans"] = ct.PlanPages(1)  # as if the page had been evicted
+        self.assertEqual(ct.locate_location(context, "A.1-2"), first)
+
+    def test_concurrent_requests_share_one_context_safely(self):
+        from concurrent.futures import ThreadPoolExecutor
+
+        context = ct.locate_context(_plan_pdf(self.pdf), str(self.pdf))
+        with ThreadPoolExecutor(4) as pool:
+            results = list(pool.map(lambda loc: ct.locate_location(context, loc)["status"],
+                                    ["A.1-2", "A-2", "A.1-2", "A-2"] * 3))
+        self.assertEqual(set(results), {"column_symbol", "intersection_only"})
+        self.assertEqual(context["plans"].built, 1)
+
+
+class PlanPagesTests(unittest.TestCase):
+    def test_least_recently_used_pages_leave_with_their_locations(self):
+        page_mb = 1000 * ct._BYTES_PER_SEGMENT / 2 ** 20       # a 1,000-segment page
+        plans = ct.PlanPages(2.5 * page_mb)                      # room for two such pages
+        for page in (1, 2):
+            plans.page(page, lambda: {"segments": [0] * 1000})["analysed"][("A", "1")] = page
+        plans.page(1, lambda: self.fail("page 1 is cached"))   # page 1 becomes most recent
+        plans.page(3, lambda: {"segments": [0] * 1000})          # evicts page 2
+        self.assertEqual((len(plans), plans.built, plans.evicted), (2, 3, 1))
+        rebuilt = plans.page(2, lambda: {"segments": [0] * 1000})
+        self.assertEqual(rebuilt["analysed"], {})                # its locations left with it
+        huge = ct.PlanPages(0.001)
+        huge.page(9, lambda: {"segments": [0] * 50000})          # over budget alone: still kept while in use
+        self.assertEqual(len(huge), 1)
+
+    def test_a_removed_or_reextracted_document_drops_its_context(self):
+        from services import staged_pipeline as sp
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "document.json"
+            path.write_text("{}", encoding="utf-8")
+            sp._LOCATE_CONTEXTS["doc_x"] = ((0, "old"), {"plans": ct.PlanPages(1)})
+            with patch("services.artifact_store.artifact_path", return_value=path), \
+                 patch.object(sp, "_current_document", return_value=None):
+                self.assertIsNone(sp.locate_document_location("doc_x", "A-1"))
+            self.assertNotIn("doc_x", sp._LOCATE_CONTEXTS)       # stale revision dropped
+            sp._LOCATE_CONTEXTS["doc_y"] = ((0, "old"), {})
+            with patch("services.artifact_store.artifact_path", return_value=Path(tmp) / "gone.json"):
+                self.assertIsNone(sp.locate_document_location("doc_y", "A-1"))
+            self.assertNotIn("doc_y", sp._LOCATE_CONTEXTS)       # artifacts removed
 
 
 if __name__ == "__main__":

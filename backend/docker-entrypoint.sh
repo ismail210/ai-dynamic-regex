@@ -2,7 +2,7 @@
 # With DATA_DIR set (a persistent disk), uploads and training/ live on the disk
 # so documents, extractions and analyses survive restarts and redeploys. The
 # image's training/ (models, catalog, datasets from git) seeds the disk; files
-# already on the disk are never overwritten. Without DATA_DIR the image copy is
+# already on the disk change only through `python -m services.asset_sync apply`. Without DATA_DIR the image copy is
 # used (docker-compose bind-mounts its own training/ instead).
 set -e
 
@@ -21,7 +21,10 @@ if [ -n "$DATA_DIR" ]; then
     chown -R appuser:appuser "$DATA_DIR"
   fi
   as_app mkdir -p "$DATA_DIR/uploads" "$DATA_DIR/training"
-  as_app cp -Rn /app/training.image/. "$DATA_DIR/training/"
+  # Shipped assets (services/asset_sync.py): adds files the disk lacks, records
+  # what is applied, reports newer versions waiting for an explicit `apply`,
+  # and stops here when the disk's assets are newer than this image reads.
+  (cd /app && as_app python -m services.asset_sync startup)
   ln -sfn "$DATA_DIR/training" /app/training
   ln -sfn "$DATA_DIR/uploads" /app/uploads
 elif [ ! -e /app/training ]; then

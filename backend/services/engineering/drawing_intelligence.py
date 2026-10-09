@@ -1597,13 +1597,12 @@ def _deterministic_overview(profile: Dict[str, Any]) -> str:
         if p.get("sheet_id_status") == "read" and p.get("sheet_id")
     }
     schedules = (profile.get("column_schedule") or {}).get("schedules") or []
+
     def _sheet_name(item: Dict[str, Any]) -> str:
         return by_page.get(item.get("page")) or item.get("sheet") or f"PDF p. {item.get('page')}"
 
-    steel_sheets = sorted({
-        _sheet_name(s) for s in schedules
-        if s.get("material_group") != "concrete" and s.get("source") != "location_table"
-    })
+    steel_sheets = sorted({_sheet_name(s) for s in schedules
+                           if s.get("material_group") != "concrete" and s.get("source") != "location_table"})
     table_sheets = sorted({_sheet_name(s) for s in schedules if s.get("source") == "location_table"})
     steel_defs = [d for d in profile["definitions"] if d.get("status") not in NON_STEEL_STATUSES]
     kinds = [_COMPONENTS[k][2] for k in _COMPONENT_ORDER if any(d["component"] == k for d in steel_defs)]

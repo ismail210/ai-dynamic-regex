@@ -1,4 +1,10 @@
 node_modules/
 dist/
+coverage/
+.vite/
 .DS_Store
 npm-debug.log*
+# A local .env (e.g. VITE_API_BASE for a hosted backend) must not leak into the
+# container build, which serves the API same-origin through nginx.
+.env
+.env.*

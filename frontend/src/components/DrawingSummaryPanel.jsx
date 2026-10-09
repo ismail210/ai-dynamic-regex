@@ -32,6 +32,8 @@ import {
 import { CloseOutlined, ExpandMoreOutlined, PrintOutlined, SearchOutlined } from "@mui/icons-material";
 import { getColumnTrace } from "../api/client";
 import { formatPlate, formatPrintedSize } from "../lib/dimensions";
+import EngineeringIntelligence from "./drawingSummary/EngineeringIntelligence";
+import SheetIndex from "./drawingSummary/SheetIndex";
 import {
   completenessText,
   directoryRows,
@@ -40,11 +42,9 @@ import {
   supportingGroupsOf,
   supportingRowsOf,
 } from "./drawingSummary/directory";
-import EngineeringIntelligence from "./drawingSummary/EngineeringIntelligence";
 import { LevelReview, reviewSourcesText } from "./drawingSummary/levelReview";
 import { LocateButton, LocateDialog, LocationProvider, locateSources, PlanPreview, useLocation } from "./drawingSummary/locate";
 import { SourcePdf } from "./drawingSummary/pdf";
-import SheetIndex from "./drawingSummary/SheetIndex";
 import { pagesLabel, sourceIdentity, ViewPageButton, whereLabel } from "./drawingSummary/sources";
 import {
   ConflictComparison,

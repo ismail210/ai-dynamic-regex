@@ -1447,8 +1447,8 @@ def column_schedule_view(document: Dict[str, Any], sheets: Dict[int, str]) -> Di
     return {
         "schedules": schedules_out,
         "entries": entries,
-        "plate_counts": plate_count_checks(entries, tables),
         "location_tables": table_records,
+        "plate_counts": plate_count_checks(entries, tables),
         "plate_tables": [
             {"kind": t["kind"], "title": t["title"], "page": t["page"], "sheet": sheets.get(t["page"]),
              "bbox": t.get("bbox"), "marks": [r["mark"] for r in t["rows"]],
