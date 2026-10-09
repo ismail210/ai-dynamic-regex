@@ -301,3 +301,15 @@ Approved: F1–F5 and F7. F6 (retiring Hiba's branch) is conditional on her conf
 
 Verification results, the Docker check and the branch cleanup outcome are reported with the
 publication. Re-running the checks in §E5 against `main` reproduces them.
+
+### Correction found during Stage 2 verification
+
+§C1 kept `EXTRACTION_VERSION` on the premise that `feee364` does not change extraction output. That
+premise was wrong:
+- The cached `document.json` embeds the Drawing Summary's `engineering_intelligence`.
+- That cache is keyed by `EXTRACTION_VERSION` alone.
+- The container smoke test showed the three documents already in the data volume still serving
+  `engineering_intelligence_v2`, with no stacked callouts and no `target_bbox`.
+
+`5726367` moves it to `3.31-callout-boundaries` on top of the verified merge (merge tree still
+`b130e0c`). Documents cached by earlier builds are extracted and analysed again on first use.
