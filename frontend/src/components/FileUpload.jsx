@@ -24,7 +24,8 @@ export default function FileUpload() {
     // A second upload while one is in flight stores the drawing twice and puts
     // two heavy stages on the server for the same document.
     if (!file || loading) return;
-    if (file.type !== "application/pdf") {
+    // Some browsers report no MIME type for a local PDF; the extension decides then.
+    if (file.type !== "application/pdf" && !(file.type === "" && /\.pdf$/i.test(file.name))) {
       setError("Select a PDF file.");
       return;
     }
@@ -101,7 +102,12 @@ export default function FileUpload() {
         ref={input}
         type="file"
         accept="application/pdf"
-        onChange={(e) => submit(e.target.files?.[0])}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          // Cleared so choosing the same PDF again (after an error or a reset) fires again.
+          e.target.value = "";
+          submit(file);
+        }}
       />
       <Stack direction="row" spacing={1}>
         <TipButton
