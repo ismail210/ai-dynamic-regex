@@ -63,6 +63,11 @@ _AXIS_MIN_LENGTH = 200.0      # a grid line runs across the plan, not a detail
 _SYMBOL_REACH = 6.0           # a column symbol is drawn on the intersection
 _SYMBOL_MAX = 40.0
 _SYMBOL_MIN_WIDTH = 0.8       # heavy strokes; grid and dimension lines are hairlines
+# A stroke within _SYMBOL_REACH of an offset point is evidence of that side
+# only when the point is far enough from the grid crossing that the crossing's
+# own search window cannot contain it. The windows separate at twice the
+# reach. Half the detected mark's longest side is added so the mark itself,
+# not only the search point, clears the crossing. A shorter offset is not placed.
 _LEADER_REACH = 10.0
 _TEXT_REACH = 18.0
 _NEARBY_REACH = 60.0
@@ -78,6 +83,62 @@ _DOWN_RE = re.compile(r"\b(?:DOWN|BELOW|UNDER)\b|\bTOP\s+OF\s+COL|\bT\.\s*O\.\s*
 
 def _norm(name: str) -> str:
     return _clean(name).replace(" ", "").upper()
+
+
+def _label_family(name: str) -> Optional[str]:
+    """Printed shape of a grid label, used only to name a "toward" grid.
+
+    Locate axes have no family field. The shape is read from the label text.
+    None means the shape is not one of these, and no toward grid is guessed.
+    """
+
+    text = _norm(name).strip("'\"′″")
+    if re.fullmatch(r"[A-Z]{1,2}", text):
+        return "letter"
+    if re.fullmatch(r"[A-Z]{1,2}\.\d+", text):
+        return "letter-decimal"
+    if re.fullmatch(r"\d{1,2}", text):
+        return "number"
+    if re.fullmatch(r"\d{1,2}\.\d+", text):
+        return "number-decimal"
+    if re.fullmatch(r"[A-Z]\d{1,2}", text):
+        return "prefixed-" + text[0]
+    return None
+
+
+def _toward_grid(grid: str, beyond: List[tuple]) -> Optional[str]:
+    """Nearest parallel axis on this side that is printed in ``grid``'s family.
+
+    A nearer axis of another family is not named. No same-family axis, or an
+    unrecognised label, leaves the side unnamed.
+    """
+
+    family = _label_family(grid)
+    if family is None:
+        return None
+    same = [pair for pair in beyond if _label_family(pair[1]) == family]
+    return min(same)[1] if same else None
+
+
+def _symbol_span(symbol: Optional[dict]) -> float:
+    box = (symbol or {}).get("bbox") or []
+    if len(box) < 4:
+        return 0.0
+    return max(abs(float(box[2]) - float(box[0])), abs(float(box[3]) - float(box[1])))
+
+
+def _reliable_offset(distance_pt: float, symbol: Optional[dict]) -> bool:
+    """True when ``distance_pt`` clears twice the search reach plus half the mark."""
+
+    return distance_pt >= 2 * _SYMBOL_REACH + 0.5 * _symbol_span(symbol)
+
+
+def _window_limited(record: dict, distance_pt: float, symbol: Optional[dict]) -> dict:
+    minimum = 2 * _SYMBOL_REACH + 0.5 * _symbol_span(symbol)
+    return {**record, "status": "candidate", "search_window_limited": True,
+            "note": (f"The offset is {distance_pt:.1f} pt from the grid crossing; a side is reliable "
+                     f"only from {minimum:.1f} pt (twice the {_SYMBOL_REACH:.0f} pt search window, plus half "
+                     f"the detected mark). The side is not established.")}
 
 
 def _circles(drawings: List[dict]) -> List[Any]:
@@ -425,12 +486,14 @@ def _place_offset(crossing: tuple, grid: str, offset: Dict[str, Any], scale: Dic
         px, py = x + sign * distance * nx, y + sign * distance * ny
         beyond = [(abs(c - axis["c"]), name) for c, name in parallel if (c - axis["c"]) * sign > 0]
         seen = _observe(px, py, context["lines"], context["drawings"], context["segments"], section_names)
-        record["sides"].append({"toward": min(beyond)[1] if beyond else None, "point_bbox": seen["point_bbox"],
+        record["sides"].append({"toward": _toward_grid(grid, beyond), "point_bbox": seen["point_bbox"],
                                 "symbol": seen["symbol"], "annotations": seen["annotations"]})
     record["points"] = round(distance, 1)
     drawn = [side for side in record["sides"] if side["symbol"]]
     if len(drawn) == 1:
         side = drawn[0]
+        if not _reliable_offset(distance, side.get("symbol")):
+            return _window_limited(record, distance, side.get("symbol"))
         toward = f"toward grid {side['toward']}" if side["toward"] else "on one side"
         if scale["status"] in PLACES:
             return {**record, "status": "placed", "placed_bbox": side["point_bbox"],
@@ -774,11 +837,15 @@ def _place_two_offsets(crossing: tuple, offsets: dict[str, dict[str, Any]], scal
             record["sides"].append({"toward": None, "signs": [s1, s2], "point_bbox": seen["point_bbox"],
                                     "symbol": seen["symbol"], "annotations": seen["annotations"]})
     drawn = [side for side in record["sides"] if side["symbol"]]
-    if len(drawn) == 1 and scale["status"] in PLACES:
-        return {**record, "status": "placed", "placed_bbox": drawn[0]["point_bbox"],
-                "note": f"A column is drawn at one of the four offset positions, at the view's {scale['status']} scale."}
     if len(drawn) == 1:
-        return {**record, "status": "candidate", "placed_bbox": drawn[0]["point_bbox"],
+        box = drawn[0]["point_bbox"]
+        apart = math.hypot((box[0] + box[2]) / 2 - x, (box[1] + box[3]) / 2 - y)
+        if not _reliable_offset(apart, drawn[0].get("symbol")):
+            return _window_limited(record, apart, drawn[0].get("symbol"))
+        if scale["status"] in PLACES:
+            return {**record, "status": "placed", "placed_bbox": box,
+                    "note": f"A column is drawn at one of the four offset positions, at the view's {scale['status']} scale."}
+        return {**record, "status": "candidate", "placed_bbox": box,
                 "note": "A column is drawn at one offset position, but the view's scale is only printed, not validated."}
     return {**record, "status": "unresolved_direction",
             "note": (f"A column is drawn at {len(drawn)} of the four offset positions; the directions are not established."
@@ -860,9 +927,15 @@ def locate_location(context: dict[str, Any], location: str, schedule_id: str | N
                     placed = None
                 if placed:
                     item["offset"] = placed
-                    item["state"] = {"placed": "column_symbol_at_offset", "candidate": "offset_candidate"}.get(
-                        placed["status"], "offset_unresolved")
-                    item["target_bbox"] = placed.get("placed_bbox") or candidate["point_bbox"]
+                    # A mark inside the search window is not a side. Leave the
+                    # highlight on the crossing and do not name a direction.
+                    if placed.get("search_window_limited"):
+                        item["state"] = "offset_unresolved"
+                        item["target_bbox"] = candidate["point_bbox"]
+                    else:
+                        item["state"] = {"placed": "column_symbol_at_offset", "candidate": "offset_candidate"}.get(
+                            placed["status"], "offset_unresolved")
+                        item["target_bbox"] = placed.get("placed_bbox") or candidate["point_bbox"]
                 else:
                     item["state"] = "column_symbol" if candidate["symbol"] else "intersection_only"
                     item["target_bbox"] = (candidate["symbol"] or {}).get("bbox") or candidate["point_bbox"]

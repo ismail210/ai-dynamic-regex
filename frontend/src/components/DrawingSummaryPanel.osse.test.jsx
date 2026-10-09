@@ -422,7 +422,8 @@ describe("Drawing Summary — OSSE locations, coverage and review", () => {
     const button = screen.getByRole("button", { name: "Locate C.8-8.9 on plan" });
     button.focus();
     fireEvent.click(button);
-    expect(await screen.findByText("Column symbol identified")).toBeInTheDocument();
+    expect(await screen.findByText("Possible column symbol drawn here")).toBeInTheDocument();
+    expect(screen.queryByText("Column symbol identified")).not.toBeInTheDocument();
     expect(locateOnPlan).toHaveBeenCalledWith("doc_locate", "C.8-8.9", "S2");
     expect(screen.getByTestId("pdf-viewer")).toHaveAttribute("data-page", "9");
     expect(screen.getByText(/Printed at the location: P1/)).toBeInTheDocument();
@@ -550,7 +551,7 @@ describe("Drawing Summary — OSSE locations, coverage and review", () => {
     expect(screen.getByText(/Plan locations of \d+ listed locations? \(not yet looked up/)).toBeInTheDocument();
     expect(locateOnPlan).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: /Look up plan locations/ }));
-    expect(await row.findByText("S121 — Column symbol identified")).toBeInTheDocument();
+    expect(await row.findByText("S121 — Possible column symbol drawn here")).toBeInTheDocument();
     expect(await screen.findAllByText(/^Not found: No plan in the set prints both grid labels/)).not.toHaveLength(0);
     expect(locateOnPlan).toHaveBeenCalledWith("doc_report", "C.8-8.9", "S2");
     // The levels table lists every printed source the review holds, not one value per sheet.

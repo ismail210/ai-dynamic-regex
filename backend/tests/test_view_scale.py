@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import math
 import unittest
+from unittest.mock import patch
 
 import fitz
 
@@ -160,6 +161,78 @@ class OffsetPlacementTests(unittest.TestCase):
         placed = self.place([172], dims=False)
         self.assertEqual((placed["status"], placed["sides"]), ("unresolved_scale", []))
 
+    def test_a_short_offset_inside_the_search_window_is_not_placed(self):
+        # 8 pt is less than twice the 6 pt search window plus half the 16 pt mark.
+        page, _, _, lines = _plan([200])
+        _record, context = ct._analyse_plan(page, 1, ["B", "2"], lines, set())
+        (crossing,) = context["crossings"]
+        scale = resolve_view_scale(None, None, context["calibration"])
+        placed = ct._place_offset(crossing, "B", {"raw": '-10"', "inches": -8 / 0.75}, scale, context, set())
+        self.assertEqual(placed["status"], "candidate")
+        self.assertTrue(placed["search_window_limited"])
+        self.assertNotIn("placed_bbox", placed)
+        self.assertNotIn("toward grid", placed["note"])
+        self.assertIn("not established", placed["note"])
+
+    def test_a_short_offset_with_no_mark_stays_unresolved(self):
+        page, _, _, lines = _plan([])
+        _record, context = ct._analyse_plan(page, 1, ["B", "2"], lines, set())
+        (crossing,) = context["crossings"]
+        scale = resolve_view_scale(None, None, context["calibration"])
+        placed = ct._place_offset(crossing, "B", {"raw": '-10"', "inches": -8 / 0.75}, scale, context, set())
+        self.assertEqual(placed["status"], "unresolved_direction")
+
+    def test_a_negative_offset_does_not_name_a_direction(self):
+        from services.engineering.column_schedule import parse_grid_location
+
+        parsed = parse_grid_location("E-8(-4'-4\")")
+        self.assertEqual(parsed["status"], "parsed")
+        offset = next(grid["offset"] for grid in parsed["grids"] if grid.get("offset"))
+        self.assertLess(offset["inches"], 0)
+        self.assertIsNone(offset["direction"])
+        self.assertEqual(self.place([172])["status"], "placed")
+
+
+class TowardGridTests(unittest.TestCase):
+    def _place(self, axes, symbol_on_negative):
+        crossing = ((0.0, 0.0), {"R13": axes["R13"][0], "RA.1": {"angle": 0.0, "c": 0.0}})
+        context = {"axes": axes, "lines": [], "drawings": [], "segments": []}
+
+        def observe(x, y, *_args):
+            symbol = {"bbox": [x - 2, y - 2, x + 2, y + 2]} if symbol_on_negative and x < 0 else None
+            return {"point_bbox": [x - 3, y - 3, x + 3, y + 3], "symbol": symbol, "annotations": []}
+
+        with patch.object(ct, "_observe", side_effect=observe):
+            return ct._place_offset(crossing, "R13", {"raw": "5' - 4\"", "inches": 30.0},
+                                    {"points_per_inch": 1, "status": "validated"}, context, set())
+
+    def test_a_same_family_axis_is_named(self):
+        placed = self._place({
+            "R13": [{"angle": 90.0, "c": 0.0}],
+            "R14": [{"angle": 90.0, "c": -40.0}],
+        }, True)
+        self.assertEqual(placed["status"], "placed")
+        self.assertEqual(placed["sides"][0]["toward"], "R14")
+        self.assertIn("toward grid R14", placed["note"])
+
+    def test_a_nearer_axis_of_another_family_is_not_named(self):
+        placed = self._place({
+            "R13": [{"angle": 90.0, "c": 0.0}],
+            "5": [{"angle": 90.0, "c": -10.0}],
+            "R14": [{"angle": 90.0, "c": -40.0}],
+        }, True)
+        self.assertEqual(placed["sides"][0]["toward"], "R14")
+        self.assertNotIn("toward grid 5", placed["note"])
+
+    def test_no_same_family_axis_and_an_unknown_label_name_nothing(self):
+        placed = self._place({
+            "R13": [{"angle": 90.0, "c": 0.0}],
+            "5": [{"angle": 90.0, "c": -10.0}],
+        }, True)
+        self.assertIsNone(placed["sides"][0]["toward"])
+        self.assertIn("on one side", placed["note"])
+        self.assertIsNone(ct._toward_grid("ROOM", [(4.0, "5")]))
+
 
 class SlantedGridTests(unittest.TestCase):
     def test_slanted_lines_cross_where_the_geometry_says(self):
@@ -171,6 +244,39 @@ class SlantedGridTests(unittest.TestCase):
         self.assertAlmostEqual(x, 100.0, places=6)
         self.assertAlmostEqual(y, 300.0, places=6)
         self.assertIsNone(ct._crossing(vertical, {"angle": 95.0, "c": 50.0}))   # nearly parallel
+
+
+class CachedOsseOffsetTests(unittest.TestCase):
+    """The OSSE extraction cache, when this machine has it. Skipped otherwise."""
+
+    def test_the_short_c4_offset_is_not_placed_and_r13_stays_in_its_own_family(self):
+        from services.artifact_store import artifact_path
+        from services.staged_pipeline import _current_document, document_source
+
+        path = artifact_path("doc_614ac4c608396a6e", "document.json")
+        if not path.is_file():
+            self.skipTest("OSSE extraction is not cached")
+        document = _current_document("doc_614ac4c608396a6e")
+        if document is None:
+            self.skipTest("OSSE extraction does not match the current contract")
+        before = document.get("schedule_mark_map")
+        context = ct.locate_context(document, str(document_source("doc_614ac4c608396a6e")))
+        short = ct.locate_location(context, "C.4(1' - 7 3/8\")-7.5(-2' - 4 1/2\")")
+        by_sheet = {view["sheet"]: view for view in short["views"]}
+        parking = by_sheet["S101"]
+        self.assertNotEqual(parking["state"], "column_symbol_at_offset")
+        self.assertTrue(parking["offset"]["search_window_limited"])
+        self.assertNotIn("placed_bbox", parking["offset"])
+        # The building plan's mark is far enough from the crossing to stay placed.
+        self.assertEqual(by_sheet["S121"]["state"], "column_symbol_at_offset")
+        ramp = ct.locate_location(context, "R13(5' - 4\")-RA.1")
+        named = [view for view in ramp["views"] if view["state"] == "column_symbol_at_offset"]
+        self.assertGreaterEqual(len(named), 1)
+        for view in named:
+            self.assertNotIn("toward grid 5", view["offset"]["note"])
+            self.assertNotIn("toward grid 21", view["offset"]["note"])
+            self.assertIn("on one side", view["offset"]["note"])
+        self.assertEqual(document.get("schedule_mark_map"), before)
 
 
 if __name__ == "__main__":

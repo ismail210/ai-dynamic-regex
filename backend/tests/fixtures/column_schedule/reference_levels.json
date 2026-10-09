@@ -80,7 +80,7 @@
                          "explanations": {"surfaces": "not_supported", "datum": "not_supported",
                                           "inconsistent": "unresolved", "local_elevations": "unresolved"}},
         "schedule_insight_pages": [25, 26],
-        "locate": {"C.1-5.1": ["S121", "column_symbol"], "C.1(-6\")-7.3": ["S121", "column_symbol_at_offset"],
+        "locate": {"C.1-5.1": ["S121", "column_symbol"], "C.1(-6\")-7.3": ["S121", "offset_unresolved"],
                    "D2.5-6.2": ["S121", "column_symbol"]},
         "unresolved_steel": [["S122", "top of slab", 5.25, ["T.O. SLAB LEVEL 2"]],
                              ["S123", "top of deck", 3.0, ["T.O. ROOF"]]]

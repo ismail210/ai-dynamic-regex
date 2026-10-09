@@ -14,7 +14,7 @@ from typing import Any, Dict, List, Optional
 from services.engineering.grid_intelligence import assemble_grids, classify_grid_text
 from services.engineering.sheet_index import _page_lines
 
-INTELLIGENCE_VERSION = "engineering_intelligence_v2"
+INTELLIGENCE_VERSION = "engineering_intelligence_v3"
 
 _PLAN_ROLES = frozenset({"foundation_plan", "framing_plan", "roof_plan"})
 _MARK_COMPONENTS = frozenset({"column", "lintel", "beam", "brace", "girder"})
@@ -40,7 +40,9 @@ _SCALE_LINE = re.compile(
 )
 _SHEET_TOKEN = r"S[-.]?\d(?:[-.0-9A-Z]{0,12})?"
 _BUBBLE = re.compile(
-    rf"\b(?P<label>[A-Z]{{1,2}}|\d{{1,2}})\s*/\s*(?P<sheet>{_SHEET_TOKEN})\b",
+    # ``6.1/S-103`` must not match the inner ``1/S-103``. A digit or a decimal
+    # point before the label is still part of the same number.
+    rf"(?<![\d.])\b(?P<label>[A-Z]{{1,2}}|\d{{1,2}})\s*/\s*(?P<sheet>{_SHEET_TOKEN})\b",
     re.I,
 )
 _SEE = re.compile(
@@ -232,7 +234,18 @@ def _box(line) -> List[float]:
 
 
 _SHEET_CALLOUT = re.compile(r"^S-?\d{2,4}[A-Z]?$")
+# Same center and gap as ``_callout_reason``. The sheet token is the reference
+# token, so ``S-301-O`` counts; the grid rejection above does not use it.
+_STACK_CENTER = 12.0
+_STACK_GAP = 8.0
+_CALLOUT_LABEL = re.compile(r"^(?:[A-Z]{1,2}|\d{1,2})$")
+_SHEET_LINE = re.compile(rf"^{_SHEET_TOKEN}$", re.I)
 _FOOT_STATION = re.compile(r"^\d+\s*'$")
+_BARE_DETAIL_OR_SECTION = re.compile(r"^(?:SECTION|DETAIL)$", re.I)
+_ADJACENT_VIEW_NUMBER = re.compile(r"^(?:[A-Z]{1,2}|\d{1,2})$")
+# Furley and OSSE print the letter or number on the same row, about 24–28px
+# to the left of the word SECTION. A sheet id sits below that row.
+_ADJACENT_NUMBER_GAP = 40.0
 
 
 def _callout_reason(line, page_lines) -> Optional[str]:
@@ -307,13 +320,29 @@ def build_engineering_intelligence(document: Dict[str, Any], profile: Dict[str, 
         width, height = float(info.get("width") or 0), float(info.get("height") or 0)
         sheet_id = record.get("sheet_id") if record.get("sheet_id_status") == "read" else None
         interior = []
-        for line in lines.get(page) or []:
-            if _in_title_block(line, width, height):
+        page_lines = lines.get(page) or []
+        for line in page_lines:
+            # The right strip is the title block. The bottom band on these
+            # sheets is still drawing: Furley prints SECTION N there.
+            if width and line.box[0] >= 0.84 * width:
                 continue
             if sheet_id and line.text.upper() == str(record.get("sheet_title") or "").upper():
                 continue
-            scale = _nearby_scale(line, lines.get(page) or [])
+            in_bottom = bool(height and line.box[1] >= 0.72 * height)
+            scale = _nearby_scale(line, page_lines)
             classified = classify_view_title(line.text, scale_nearby=bool(scale))
+            number_line = _paired_view_number(line, page_lines, classified)
+            if in_bottom and number_line is None:
+                continue
+            if number_line is not None:
+                if classified is None:
+                    classified = classify_view_title(line.text, scale_nearby=True)
+                if classified is not None and not classified.get("view_number"):
+                    classified = {
+                        **classified,
+                        "view_number": number_line.text,
+                        "evidence": "printed view number beside the title",
+                    }
             if classified is None:
                 continue
             view_seq += 1
@@ -325,7 +354,7 @@ def build_engineering_intelligence(document: Dict[str, Any], profile: Dict[str, 
                 "view_title": classified["view_title"],
                 "view_type": classified["view_type"],
                 "scale": scale,
-                "bbox": _box(line),
+                "bbox": _union_box(line, number_line) if number_line is not None else _box(line),
                 "boundary_status": "title_only",
                 "source_text": line.text,
                 "evidence": classified["evidence"],
@@ -419,9 +448,15 @@ def build_engineering_intelligence(document: Dict[str, Any], profile: Dict[str, 
                 ))
             if not _BUBBLE.search(text):
                 for match in _SEE.finditer(text):
+                    label = match.group("label")
+                    sheet = match.group("sheet")
+                    if label and not _CALLOUT_LABEL.fullmatch(label):
+                        label = None
+                    if not sheet and not label:
+                        continue
                     references.append(_reference_record(
                         page, sheet_id, line, match.group(0), match.group("kind").lower(),
-                        match.group("label"), match.group("sheet"), sheets, views_by_page,
+                        label, sheet, sheets, views_by_page,
                     ))
             for match in _INCOMPLETE_ANGLE.finditer(text):
                 printed = re.sub(r"\s+", "", match.group("label").upper().replace("×", "X"))
@@ -461,6 +496,12 @@ def build_engineering_intelligence(document: Dict[str, Any], profile: Dict[str, 
             column = sum(1 for item in grid_labels if item["pdf_page"] == page and abs(item["cx"] - cx) <= 20)
             if row >= 3 or column >= 3:
                 grid_labels.append(_grid_label(page, sheet_id, line, width, height))
+        for label, sheet in _stacked_callouts(page_lines, width):
+            text = f"{label.text}/{sheet.text}"
+            references.append(_reference_record(
+                page, sheet_id, label, text, "bubble", label.text, sheet.text,
+                sheets, views_by_page, bbox=_union_box(label, sheet), stacked=True,
+            ))
 
     levels = _levels(profile)
     occurrences = _occurrences(profile, lines, by_page)
@@ -503,6 +544,43 @@ def build_engineering_intelligence(document: Dict[str, Any], profile: Dict[str, 
     }
 
 
+def _paired_view_number(title, page_lines, classified: Optional[Dict[str, Any]]):
+    """The one short line beside a bare DETAIL or SECTION title, or None.
+
+    Zero neighbors leave the title unchanged. Two or more neighbors are not a
+    view number: the caller keeps ``target_sheet_only`` rather than picking one.
+    A number already printed on the title line is left as it is.
+    """
+
+    if classified is not None and classified.get("view_number"):
+        return None
+    if not _BARE_DETAIL_OR_SECTION.fullmatch(str(title.text or "").strip()):
+        return None
+    found = []
+    for other in page_lines:
+        if other is title or not _ADJACENT_VIEW_NUMBER.fullmatch(str(other.text or "").strip()):
+            continue
+        overlap = min(title.box[3], other.box[3]) - max(title.box[1], other.box[1])
+        if overlap < 0.4 * min(title.height, other.height):
+            continue
+        gap_left = title.box[0] - other.box[2]
+        gap_right = other.box[0] - title.box[2]
+        gap = gap_left if gap_left >= 0 else gap_right
+        if 0 <= gap <= _ADJACENT_NUMBER_GAP:
+            found.append(other)
+    return found[0] if len(found) == 1 else None
+
+
+def _union_box(title, number_line) -> List[float]:
+    boxes = (title.box, number_line.box)
+    return [
+        round(min(box[0] for box in boxes), 1),
+        round(min(box[1] for box in boxes), 1),
+        round(max(box[2] for box in boxes), 1),
+        round(max(box[3] for box in boxes), 1),
+    ]
+
+
 def _nearby_scale(title, page_lines) -> Optional[str]:
     below = [
         line for line in page_lines
@@ -514,9 +592,67 @@ def _nearby_scale(title, page_lines) -> Optional[str]:
     return below[0].text if below else None
 
 
-def _reference_record(page, sheet_id, line, text, kind, label, target, sheets, views_by_page):
+def _stacked_callouts(page_lines, width):
+    """``(label, sheet)`` pairs. One label and one sheet id, or nothing.
+
+    The label sits directly above the sheet id, within the same center and
+    gap ``_callout_reason`` uses. Two labels on one sheet, or one label on
+    two sheets, produce no pair. A dimension is not a label.
+    """
+
+    # The right strip is the title block. The bottom band is still drawing:
+    # Burrville prints 7 / S-301 there. Inline notes keep the wider skip.
+    usable = [line for line in page_lines if not (width and line.box[0] >= 0.84 * width)]
+    labels = [line for line in usable if _CALLOUT_LABEL.fullmatch(line.text) and not is_dimension_text(line.text)]
+    sheets = [line for line in usable if _SHEET_LINE.fullmatch(line.text)]
+    pairs = []
+    for sheet in sheets:
+        center = (sheet.box[0] + sheet.box[2]) / 2.0
+        above = []
+        for label in labels:
+            gap = sheet.box[1] - label.box[3]
+            label_center = (label.box[0] + label.box[2]) / 2.0
+            if abs(label_center - center) <= _STACK_CENTER and 0 <= gap <= _STACK_GAP:
+                above.append(label)
+        if len(above) == 1:
+            pairs.append((above[0], sheet))
+    label_count: Dict[int, int] = defaultdict(int)
+    sheet_count: Dict[int, int] = defaultdict(int)
+    for label, sheet in pairs:
+        label_count[id(label)] += 1
+        sheet_count[id(sheet)] += 1
+    return [
+        (label, sheet) for label, sheet in pairs
+        if label_count[id(label)] == 1 and sheet_count[id(sheet)] == 1
+    ]
+
+
+def _callout_evidence(text, resolved, view) -> str:
+    status = resolved["status"]
+    sheet = resolved.get("target_sheet")
+    number = resolved.get("target_number")
+    if status == "target_view_found" and view is not None:
+        kind = {"section": "Section", "detail": "Detail"}.get(view.get("view_type"), "View")
+        return f"Printed callout {text}; target sheet {sheet} contains one printed {kind} {number} view."
+    if status == "target_sheet_only":
+        return f"Printed callout {text}; target sheet {sheet} is in the index; view {number} is not a printed title."
+    if status == "target_missing":
+        return f"Printed callout {text}; no sheet with that id."
+    if status == "ambiguous" and sheet:
+        return f"Printed callout {text}; more than one printed view uses {number}."
+    return resolved["evidence"]
+
+
+def _reference_record(page, sheet_id, line, text, kind, label, target, sheets, views_by_page,
+                      bbox=None, stacked=False):
     resolved = resolve_reference(label, target, kind, sheets, views_by_page, sheet_id)
-    return {
+    view = None
+    if resolved["status"] == "target_view_found":
+        view = next((
+            item for item in views_by_page.get(resolved["target_page"]) or []
+            if item.get("view_id") == resolved["target_view"] and item.get("bbox")
+        ), None)
+    record = {
         "reference_text": text,
         "reference_type": kind,
         "source_sheet": sheet_id,
@@ -527,10 +663,14 @@ def _reference_record(page, sheet_id, line, text, kind, label, target, sheets, v
         "target_view": resolved["target_view"],
         "target_number": resolved["target_number"],
         "status": resolved["status"],
-        "bbox": _box(line),
-        "evidence": resolved["evidence"],
-        "source_text": line.text,
+        "bbox": bbox if bbox is not None else _box(line),
+        "evidence": _callout_evidence(text, resolved, view) if stacked else resolved["evidence"],
+        "source_text": text if stacked else line.text,
     }
+    if view is not None:
+        record["target_bbox"] = list(view["bbox"])
+        record["target_view_type"] = view.get("view_type")
+    return record
 
 
 def _note_category(text: str) -> str:

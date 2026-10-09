@@ -13,14 +13,14 @@ from services.engineering.intelligence_layer import (
 )
 
 
-def _line(text, box=(10, 10, 80, 22)):
-    return {"page_number": 1, "text": text, "bbox": list(box), "font_size": 10, "rotation": 0}
+def _line(text, box=(10, 10, 80, 22), page=1):
+    return {"page_number": page, "text": text, "bbox": list(box), "font_size": 10, "rotation": 0}
 
 
-def _document(lines, page=1, width=1000, height=800):
+def _document(lines, page=1, width=1000, height=800, pages=None):
     return {
-        "page_count": 1,
-        "pages": [{"page_number": page, "width": width, "height": height, "rotation": 0}],
+        "page_count": len(pages) if pages else 1,
+        "pages": pages or [{"page_number": page, "width": width, "height": height, "rotation": 0}],
         "lines": lines,
     }
 
@@ -69,6 +69,86 @@ class ReferenceTests(unittest.TestCase):
     def test_see_plan_without_a_sheet_stays_ambiguous(self):
         got = resolve_reference(None, None, "plan", self.sheets, self.views, "S-101")
         self.assertEqual(got["status"], "ambiguous")
+
+
+def _sheet(page, sheet_id, title, role):
+    return {
+        "page": page, "sheet_id": sheet_id, "sheet_id_status": "read",
+        "sheet_title": title, "title_status": "read", "sheet_role": role,
+        "classification_status": "read",
+    }
+
+
+def _pages(*pairs):
+    return [{"page_number": page, "width": 3024, "height": 2160, "rotation": 0} for page, _ in pairs]
+
+
+class AdjacentViewNumberTests(unittest.TestCase):
+    def test_a_letter_beside_section_is_that_view(self):
+        profile = {"sheet_index": {"pages": [
+            _sheet(1, "S101A", "FRAMING PLAN", "framing_plan"),
+            _sheet(21, "S502", "SECTIONS", "section"),
+        ]}}
+        document = {
+            "pages": _pages((1, None), (21, None)),
+            "lines": [
+                {"page_number": 1, "text": "N/S502", "bbox": [100, 100, 180, 114], "font_size": 10, "rotation": 0},
+                {"page_number": 21, "text": "N", "bbox": [634.2, 2053.8, 649.0, 2078.7], "font_size": 12, "rotation": 0},
+                {"page_number": 21, "text": "SECTION", "bbox": [675.1, 2052.7, 766.2, 2077.6], "font_size": 12, "rotation": 0},
+                {"page_number": 21, "text": "S502", "bbox": [631.0, 2084.9, 652.1, 2096.0], "font_size": 8, "rotation": 0},
+            ],
+        }
+        layer = build_engineering_intelligence(document, profile)
+        view = next(v for v in layer["views"] if v["view_number"] == "N")
+        self.assertEqual(view["view_title"], "SECTION")
+        self.assertEqual(view["bbox"], [634.2, 2052.7, 766.2, 2078.7])
+        self.assertEqual(view["evidence"], "printed view number beside the title")
+        ref = next(r for r in layer["references"] if r["reference_text"] == "N/S502")
+        self.assertEqual(ref["status"], "target_view_found")
+        self.assertEqual(ref["target_sheet"], "S502")
+        self.assertEqual(ref["target_view"], view["view_id"])
+
+    def test_two_numbers_beside_the_title_are_not_chosen(self):
+        profile = {"sheet_index": {"pages": [
+            _sheet(1, "S101A", "FRAMING PLAN", "framing_plan"),
+            _sheet(21, "S502", "SECTIONS", "section"),
+        ]}}
+        document = {
+            "pages": _pages((1, None), (21, None)),
+            "lines": [
+                {"page_number": 1, "text": "A/S502", "bbox": [100, 100, 180, 114], "font_size": 10, "rotation": 0},
+                {"page_number": 21, "text": "A", "bbox": [162, 703, 176, 728], "font_size": 12, "rotation": 0},
+                {"page_number": 21, "text": "SECTION", "bbox": [203, 702, 294, 727], "font_size": 12, "rotation": 0},
+                {"page_number": 21, "text": "B", "bbox": [320, 703, 334, 728], "font_size": 12, "rotation": 0},
+            ],
+        }
+        layer = build_engineering_intelligence(document, profile)
+        self.assertFalse(any(v.get("view_number") in ("A", "B") for v in layer["views"]))
+        ref = next(r for r in layer["references"] if r["reference_text"] == "A/S502")
+        self.assertEqual(ref["status"], "target_sheet_only")
+        self.assertIsNone(ref["target_view"])
+
+    def test_s401_without_the_suffix_stays_missing(self):
+        profile = {"sheet_index": {"pages": [
+            _sheet(1, "S-101-O", "FRAMING PLAN", "framing_plan"),
+            _sheet(15, "S-401-O", "SECTIONS", "section"),
+        ]}}
+        document = {
+            "pages": _pages((1, None), (15, None)),
+            "lines": [
+                {"page_number": 1, "text": "4/S-401", "bbox": [100, 100, 190, 114], "font_size": 10, "rotation": 0},
+                {"page_number": 1, "text": "4/S-401-O", "bbox": [100, 140, 210, 154], "font_size": 10, "rotation": 0},
+                {"page_number": 15, "text": "4", "bbox": [100, 200, 114, 225], "font_size": 12, "rotation": 0},
+                {"page_number": 15, "text": "SECTION", "bbox": [140, 200, 230, 225], "font_size": 12, "rotation": 0},
+            ],
+        }
+        layer = build_engineering_intelligence(document, profile)
+        by_text = {r["reference_text"]: r for r in layer["references"]}
+        self.assertEqual(by_text["4/S-401"]["status"], "target_missing")
+        self.assertEqual(by_text["4/S-401"]["target_sheet"], "S-401")
+        self.assertEqual(by_text["4/S-401-O"]["status"], "target_view_found")
+        self.assertEqual(by_text["4/S-401-O"]["target_sheet"], "S-401-O")
+        self.assertEqual(by_text["4/S-401-O"]["target_number"], "4")
 
 
 class GridAndLabelTests(unittest.TestCase):
@@ -171,6 +251,254 @@ class GridAndLabelTests(unittest.TestCase):
         self.assertEqual(layer["levels"]["building_levels"][0]["status"], "conflict")
         self.assertEqual(layer["references"][0]["status"], "target_missing")
         self.assertTrue(any(w["type"] == "level_conflict" for w in layer["warnings"]))
+
+
+def _pages_for(rotation, width, height):
+    return [
+        {"page_number": 1, "width": width, "height": height, "rotation": rotation},
+        {"page_number": 2, "width": width, "height": height, "rotation": rotation},
+    ]
+
+
+def _pdf_box(box, rotation, width, height):
+    from services.engineering.page_space import to_pdf
+
+    return to_pdf(rotation, width, height, box)
+
+
+class StackedCalloutTests(unittest.TestCase):
+    def _layer(self, source, target, target_sheet="S-301-O", rotation=0, width=1000, height=800):
+        profile = {"sheet_index": {"pages": [
+            _sheet(1, "S-101-O", "FOUNDATION PLAN", "foundation_plan"),
+            _sheet(2, target_sheet, "SECTIONS", "section"),
+        ]}}
+        lines = []
+        for text, box in source:
+            lines.append({"page_number": 1, "text": text, "bbox": list(box), "font_size": 10, "rotation": 0})
+        for text, box in target:
+            lines.append({"page_number": 2, "text": text, "bbox": list(box), "font_size": 10, "rotation": 0})
+        document = {
+            "pages": _pages_for(rotation, width, height),
+            "lines": lines,
+            "schedule_mark_map": {"C1": "W12X40"},
+        }
+        return document, build_engineering_intelligence(document, profile)
+
+    def test_a_number_above_a_sheet_finds_the_printed_section(self):
+        _document, layer = self._layer(
+            [("6", (118, 10, 132, 22)), ("S-301-O", (100, 26, 170, 38))],
+            [("6", (200, 400, 214, 424)), ("SECTION", (230, 400, 320, 424))],
+        )
+        (ref,) = [item for item in layer["references"] if item["reference_text"] == "6/S-301-O"]
+        self.assertEqual(ref["status"], "target_view_found")
+        self.assertEqual(ref["target_sheet"], "S-301-O")
+        self.assertEqual(ref["target_number"], "6")
+        self.assertEqual(ref["target_view_type"], "section")
+        self.assertEqual(ref["target_bbox"], [200.0, 400.0, 320.0, 424.0])
+        self.assertIn("one printed Section 6 view", ref["evidence"])
+        self.assertEqual(ref["source_sheet"], "S-101-O")
+        self.assertEqual(ref["bbox"], [100.0, 10.0, 170.0, 38.0])
+
+    def test_a_letter_above_a_sheet_finds_that_section(self):
+        _document, layer = self._layer(
+            [("N", (118, 10, 132, 22)), ("S502", (100, 26, 150, 38))],
+            [("N", (200, 400, 214, 424)), ("SECTION", (230, 400, 320, 424))],
+            target_sheet="S502",
+        )
+        (ref,) = [item for item in layer["references"] if item["reference_text"] == "N/S502"]
+        self.assertEqual(ref["status"], "target_view_found")
+        self.assertEqual(ref["target_number"], "N")
+
+    def test_a_sheet_without_the_view_stays_sheet_only(self):
+        _document, layer = self._layer(
+            [("6", (118, 10, 132, 22)), ("S-301-O", (100, 26, 170, 38))],
+            [],
+        )
+        (ref,) = layer["references"]
+        self.assertEqual(ref["status"], "target_sheet_only")
+        self.assertNotIn("target_bbox", ref)
+
+    def test_a_missing_sheet_stays_missing(self):
+        profile = {"sheet_index": {"pages": [
+            _sheet(1, "S-101-O", "FOUNDATION PLAN", "foundation_plan"),
+        ]}}
+        document = _document([
+            _line("6", (118, 10, 132, 22)),
+            _line("S-999", (100, 26, 160, 38)),
+        ])
+        layer = build_engineering_intelligence(document, profile)
+        (ref,) = layer["references"]
+        self.assertEqual(ref["status"], "target_missing")
+        self.assertEqual(ref["target_sheet"], "S-999")
+        self.assertNotIn("target_bbox", ref)
+
+    def test_two_labels_above_one_sheet_make_no_reference(self):
+        _document, layer = self._layer(
+            [("6", (118, 10, 132, 22)), ("7", (133, 10, 147, 22)), ("S-301-O", (100, 26, 170, 38))],
+            [("6", (200, 400, 214, 424)), ("SECTION", (230, 400, 320, 424))],
+        )
+        self.assertFalse(any("S-301-O" in item["reference_text"] for item in layer["references"]))
+
+    def test_two_views_with_the_same_number_stay_ambiguous(self):
+        _document, layer = self._layer(
+            [("6", (118, 10, 132, 22)), ("S-301-O", (100, 26, 170, 38))],
+            [("6 SECTION", (100, 200, 200, 220)), ("6 SECTION", (100, 300, 200, 320))],
+        )
+        (ref,) = [item for item in layer["references"] if item["reference_text"] == "6/S-301-O"]
+        self.assertEqual(ref["status"], "ambiguous")
+        self.assertIsNone(ref["target_view"])
+        self.assertNotIn("target_bbox", ref)
+
+    def test_a_callout_in_the_lower_band_is_kept(self):
+        _document, layer = self._layer(
+            [("7", (808, 1852, 814, 1861)), ("S-301", (799, 1868, 824, 1877))],
+            [],
+            target_sheet="S-301", width=3024, height=2160,
+        )
+        found = [item for item in layer["references"] if item["reference_text"] == "7/S-301"]
+        self.assertEqual(len(found), 1)
+        self.assertEqual(found[0]["status"], "target_sheet_only")
+
+    def test_repeated_callouts_are_kept(self):
+        _document, layer = self._layer(
+            [
+                ("7", (118, 10, 132, 22)), ("S-301", (100, 26, 160, 38)),
+                ("7", (318, 10, 332, 22)), ("S-301", (300, 26, 360, 38)),
+                ("7", (518, 10, 532, 22)), ("S-301", (500, 26, 560, 38)),
+                ("7", (718, 10, 732, 22)), ("S-301", (700, 26, 760, 38)),
+            ],
+            [("7", (200, 400, 214, 424)), ("SECTION", (230, 400, 320, 424))],
+            target_sheet="S-301",
+        )
+        found = [item for item in layer["references"] if item["reference_text"] == "7/S-301"]
+        self.assertEqual(len(found), 4)
+        self.assertEqual({tuple(item["bbox"]) for item in found}, {
+            (100.0, 10.0, 160.0, 38.0),
+            (300.0, 10.0, 360.0, 38.0),
+            (500.0, 10.0, 560.0, 38.0),
+            (700.0, 10.0, 760.0, 38.0),
+        })
+
+    def test_an_inline_reference_still_resolves(self):
+        _document, layer = self._layer(
+            [("N/S502", (100, 100, 180, 114))],
+            [("N", (200, 400, 214, 424)), ("SECTION", (230, 400, 320, 424))],
+            target_sheet="S502",
+        )
+        (ref,) = [item for item in layer["references"] if item["reference_text"] == "N/S502"]
+        self.assertEqual(ref["status"], "target_view_found")
+        self.assertEqual(ref["target_bbox"], [200.0, 400.0, 320.0, 424.0])
+
+    def test_a_rotated_page_keeps_display_coordinates(self):
+        from services.engineering.page_space import to_display
+
+        width, height, rotation = 3024.0, 2160.0, 90
+        label = [118.0, 10.0, 132.0, 22.0]
+        sheet = [100.0, 26.0, 170.0, 38.0]
+        number = [200.0, 400.0, 214.0, 424.0]
+        title = [230.0, 400.0, 320.0, 424.0]
+        pdf_label = _pdf_box(label, rotation, width, height)
+        pdf_sheet = _pdf_box(sheet, rotation, width, height)
+        pdf_number = _pdf_box(number, rotation, width, height)
+        pdf_title = _pdf_box(title, rotation, width, height)
+        _document, layer = self._layer(
+            [("4", pdf_label), ("S3.16", pdf_sheet)],
+            [("4", pdf_number), ("SECTION", pdf_title)],
+            target_sheet="S3.16", rotation=rotation, width=width, height=height,
+        )
+        (ref,) = [item for item in layer["references"] if item["reference_text"] == "4/S3.16"]
+        self.assertEqual(ref["status"], "target_view_found")
+
+        def _union(boxes):
+            return [
+                min(box[0] for box in boxes), min(box[1] for box in boxes),
+                max(box[2] for box in boxes), max(box[3] for box in boxes),
+            ]
+
+        shown = [to_display(rotation, width, height, box) for box in (pdf_label, pdf_sheet)]
+        self.assertEqual(ref["bbox"], _union(shown))
+        self.assertNotEqual(ref["bbox"], _union([pdf_label, pdf_sheet]))
+        shown_view = [to_display(rotation, width, height, box) for box in (pdf_number, pdf_title)]
+        self.assertEqual(ref["target_bbox"], _union(shown_view))
+
+    def test_named_drawing_callouts_keep_their_status(self):
+        _doc, layer = self._layer(
+            [("H", (118, 10, 132, 22)), ("S302", (100, 26, 150, 38))],
+            [],
+            target_sheet="S302",
+        )
+        (ref,) = [item for item in layer["references"] if item["reference_text"] == "H/S302"]
+        self.assertEqual(ref["status"], "target_sheet_only")
+        self.assertNotIn("target_bbox", ref)
+
+        profile = {"sheet_index": {"pages": [
+            _sheet(1, "S-101-O", "FOUNDATION PLAN", "foundation_plan"),
+            _sheet(2, "S-401-O", "SECTIONS", "section"),
+        ]}}
+        missing = _document([
+            _line("4", (118, 10, 132, 22)),
+            _line("S-401", (100, 26, 160, 38)),
+        ])
+        missing_layer = build_engineering_intelligence(missing, profile)
+        (ref,) = missing_layer["references"]
+        self.assertEqual(ref["reference_text"], "4/S-401")
+        self.assertEqual(ref["status"], "target_missing")
+        self.assertNotIn("target_bbox", ref)
+
+        found = _document([
+            _line("4", (118, 10, 132, 22), page=1),
+            _line("S-401-O", (100, 26, 170, 38), page=1),
+            _line("4", (200, 400, 214, 424), page=2),
+            _line("SECTION", (230, 400, 320, 424), page=2),
+        ], pages=_pages_for(0, 1000, 800))
+        found_layer = build_engineering_intelligence(found, profile)
+        (ref,) = [item for item in found_layer["references"] if item["reference_text"] == "4/S-401-O"]
+        self.assertEqual(ref["status"], "target_view_found")
+        self.assertEqual(ref["target_bbox"], [200.0, 400.0, 320.0, 424.0])
+
+    def test_unrelated_text_and_a_decimal_are_not_callouts(self):
+        profile = {"sheet_index": {"pages": [
+            _sheet(1, "S-101", "FOUNDATION PLAN", "foundation_plan"),
+            _sheet(2, "S-103", "SECTIONS", "section"),
+        ]}}
+        document = _document([
+            _line("SEE DETAIL"),
+            _line("SEE PLAN AND"),
+            _line("6"),
+            _line("4'-6\""),
+            _line("A"),
+            _line("W"),
+            _line("SPEC"),
+            _line("6.1/S-103"),
+        ])
+        layer = build_engineering_intelligence(document, profile)
+        texts = [item["reference_text"] for item in layer["references"]]
+        self.assertEqual(texts, [])
+        self.assertNotIn("1/S-103", texts)
+
+    def test_references_do_not_change_the_mark_map(self):
+        document, layer = self._layer(
+            [("6", (118, 10, 132, 22)), ("S-301-O", (100, 26, 170, 38))],
+            [("6", (200, 400, 214, 424)), ("SECTION", (230, 400, 320, 424))],
+        )
+        self.assertEqual(document["schedule_mark_map"], {"C1": "W12X40"})
+        self.assertNotIn("schedule_mark_map", layer)
+        self.assertTrue(all("quantity" not in item for item in layer["references"]))
+        self.assertTrue(layer["references"])
+
+    def test_production_modules_do_not_read_references(self):
+        import inspect
+
+        import services.prediction.orchestrator as orchestrator
+        import services.structural_parser as structural_parser
+        import services.takeoff.quantity_engine as quantity_engine
+        import services.takeoff.takeoff_exporter as takeoff_exporter
+        import services.wildcard_matcher as wildcard_matcher
+
+        for module in (orchestrator, quantity_engine, takeoff_exporter, structural_parser, wildcard_matcher):
+            source = inspect.getsource(module)
+            self.assertNotIn("engineering_intelligence", source)
+            self.assertNotIn("target_view_found", source)
 
 
 if __name__ == "__main__":
