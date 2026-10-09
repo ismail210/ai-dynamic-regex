@@ -806,12 +806,17 @@ def run_analysis_stage(
             reviewed_ids,
             document_id=document_id,
         )
+        # A reviewer's saved selection wins here too, as on read
+        # (load_cached_analysis): a re-run analysis (stale cache after an
+        # EXTRACTION_VERSION change, forced, or with Excel) must not serve the
+        # pre-review section.
+        served = _apply_human_selections(document_id, served)
         # status_tags was computed inside analysis_response() above, BEFORE
-        # project-rule resolution ran -- a resolved row's tags must reflect
-        # the FINAL state (task Section 3: classify after all enrichment),
-        # not the pre-resolution snapshot it would otherwise still carry.
-        if rule_resolutions:
-            resolved_ids = {r.get("object_id") for r in rule_resolutions}
+        # project-rule resolution and the human overlay ran -- a resolved
+        # row's tags must reflect the FINAL state (task Section 3: classify
+        # after all enrichment), not the snapshot it would otherwise carry.
+        resolved_ids = {r.get("object_id") for r in rule_resolutions} | reviewed_ids
+        if resolved_ids:
             served = [
                 {**p, "status_tags": status_tags_list(p)}
                 if p.get("object_id") in resolved_ids

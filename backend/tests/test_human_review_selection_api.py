@@ -294,3 +294,60 @@ class HumanReviewSelectionApiTests(IsolatedApiTestCase):
         )
         self.assertEqual(stored["section"], second_choice)
         self.assertEqual(stored["human_selected_section"], second_choice)
+
+    def test_selection_survives_an_extraction_version_upgrade(self):
+        # A document analysed by an older build has its extraction cache
+        # rejected after EXTRACTION_VERSION moves. Opening it again runs
+        # extract + analyze for real (not the cached read), and that fresh
+        # /analyze response is what Results, Review and the Results export
+        # show. It must carry the reviewer's saved section, not the pre-review
+        # state, exactly like the cached GET does.
+        from services.artifact_store import read_artifact, write_artifact
+
+        analyzed = self._analyze_hss_document()
+        document_id = analyzed["document_id"]
+        pending = self._missing_dimension_predictions(analyzed["body"])
+        if not pending:
+            self.skipTest("No HSS8X8 completions available in this environment.")
+        target = pending[0]
+        chosen = target["candidate_sections"][0]["designation"]
+        saved = self.client.post(
+            "/api/engineering/corrections",
+            json={
+                "document_id": document_id,
+                "object_id": target["object_id"],
+                "correct_label": chosen,
+                "user_decision": "human_review_selection",
+                "prediction": target,
+            },
+        )
+        self.assertEqual(saved.status_code, 200)
+
+        # What an older build left behind: its extraction version on the
+        # extraction artifacts, and an analysis fingerprint built from it.
+        for name in ("document.json", "extraction.json"):
+            artifact = read_artifact(document_id, name)
+            if artifact is not None:
+                write_artifact(document_id, name, {**artifact, "extraction_version": "0.0-older-build"})
+        metadata = read_artifact(document_id, "analysis.json")
+        write_artifact(document_id, "analysis.json", {**metadata, "pipeline_fingerprint": "0.0-older-build"})
+        self.assertEqual(
+            self.client.get(f"/api/documents/{document_id}/extraction").status_code, 404
+        )
+
+        self.assertEqual(self.client.post(f"/api/documents/{document_id}/extract").status_code, 200)
+        reanalyzed = self.client.post(f"/api/documents/{document_id}/analyze")
+        self.assertEqual(reanalyzed.status_code, 200)
+        self.assertFalse(reanalyzed.json().get("cached"))
+        served = next(
+            p for p in reanalyzed.json()["predictions"] if p["object_id"] == target["object_id"]
+        )
+        self.assertEqual(served["section"], chosen)
+        self.assertEqual(served["human_selected_section"], chosen)
+        self.assertEqual(served["decision_source"], "human_review")
+        self.assertFalse(served["needs_review"])
+        self.assertIn("human_reviewed", served.get("status_tags") or [])
+
+        refetched = self.client.get(f"/api/documents/{document_id}/analysis").json()
+        stored = next(p for p in refetched["predictions"] if p["object_id"] == target["object_id"])
+        self.assertEqual(stored["section"], chosen)
